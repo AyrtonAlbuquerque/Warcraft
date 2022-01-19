@@ -197,17 +197,15 @@ library UI initializer init
     private function init takes nothing returns nothing 
         local framehandle parent = BlzCreateFrameByType("SIMPLEFRAME", "", BlzGetFrameByName("ConsoleUI", 0), "", 0)
     
-        call BlzHideOriginFrames(true) 
         call BlzFrameSetVisible(parent, false)
         call BlzFrameSetVisible(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), true)
         call BlzFrameSetVisible(BlzFrameGetParent(BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON, 0)), true)
         call BlzFrameSetAlpha(BlzGetFrameByName("SimpleInventoryCover", 0), 0)
         call BlzFrameSetScale(BlzGetFrameByName("InventoryText", 0), 0.0001)
-        call BlzFrameSetVisible(BlzFrameGetChild(BlzGetFrameByName("ConsoleUI", 0), 5), false)
-        call BlzFrameSetSize(BlzGetFrameByName("ConsoleUIBackdrop",0), 0, 0.0001)
-        call BlzFrameSetVisible(BlzGetOriginFrame(ORIGIN_FRAME_MINIMAP,0), false)
-        call BlzFrameSetVisible(BlzGetFrameByName("ResourceBarFrame",0), false)
-        call BlzFrameSetVisible(BlzGetFrameByName("UpperButtonBarFrame",0), false)
+        call BlzFrameSetAbsPoint(BlzGetFrameByName("ConsoleUI", 0), FRAMEPOINT_BOTTOM, 0.4, -0.18)
+        call BlzFrameSetVisible(BlzFrameGetChild(BlzGetFrameByName("ConsoleUI", 0), 7), false)
+        call BlzFrameSetVisible(BlzFrameGetChild(BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 5),0), false)
+        //call BlzFrameSetVisible(BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 10), false)
 
 
         set MainUI = BlzCreateFrameByType("BACKDROP", "MainUI", BlzGetFrameByName("ConsoleUIBackdrop", 0), "", 1) 
