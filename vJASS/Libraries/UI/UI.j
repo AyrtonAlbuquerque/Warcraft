@@ -1,13 +1,40 @@
 library UI requires RegisterPlayerUnitEvent, TimerUtils
     private struct UI
-        readonly static framehandle handle = null
-        readonly static framehandle UI = null
-        readonly static trigger trigger = CreateTrigger()
-        private static constant real scale = 0.03178/0.039
+        private static framehandle handle = null
+        private static framehandle UI = null
+        private static framehandle HealthBar = null
+        private static framehandle ManaBar = null
+        private static trigger trigger = CreateTrigger()
+        private static timer timer = CreateTimer()
+        private static integer key = -1
+        private static thistype array array
+        private static thistype array struct
 
-        timer timer
         unit unit
-        boolean removed
+        player player
+        group group
+        integer id
+        real health
+        real mana
+
+        method remove takes integer i returns integer
+            call DestroyGroup(group)
+
+            set array[i] = array[key]
+            set key = key - 1
+            set struct[id] = 0
+            set unit = null
+            set group = null
+            set player = null
+
+            if key == -1 then
+                call PauseTimer(timer)
+            endif
+
+            call deallocate()
+
+            return i - 1
+        endmethod
 
         private static method onCommandButtons takes nothing returns nothing
             // Removes the Move command button
@@ -24,7 +51,7 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
 
             // Removes the Patrol command button
             //call BlzFrameSetVisible(BlzGetFrameByName("CommandButton_4", 0), false)
-            
+
             // Reposition the D command button
             set handle = BlzGetFrameByName("CommandButton_5", 0) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.186900, 0.0467700) 
@@ -222,58 +249,156 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
             set handle = null
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
+        private static method onGroupSelection takes nothing returns nothing
+            // Reposistion the Group selection button 0
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 0), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.262600, 0.0776200) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.285600, 0.0546200) 
 
-            if not removed then
-                call RemoveUnit(unit)
-                set removed = true
-                set unit = null
-                call TimerStart(timer, 0.025, true, function thistype.onPeriod)
-            endif
+            // Reposistion the Group selection button 1
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 1), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.295800, 0.0731200) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.318800, 0.0501200)
 
-            set handle = BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_COMMAND_BUTTON, 5), 0)
-            call BlzFrameSetScale(handle, 1)
-            call BlzFrameSetScale(handle, scale)
+            // Reposistion the Group selection button 2
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 2), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.328300, 0.0731200) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.351300, 0.0501200)  
 
-            set handle = BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_COMMAND_BUTTON, 6), 0)
-            call BlzFrameSetScale(handle, 1)
-            call BlzFrameSetScale(handle, scale) 
-
-            set handle = BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_COMMAND_BUTTON, 7), 0)
-            call BlzFrameSetScale(handle, 1)
-            call BlzFrameSetScale(handle, scale)
-
-            set handle = BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_COMMAND_BUTTON, 8), 0)
-            call BlzFrameSetScale(handle, 1)
-            call BlzFrameSetScale(handle, scale)
-
-            set handle = BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_COMMAND_BUTTON, 9), 0)
-            call BlzFrameSetScale(handle, 1)
-            call BlzFrameSetScale(handle, scale)
-
-            set handle = BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_COMMAND_BUTTON, 10), 0)
-            call BlzFrameSetScale(handle, 1)
-            call BlzFrameSetScale(handle, scale)
-
-            set handle = BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_COMMAND_BUTTON, 11), 0)
-            call BlzFrameSetScale(handle, 1)
-            call BlzFrameSetScale(handle, scale)
+            // Reposistion the Group selection button 3
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 3), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.262600, 0.0414100) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.285600, 0.0184100)
             
+            // Reposistion the Group selection button 4
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 4), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.295800, 0.0414000) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.318800, 0.0184000) 
+
+            // Reposistion the Group selection button 5
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 5), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.329100, 0.0414000) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.352100, 0.0184000) 
+
+            // Reposistion the Group selection button 6
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 6), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.449300, 0.0731200) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.472300, 0.0501200) 
+
+            // Reposistion the Group selection button 7
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 7), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.483500, 0.0731200) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.506500, 0.0501200)  
+
+            // Reposistion the Group selection button 8
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 8), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.516800, 0.0731200) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.539800, 0.0501200) 
+
+            // Reposistion the Group selection button 9
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 9), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.450300, 0.0414000) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.473300, 0.0184000)
+
+            // Reposistion the Group selection button 10
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 10), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.483500, 0.0414000) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.506500, 0.0184000)  
+
+            // Reposistion the Group selection button 11
+            set handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 11), 1)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.516800, 0.0414000) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.539800, 0.0184000)  
+
             set handle = null
         endmethod
 
-        private static method onExpire takes nothing returns nothing
-            local thistype this = thistype.allocate()
+        private static method onPeriod takes nothing returns nothing
+            local integer i = 0
+            local real newHP
+            local real newMP
+            local thistype this
 
-            set timer = NewTimerEx(this)
-            set unit = CreateUnit(Player(0), 'ngme', 0, 0, 0)
-            set removed = false
+            loop
+                exitwhen i > key
+                    set this = array[i]
 
-            call UnitAddAbility(unit, 'AHtc')
-            call BlzStartUnitAbilityCooldown(unit, 'AHtc', 10)
-            call SelectUnit(unit, true)
-            call TimerStart(timer, 0.5, true, function thistype.onPeriod)
+                    if GetPlayerSlotState(player) != PLAYER_SLOT_STATE_LEFT then
+                        set health = BlzFrameGetValue(HealthBar) 
+                        set mana = BlzFrameGetValue(ManaBar)
+                        set newHP = GetUnitLifePercent(unit)
+                        set newMP = GetUnitManaPercent(unit)
+
+                        if GetLocalPlayer() == player then
+                            set health = newHP
+                            set mana = newMP
+                        endif
+
+                        call BlzFrameSetValue(HealthBar, health)
+                        call BlzFrameSetValue(ManaBar, mana)
+                    else
+                        set i = remove(i)
+                    endif
+                set i = i + 1
+            endloop
+        endmethod
+
+        private static method onSelect takes nothing returns nothing
+            local integer id = GetPlayerId(GetTriggerPlayer())
+            local thistype this
+
+            if struct[id] != 0 then
+                set this = struct[id]
+            else
+                set this = thistype.allocate()
+                set .id = id
+                set player = GetTriggerPlayer()
+                set group = CreateGroup()
+                set health = 0
+                set mana = 0
+                set key = key + 1
+                set array[key] = this
+                set struct[id] = this
+                
+                if key == 0 then
+                    call TimerStart(timer, 0.05, true, function thistype.onPeriod)
+                endif
+            endif
+            
+            if not IsUnitInGroup(GetTriggerUnit(), group) then
+                call GroupAddUnit(group, GetTriggerUnit())
+            endif
+
+            set unit = FirstOfGroup(group)
+        endmethod
+
+        private static method onDeselect takes nothing returns nothing
+            local integer id = GetPlayerId(GetTriggerPlayer())
+            local thistype this
+            
+            if struct[id] != 0 then
+                set this = struct[id]
+                
+                if IsUnitInGroup(GetTriggerUnit(), group) then
+                    call GroupRemoveUnit(group, GetTriggerUnit())
+                endif
+
+                set unit = FirstOfGroup(group)
+            endif
+        endmethod
+
+        private static method onDeath takes nothing returns nothing
+            local unit u = GetTriggerUnit()
+            local integer id = GetPlayerId(GetOwningPlayer(u))
+            local thistype this
+
+            if struct[id] != 0 then
+                set this = struct[id]
+                call GroupRemoveUnit(group, u)
+                set unit = FirstOfGroup(group)
+            endif
+
+            set u = null
         endmethod
 
         private static method onInit takes nothing returns nothing
@@ -290,14 +415,28 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
             call BlzFrameSetAbsPoint(UI, FRAMEPOINT_BOTTOMRIGHT, 0.770000, 0.00000) 
             call BlzFrameSetTexture(UI, "UI.blp", 0, true) 
 
+            set HealthBar = BlzCreateFrameByType("SIMPLESTATUSBAR", "", UI, "", 0) 
+            call BlzFrameSetTexture(HealthBar, "replaceabletextures\\teamcolor\\teamcolor00", 0, true) 
+            call BlzFrameSetAbsPoint(HealthBar, FRAMEPOINT_TOPLEFT, 0.0386400, 0.0778900) 
+            call BlzFrameSetAbsPoint(HealthBar, FRAMEPOINT_BOTTOMRIGHT, 0.255140, 0.0535100) 
+            call BlzFrameSetValue(HealthBar, 0) 
+
+            set ManaBar = BlzCreateFrameByType("SIMPLESTATUSBAR", "", UI, "", 0) 
+            call BlzFrameSetTexture(ManaBar, "replaceabletextures\\teamcolor\\teamcolor01", 0, true) 
+            call BlzFrameSetAbsPoint(ManaBar, FRAMEPOINT_TOPLEFT, 0.551500, 0.0778000) 
+            call BlzFrameSetAbsPoint(ManaBar, FRAMEPOINT_BOTTOMRIGHT, 0.768000, 0.0534200)
+            call BlzFrameSetValue(ManaBar, 0)  
+            
             call onCommandButtons()
             call onInventoryButtons()
             call onInfoPanel()
             call onPortrait()
             call onHeroButtons()
+            call onGroupSelection()
 
-            call TriggerRegisterTimerEventSingle(trigger, 0.00)
-            call TriggerAddAction(trigger, function thistype.onExpire)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function thistype.onSelect)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DESELECTED, function thistype.onDeselect)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
         endmethod
     endstruct
 endlibrary
