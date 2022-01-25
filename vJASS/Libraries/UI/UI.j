@@ -1,5 +1,14 @@
 library UI requires RegisterPlayerUnitEvent, TimerUtils
     private struct UI
+        private static trigger maptrigger = CreateTrigger()
+        private static trigger herotrigger = CreateTrigger()
+        private static trigger trigger = CreateTrigger()
+        private static timer timer = CreateTimer()
+
+        private static integer key = -1
+        private static thistype array array
+        private static thistype array struct
+
         private static framehandle handle = null
         private static framehandle UI = null
         private static framehandle HealthBar = null
@@ -9,12 +18,11 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
         private static framehandle MPText = null
         private static framehandle Gold = null
         private static framehandle Lumber = null
-        private static trigger herotrigger = CreateTrigger()
-        private static trigger trigger = CreateTrigger()
-        private static timer timer = CreateTimer()
-        private static integer key = -1
-        private static thistype array array
-        private static thistype array struct
+        private static framehandle CheckBL = null
+        private static framehandle CheckBR = null
+        private static framehandle Minimap = null
+        private static framehandle MinimapR = null
+
         private static real array x1
         private static real array x2
         private static real array y01
@@ -31,6 +39,19 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
         private static real array y52
         private static real array y61
         private static real array y62
+
+        private static real array mapX1
+        private static real array mapY1
+        private static real array mapX2
+        private static real array mapY2
+
+        private static real array frameX1
+        private static real array frameY1
+        private static real array frameX2
+        private static real array frameY2
+
+        private static boolean array checkL
+        private static boolean array checkR
 
         unit unit
         player player
@@ -454,6 +475,106 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
             call BlzFrameSetText(Lumber, "|cff00ff00" + I2S(GetPlayerState(GetLocalPlayer(), PLAYER_STATE_RESOURCE_LUMBER)) + "|r")
         endmethod
 
+        private static method onChat takes nothing returns nothing
+            set handle = BlzGetOriginFrame(ORIGIN_FRAME_CHAT_MSG, 0)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.000212200, 0.302800) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.400212, 0.100300) 
+
+            set handle = BlzGetOriginFrame(ORIGIN_FRAME_UNIT_MSG, 0)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.000212200, 0.302800) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.400212, 0.100300)  
+
+            set handle = null
+        endmethod
+
+        private static method onMinimap takes nothing returns nothing
+            local integer i = GetPlayerId(GetLocalPlayer())
+
+            if BlzGetTriggerFrameEvent() == FRAMEEVENT_CHECKBOX_CHECKED then
+                if BlzGetTriggerFrame() == CheckBL then
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        set mapX1[i] = - 0.132100
+                        set mapY1[i] = 0.0986970
+                        set mapX2[i] = - 0.0351000
+                        set mapY2[i] = 0.00169700
+                        set frameX1[i] = - 0.133600
+                        set frameY1[i] = 0.100939
+                        set frameX2[i] = - 0.0338300
+                        set frameY2[i] = 0.000438700
+                        set checkL[i] = true
+                    endif
+                else
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        set mapX1[i] = 0.835800
+                        set mapY1[i] = 0.0999999
+                        set mapX2[i] = 0.933610
+                        set mapY2[i] = 0.000219400
+                        set frameX1[i] = 0.833900
+                        set frameY1[i] = 0.100939
+                        set frameX2[i] = 0.933670
+                        set frameY2[i] = 0.000438700
+                        set checkR[i] = true
+                    endif
+                endif
+            else
+                if BlzGetTriggerFrame() == CheckBL then
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        if checkR[i] then
+                            set mapX1[i] = 0.835800
+                            set mapY1[i] = 0.0999999
+                            set mapX2[i] = 0.933610
+                            set mapY2[i] = 0.000219400
+                            set frameX1[i] = 0.833900
+                            set frameY1[i] = 0.100939
+                            set frameX2[i] = 0.933670
+                            set frameY2[i] = 0.000438700
+                        else
+                            set mapX1[i] = 999.0
+                            set mapY1[i] = 999.0
+                            set mapX2[i] = 999.0
+                            set mapY2[i] = 999.0
+                            set frameX1[i] = 999.0
+                            set frameY1[i] = 999.0
+                            set frameX2[i] = 999.0
+                            set frameY2[i] = 999.0
+                        endif
+                        set checkL[i] = false
+                    endif
+                else
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        if checkL[i] then
+                            set mapX1[i] = - 0.132100
+                            set mapY1[i] = 0.0986970
+                            set mapX2[i] = - 0.0351000
+                            set mapY2[i] = 0.00169700
+                            set frameX1[i] = - 0.133600
+                            set frameY1[i] = 0.100939
+                            set frameX2[i] = - 0.0338300
+                            set frameY2[i] = 0.000438700
+                        else
+                            set mapX1[i] = 999.0
+                            set mapY1[i] = 999.0
+                            set mapX2[i] = 999.0
+                            set mapY2[i] = 999.0
+                            set frameX1[i] = 999.0
+                            set frameY1[i] = 999.0
+                            set frameX2[i] = 999.0
+                            set frameY2[i] = 999.0
+                        endif
+                        set checkR[i] = false
+                    endif
+                endif
+            endif
+
+            set handle = BlzGetFrameByName("MiniMapFrame", 0)
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, mapX1[i], mapY1[i]) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, mapX2[i], mapY2[i])
+            call BlzFrameSetAbsPoint(Minimap, FRAMEPOINT_TOPLEFT, frameX1[i], frameY1[i]) 
+            call BlzFrameSetAbsPoint(Minimap, FRAMEPOINT_BOTTOMRIGHT, frameX2[i], frameY2[i]) 
+
+            set handle = null
+        endmethod
+
         private static method onPeriod takes nothing returns nothing
             local integer i = 0
             local real newHP
@@ -564,6 +685,7 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
             call BlzFrameSetVisible(BlzGetFrameByName("UpperButtonBarFrame", 0), false)
             call BlzFrameSetVisible(BlzFrameGetChild(BlzGetFrameByName("ConsoleUI", 0), 7), false)
             call BlzFrameSetVisible(BlzFrameGetChild(BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 5),0), false)
+            call BlzFrameSetParent(BlzGetFrameByName("MiniMapFrame", 0), BlzGetFrameByName("ConsoleUIBackdrop", 0))
 
             set UI = BlzCreateFrameByType("BACKDROP", "UI", BlzGetFrameByName("ConsoleUIBackdrop", 0), "", 1) 
             call BlzFrameSetAbsPoint(UI, FRAMEPOINT_TOPLEFT, 0.00000, 0.100000) 
@@ -617,12 +739,26 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
             call BlzFrameSetEnable(Gold, false) 
             call BlzFrameSetScale(Gold, 1.00) 
             call BlzFrameSetTextAlignment(Gold, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT) 
+
+            set CheckBL = BlzCreateFrame("QuestCheckBox", UI, 0, 0) 
+            call BlzFrameSetAbsPoint(CheckBL, FRAMEPOINT_TOPLEFT, 0.269200, 0.102200) 
+            call BlzFrameSetAbsPoint(CheckBL, FRAMEPOINT_BOTTOMRIGHT, 0.292850, 0.0778100) 
+
+            set CheckBR = BlzCreateFrame("QuestCheckBox", UI, 0, 0) 
+            call BlzFrameSetAbsPoint(CheckBR, FRAMEPOINT_TOPLEFT, 0.514800, 0.102200) 
+            call BlzFrameSetAbsPoint(CheckBR, FRAMEPOINT_BOTTOMRIGHT, 0.538450, 0.0778100)
+
+            set Minimap = BlzCreateFrameByType("BACKDROP", "Minimap", UI, "", 1) 
+            call BlzFrameSetAbsPoint(Minimap, FRAMEPOINT_TOPLEFT, 999.0, 999.0) 
+            call BlzFrameSetAbsPoint(Minimap, FRAMEPOINT_BOTTOMRIGHT, 999.0, 999.0) 
+            call BlzFrameSetTexture(Minimap, "Minimap.blp", 0, true) 
             
             call onCommandButtons()
             call onInventoryButtons()
             call onInfoPanel()
             call onPortrait()
             call onGroupSelection()
+            call onChat()
 
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function thistype.onSelect)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DESELECTED, function thistype.onDeselect)
@@ -630,6 +766,11 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
             call BlzTriggerRegisterFrameEvent(herotrigger, HeroCheck, FRAMEEVENT_CHECKBOX_CHECKED) 
             call BlzTriggerRegisterFrameEvent(herotrigger, HeroCheck, FRAMEEVENT_CHECKBOX_UNCHECKED) 
             call TriggerAddAction(herotrigger, function thistype.onHeroCheck)
+            call BlzTriggerRegisterFrameEvent(maptrigger, CheckBL, FRAMEEVENT_CHECKBOX_CHECKED) 
+            call BlzTriggerRegisterFrameEvent(maptrigger, CheckBL, FRAMEEVENT_CHECKBOX_UNCHECKED)
+            call BlzTriggerRegisterFrameEvent(maptrigger, CheckBR, FRAMEEVENT_CHECKBOX_CHECKED) 
+            call BlzTriggerRegisterFrameEvent(maptrigger, CheckBR, FRAMEEVENT_CHECKBOX_UNCHECKED)
+            call TriggerAddAction(maptrigger, function thistype.onMinimap)
             call TimerStart(CreateTimer(), 0.2, true, function thistype.onResources) 
 
             loop
@@ -650,6 +791,16 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
                     set y52[i] = 999.0
                     set y61[i] = 999.0
                     set y62[i] = 999.0
+                    set mapX1[i] = 999.0
+                    set mapY1[i] = 999.0
+                    set mapX2[i] = 999.0
+                    set mapY2[i] = 999.0
+                    set frameX1[i] = 999.0
+                    set frameY1[i] = 999.0
+                    set frameX2[i] = 999.0
+                    set frameY2[i] = 999.0
+                    set checkL[i] = false
+                    set checkR[i] = false
                 set i = i + 1
             endloop
         endmethod
