@@ -1,7 +1,16 @@
-library UI requires RegisterPlayerUnitEvent, TimerUtils
+library UI requires RegisterPlayerUnitEvent
+    /* -------------------------- UI v1.0 by Chopinski -------------------------- */
+    // Credits
+    //      - Tasyen for the great help
+    /* ----------------------------------- END ---------------------------------- */
+
+    /* -------------------------------------------------------------------------- */
+    /*                                   System                                   */
+    /* -------------------------------------------------------------------------- */
     private struct UI
         private static trigger maptrigger = CreateTrigger()
         private static trigger herotrigger = CreateTrigger()
+        private static trigger menutrigger = CreateTrigger()
         private static trigger trigger = CreateTrigger()
         private static timer timer = CreateTimer()
 
@@ -21,7 +30,7 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
         private static framehandle CheckBL = null
         private static framehandle CheckBR = null
         private static framehandle Minimap = null
-        private static framehandle MinimapR = null
+        private static framehandle MenuCheck = null
 
         private static real array x1
         private static real array x2
@@ -52,6 +61,8 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
 
         private static boolean array checkL
         private static boolean array checkR
+
+        private static boolean array checkMenu
 
         unit unit
         player player
@@ -575,6 +586,22 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
             set handle = null
         endmethod
 
+        private static method onMenu takes nothing returns nothing
+            local integer i = GetPlayerId(GetLocalPlayer())
+
+            if BlzGetTriggerFrameEvent() == FRAMEEVENT_CHECKBOX_CHECKED then
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    set checkMenu[i] = true
+                endif
+            else
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    set checkMenu[i] = false
+                endif
+            endif
+
+            call BlzFrameSetVisible(BlzGetFrameByName("UpperButtonBarFrame", 0), checkMenu[i])
+        endmethod
+
         private static method onPeriod takes nothing returns nothing
             local integer i = 0
             local real newHP
@@ -752,6 +779,10 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
             call BlzFrameSetAbsPoint(Minimap, FRAMEPOINT_TOPLEFT, 999.0, 999.0) 
             call BlzFrameSetAbsPoint(Minimap, FRAMEPOINT_BOTTOMRIGHT, 999.0, 999.0) 
             call BlzFrameSetTexture(Minimap, "Minimap.blp", 0, true) 
+
+            set MenuCheck = BlzCreateFrame("QuestCheckBox", UI, 0, 0) 
+            call BlzFrameSetAbsPoint(MenuCheck, FRAMEPOINT_TOPLEFT, 0.918800, 0.601640) 
+            call BlzFrameSetAbsPoint(MenuCheck, FRAMEPOINT_BOTTOMRIGHT, 0.932840, 0.587600) 
             
             call onCommandButtons()
             call onInventoryButtons()
@@ -771,6 +802,9 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
             call BlzTriggerRegisterFrameEvent(maptrigger, CheckBR, FRAMEEVENT_CHECKBOX_CHECKED) 
             call BlzTriggerRegisterFrameEvent(maptrigger, CheckBR, FRAMEEVENT_CHECKBOX_UNCHECKED)
             call TriggerAddAction(maptrigger, function thistype.onMinimap)
+            call BlzTriggerRegisterFrameEvent(menutrigger, MenuCheck, FRAMEEVENT_CHECKBOX_CHECKED) 
+            call BlzTriggerRegisterFrameEvent(menutrigger, MenuCheck, FRAMEEVENT_CHECKBOX_UNCHECKED)
+            call TriggerAddAction(menutrigger, function thistype.onMenu)
             call TimerStart(CreateTimer(), 0.2, true, function thistype.onResources) 
 
             loop
@@ -801,6 +835,7 @@ library UI requires RegisterPlayerUnitEvent, TimerUtils
                     set frameY2[i] = 999.0
                     set checkL[i] = false
                     set checkR[i] = false
+                    set checkMenu[i] = false
                 set i = i + 1
             endloop
         endmethod
