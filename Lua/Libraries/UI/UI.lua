@@ -683,7 +683,7 @@ do
 
     function mt:onDeath()
         local unit = GetTriggerUnit()
-        local id = GetPlayerId(GetOwningPlayer(unit))
+        local id = GetPlayerId(GetLocalPlayer())
         local this
 
         if struct[id] then

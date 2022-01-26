@@ -690,7 +690,7 @@ library UI requires RegisterPlayerUnitEvent
 
         private static method onDeath takes nothing returns nothing
             local unit u = GetTriggerUnit()
-            local integer id = GetPlayerId(GetOwningPlayer(u))
+            local integer id = GetPlayerId(GetLocalPlayer())
             local thistype this
 
             if struct[id] != 0 then
