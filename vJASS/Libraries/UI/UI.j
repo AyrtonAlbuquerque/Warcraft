@@ -1,8 +1,18 @@
-library UI requires RegisterPlayerUnitEvent
-    /* -------------------------- UI v1.0 by Chopinski -------------------------- */
+library UI requires RegisterPlayerUnitEvent, GetMainSelectedUnit
+    /* -------------------------- UI v1.1 by Chopinski -------------------------- */
     // Credits
-    //      - Tasyen for the great help
+    //      - Tasyen        GetMainSelectedUnit
     /* ----------------------------------- END ---------------------------------- */
+
+    /* -------------------------------------------------------------------------- */
+    /*                                Configuration                               */
+    /* -------------------------------------------------------------------------- */
+    globals
+        // Set this to a texture to replace the default gold icon
+        private constant string GOLD_ICON   = ""
+        // Set this to a texture to replace the default lumber icon
+        private constant string LUMBER_ICON = ""
+    endglobals
 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
@@ -31,6 +41,8 @@ library UI requires RegisterPlayerUnitEvent
         private static framehandle CheckBR = null
         private static framehandle Minimap = null
         private static framehandle MenuCheck = null
+        private static framehandle LumberIcon = null
+        private static framehandle GoldIcon = null
 
         private static real array x1
         private static real array x2
@@ -66,7 +78,6 @@ library UI requires RegisterPlayerUnitEvent
 
         unit unit
         player player
-        group group
         integer id
         real health
         real mana
@@ -74,13 +85,10 @@ library UI requires RegisterPlayerUnitEvent
         string mp
 
         method remove takes integer i returns integer
-            call DestroyGroup(group)
-
             set array[i] = array[key]
             set key = key - 1
             set struct[id] = 0
             set unit = null
-            set group = null
             set player = null
 
             if key == -1 then
@@ -615,6 +623,12 @@ library UI requires RegisterPlayerUnitEvent
                     set this = array[i]
 
                     if GetPlayerSlotState(player) != PLAYER_SLOT_STATE_LEFT then
+                        set unit = GetMainSelectedUnitEx()
+
+                        if not IsUnitVisible(unit, player) then
+                            set unit = null
+                        endif
+
                         set health = BlzFrameGetValue(HealthBar) 
                         set mana = BlzFrameGetValue(ManaBar)
                         set newHP = GetUnitLifePercent(unit)
@@ -652,7 +666,6 @@ library UI requires RegisterPlayerUnitEvent
                 set this = thistype.allocate()
                 set .id = id
                 set player = GetTriggerPlayer()
-                set group = CreateGroup()
                 set health = 0
                 set mana = 0
                 set hp = "0 / 0"
@@ -665,41 +678,6 @@ library UI requires RegisterPlayerUnitEvent
                     call TimerStart(timer, 0.05, true, function thistype.onPeriod)
                 endif
             endif
-            
-            if not IsUnitInGroup(GetTriggerUnit(), group) then
-                call GroupAddUnit(group, GetTriggerUnit())
-            endif
-
-            set unit = FirstOfGroup(group)
-        endmethod
-
-        private static method onDeselect takes nothing returns nothing
-            local integer id = GetPlayerId(GetTriggerPlayer())
-            local thistype this
-            
-            if struct[id] != 0 then
-                set this = struct[id]
-                
-                if IsUnitInGroup(GetTriggerUnit(), group) then
-                    call GroupRemoveUnit(group, GetTriggerUnit())
-                endif
-
-                set unit = FirstOfGroup(group)
-            endif
-        endmethod
-
-        private static method onDeath takes nothing returns nothing
-            local unit u = GetTriggerUnit()
-            local integer id = GetPlayerId(GetLocalPlayer())
-            local thistype this
-
-            if struct[id] != 0 then
-                set this = struct[id]
-                call GroupRemoveUnit(group, u)
-                set unit = FirstOfGroup(group)
-            endif
-
-            set u = null
         endmethod
 
         private static method onInit takes nothing returns nothing
@@ -783,6 +761,26 @@ library UI requires RegisterPlayerUnitEvent
             set MenuCheck = BlzCreateFrame("QuestCheckBox", UI, 0, 0) 
             call BlzFrameSetAbsPoint(MenuCheck, FRAMEPOINT_TOPLEFT, 0.918800, 0.601640) 
             call BlzFrameSetAbsPoint(MenuCheck, FRAMEPOINT_BOTTOMRIGHT, 0.932840, 0.587600) 
+
+            set LumberIcon = BlzCreateFrameByType("BACKDROP", "LumberIcon", UI, "", 1) 
+            call BlzFrameSetAbsPoint(LumberIcon, FRAMEPOINT_TOPLEFT, 0.347600, 0.0966800) 
+            call BlzFrameSetAbsPoint(LumberIcon, FRAMEPOINT_BOTTOMRIGHT, 0.362600, 0.0816800)
+
+            if LUMBER_ICON != "" then
+                call BlzFrameSetTexture(LumberIcon, LUMBER_ICON, 0, true)
+            else
+                call BlzFrameSetVisible(LumberIcon, false)
+            endif
+
+            set GoldIcon = BlzCreateFrameByType("BACKDROP", "GoldIcon", UI, "", 1) 
+            call BlzFrameSetAbsPoint(GoldIcon, FRAMEPOINT_TOPLEFT, 0.445900, 0.0966600) 
+            call BlzFrameSetAbsPoint(GoldIcon, FRAMEPOINT_BOTTOMRIGHT, 0.460900, 0.0816600) 
+
+            if GOLD_ICON != "" then
+                call BlzFrameSetTexture(GoldIcon, GOLD_ICON, 0, true)
+            else
+                call BlzFrameSetVisible(GoldIcon, false)
+            endif
             
             call onCommandButtons()
             call onInventoryButtons()
@@ -792,8 +790,6 @@ library UI requires RegisterPlayerUnitEvent
             call onChat()
 
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function thistype.onSelect)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DESELECTED, function thistype.onDeselect)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
             call BlzTriggerRegisterFrameEvent(herotrigger, HeroCheck, FRAMEEVENT_CHECKBOX_CHECKED) 
             call BlzTriggerRegisterFrameEvent(herotrigger, HeroCheck, FRAMEEVENT_CHECKBOX_UNCHECKED) 
             call TriggerAddAction(herotrigger, function thistype.onHeroCheck)

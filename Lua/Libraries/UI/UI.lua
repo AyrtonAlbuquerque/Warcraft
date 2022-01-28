@@ -1,11 +1,19 @@
 --[[ requires onInit, RegisterPlayerUnitEvent
-    /* -------------------------- UI v1.0 by Chopinski -------------------------- */
+    /* -------------------------- UI v1.1 by Chopinski -------------------------- */
     // Credits
-    //      - Tasyen for the great help
+    //      - Tasyen     GetMainSelectedUnit
     /* ----------------------------------- END ---------------------------------- */
 ]]--
 
 do
+    -- -------------------------------------------------------------------------- --
+    --                                Configuration                               --
+    -- -------------------------------------------------------------------------- --
+    -- Set this to a texture to replace the default gold icon
+    local GOLD_ICON   = ""
+    -- Set this to a texture to replace the default lumber icon
+    local LUMBER_ICON = ""
+
     -- -------------------------------------------------------------------------- --
     --                                   System                                   --
     -- -------------------------------------------------------------------------- --
@@ -36,6 +44,8 @@ do
     local CheckBR = nil
     local Minimap = nil
     local MenuCheck = nil
+    local LumberIcon = nil
+    local GoldIcon = nil
 
     local x1 = {}
     local x2 = {}
@@ -70,8 +80,6 @@ do
     local checkMenu = {}
 
     function mt:remove(i)
-        DestroyGroup(self.group)
-
         array[i] = array[key]
         key = key - 1
         struct[self.id] = nil
@@ -606,6 +614,12 @@ do
             this = array[i]
 
             if GetPlayerSlotState(this.player) ~= PLAYER_SLOT_STATE_LEFT then
+                this.unit = GetMainSelectedUnitEx()
+
+                if not IsUnitVisible(this.unit, this.player) then
+                    this.unit = nil
+                end
+
                 this.health = BlzFrameGetValue(HealthBar)
                 this.mana = BlzFrameGetValue(ManaBar)
                 newHP = GetUnitLifePercent(this.unit)
@@ -644,8 +658,8 @@ do
             setmetatable(this, mt)
 
             this.id = id
+            this.unit = nil
             this.player = GetTriggerPlayer()
-            this.group = CreateGroup()
             this.health = 0
             this.mana = 0
             this.hp = "0 / 0"
@@ -657,39 +671,6 @@ do
             if key == 1 then
                 TimerStart(timer, 0.05, true, function() MainUI:onPeriod() end)
             end
-        end
-
-        if not IsUnitInGroup(GetTriggerUnit(), this.group) then
-            GroupAddUnit(this.group, GetTriggerUnit())
-        end
-
-        this.unit = FirstOfGroup(this.group)
-    end
-
-    function mt:onDeselect()
-        local id = GetPlayerId(GetTriggerPlayer())
-        local this
-
-        if struct[id] then
-            this = struct[id]
-
-            if IsUnitInGroup(GetTriggerUnit(), this.group) then
-                GroupRemoveUnit(this.group, GetTriggerUnit())
-            end
-
-            this.unit = FirstOfGroup(this.group)
-        end
-    end
-
-    function mt:onDeath()
-        local unit = GetTriggerUnit()
-        local id = GetPlayerId(GetLocalPlayer())
-        local this
-
-        if struct[id] then
-            this = struct[id]
-            GroupRemoveUnit(this.group, unit)
-            this.unit = FirstOfGroup(this.group)
         end
     end
 
@@ -773,6 +754,26 @@ do
         BlzFrameSetAbsPoint(MenuCheck, FRAMEPOINT_TOPLEFT, 0.918800, 0.601640)
         BlzFrameSetAbsPoint(MenuCheck, FRAMEPOINT_BOTTOMRIGHT, 0.932840, 0.587600)
 
+        LumberIcon = BlzCreateFrameByType("BACKDROP", "LumberIcon", UI, "", 1)
+        BlzFrameSetAbsPoint(LumberIcon, FRAMEPOINT_TOPLEFT, 0.347600, 0.0966800)
+        BlzFrameSetAbsPoint(LumberIcon, FRAMEPOINT_BOTTOMRIGHT, 0.362600, 0.0816800)
+
+        if LUMBER_ICON ~= "" then
+            BlzFrameSetTexture(LumberIcon, LUMBER_ICON, 0, true)
+        else
+            BlzFrameSetVisible(LumberIcon, false)
+        end
+
+        GoldIcon = BlzCreateFrameByType("BACKDROP", "GoldIcon", UI, "", 1)
+        BlzFrameSetAbsPoint(GoldIcon, FRAMEPOINT_TOPLEFT, 0.445900, 0.0966600)
+        BlzFrameSetAbsPoint(GoldIcon, FRAMEPOINT_BOTTOMRIGHT, 0.460900, 0.0816600)
+
+        if GOLD_ICON ~= "" then
+            BlzFrameSetTexture(GoldIcon, GOLD_ICON, 0, true)
+        else
+            BlzFrameSetVisible(GoldIcon, false)
+        end
+
         MainUI:onCommandButtons()
         MainUI:onInventoryButtons()
         MainUI:onInfoPanel()
@@ -781,8 +782,6 @@ do
         MainUI:onChat()
 
         RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function() MainUI:onSelect() end)
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DESELECTED, function() MainUI:onDeselect() end)
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function() MainUI:onDeath() end)
         BlzTriggerRegisterFrameEvent(herotrigger, HeroCheck, FRAMEEVENT_CHECKBOX_CHECKED)
         BlzTriggerRegisterFrameEvent(herotrigger, HeroCheck, FRAMEEVENT_CHECKBOX_UNCHECKED)
         TriggerAddAction(herotrigger, function() MainUI:onHeroCheck() end)
