@@ -1,5 +1,5 @@
 --[[ requires onInit, RegisterPlayerUnitEvent
-    /* -------------------------- UI v1.1 by Chopinski -------------------------- */
+    /* -------------------------- UI v1.2 by Chopinski -------------------------- */
     // Credits
     //      - Tasyen     GetMainSelectedUnit
     /* ----------------------------------- END ---------------------------------- */
@@ -225,7 +225,7 @@ do
         BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.530850, 0.0624800)
         handle = BlzGetFrameByName("InfoPanelIconHeroStrengthValue", 6)
         BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.480000, 0.0657200)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.499950, 0.0553800)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.550000, 0.0553800)
 
         -- Reposition the Agility label and value
         handle = BlzGetFrameByName("InfoPanelIconHeroAgilityLabel", 6)
@@ -233,7 +233,7 @@ do
         BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.532090, 0.0426200)
         handle = BlzGetFrameByName("InfoPanelIconHeroAgilityValue", 6)
         BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.480300, 0.0445700)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.500250, 0.0342300)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.550000, 0.0342300)
 
         -- Reposition the Intelligence label and value
         handle = BlzGetFrameByName("InfoPanelIconHeroIntellectLabel", 6)
@@ -241,7 +241,7 @@ do
         BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.531590, 0.0213500)
         handle = BlzGetFrameByName("InfoPanelIconHeroIntellectValue", 6)
         BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.480600, 0.0240700)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.500550, 0.0137300)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.550000, 0.0137300)
 
         -- Reposition the Timed Life bar
         handle = BlzGetFrameByName("SimpleProgressIndicator", 0)

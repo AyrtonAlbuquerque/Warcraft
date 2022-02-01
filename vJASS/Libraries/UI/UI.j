@@ -1,5 +1,5 @@
 library UI requires RegisterPlayerUnitEvent, GetMainSelectedUnit
-    /* -------------------------- UI v1.1 by Chopinski -------------------------- */
+    /* -------------------------- UI v1.2 by Chopinski -------------------------- */
     // Credits
     //      - Tasyen        GetMainSelectedUnit
     /* ----------------------------------- END ---------------------------------- */
@@ -233,7 +233,7 @@ library UI requires RegisterPlayerUnitEvent, GetMainSelectedUnit
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.530850, 0.0624800) 
             set handle = BlzGetFrameByName("InfoPanelIconHeroStrengthValue", 6) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.480000, 0.0657200) 
-            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.499950, 0.0553800) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.550000, 0.0553800) 
 
             // Reposition the Agility label and value
             set handle = BlzGetFrameByName("InfoPanelIconHeroAgilityLabel", 6)
@@ -241,7 +241,7 @@ library UI requires RegisterPlayerUnitEvent, GetMainSelectedUnit
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.532090, 0.0426200) 
             set handle = BlzGetFrameByName("InfoPanelIconHeroAgilityValue", 6) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.480300, 0.0445700) 
-            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.500250, 0.0342300) 
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.550000, 0.0342300) 
 
             // Reposition the Intelligence label and value
             set handle = BlzGetFrameByName("InfoPanelIconHeroIntellectLabel", 6)
@@ -249,7 +249,7 @@ library UI requires RegisterPlayerUnitEvent, GetMainSelectedUnit
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.531590, 0.0213500) 
             set handle = BlzGetFrameByName("InfoPanelIconHeroIntellectValue", 6) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.480600, 0.0240700) 
-            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.500550, 0.0137300)  
+            call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.550000, 0.0137300)  
 
             // Reposition the Timed Life bar
             set handle = BlzGetFrameByName("SimpleProgressIndicator", 0)
