@@ -1,7 +1,8 @@
---[[ requires onInit, RegisterPlayerUnitEvent
-    /* -------------------------- UI v1.2 by Chopinski -------------------------- */
+--[[ requires onInit, RegisterPlayerUnitEvent, GetMainSelectedUnit
+    /* -------------------------- UI v1.3 by Chopinski -------------------------- */
     // Credits
-    //      - Tasyen     GetMainSelectedUnit
+    //      - Tasyen         - GetMainSelectedUnit
+    //      - Magtheridon96  - RegisterPlayerUnitEvent
     /* ----------------------------------- END ---------------------------------- */
 ]]--
 
@@ -13,6 +14,9 @@ do
     local GOLD_ICON   = ""
     -- Set this to a texture to replace the default lumber icon
     local LUMBER_ICON = ""
+    -- When true and a unit that has "Select Unit" or "Select Hero" or "Shop Purchase Item" 
+    -- abilities is select a panel above the portrait is created to show the items/units
+    local DISPLAY_SHOP = true
 
     -- -------------------------------------------------------------------------- --
     --                                   System                                   --
@@ -33,6 +37,7 @@ do
 
     local handle = nil
     local UI = nil
+    local ShopSlots = nil
     local HealthBar = nil
     local ManaBar = nil
     local HeroCheck = nil
@@ -74,6 +79,58 @@ do
     local frameX2 = {}
     local frameY2 = {}
 
+    local command0X1 = {}
+    local command0Y1 = {}
+    local command0X2 = {}
+    local command0Y2 = {}
+    local command1X1 = {}
+    local command1Y1 = {}
+    local command1X2 = {}
+    local command1Y2 = {}
+    local command2X1 = {}
+    local command2Y1 = {}
+    local command2X2 = {}
+    local command2Y2 = {}
+    local command3X1 = {}
+    local command3Y1 = {}
+    local command3X2 = {}
+    local command3Y2 = {}
+    local command4X1 = {}
+    local command4Y1 = {}
+    local command4X2 = {}
+    local command4Y2 = {}
+    local command5X1 = {}
+    local command5Y1 = {}
+    local command5X2 = {}
+    local command5Y2 = {}
+    local command6X1 = {}
+    local command6Y1 = {}
+    local command6X2 = {}
+    local command6Y2 = {}
+    local command7X1 = {}
+    local command7Y1 = {}
+    local command7X2 = {}
+    local command7Y2 = {}
+    local command8X1 = {}
+    local command8Y1 = {}
+    local command8X2 = {}
+    local command8Y2 = {}
+    local command9X1 = {}
+    local command9Y1 = {}
+    local command9X2 = {}
+    local command9Y2 = {}
+    local command10X1 = {}
+    local command10Y1 = {}
+    local command10X2 = {}
+    local command10Y2 = {}
+    local command11X1 = {}
+    local command11Y1 = {}
+    local command11X2 = {}
+    local command11Y2 = {}
+
+    local shop = {}
+    local main = {}
+
     local checkL = {}
     local checkR = {}
 
@@ -93,61 +150,181 @@ do
     end
 
     function mt:onCommandButtons()
-        -- Removes the Move command button
-        -- BlzFrameSetVisible(BlzGetFrameByName("CommandButton_0", 0), false)
+        local id = GetPlayerId(GetLocalPlayer())
 
-        -- Removes the Stop command button
-        -- BlzFrameSetVisible(BlzGetFrameByName("CommandButton_1", 0), false)
+        if shop[id] then
+            command0X1[id] = 0.333500
+            command0Y1[id] = 0.213950
+            command0X2[id] = 0.366760
+            command0Y2[id] = 0.180700
+            command1X1[id] = 0.370500
+            command1Y1[id] = 0.213950
+            command1X2[id] = 0.403760
+            command1Y2[id] = 0.180700
+            command2X1[id] = 0.407400
+            command2Y1[id] = 0.213650
+            command2X2[id] = 0.440660
+            command2Y2[id] = 0.180400
+            command3X1[id] = 0.444400
+            command3Y1[id] = 0.213650
+            command3X2[id] = 0.477660
+            command3Y2[id] = 0.180400
+            command4X1[id] = 0.333500
+            command4Y1[id] = 0.175250
+            command4X2[id] = 0.366760
+            command4Y2[id] = 0.142000
+            command5X1[id] = 0.370500
+            command5Y1[id] = 0.175250
+            command5X2[id] = 0.403760
+            command5Y2[id] = 0.142000 
+            command6X1[id] = 0.407400
+            command6Y1[id] = 0.175250
+            command6X2[id] = 0.440660
+            command6Y2[id] = 0.142000
+            command7X1[id] = 0.444400
+            command7Y1[id] = 0.175250
+            command7X2[id] = 0.477660
+            command7Y2[id] = 0.142000
+            command8X1[id] = 0.333500
+            command8Y1[id] = 0.136850
+            command8X2[id] = 0.366760
+            command8Y2[id] = 0.103600
+            command9X1[id] = 0.370500
+            command9Y1[id] = 0.136850
+            command9X2[id] = 0.403760
+            command9Y2[id] = 0.103600
+            command10X1[id] = 0.407400
+            command10Y1[id] = 0.136850
+            command10X2[id] = 0.440660
+            command10Y2[id] = 0.103600
+            command11X1[id] = 0.444400
+            command11Y1[id] = 0.136850
+            command11X2[id] = 0.477660
+            command11Y2[id] = 0.103600
+        else
+            command0X1[id] = 999.0
+            command0Y1[id] = 999.0
+            command0X2[id] = 999.0
+            command0Y2[id] = 999.0
+            command1X1[id] = 999.0
+            command1Y1[id] = 999.0
+            command1X2[id] = 999.0
+            command1Y2[id] = 999.0
+            command2X1[id] = 999.0
+            command2Y1[id] = 999.0
+            command2X2[id] = 999.0
+            command2Y2[id] = 999.0
+            command3X1[id] = 999.0
+            command3Y1[id] = 999.0
+            command3X2[id] = 999.0
+            command3Y2[id] = 999.0
+            command4X1[id] = 999.0
+            command4Y1[id] = 999.0
+            command4X2[id] = 999.0
+            command4Y2[id] = 999.0 
+            command5X1[id] = 0.186900
+            command5Y1[id] = 0.0467700
+            command5X2[id] = 0.216900
+            command5Y2[id] = 0.0150000
+            command6X1[id] = 0.223700
+            command6Y1[id] = 0.0467700
+            command6X2[id] = 0.254200
+            command6Y2[id] = 0.0150000
+            command7X1[id] = 0.00242900
+            command7Y1[id] = 0.0467700
+            command7X2[id] = 0.0342090
+            command7Y2[id] = 0.0150000
+            command8X1[id] = 0.0399070
+            command8Y1[id] = 0.0467700
+            command8X2[id] = 0.0716870
+            command8Y2[id] = 0.0150000
+            command9X1[id] = 0.0765555
+            command9Y1[id] = 0.0467700
+            command9X2[id] = 0.1095555
+            command9Y2[id] = 0.0150000
+            command10X1[id] = 0.113070
+            command10Y1[id] = 0.0467700
+            command10X2[id] = 0.144850
+            command10Y2[id] = 0.0150000
+            command11X1[id] = 0.150070
+            command11Y1[id] = 0.0467700
+            command11X2[id] = 0.181850
+            command11Y2[id] = 0.0150000
+        end
 
-        -- Removes the Hold command button
-        -- BlzFrameSetVisible(BlzGetFrameByName("CommandButton_2", 0), false)
+        -- Display the 12 slot grid
+        BlzFrameSetVisible(ShopSlots, shop[id])
 
-        -- Removes the Attack command button
-        -- BlzFrameSetVisible(BlzGetFrameByName("CommandButton_3", 0), false)
+        -- Reposition the Move command button
+        handle = BlzGetFrameByName("CommandButton_0", 0) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command0X1[id], command0Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command0X2[id], command0Y2[id]) 
+        BlzFrameSetSize(handle, 0.03178, 0.03178)
 
-        -- Removes the Patrol command button
-        -- BlzFrameSetVisible(BlzGetFrameByName("CommandButton_4", 0), false)
+        -- Reposition the Stop command button
+        handle = BlzGetFrameByName("CommandButton_1", 0) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command1X1[id], command1Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command1X2[id], command1Y2[id])
+        BlzFrameSetSize(handle, 0.03178, 0.03178)
+        
+        -- Reposition the Hold command button
+        handle = BlzGetFrameByName("CommandButton_2", 0) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command2X1[id], command2Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command2X2[id], command2Y2[id]) 
+        BlzFrameSetSize(handle, 0.03178, 0.03178)
+
+        -- Reposition the Attack command button
+        handle = BlzGetFrameByName("CommandButton_3", 0) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command3X1[id], command3Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command3X2[id], command3Y2[id])
+        BlzFrameSetSize(handle, 0.03178, 0.03178) 
+
+        -- Reposition the Patrol command button
+        handle = BlzGetFrameByName("CommandButton_4", 0) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command4X1[id], command4Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command4X2[id], command4Y2[id]) 
+        BlzFrameSetSize(handle, 0.03178, 0.03178)
 
         -- Reposition the D command button
-        handle = BlzGetFrameByName("CommandButton_5", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.186900, 0.0467700)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.216900, 0.0150000)
+        handle = BlzGetFrameByName("CommandButton_5", 0) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command5X1[id], command5Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command5X2[id], command5Y2[id]) 
         BlzFrameSetSize(handle, 0.03178, 0.03178)
-
+        
         -- Reposition the F command button
         handle = BlzGetFrameByName("CommandButton_6", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.223700, 0.0467700)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.254200, 0.0150000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command6X1[id], command6Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command6X2[id], command6Y2[id]) 
         BlzFrameSetSize(handle, 0.03178, 0.03178)
-
+        
         -- Reposition the + command button
         handle = BlzGetFrameByName("CommandButton_7", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.00242900, 0.0467700)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.0342090, 0.0150000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command7X1[id], command7Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command7X2[id], command7Y2[id])
         BlzFrameSetSize(handle, 0.03178, 0.03178)
-
+        
         -- Reposition the Q command button
         handle = BlzGetFrameByName("CommandButton_8", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.0399070, 0.0467700)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.0716870, 0.0150000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command8X1[id], command8Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command8X2[id], command8Y2[id]) 
         BlzFrameSetSize(handle, 0.03178, 0.03178)
-
+        
         -- Reposition the W command button
         handle = BlzGetFrameByName("CommandButton_9", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.0765555, 0.0467700)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.1095555, 0.0150000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command9X1[id], command9Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command9X2[id], command9Y2[id])
         BlzFrameSetSize(handle, 0.03178, 0.03178)
-
+        
         -- Reposition the E command button
         handle = BlzGetFrameByName("CommandButton_10", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.113070, 0.0467700)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.144850, 0.0150000)
-        BlzFrameSetSize(handle, 0.03178, 0.03178)
-
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command10X1[id], command10Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command10X2[id], command10Y2[id]) 
+        BlzFrameSetSize(handle, 0.03178, 0.03178) 
+        
         -- Reposition the R command button
         handle = BlzGetFrameByName("CommandButton_11", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.150070, 0.0467700)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.181850, 0.0150000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command11X1[id], command11Y1[id]) 
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command11X2[id], command11Y2[id])
         BlzFrameSetSize(handle, 0.03178, 0.03178)
 
         handle = nil
@@ -600,6 +777,7 @@ do
         end
 
         BlzFrameSetVisible(BlzGetFrameByName("UpperButtonBarFrame", 0), checkMenu[i])
+        BlzFrameSetVisible(BlzGetFrameByName("ResourceBarFrame", 0), checkMenu[i])
     end
 
     function mt:onPeriod()
@@ -615,6 +793,14 @@ do
 
             if GetPlayerSlotState(this.player) ~= PLAYER_SLOT_STATE_LEFT then
                 this.unit = GetMainSelectedUnitEx()
+
+                if DISPLAY_SHOP then
+                    if main[this.id] ~= this.unit then
+                        main[this.id] = this.unit
+                        shop[this.id] = (GetUnitAbilityLevel(this.unit, FourCC('Aneu')) > 0 or GetUnitAbilityLevel(this.unit, FourCC('Ane2')) > 0 or GetUnitAbilityLevel(this.unit, FourCC('Apit')) > 0) and not IsUnitEnemy(this.unit, this.player)
+                        MainUI:onCommandButtons()
+                    end
+                end
 
                 if not IsUnitVisible(this.unit, this.player) then
                     this.unit = nil
@@ -688,6 +874,11 @@ do
         BlzFrameSetAbsPoint(UI, FRAMEPOINT_TOPLEFT, 0.00000, 0.100000)
         BlzFrameSetAbsPoint(UI, FRAMEPOINT_BOTTOMRIGHT, 0.770000, 0.00000)
         BlzFrameSetTexture(UI, "UI.blp", 0, true)
+
+        ShopSlots = BlzCreateFrameByType("BACKDROP", "ShopSlots", BlzGetFrameByName("ConsoleUIBackdrop", 0), "", 1) 
+        BlzFrameSetAbsPoint(ShopSlots, FRAMEPOINT_TOPLEFT, 0.330600, 0.216500) 
+        BlzFrameSetAbsPoint(ShopSlots, FRAMEPOINT_BOTTOMRIGHT, 0.478600, 0.100700) 
+        BlzFrameSetTexture(ShopSlots, "12Slot.blp", 0, true)
 
         HealthBar = BlzCreateFrameByType("SIMPLESTATUSBAR", "", UI, "", 0)
         BlzFrameSetTexture(HealthBar, "replaceabletextures\\teamcolor\\teamcolor00", 0, true)
@@ -774,13 +965,6 @@ do
             BlzFrameSetVisible(GoldIcon, false)
         end
 
-        MainUI:onCommandButtons()
-        MainUI:onInventoryButtons()
-        MainUI:onInfoPanel()
-        MainUI:onPortrait()
-        MainUI:onGroupSelection()
-        MainUI:onChat()
-
         RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function() MainUI:onSelect() end)
         BlzTriggerRegisterFrameEvent(herotrigger, HeroCheck, FRAMEEVENT_CHECKBOX_CHECKED)
         BlzTriggerRegisterFrameEvent(herotrigger, HeroCheck, FRAMEEVENT_CHECKBOX_UNCHECKED)
@@ -795,7 +979,7 @@ do
         TriggerAddAction(menutrigger, function() MainUI:onMenu() end)
         TimerStart(CreateTimer(), 0.2, true, function() MainUI:onResources() end)
 
-        for i = 0, 24 do
+        for i = 0, bj_MAX_PLAYER_SLOTS do
             x1[i] = 999.0
             x2[i] = 999.0
             y01[i] = 999.0
@@ -820,9 +1004,66 @@ do
             frameY1[i] = 999.0
             frameX2[i] = 999.0
             frameY2[i] = 999.0
+            command0X1[i] = 999.0
+            command0Y1[i] = 999.0
+            command1X1[i] = 999.0
+            command1Y1[i] = 999.0
+            command2X1[i] = 999.0
+            command2Y1[i] = 999.0
+            command3X1[i] = 999.0
+            command3Y1[i] = 999.0
+            command4X1[i] = 999.0
+            command4Y1[i] = 999.0
+            command5X1[i] = 999.0
+            command5Y1[i] = 999.0
+            command6X1[i] = 999.0
+            command6Y1[i] = 999.0
+            command7X1[i] = 999.0
+            command7Y1[i] = 999.0
+            command8X1[i] = 999.0
+            command8Y1[i] = 999.0
+            command9X1[i] = 999.0
+            command9Y1[i] = 999.0
+            command10X1[i] = 999.0
+            command10Y1[i] = 999.0
+            command11X1[i] = 999.0
+            command11Y1[i] = 999.0
+            command0X2[i] = 999.0
+            command0Y2[i] = 999.0
+            command1X2[i] = 999.0
+            command1Y2[i] = 999.0
+            command2X2[i] = 999.0
+            command2Y2[i] = 999.0
+            command3X2[i] = 999.0
+            command3Y2[i] = 999.0
+            command4X2[i] = 999.0
+            command4Y2[i] = 999.0
+            command5X2[i] = 999.0
+            command5Y2[i] = 999.0
+            command6X2[i] = 999.0
+            command6Y2[i] = 999.0
+            command7X2[i] = 999.0
+            command7Y2[i] = 999.0
+            command8X2[i] = 999.0
+            command8Y2[i] = 999.0
+            command9X2[i] = 999.0
+            command9Y2[i] = 999.0
+            command10X2[i] = 999.0
+            command10Y2[i] = 999.0
+            command11X2[i] = 999.0
+            command11Y2[i] = 999.0
+            shop[i] = false
+            main[i] = nil
             checkL[i] = false
             checkR[i] = false
             checkMenu[i] = false
         end
+
+        MainUI:onCommandButtons()
+        MainUI:onInventoryButtons()
+        MainUI:onInfoPanel()
+        MainUI:onPortrait()
+        MainUI:onGroupSelection()
+        MainUI:onChat()
     end)
 end

@@ -35,7 +35,7 @@ library RegisterPlayerUnitEvent // Special Thanks to Bribe and azlier
     
     function RegisterPlayerUnitEvent takes playerunitevent p, code c returns nothing
         local integer i = GetHandleId(p)
-        local integer k = 15
+        local integer k = bj_MAX_PLAYER_SLOTS
         if t[i] == null then
             set t[i] = CreateTrigger()
             loop
@@ -48,7 +48,7 @@ library RegisterPlayerUnitEvent // Special Thanks to Bribe and azlier
     endfunction
     
     function RegisterPlayerUnitEventForPlayer takes playerunitevent p, code c, player pl returns nothing
-        local integer i = 16 * GetHandleId(p) + GetPlayerId(pl)
+        local integer i = (bj_MAX_PLAYER_SLOTS + 1) * GetHandleId(p) + GetPlayerId(pl)
         if t[i] == null then
             set t[i] = CreateTrigger()
             call TriggerRegisterPlayerUnitEvent(t[i], pl, p, null)
