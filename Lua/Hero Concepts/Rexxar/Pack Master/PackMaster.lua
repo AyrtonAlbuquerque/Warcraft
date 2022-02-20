@@ -1,5 +1,5 @@
 --[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, TimerUtils, NewBonus
-    /* ---------------------- Pack Master v1.0 by Chopinski --------------------- */
+    /* ---------------------- Pack Master v1.1 by Chopinski --------------------- */
     // Credits:
     //     Bribe           - SpellEffectEvent
     //     Vexorian        - TimerUtils
@@ -248,7 +248,7 @@ do
                 local unit = GetKillingUnit()
                 local level = GetUnitAbilityLevel(unit, ABILITY)
 
-                if level > 0 then
+                if level > 0 and IsUnitEnemy(GetTriggerUnit(), GetOwningPlayer(source)) then
                     local this = Master:instance(unit)
 
                     if this.pack.size < GetMaxWolfCount(level) then

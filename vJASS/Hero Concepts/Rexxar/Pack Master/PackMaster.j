@@ -1,5 +1,5 @@
 library PackMaster requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, TimerUtils, NewBonus
-    /* ---------------------- Pack Master v1.0 by Chopinski --------------------- */
+    /* ---------------------- Pack Master v1.1 by Chopinski --------------------- */
     // Credits:
     //     Bribe           - SpellEffectEvent
     //     Vexorian        - TimerUtils
@@ -276,7 +276,7 @@ library PackMaster requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
             local integer level = GetUnitAbilityLevel(source, ABILITY)
             local thistype this
             
-            if level > 0 then
+            if level > 0 and IsUnitEnemy(GetTriggerUnit(), GetOwningPlayer(source)) then
                 set this = instance(source)
                 
                 if pack.size < GetMaxWolfCount(level) then
