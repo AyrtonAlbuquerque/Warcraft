@@ -1,5 +1,5 @@
 --[[ requires SpellEffectEvent, Utilities, LineSegmentEnumeration
-    /* ------------------ Draconic Discharge v1.1 by Chopinski ------------------ */
+    /* ------------------ Draconic Discharge v1.2 by Chopinski ------------------ */
     // Credits:
     //     N-ix Studio      - Icon
     //     Bribe            - SpellEffectEvent
@@ -51,10 +51,12 @@ do
     -- -------------------------------------------------------------------------- --
     onInit(function()
         RegisterSpellEffectEvent(ABILITY, function()
-            local aoe = GetAoE(Spell.source.unit, Spell.level)
-            local range = GetRange(Spell.source.unit, Spell.level)
-            local damage = GetDamage(Spell.source.unit, Spell.level)
-            local duration = GetStunDuration(Spell.source.unit, Spell.level)
+            local source = Spell.source.unit
+            local player = Spell.source.player
+            local aoe = GetAoE(source, Spell.level)
+            local range = GetRange(source, Spell.level)
+            local damage = GetDamage(source, Spell.level)
+            local duration = GetStunDuration(source, Spell.level)
             local angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
             local minX = Spell.source.x + OFFSET*Cos(angle)
             local minY = Spell.source.y + OFFSET*Sin(angle)
@@ -63,13 +65,13 @@ do
             local effect = AddSpecialEffectEx(MODEL, minX, minY, 65, SCALE)
             local group = LineSegment.EnumUnits(minX, minY, maxX, maxY, aoe, true)
             
-            QueueUnitAnimation(Spell.source.unit, "Stand")
-            BlzSetUnitFacingEx(Spell.source.unit, angle*bj_RADTODEG)
+            QueueUnitAnimation(source, "Stand")
+            BlzSetUnitFacingEx(source, angle*bj_RADTODEG)
             BlzSetSpecialEffectYaw(effect, angle)
             for i = 1, #group do
                 local unit = group[i]
-                if DamageFilter(Spell.source.player, unit) then
-                    if UnitDamageTarget(Spell.source.unit, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                if DamageFilter(player, unit) then
+                    if UnitDamageTarget(source, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                         StunUnit(unit, duration)
                     end
                 end

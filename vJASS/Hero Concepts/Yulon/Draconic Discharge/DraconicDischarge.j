@@ -1,5 +1,5 @@
 library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilities, LineSegmentEnumeration
-    /* ------------------ Draconic Discharge v1.1 by Chopinski ------------------ */
+    /* ------------------ Draconic Discharge v1.2 by Chopinski ------------------ */
     // Credits:
     //     N-ix Studio      - Icon
     //     Bribe            - SpellEffectEvent
@@ -51,10 +51,12 @@ library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilitie
     /* -------------------------------------------------------------------------- */
     private struct DraconicDischarge extends array
         private static method onCast takes nothing returns nothing
-            local real aoe = GetAoE(Spell.source.unit, Spell.level)
-            local real range = GetRange(Spell.source.unit, Spell.level)
-            local real damage = GetDamage(Spell.source.unit, Spell.level)
-            local real duration = GetStunDuration(Spell.source.unit, Spell.level)
+            local unit source = Spell.source.unit
+            local player owner = Spell.source.player
+            local real aoe = GetAoE(source, Spell.level)
+            local real range = GetRange(source, Spell.level)
+            local real damage = GetDamage(source, Spell.level)
+            local real duration = GetStunDuration(source, Spell.level)
             local real angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
             local real minX = Spell.source.x + OFFSET*Cos(angle)
             local real minY = Spell.source.y + OFFSET*Sin(angle)
@@ -64,15 +66,15 @@ library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilitie
             local group g = CreateGroup()
             local unit u
             
-            call QueueUnitAnimation(Spell.source.unit, "Stand")
-            call BlzSetUnitFacingEx(Spell.source.unit, angle*bj_RADTODEG)
+            call QueueUnitAnimation(source, "Stand")
+            call BlzSetUnitFacingEx(source, angle*bj_RADTODEG)
             call BlzSetSpecialEffectYaw(e, angle)
             call LineSegment.EnumUnitsEx(g, minX, minY, maxX, maxY, aoe, true)
             loop
                 set u = FirstOfGroup(g)
                 exitwhen u == null
-                    if DamageFilter(Spell.source.player, u) then
-                        if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                    if DamageFilter(owner, u) then
+                        if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                             call StunUnit(u, duration)
                         endif
                     endif
