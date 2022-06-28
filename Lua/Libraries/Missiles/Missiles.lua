@@ -340,7 +340,6 @@ do
         end
     end
     
-    
     function mt:OnTileset()
         if self.onTileset then
             local type = GetTerrainType(self.x, self.y)
@@ -546,7 +545,6 @@ do
             array[self] = nil
         end
     end
-
 
     -- -------------------------- Model of the missile -------------------------- --
     function mt:model(effect)
