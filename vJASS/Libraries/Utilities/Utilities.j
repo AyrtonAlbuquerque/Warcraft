@@ -1,17 +1,18 @@
-library Utilities requires TimerUtils, Missiles
-    /* ------------------------ Utilities functions v1.6 ------------------------ */
+library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnitEvent
+    /* --------------------------------------- Utilities v1.7 --------------------------------------- */
     // How to Import:
     // 1 - Copy this library into your map
-    // 2 - Copy the Stun, Silence, Slow and Fear abilities and match them below and the Slow Buff
-    // 3 - Copy the TimerUtils and Missiles libraries into your map and follow their import instructions
-    /* ------------------------------ By Chopinski ------------------------------ */
+    // 2 - Copy the dummy unit in object editor and match its raw code below
+    // 3 - Copy the TimerUtils library into your map and follow its install instructions
+    // 4 - Copy the Indexer library over to your map and follow its install instructions
+    // 5 - Copy the TimedHandles library over to your map and follow its install instructions
+    // 6 - Copy the RegisterPlayerUnitEvent library over to your map and follow its install instructions
+    /* ---------------------------------------- By Chopinski ---------------------------------------- */
+    
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                          Configuration                                         */
+    /* ---------------------------------------------------------------------------------------------- */
     globals
-        // The raw code of the ability used to silence an unit
-        public  constant integer SILENCE   = 'U000'
-        // The raw code of the ability used to stun an unit
-        public  constant integer STUN      = 'U001'
-        // The raw code of the ability used to slow an unit
-        public  constant integer SLOW      = 'U003'
         // The dummy caster unit id 
         public  constant integer DUMMY     = 'dumi'
         // Update period
@@ -24,6 +25,9 @@ library Utilities requires TimerUtils, Missiles
         private unit             bj_closestUnitGroup
     endglobals
 
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                            JASS API                                            */
+    /* ---------------------------------------------------------------------------------------------- */
     // Only one declaration per map required
     native UnitAlive takes unit id returns boolean
 
@@ -137,1018 +141,10 @@ library Utilities requires TimerUtils, Missiles
         
         return bj_closestUnitGroup
     endfunction
-
-    /* -------------------------------------------------------------------------- */
-    /*                           Reset Ability Cooldown                           */
-    /* -------------------------------------------------------------------------- */
-    private struct ResetCooldown
-        timer timer
-        unit unit
-        integer ability
-
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            call BlzEndUnitAbilityCooldown(unit, ability)
-            call ReleaseTimer(timer)
-            call deallocate()
-            
-            set unit = null
-            set timer  = null
-        endmethod
-
-        static method reset takes unit u, integer id returns nothing
-            local thistype this = thistype.allocate()
-
-            set timer = NewTimerEx(this)
-            set unit = u
-            set ability = id
-
-            call TimerStart(timer, 0.01, false, function thistype.onExpire)
-        endmethod 
-    endstruct
     
-    /* -------------------------------------------------------------------------- */
-    /*                                  Knockback                                 */
-    /* -------------------------------------------------------------------------- */
-    private struct Knockback extends Missiles
-        private static integer array knocked
-    
-        boolean cliff
-        boolean destructable
-        boolean unit
-        boolean isPaused
-        integer key
-        effect attachment
-    
-        method onPeriod takes nothing returns boolean
-            if UnitAlive(source) then
-                call SetUnitX(source, prevX)
-                call SetUnitY(source, prevY)
-                
-                return false
-            else
-                return true
-            endif
-        endmethod
-        
-        method onHit takes unit u returns boolean
-            if unit then
-                if UnitAlive(u) then
-                    return true
-                else
-                    return false
-                endif
-            else
-                return false
-            endif
-        endmethod
-        
-        method onDestructable takes destructable d returns boolean
-            if destructable then
-                if GetDestructableLife(d) > 0 then
-                    return true
-                else
-                    return false
-                endif
-            else
-                return false
-            endif
-        endmethod
-        
-        method onCliff takes nothing returns boolean
-            return cliff
-        endmethod
-        
-        method onPause takes nothing returns boolean
-            call pause(false)
-            return false
-        endmethod
-        
-        method onRemove takes nothing returns nothing
-            call DestroyEffect(attachment)
-            set knocked[key] = knocked[key] - 1
-            
-            if isPaused and knocked[key] == 0 then
-                call BlzPauseUnitEx(source, false)
-            endif
-            
-            set attachment = null
-        endmethod
-        
-        static method isUnitKnocked takes unit u returns boolean
-            return knocked[GetUnitUserData(u)] > 0
-        endmethod
-        
-        static method start takes unit whichUnit, real angle, real distance, real duration, string model, string point, boolean onCliff, boolean onDestructable, boolean onUnit, boolean isPaused returns nothing
-            local real x = GetUnitX(whichUnit)
-            local real y = GetUnitY(whichUnit)
-            local thistype this = thistype.create(x, y, 0, x + distance*Cos(angle), y + distance*Sin(angle), 0)
-
-            set .source = whichUnit
-            set .duration = duration
-            set .collision = 2*BlzGetUnitCollisionSize(whichUnit)
-            set .cliff = onCliff
-            set .destructable = onDestructable
-            set .unit = onUnit
-            set .isPaused = isPaused
-            set .key = GetUnitUserData(whichUnit)
-            set knocked[key] = knocked[key] + 1
-            
-            if model != null and point != null then
-                set .attachment = AddSpecialEffectTarget(model, whichUnit, point)
-            endif
-            
-            if isPaused and knocked[key] == 1 then
-                call BlzPauseUnitEx(whichUnit, true)
-            endif
-            
-            call launch()
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                                Timed Ability                               */
-    /* -------------------------------------------------------------------------- */
-    private struct TimedAbility
-        static timer timer = CreateTimer()
-        static integer key = -1
-        static thistype array array
-
-        unit unit
-        integer ability
-        real duration
-
-        method remove takes integer i returns integer
-            call UnitRemoveAbility(unit, ability)
-            call RemoveSavedInteger(table, GetHandleId(unit), ability)
-
-            set array[i] = array[key]
-            set key = key - 1
-            set unit = null
-
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
-
-            call deallocate()
-
-            return i - 1
-        endmethod
-
-        static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local thistype this
-
-            loop
-                exitwhen i > key
-                    set this = array[i]
-
-                    if duration <= 0 then
-                        set i = remove(i)
-                    endif
-                    set duration = duration - 0.1
-                set i = i + 1
-            endloop
-        endmethod
-
-
-        static method add takes unit u, integer id, real duration, integer level, boolean hide returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(u), id)
-            
-            if this == 0 then
-                set this = thistype.allocate()
-                set unit = u
-                set ability = id
-                set key = key + 1
-                set array[key] = this
-
-                call SaveInteger(table, GetHandleId(unit), ability, this)
-
-                if key == 0 then
-                    call TimerStart(timer, 0.1, true, function thistype.onPeriod)
-                endif
-            endif
-
-            if GetUnitAbilityLevel(unit, ability) != level then
-                call UnitAddAbility(unit, ability)
-                call SetUnitAbilityLevel(unit, ability, level)
-                call UnitMakeAbilityPermanent(unit, true, ability)
-                call BlzUnitHideAbility(unit, ability, hide)
-            endif
-
-            set .duration = duration
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                                 Fear System                                */
-    /* -------------------------------------------------------------------------- */
-    private struct Fear
-        static constant real PERIOD = 1./5.
-        static constant integer DIRECTION_CHANGE = 5 
-        static constant real MAX_CHANGE = 200.
-        static integer key = -1
-        static thistype array array
-        static integer array struct
-        static boolean array flag
-        static real array x
-        static real array y
-        static timer timer = CreateTimer()
-
-        unit unit
-        effect effect
-        integer id
-        real duration
-        integer change
-        boolean selected
-
-        static method feared takes unit target returns boolean
-            return struct[GetUnitUserData(target)] != 0
-        endmethod
-
-        method remove takes integer i returns integer
-            set flag[id] = true
-            call IssueImmediateOrder(unit, "stop")
-            call DestroyEffect(effect)
-            call UnitRemoveAbility(unit, 'Abun')
-
-            if selected then
-                call SelectUnitAddForPlayer(unit, GetOwningPlayer(unit))
-            endif
-
-            set struct[id] = 0
-            set unit = null
-            set effect = null
-            set array[i] = array[key]
-            set key = key - 1
-
-            call deallocate()
-
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
-
-            return i - 1
-        endmethod
-
-        private static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local thistype this
-
-            loop
-                exitwhen i > key
-                    set this = array[i]
-
-                    if duration > 0 and UnitAlive(unit) then
-                        set duration = duration - PERIOD
-                        set change = change + 1
-
-                        if change >= DIRECTION_CHANGE then
-                            set change = 0
-                            set flag[id] = true
-                            set x[id] = GetRandomReal(GetUnitX(unit) - MAX_CHANGE, GetUnitX(unit) + MAX_CHANGE)
-                            set y[id] = GetRandomReal(GetUnitY(unit) - MAX_CHANGE, GetUnitY(unit) + MAX_CHANGE)
-                            call IssuePointOrder(unit, "move", x[id], y[id])
-                        endif
-                    else
-                        set i = remove(i)
-                    endif
-                set i = i + 1
-            endloop
-        endmethod
-
-        static method apply takes unit target, real duration, string fxpath, string attachment returns nothing
-            local integer id = GetUnitUserData(target)
-            local thistype this
-
-            if struct[id] != 0 then
-                set this = struct[id]
-            else
-                set this = thistype.allocate()
-                set .id = id
-                set unit = target
-                set change = 0
-                set selected = IsUnitSelected(target, GetOwningPlayer(target))
-                set key = key + 1
-                set array[key] = this
-                set struct[id] = this
-
-                call UnitAddAbility(target, 'Abun')
-
-                if selected then
-                    call SelectUnit(target, false)
-                endif
-
-                if fxpath != "" and attachment != "" then
-                    set effect = AddSpecialEffectTarget(fxpath, target, attachment)
-                endif
-
-                if key == 0 then
-                    call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
-                endif
-            endif
-
-            set .duration = duration
-            set flag[id] = true
-            set x[id] = GetRandomReal(GetUnitX(target) - MAX_CHANGE, GetUnitX(target) + MAX_CHANGE)
-            set y[id] = GetRandomReal(GetUnitY(target) - MAX_CHANGE, GetUnitY(target) + MAX_CHANGE)
-            call IssuePointOrder(target, "move", x[id], y[id])
-        endmethod
-
-        private static method onOrder takes nothing returns nothing
-            local unit source = GetOrderedUnit()
-            local integer id
-
-            if feared(source) then
-                set id = GetUnitUserData(source)
-
-                if not flag[id] then
-                    set flag[id] = true
-                    call IssuePointOrder(source, "move", x[id], y[id])
-                else
-                    set flag[id] = false
-                endif
-            endif
-
-            set source = null
-        endmethod
-
-        private static method onSelect takes nothing returns nothing
-            local unit source = GetTriggerUnit()
-        
-            if feared(source) then
-                if IsUnitSelected(source, GetOwningPlayer(source)) then
-                    call SelectUnit(source, false)
-                endif
-            endif
-            
-            set source = null
-        endmethod
-
-        private static method onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, function thistype.onOrder)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, function thistype.onOrder)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, function thistype.onOrder)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function thistype.onSelect)
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                                 Effect Spam                                */
-    /* -------------------------------------------------------------------------- */
-    struct EffectSpam
-        timer timer
-        unit unit 
-        integer i 
-        string effect
-        string point
-        real scale
-        real x
-        real y
-        real z
-
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            if i > 0 then
-                if unit == null then
-                    call DestroyEffect(AddSpecialEffectEx(effect, x, y, z, scale))
-                else
-                    call DestroyEffect(AddSpecialEffectTarget(effect, unit, point))
-                endif
-            else
-                call ReleaseTimer(timer)
-                call deallocate()
-                set timer = null
-                set unit = null
-            endif
-            set i = i - 1
-        endmethod
-
-        static method spam takes unit target, string model, string attach, real x, real y, real z, real scale, real interval, integer count returns nothing
-            local thistype this = thistype.allocate()
-
-            set timer = NewTimerEx(this)
-            set unit = target
-            set i = count
-            set effect = model
-            set .x = x
-            set .y = y
-            set .z = z
-            set .scale = scale
-            set point = attach
-
-            call TimerStart(timer, interval, true, function thistype.onPeriod)
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                               Chain Lightning                              */
-    /* -------------------------------------------------------------------------- */
-    struct ChainLightning
-        timer      timer
-        unit       unit
-        unit       prev
-        unit       self
-        unit       next
-        group      group
-        group      damaged
-        player     player
-        real       damage
-        real       range
-        real       duration
-        integer    bounces
-        attacktype attacktype
-        damagetype damagetype
-        string     lightning
-        string     effect
-        string     attach
-        boolean    rebounce
-
-        private method destroy takes nothing returns nothing
-            call DestroyGroup(group)
-            call ReleaseTimer(timer)
-            call DestroyGroup(damaged)
-
-            set prev       = null
-            set self       = null
-            set next       = null 
-            set unit       = null
-            set group      = null
-            set timer      = null
-            set player     = null
-            set damaged    = null
-            set attacktype = null
-            set damagetype = null
-
-            call deallocate()
-        endmethod
-
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            
-            call DestroyGroup(group)
-            if bounces > 0 then
-                set group = GetEnemyUnitsInRange(player, GetUnitX(self), GetUnitY(self), range, false, false)
-                call GroupRemoveUnit(group, self)
-                
-                if not rebounce then
-                    call BlzGroupRemoveGroupFast(damaged, group)
-                endif
-                
-                if BlzGroupGetSize(group) == 0 then
-                    call destroy()
-                else
-                    set next = GetClosestUnitGroup(GetUnitX(self), GetUnitY(self), group)
-                    
-                    if next == prev and BlzGroupGetSize(group) > 1 then
-                        call GroupRemoveUnit(group, prev)
-                        set next = GetClosestUnitGroup(GetUnitX(self), GetUnitY(self), group)
-                    endif
-                    
-                    if next != null then
-                        call DestroyLightningTimed(AddLightningEx(lightning, true, GetUnitX(self), GetUnitY(self), GetUnitZ(self) + 60.0, GetUnitX(next), GetUnitY(next), GetUnitZ(next) + 60.0), duration)
-                        call DestroyEffect(AddSpecialEffectTarget(effect, next, attach))
-                        call GroupAddUnit(damaged, next)
-                        call UnitDamageTarget(unit, next, damage, false, false, attacktype, damagetype, null)
-                        call DestroyGroup(group)
-                        set prev = self
-                        set self = next
-                        set next = null
-                    else
-                        call destroy()
-                    endif
-                endif
-            else
-                call destroy()
-            endif
-            set bounces = bounces - 1
-        endmethod
-
-        static method create takes unit source, unit target, real dmg, real aoe, real dur, real interval, integer bounceCount, attacktype attackType, damagetype damageType, string lightningType, string sfx, string attachPoint, boolean canRebounce returns thistype
-            local group    g
-            local thistype this
-
-            set g = GetEnemyUnitsInRange(GetOwningPlayer(source), GetUnitX(target), GetUnitY(target), aoe, false, false)
-
-            if BlzGroupGetSize(g) == 1 then
-                call DestroyLightningTimed(AddLightningEx(lightningType, true, GetUnitX(source), GetUnitY(source), BlzGetUnitZ(source) + 60.0, GetUnitX(target), GetUnitY(target), BlzGetUnitZ(target) + 60.0), dur)
-                call DestroyEffect(AddSpecialEffectTarget(sfx, target, attachPoint))
-                call UnitDamageTarget(source, target, dmg, false, false, attackType, damageType, null)
-            else
-                set this       = thistype.allocate()
-                set timer      = NewTimerEx(this)
-                set prev       = null
-                set self       = target
-                set next       = null
-                set unit       = source
-                set player     = GetOwningPlayer(source)
-                set damage     = dmg
-                set range      = aoe
-                set duration   = dur
-                set bounces    = bounceCount
-                set attacktype = attackType
-                set damagetype = damageType
-                set lightning  = lightningType
-                set effect     = sfx
-                set attach     = attachPoint
-                set rebounce   = canRebounce
-                set damaged    = CreateGroup()
-
-                call GroupRemoveUnit(g, target)
-                call GroupAddUnit(damaged, target)
-                call DestroyEffect(AddSpecialEffectTarget(sfx, target, attachPoint))
-                call UnitDamageTarget(source, target, damage, false, false, attacktype, damagetype, null)
-                call TimerStart(timer, interval, true, function thistype.onPeriod)
-            endif
-            call DestroyGroup(g)
-            set g = null
-
-            return this
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                                   Knockup                                  */
-    /* -------------------------------------------------------------------------- */
-    struct Knockup
-        timer timer 
-        unit  unit
-        real  rate
-
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            call SetUnitFlyHeight(unit, GetUnitDefaultFlyHeight(unit), rate)
-            call BlzPauseUnitEx(unit, false)
-            call ReleaseTimer(timer)
-
-            set timer = null
-            set unit  = null
-
-            call deallocate()
-        endmethod
-
-        static method create takes unit whichUnit, real airTime, real maxHeight returns thistype
-            local thistype this = thistype.allocate()
-
-            set timer = NewTimerEx(this)
-            set unit  = whichUnit
-            set rate  = maxHeight/airTime
-
-            call UnitAddAbility(whichUnit, 'Amrf')
-            call UnitRemoveAbility(whichUnit, 'Amrf')
-            call BlzPauseUnitEx(whichUnit, true)
-            call SetUnitFlyHeight(whichUnit, (GetUnitDefaultFlyHeight(whichUnit) + maxHeight), rate)
-            
-            call TimerStart(timer, airTime/2, false, function thistype.onPeriod)
-
-            return this
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                                 Dummy Pool                                 */
-    /* -------------------------------------------------------------------------- */
-    struct DummyPool
-        private static player player = Player(PLAYER_NEUTRAL_PASSIVE)
-        private static group  group  = CreateGroup()
-
-        timer timer
-        unit  unit
-
-        static method recycle takes unit dummy returns nothing
-            if GetUnitTypeId(dummy) != DUMMY then
-                debug call BJDebugMsg("[DummyPool] Error: Trying to recycle a non dummy unit")
-            else
-                call GroupAddUnit(group, dummy)
-                call SetUnitX(dummy, WorldBounds.maxX)
-                call SetUnitY(dummy, WorldBounds.maxY)
-                call SetUnitOwner(dummy, player, false)
-                call ShowUnit(dummy, false)
-                call BlzPauseUnitEx(dummy, true)
-            endif
-        endmethod
-
-        static method retrieve takes player owner, real x, real y, real z, real face returns unit
-            if BlzGroupGetSize(group) > 0 then
-                set bj_lastCreatedUnit = FirstOfGroup(group)
-                call BlzPauseUnitEx(bj_lastCreatedUnit, false)
-                call ShowUnit(bj_lastCreatedUnit, true)
-                call GroupRemoveUnit(group, bj_lastCreatedUnit)
-                call SetUnitX(bj_lastCreatedUnit, x)
-                call SetUnitY(bj_lastCreatedUnit, y)
-                call SetUnitFlyHeight(bj_lastCreatedUnit, z, 0)
-                call BlzSetUnitFacingEx(bj_lastCreatedUnit, face*bj_RADTODEG)
-                call SetUnitOwner(bj_lastCreatedUnit, owner, false)
-            else
-                set bj_lastCreatedUnit = CreateUnit(owner, DUMMY, x, y, face*bj_RADTODEG)
-                call SetUnitFlyHeight(bj_lastCreatedUnit, z, 0)
-            endif
-
-            return bj_lastCreatedUnit
-        endmethod
-
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            call recycle(unit)
-            call ReleaseTimer(timer)
-            
-            set timer = null
-            set unit  = null
-
-            call deallocate()
-        endmethod
-
-        static method recycleTimed takes unit dummy, real delay returns nothing
-            local thistype this
-
-            if GetUnitTypeId(dummy) != DUMMY then
-                debug call BJDebugMsg("[DummyPool] Error: Trying to recycle a non dummy unit")
-            else
-                set this = thistype.allocate()
-
-                set timer = NewTimerEx(this)
-                set unit  = dummy
-                
-                call TimerStart(timer, delay, false, function thistype.onExpire)
-            endif
-        endmethod
-
-        private static method onInit takes nothing returns nothing
-            local integer i = 0
-            local unit    u
-
-            loop
-                exitwhen i == 20
-                    set u = CreateUnit(player, DUMMY, WorldBounds.maxX, WorldBounds.maxY, 0)
-                    call BlzPauseUnitEx(u, false)
-                    call GroupAddUnit(group, u)
-                set i = i + 1
-            endloop
-
-            set u = null
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                                 Effect Link                                */
-    /* -------------------------------------------------------------------------- */
-    struct EffectLink
-        static timer timer = CreateTimer()
-        //Dynamic Indexing for buff and timed
-        static integer didx = -1
-        static thistype array data
-        //Dynamic Indexing for items
-        static integer ditem = -1
-        static thistype array items
-
-        unit    unit
-        effect  effect
-        item    item
-        integer buff
-
-        method remove takes integer i, boolean isItem returns integer
-            call DestroyEffect(effect)
-
-            if isItem then
-                set  items[i] = items[ditem]
-                set  ditem    = ditem - 1
-            else
-                set  data[i] = data[didx]
-                set  didx    = didx - 1
-
-                if didx == -1 then
-                    call PauseTimer(timer)
-                endif
-            endif
-
-            set unit   = null
-            set item   = null
-            set effect = null
-
-            call deallocate()
-
-            return i - 1
-        endmethod
-
-        static method onDrop takes nothing returns nothing
-            local item     j = GetManipulatedItem()
-            local integer  i = 0
-            local thistype this
-
-            loop
-                exitwhen i > ditem
-                    set this = items[i]
-
-                    if item == j then
-                        set i = remove(i, true)
-                    endif
-                set i = i + 1
-            endloop
-
-            set j = null
-        endmethod
-
-        static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local thistype this
-
-            loop
-                exitwhen i > didx
-                    set this = data[i]
-
-                    if GetUnitAbilityLevel(unit, buff) == 0 then
-                        set i = remove(i, false)
-                    endif
-                set i = i + 1
-            endloop
-        endmethod
-
-        static method BuffLink takes unit target, integer id, string model, string attach returns nothing
-            local thistype this = thistype.allocate()
-
-            set unit       = target
-            set buff       = id
-            set effect     = AddSpecialEffectTarget(model, target, attach)
-            set didx       = didx + 1
-            set data[didx] = this
-            
-            if didx == 0 then
-                call TimerStart(timer, 0.03125000, true, function thistype.onPeriod)
-            endif
-        endmethod
-
-        static method ItemLink takes unit target, item i, string model, string attach returns nothing
-            local thistype this = thistype.allocate()
-
-            set item         = i
-            set effect       = AddSpecialEffectTarget(model, target, attach)
-            set ditem        = ditem + 1
-            set items[ditem] = this
-        endmethod
-
-        static method onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function thistype.onDrop)
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                                   Disarm                                   */
-    /* -------------------------------------------------------------------------- */
-    struct Disarm
-        static constant integer ability = 'Abun'
-        static constant real    period  = 0.03125000
-        static timer            timer   = CreateTimer()
-        static integer          didx    = -1
-        static thistype array   data
-        static thistype array   n
-        readonly static integer array count
-
-        unit    unit
-        integer index
-        integer ticks
-
-        static method disarmed takes unit target returns boolean
-            return GetUnitAbilityLevel(target, ability) > 0
-        endmethod
-
-        private method remove takes integer i returns integer
-            call apply(unit, false)
-
-            set n[index] = 0
-            set unit     = null
-            set data[i]  = data[didx]
-            set didx     = didx - 1
-
-            if didx == -1 then
-                call PauseTimer(timer)
-            endif
-
-            call deallocate()
-
-            return i - 1
-        endmethod
-
-        private static method onPeriod takes nothing returns nothing
-            local integer  i = 0
-            local thistype this
-
-            loop
-                exitwhen i > didx
-                    set this = data[i]
-
-                    if ticks <= 0 then
-                        set i = remove(i)
-                    endif
-                    set ticks = ticks - 1
-                set i = i + 1
-            endloop
-        endmethod
-
-        static method timed takes unit target, real duration returns nothing
-            local integer  i = GetUnitUserData(target)
-            local thistype this
-
-            if n[i] != 0 then
-                set this = n[i]
-            else
-                set this       = thistype.allocate()
-                set unit       = target
-                set index      = i
-                set didx       = didx + 1
-                set data[didx] = this
-                set n[i]       = this
-
-                call apply(target, true)
-
-                if didx == 0 then
-                    call TimerStart(timer, period, true, function thistype.onPeriod)
-                endif
-            endif
-
-            set ticks = R2I(duration/period)
-        endmethod
-
-        static method apply takes unit target, boolean flag returns nothing
-            local integer i = GetUnitUserData(target)
-            
-            if flag then
-                set count[i] = count[i] + 1
-                if count[i] > 0 then
-                    call UnitAddAbility(target, ability)
-                endif
-            else
-                set count[i] = count[i] - 1
-                if count[i] <= 0 then
-                    call UnitRemoveAbility(target, ability)
-                endif
-            endif
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                           Start Ability Cooldown                           */
-    /* -------------------------------------------------------------------------- */
-    struct AbilityCooldown
-        timer   timer
-        unit    unit
-        integer ability
-        real    newCd
-
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            call BlzStartUnitAbilityCooldown(unit, ability, newCd)
-            call ReleaseTimer(timer)
-            call deallocate()
-
-            set timer = null
-            set unit  = null
-        endmethod
-
-        static method start takes unit source, integer abilCode, real cooldown returns nothing
-            local thistype this = thistype.allocate()
-
-            set timer   = NewTimerEx(this)
-            set unit    = source
-            set ability = abilCode
-            set newCd   = cooldown
-
-            call TimerStart(timer, 0.01, false, function thistype.onExpire)
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                          Remove Destructable Timed                         */
-    /* -------------------------------------------------------------------------- */
-    struct TimedDestructable
-        private static constant real    period = 0.03125000
-        private static timer            timer  = CreateTimer()
-        private static integer          id    = -1
-        private static thistype array   array
-
-        destructable destructable
-        real duration
-
-        private method remove takes integer i returns integer
-            call RemoveDestructable(destructable)
-
-            set destructable = null
-            set array[i] = array[id]
-            set id = id - 1
-
-            if id == -1 then
-                call PauseTimer(timer)
-            endif
-
-            call deallocate()
-
-            return i - 1
-        endmethod
-
-        private static method onPeriod takes nothing returns nothing
-            local integer  i = 0
-            local thistype this
-
-            loop
-                exitwhen i > id
-                    set this = array[i]
-
-                    if duration <= 0 then
-                        set i = remove(i)
-                    endif
-                    set duration = duration - period
-                set i = i + 1
-            endloop
-        endmethod
-
-        static method create takes destructable dest, real timeout returns thistype
-            local thistype this = thistype.allocate()
-
-            set destructable = dest
-            set duration     = timeout
-            set id           = id + 1
-            set array[id]    = this
-
-            if id == 0 then
-                call TimerStart(timer, period, true, function thistype.onPeriod)
-            endif
-
-            return this
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                                 Timed Pause                                */
-    /* -------------------------------------------------------------------------- */
-    private struct TimedPause
-        static integer array array
-
-        timer timer
-        unit unit
-        integer key
-        boolean flag
-
-        static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            set array[key] = array[key] - 1
-            if array[key] == 0 then
-                call BlzPauseUnitEx(unit, not flag)
-            endif
-            call ReleaseTimer(timer)
-            call deallocate()
-            
-            set timer = null
-            set unit = null
-        endmethod
-
-
-        static method create takes unit u, real duration, boolean pause returns thistype
-            local thistype this = thistype.allocate()
-
-            set timer = NewTimerEx(this)
-            set unit = u
-            set flag = pause
-            set key = GetUnitUserData(u)
-            
-            if array[key] == 0 then
-                call BlzPauseUnitEx(u, pause)
-            endif
-            set array[key] = array[key] + 1
-            
-            call TimerStart(timer, duration, false, function thistype.onExpire)
-            
-            return this
-        endmethod
-    endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                               Public JASS API                              */
-    /* -------------------------------------------------------------------------- */
-
     // Removes a destructable after a period of time
     function RemoveDestructableTimed takes destructable dest, real timeout returns nothing
         call TimedDestructable.create(dest, timeout)
-    endfunction
-
-    // Returns true if a unit is disarmed
-    function IsUnitDisarmed takes unit target returns boolean
-        return Disarm.disarmed(target)
-    endfunction
-
-    // Disarms an unit for a duration
-    function DisarmUnitTimed takes unit target, real duration returns nothing
-        call Disarm.timed(target, duration)
-    endfunction
-
-    // Disarms an unit if flag is true
-    function DisarmUnit takes unit target, boolean flag returns nothing
-        call Disarm.apply(target, flag)
     endfunction
 
     // Link an effect to a unit buff or ability
@@ -1174,17 +170,7 @@ library Utilities requires TimerUtils, Missiles
     // Spams the specified effect model attached to a unit for the given interval for the number of times count
     function SpamEffectUnit takes unit target, string model, string attach, real interval, integer count returns nothing
         call EffectSpam.spam(target, model, attach, 0, 0, 0, 0, interval, count)
-    endfunction
-
-    // Applys Fear to the specified unit for the given duration
-    function UnitApplyFear takes unit whichUnit, real duration, string targetEffect, string attchPoint returns nothing
-        call Fear.apply(whichUnit, duration, targetEffect, attchPoint)
-    endfunction
-
-    // Returns true if the specified unit is currently under the effect of fear effect
-    function IsUnitFeared takes unit whichUnit returns boolean
-        return Fear.feared(whichUnit)
-    endfunction    
+    endfunction   
 
     // Add the specified ability to the specified unit for the given duration. Use hide to show or not the ability button.
     function UnitAddAbilityTimed takes unit whichUnit, integer abilityId, real duration, integer level, boolean hide returns nothing
@@ -1195,16 +181,6 @@ library Utilities requires TimerUtils, Missiles
     function ResetUnitAbilityCooldown takes unit whichUnit, integer abilCode returns nothing
         call ResetCooldown.reset(whichUnit, abilCode)
     endfunction 
-
-    // Knockback the target unit given the angle (Rad) and a distance. Set model and point to attach an effect. Set onCliff to true to make the knockback stop when hitting a cliff, same for the others.
-    function KnockbackUnit takes unit whichUnit, real angle, real distance, real duration, string model, string point, boolean onCliff, boolean onDestructable, boolean onUnit, boolean pause returns nothing
-        call Knockback.start(whichUnit, angle, distance, duration, model, point, onCliff, onDestructable, onUnit, pause)
-    endfunction
-    
-    // Returns true if a unit is currently being knocked back
-    function IsUnitKnockedBack takes unit whichUnit returns boolean
-        return Knockback.isUnitKnocked(whichUnit)
-    endfunction
 
     // Returns the distance between 2 coordinates in Warcraft III units
     function DistanceBetweenCoordinates takes real x1, real y1, real x2, real y2 returns real
@@ -1434,11 +410,6 @@ library Utilities requires TimerUtils, Missiles
         call SetPlayerState(whichPlayer, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(whichPlayer, PLAYER_STATE_RESOURCE_GOLD) + amount)
     endfunction
 
-    // Unit Knockup
-    function KnockupUnit takes unit whichUnit, real airTime, real maxHeight returns nothing
-        call Knockup.create(whichUnit, airTime, maxHeight)
-    endfunction
-
     // Creates a text tag in an unit position for a duration
     function CreateTextOnUnit takes unit whichUnit, string text, real duration, integer red, integer green, integer blue, integer alpha returns nothing
         local texttag tx = CreateTextTag()
@@ -1484,207 +455,6 @@ library Utilities requires TimerUtils, Missiles
         call DummyRecycle(dummy)
 
         set dummy = null
-    endfunction
-
-    // Silences the specified unit for the given duration
-    function SilenceUnit takes unit whichUnit, real duration returns nothing
-        local unit dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetUnitX(whichUnit), GetUnitY(whichUnit), GetUnitFlyHeight(whichUnit), 0)
-        local ability a
-
-        
-        call UnitAddAbility(dummy, SILENCE)
-        set a = BlzGetUnitAbility(dummy, SILENCE)
-        call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_NORMAL, 0, duration)
-        call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_HERO, 0, duration)
-        call IncUnitAbilityLevel(dummy, SILENCE)
-        call DecUnitAbilityLevel(dummy, SILENCE)
-        call IssueTargetOrder(dummy, "drunkenhaze", whichUnit)
-        call UnitRemoveAbility(dummy, SILENCE)
-        call DummyRecycle(dummy)
-
-        set dummy = null
-        set a = null
-    endfunction
-
-    // Silences a group of units for the given duration
-    function SilenceGroup takes group whichGroup, real duration returns nothing
-        local integer i = 0
-        local integer size = BlzGroupGetSize(whichGroup)
-        local unit u
-        local unit dummy
-        local ability a
-
-        if size > 0 then
-            set u = BlzGroupUnitAt(whichGroup, i)
-            set dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetUnitX(u), GetUnitY(u), GetUnitFlyHeight(u), 0)
-            
-            call UnitAddAbility(dummy, SILENCE)
-            set a = BlzGetUnitAbility(dummy, SILENCE)
-            call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_NORMAL, 0, duration)
-            call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_HERO, 0, duration)
-            call IncUnitAbilityLevel(dummy, SILENCE)
-            call DecUnitAbilityLevel(dummy, SILENCE)
-
-            loop
-                exitwhen i == size
-                    set u = BlzGroupUnitAt(whichGroup, i)
-                    if UnitAlive(u) then
-                        call IssueTargetOrder(dummy, "drunkenhaze", u)
-                    endif
-                set i = i + 1
-            endloop
-            call UnitRemoveAbility(dummy, SILENCE)
-            call DummyRecycle(dummy)
-        endif
-
-        set u = null
-        set a = null
-        set dummy = null
-    endfunction
-
-    // Silences all units within the specified AOE with the center at x and y for the given duration
-    function SilenceArea takes real x, real y, real aoe, real duration returns nothing
-        local group g = CreateGroup()
-
-        call GroupEnumUnitsInRange(g, x, y, aoe, null)
-        call SilenceGroup(g, duration)
-        call DestroyGroup(g)
-
-        set g = null
-    endfunction
-
-    // Stuns the specified unit for the given duration
-    function StunUnit takes unit whichUnit, real duration returns nothing
-        local unit dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetUnitX(whichUnit), GetUnitY(whichUnit), GetUnitFlyHeight(whichUnit), 0)
-        local ability a
-
-        call UnitAddAbility(dummy, STUN)
-        set a = BlzGetUnitAbility(dummy, STUN)
-        call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_NORMAL, 0, duration)
-        call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_HERO, 0, duration)
-        call IncUnitAbilityLevel(dummy, STUN)
-        call DecUnitAbilityLevel(dummy, STUN)
-        call IssueTargetOrder(dummy, "thunderbolt", whichUnit)
-        call UnitRemoveAbility(dummy, STUN)
-        call DummyRecycle(dummy)
-        
-        set dummy = null
-        set a = null
-    endfunction
-
-    // Stuns a group of units for the given duration
-    function StunGroup takes group whichGroup, real duration returns nothing
-        local integer i = 0
-        local integer size = BlzGroupGetSize(whichGroup)
-        local unit u
-        local unit dummy
-        local ability a
-
-        if size > 0 then
-            set u = BlzGroupUnitAt(whichGroup, i)
-            set dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetUnitX(u), GetUnitY(u), GetUnitFlyHeight(u), 0)
-            
-            call UnitAddAbility(dummy, STUN)
-            set a = BlzGetUnitAbility(dummy, STUN)
-            call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_NORMAL, 0, duration)
-            call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_HERO, 0, duration)
-            call IncUnitAbilityLevel(dummy, STUN)
-            call DecUnitAbilityLevel(dummy, STUN)
-
-            loop
-                exitwhen i == size
-                    set u = BlzGroupUnitAt(whichGroup, i)
-                    if UnitAlive(u) then
-                        call IssueTargetOrder(dummy, "thunderbolt", u)
-                    endif
-                set i = i + 1
-            endloop
-            call UnitRemoveAbility(dummy, STUN)
-            call DummyRecycle(dummy)
-        endif
-
-        set u = null
-        set a = null
-        set dummy = null
-    endfunction
-
-    // Stuns all units within the specified AOE with the center at x and y for the given duration
-    function StunArea takes real x, real y, real aoe, real duration returns nothing
-        local group g = CreateGroup()
-
-        call GroupEnumUnitsInRange(g, x, y, aoe, null)
-        call StunGroup(g, duration)
-        call DestroyGroup(g)
-
-        set g = null
-    endfunction
-
-    // Slows the specified unit for the given duration
-    function SlowUnit takes unit whichUnit, real amount, real duration returns nothing
-        local unit dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetUnitX(whichUnit), GetUnitY(whichUnit), GetUnitFlyHeight(whichUnit), 0)
-        local ability a
-
-        call UnitAddAbility(dummy, SLOW)
-        set a = BlzGetUnitAbility(dummy, SLOW)
-        call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_NORMAL, 0, duration)
-        call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_HERO, 0, duration)
-        call BlzSetAbilityRealLevelField(a, ABILITY_RLF_MOVEMENT_SPEED_REDUCTION_PERCENT_CRI1, 0, amount)
-        call IncUnitAbilityLevel(dummy, SLOW)
-        call DecUnitAbilityLevel(dummy, SLOW)
-        call IssueTargetOrder(dummy, "cripple", whichUnit)
-        call UnitRemoveAbility(dummy, SLOW)
-        call DummyRecycle(dummy)
-
-        set dummy = null
-        set a = null
-    endfunction
-
-    // Slows a group of units for the given duration
-    function SlowGroup takes group whichGroup, real amount, real duration returns nothing
-        local integer i = 0
-        local integer size = BlzGroupGetSize(whichGroup)
-        local unit u
-        local unit dummy
-        local ability a
-
-        if size > 0 then
-            set u = BlzGroupUnitAt(whichGroup, i)
-            set dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetUnitX(u), GetUnitY(u), GetUnitFlyHeight(u), 0)
-            
-            call UnitAddAbility(dummy, SLOW)
-            set a = BlzGetUnitAbility(dummy, SLOW)
-            call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_NORMAL, 0, duration)
-            call BlzSetAbilityRealLevelField(a, ABILITY_RLF_DURATION_HERO, 0, duration)
-            call BlzSetAbilityRealLevelField(a, ABILITY_RLF_MOVEMENT_SPEED_FACTOR_SLO1, 0, amount)
-            call IncUnitAbilityLevel(dummy, SLOW)
-            call DecUnitAbilityLevel(dummy, SLOW)
-
-            loop
-                exitwhen i == size
-                    set u = BlzGroupUnitAt(whichGroup, i)
-                    if UnitAlive(u) then
-                        call IssueTargetOrder(dummy, "slow", u)
-                    endif
-                set i = i + 1
-            endloop
-            call UnitRemoveAbility(dummy, SLOW)
-            call DummyRecycle(dummy)
-        endif
-
-        set u = null
-        set a = null
-        set dummy = null
-    endfunction
-
-    // Slows all units within the specified AOE with the center at x and y for the given duration
-    function SlowArea takes real x, real y, real aoe, real amount, real duration returns nothing
-        local group g = CreateGroup()
-
-        call GroupEnumUnitsInRange(g, x, y, aoe, null)
-        call SlowGroup(g, amount, duration)
-        call DestroyGroup(g)
-
-        set g = null
     endfunction
 
     // Returns a random unit within a group
@@ -1895,4 +665,592 @@ library Utilities requires TimerUtils, Missiles
     function PauseUnitTimed takes unit u, real duration, boolean flag returns nothing
         call TimedPause.create(u, duration, flag)
     endfunction
+
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             Systems                                            */
+    /* ---------------------------------------------------------------------------------------------- */
+    /* ----------------------------------- Reset Ability Cooldown ----------------------------------- */
+    struct ResetCooldown
+        timer timer
+        unit unit
+        integer ability
+
+        private static method onExpire takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
+
+            call BlzEndUnitAbilityCooldown(unit, ability)
+            call ReleaseTimer(timer)
+            call deallocate()
+            
+            set unit = null
+            set timer  = null
+        endmethod
+
+        static method reset takes unit u, integer id returns nothing
+            local thistype this = thistype.allocate()
+
+            set timer = NewTimerEx(this)
+            set unit = u
+            set ability = id
+
+            call TimerStart(timer, 0.01, false, function thistype.onExpire)
+        endmethod 
+    endstruct
+
+    /* ---------------------------------------- Timed Ability --------------------------------------- */
+    struct TimedAbility
+        static timer timer = CreateTimer()
+        static integer key = -1
+        static thistype array array
+
+        unit unit
+        integer ability
+        real duration
+
+        method remove takes integer i returns integer
+            call UnitRemoveAbility(unit, ability)
+            call RemoveSavedInteger(table, GetHandleId(unit), ability)
+
+            set array[i] = array[key]
+            set key = key - 1
+            set unit = null
+
+            if key == -1 then
+                call PauseTimer(timer)
+            endif
+
+            call deallocate()
+
+            return i - 1
+        endmethod
+
+        static method onPeriod takes nothing returns nothing
+            local integer i = 0
+            local thistype this
+
+            loop
+                exitwhen i > key
+                    set this = array[i]
+
+                    if duration <= 0 then
+                        set i = remove(i)
+                    endif
+                    set duration = duration - 0.1
+                set i = i + 1
+            endloop
+        endmethod
+
+
+        static method add takes unit u, integer id, real duration, integer level, boolean hide returns nothing
+            local thistype this = LoadInteger(table, GetHandleId(u), id)
+            
+            if this == 0 then
+                set this = thistype.allocate()
+                set unit = u
+                set ability = id
+                set key = key + 1
+                set array[key] = this
+
+                call SaveInteger(table, GetHandleId(unit), ability, this)
+
+                if key == 0 then
+                    call TimerStart(timer, 0.1, true, function thistype.onPeriod)
+                endif
+            endif
+
+            if GetUnitAbilityLevel(unit, ability) != level then
+                call UnitAddAbility(unit, ability)
+                call SetUnitAbilityLevel(unit, ability, level)
+                call UnitMakeAbilityPermanent(unit, true, ability)
+                call BlzUnitHideAbility(unit, ability, hide)
+            endif
+
+            set .duration = duration
+        endmethod
+    endstruct
+
+    /* ----------------------------------------- Effect Spam ---------------------------------------- */
+    struct EffectSpam
+        timer timer
+        unit unit 
+        integer i 
+        string effect
+        string point
+        real scale
+        real x
+        real y
+        real z
+
+        private static method onPeriod takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
+
+            if i > 0 then
+                if unit == null then
+                    call DestroyEffect(AddSpecialEffectEx(effect, x, y, z, scale))
+                else
+                    call DestroyEffect(AddSpecialEffectTarget(effect, unit, point))
+                endif
+            else
+                call ReleaseTimer(timer)
+                call deallocate()
+                set timer = null
+                set unit = null
+            endif
+            set i = i - 1
+        endmethod
+
+        static method spam takes unit target, string model, string attach, real x, real y, real z, real scale, real interval, integer count returns nothing
+            local thistype this = thistype.allocate()
+
+            set timer = NewTimerEx(this)
+            set unit = target
+            set i = count
+            set effect = model
+            set .x = x
+            set .y = y
+            set .z = z
+            set .scale = scale
+            set point = attach
+
+            call TimerStart(timer, interval, true, function thistype.onPeriod)
+        endmethod
+    endstruct
+
+    /* --------------------------------------- Chain Lightning -------------------------------------- */
+    struct ChainLightning
+        timer      timer
+        unit       unit
+        unit       prev
+        unit       self
+        unit       next
+        group      group
+        group      damaged
+        player     player
+        real       damage
+        real       range
+        real       duration
+        integer    bounces
+        attacktype attacktype
+        damagetype damagetype
+        string     lightning
+        string     effect
+        string     attach
+        boolean    rebounce
+
+        private method destroy takes nothing returns nothing
+            call DestroyGroup(group)
+            call ReleaseTimer(timer)
+            call DestroyGroup(damaged)
+
+            set prev       = null
+            set self       = null
+            set next       = null 
+            set unit       = null
+            set group      = null
+            set timer      = null
+            set player     = null
+            set damaged    = null
+            set attacktype = null
+            set damagetype = null
+
+            call deallocate()
+        endmethod
+
+        private static method onPeriod takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
+            
+            call DestroyGroup(group)
+            if bounces > 0 then
+                set group = GetEnemyUnitsInRange(player, GetUnitX(self), GetUnitY(self), range, false, false)
+                call GroupRemoveUnit(group, self)
+                
+                if not rebounce then
+                    call BlzGroupRemoveGroupFast(damaged, group)
+                endif
+                
+                if BlzGroupGetSize(group) == 0 then
+                    call destroy()
+                else
+                    set next = GetClosestUnitGroup(GetUnitX(self), GetUnitY(self), group)
+                    
+                    if next == prev and BlzGroupGetSize(group) > 1 then
+                        call GroupRemoveUnit(group, prev)
+                        set next = GetClosestUnitGroup(GetUnitX(self), GetUnitY(self), group)
+                    endif
+                    
+                    if next != null then
+                        call DestroyLightningTimed(AddLightningEx(lightning, true, GetUnitX(self), GetUnitY(self), GetUnitZ(self) + 60.0, GetUnitX(next), GetUnitY(next), GetUnitZ(next) + 60.0), duration)
+                        call DestroyEffect(AddSpecialEffectTarget(effect, next, attach))
+                        call GroupAddUnit(damaged, next)
+                        call UnitDamageTarget(unit, next, damage, false, false, attacktype, damagetype, null)
+                        call DestroyGroup(group)
+                        set prev = self
+                        set self = next
+                        set next = null
+                    else
+                        call destroy()
+                    endif
+                endif
+            else
+                call destroy()
+            endif
+            set bounces = bounces - 1
+        endmethod
+
+        static method create takes unit source, unit target, real dmg, real aoe, real dur, real interval, integer bounceCount, attacktype attackType, damagetype damageType, string lightningType, string sfx, string attachPoint, boolean canRebounce returns thistype
+            local group    g
+            local thistype this
+
+            set g = GetEnemyUnitsInRange(GetOwningPlayer(source), GetUnitX(target), GetUnitY(target), aoe, false, false)
+
+            if BlzGroupGetSize(g) == 1 then
+                call DestroyLightningTimed(AddLightningEx(lightningType, true, GetUnitX(source), GetUnitY(source), BlzGetUnitZ(source) + 60.0, GetUnitX(target), GetUnitY(target), BlzGetUnitZ(target) + 60.0), dur)
+                call DestroyEffect(AddSpecialEffectTarget(sfx, target, attachPoint))
+                call UnitDamageTarget(source, target, dmg, false, false, attackType, damageType, null)
+            else
+                set this       = thistype.allocate()
+                set timer      = NewTimerEx(this)
+                set prev       = null
+                set self       = target
+                set next       = null
+                set unit       = source
+                set player     = GetOwningPlayer(source)
+                set damage     = dmg
+                set range      = aoe
+                set duration   = dur
+                set bounces    = bounceCount
+                set attacktype = attackType
+                set damagetype = damageType
+                set lightning  = lightningType
+                set effect     = sfx
+                set attach     = attachPoint
+                set rebounce   = canRebounce
+                set damaged    = CreateGroup()
+
+                call GroupRemoveUnit(g, target)
+                call GroupAddUnit(damaged, target)
+                call DestroyEffect(AddSpecialEffectTarget(sfx, target, attachPoint))
+                call UnitDamageTarget(source, target, damage, false, false, attacktype, damagetype, null)
+                call TimerStart(timer, interval, true, function thistype.onPeriod)
+            endif
+            call DestroyGroup(g)
+            set g = null
+
+            return this
+        endmethod
+    endstruct
+
+    /* ----------------------------------------- Dummy Pool ----------------------------------------- */
+    struct DummyPool
+        private static player player = Player(PLAYER_NEUTRAL_PASSIVE)
+        private static group  group  = CreateGroup()
+
+        timer timer
+        unit  unit
+
+        static method recycle takes unit dummy returns nothing
+            if GetUnitTypeId(dummy) != DUMMY then
+                debug call BJDebugMsg("[DummyPool] Error: Trying to recycle a non dummy unit")
+            else
+                call GroupAddUnit(group, dummy)
+                call SetUnitX(dummy, WorldBounds.maxX)
+                call SetUnitY(dummy, WorldBounds.maxY)
+                call SetUnitOwner(dummy, player, false)
+                call ShowUnit(dummy, false)
+                call BlzPauseUnitEx(dummy, true)
+            endif
+        endmethod
+
+        static method retrieve takes player owner, real x, real y, real z, real face returns unit
+            if BlzGroupGetSize(group) > 0 then
+                set bj_lastCreatedUnit = FirstOfGroup(group)
+                call BlzPauseUnitEx(bj_lastCreatedUnit, false)
+                call ShowUnit(bj_lastCreatedUnit, true)
+                call GroupRemoveUnit(group, bj_lastCreatedUnit)
+                call SetUnitX(bj_lastCreatedUnit, x)
+                call SetUnitY(bj_lastCreatedUnit, y)
+                call SetUnitFlyHeight(bj_lastCreatedUnit, z, 0)
+                call BlzSetUnitFacingEx(bj_lastCreatedUnit, face*bj_RADTODEG)
+                call SetUnitOwner(bj_lastCreatedUnit, owner, false)
+            else
+                set bj_lastCreatedUnit = CreateUnit(owner, DUMMY, x, y, face*bj_RADTODEG)
+                call SetUnitFlyHeight(bj_lastCreatedUnit, z, 0)
+            endif
+
+            return bj_lastCreatedUnit
+        endmethod
+
+        private static method onExpire takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
+
+            call recycle(unit)
+            call ReleaseTimer(timer)
+            
+            set timer = null
+            set unit  = null
+
+            call deallocate()
+        endmethod
+
+        static method recycleTimed takes unit dummy, real delay returns nothing
+            local thistype this
+
+            if GetUnitTypeId(dummy) != DUMMY then
+                debug call BJDebugMsg("[DummyPool] Error: Trying to recycle a non dummy unit")
+            else
+                set this = thistype.allocate()
+
+                set timer = NewTimerEx(this)
+                set unit  = dummy
+                
+                call TimerStart(timer, delay, false, function thistype.onExpire)
+            endif
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            local integer i = 0
+            local unit    u
+
+            loop
+                exitwhen i == 20
+                    set u = CreateUnit(player, DUMMY, WorldBounds.maxX, WorldBounds.maxY, 0)
+                    call BlzPauseUnitEx(u, false)
+                    call GroupAddUnit(group, u)
+                set i = i + 1
+            endloop
+
+            set u = null
+        endmethod
+    endstruct
+
+    /* ----------------------------------------- Effect Link ---------------------------------------- */
+    struct EffectLink
+        static timer timer = CreateTimer()
+        //Dynamic Indexing for buff and timed
+        static integer didx = -1
+        static thistype array data
+        //Dynamic Indexing for items
+        static integer ditem = -1
+        static thistype array items
+
+        unit    unit
+        effect  effect
+        item    item
+        integer buff
+
+        method remove takes integer i, boolean isItem returns integer
+            call DestroyEffect(effect)
+
+            if isItem then
+                set  items[i] = items[ditem]
+                set  ditem    = ditem - 1
+            else
+                set  data[i] = data[didx]
+                set  didx    = didx - 1
+
+                if didx == -1 then
+                    call PauseTimer(timer)
+                endif
+            endif
+
+            set unit   = null
+            set item   = null
+            set effect = null
+
+            call deallocate()
+
+            return i - 1
+        endmethod
+
+        static method onDrop takes nothing returns nothing
+            local item     j = GetManipulatedItem()
+            local integer  i = 0
+            local thistype this
+
+            loop
+                exitwhen i > ditem
+                    set this = items[i]
+
+                    if item == j then
+                        set i = remove(i, true)
+                    endif
+                set i = i + 1
+            endloop
+
+            set j = null
+        endmethod
+
+        static method onPeriod takes nothing returns nothing
+            local integer i = 0
+            local thistype this
+
+            loop
+                exitwhen i > didx
+                    set this = data[i]
+
+                    if GetUnitAbilityLevel(unit, buff) == 0 then
+                        set i = remove(i, false)
+                    endif
+                set i = i + 1
+            endloop
+        endmethod
+
+        static method BuffLink takes unit target, integer id, string model, string attach returns nothing
+            local thistype this = thistype.allocate()
+
+            set unit       = target
+            set buff       = id
+            set effect     = AddSpecialEffectTarget(model, target, attach)
+            set didx       = didx + 1
+            set data[didx] = this
+            
+            if didx == 0 then
+                call TimerStart(timer, 0.03125000, true, function thistype.onPeriod)
+            endif
+        endmethod
+
+        static method ItemLink takes unit target, item i, string model, string attach returns nothing
+            local thistype this = thistype.allocate()
+
+            set item         = i
+            set effect       = AddSpecialEffectTarget(model, target, attach)
+            set ditem        = ditem + 1
+            set items[ditem] = this
+        endmethod
+
+        static method onInit takes nothing returns nothing
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function thistype.onDrop)
+        endmethod
+    endstruct
+
+    /* ----------------------------------- Start Ability Cooldown ----------------------------------- */
+    struct AbilityCooldown
+        timer   timer
+        unit    unit
+        integer ability
+        real    newCd
+
+        private static method onExpire takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
+
+            call BlzStartUnitAbilityCooldown(unit, ability, newCd)
+            call ReleaseTimer(timer)
+            call deallocate()
+
+            set timer = null
+            set unit  = null
+        endmethod
+
+        static method start takes unit source, integer abilCode, real cooldown returns nothing
+            local thistype this = thistype.allocate()
+
+            set timer   = NewTimerEx(this)
+            set unit    = source
+            set ability = abilCode
+            set newCd   = cooldown
+
+            call TimerStart(timer, 0.01, false, function thistype.onExpire)
+        endmethod
+    endstruct
+
+    /* ------------------------------------- Destructable Timed ------------------------------------- */
+    struct TimedDestructable
+        private static constant real    period = 0.03125000
+        private static timer            timer  = CreateTimer()
+        private static integer          id    = -1
+        private static thistype array   array
+
+        destructable destructable
+        real duration
+
+        private method remove takes integer i returns integer
+            call RemoveDestructable(destructable)
+
+            set destructable = null
+            set array[i] = array[id]
+            set id = id - 1
+
+            if id == -1 then
+                call PauseTimer(timer)
+            endif
+
+            call deallocate()
+
+            return i - 1
+        endmethod
+
+        private static method onPeriod takes nothing returns nothing
+            local integer  i = 0
+            local thistype this
+
+            loop
+                exitwhen i > id
+                    set this = array[i]
+
+                    if duration <= 0 then
+                        set i = remove(i)
+                    endif
+                    set duration = duration - period
+                set i = i + 1
+            endloop
+        endmethod
+
+        static method create takes destructable dest, real timeout returns thistype
+            local thistype this = thistype.allocate()
+
+            set destructable = dest
+            set duration     = timeout
+            set id           = id + 1
+            set array[id]    = this
+
+            if id == 0 then
+                call TimerStart(timer, period, true, function thistype.onPeriod)
+            endif
+
+            return this
+        endmethod
+    endstruct
+
+    /* ----------------------------------------- Timed Pause ---------------------------------------- */
+    struct TimedPause
+        static integer array array
+
+        timer timer
+        unit unit
+        integer key
+        boolean flag
+
+        static method onExpire takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
+
+            set array[key] = array[key] - 1
+            if array[key] == 0 then
+                call BlzPauseUnitEx(unit, not flag)
+            endif
+            call ReleaseTimer(timer)
+            call deallocate()
+            
+            set timer = null
+            set unit = null
+        endmethod
+
+
+        static method create takes unit u, real duration, boolean pause returns thistype
+            local thistype this = thistype.allocate()
+
+            set timer = NewTimerEx(this)
+            set unit = u
+            set flag = pause
+            set key = GetUnitUserData(u)
+            
+            if array[key] == 0 then
+                call BlzPauseUnitEx(u, pause)
+            endif
+            set array[key] = array[key] + 1
+            
+            call TimerStart(timer, duration, false, function thistype.onExpire)
+            
+            return this
+        endmethod
+    endstruct
 endlibrary

@@ -1,23 +1,21 @@
-library NewBonus requires optional DamageInterface, optional Evasion, optional CriticalStrike, optional SpellPower, optional LifeSteal, optional SpellVamp, optional CooldownReduction
-    /* ----------------------- NewBonus v2.3 by Chopinski ----------------------- */
-    //! novjass
-        Since ObjectMerger is broken and we still have no means to edit
-        bonus values (green values) i decided to create a light weight
-        Bonus library that works in the same way that the original Bonus Mod
-        by Earth Fury did. NewBonus requires patch 1.30+.
-        Credits to Earth Fury for the original Bonus idea
+library NewBonus requires optional DamageInterface, optional Evasion, optional CriticalStrike, optional SpellPower, optional LifeSteal, optional SpellVamp, optional CooldownReduction, optional Tenacity
+    /* ---------------------------------------- NewBonus v2.4 --------------------------------------- */
+    // Since ObjectMerger is broken and we still have no means to edit
+    // bonus values (green values) i decided to create a light weight
+    // Bonus library that works in the same way that the original Bonus Mod
+    // by Earth Fury did. NewBonus requires patch 1.30+.
+    // Credits to Earth Fury for the original Bonus idea
+
+    // How to Import?
+    // Importing bonus mod is really simple. Just copy the 9 abilities with the
+    // prefix "NewBonus" from the Object Editor into your map and match their new raw
+    // code to the bonus types in the global block below. Then create a trigger called
+    // NewBonus, convert it to custom text and paste this code there. You done!
+    /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
-        How to Import?
-        Importing bonus mod is really simple. Just copy the 9 abilities with the
-        prefix "NewBonus" from the Object Editor into your map and match their new raw
-        code to the bonus types in the global block below. Then create a trigger called
-        NewBonus, convert it to custom text and paste this code there. You done!
-    //! endnovjass
-    /* ----------------------------------- END ---------------------------------- */
-    
-    /* -------------------------------------------------------------------------- */
-    /*                                Configuration                               */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                          Configuration                                         */
+    /* ---------------------------------------------------------------------------------------------- */
     globals
         // If true will use the extended version of the system.
         // Make sure you have the DamageInterface and Cooldown Reduction libraries
@@ -53,6 +51,9 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
         constant integer BONUS_COOLDOWN_REDUCTION         = 22
         constant integer BONUS_COOLDOWN_REDUCTION_FLAT    = 23
         constant integer BONUS_COOLDOWN_OFFSET            = 24
+        constant integer BONUS_TENACITY                   = 25
+        constant integer BONUS_TENACITY_FLAT              = 26
+        constant integer BONUS_TENACITY_OFFSET            = 27
     
         //The abilities codes for each bonus
         //When pasting the abilities over to your map
@@ -92,9 +93,66 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
         private constant abilityreallevelfield    LIFE_STEAL_FIELD       = ABILITY_RLF_LIFE_STOLEN_PER_ATTACK
     endglobals
     
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                            JASS API                                            */
+    /* ---------------------------------------------------------------------------------------------- */
+    function GetUnitBonus takes unit source, integer bonus returns real
+        return NewBonus.get(source, bonus)
+    endfunction
+
+    function SetUnitBonus takes unit source, integer bonus, real amount returns real
+        return NewBonus.Set(source, bonus, amount, false)
+    endfunction
+    
+    function RemoveUnitBonus takes unit source, integer bonus returns nothing
+        if bonus == BONUS_CRITICAL_DAMAGE then
+            call NewBonus.Set(source, bonus, 1, false)
+        else
+            call NewBonus.Set(source, bonus, 0, false)
+        endif
+        
+        if bonus == BONUS_LIFE_STEAL then
+            call UnitRemoveAbility(source, LIFE_STEAL_ABILITY)
+        endif
+    endfunction
+    
+    function AddUnitBonus takes unit source, integer bonus, real amount returns real
+        return NewBonus.add(source, bonus, amount)
+    endfunction
+    
+    function RegisterBonusEvent takes code c returns nothing
+        call NewBonus.register(c, 0)
+    endfunction
+    
+    function RegisterBonusTypeEvent takes integer bonus, code c returns nothing
+        call NewBonus.register(c, bonus)
+    endfunction
+    
+    function GetBonusUnit takes nothing returns unit
+        return NewBonus.unit[NewBonus.event]
+    endfunction
+    
+    function GetBonusType takes nothing returns integer
+        return NewBonus.type[NewBonus.event]
+    endfunction
+    
+    function SetBonusType takes integer bonus returns nothing
+        if bonus >= BONUS_DAMAGE and bonus <= NewBonus.last then
+            set NewBonus.type[NewBonus.event] = bonus
+        endif
+    endfunction
+    
+    function GetBonusAmount takes nothing returns real
+        return NewBonus.real[NewBonus.event]
+    endfunction
+    
+    function SetBonusAmount takes real amount returns nothing
+        set NewBonus.real[NewBonus.event] = amount
+    endfunction
+
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             System                                             */
+    /* ---------------------------------------------------------------------------------------------- */
     struct NewBonus
         private static trigger trigger = CreateTrigger()
         readonly static integer event = -1
@@ -210,7 +268,7 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
             elseif bonus == BONUS_MAGIC_RESISTANCE then
                 return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, MAGIC_RESISTANCE_ABILITY), MAGIC_RESISTANCE_FIELD, 0)
             elseif bonus >= BONUS_EVASION_CHANCE and bonus <= last then
-                static if EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp then
+                static if EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp and LIBRARY_Tenacity then
                     if bonus == BONUS_EVASION_CHANCE then
                         return GetUnitEvasionChance(source)
                     elseif bonus == BONUS_MISS_CHANCE then
@@ -233,6 +291,12 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
                         return GetUnitCooldownReductionFlat(source)
                     elseif bonus == BONUS_COOLDOWN_OFFSET then
                         return GetUnitCooldownOffset(source)
+                    elseif bonus == BONUS_TENACITY then
+                        return GetUnitTenacity(source)
+                    elseif bonus == BONUS_TENACITY_FLAT then
+                        return GetUnitTenacityFlat(source)
+                    elseif bonus == BONUS_TENACITY_OFFSET then
+                        return GetUnitTenacityOffset(source)
                     endif
                 else
                     if bonus == BONUS_CRITICAL_CHANCE then
@@ -326,7 +390,7 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
             elseif bonus == BONUS_MAGIC_RESISTANCE then
                 return setAbilityR(source, MAGIC_RESISTANCE_ABILITY, MAGIC_RESISTANCE_FIELD, amount)
             elseif bonus >= BONUS_EVASION_CHANCE and bonus <= last then
-                static if EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp then
+                static if EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp and LIBRARY_Tenacity then
                     if bonus == BONUS_EVASION_CHANCE then
                         call SetUnitEvasionChance(source, amount)
                     elseif bonus == BONUS_MISS_CHANCE then
@@ -353,6 +417,16 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
                         call SetUnitCooldownReductionFlat(source, amount)
                     elseif bonus == BONUS_COOLDOWN_OFFSET then
                         call SetUnitCooldownOffset(source, amount)
+                    elseif bonus == BONUS_TENACITY then
+                        if adding then
+                            call UnitAddTenacity(source, amount)
+                        else
+                            call SetUnitTenacity(source, amount)
+                        endif
+                    elseif bonus == BONUS_TENACITY_FLAT then
+                        call SetUnitTenacityFlat(source, amount)
+                    elseif bonus == BONUS_TENACITY_OFFSET then
+                        call SetUnitTenacityOffset(source, amount)
                     endif
                     
                     set linkType = bonus
@@ -414,8 +488,8 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
                 if type[event] >= BONUS_HEALTH_REGEN then
                     set value = real[event]
                 
-                    static if EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp then
-                        if type[event] == BONUS_COOLDOWN_REDUCTION then
+                    static if EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp and LIBRARY_Tenacity then
+                        if type[event] == BONUS_COOLDOWN_REDUCTION or type[event] == BONUS_TENACITY then
                             call Set(unit[event], type[event], real[event], true)
                         else
                             call Set(unit[event], type[event], get(unit[event], type[event]) + real[event], true)
@@ -447,68 +521,11 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
         endmethod
         
         private static method onInit takes nothing returns nothing
-            static if EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp then
-                set last = BONUS_COOLDOWN_OFFSET
+            static if EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp and LIBRARY_Tenacity then
+                set last = BONUS_TENACITY_OFFSET
             else
                 set last = BONUS_LIFE_STEAL
             endif
         endmethod
     endstruct
-    
-    /* -------------------------------------------------------------------------- */
-    /*                                  JASS API                                  */
-    /* -------------------------------------------------------------------------- */
-    function GetUnitBonus takes unit source, integer bonus returns real
-        return NewBonus.get(source, bonus)
-    endfunction
-
-    function SetUnitBonus takes unit source, integer bonus, real amount returns real
-        return NewBonus.Set(source, bonus, amount, false)
-    endfunction
-    
-    function RemoveUnitBonus takes unit source, integer bonus returns nothing
-        if bonus == BONUS_CRITICAL_DAMAGE then
-            call NewBonus.Set(source, bonus, 1, false)
-        else
-            call NewBonus.Set(source, bonus, 0, false)
-        endif
-        
-        if bonus == BONUS_LIFE_STEAL then
-            call UnitRemoveAbility(source, LIFE_STEAL_ABILITY)
-        endif
-    endfunction
-    
-    function AddUnitBonus takes unit source, integer bonus, real amount returns real
-        return NewBonus.add(source, bonus, amount)
-    endfunction
-    
-    function RegisterBonusEvent takes code c returns nothing
-        call NewBonus.register(c, 0)
-    endfunction
-    
-    function RegisterBonusTypeEvent takes integer bonus, code c returns nothing
-        call NewBonus.register(c, bonus)
-    endfunction
-    
-    function GetBonusUnit takes nothing returns unit
-        return NewBonus.unit[NewBonus.event]
-    endfunction
-    
-    function GetBonusType takes nothing returns integer
-        return NewBonus.type[NewBonus.event]
-    endfunction
-    
-    function SetBonusType takes integer bonus returns nothing
-        if bonus >= BONUS_DAMAGE and bonus <= NewBonus.last then
-            set NewBonus.type[NewBonus.event] = bonus
-        endif
-    endfunction
-    
-    function GetBonusAmount takes nothing returns real
-        return NewBonus.real[NewBonus.event]
-    endfunction
-    
-    function SetBonusAmount takes real amount returns nothing
-        set NewBonus.real[NewBonus.event] = amount
-    endfunction
 endlibrary

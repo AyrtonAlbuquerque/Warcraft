@@ -1,37 +1,58 @@
 library NewBonusUtils requires NewBonus, RegisterPlayerUnitEvent
-    /* ----------------------- NewBonusUtils v2.3 by Chopinski ----------------------- */
-    //! novjass
-   Required Library: RegisterPlayerUnitEvent -> www.hiveworkshop.com/threads/snippet-registerplayerunitevent.203338/
+    /* ------------------------------------- NewBonusUtils v2.4 ------------------------------------- */
+    // Required Library: RegisterPlayerUnitEvent -> www.hiveworkshop.com/threads/snippet-registerplayerunitevent.203338/
 
-        API:
-        function AddUnitBonusTimed takes unit u, integer bonus_type, real amount, real duration returns nothing
-            -> Add the specified amount for the specified bonus type for unit for a duration
-            -> Example: call AddUnitBonusTimed(GetTriggerUnit(), BONUS_ARMOR, 13, 10.5)
+    // API:
+    // function AddUnitBonusTimed takes unit u, integer bonus_type, real amount, real duration returns nothing
+    //     -> Add the specified amount for the specified bonus type for unit for a duration
+    //     -> Example: call AddUnitBonusTimed(GetTriggerUnit(), BONUS_ARMOR, 13, 10.5)
 
-        function LinkBonusToBuff takes unit u, integer bonus_type, real amount, integer buffId returns nothing
-            -> Links the bonus amount specified to a buff or ability. As long as the unit has the buff or
-            -> the ability represented by the parameter buffId the bonus is not removed.
-            -> Example: call LinkBonusToBuff(GetTriggerUnit(), BONUS_ARMOR, 10, 'B000')
- 
-        function LinkBonusToItem takes unit u, integer bonus_type, real amount, item i returns nothing
-            -> Links the bonus amount specified to an item. As long as the unit has that item the bonus is not removed.
-            -> Note that it will work for items with the same id, because it takes as parameter the item object.
-            -> Example: call LinkBonusToItem(GetManipulatingUnit(), BONUS_ARMOR, 10, GetManipulatedItem())
+    // function LinkBonusToBuff takes unit u, integer bonus_type, real amount, integer buffId returns nothing
+    //     -> Links the bonus amount specified to a buff or ability. As long as the unit has the buff or
+    //     -> the ability represented by the parameter buffId the bonus is not removed.
+    //     -> Example: call LinkBonusToBuff(GetTriggerUnit(), BONUS_ARMOR, 10, 'B000')
 
-        function UnitCopyBonuses takes unit source, unit target returns nothing
-            -> Copy the source unit bonuses using the Add functionality to the target unit
-            -> Example: call UnitCopyBonuses(GetTriggerUnit(), GetSummonedUnit())
+    // function LinkBonusToItem takes unit u, integer bonus_type, real amount, item i returns nothing
+    //     -> Links the bonus amount specified to an item. As long as the unit has that item the bonus is not removed.
+    //     -> Note that it will work for items with the same id, because it takes as parameter the item object.
+    //     -> Example: call LinkBonusToItem(GetManipulatingUnit(), BONUS_ARMOR, 10, GetManipulatedItem())
 
-        function UnitMirrorBonuses takes unit source, unit target returns nothing
-            -> Copy the source unit bonuses using the Set functionality to the target unit
-            -> Example: call UnitMirrorBonuses(GetTriggerUnit(), GetSummonedUnit())
-    //! endnovjass
-    /* ----------------------------------- END ---------------------------------- */
+    // function UnitCopyBonuses takes unit source, unit target returns nothing
+    //     -> Copy the source unit bonuses using the Add functionality to the target unit
+    //     -> Example: call UnitCopyBonuses(GetTriggerUnit(), GetSummonedUnit())
+
+    // function UnitMirrorBonuses takes unit source, unit target returns nothing
+    //     -> Copy the source unit bonuses using the Set functionality to the target unit
+    //     -> Example: call UnitMirrorBonuses(GetTriggerUnit(), GetSummonedUnit())
+    /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
-    private struct NewBonusUtils extends NewBonus
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                            JASS API                                            */
+    /* ---------------------------------------------------------------------------------------------- */
+    function AddUnitBonusTimed takes unit source, integer bonus, real amount, real duration returns nothing
+        call NewBonusUtils.linkTimed(source, bonus, amount, duration, true)
+    endfunction
+
+    function LinkBonusToBuff takes unit source, integer bonus, real amount, integer id returns nothing
+        call NewBonusUtils.linkBuff(source, bonus, amount, id, false)
+    endfunction
+
+    function LinkBonusToItem takes unit source, integer bonus, real amount, item i returns nothing
+        call NewBonusUtils.linkItem(source, bonus, amount, i)
+    endfunction
+
+    function UnitCopyBonuses takes unit source, unit target returns nothing
+        call NewBonusUtils.copy(source, target)
+    endfunction
+
+    function UnitMirrorBonuses takes unit source, unit target returns nothing
+        call NewBonusUtils.mirror(source, target)
+    endfunction
+
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             System                                             */
+    /* ---------------------------------------------------------------------------------------------- */
+    struct NewBonusUtils extends NewBonus
         static constant real period = 0.03125000
         static timer timer = CreateTimer()
         static integer key = -1
@@ -48,9 +69,11 @@ library NewBonusUtils requires NewBonus, RegisterPlayerUnitEvent
         boolean link
 
         method remove takes integer i, boolean isItem returns integer
-            static if NewBonus_EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp then
+            static if NewBonus_EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp and LIBRARY_Tenacity then
                 if bonus_t == BONUS_COOLDOWN_REDUCTION then
                     call UnitRemoveCooldownReduction(source, amount)
+                elseif bonus_t == BONUS_TENACITY then
+                    call UnitRemoveTenacity(source, amount)
                 else
                     call AddUnitBonus(source, bonus_t, -amount)
                 endif
@@ -185,27 +208,4 @@ library NewBonusUtils requires NewBonus, RegisterPlayerUnitEvent
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function thistype.onDrop)
         endmethod
     endstruct
-
-    /* -------------------------------------------------------------------------- */
-    /*                                  JASS API                                  */
-    /* -------------------------------------------------------------------------- */
-    function AddUnitBonusTimed takes unit source, integer bonus, real amount, real duration returns nothing
-        call NewBonusUtils.linkTimed(source, bonus, amount, duration, true)
-    endfunction
-
-    function LinkBonusToBuff takes unit source, integer bonus, real amount, integer id returns nothing
-        call NewBonusUtils.linkBuff(source, bonus, amount, id, false)
-    endfunction
-
-    function LinkBonusToItem takes unit source, integer bonus, real amount, item i returns nothing
-        call NewBonusUtils.linkItem(source, bonus, amount, i)
-    endfunction
-
-    function UnitCopyBonuses takes unit source, unit target returns nothing
-        call NewBonusUtils.copy(source, target)
-    endfunction
-
-    function UnitMirrorBonuses takes unit source, unit target returns nothing
-        call NewBonusUtils.mirror(source, target)
-    endfunction
 endlibrary
