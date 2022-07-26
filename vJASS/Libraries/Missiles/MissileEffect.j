@@ -1,15 +1,15 @@
 library MissileEffect requires WorldBounds, Alloc
-    /* -------------------- Missile Effect v2.6 by Chopinski -------------------- */
+    /* ------------------------------------- Missile Effect v2.7 ------------------------------------ */
     // This is a simple helper library for the Relativistic Missiles system.
     // Credits:
     //     Sevion for the Alloc module
     //         - www.hiveworkshop.com/threads/snippet-alloc.192348/
     //     Nestharus for World Bounds Library
-    /* ----------------------------------- END ---------------------------------- */
+    /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             System                                             */
+    /* ---------------------------------------------------------------------------------------------- */
     private module LinkedList
         readonly thistype next
         readonly thistype prev

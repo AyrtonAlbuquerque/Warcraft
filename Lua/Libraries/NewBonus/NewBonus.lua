@@ -1,22 +1,23 @@
---[[
-    /* ----------------------- NewBonus v2.3 by Chopinski ----------------------- */
-    Since ObjectMerger is broken and we still have no means to edit
-    bonus values (green values) i decided to create a light weight
-    Bonus library that works in the same way that the original Bonus Mod
-    by Earth Fury did. NewBonus requires patch 1.31+.
-    Credits to Earth Fury for the original Bonus idea
+--[[ requires optional DamageInterface, optional Evasion, optional CriticalStrike, optional SpellPower, optional LifeSteal, optional SpellVamp, optional CooldownReduction, optional Tenacity
+    -- ---------------------------------------- NewBonus v2.4 --------------------------------------- --
+    -- Since ObjectMerger is broken and we still have no means to edit
+    -- bonus values (green values) i decided to create a light weight
+    -- Bonus library that works in the same way that the original Bonus Mod
+    -- by Earth Fury did. NewBonus requires patch 1.31+.
+    -- Credits to Earth Fury for the original Bonus idea
 
-    How to Import?
-    Importing bonus mod is really simple. Just copy the abilities with the
-    prefix "NewBonus" from the Object Editor into your map and match their new raw
-    code to the bonus types in the global block below. Then create a trigger called
-    NewBonus, convert it to custom text and paste this code there. You done!
+    -- How to Import?
+    -- Importing bonus mod is really simple. Just copy the abilities with the
+    -- prefix "NewBonus" from the Object Editor into your map and match their new raw
+    -- code to the bonus types in the global block below. Then create a trigger called
+    -- NewBonus, convert it to custom text and paste this code there. You done!
+    -- ---------------------------------------- By Chopinski ---------------------------------------- --
 ]]--
 
 do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                          Configuration                                         --
+    -- ---------------------------------------------------------------------------------------------- --
     -- If true will use the extended version of the system.
     -- Make sure you have the DamageInterface and Cooldown Reduction libraries
     NewBonus_EXTENDED                = true
@@ -51,6 +52,9 @@ do
     BONUS_COOLDOWN_REDUCTION         = 22
     BONUS_COOLDOWN_REDUCTION_FLAT    = 23
     BONUS_COOLDOWN_OFFSET            = 24
+    BONUS_TENACITY                   = 25
+    BONUS_TENACITY_FLAT              = 26
+    BONUS_TENACITY_OFFSET            = 27
 
     -- The abilities codes for each bonus
     -- When pasting the abilities over to your map
@@ -89,10 +93,66 @@ do
     local EVASION_FIELD            = ABILITY_RLF_CHANCE_TO_EVADE_EEV1
     local LIFE_STEAL_FIELD         = ABILITY_RLF_LIFE_STOLEN_PER_ATTACK
     
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             LUA API                                            --
+    -- ---------------------------------------------------------------------------------------------- --
+    function GetUnitBonus(unit, type)
+        return NewBonus:get(unit, type)
+    end
+
+    function SetUnitBonus(unit, type, value)
+        return NewBonus:set(unit, type, value, false)
+    end
     
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    function RemoveUnitBonus(unit, type)
+        if type == BONUS_CRITICAL_DAMAGE then
+            NewBonus:set(unit, type, 1, false)
+        else
+            NewBonus:set(unit, type, 0, false)
+        end
+        
+        if type == BONUS_LIFE_STEAL then
+            UnitRemoveAbility(unit, LIFE_STEAL_ABILITY)
+        end
+    end
+    
+    function AddUnitBonus(unit, type, value)
+        return NewBonus:add(unit, type, value)
+    end
+    
+    function RegisterBonusEvent(code)
+        NewBonus:register(code, 0)
+    end
+    
+    function RegisterBonusTypeEvent(type, code)
+        NewBonus:register(code, type)
+    end
+    
+    function GetBonusUnit()
+        return NewBonus.unit[NewBonus.event]
+    end
+    
+    function GetBonusType()
+        return NewBonus.type[NewBonus.event]
+    end
+    
+    function SetBonusType(type)
+        if type >= BONUS_DAMAGE and type <= NewBonus.last then
+            NewBonus.type[NewBonus.event] = type
+        end
+    end
+    
+    function GetBonusAmount()
+        return NewBonus.real[NewBonus.event]
+    end
+    
+    function SetBonusAmount(real)
+        NewBonus.real[NewBonus.event] = real
+    end
+
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             System                                             --
+    -- ---------------------------------------------------------------------------------------------- --
     NewBonus = setmetatable({}, {})
     local mt = getmetatable(NewBonus)
     mt.__index = mt
@@ -212,7 +272,7 @@ do
         elseif type == BONUS_MAGIC_RESISTANCE then
             return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, MAGIC_RESISTANCE_ABILITY), MAGIC_RESISTANCE_FIELD, 0)
         elseif type >= BONUS_EVASION_CHANCE and type <= NewBonus.last then
-            if NewBonus_EXTENDED and Damage and Evasion and Critical and SpellPower and LifeSteal and SpellVamp then
+            if NewBonus_EXTENDED and Damage and Evasion and Critical and SpellPower and LifeSteal and SpellVamp and Tenacity then
                 if type == BONUS_EVASION_CHANCE then
                     return GetUnitEvasionChance(unit)
                 elseif type == BONUS_MISS_CHANCE then
@@ -235,6 +295,12 @@ do
                     return GetUnitCooldownReductionFlat(unit)
                 elseif type == BONUS_COOLDOWN_OFFSET then
                     return GetUnitCooldownOffset(unit)
+                elseif type == BONUS_TENACITY then
+                    return GetUnitTenacity(unit)
+                elseif type == BONUS_TENACITY_FLAT then
+                    return GetUnitTenacityFlat(unit)
+                elseif type == BONUS_TENACITY_OFFSET then
+                    return GetUnitTenacityOffset(unit)
                 end
             else
                 if type == BONUS_CRITICAL_CHANCE then
@@ -327,7 +393,7 @@ do
         elseif type == BONUS_MAGIC_RESISTANCE then
             return self:setAbility(unit, MAGIC_RESISTANCE_ABILITY, MAGIC_RESISTANCE_FIELD, amount, false, adding)
         elseif type >= BONUS_EVASION_CHANCE and type <= NewBonus.last then
-            if NewBonus_EXTENDED and Damage and Evasion and Critical and SpellPower and LifeSteal and SpellVamp then
+            if NewBonus_EXTENDED and Damage and Evasion and Critical and SpellPower and LifeSteal and SpellVamp and Tenacity then
                 if type == BONUS_EVASION_CHANCE then
                     SetUnitEvasionChance(unit, amount)
                 elseif type == BONUS_MISS_CHANCE then
@@ -354,6 +420,16 @@ do
                     SetUnitCooldownReductionFlat(unit, amount)
                 elseif type == BONUS_COOLDOWN_OFFSET then
                     SetUnitCooldownOffset(unit, amount)
+                elseif type == BONUS_TENACITY then
+                    if adding then
+                        UnitAddTenacity(unit, amount)
+                    else
+                        SetUnitTenacity(unit, amount)
+                    end
+                elseif type == BONUS_TENACITY_FLAT then
+                    SetUnitTenacityFlat(unit, amount)
+                elseif type == BONUS_TENACITY_OFFSET then
+                    SetUnitTenacityOffset(unit, amount)
                 end
                 
                 NewBonus.linkType = type
@@ -417,8 +493,8 @@ do
                 local value = NewBonus.real[NewBonus.event]
                 current = self:get(NewBonus.unit[NewBonus.event], NewBonus.type[NewBonus.event])
                 
-                if NewBonus_EXTENDED and Damage and Evasion and Critical and SpellPower and LifeSteal and SpellVamp then
-                    if NewBonus.type[NewBonus.event] == BONUS_COOLDOWN_REDUCTION then
+                if NewBonus_EXTENDED and Damage and Evasion and Critical and SpellPower and LifeSteal and SpellVamp and Tenacity then
+                    if NewBonus.type[NewBonus.event] == BONUS_COOLDOWN_REDUCTION or NewBonus.type[NewBonus.event] == BONUS_TENACITY then
                         self:set(NewBonus.unit[NewBonus.event], NewBonus.type[NewBonus.event], NewBonus.real[NewBonus.event], true)
                     else
                         self:set(NewBonus.unit[NewBonus.event], NewBonus.type[NewBonus.event], current + NewBonus.real[NewBonus.event], true)
@@ -450,67 +526,10 @@ do
     end
     
     onInit(function()
-        if NewBonus_EXTENDED and Damage and Evasion and Critical and SpellPower and LifeSteal and SpellVamp then
-            NewBonus.last = BONUS_COOLDOWN_OFFSET
+        if NewBonus_EXTENDED and Damage and Evasion and Critical and SpellPower and LifeSteal and SpellVamp and Tenacity then
+            NewBonus.last = BONUS_TENACITY_OFFSET
         else
             NewBonus.last = BONUS_LIFE_STEAL
         end
     end)
-    
-    -- -------------------------------------------------------------------------- --
-    --                                   LUA API                                  --
-    -- -------------------------------------------------------------------------- --
-    function GetUnitBonus(unit, type)
-        return NewBonus:get(unit, type)
-    end
-
-    function SetUnitBonus(unit, type, value)
-        return NewBonus:set(unit, type, value, false)
-    end
-    
-    function RemoveUnitBonus(unit, type)
-        if type == BONUS_CRITICAL_DAMAGE then
-            NewBonus:set(unit, type, 1, false)
-        else
-            NewBonus:set(unit, type, 0, false)
-        end
-        
-        if type == BONUS_LIFE_STEAL then
-            UnitRemoveAbility(unit, LIFE_STEAL_ABILITY)
-        end
-    end
-    
-    function AddUnitBonus(unit, type, value)
-        return NewBonus:add(unit, type, value)
-    end
-    
-    function RegisterBonusEvent(code)
-        NewBonus:register(code, 0)
-    end
-    
-    function RegisterBonusTypeEvent(type, code)
-        NewBonus:register(code, type)
-    end
-    
-    function GetBonusUnit()
-        return NewBonus.unit[NewBonus.event]
-    end
-    
-    function GetBonusType()
-        return NewBonus.type[NewBonus.event]
-    end
-    
-    function SetBonusType(type)
-        if type >= BONUS_DAMAGE and type <= NewBonus.last then
-            NewBonus.type[NewBonus.event] = type
-        end
-    end
-    
-    function GetBonusAmount()
-        return NewBonus.real[NewBonus.event]
-    end
-    
-    function SetBonusAmount(real)
-        NewBonus.real[NewBonus.event] = real
-    end
 end

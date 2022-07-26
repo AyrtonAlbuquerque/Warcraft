@@ -1,40 +1,62 @@
---[[
-    /* ----------------------- NewBonusUtils v2.3 by Chopinski ----------------------- */
-   Required Library: RegisterPlayerUnitEvent -> www.hiveworkshop.com/threads/snippet-registerplayerunitevent.203338/
+--[[ requires NewBonus, RegisterPlayerUnitEvent
+    -- ------------------------------------- NewBonusUtils v2.4 ------------------------------------- --
+    -- API:
+    -- function AddUnitBonusTimed takes unit u, integer bonus_type, real amount, real duration returns nothing
+    --     -> Add the specified amount for the specified bonus type for unit for a duration
+    --     -> Example: call AddUnitBonusTimed(GetTriggerUnit(), BONUS_ARMOR, 13, 10.5)
 
-        API:
-        function AddUnitBonusTimed takes unit u, integer bonus_type, real amount, real duration returns nothing
-            -> Add the specified amount for the specified bonus type for unit for a duration
-            -> Example: call AddUnitBonusTimed(GetTriggerUnit(), BONUS_ARMOR, 13, 10.5)
+    -- function LinkBonusToBuff takes unit u, integer bonus_type, real amount, integer buffId returns nothing
+    --     -> Links the bonus amount specified to a buff or ability. As long as the unit has the buff or
+    --     -> the ability represented by the parameter buffId the bonus is not removed.
+    --     -> Example: call LinkBonusToBuff(GetTriggerUnit(), BONUS_ARMOR, 10, 'B000')
 
-        function LinkBonusToBuff takes unit u, integer bonus_type, real amount, integer buffId returns nothing
-            -> Links the bonus amount specified to a buff or ability. As long as the unit has the buff or
-            -> the ability represented by the parameter buffId the bonus is not removed.
-            -> Example: call LinkBonusToBuff(GetTriggerUnit(), BONUS_ARMOR, 10, 'B000')
- 
-        function LinkBonusToItem takes unit u, integer bonus_type, real amount, item i returns nothing
-            -> Links the bonus amount specified to an item. As long as the unit has that item the bonus is not removed.
-            -> Note that it will work for items with the same id, because it takes as parameter the item object.
-            -> Example: call LinkBonusToItem(GetManipulatingUnit(), BONUS_ARMOR, 10, GetManipulatedItem())
+    -- function LinkBonusToItem takes unit u, integer bonus_type, real amount, item i returns nothing
+    --     -> Links the bonus amount specified to an item. As long as the unit has that item the bonus is not removed.
+    --     -> Note that it will work for items with the same id, because it takes as parameter the item object.
+    --     -> Example: call LinkBonusToItem(GetManipulatingUnit(), BONUS_ARMOR, 10, GetManipulatedItem())
 
-        function UnitCopyBonuses takes unit source, unit target returns nothing
-            -> Copy the source unit bonuses using the Add functionality to the target unit
-            -> Example: call UnitCopyBonuses(GetTriggerUnit(), GetSummonedUnit())
+    -- function UnitCopyBonuses takes unit source, unit target returns nothing
+    --     -> Copy the source unit bonuses using the Add functionality to the target unit
+    --     -> Example: call UnitCopyBonuses(GetTriggerUnit(), GetSummonedUnit())
 
-        function UnitMirrorBonuses takes unit source, unit target returns nothing
-            -> Copy the source unit bonuses using the Set functionality to the target unit
-            -> Example: call UnitMirrorBonuses(GetTriggerUnit(), GetSummonedUnit())
+    -- function UnitMirrorBonuses takes unit source, unit target returns nothing
+    --     -> Copy the source unit bonuses using the Set functionality to the target unit
+    --     -> Example: call UnitMirrorBonuses(GetTriggerUnit(), GetSummonedUnit())
+    -- ---------------------------------------- By Chopinski ---------------------------------------- --
 ]]--
 
 do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                          Configuration                                         --
+    -- ---------------------------------------------------------------------------------------------- --
     local PERIOD = 0.03125000
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             LUA API                                            --
+    -- ---------------------------------------------------------------------------------------------- --
+    function AddUnitBonusTimed(unit, type, amount, duration)
+        NewBonusUtils:linkTimed(unit, type, amount, duration, true)
+    end
+
+    function LinkBonusToBuff(unit, type, amount, buff)
+        NewBonusUtils:linkBuff(unit, type, amount, buff, false)
+    end
+
+    function LinkBonusToItem(unit, type, amount, item)
+        NewBonusUtils:linkItem(unit, type, amount, item)
+    end
+
+    function UnitCopyBonuses(source, target)
+        NewBonusUtils:copy(source, target)
+    end
+
+    function UnitMirrorBonuses(source, target)
+        NewBonusUtils:mirror(source, target)
+    end
+
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             System                                             --
+    -- ---------------------------------------------------------------------------------------------- --
     NewBonusUtils = setmetatable({}, {})
     local mt = getmetatable(NewBonusUtils)
     mt.__index = mt
@@ -46,9 +68,11 @@ do
     local timer = CreateTimer()
     
     function mt:destroy(i, item)
-        if NewBonus_EXTENDED and Damage and Evasion and Critical and SpellPower and LifeSteal and SpellVamp then
+        if NewBonus_EXTENDED and Damage and Evasion and Critical and SpellPower and LifeSteal and SpellVamp and Tenacity then
             if self.type == BONUS_COOLDOWN_REDUCTION then
                 UnitRemoveCooldownReduction(self.unit, self.amount)
+            elseif self.type == BONUS_TENACITY then
+                UnitRemoveTenacity(self.unit, self.amount)
             else
                 AddUnitBonus(self.unit, self.type, -self.amount)
             end
@@ -169,27 +193,4 @@ do
             end
         end)
     end)
-    
-    -- -------------------------------------------------------------------------- --
-    --                                   LUA API                                  --
-    -- -------------------------------------------------------------------------- --
-    function AddUnitBonusTimed(unit, type, amount, duration)
-        NewBonusUtils:linkTimed(unit, type, amount, duration, true)
-    end
-
-    function LinkBonusToBuff(unit, type, amount, buff)
-        NewBonusUtils:linkBuff(unit, type, amount, buff, false)
-    end
-
-    function LinkBonusToItem(unit, type, amount, item)
-        NewBonusUtils:linkItem(unit, type, amount, item)
-    end
-
-    function UnitCopyBonuses(source, target)
-        NewBonusUtils:copy(source, target)
-    end
-
-    function UnitMirrorBonuses(source, target)
-        NewBonusUtils:mirror(source, target)
-    end
 end

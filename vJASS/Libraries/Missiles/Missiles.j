@@ -1,16 +1,16 @@
 library Missiles requires MissileEffect, TimerUtils, WorldBounds
-    /* ----------------------- Missiles v2.6 by Chopinski ----------------------- */
+    /* ---------------------------------------- Missiles v2.7 --------------------------------------- */
     // Thanks and Credits to BPower, Dirac and Vexorian for the Missile Library's at which i based
     // this Missiles library. Credits and thanks to AGD and for the effect orientation ideas.
     // This version of Missiles requires patch 1.31+
     
     // How to Import:
     //     1 - Copy this, MissileEffect and optionaly the MissileUtils libraries to your map
-    /* ----------------------------------- END ---------------------------------- */
+    /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             System                                             */
+    /* ---------------------------------------------------------------------------------------------- */
     globals
         // The update period of the system
         public  constant real    PERIOD             = 1./40.

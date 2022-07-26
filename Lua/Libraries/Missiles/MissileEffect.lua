@@ -1,6 +1,7 @@
 --[[
-    /* -------------------- Missile Effect v2.6 by Chopinski -------------------- */
-    Credits to Forsakn for the first translation of Missile Effect to LUA
+    -- ------------------------------------- Missile Effect v2.7 ------------------------------------ --
+    -- Credits to Forsakn for the first translation of Missile Effect to LUA
+    -- ---------------------------------------- By Chopinski ---------------------------------------- --
 ]]--
 
 do

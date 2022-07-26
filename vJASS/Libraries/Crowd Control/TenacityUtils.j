@@ -52,10 +52,8 @@ library TenacityUtils requires Tenacity
                     if duration <= 0 then
                         if type == 0 then
                             call remove(unit, value)
-                        elseif type == 1 then
-                            call add(unit, value, 1)
                         else
-                            call add(unit, value, 2)
+                            call add(unit, -value, type)
                         endif
 
                         set array[i] = array[key]

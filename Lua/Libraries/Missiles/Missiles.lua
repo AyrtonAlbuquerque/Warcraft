@@ -1,18 +1,19 @@
 --[[ requires MissileEffect, optional MissilesUtils
-    ----------------------- Missiles v2.6 by Chopinski -----------------------
-    Thanks and Credits to BPower, Dirac and Vexorian for the Missile Library's at which i based
-    this Missiles library. Credits and thanks to AGD and for the effect orientation ideas.
-    This version of Missiles requires patch 1.31+. Thanks to Forsakn for the first translation
-    of the vJASS version of Missiles into LUA.
-    
-    How to Import:
-        1 - Copy this, MissileEffect and optionaly the MissileUtils libraries into your map
+    -- ---------------------------------------- Missiles v2.7 --------------------------------------- --
+    -- Thanks and Credits to BPower, Dirac and Vexorian for the Missile Library's at which i based
+    -- this Missiles library. Credits and thanks to AGD and for the effect orientation ideas.
+    -- This version of Missiles requires patch 1.31+. Thanks to Forsakn for the first translation
+    -- of the vJASS version of Missiles into LUA.
+    --
+    -- How to Import:
+    --     1 - Copy this, MissileEffect and optionaly the MissileUtils libraries into your map
+    -- ---------------------------------------- By Chopinski ---------------------------------------- --
 ]]--
 
 do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                          Configuration                                         --
+    -- ---------------------------------------------------------------------------------------------- --
     -- The update period of the system
     local PERIOD = 1. / 40.
     -- The max amount of Missiles processed in a PERIOD
@@ -34,27 +35,27 @@ do
         MoveLocation(location, x, y)
         return GetLocationZ(location)
     end
-    
+
     local function GetUnitZ(unit)
         return GetLocZ(GetUnitX(unit), GetUnitY(unit)) + GetUnitFlyHeight(unit)
     end
-    
+
     local function SetUnitZ(unit, z)
         SetUnitFlyHeight(unit, z - GetLocZ(GetUnitX(unit), GetUnitY(unit)), 0)
     end
-    
+
     local function GetMapCliffLevel()
         return GetTerrainCliffLevel(WorldBounds.maxX, WorldBounds.maxY)
     end
-    
+
     do
         Pool = setmetatable({}, {})
         local mt = getmetatable(Pool)
         mt.__index = mt
-        
+
         local player = Player(PLAYER_NEUTRAL_PASSIVE)
         local group = CreateGroup()
-        
+
         function mt:recycle(unit)
             if GetUnitTypeId(unit) == DUMMY then
                 GroupAddUnit(group, unit)
@@ -64,7 +65,7 @@ do
                 PauseUnit(unit, true)
             end
         end
-        
+
         function mt:retrieve(x, y, z, face)
             if BlzGroupGetSize(group) > 0 then
                 bj_lastCreatedUnit = FirstOfGroup(group)
@@ -82,7 +83,7 @@ do
 
             return bj_lastCreatedUnit
         end
-        
+
         function mt:recycleTimed(unit, delay)
             if GetUnitTypeId(unit) == DUMMY then
                 local timer = CreateTimer()
@@ -93,10 +94,10 @@ do
                 end)
             end
         end
-        
+
         onInit(function()
             local timer = CreateTimer()
-        
+
             TimerStart(timer, 0, false, function()
                 for i = 0, SWEET_SPOT do
                     local unit = CreateUnit(player, DUMMY, WorldBounds.maxX, WorldBounds.maxY, 0)
@@ -109,7 +110,7 @@ do
             end)
         end)
     end
-    
+
     do
         Coordinates = setmetatable({}, {})
         local mt = getmetatable(Coordinates)
@@ -233,7 +234,7 @@ do
             end
         end
     end
-    
+
     function mt:OnMissile()
         if self.onMissile then
             if self.allocated and self.collision > 0 then
@@ -256,7 +257,7 @@ do
             end
         end
     end
-    
+
     function mt:OnDestructable()
         if self.onDestructable then
             if self.allocated and self.collision > 0 then
@@ -317,11 +318,11 @@ do
             end
         end
     end
-    
+
     function mt:OnCliff()
         if self.onCliff then
             local dx = GetTerrainCliffLevel(self.nextX, self.nextY)
-            local dy = GetTerrainCliffLevel(self.x, self.y) 
+                local dy = GetTerrainCliffLevel(self.x, self.y)
             if dy < dx and self.z  < (dx - GetMapCliffLevel())*bj_CLIFFHEIGHT then
                 if self.allocated and self.onCliff() then
                     self:terminate()
@@ -329,7 +330,7 @@ do
             end
         end
     end
-    
+
     function mt:OnTerrain()
         if self.onTerrain then
             if GetLocZ(self.x, self.y) > self.z then
@@ -339,7 +340,7 @@ do
             end
         end
     end
-    
+
     function mt:OnTileset()
         if self.onTileset then
             local type = GetTerrainType(self.x, self.y)
@@ -351,7 +352,7 @@ do
             self.tileset = type
         end
     end
-    
+
     function mt:OnPeriod()
         if self.onPeriod then
             if self.allocated and self.onPeriod() then
@@ -458,22 +459,22 @@ do
             end
         end
     end
-    
+
     function mt:OnPause()
         pid = pid + 1
         self.pkey = pid
         frozen[pid] = self
-        
+
         if self.onPause then
             if self.allocated and self.onPause() then
                 self:terminate()
             end
         end
     end
-    
+
     function mt:OnResume(flag)
         local this
-        
+
         self.paused = flag
         if not self.paused and self.pkey ~= -1 then
             id = id + 1
@@ -491,10 +492,10 @@ do
             end
 
             if id == 0 then
-               TimerStart(timer, PERIOD, true, function() Missiles:move() end)
+                TimerStart(timer, PERIOD, true, function() Missiles:move() end)
             end
-            
-             if self.onResume then
+
+            if self.onResume then
                 if self.allocated and self.onResume() then
                     self:terminate()
                 else
@@ -509,13 +510,13 @@ do
             end
         end
     end
-    
+
     function mt:OnRemove()
         local this
 
         if self.allocated and self.launched then
             self.allocated = false
-            
+
             if self.pkey ~= -1 then
                 this = frozen[pid]
                 this.pkey = self.pkey
@@ -523,21 +524,21 @@ do
                 pid = pid - 1
                 self.pkey = -1
             end
-            
+
             if self.onRemove then
                 self.onRemove()
             end
-            
+
             if self.dummy then
                 Pool:recycle(self.dummy)
             end
-            
+
             this = Missiles.collection[Missiles.count]
             this.index = self.index
             Missiles.collection[self.index] = Missiles.collection[Missiles.count]
             Missiles.count = Missiles.count - 1
             self.index = -1
-            
+
             self.origin:destroy()
             self.impact:destroy()
             self.effect:destroy()
@@ -579,7 +580,7 @@ do
     function mt:speed(value)
         self.veloc = value * PERIOD
         self.Speed = value
-        
+
         local vel = self.veloc*dilation
         local s = self.travel + vel
         local d = self.origin.distance
@@ -596,7 +597,7 @@ do
     function mt:duration(value)
         self.veloc = RMaxBJ(0.00000001, (self.origin.distance - self.travel) * PERIOD / RMaxBJ(0.00000001, value))
         self.Duration = value
-        
+
         local vel = self.veloc*dilation
         local s = self.travel + vel
         local d = self.origin.distance
@@ -608,11 +609,11 @@ do
             self.z = self.nextZ
         end
     end
-    
+
     -- ------------------------------- Sight Range ------------------------------ --
     function mt:vision(sightRange)
         self.Vision = sightRange
-        
+
         if self.dummy then
             SetUnitOwner(self.dummy, self.owner, false)
             BlzSetUnitRealField(self.dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
@@ -658,31 +659,31 @@ do
     -- --------------------------- Bounce and Deflect --------------------------- --
     function mt:bounce()
         self.origin:move(self.x, self.y, self.z - GetLocZ(self.x, self.y))
-        
+
         travelled = 0
         self.travel = 0
         self.finished = false
     end
 
     function mt:deflect(tx, ty, tz)
-        local locZ = GetLocZ(self.x, self.y) 
-        
+        local locZ = GetLocZ(self.x, self.y)
+
         if self.z < locZ then
             self.nextX = self.prevX
             self.nextY = self.prevY
             self.nextZ = self.prevZ
         end
-    
+
         self.toZ = tz
         self.target = nil
         self.impact:move(tx, ty, tz)
         self.origin:move(self.x, self.y, self.z - locZ)
-        
+
         travelled = 0
         self.travel = 0
         self.finished = false
     end
-    
+
     function mt:deflectTarget(unit)
         self:deflect(GetUnitX(unit), GetUnitY(unit), self.toZ)
         self.target = unit
@@ -707,18 +708,18 @@ do
     function mt:attach(model, dx, dy, dz, scale)
         return self.effect:attach(model, dx, dy, dz, scale)
     end
-    
+
     function mt:detach(effect)
         if effect then
             self.effect:detach(effect)
         end
     end
-    
+
     -- ------------------------------ Missile Pause ----------------------------- --
     function mt:pause(flag)
         self:OnResume(flag)
     end
-    
+
     -- ---------------------------------- Color --------------------------------- --
     function mt:color(red, green, blue)
         self.effect:setColor(red, green, blue)
@@ -766,13 +767,14 @@ do
         self.onCliff = nil
         self.onTerrain = nil
         self.onTileset = nil
+        self.onPeriod = nil
         self.onFinish = nil
         self.onBoundaries = nil
         self.onPause = nil
         self.onResume = nil
         self.onRemove = nil
     end
-    
+
     -- -------------------------------- Terminate ------------------------------- --
     function mt:terminate()
         self:OnRemove()
@@ -785,7 +787,7 @@ do
         else
             self:OnRemove()
         end
-        
+
         missiles[i] = missiles[id]
         id = id - 1
 
@@ -798,7 +800,7 @@ do
         if id == -1 then
             PauseTimer(timer)
         end
-        
+
         if not self.allocated then
             table.insert(keys, self.key)
             self = nil
@@ -806,7 +808,7 @@ do
 
         return i - 1
     end
-    
+
     -- ---------------------------- Missiles movement --------------------------- --
     function mt:move()
         local i = 0
@@ -874,7 +876,7 @@ do
         local this = {}
         setmetatable(this, mt)
         array[this] = {}
-        
+
         if #keys > 0 then
             this.key = keys[#keys]
             keys[#keys] = nil
