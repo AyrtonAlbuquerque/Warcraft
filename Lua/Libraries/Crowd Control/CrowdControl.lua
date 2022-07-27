@@ -8,7 +8,7 @@
     -- 5 - Copy the RegisterPlayerUnitEvent library over to your map and follow its install instructions
     -- 6 - Copy the Tenacity library over to your map and follow its install instructions
     -- 7 - Copy this library into your map
-    -- 8 - Copy the 11 buffs and 11 abilities with the CC prefix and match their raw code below.
+    -- 8 - Copy the 13 buffs and 13 abilities with the CC prefix and match their raw code below.
     -- ---------------------------------------- By Chopinski ---------------------------------------- --
 ]]--
 
@@ -38,6 +38,10 @@ do
     local CYCLONE            = FourCC('U009')
     -- The raw code of the entangle ability
     local ENTANGLE           = FourCC('U010')
+    -- The raw code of the disarm ability
+    local DISARM             = FourCC('U011')
+    -- The raw code of the fear ability
+    local FEAR               = FourCC('U012')
     -- The raw code of the silence buff
     local SILENCE_BUFF       = FourCC('BU00')
     -- The raw code of the stun buff
@@ -60,6 +64,10 @@ do
     local CYCLONE_BUFF       = FourCC('BU09')
     -- The raw code of the entangle buff
     local ENTANGLE_BUFF      = FourCC('BU10')
+    -- The raw code of the disarm buff
+    local DISARM_BUFF        = FourCC('BU11')
+    -- The raw code of the fear buff
+    local FEAR_BUFF          = FourCC('BU12')
 
     -- This is the maximum recursion limit allowed by the system.
     -- It's value must be greater than or equal to 0. When equal to 0
@@ -219,6 +227,15 @@ do
 
     function IsUnitEntangled(unit)
         return CrowdControl:entangled(unit)
+    end
+
+    -- ------------------------------------------- Dispel ------------------------------------------- --
+    function UnitDispelCrowdControl(unit, type)
+        CrowdControl:dispel(unit, type)
+    end
+
+    function UnitDispelAllCrowdControl(unit)
+        CrowdControl:dispelAll(unit)
     end
 
     -- ------------------------------------------- Events ------------------------------------------- --
@@ -500,24 +517,16 @@ do
         local UPDATE = 0.2
         local DIRECTION_CHANGE = 5
         local MAX_CHANGE = 200.
+        local dummy
 
-        function mt:isFeared(unit)
-            if struct[unit] then
-                return true
-            else
-                return false
-            end
+        function mt:feared(unit)
+            return GetUnitAbilityLevel(unit, FEAR_BUFF) > 0
         end
 
         function mt:destroy(i)
             flag[self.target] = true
             IssueImmediateOrder(self.target, "stop")
             DestroyEffect(self.effect)
-            UnitRemoveAbility(self.target, FourCC('Abun'))
-
-            if self.selected then
-                SelectUnitAddForPlayer(self.target, GetOwningPlayer(self.target))
-            end
 
             array[i] = array[key]
             key = key - 1
@@ -534,68 +543,72 @@ do
         function mt:apply(target, duration, effect, attach)
             local this
 
-            if struct[target] then
-                this = struct[target]
-            else
-                this = {}
-                setmetatable(this, mt)
-                key = key + 1
-                array[key] = this
-                struct[target] = this
+            if duration > 0 then
+                UnitAddAbility(dummy, FEAR)
+                local ability = BlzGetUnitAbility(dummy, FEAR)
+                BlzSetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_NORMAL, 0, duration)
+                BlzSetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_HERO, 0, duration)
+                IncUnitAbilityLevel(dummy, FEAR)
+                DecUnitAbilityLevel(dummy, FEAR)
 
-                this.target = target
-                this.change = 0
-                this.selected = IsUnitSelected(target, GetOwningPlayer(target))
+                if IssueTargetOrder(dummy, "drunkenhaze", target) then
+                    if struct[target] then
+                        this = struct[target]
+                    else
+                        this = {}
+                        setmetatable(this, mt)
+                        key = key + 1
+                        array[key] = this
+                        struct[target] = this
 
-                UnitAddAbility(target, FourCC('Abun'))
+                        this.target = target
+                        this.change = 0
 
-                if this.selected then
-                    SelectUnit(target, false)
-                end
-
-                if effect and attach then
-                    this.effect = AddSpecialEffectTarget(effect, target, attach)
-                end
-
-                if key == 1 then
-                    TimerStart(timer, UPDATE, true, function()
-                        local i = 1
-                        local this
-
-                        while i <= key do
-                            this = array[i]
-
-                            if this.duration > 0 and UnitAlive(this.target) then
-                                this.duration = this.duration - UPDATE
-                                this.change = this.change + 1
-
-                                if this.change == DIRECTION_CHANGE then
-                                    this.change = 0
-                                    flag[this.target] = true
-                                    x[this.target] = GetRandomReal(GetUnitX(this.target) - MAX_CHANGE, GetUnitX(this.target) + MAX_CHANGE)
-                                    y[this.target] = GetRandomReal(GetUnitY(this.target) - MAX_CHANGE, GetUnitY(this.target) + MAX_CHANGE)
-                                    IssuePointOrder(this.target, "move", x[this.target], y[this.target])
-                                end
-                            else
-                                i = this:destroy(i)
-                            end
-                            i = i + 1
+                        if effect and attach then
+                            this.effect = AddSpecialEffectTarget(effect, target, attach)
                         end
-                    end)
-                end
-            end
 
-            this.duration = duration
-            flag[target] = true
-            x[target] = GetRandomReal(GetUnitX(target) - MAX_CHANGE, GetUnitX(target) + MAX_CHANGE)
-            y[target] = GetRandomReal(GetUnitY(target) - MAX_CHANGE, GetUnitY(target) + MAX_CHANGE)
-            IssuePointOrder(target, "move", x[target], y[target])
+                        if key == 1 then
+                            TimerStart(timer, UPDATE, true, function()
+                                local i = 1
+                                local this
+
+                                while i <= key do
+                                    this = array[i]
+
+                                    if GetUnitAbilityLevel(this.target, FEAR_BUFF) > 0 then
+                                        this.change = this.change + 1
+
+                                        if this.change == DIRECTION_CHANGE then
+                                            this.change = 0
+                                            flag[this.target] = true
+                                            x[this.target] = GetRandomReal(GetUnitX(this.target) - MAX_CHANGE, GetUnitX(this.target) + MAX_CHANGE)
+                                            y[this.target] = GetRandomReal(GetUnitY(this.target) - MAX_CHANGE, GetUnitY(this.target) + MAX_CHANGE)
+                                            IssuePointOrder(this.target, "move", x[this.target], y[this.target])
+                                        end
+                                    else
+                                        i = this:destroy(i)
+                                    end
+                                    i = i + 1
+                                end
+                            end)
+                        end
+                    end
+
+                    flag[target] = true
+                    x[target] = GetRandomReal(GetUnitX(target) - MAX_CHANGE, GetUnitX(target) + MAX_CHANGE)
+                    y[target] = GetRandomReal(GetUnitY(target) - MAX_CHANGE, GetUnitY(target) + MAX_CHANGE)
+                    IssuePointOrder(target, "move", x[target], y[target])
+                end
+
+                UnitRemoveAbility(dummy, FEAR)
+            end
         end
 
         function mt:onOrder()
             local unit = GetOrderedUnit()
 
-            if self:isFeared(unit) then
+            if self:feared(unit) and GetIssuedOrderId() ~= 851973 then
                 if not flag[unit] then
                     flag[unit] = true
                     IssuePointOrder(unit, "move", x[unit], y[unit])
@@ -622,110 +635,12 @@ do
                 Fear:onOrder()
             end)
 
-            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function()
-                local unit = GetTriggerUnit()
-
-                if Fear:isFeared(unit) then
-                    if IsUnitSelected(unit, GetOwningPlayer(unit)) then
-                        SelectUnit(unit, false)
-                    end
-                end
+            TimerStart(CreateTimer(), 0, false, function()
+                dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetRectCenterX(GetWorldBounds()), GetRectCenterY(GetWorldBounds()), 0, 0)
+                PauseTimer(GetExpiredTimer())
+                DestroyTimer(GetExpiredTimer())
             end)
         end)
-    end
-
-    -- ------------------------------------------- Disarm ------------------------------------------- --
-    do
-        Disarm = setmetatable({}, {})
-        local mt = getmetatable(Disarm)
-        mt.__index = mt
-
-        local timer = CreateTimer()
-        local array = {}
-        local count = {}
-        local n = {}
-        local key = 0
-        local ability = FourCC('Abun')
-        local period = 0.03125000
-
-        function mt:destroy(i)
-            self:unit(self.target, false)
-            DestroyEffect(self.effect)
-
-            array[i] = array[key]
-            key = key - 1
-            n[self.target] = nil
-            self = nil
-
-            if key == 0 then
-                PauseTimer(timer)
-            end
-
-            return i - 1
-        end
-
-        function mt:disarmed(unit)
-            return GetUnitAbilityLevel(unit, ability) > 0
-        end
-
-        function mt:apply(target, duration, model, point)
-            local this
-
-            if duration > 0 then
-                if n[target] then
-                    this = n[target]
-                else
-                    this = {}
-                    setmetatable(this, mt)
-                    n[target] = this
-
-                    key = key + 1
-                    array[key] = this
-                    this.target = target
-
-                    if model and point then
-                        this.effect = AddSpecialEffectTarget(model, target, point)
-                    end
-
-                    this:unit(target, true)
-
-                    if key == 1 then
-                        TimerStart(timer, period, true, function()
-                            local i = 1
-                            local this
-
-                            while i <= key do
-                                this = array[i]
-
-                                if this.ticks <= 0 then
-                                    i = this:destroy(i)
-                                end
-                                this.ticks = this.ticks - 1
-                                i = i + 1
-                            end
-                        end)
-                    end
-                end
-
-                this.ticks = duration/period
-            end
-        end
-
-        function mt:unit(target, flag)
-            if not count[target] then count[target] = 0 end
-
-            if flag then
-                count[target] = count[target] + 1
-                if count[target] > 0 then
-                    UnitAddAbility(target, ability)
-                end
-            else
-                count[target] = count[target] - 1
-                if count[target] <= 0 then
-                    UnitRemoveAbility(target, ability)
-                end
-            end
-        end
     end
 
     -- ---------------------------------------- Crowd Control --------------------------------------- --
@@ -805,7 +720,7 @@ do
         end
 
         function mt:order(type)
-            if type == CROWD_CONTROL_SILENCE then
+            if type == CROWD_CONTROL_SILENCE or type == CROWD_CONTROL_DISARM then
                 return "drunkenhaze"
             elseif type == CROWD_CONTROL_STUN then
                 return "thunderbolt"
@@ -866,6 +781,9 @@ do
             elseif type == CROWD_CONTROL_ENTANGLE then
                 ability[key] = ENTANGLE
                 buff[key] = ENTANGLE_BUFF
+            elseif type == CROWD_CONTROL_DISARM then
+                ability[key] = DISARM
+                buff[key] = DISARM_BUFF
             end
         end
 
@@ -905,7 +823,7 @@ do
                         CrowdControl.duration[CrowdControl.key] = CrowdControl.duration[CrowdControl.key] + TimerGetRemaining(timer[i][j])
                     end
 
-                    if CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_DISARM and CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_FEAR and CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_KNOCKBACK and CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_KNOCKUP then
+                    if CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_FEAR and CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_KNOCKBACK and CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_KNOCKUP then
                         self:setup(CrowdControl.type[CrowdControl.key], CrowdControl.key)
                         UnitAddAbility(dummy, ability[CrowdControl.key])
                         local spell = BlzGetUnitAbility(dummy, ability[CrowdControl.key])
@@ -920,6 +838,7 @@ do
 
                         IncUnitAbilityLevel(dummy, ability[CrowdControl.key])
                         DecUnitAbilityLevel(dummy, ability[CrowdControl.key])
+                        UnitRemoveAbility(CrowdControl.unit[CrowdControl.key], buff[CrowdControl.key])
 
                         if IssueTargetOrder(dummy, self:order(CrowdControl.type[CrowdControl.key]), CrowdControl.unit[CrowdControl.key]) then
                             TimerStart(timer[i][j], CrowdControl.duration[CrowdControl.key], false, function()
@@ -943,9 +862,7 @@ do
 
                         UnitRemoveAbility(dummy, ability[CrowdControl.key])
                     else
-                        if CrowdControl.type[CrowdControl.key] == CROWD_CONTROL_DISARM then
-                            Disarm:apply(CrowdControl.unit[CrowdControl.key], CrowdControl.duration[CrowdControl.key], CrowdControl.model[CrowdControl.key], CrowdControl.point[CrowdControl.key])
-                        elseif CrowdControl.type[CrowdControl.key] == CROWD_CONTROL_FEAR then
+                        if CrowdControl.type[CrowdControl.key] == CROWD_CONTROL_FEAR then
                             Fear:apply(CrowdControl.unit[CrowdControl.key], CrowdControl.duration[CrowdControl.key], CrowdControl.model[CrowdControl.key], CrowdControl.point[CrowdControl.key])
                         elseif CrowdControl.type[CrowdControl.key] == CROWD_CONTROL_KNOCKBACK then
                             Knockback:apply(CrowdControl.unit[CrowdControl.key], CrowdControl.angle[CrowdControl.key], CrowdControl.distance[CrowdControl.key], CrowdControl.duration[CrowdControl.key], CrowdControl.model[CrowdControl.key], CrowdControl.point[CrowdControl.key], CrowdControl.cliff[CrowdControl.key], CrowdControl.destructable[CrowdControl.key], CrowdControl.agent[CrowdControl.key])
@@ -1076,7 +993,7 @@ do
         end
 
         function mt:feared(unit)
-            return Fear:isUnitFeared(unit)
+            return Fear:feared(unit)
         end
 
         function mt:disarm(unit, duration, model, point, stack)
@@ -1084,7 +1001,65 @@ do
         end
 
         function mt:disarmed(unit)
-            return Disarm.isUnitDisarmed(unit)
+            return GetUnitAbilityLevel(unit, DISARM_BUFF) > 0
+        end
+
+        function mt:dispel(unit, type)
+            local buff
+
+            if type == CROWD_CONTROL_SILENCE then
+                buff = SILENCE_BUFF
+            elseif type == CROWD_CONTROL_STUN then
+                buff = STUN_BUFF
+            elseif type == CROWD_CONTROL_SLOW then
+                buff = MOVEMENT_SLOW_BUFF
+            elseif type == CROWD_CONTROL_SLOW_ATTACK then
+                buff = ATTACK_SLOW_BUFF
+            elseif type == CROWD_CONTROL_BANISH then
+                buff = BANISH_BUFF
+            elseif type == CROWD_CONTROL_ENSNARE then
+                buff = ENSNARE_BUFF
+            elseif type == CROWD_CONTROL_PURGE then
+                buff = PURGE_BUFF
+            elseif type == CROWD_CONTROL_HEX then
+                buff = HEX_BUFF
+            elseif type == CROWD_CONTROL_SLEEP then
+                buff = SLEEP_BUFF
+            elseif type == CROWD_CONTROL_CYCLONE then
+                buff = CYCLONE_BUFF
+            elseif type == CROWD_CONTROL_ENTANGLE then
+                buff = ENTANGLE_BUFF
+            elseif type == CROWD_CONTROL_DISARM then
+                buff = DISARM_BUFF
+            elseif type == CROWD_CONTROL_FEAR then
+                buff = FEAR_BUFF
+            end
+
+            if buff then
+                UnitRemoveAbility(unit, buff)
+
+                if timer[unit] then
+                    PauseTimer(timer[unit][type])
+                    DestroyTimer(timer[unit][type])
+                    timer[unit][type] = nil
+                end
+            end
+        end
+
+        function mt:dispelAll(unit)
+            self:dispel(unit, CROWD_CONTROL_SILENCE)
+            self:dispel(unit, CROWD_CONTROL_STUN)
+            self:dispel(unit, CROWD_CONTROL_SLOW)
+            self:dispel(unit, CROWD_CONTROL_SLOW_ATTACK)
+            self:dispel(unit, CROWD_CONTROL_BANISH)
+            self:dispel(unit, CROWD_CONTROL_ENSNARE)
+            self:dispel(unit, CROWD_CONTROL_PURGE)
+            self:dispel(unit, CROWD_CONTROL_HEX)
+            self:dispel(unit, CROWD_CONTROL_SLEEP)
+            self:dispel(unit, CROWD_CONTROL_CYCLONE)
+            self:dispel(unit, CROWD_CONTROL_ENTANGLE)
+            self:dispel(unit, CROWD_CONTROL_DISARM)
+            self:dispel(unit, CROWD_CONTROL_FEAR)
         end
 
         function mt:remaining(unit, type)
