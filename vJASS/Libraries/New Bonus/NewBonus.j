@@ -129,25 +129,25 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
     endfunction
     
     function GetBonusUnit takes nothing returns unit
-        return NewBonus.unit[NewBonus.event]
+        return NewBonus.unit[NewBonus.key]
     endfunction
     
     function GetBonusType takes nothing returns integer
-        return NewBonus.type[NewBonus.event]
+        return NewBonus.type[NewBonus.key]
     endfunction
     
     function SetBonusType takes integer bonus returns nothing
         if bonus >= BONUS_DAMAGE and bonus <= NewBonus.last then
-            set NewBonus.type[NewBonus.event] = bonus
+            set NewBonus.type[NewBonus.key] = bonus
         endif
     endfunction
     
     function GetBonusAmount takes nothing returns real
-        return NewBonus.real[NewBonus.event]
+        return NewBonus.amount[NewBonus.key]
     endfunction
     
     function SetBonusAmount takes real amount returns nothing
-        set NewBonus.real[NewBonus.event] = amount
+        set NewBonus.amount[NewBonus.key] = amount
     endfunction
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -155,86 +155,92 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
     /* ---------------------------------------------------------------------------------------------- */
     struct NewBonus
         private static trigger trigger = CreateTrigger()
-        readonly static integer event = -1
-        private static trigger array array
+        readonly static integer key = -1
+        private static trigger array event
         readonly static unit array unit
         readonly static integer last
         readonly static integer linkType
         static integer array type
-        static real array real
+        static real array amount
         
-        private static method checkOverflow takes real current, real amount returns real
-            if amount > 0 and current > 2147483647 - amount then
+        private static method checkOverflow takes real current, real value returns real
+            if value > 0 and current > 2147483647 - value then
                 return 2147483647 - current
-            elseif amount < 0 and current < -2147483648 - amount then
+            elseif value < 0 and current < -2147483648 - value then
                 return -2147483648 - current
             else
-                return amount
+                return value
             endif
         endmethod
-        
-        private static method onEvent takes integer bonus, integer i returns nothing
-            if real[event] != 0 then
-                if event - last < RECURSION_LIMIT then
-                    if array[bonus] != null then
-                        call TriggerEvaluate(array[type[i]])
-                    endif
-                    
-                    if type[i] != bonus and array[type[i]] != null then
-                        call TriggerEvaluate(array[type[i]])
-                    endif
-                    
-                    call TriggerEvaluate(trigger)
-                else
-                    call DisplayTimedTextToPlayer(Player(0), 0, 0, 5, "[NewBonus] Recursion limit reached: " + I2S(RECURSION_LIMIT))
-                endif
+
+        private static method onEvent takes integer key returns nothing
+            local integer next = -1
+            local integer prev = -2
+
+            if amount[key] != 0 then
+                loop
+                    exitwhen type[key] == next or (key - last > RECURSION_LIMIT)
+                        set next = type[key]
+
+                        if event[next] != null then
+                            call TriggerEvaluate(event[next])
+                        endif
+
+                        if next != prev then
+                            call TriggerEvaluate(trigger)
+
+                            if type[key] != next then
+                                set prev = next
+                            endif
+                        endif
+                endloop
             endif
             
-            set event = i
+            set .key = key
         endmethod
         
-        private static method setAbilityI takes unit source, integer id, abilityintegerlevelfield field, real amount, boolean adding returns real
+        private static method setAbilityI takes unit source, integer id, abilityintegerlevelfield field, real value, boolean adding returns real
             if GetUnitAbilityLevel(source, id) == 0 then
                 call UnitAddAbility(source, id)
                 call UnitMakeAbilityPermanent(source, true, id)
             endif
             
             if adding then
-                if BlzSetAbilityIntegerLevelField(BlzGetUnitAbility(source, id), field, 0, BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(source, id), field, 0) + R2I(amount)) then
+                if BlzSetAbilityIntegerLevelField(BlzGetUnitAbility(source, id), field, 0, BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(source, id), field, 0) + R2I(value)) then
                     call IncUnitAbilityLevel(source, id)
                     call DecUnitAbilityLevel(source, id)
                 endif
             else
-                if BlzSetAbilityIntegerLevelField(BlzGetUnitAbility(source, id), field, 0, R2I(amount)) then
+                if BlzSetAbilityIntegerLevelField(BlzGetUnitAbility(source, id), field, 0, R2I(value)) then
                     call IncUnitAbilityLevel(source, id)
                     call DecUnitAbilityLevel(source, id)
                 endif
             endif
             
-            set linkType = type[event]
+            set linkType = type[key]
             
-            if event > -1 then
-                set event = event - 1
+            if key > -1 then
+                set key = key - 1
             endif
         
             return I2R(BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(source, id), field, 0))
         endmethod
 
-        private static method setAbilityR takes unit source, integer id, abilityreallevelfield field, real amount returns real
+        private static method setAbilityR takes unit source, integer id, abilityreallevelfield field, real value returns real
             if GetUnitAbilityLevel(source, id) == 0 then
                 call UnitAddAbility(source, id)
                 call UnitMakeAbilityPermanent(source, true, id)
             endif
         
-            if BlzSetAbilityRealLevelField(BlzGetUnitAbility(source, id), field, 0, amount) then
+            if BlzSetAbilityRealLevelField(BlzGetUnitAbility(source, id), field, 0, value) then
                 call IncUnitAbilityLevel(source, id)
                 call DecUnitAbilityLevel(source, id)
             endif
             
-            set linkType = type[event]
+            set linkType = type[key]
             
-            if event > -1 then
-                set event = event - 1
+            if key > -1 then
+                set key = key - 1
             endif
         
             return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, id), field, 0)
@@ -316,135 +322,142 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
             return -1.
         endmethod
 
-        static method Set takes unit source, integer bonus, real amount, boolean adding returns real
+        static method Set takes unit source, integer bonus, real value, boolean adding returns real
             local real p
-            local real r
             
             if not adding then
-                set event = event + 1
-                set unit[event] = source
-                set type[event] = bonus
-                set real[event] = amount
+                set key = key + 1
+                set unit[key] = source
+                set type[key] = bonus
+                set amount[key] = value
                 
-                call onEvent(bonus, event)
+                call onEvent(key)
                 
-                if real[event] != amount then
-                    set amount = real[event]
+                if amount[key] != value then
+                    set value = amount[key]
                 endif
                 
-                if type[event] != bonus then
-                    return Set(unit[event], type[event], real[event], not adding)
+                if type[key] != bonus then
+                    return Set(unit[key], type[key], amount[key], not adding)
                 endif
             else
-                set unit[event] = source
-                set type[event] = bonus
-                set real[event] = amount
+                set unit[key] = source
+                set type[key] = bonus
+                set amount[key] = value
             endif
 
             if bonus == BONUS_DAMAGE then
-                return setAbilityI(source, DAMAGE_ABILITY, DAMAGE_FIELD, amount, adding)
+                return setAbilityI(source, DAMAGE_ABILITY, DAMAGE_FIELD, value, adding)
             elseif bonus == BONUS_ARMOR then
-                return setAbilityI(source, ARMOR_ABILITY, ARMOR_FIELD, amount, adding)
+                return setAbilityI(source, ARMOR_ABILITY, ARMOR_FIELD, value, adding)
             elseif bonus == BONUS_HEALTH then
                 set p = GetUnitLifePercent(source)
-                if amount == 0 and not adding then
+
+                if value == 0 and not adding then
                     call BlzSetUnitMaxHP(source, R2I(BlzGetUnitMaxHP(source) - get(source, bonus)))
                 else
-                    call BlzSetUnitMaxHP(source, R2I(BlzGetUnitMaxHP(source) + amount))
+                    call BlzSetUnitMaxHP(source, R2I(BlzGetUnitMaxHP(source) + value))
                 endif
-                call setAbilityI(source, HEALTH_ABILITY, HEALTH_FIELD, amount, adding)
+
+                call setAbilityI(source, HEALTH_ABILITY, HEALTH_FIELD, value, adding)
                 call SetUnitLifePercentBJ(source, p)
-                return amount
+
+                return value
             elseif bonus == BONUS_MANA then
                 set p = GetUnitManaPercent(source)
-                if amount == 0 and not adding then
+
+                if value == 0 and not adding then
                     call BlzSetUnitMaxMana(source, R2I(BlzGetUnitMaxMana(source) - get(source, bonus)))
                 else
-                    call BlzSetUnitMaxMana(source, R2I(BlzGetUnitMaxMana(source) + amount))
+                    call BlzSetUnitMaxMana(source, R2I(BlzGetUnitMaxMana(source) + value))
                 endif
-                call setAbilityI(source, MANA_ABILITY, MANA_FIELD, amount, adding)
+
+                call setAbilityI(source, MANA_ABILITY, MANA_FIELD, value, adding)
                 call SetUnitManaPercentBJ(source, p)
-                return amount
+
+                return value
             elseif bonus == BONUS_AGILITY then
-                return setAbilityI(source, STATS_ABILITY, AGILITY_FIELD, amount, adding)
+                return setAbilityI(source, STATS_ABILITY, AGILITY_FIELD, value, adding)
             elseif bonus == BONUS_STRENGTH then
-                return setAbilityI(source, STATS_ABILITY, STRENGTH_FIELD, amount, adding)
+                return setAbilityI(source, STATS_ABILITY, STRENGTH_FIELD, value, adding)
             elseif bonus == BONUS_INTELLIGENCE then
-                return setAbilityI(source, STATS_ABILITY, INTELLIGENCE_FIELD, amount, adding)
+                return setAbilityI(source, STATS_ABILITY, INTELLIGENCE_FIELD, value, adding)
             elseif bonus == BONUS_MOVEMENT_SPEED then
-                return setAbilityI(source, MOVEMENTSPEED_ABILITY, MOVEMENTSPEED_FIELD, amount, adding)
+                return setAbilityI(source, MOVEMENTSPEED_ABILITY, MOVEMENTSPEED_FIELD, value, adding)
             elseif bonus == BONUS_SIGHT_RANGE then
-                if amount == 0 and not adding then
+                if value == 0 and not adding then
                     call BlzSetUnitRealField(source, UNIT_RF_SIGHT_RADIUS, (BlzGetUnitRealField(source, UNIT_RF_SIGHT_RADIUS) - get(source, bonus)))
                 else
-                    call BlzSetUnitRealField(source, UNIT_RF_SIGHT_RADIUS, (BlzGetUnitRealField(source, UNIT_RF_SIGHT_RADIUS) + amount))
+                    call BlzSetUnitRealField(source, UNIT_RF_SIGHT_RADIUS, (BlzGetUnitRealField(source, UNIT_RF_SIGHT_RADIUS) + value))
                 endif
-                call setAbilityI(source, SIGHT_RANGE_ABILITY, SIGHT_RANGE_FIELD, amount, adding)
-                return amount
+
+                call setAbilityI(source, SIGHT_RANGE_ABILITY, SIGHT_RANGE_FIELD, value, adding)
+
+                return value
             elseif bonus == BONUS_HEALTH_REGEN then
-                return setAbilityR(source, HEALTHREGEN_ABILITY, HEALTHREGEN_FIELD, amount)
+                return setAbilityR(source, HEALTHREGEN_ABILITY, HEALTHREGEN_FIELD, value)
             elseif bonus == BONUS_MANA_REGEN then
-                return setAbilityR(source, MANAREGEN_ABILITY, MANAREGEN_FIELD, amount)
+                return setAbilityR(source, MANAREGEN_ABILITY, MANAREGEN_FIELD, value)
             elseif bonus == BONUS_ATTACK_SPEED then
-                return setAbilityR(source, ATTACKSPEED_ABILITY, ATTACKSPEED_FIELD, amount)
+                return setAbilityR(source, ATTACKSPEED_ABILITY, ATTACKSPEED_FIELD, value)
             elseif bonus == BONUS_MAGIC_RESISTANCE then
-                return setAbilityR(source, MAGIC_RESISTANCE_ABILITY, MAGIC_RESISTANCE_FIELD, amount)
+                return setAbilityR(source, MAGIC_RESISTANCE_ABILITY, MAGIC_RESISTANCE_FIELD, value)
             elseif bonus >= BONUS_EVASION_CHANCE and bonus <= last then
                 static if EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp and LIBRARY_Tenacity then
                     if bonus == BONUS_EVASION_CHANCE then
-                        call SetUnitEvasionChance(source, amount)
+                        call SetUnitEvasionChance(source, value)
                     elseif bonus == BONUS_MISS_CHANCE then
-                        call SetUnitMissChance(source, amount)
+                        call SetUnitMissChance(source, value)
                     elseif bonus == BONUS_CRITICAL_CHANCE then
-                        call SetUnitCriticalChance(source, amount)
+                        call SetUnitCriticalChance(source, value)
                     elseif bonus == BONUS_CRITICAL_DAMAGE then
-                        call SetUnitCriticalMultiplier(source, amount)
+                        call SetUnitCriticalMultiplier(source, value)
                     elseif bonus == BONUS_SPELL_POWER_FLAT then
-                        call SetUnitSpellPowerFlat(source, amount)
+                        call SetUnitSpellPowerFlat(source, value)
                     elseif bonus == BONUS_SPELL_POWER_PERCENT then
-                        call SetUnitSpellPowerPercent(source, amount)
+                        call SetUnitSpellPowerPercent(source, value)
                     elseif bonus == BONUS_LIFE_STEAL then
-                        call SetUnitLifeSteal(source, amount)
+                        call SetUnitLifeSteal(source, value)
                     elseif bonus == BONUS_SPELL_VAMP then
-                        call SetUnitSpellVamp(source, amount)
+                        call SetUnitSpellVamp(source, value)
                     elseif bonus == BONUS_COOLDOWN_REDUCTION then
                         if adding then
-                            call UnitAddCooldownReduction(source, amount)
+                            call UnitAddCooldownReduction(source, value)
                         else
-                            call SetUnitCooldownReduction(source, amount)
+                            call SetUnitCooldownReduction(source, value)
                         endif
                     elseif bonus == BONUS_COOLDOWN_REDUCTION_FLAT then
-                        call SetUnitCooldownReductionFlat(source, amount)
+                        call SetUnitCooldownReductionFlat(source, value)
                     elseif bonus == BONUS_COOLDOWN_OFFSET then
-                        call SetUnitCooldownOffset(source, amount)
+                        call SetUnitCooldownOffset(source, value)
                     elseif bonus == BONUS_TENACITY then
                         if adding then
-                            call UnitAddTenacity(source, amount)
+                            call UnitAddTenacity(source, value)
                         else
-                            call SetUnitTenacity(source, amount)
+                            call SetUnitTenacity(source, value)
                         endif
                     elseif bonus == BONUS_TENACITY_FLAT then
-                        call SetUnitTenacityFlat(source, amount)
+                        call SetUnitTenacityFlat(source, value)
                     elseif bonus == BONUS_TENACITY_OFFSET then
-                        call SetUnitTenacityOffset(source, amount)
+                        call SetUnitTenacityOffset(source, value)
                     endif
                     
                     set linkType = bonus
                     
-                    if event > -1 then
-                        set event = event - 1
+                    if key > -1 then
+                        set key = key - 1
                     endif
                     
-                    return amount
+                    return value
                 else
                     if bonus == BONUS_CRITICAL_CHANCE then
-                        return setAbilityR(source, CRITICAL_STRIKE_ABILITY, CRITICAL_CHANCE_FIELD, amount)
+                        return setAbilityR(source, CRITICAL_STRIKE_ABILITY, CRITICAL_CHANCE_FIELD, value)
                     elseif bonus == BONUS_CRITICAL_DAMAGE then
-                        return setAbilityR(source, CRITICAL_STRIKE_ABILITY, CRITICAL_DAMAGE_FIELD, amount)
+                        return setAbilityR(source, CRITICAL_STRIKE_ABILITY, CRITICAL_DAMAGE_FIELD, value)
                     elseif bonus == BONUS_EVASION_CHANCE then
-                        return setAbilityR(source, EVASION_ABILITY, EVASION_FIELD, amount)
+                        return setAbilityR(source, EVASION_ABILITY, EVASION_FIELD, value)
                     elseif bonus == BONUS_LIFE_STEAL then
-                        return setAbilityR(source, LIFE_STEAL_ABILITY, LIFE_STEAL_FIELD, amount)
+                        return setAbilityR(source, LIFE_STEAL_ABILITY, LIFE_STEAL_FIELD, value)
                     endif
                 endif
             else
@@ -454,56 +467,32 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
             return -1.
         endmethod
 
-        static method add takes unit source, integer bonus, real amount returns real
-            local real current
-            local real value
-            
-            if bonus <= BONUS_SIGHT_RANGE then
-                set amount = I2R(R2I(amount))
-                set event = event + 1
-                set unit[event] = source
-                set type[event] = bonus
-                set real[event] = checkOverflow(get(source, bonus), amount)
+        static method add takes unit source, integer bonus, real value returns real
+            if value != 0 then
+                set key = key + 1
+                set unit[key] = source
+                set type[key] = bonus
+                set amount[key] = value
                 
-                call onEvent(bonus, event)
-                
-                if type[event] <= BONUS_SIGHT_RANGE then
-                    set real[event] = checkOverflow(get(unit[event], type[event]), real[event])
-                    set value = real[event]
-                    
-                    call Set(unit[event], type[event], real[event], true)
-                    
-                    return value
-                else
-                    return add(unit[event], type[event], real[event])
+                if bonus <= BONUS_SIGHT_RANGE then
+                    set amount[key] = checkOverflow(get(source, bonus), R2I(value))
                 endif
-            elseif bonus >= BONUS_HEALTH_REGEN and bonus <= last then
-                set event = event + 1
-                set unit[event] = source
-                set type[event] = bonus
-                set real[event] = amount
                 
-                call onEvent(bonus, event)
+                call onEvent(key)
                 
-                if type[event] >= BONUS_HEALTH_REGEN then
-                    set value = real[event]
-                
+                if type[key] <= BONUS_SIGHT_RANGE then
+                    return Set(unit[key], type[key], checkOverflow(get(unit[key], type[key]), R2I(amount[key])), true)
+                else
                     static if EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp and LIBRARY_Tenacity then
-                        if type[event] == BONUS_COOLDOWN_REDUCTION or type[event] == BONUS_TENACITY then
-                            call Set(unit[event], type[event], real[event], true)
+                        if type[key] == BONUS_COOLDOWN_REDUCTION or type[key] == BONUS_TENACITY then
+                            return Set(unit[key], type[key], amount[key], true)
                         else
-                            call Set(unit[event], type[event], get(unit[event], type[event]) + real[event], true)
+                            return Set(unit[key], type[key], get(unit[key], type[key]) + amount[key], true)
                         endif
                     else
-                        call Set(unit[event], type[event], get(unit[event], type[event]) + real[event], true)
+                        return Set(unit[key], type[key], get(unit[key], type[key]) + amount[key], true)
                     endif
-                    
-                    return value
-                else
-                    return add(unit[event], type[event], real[event])
                 endif
-            else
-                call DisplayTimedTextToPlayer(Player(0), 0, 0, 10, "Invalid Bonus Type")
             endif
             
             return -1.
@@ -511,10 +500,10 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
         
         static method register takes code c, integer bonus returns nothing
             if bonus >= BONUS_DAMAGE and bonus <= last then
-                if array[bonus] == null then
-                    set array[bonus] = CreateTrigger()
+                if event[bonus] == null then
+                    set event[bonus] = CreateTrigger()
                 endif
-                call TriggerAddCondition(array[bonus], Filter(c))
+                call TriggerAddCondition(event[bonus], Filter(c))
             else
                 call TriggerAddCondition(trigger, Filter(c))
             endif

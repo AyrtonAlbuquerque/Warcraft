@@ -55,7 +55,7 @@ library NewBonusUtils requires NewBonus, RegisterPlayerUnitEvent
     struct NewBonusUtils extends NewBonus
         static constant real period = 0.03125000
         static timer timer = CreateTimer()
-        static integer key = -1
+        static integer index = -1
         static thistype array array
         static integer k = -1
         static thistype array items
@@ -65,30 +65,30 @@ library NewBonusUtils requires NewBonus, RegisterPlayerUnitEvent
         real duration
         integer bonus_t
         integer buff
-        real amount
+        real value
         boolean link
 
         method remove takes integer i, boolean isItem returns integer
             static if NewBonus_EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp and LIBRARY_Tenacity then
                 if bonus_t == BONUS_COOLDOWN_REDUCTION then
-                    call UnitRemoveCooldownReduction(source, amount)
+                    call UnitRemoveCooldownReduction(source, value)
                 elseif bonus_t == BONUS_TENACITY then
-                    call UnitRemoveTenacity(source, amount)
+                    call UnitRemoveTenacity(source, value)
                 else
-                    call AddUnitBonus(source, bonus_t, -amount)
+                    call AddUnitBonus(source, bonus_t, -value)
                 endif
             else
-                call AddUnitBonus(source, bonus_t, -amount)
+                call AddUnitBonus(source, bonus_t, -value)
             endif
 
             if isItem then
                 set items[i] = items[k]
                 set k = k - 1
             else
-                set array[i] = array[key]
-                set key = key - 1
+                set array[i] = array[index]
+                set index = index - 1
 
-                if key == -1 then
+                if index == -1 then
                     call PauseTimer(timer)
                 endif
             endif
@@ -122,7 +122,7 @@ library NewBonusUtils requires NewBonus, RegisterPlayerUnitEvent
             local thistype this
 
             loop
-                exitwhen i > key
+                exitwhen i > index
                     set this = array[i]
 
                     if link then
@@ -145,12 +145,12 @@ library NewBonusUtils requires NewBonus, RegisterPlayerUnitEvent
             set this.source = source
             set this.duration = duration
             set this.link = link
-            set this.amount = AddUnitBonus(source, bonus, amount)
+            set this.value = AddUnitBonus(source, bonus, amount)
             set this.bonus_t = linkType
-            set key = key + 1
-            set array[key] = this
+            set index = index + 1
+            set array[index] = this
          
-            if key == 0 then
+            if index == 0 then
                 call TimerStart(timer, period, true, function thistype.onPeriod)
             endif
         endmethod
@@ -161,12 +161,12 @@ library NewBonusUtils requires NewBonus, RegisterPlayerUnitEvent
             set this.source = source
             set this.buff = id
             set this.link = link
-            set this.amount = AddUnitBonus(source, bonus, amount)
+            set this.value = AddUnitBonus(source, bonus, amount)
             set this.bonus_t = linkType
-            set key = key + 1
-            set array[key] = this
+            set index = index + 1
+            set array[index] = this
          
-            if key == 0 then
+            if index == 0 then
                 call TimerStart(timer, period, true, function thistype.onPeriod)
             endif
         endmethod
@@ -176,7 +176,7 @@ library NewBonusUtils requires NewBonus, RegisterPlayerUnitEvent
 
             set this.source = source
             set this.item = i
-            set this.amount = AddUnitBonus(source, bonus, amount)
+            set this.value = AddUnitBonus(source, bonus, amount)
             set this.bonus_t = linkType
             set k = k + 1
             set items[k] = this

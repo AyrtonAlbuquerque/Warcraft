@@ -711,34 +711,23 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         private static method onEvent takes integer key returns nothing
-            local integer i = 0
             local integer next = -1
             local integer prev = -2
 
             loop
-                exitwhen CrowdControl.type[key] == next
-                    set next = CrowdControl.type[key]
+                exitwhen type[key] == next or (key - CROWD_CONTROL_KNOCKUP > RECURSION_LIMIT)
+                    set next = type[key]
 
                     if event[next] != null then
                         call TriggerEvaluate(event[next])
                     endif
 
-                    if CrowdControl.type[key] != next then
-                        set i = i + 1
-                    else
-                        if next != prev then
-                            call TriggerEvaluate(trigger)
+                    if next != prev then
+                        call TriggerEvaluate(trigger)
 
-                            if CrowdControl.type[key] != next then
-                                set i = i + 1
-                                set prev = next
-                            endif
+                        if type[key] != next then
+                            set prev = next
                         endif
-                    endif
-
-                    if i - CROWD_CONTROL_KNOCKUP > RECURSION_LIMIT then
-                        call BJDebugMsg("[Crowd Control] Recursion limit reached: " + I2S(RECURSION_LIMIT))
-                        exitwhen true
                     endif
             endloop
             
