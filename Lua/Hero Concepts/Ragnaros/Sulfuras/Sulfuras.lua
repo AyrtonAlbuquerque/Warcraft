@@ -1,5 +1,5 @@
 --[[ requires RegisterPlayerUnitEvent, NewBonus
-    /* ----------------------- Sulfuras v1.5 by Chopinski ----------------------- */
+    /* ----------------------- Sulfuras v1.6 by Chopinski ----------------------- */
     // Credits: 
     //     Blizzard      - icon (Edited by me)
     //     Magtheridon96 - RegisterPlayerUnitEvent
@@ -15,11 +15,9 @@ do
     -- If true when Ragnaros kills a unit, the ability tooltip will change
     -- to show the amount of bonus damage acumulated
     local CHANGE_TOOLTIP = true
-    -- The amount of stacks Sulfuras trait has
-    Sulfuras_stacks = {}
     
     -- Modify this function to change the amount of damage Ragnaros gains per kill
-    local function GetBonus(level, unit)
+    local function GetBonus(unit, level)
         if IsUnitType(unit, UNIT_TYPE_HERO) then
             return 5*level
         else
@@ -27,34 +25,61 @@ do
         end
     end
 
-    -- Modify this function to change when Ragnaros gains bonus damage based
-    -- on the Death Event.
-    local function Filtered(killer, killed)
-        return IsUnitEnemy(killed, GetOwningPlayer(killer)) and GetUnitAbilityLevel(killer, ABILITY) > 0
+    -- Every GetStackCount number of kills the damage will be increased by GetBonus
+    local function GetStackCount(unit, level)
+        return 3 + 0*level
+    end
+
+    -- Modify this function to change when Ragnaros gains bonus damage based on the Death Event.
+    local function UnitFilter(player, target)
+        return IsUnitEnemy(target, player) and not IsUnitType(target, UNIT_TYPE_STRUCTURE)
     end
 
     -- -------------------------------------------------------------------------- --
     --                                   System                                   --
     -- -------------------------------------------------------------------------- --
+    Sulfuras = setmetatable({}, {})
+    local mt = getmetatable(Sulfuras)
+    mt.__index = mt
+
+    Sulfuras.stacks = {}
+
+    local count = {}
+    
     onInit(function()
         RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function()
-            local killed = GetDyingUnit()
-            local killer = GetKillingUnit()
-            local index  = GetUnitUserData(killer)
-            local level  = GetUnitAbilityLevel(killer, ABILITY)
-            local amount
+            local source = GetKillingUnit()
 
-            if Filtered(killer, killed) then
-                if not Sulfuras_stacks[index] then Sulfuras_stacks[index] = 0 end
-                amount = GetBonus(level, killed)
-                Sulfuras_stacks[index] = Sulfuras_stacks[index] + amount
+            if GetUnitAbilityLevel(source, ABILITY) > 0 then
+                local target = GetDyingUnit()
 
-                AddUnitBonus(killer, BONUS_DAMAGE, amount)
-                if CHANGE_TOOLTIP then
-                    local string = ("|cffffcc00Ragnaros|r gains |cffffcc001 damage (5 for Heroes)|r for every enemy unit killed by him.\n\n" ..
-                    "Damage Bonus: |cffffcc00" .. I2S(Sulfuras_stacks[index]) .. "|r")
+                if UnitFilter(GetOwningPlayer(source), target) then
+                    local level = GetUnitAbilityLevel(source, ABILITY)
+                    local amount
 
-                    BlzSetAbilityExtendedTooltip(ABILITY, string, level - 1)
+                    if IsUnitType(target, UNIT_TYPE_HERO) then
+                        amount = GetBonus(target, level)
+                        Sulfuras.stacks[source] = (Sulfuras.stacks[source] or 0) + amount
+
+                        AddUnitBonus(source, BONUS_DAMAGE, amount)
+                    else
+                        count[source] = (count[source] or 0) + 1
+
+                        if count[source] >= GetStackCount(source, level) then
+                            count[source] = 0
+                            amount = GetBonus(target, level)
+                            Sulfuras.stacks[source] = (Sulfuras.stacks[source] or 0) + amount
+
+                            AddUnitBonus(source, BONUS_DAMAGE, amount)
+                        end
+                    end
+
+                    if CHANGE_TOOLTIP then
+                        local string = ("|cffffcc00Ragnaros|r gains |cffffcc001|r damage for every |cffffcc003|r enemy unit killed by him. Hero kills grants |cffffcc005|r bonus damage.\n\n" ..
+                                "Damage Bonus: |cffffcc00" .. (Sulfuras.stacks[source] or 0) .. "|r")
+
+                        BlzSetAbilityExtendedTooltip(ABILITY, string, level - 1)
+                    end
                 end
             end
         end)

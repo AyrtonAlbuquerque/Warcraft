@@ -1,5 +1,5 @@
---[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, Missiles, TimedHandles, Utilities, optional Sulfuras, Afterburner
-    /* -------------------- Sulfuras Smash v1.5 by Chopinski -------------------- */
+--[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, Missiles, TimedHandles, Utilities, CrowdControl optional Sulfuras, optional Afterburner
+    /* -------------------- Sulfuras Smash v1.6 by Chopinski -------------------- */
     // Credtis:
     //     Systemfre1       - Sulfuras model
     //     AZ               - crack model
@@ -27,6 +27,10 @@ do
     local SULFURAS_MODEL      = "Sulfuras.mdl"
     -- Sulfuras Impact effect model
     local IMPACT_MODEL        = "Smash.mdl"
+    -- The stun model
+    local STUN_MODEL          = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+    -- Teh stun model attchement point
+    local STUN_POINT          = "overhead"
     -- Sufuras size
     local SULFURAS_SCALE      = 3.
     -- Size of the impact model
@@ -40,10 +44,8 @@ do
 
     -- The stun time for units at the center of impact
     local function GetStunTime(unit)
-        local i = GetUnitUserData(unit)
-    
-        if Sulfuras_stacks[i] then
-            return 1 + 0.25*R2I(Sulfuras_stacks[i]*0.01)
+        if Sulfuras.stacks[unit] then
+            return 1 + 0.25*R2I(Sulfuras.stacks[unit]*0.01)
         else
             return 1.5
         end
@@ -95,8 +97,9 @@ do
                     local unit = BlzGroupUnitAt(group, i)
                     if DamageFilter(this.source, unit) then
                         if DistanceBetweenCoordinates(this.x, this.y, GetUnitX(unit), GetUnitY(unit)) <= this.aoe then
-                            UnitDamageTarget(this.source, unit, 2*this.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil)
-                            StunUnit(unit, this.stun)
+                            if UnitDamageTarget(this.source, unit, 2*this.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
+                                StunUnit(unit, this.stun, STUN_MODEL, STUN_POINT, false)
+                            end
                         else
                             UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil)
                         end

@@ -1,5 +1,5 @@
 --[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, Utilities optional Sulfuras
-    /* -------------------- Lava Elemental v1.5 by Chopinski -------------------- */
+    /* -------------------- Lava Elemental v1.6 by Chopinski -------------------- */
     // Credits:
     //     Henry         - Lava Elemental model (warcraft3undergorund.com)
     //     Empyreal      - fire base model (xgmguru.ru)
@@ -35,10 +35,8 @@ do
 
     -- The amount of damage the Lava Elemental has
     local function GetElementalDamage(unit, level)
-        local i = GetUnitUserData(unit)
-    
-        if Sulfuras_stacks[i] then
-            return R2I(50 + 0.25*level*Sulfuras_stacks[i])
+        if Sulfuras.stacks[unit] then
+            return R2I(50 + 0.25 * level * Sulfuras.stacks[unit])
         else
             return 25 + 25*level
         end
@@ -46,7 +44,7 @@ do
 
     -- The amount of health the Lava Elemental has
     local function GetElementalHealth(unit, level)
-        return R2I(500*level + BlzGetUnitMaxHP(u)*0.3)
+        return R2I(500*level + BlzGetUnitMaxHP(unit)*0.3)
     end
 
     -- -------------------------------------------------------------------------- --
@@ -65,8 +63,8 @@ do
                 this.effect = AddSpecialEffect(FIRA_BASE, Spell.target.x, Spell.target.y)
                 this.key = GetUnitUserData(lava)
                 array[this.key] = this
-            
-                DisarmUnit(Spell.target.unit, true)
+
+                UnitAddAbility(Spell.target.unit, FourCC('Abun'))
                 ShowUnit(Spell.target.unit, false)
                 SetUnitInvulnerable(Spell.target.unit, true)
                 SetUnitX(lava, Spell.target.x)
@@ -107,7 +105,7 @@ do
                 
                 DestroyEffect(this.effect)
                 if this.unit then
-                    DisarmUnit(this.unit, false)
+                    UnitRemoveAbility(this.unit, FourCC('Abun'))
                     ShowUnit(this.unit, true)
                     SetUnitInvulnerable(this.unit, false)
                 end

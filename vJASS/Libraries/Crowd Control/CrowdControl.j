@@ -8,7 +8,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
     // 5 - Copy the RegisterPlayerUnitEvent library over to your map and follow its install instructions
     // 6 - Copy the Tenacity library over to your map and follow its install instructions
     // 7 - Copy this library into your map
-    // 8 - Copy the 13 buffs and 13 abilities with the CC prefix and match their raw code below.
+    // 8 - Copy the 14 buffs and 15 abilities with the CC prefix and match their raw code below.
     /* ---------------------------------------- By Chopinski ---------------------------------------- */
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -41,6 +41,10 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         private constant integer DISARM             = 'U011'
         // The raw code of the fear ability
         private constant integer FEAR               = 'U012'
+        // The raw code of the taunt ability
+        private constant integer TAUNT              = 'U013'
+        // The raw code of the true sight ability
+        private constant integer TRUE_SIGHT         = 'U014'
         // The raw code of the silence buff
         private constant integer SILENCE_BUFF       = 'BU00'
         // The raw code of the stun buff
@@ -67,9 +71,11 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         private constant integer DISARM_BUFF        = 'BU11'
         // The raw code of the fear buff
         private constant integer FEAR_BUFF          = 'BU12'
+        // The raw code of the taunt buff
+        private constant integer TAUNT_BUFF         = 'BU13'
 
         // This is the maximum recursion limit allowed by the system.
-        // It's value must be greater than or equal to 0. When equal to 0
+        // Its value must be greater than or equal to 0. When equal to 0
         // no recursion is allowed. Values too big can cause screen freezes.
         private constant integer RECURSION_LIMIT    = 8
 
@@ -87,8 +93,9 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         constant integer CROWD_CONTROL_ENTANGLE     = 10
         constant integer CROWD_CONTROL_DISARM       = 11
         constant integer CROWD_CONTROL_FEAR         = 12
-        constant integer CROWD_CONTROL_KNOCKBACK    = 13
-        constant integer CROWD_CONTROL_KNOCKUP      = 14
+        constant integer CROWD_CONTROL_TAUNT        = 13
+        constant integer CROWD_CONTROL_KNOCKBACK    = 14
+        constant integer CROWD_CONTROL_KNOCKUP      = 15
     endglobals
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -110,6 +117,15 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
 
     function IsUnitFeared takes unit target returns boolean
         return CrowdControl.feared(target)
+    endfunction 
+
+    /* -------------------------------------------- Taunt ------------------------------------------- */
+    function TauntUnit takes unit source, unit target, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.taunt(source, target, duration, model, point, stack)
+    endfunction
+
+    function IsUnitTaunted takes unit target returns boolean
+        return CrowdControl.taunted(target)
     endfunction 
 
     /* ------------------------------------------ Knockback ----------------------------------------- */
@@ -263,18 +279,6 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         return CrowdControl.amount[CrowdControl.key]
     endfunction
 
-    function GetKnockbackAngle takes nothing returns real
-        return CrowdControl.angle[CrowdControl.key]
-    endfunction
-
-    function GetKnockbackDistance takes nothing returns real
-        return CrowdControl.distance[CrowdControl.key]
-    endfunction
-
-    function GetKnockupHeight takes nothing returns real
-        return CrowdControl.height[CrowdControl.key]
-    endfunction
-
     function GetCrowdControlModel takes nothing returns string
         return CrowdControl.model[CrowdControl.key]
     endfunction
@@ -287,6 +291,26 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         return CrowdControl.stack[CrowdControl.key]
     endfunction
 
+    function GetCrowdControlRemaining takes unit target, integer id returns real
+        return CrowdControl.remaining(target, id)
+    endfunction
+
+    function GetTauntSource takes nothing returns unit
+        return CrowdControl.source[CrowdControl.key]
+    endfunction
+
+    function GetKnockbackAngle takes nothing returns real
+        return CrowdControl.angle[CrowdControl.key]
+    endfunction
+
+    function GetKnockbackDistance takes nothing returns real
+        return CrowdControl.distance[CrowdControl.key]
+    endfunction
+
+    function GetKnockupHeight takes nothing returns real
+        return CrowdControl.height[CrowdControl.key]
+    endfunction
+
     function GetKnockbackOnCliff takes nothing returns boolean
         return CrowdControl.cliff[CrowdControl.key]
     endfunction
@@ -297,10 +321,6 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
 
     function GetKnockbackOnUnit takes nothing returns boolean
         return CrowdControl.agent[CrowdControl.key]
-    endfunction
-
-    function GetCrowdControlRemaining takes unit target, integer id returns real
-        return CrowdControl.remaining(target, id)
     endfunction
 
     function SetCrowdControlUnit takes unit u returns nothing
@@ -321,18 +341,6 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         set CrowdControl.amount[CrowdControl.key] = amount
     endfunction
 
-    function SetKnockbackAngle takes real angle returns nothing
-        set CrowdControl.angle[CrowdControl.key] = angle
-    endfunction
-
-    function SetKnockbackDistance takes real distance returns nothing
-        set CrowdControl.distance[CrowdControl.key] = distance
-    endfunction
-
-    function SetKnockupHeight takes real height returns nothing
-        set CrowdControl.height[CrowdControl.key] = height
-    endfunction
-
     function SetCrowdControlModel takes string model returns nothing
         set CrowdControl.model[CrowdControl.key] = model
     endfunction
@@ -343,6 +351,22 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
 
     function SetCrowdControlStack takes boolean stack returns nothing
         set CrowdControl.stack[CrowdControl.key] = stack
+    endfunction
+
+    function SetTauntSource takes unit u returns nothing
+        set CrowdControl.source[CrowdControl.key] = u
+    endfunction
+
+    function SetKnockbackAngle takes real angle returns nothing
+        set CrowdControl.angle[CrowdControl.key] = angle
+    endfunction
+
+    function SetKnockbackDistance takes real distance returns nothing
+        set CrowdControl.distance[CrowdControl.key] = distance
+    endfunction
+
+    function SetKnockupHeight takes real height returns nothing
+        set CrowdControl.height[CrowdControl.key] = height
     endfunction
 
     function SetKnockbackOnCliff takes boolean onCliff returns nothing
@@ -530,25 +554,23 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
 
     /* -------------------------------------------- Fear -------------------------------------------- */
     struct Fear
+        private static timer timer = CreateTimer()
+        private static constant integer DIRECTION_CHANGE = 5 
+        private static constant real MAX_CHANGE = 200.
+        private static constant real PERIOD = 1./5.
+        private static integer key = -1
+        private static thistype array array
+        private static integer array struct
+        private static boolean array flag
+        private static real array x
+        private static real array y
+        private static ability ability
         private static unit dummy
-
-        static constant real PERIOD = 1./5.
-        static constant integer DIRECTION_CHANGE = 5 
-        static constant real MAX_CHANGE = 200.
-        static integer key = -1
-        static thistype array array
-        static integer array struct
-        static boolean array flag
-        static real array x
-        static real array y
-        static timer timer = CreateTimer()
 
         unit unit
         effect effect
         integer id
-        real duration
         integer change
-        boolean selected
 
         static method feared takes unit target returns boolean
             return GetUnitAbilityLevel(target, FEAR_BUFF) > 0
@@ -602,13 +624,10 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         static method apply takes unit whichUnit, real duration, string model, string point returns nothing
             local integer id = GetUnitUserData(whichUnit)
             local thistype this
-            local ability spell
 
             if duration > 0 then
-                call UnitAddAbility(dummy, FEAR)
-                set spell = BlzGetUnitAbility(dummy, FEAR)
-                call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_NORMAL, 0, duration)
-                call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, 0, duration)
+                call BlzSetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_NORMAL, 0, duration)
+                call BlzSetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_HERO, 0, duration)
                 call IncUnitAbilityLevel(dummy, FEAR)
                 call DecUnitAbilityLevel(dummy, FEAR)
 
@@ -638,8 +657,6 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
                     set y[id] = GetRandomReal(GetUnitY(whichUnit) - MAX_CHANGE, GetUnitY(whichUnit) + MAX_CHANGE)
                     call IssuePointOrder(whichUnit, "move", x[id], y[id])
                 endif
-
-                call UnitRemoveAbility(dummy, FEAR)
             endif
         endmethod
 
@@ -664,10 +681,182 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         private static method onInit takes nothing returns nothing
             set dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetRectCenterX(GetWorldBounds()), GetRectCenterY(GetWorldBounds()), 0, 0)
 
+            call UnitAddAbility(dummy, TRUE_SIGHT)
+            call UnitAddAbility(dummy, FEAR)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, function thistype.onOrder)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, function thistype.onOrder)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, function thistype.onOrder)
+
+            set ability = BlzGetUnitAbility(dummy, FEAR)
+        endmethod
+    endstruct
+
+    /* -------------------------------------------- Taunt ------------------------------------------- */
+    struct Taunt
+        private static constant real PERIOD = 0.2
+        private static unit dummy
+        private static integer key = -1
+        private static thistype array array
+        private static integer array struct
+        private static timer timer = CreateTimer()
+        private static ability ability
+
+        readonly static unit array source
+
+        unit unit
+        effect effect
+        integer id
+        boolean selected
+
+        static method taunted takes unit target returns boolean
+            return GetUnitAbilityLevel(target, TAUNT_BUFF) > 0
+        endmethod
+
+        method remove takes integer i returns integer
+            call UnitDispelCrowdControl(unit, CROWD_CONTROL_TAUNT)
+            call IssueImmediateOrder(unit, "stop")
+            call DestroyEffect(effect)
+
+            if selected and UnitAlive(unit) then
+                call SelectUnitAddForPlayer(unit, GetOwningPlayer(unit))
+            endif
+
+            set struct[id] = 0
+            set source[id] = null
+            set unit = null
+            set effect = null
+            set array[i] = array[key]
+            set key = key - 1
+
+            call deallocate()
+
+            if key == -1 then
+                call PauseTimer(timer)
+            endif
+
+            return i - 1
+        endmethod
+
+        private static method onPeriod takes nothing returns nothing
+            local integer i = 0
+            local thistype this
+
+            loop
+                exitwhen i > key
+                    set this = array[i]
+
+                    if GetUnitAbilityLevel(unit, TAUNT_BUFF) > 0 and UnitAlive(source[id]) and UnitAlive(unit) then
+                        if IsUnitVisible(source[id],  GetOwningPlayer(unit)) then
+                            call IssueTargetOrderById(unit, 851983, source[id])
+                        else
+                            call IssuePointOrderById(unit, 851986, GetUnitX(source[id]), GetUnitY(source[id]))
+                        endif
+                    else
+                        set i = remove(i)
+                    endif
+                set i = i + 1
+            endloop
+        endmethod
+
+        static method apply takes unit source, unit target, real duration, string model, string point returns nothing
+            local integer id = GetUnitUserData(target)
+            local thistype this
+
+            if duration > 0 and UnitAlive(source) and UnitAlive(target) then
+                call BlzSetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_NORMAL, 0, duration)
+                call BlzSetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_HERO, 0, duration)
+                call IncUnitAbilityLevel(dummy, TAUNT)
+                call DecUnitAbilityLevel(dummy, TAUNT)
+
+                if IssueTargetOrder(dummy, "drunkenhaze", target) then
+                    if struct[id] != 0 then
+                        set this = struct[id]
+                    else
+                        set this = thistype.allocate()
+                        set .id = id
+                        set unit = target
+                        set selected = IsUnitSelected(target, GetOwningPlayer(target))
+                        set key = key + 1
+                        set array[key] = this
+                        set struct[id] = this
+    
+                        if selected then
+                            call SelectUnit(target, false)
+                        endif
+
+                        if model != null and point != null then
+                            set effect = AddSpecialEffectTarget(model, target, point)
+                        endif
+    
+                        if key == 0 then
+                            call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
+                        endif
+                    endif
+
+                    set .source[id] = source
+                    
+                    if IsUnitVisible(source, GetOwningPlayer(target)) then
+                        call IssueTargetOrderById(target, 851983, source)
+                    else
+                        call IssuePointOrderById(target, 851986, GetUnitX(source), GetUnitY(source))
+                    endif
+                endif
+            endif
+        endmethod
+
+        private static method onOrder takes nothing returns nothing
+            local unit target = GetOrderedUnit()
+            local integer order = GetIssuedOrderId()
+            local integer id
+            
+            if taunted(target) and order != 851973 then
+                set id = GetUnitUserData(target)
+
+                if order != 851983 and order != 851986 then
+                    if IsUnitVisible(source[id],  GetOwningPlayer(target)) then
+                        call IssueTargetOrderById(target, 851983, source[id])
+                    else 
+                        call IssuePointOrderById(target, 851986, GetUnitX(source[id]), GetUnitY(source[id]))
+                    endif
+                else
+                    if GetOrderTargetUnit() != source[id] and GetOrderTargetUnit() != null then
+                        if IsUnitVisible(source[id],  GetOwningPlayer(target)) then
+                            call IssueTargetOrderById(target, 851983, source[id])
+                        else 
+                            call IssuePointOrderById(target, 851986, GetUnitX(source[id]), GetUnitY(source[id]))
+                        endif
+                    endif
+                endif
+            endif
+
+            set target = null
+        endmethod
+
+        private static method onSelect takes nothing returns nothing
+            local unit target = GetTriggerUnit()
+            
+            if taunted(target) then
+                if IsUnitSelected(target, GetOwningPlayer(target)) then
+                    call SelectUnit(target, false)
+                endif
+            endif
+            
+            set target = null
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            set dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetRectCenterX(GetWorldBounds()), GetRectCenterY(GetWorldBounds()), 0, 0)
+
+            call UnitAddAbility(dummy, TRUE_SIGHT)
+            call UnitAddAbility(dummy, TAUNT)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, function thistype.onOrder)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, function thistype.onOrder)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, function thistype.onOrder)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function thistype.onSelect)
+
+            set ability = BlzGetUnitAbility(dummy, TAUNT)
         endmethod
     endstruct
 
@@ -678,11 +867,14 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         private static trigger array event
         private static integer array ability
         private static integer array buff
+        private static string array order
+        private static integer count = 0
         private static unit dummy
 
         readonly static integer key = -1
         
         static unit array unit
+        static unit array source
         static real array amount
         static real array duration
         static real array angle
@@ -697,7 +889,77 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         static integer array type
 
         private static method onInit takes nothing returns nothing
-            set dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetRectCenterX(GetWorldBounds()), GetRectCenterY(GetWorldBounds()), 0, 0)
+            set dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetRectCenterX(GetWorldBounds()), GetRectCenterY(GetWorldBounds()), 0, 0)   
+            
+            call UnitAddAbility(dummy, SILENCE)
+            call UnitAddAbility(dummy, STUN)
+            call UnitAddAbility(dummy, ATTACK_SLOW)
+            call UnitAddAbility(dummy, MOVEMENT_SLOW)
+            call UnitAddAbility(dummy, BANISH)
+            call UnitAddAbility(dummy, ENSNARE)
+            call UnitAddAbility(dummy, PURGE)
+            call UnitAddAbility(dummy, HEX)
+            call UnitAddAbility(dummy, SLEEP)
+            call UnitAddAbility(dummy, CYCLONE)
+            call UnitAddAbility(dummy, ENTANGLE)
+            call UnitAddAbility(dummy, DISARM)
+            call UnitAddAbility(dummy, TRUE_SIGHT)
+
+            call BlzUnitDisableAbility(dummy, SILENCE, true, true)
+            call BlzUnitDisableAbility(dummy, STUN, true, true)
+            call BlzUnitDisableAbility(dummy, ATTACK_SLOW, true, true)
+            call BlzUnitDisableAbility(dummy, MOVEMENT_SLOW, true, true)
+            call BlzUnitDisableAbility(dummy, BANISH, true, true)
+            call BlzUnitDisableAbility(dummy, ENSNARE, true, true)
+            call BlzUnitDisableAbility(dummy, PURGE, true, true)
+            call BlzUnitDisableAbility(dummy, HEX, true, true)
+            call BlzUnitDisableAbility(dummy, SLEEP, true, true)
+            call BlzUnitDisableAbility(dummy, CYCLONE, true, true)
+            call BlzUnitDisableAbility(dummy, ENTANGLE, true, true)
+            call BlzUnitDisableAbility(dummy, DISARM, true, true)
+
+            set ability[CROWD_CONTROL_SILENCE] = SILENCE
+            set ability[CROWD_CONTROL_STUN] = STUN
+            set ability[CROWD_CONTROL_SLOW] = MOVEMENT_SLOW
+            set ability[CROWD_CONTROL_SLOW_ATTACK] = ATTACK_SLOW
+            set ability[CROWD_CONTROL_BANISH] = BANISH
+            set ability[CROWD_CONTROL_ENSNARE] = ENSNARE
+            set ability[CROWD_CONTROL_PURGE] = PURGE
+            set ability[CROWD_CONTROL_HEX] = HEX
+            set ability[CROWD_CONTROL_SLEEP] = SLEEP
+            set ability[CROWD_CONTROL_CYCLONE] = CYCLONE
+            set ability[CROWD_CONTROL_ENTANGLE] = ENTANGLE
+            set ability[CROWD_CONTROL_DISARM] = DISARM
+            set ability[CROWD_CONTROL_FEAR] = FEAR
+            set ability[CROWD_CONTROL_TAUNT] = TAUNT
+
+            set buff[CROWD_CONTROL_SILENCE] = SILENCE_BUFF
+            set buff[CROWD_CONTROL_STUN] = STUN_BUFF
+            set buff[CROWD_CONTROL_SLOW] = MOVEMENT_SLOW_BUFF
+            set buff[CROWD_CONTROL_SLOW_ATTACK] = ATTACK_SLOW_BUFF
+            set buff[CROWD_CONTROL_BANISH] = BANISH_BUFF
+            set buff[CROWD_CONTROL_ENSNARE] = ENSNARE_BUFF
+            set buff[CROWD_CONTROL_PURGE] = PURGE_BUFF
+            set buff[CROWD_CONTROL_HEX] = HEX_BUFF
+            set buff[CROWD_CONTROL_SLEEP] = SLEEP_BUFF
+            set buff[CROWD_CONTROL_CYCLONE] = CYCLONE_BUFF
+            set buff[CROWD_CONTROL_ENTANGLE] = ENTANGLE_BUFF
+            set buff[CROWD_CONTROL_DISARM] = DISARM_BUFF
+            set buff[CROWD_CONTROL_FEAR] = FEAR_BUFF
+            set buff[CROWD_CONTROL_TAUNT] = TAUNT_BUFF
+
+            set order[CROWD_CONTROL_SILENCE] = "drunkenhaze"
+            set order[CROWD_CONTROL_STUN] = "thunderbolt"
+            set order[CROWD_CONTROL_SLOW] = "cripple"
+            set order[CROWD_CONTROL_SLOW_ATTACK] = "cripple"
+            set order[CROWD_CONTROL_BANISH] = "banish"
+            set order[CROWD_CONTROL_ENSNARE] = "ensnare"
+            set order[CROWD_CONTROL_PURGE] = "purge"
+            set order[CROWD_CONTROL_HEX] = "hex"
+            set order[CROWD_CONTROL_SLEEP] = "sleep"
+            set order[CROWD_CONTROL_CYCLONE] = "cyclone"
+            set order[CROWD_CONTROL_ENTANGLE] = "entanglingroots"
+            set order[CROWD_CONTROL_DISARM] = "drunkenhaze"
         endmethod
 
         private static method onExpire takes nothing returns nothing
@@ -711,104 +973,48 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         private static method onEvent takes integer key returns nothing
+            local integer i = 0
             local integer next = -1
             local integer prev = -2
 
-            loop
-                exitwhen type[key] == next or (key - CROWD_CONTROL_KNOCKUP > RECURSION_LIMIT)
-                    set next = type[key]
+            set count = count + 1
 
-                    if event[next] != null then
-                        call TriggerEvaluate(event[next])
-                    endif
-
-                    if next != prev then
-                        call TriggerEvaluate(trigger)
+            if count - CROWD_CONTROL_KNOCKUP < RECURSION_LIMIT then
+                loop
+                    exitwhen type[key] == next or (i - CROWD_CONTROL_KNOCKUP > RECURSION_LIMIT)
+                        set next = type[key]
+    
+                        if event[next] != null then
+                            call TriggerEvaluate(event[next])
+                        endif
 
                         if type[key] != next then
-                            set prev = next
+                            set i = i + 1
+                        else
+                            if next != prev then
+                                call TriggerEvaluate(trigger)
+
+                                if type[key] != next then
+                                    set i = i + 1
+                                    set prev = next
+                                endif
+                            endif
                         endif
-                    endif
-            endloop
+                endloop
+            endif
             
+            set count = count - 1
             set .key = key
         endmethod
 
-        private static method order takes integer id returns string
-            if id == CROWD_CONTROL_SILENCE or id == CROWD_CONTROL_DISARM then
-                return "drunkenhaze"
-            elseif id == CROWD_CONTROL_STUN then
-                return "thunderbolt"
-            elseif id == CROWD_CONTROL_SLOW then
-                return "cripple"
-            elseif id == CROWD_CONTROL_SLOW_ATTACK then
-                return "cripple"
-            elseif id == CROWD_CONTROL_BANISH then
-                return "banish"
-            elseif id == CROWD_CONTROL_ENSNARE then
-                return "ensnare"
-            elseif id == CROWD_CONTROL_PURGE then
-                return "purge"
-            elseif id == CROWD_CONTROL_HEX then
-                return "hex"
-            elseif id == CROWD_CONTROL_SLEEP then
-                return "sleep"
-            elseif id == CROWD_CONTROL_CYCLONE then
-                return "cyclone"
-            elseif id == CROWD_CONTROL_ENTANGLE then
-                return "entanglingroots"
-            else
-                return null
-            endif
-        endmethod
-
-        private static method setup takes integer id, integer key returns nothing
-            if id == CROWD_CONTROL_SILENCE then
-                set ability[key] = SILENCE
-                set buff[key] = SILENCE_BUFF
-            elseif id == CROWD_CONTROL_STUN then
-                set ability[key] = STUN
-                set buff[key] = STUN_BUFF
-            elseif id == CROWD_CONTROL_SLOW then
-                set ability[key] = ATTACK_SLOW
-                set buff[key] = ATTACK_SLOW_BUFF
-            elseif id == CROWD_CONTROL_SLOW_ATTACK then
-                set ability[key] = MOVEMENT_SLOW
-                set buff[key] = MOVEMENT_SLOW_BUFF
-            elseif id == CROWD_CONTROL_BANISH then
-                set ability[key] = BANISH
-                set buff[key] = BANISH_BUFF
-            elseif id == CROWD_CONTROL_ENSNARE then
-                set ability[key] = ENSNARE
-                set buff[key] = ENSNARE_BUFF
-            elseif id == CROWD_CONTROL_PURGE then
-                set ability[key] = PURGE
-                set buff[key] = PURGE_BUFF
-            elseif id == CROWD_CONTROL_HEX then
-                set ability[key] = HEX
-                set buff[key] = HEX_BUFF
-            elseif id == CROWD_CONTROL_SLEEP then
-                set ability[key] = SLEEP
-                set buff[key] = SLEEP_BUFF
-            elseif id == CROWD_CONTROL_CYCLONE then
-                set ability[key] = CYCLONE
-                set buff[key] = CYCLONE_BUFF
-            elseif id == CROWD_CONTROL_ENTANGLE then
-                set ability[key] = ENTANGLE
-                set buff[key] = ENTANGLE_BUFF
-            elseif id == CROWD_CONTROL_DISARM then
-                set ability[key] = DISARM
-                set buff[key] = DISARM_BUFF
-            endif
-        endmethod
-
-        private static method cast takes unit target, real amount, real angle, real distance, real height, real duration, string model, string point, boolean stack, boolean onCliff, boolean onDestructable, boolean onUnit, integer id returns nothing
+        private static method cast takes unit source, unit target, real amount, real angle, real distance, real height, real duration, string model, string point, boolean stack, boolean onCliff, boolean onDestructable, boolean onUnit, integer id returns nothing
             local ability spell
             local timer t
     
             if not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE) and UnitAlive(target) and duration > 0 then
                 set key = key + 1
                 set .unit[key] = target
+                set .source[key] = source
                 set .amount[key] = amount
                 set .angle[key] = angle
                 set .distance[key] = distance
@@ -837,13 +1043,19 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
                     endif
 
                     if .stack[key] then
-                        set .duration[key] = .duration[key] + TimerGetRemaining(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]))
+                        if type[key] != CROWD_CONTROL_TAUNT then
+                            set .duration[key] = .duration[key] + TimerGetRemaining(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]))
+                        else
+                            if Taunt.source[GetUnitUserData(unit[key])] == .source[key] then
+                                set .duration[key] = .duration[key] + TimerGetRemaining(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]))
+                            endif
+                        endif
                     endif
 
-                    if type[key] != CROWD_CONTROL_FEAR and type[key] != CROWD_CONTROL_KNOCKBACK and type[key] != CROWD_CONTROL_KNOCKUP then
-                        call setup(type[key], key)
-                        call UnitAddAbility(dummy, ability[key])
-                        set spell = BlzGetUnitAbility(dummy, ability[key])
+                    if type[key] != CROWD_CONTROL_FEAR and type[key] != CROWD_CONTROL_TAUNT and type[key] != CROWD_CONTROL_KNOCKBACK and type[key] != CROWD_CONTROL_KNOCKUP then
+                        set spell = BlzGetUnitAbility(dummy, ability[type[key]])
+
+                        call BlzUnitDisableAbility(dummy, ability[type[key]], false, false)
                         call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_NORMAL, 0, .duration[key])
                         call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, 0, .duration[key])
 
@@ -853,16 +1065,17 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
                             call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_ATTACK_SPEED_REDUCTION_PERCENT_CRI2, 0, .amount[key])
                         endif
 
-                        call IncUnitAbilityLevel(dummy, ability[key])
-                        call DecUnitAbilityLevel(dummy, ability[key])
-                        call UnitRemoveAbility(unit[key], buff[key])
+                        call IncUnitAbilityLevel(dummy, ability[type[key]])
+                        call DecUnitAbilityLevel(dummy, ability[type[key]])
 
-                        if IssueTargetOrder(dummy, order(type[key]), unit[key]) then
+                        if IssueTargetOrder(dummy, order[type[key]], unit[key]) then
+                            call UnitRemoveAbility(unit[key], buff[type[key]])
+                            call IssueTargetOrder(dummy, order[type[key]], unit[key])
                             call TimerStart(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]), .duration[key], false, function thistype.onExpire)
 
                             if .model[key] != null and .model[key] != "" then
                                 if .point[key] != null and .point[key] != "" then
-                                    call LinkEffectToBuff(unit[key], buff[key], .model[key], .point[key])
+                                    call LinkEffectToBuff(unit[key], buff[type[key]], .model[key], .point[key])
                                 else
                                     call DestroyEffect(AddSpecialEffect(.model[key], GetUnitX(unit[key]), GetUnitY(unit[key])))
                                 endif
@@ -873,10 +1086,12 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
                             call DestroyTimer(t)
                         endif
 
-                        call UnitRemoveAbility(dummy, ability[key])
+                        call BlzUnitDisableAbility(dummy, ability[type[key]], true, true)
                     else
                         if type[key] == CROWD_CONTROL_FEAR then
                             call Fear.apply(unit[key], .duration[key], .model[key], .point[key])
+                        elseif type[key] == CROWD_CONTROL_TAUNT then
+                            call Taunt.apply(.source[key], unit[key], .duration[key], .model[key], .point[key])
                         elseif type[key] == CROWD_CONTROL_KNOCKBACK then
                             call Knockback.apply(unit[key], .angle[key], .distance[key], .duration[key], .model[key], .point[key], .cliff[key], .destructable[key], .agent[key])
                         elseif type[key] == CROWD_CONTROL_KNOCKUP then
@@ -897,7 +1112,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method silence takes unit target, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SILENCE)
+            call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SILENCE)
         endmethod
     
         static method silenced takes unit target returns boolean
@@ -905,7 +1120,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method stun takes unit target, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_STUN)
+            call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_STUN)
         endmethod
     
         static method stunned takes unit target returns boolean
@@ -913,7 +1128,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method slow takes unit target, real amount, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, amount, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLOW)
+            call cast(null, target, amount, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLOW)
         endmethod
     
         static method slowed takes unit target returns boolean
@@ -921,7 +1136,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method slowAttack takes unit target, real amount, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, amount, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLOW_ATTACK)
+            call cast(null, target, amount, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLOW_ATTACK)
         endmethod
     
         static method attackSlowed takes unit target returns boolean
@@ -929,7 +1144,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method banish takes unit target, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_BANISH)
+            call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_BANISH)
         endmethod
     
         static method banished takes unit target returns boolean
@@ -937,7 +1152,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method ensnare takes unit target, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_ENSNARE)
+            call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_ENSNARE)
         endmethod
     
         static method ensnared takes unit target returns boolean
@@ -945,7 +1160,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method purge takes unit target, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_PURGE)
+            call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_PURGE)
         endmethod
     
         static method purged takes unit target returns boolean
@@ -953,7 +1168,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method hex takes unit target, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_HEX)
+            call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_HEX)
         endmethod
     
         static method hexed takes unit target returns boolean
@@ -961,7 +1176,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method sleep takes unit target, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLEEP)
+            call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLEEP)
         endmethod
     
         static method sleeping takes unit target returns boolean
@@ -969,7 +1184,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method cyclone takes unit target, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_CYCLONE)
+            call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_CYCLONE)
         endmethod
     
         static method cycloned takes unit target returns boolean
@@ -977,7 +1192,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method entangle takes unit target, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_ENTANGLE)
+            call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_ENTANGLE)
         endmethod
     
         static method entangled takes unit target returns boolean
@@ -985,7 +1200,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
         
         static method knockback takes unit target, real angle, real distance, real duration, string model, string point, boolean onCliff, boolean onDestructable, boolean onUnit, boolean stack returns nothing
-            call cast(target, 0, angle, distance, 0, duration, model, point, stack, onCliff, onDestructable, onUnit, CROWD_CONTROL_KNOCKBACK)
+            call cast(null, target, 0, angle, distance, 0, duration, model, point, stack, onCliff, onDestructable, onUnit, CROWD_CONTROL_KNOCKBACK)
         endmethod
     
         static method knockedback takes unit target returns boolean
@@ -993,7 +1208,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method knockup takes unit target, real maxHeight, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, maxHeight, duration, model, point, stack, false, false, false, CROWD_CONTROL_KNOCKUP)
+            call cast(null, target, 0, 0, 0, maxHeight, duration, model, point, stack, false, false, false, CROWD_CONTROL_KNOCKUP)
         endmethod
     
         static method knockedup takes unit target returns boolean
@@ -1001,7 +1216,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method fear takes unit target, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_FEAR)
+            call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_FEAR)
         endmethod
     
         static method feared takes unit target returns boolean
@@ -1009,47 +1224,26 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
 
         static method disarm takes unit target, real duration, string model, string point, boolean stack returns nothing
-            call cast(target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_DISARM)
+            call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_DISARM)
         endmethod
     
         static method disarmed takes unit target returns boolean
             return GetUnitAbilityLevel(target, DISARM_BUFF) > 0
         endmethod
 
+        static method taunt takes unit source, unit target, real duration, string model, string point, boolean stack returns nothing
+            call cast(source, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_TAUNT)
+        endmethod
+    
+        static method taunted takes unit target returns boolean
+            return Taunt.taunted(target)
+        endmethod
+
         static method dispel takes unit target, integer id returns nothing
-            local integer b = 0
             local timer t
 
-            if id == CROWD_CONTROL_SILENCE then
-                set b = SILENCE_BUFF
-            elseif id == CROWD_CONTROL_STUN then
-                set b = STUN_BUFF
-            elseif id == CROWD_CONTROL_SLOW then
-                set b = MOVEMENT_SLOW_BUFF
-            elseif id == CROWD_CONTROL_SLOW_ATTACK then
-                set b = ATTACK_SLOW_BUFF
-            elseif id == CROWD_CONTROL_BANISH then
-                set b = BANISH_BUFF
-            elseif id == CROWD_CONTROL_ENSNARE then
-                set b = ENSNARE_BUFF
-            elseif id == CROWD_CONTROL_PURGE then
-                set b = PURGE_BUFF
-            elseif id == CROWD_CONTROL_HEX then
-                set b = HEX_BUFF
-            elseif id == CROWD_CONTROL_SLEEP then
-                set b = SLEEP_BUFF
-            elseif id == CROWD_CONTROL_CYCLONE then
-                set b = CYCLONE_BUFF
-            elseif id == CROWD_CONTROL_ENTANGLE then
-                set b = ENTANGLE_BUFF
-            elseif id == CROWD_CONTROL_DISARM then
-                set b = DISARM_BUFF
-            elseif id == CROWD_CONTROL_FEAR then
-                set b = FEAR_BUFF
-            endif
-
-            if b != 0 then
-                call UnitRemoveAbility(target, b)
+            if buff[id] != 0 then
+                call UnitRemoveAbility(target, buff[id])
 
                 if HaveSavedHandle(timer, GetHandleId(target), id) then
                     set t = LoadTimerHandle(timer, GetHandleId(target), id)
@@ -1076,6 +1270,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
             call dispel(target, CROWD_CONTROL_ENTANGLE)
             call dispel(target, CROWD_CONTROL_DISARM)
             call dispel(target, CROWD_CONTROL_FEAR)
+            call dispel(target, CROWD_CONTROL_TAUNT)
         endmethod
 
         static method remaining takes unit target, integer id returns real

@@ -1,5 +1,5 @@
-library SulfurasSmash requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, Missiles, TimedHandles, Utilities, optional Sulfuras, Afterburner
-    /* -------------------- Sulfuras Smash v1.5 by Chopinski -------------------- */
+library SulfurasSmash requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, Missiles, TimedHandles, Utilities, CrowdControl optional Sulfuras, optional Afterburner
+    /* -------------------- Sulfuras Smash v1.6 by Chopinski -------------------- */
     // Credtis:
     //     Systemfre1       - Sulfuras model
     //     AZ               - crack model
@@ -26,6 +26,10 @@ library SulfurasSmash requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
         private constant string     SULFURAS_MODEL      = "Sulfuras.mdl"
         // Sulfuras Impact effect model
         private constant string     IMPACT_MODEL        = "Smash.mdl"
+        // The stun model
+        private constant string     STUN_MODEL          = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+        // the stun model attachment point
+        private constant string     STUN_POINT          = "overhead"
         // Sufuras size
         private constant real       SULFURAS_SCALE      = 3.
         // Size of the impact model
@@ -41,7 +45,7 @@ library SulfurasSmash requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
     // The stun time for units at the center of impact
     private function GetStunTime takes unit u returns real
         static if LIBRARY_Sulfuras then
-            return 1 + 0.25*R2I(Sulfuras_stacks[GetUnitUserData(u)]*0.01)
+            return 1 + 0.25*R2I(Sulfuras.stacks[GetUnitUserData(u)]*0.01)
         else
             return 1.5
         endif
@@ -71,15 +75,15 @@ library SulfurasSmash requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Hammer extends Missiles
-        real    stun
-        real    aoe
+        real stun
+        real aoe
         integer level
 
         method onFinish takes nothing returns boolean
-            local group   g = CreateGroup()    
+            local group g = CreateGroup()    
             local integer i = 0
             local integer j
-            local unit    v
+            local unit v
 
             call GroupEnumUnitsInRange(g, x, y, GetNormalAoE(source, level), null)
             set j = BlzGroupGetSize(g)
@@ -88,8 +92,9 @@ library SulfurasSmash requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
                     set v = BlzGroupUnitAt(g, i)
                     if DamageFilter(source, v) then
                         if DistanceBetweenCoordinates(x, y, GetUnitX(v), GetUnitY(v)) <= aoe then
-                            call UnitDamageTarget(source, v, 2*damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
-                            call StunUnit(v, stun)
+                            if UnitDamageTarget(source, v, 2*damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
+                                call StunUnit(v, stun, STUN_MODEL, STUN_POINT, false)
+                            endif
                         else
                             call UnitDamageTarget(source, v, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
                         endif
@@ -115,15 +120,15 @@ library SulfurasSmash requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
             local real a = AngleBetweenCoordinates(Spell.x, Spell.y, GetUnitX(Spell.source.unit), GetUnitY(Spell.source.unit))
             local Hammer sulfuras = Hammer.create(Spell.x + LAUNCH_OFFSET*Cos(a), Spell.y + LAUNCH_OFFSET*Sin(a), START_HEIGHT, Spell.x, Spell.y, 0)
             
-            set sulfuras.model    = SULFURAS_MODEL
-            set sulfuras.scale    = SULFURAS_SCALE
+            set sulfuras.model = SULFURAS_MODEL
+            set sulfuras.scale = SULFURAS_SCALE
             set sulfuras.duration = LANDING_TIME
-            set sulfuras.source   = Spell.source.unit
-            set sulfuras.level    = Spell.level
-            set sulfuras.damage   = GetDamage(Spell.level)
-            set sulfuras.owner    = Spell.source.player
-            set sulfuras.stun     = GetStunTime(Spell.source.unit)
-            set sulfuras.aoe      = GetCenterAoE(Spell.level)
+            set sulfuras.source = Spell.source.unit
+            set sulfuras.level = Spell.level
+            set sulfuras.damage = GetDamage(Spell.level)
+            set sulfuras.owner = Spell.source.player
+            set sulfuras.stun = GetStunTime(Spell.source.unit)
+            set sulfuras.aoe = GetCenterAoE(Spell.level)
 
             call sulfuras.launch()
         endmethod

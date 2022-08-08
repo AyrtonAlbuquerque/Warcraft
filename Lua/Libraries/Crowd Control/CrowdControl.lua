@@ -4,11 +4,10 @@
     -- 1 - Copy the Utilities library over to your map and follow its install instructions
     -- 2 - Copy the Missiles libraries over to your map and follow their install instructions
     -- 3 - Copy the Indexer library over to your map and follow its install instructions
-    -- 4 - Copy the TimerUtils library over to your map and follow its install instructions
-    -- 5 - Copy the RegisterPlayerUnitEvent library over to your map and follow its install instructions
-    -- 6 - Copy the Tenacity library over to your map and follow its install instructions
-    -- 7 - Copy this library into your map
-    -- 8 - Copy the 13 buffs and 13 abilities with the CC prefix and match their raw code below.
+    -- 4 - Copy the RegisterPlayerUnitEvent library over to your map and follow its install instructions
+    -- 5 - Copy the Tenacity library over to your map and follow its install instructions
+    -- 6 - Copy this library into your map
+    -- 7 - Copy the 14 buffs and 15 abilities with the CC prefix and match their raw code below.
     -- ---------------------------------------- By Chopinski ---------------------------------------- --
 ]]--
 
@@ -42,6 +41,10 @@ do
     local DISARM             = FourCC('U011')
     -- The raw code of the fear ability
     local FEAR               = FourCC('U012')
+    -- The raw code of the taunt ability
+    local TAUNT              = FourCC('U013')
+    -- The raw code of the true sight ability
+    local TRUE_SIGHT         = FourCC('U014')
     -- The raw code of the silence buff
     local SILENCE_BUFF       = FourCC('BU00')
     -- The raw code of the stun buff
@@ -68,9 +71,11 @@ do
     local DISARM_BUFF        = FourCC('BU11')
     -- The raw code of the fear buff
     local FEAR_BUFF          = FourCC('BU12')
+    -- The raw code of the taunt buff
+    local TAUNT_BUFF         = FourCC('BU13')
 
     -- This is the maximum recursion limit allowed by the system.
-    -- It's value must be greater than or equal to 0. When equal to 0
+    -- Its value must be greater than or equal to 0. When equal to 0
     -- no recursion is allowed. Values too big can cause screen freezes.
     local RECURSION_LIMIT    = 8
 
@@ -88,8 +93,9 @@ do
     CROWD_CONTROL_ENTANGLE     = 10
     CROWD_CONTROL_DISARM       = 11
     CROWD_CONTROL_FEAR         = 12
-    CROWD_CONTROL_KNOCKBACK    = 13
-    CROWD_CONTROL_KNOCKUP      = 14
+    CROWD_CONTROL_TAUNT        = 13
+    CROWD_CONTROL_KNOCKBACK    = 14
+    CROWD_CONTROL_KNOCKUP      = 15
 
     -- ---------------------------------------------------------------------------------------------- --
     --                                             LUA API                                            --
@@ -110,6 +116,15 @@ do
 
     function IsUnitFeared(unit)
         return CrowdControl:feared(unit)
+    end
+
+    -- -------------------------------------------- Taunt ------------------------------------------- --
+    function TauntUnit(source, target, duration, model, point, stack)
+        CrowdControl:taunt(source, target, duration, model, point, stack)
+    end
+
+    function IsUnitTaunted(unit)
+        return CrowdControl:taunted(unit)
     end
 
     -- ------------------------------------------ Knockback ----------------------------------------- --
@@ -263,18 +278,6 @@ do
         return CrowdControl.amount[CrowdControl.key]
     end
 
-    function GetKnockbackAngle()
-        return CrowdControl.angle[CrowdControl.key]
-    end
-
-    function GetKnockbackDistance()
-        return CrowdControl.distance[CrowdControl.key]
-    end
-
-    function GetKnockupHeight()
-        return CrowdControl.height[CrowdControl.key]
-    end
-
     function GetCrowdControlModel()
         return CrowdControl.model[CrowdControl.key]
     end
@@ -287,6 +290,26 @@ do
         return CrowdControl.stack[CrowdControl.key]
     end
 
+    function GetCrowdControlRemaining(unit, type)
+        return CrowdControl:remaining(unit, type)
+    end
+
+    function GetTauntSource()
+        return CrowdControl.source[CrowdControl.key]
+    end
+
+    function GetKnockbackAngle()
+        return CrowdControl.angle[CrowdControl.key]
+    end
+
+    function GetKnockbackDistance()
+        return CrowdControl.distance[CrowdControl.key]
+    end
+
+    function GetKnockupHeight()
+        return CrowdControl.height[CrowdControl.key]
+    end
+
     function GetKnockbackOnCliff()
         return CrowdControl.cliff[CrowdControl.key]
     end
@@ -297,10 +320,6 @@ do
 
     function GetKnockbackOnUnit()
         return CrowdControl.agent[CrowdControl.key]
-    end
-
-    function GetCrowdControlRemaining(unit, type)
-        return CrowdControl:remaining(unit, type)
     end
 
     function SetCrowdControlUnit(unit)
@@ -321,18 +340,6 @@ do
         CrowdControl.amount[CrowdControl.key] = amount
     end
 
-    function SetKnockbackAngle(angle)
-        CrowdControl.angle[CrowdControl.key] = angle
-    end
-
-    function SetKnockbackDistance(distance)
-        CrowdControl.distance[CrowdControl.key] = distance
-    end
-
-    function SetKnockupHeight(height)
-        CrowdControl.height[CrowdControl.key] = height
-    end
-
     function SetCrowdControlModel(model)
         CrowdControl.model[CrowdControl.key] = model
     end
@@ -343,6 +350,22 @@ do
 
     function SetCrowdControlStack(stack)
         CrowdControl.stack[CrowdControl.key] = stack
+    end
+
+    function SetTauntSource(unit)
+        CrowdControl.source[CrowdControl.key] = unit
+    end
+
+    function SetKnockbackAngle(angle)
+        CrowdControl.angle[CrowdControl.key] = angle
+    end
+
+    function SetKnockbackDistance(distance)
+        CrowdControl.distance[CrowdControl.key] = distance
+    end
+
+    function SetKnockupHeight(height)
+        CrowdControl.height[CrowdControl.key] = height
     end
 
     function SetKnockbackOnCliff(onCliff)
@@ -518,6 +541,7 @@ do
         local DIRECTION_CHANGE = 5
         local MAX_CHANGE = 200.
         local dummy
+        local ability
 
         function mt:feared(unit)
             return GetUnitAbilityLevel(unit, FEAR_BUFF) > 0
@@ -544,8 +568,6 @@ do
             local this
 
             if duration > 0 then
-                UnitAddAbility(dummy, FEAR)
-                local ability = BlzGetUnitAbility(dummy, FEAR)
                 BlzSetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_NORMAL, 0, duration)
                 BlzSetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_HERO, 0, duration)
                 IncUnitAbilityLevel(dummy, FEAR)
@@ -600,8 +622,6 @@ do
                     y[target] = GetRandomReal(GetUnitY(target) - MAX_CHANGE, GetUnitY(target) + MAX_CHANGE)
                     IssuePointOrder(target, "move", x[target], y[target])
                 end
-
-                UnitRemoveAbility(dummy, FEAR)
             end
         end
 
@@ -637,8 +657,186 @@ do
 
             TimerStart(CreateTimer(), 0, false, function()
                 dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetRectCenterX(GetWorldBounds()), GetRectCenterY(GetWorldBounds()), 0, 0)
+                
+                UnitAddAbility(dummy, TRUE_SIGHT)
+                UnitAddAbility(dummy, FEAR)
                 PauseTimer(GetExpiredTimer())
                 DestroyTimer(GetExpiredTimer())
+
+                ability = BlzGetUnitAbility(dummy, FEAR)
+            end)
+        end)
+    end
+
+    -- -------------------------------------------- Taunt ------------------------------------------- --
+    do
+        Taunt = setmetatable({}, {})
+        local mt = getmetatable(Taunt)
+        mt.__index = mt
+
+        Taunt.source = {}
+
+        local timer = CreateTimer()
+        local PERIOD = 0.2
+        local key = 0
+        local array = {}
+        local struct = {}
+        local dummy
+        local ability
+
+        function mt:taunted(unit)
+            return GetUnitAbilityLevel(unit, TAUNT_BUFF) > 0
+        end
+
+        function mt:destroy(i)
+            UnitDispelCrowdControl(self.target, CROWD_CONTROL_TAUNT)
+            IssueImmediateOrder(self.target, "stop")
+            DestroyEffect(self.effect)
+
+            if self.selected then
+                SelectUnitAddForPlayer(self.target, GetOwningPlayer(self.target))
+            end
+
+            array[i] = array[key]
+            key = key - 1
+            struct[self.target] = nil
+            Taunt.source[self.target] = nil
+            self = nil
+
+            if key == 0 then
+                PauseTimer(timer)
+            end
+
+            return i - 1
+        end
+
+        function mt:apply(source, target, duration, model, point)
+            local this
+
+            if duration > 0 and UnitAlive(source) and UnitAlive(target) then
+                BlzSetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_NORMAL, 0, duration)
+                BlzSetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_HERO, 0, duration)
+                IncUnitAbilityLevel(dummy, TAUNT)
+                DecUnitAbilityLevel(dummy, TAUNT)
+
+                if IssueTargetOrder(dummy, "drunkenhaze", target) then
+                    if struct[target] then
+                        this = struct[target]
+                    else
+                        this = {}
+                        setmetatable(this, mt)
+                        key = key + 1
+                        array[key] = this
+                        struct[target] = this
+
+                        this.target = target
+                        this.selected = IsUnitSelected(target, GetOwningPlayer(target))
+
+                        if this.selected then
+                            SelectUnit(target, false)
+                        end
+
+                        if model and point then
+                            this.effect = AddSpecialEffectTarget(model, target, point)
+                        end
+
+                        if key == 1 then
+                            TimerStart(timer, PERIOD, true, function()
+                                local i = 1
+                                local this
+
+                                while i <= key do
+                                    this = array[i]
+
+                                    if GetUnitAbilityLevel(this.target, TAUNT_BUFF) > 0 and UnitAlive(Taunt.source[this.target]) and UnitAlive(this.target) then
+                                        if IsUnitVisible(Taunt.source[this.target], GetOwningPlayer(this.target)) then
+                                            IssueTargetOrderById(this.target, 851983, Taunt.source[this.target])
+                                        else
+                                            IssuePointOrderById(this.target, 851986, GetUnitX(Taunt.source[this.target]), GetUnitY(Taunt.source[this.target]))
+                                        end
+                                    else
+                                        i = this:destroy(i)
+                                    end
+                                    i = i + 1
+                                end
+                            end)
+                        end
+                    end
+
+                    Taunt.source[target] = source
+
+                    if IsUnitVisible(source, GetOwningPlayer(target)) then
+                        IssueTargetOrderById(target, 851983, source)
+                    else
+                        IssuePointOrderById(target, 851986, GetUnitX(source), GetUnitY(source))
+                    end
+                end
+            end
+        end
+
+        function mt:onOrder()
+            local unit = GetOrderedUnit()
+            local order = GetIssuedOrderId()
+
+            if self:taunted(unit) and order ~= 851973 then
+                if order ~= 851983 and order ~= 851986 then
+                    if IsUnitVisible(Taunt.source[unit],  GetOwningPlayer(unit)) then
+                        IssueTargetOrderById(unit, 851983, Taunt.source[unit])
+                    else
+                        IssuePointOrderById(unit, 851986, GetUnitX(Taunt.source[unit]), GetUnitY(Taunt.source[unit]))
+                    end
+                else
+                    if GetOrderTargetUnit() ~= Taunt.source[unit] and GetOrderTargetUnit() ~= nil then
+                        if IsUnitVisible(source[id],  GetOwningPlayer(target)) then
+                            IssueTargetOrderById(unit, 851983, Taunt.source[unit])
+                        else
+                            IssuePointOrderById(unit, 851986, GetUnitX(Taunt.source[unit]), GetUnitY(Taunt.source[unit]))
+                        end
+                    end
+                end
+            end
+        end
+
+        function mt:onSelect()
+            local unit = GetTriggerUnit()
+
+            if self:taunted(unit) then
+                if IsUnitSelected(unit, GetOwningPlayer(unit)) then
+                    SelectUnit(unit, false)
+                end
+            end
+        end
+
+        onInit(function()
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function()
+                Taunt:onOrder()
+            end)
+
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, function()
+                Taunt:onOrder()
+            end)
+
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, function()
+                Taunt:onOrder()
+            end)
+
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, function()
+                Taunt:onOrder()
+            end)
+
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function()
+                Taunt:onSelect()
+            end)
+
+            TimerStart(CreateTimer(), 0, false, function()
+                dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetRectCenterX(GetWorldBounds()), GetRectCenterY(GetWorldBounds()), 0, 0)
+
+                UnitAddAbility(dummy, TRUE_SIGHT)
+                UnitAddAbility(dummy, TAUNT)
+                PauseTimer(GetExpiredTimer())
+                DestroyTimer(GetExpiredTimer())
+
+                ability = BlzGetUnitAbility(dummy, TAUNT)
             end)
         end)
     end
@@ -651,6 +849,7 @@ do
 
         CrowdControl.key = 0
         CrowdControl.unit = {}
+        CrowdControl.source = {}
         CrowdControl.amount = {}
         CrowdControl.duration = {}
         CrowdControl.angle = {}
@@ -669,13 +868,86 @@ do
         local event = {}
         local ability = {}
         local buff = {}
+        local order = {}
         local dummy
+        local count = 0
 
         onInit(function()
             local t = CreateTimer()
 
             TimerStart(t, 0, false, function()
                 dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetRectCenterX(GetWorldBounds()), GetRectCenterY(GetWorldBounds()), 0, 0)
+
+                UnitAddAbility(dummy, SILENCE)
+                UnitAddAbility(dummy, STUN)
+                UnitAddAbility(dummy, ATTACK_SLOW)
+                UnitAddAbility(dummy, MOVEMENT_SLOW)
+                UnitAddAbility(dummy, BANISH)
+                UnitAddAbility(dummy, ENSNARE)
+                UnitAddAbility(dummy, PURGE)
+                UnitAddAbility(dummy, HEX)
+                UnitAddAbility(dummy, SLEEP)
+                UnitAddAbility(dummy, CYCLONE)
+                UnitAddAbility(dummy, ENTANGLE)
+                UnitAddAbility(dummy, DISARM)
+                UnitAddAbility(dummy, TRUE_SIGHT)
+
+                BlzUnitDisableAbility(dummy, SILENCE, true, true)
+                BlzUnitDisableAbility(dummy, STUN, true, true)
+                BlzUnitDisableAbility(dummy, ATTACK_SLOW, true, true)
+                BlzUnitDisableAbility(dummy, MOVEMENT_SLOW, true, true)
+                BlzUnitDisableAbility(dummy, BANISH, true, true)
+                BlzUnitDisableAbility(dummy, ENSNARE, true, true)
+                BlzUnitDisableAbility(dummy, PURGE, true, true)
+                BlzUnitDisableAbility(dummy, HEX, true, true)
+                BlzUnitDisableAbility(dummy, SLEEP, true, true)
+                BlzUnitDisableAbility(dummy, CYCLONE, true, true)
+                BlzUnitDisableAbility(dummy, ENTANGLE, true, true)
+                BlzUnitDisableAbility(dummy, DISARM, true, true)
+
+                ability[CROWD_CONTROL_SILENCE] = SILENCE
+                ability[CROWD_CONTROL_STUN] = STUN
+                ability[CROWD_CONTROL_SLOW] = MOVEMENT_SLOW
+                ability[CROWD_CONTROL_SLOW_ATTACK] = ATTACK_SLOW
+                ability[CROWD_CONTROL_BANISH] = BANISH
+                ability[CROWD_CONTROL_ENSNARE] = ENSNARE
+                ability[CROWD_CONTROL_PURGE] = PURGE
+                ability[CROWD_CONTROL_HEX] = HEX
+                ability[CROWD_CONTROL_SLEEP] = SLEEP
+                ability[CROWD_CONTROL_CYCLONE] = CYCLONE
+                ability[CROWD_CONTROL_ENTANGLE] = ENTANGLE
+                ability[CROWD_CONTROL_DISARM] = DISARM
+                ability[CROWD_CONTROL_FEAR] = FEAR
+                ability[CROWD_CONTROL_TAUNT] = TAUNT
+
+                buff[CROWD_CONTROL_SILENCE] = SILENCE_BUFF
+                buff[CROWD_CONTROL_STUN] = STUN_BUFF
+                buff[CROWD_CONTROL_SLOW] = MOVEMENT_SLOW_BUFF
+                buff[CROWD_CONTROL_SLOW_ATTACK] = ATTACK_SLOW_BUFF
+                buff[CROWD_CONTROL_BANISH] = BANISH_BUFF
+                buff[CROWD_CONTROL_ENSNARE] = ENSNARE_BUFF
+                buff[CROWD_CONTROL_PURGE] = PURGE_BUFF
+                buff[CROWD_CONTROL_HEX] = HEX_BUFF
+                buff[CROWD_CONTROL_SLEEP] = SLEEP_BUFF
+                buff[CROWD_CONTROL_CYCLONE] = CYCLONE_BUFF
+                buff[CROWD_CONTROL_ENTANGLE] = ENTANGLE_BUFF
+                buff[CROWD_CONTROL_DISARM] = DISARM_BUFF
+                buff[CROWD_CONTROL_FEAR] = FEAR_BUFF
+                buff[CROWD_CONTROL_TAUNT] = TAUNT_BUFF
+
+                order[CROWD_CONTROL_SILENCE] = "drunkenhaze"
+                order[CROWD_CONTROL_STUN] = "thunderbolt"
+                order[CROWD_CONTROL_SLOW] = "cripple"
+                order[CROWD_CONTROL_SLOW_ATTACK] = "cripple"
+                order[CROWD_CONTROL_BANISH] = "banish"
+                order[CROWD_CONTROL_ENSNARE] = "ensnare"
+                order[CROWD_CONTROL_PURGE] = "purge"
+                order[CROWD_CONTROL_HEX] = "hex"
+                order[CROWD_CONTROL_SLEEP] = "sleep"
+                order[CROWD_CONTROL_CYCLONE] = "cyclone"
+                order[CROWD_CONTROL_ENTANGLE] = "entanglingroots"
+                order[CROWD_CONTROL_DISARM] = "drunkenhaze"
+
                 PauseTimer(t)
                 DestroyTimer(t)
             end)
@@ -686,111 +958,44 @@ do
             local next = -1
             local prev = -2
 
-            while CrowdControl.type[key] ~= next do
-                next = CrowdControl.type[key]
+            count = count + 1
 
-                if event[next] then
-                    for j = 1, #event[next] do
-                        event[next][j]()
-                    end
-                end
+            if count - CROWD_CONTROL_KNOCKUP < RECURSION_LIMIT then
+                while CrowdControl.type[key] ~= next or (i - CROWD_CONTROL_KNOCKUP > RECURSION_LIMIT) do
+                    next = CrowdControl.type[key]
 
-                if CrowdControl.type[key] ~= next then
-                    i = i + 1
-                else
-                    if next ~= prev then
-                        for j = 1, #trigger do
-                            trigger[j]()
-                        end
-
-                        if CrowdControl.type[key] ~= next then
-                            i = i + 1
-                            prev = next
+                    if event[next] then
+                        for j = 1, #event[next] do
+                            event[next][j]()
                         end
                     end
-                end
 
-                if i - CROWD_CONTROL_KNOCKUP > RECURSION_LIMIT then
-                    print("[Crowd Control] Recursion limit reached: " .. RECURSION_LIMIT)
-                    break
+                    if CrowdControl.type[key] ~= next then
+                        i = i + 1
+                    else
+                        if next ~= prev then
+                            for j = 1, #trigger do
+                                trigger[j]()
+                            end
+
+                            if CrowdControl.type[key] ~= next then
+                                i = i + 1
+                                prev = next
+                            end
+                        end
+                    end
                 end
             end
 
+            count = count - 1
             CrowdControl.key = key
         end
 
-        function mt:order(type)
-            if type == CROWD_CONTROL_SILENCE or type == CROWD_CONTROL_DISARM then
-                return "drunkenhaze"
-            elseif type == CROWD_CONTROL_STUN then
-                return "thunderbolt"
-            elseif type == CROWD_CONTROL_SLOW then
-                return "cripple"
-            elseif type == CROWD_CONTROL_SLOW_ATTACK then
-                return "cripple"
-            elseif type == CROWD_CONTROL_BANISH then
-                return "banish"
-            elseif type == CROWD_CONTROL_ENSNARE then
-                return "ensnare"
-            elseif type == CROWD_CONTROL_PURGE then
-                return "purge"
-            elseif type == CROWD_CONTROL_HEX then
-                return "hex"
-            elseif type == CROWD_CONTROL_SLEEP then
-                return "sleep"
-            elseif type == CROWD_CONTROL_CYCLONE then
-                return "cyclone"
-            elseif type == CROWD_CONTROL_ENTANGLE then
-                return "entanglingroots"
-            else
-                return nil
-            end
-        end
-
-        function mt:setup(type, key)
-            if type == CROWD_CONTROL_SILENCE then
-                ability[key] = SILENCE
-                buff[key] = SILENCE_BUFF
-            elseif type == CROWD_CONTROL_STUN then
-                ability[key] = STUN
-                buff[key] = STUN_BUFF
-            elseif type == CROWD_CONTROL_SLOW then
-                ability[key] = ATTACK_SLOW
-                buff[key] = ATTACK_SLOW_BUFF
-            elseif type == CROWD_CONTROL_SLOW_ATTACK then
-                ability[key] = MOVEMENT_SLOW
-                buff[key] = MOVEMENT_SLOW_BUFF
-            elseif type == CROWD_CONTROL_BANISH then
-                ability[key] = BANISH
-                buff[key] = BANISH_BUFF
-            elseif type == CROWD_CONTROL_ENSNARE then
-                ability[key] = ENSNARE
-                buff[key] = ENSNARE_BUFF
-            elseif type == CROWD_CONTROL_PURGE then
-                ability[key] = PURGE
-                buff[key] = PURGE_BUFF
-            elseif type == CROWD_CONTROL_HEX then
-                ability[key] = HEX
-                buff[key] = HEX_BUFF
-            elseif type == CROWD_CONTROL_SLEEP then
-                ability[key] = SLEEP
-                buff[key] = SLEEP_BUFF
-            elseif type == CROWD_CONTROL_CYCLONE then
-                ability[key] = CYCLONE
-                buff[key] = CYCLONE_BUFF
-            elseif type == CROWD_CONTROL_ENTANGLE then
-                ability[key] = ENTANGLE
-                buff[key] = ENTANGLE_BUFF
-            elseif type == CROWD_CONTROL_DISARM then
-                ability[key] = DISARM
-                buff[key] = DISARM_BUFF
-            end
-        end
-
-        function mt:cast(target, amount, angle, distance, height, duration, model, point, stack, onCliff, onDestructable, onUnit, type)
+        function mt:cast(source, target, amount, angle, distance, height, duration, model, point, stack, onCliff, onDestructable, onUnit, type)
             if not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE) and UnitAlive(target) and duration > 0 then
                 CrowdControl.key = CrowdControl.key + 1
                 CrowdControl.unit[CrowdControl.key] = target
+                CrowdControl.source[CrowdControl.key] = source
                 CrowdControl.amount[CrowdControl.key] = amount
                 CrowdControl.angle[CrowdControl.key] = angle
                 CrowdControl.distance[CrowdControl.key] = distance
@@ -820,13 +1025,19 @@ do
                     end
 
                     if CrowdControl.stack[CrowdControl.key] then
-                        CrowdControl.duration[CrowdControl.key] = CrowdControl.duration[CrowdControl.key] + TimerGetRemaining(timer[i][j])
+                        if CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_TAUNT then
+                            CrowdControl.duration[CrowdControl.key] = CrowdControl.duration[CrowdControl.key] + TimerGetRemaining(timer[i][j])
+                        else
+                            if Taunt.source[CrowdControl.unit[CrowdControl.key]] == CrowdControl.source[CrowdControl.key] then
+                                CrowdControl.duration[CrowdControl.key] = CrowdControl.duration[CrowdControl.key] + TimerGetRemaining(timer[i][j])
+                            end
+                        end
                     end
 
-                    if CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_FEAR and CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_KNOCKBACK and CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_KNOCKUP then
-                        self:setup(CrowdControl.type[CrowdControl.key], CrowdControl.key)
-                        UnitAddAbility(dummy, ability[CrowdControl.key])
-                        local spell = BlzGetUnitAbility(dummy, ability[CrowdControl.key])
+                    if CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_FEAR and CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_TAUNT and CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_KNOCKBACK and CrowdControl.type[CrowdControl.key] ~= CROWD_CONTROL_KNOCKUP then
+                        local spell = BlzGetUnitAbility(dummy, ability[CrowdControl.type[CrowdControl.key]])
+
+                        BlzUnitDisableAbility(dummy, ability[CrowdControl.type[CrowdControl.key]], false, false)
                         BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_NORMAL, 0, CrowdControl.duration[CrowdControl.key])
                         BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, 0, CrowdControl.duration[CrowdControl.key])
 
@@ -836,11 +1047,12 @@ do
                             BlzSetAbilityRealLevelField(spell, ABILITY_RLF_ATTACK_SPEED_REDUCTION_PERCENT_CRI2, 0, CrowdControl.amount[CrowdControl.key])
                         end
 
-                        IncUnitAbilityLevel(dummy, ability[CrowdControl.key])
-                        DecUnitAbilityLevel(dummy, ability[CrowdControl.key])
-                        UnitRemoveAbility(CrowdControl.unit[CrowdControl.key], buff[CrowdControl.key])
+                        IncUnitAbilityLevel(dummy, ability[CrowdControl.type[CrowdControl.key]])
+                        DecUnitAbilityLevel(dummy, ability[CrowdControl.type[CrowdControl.key]])
 
-                        if IssueTargetOrder(dummy, self:order(CrowdControl.type[CrowdControl.key]), CrowdControl.unit[CrowdControl.key]) then
+                        if IssueTargetOrder(dummy, order[CrowdControl.type[CrowdControl.key]], CrowdControl.unit[CrowdControl.key]) then
+                            UnitRemoveAbility(CrowdControl.unit[CrowdControl.key], buff[CrowdControl.type[CrowdControl.key]])
+                            IssueTargetOrder(dummy, order[CrowdControl.type[CrowdControl.key]], CrowdControl.unit[CrowdControl.key])
                             TimerStart(timer[i][j], CrowdControl.duration[CrowdControl.key], false, function()
                                 PauseTimer(timer[i][j])
                                 DestroyTimer(timer[i][j])
@@ -849,7 +1061,7 @@ do
 
                             if CrowdControl.model[CrowdControl.key] then
                                 if CrowdControl.point[CrowdControl.key] then
-                                    LinkEffectToBuff(CrowdControl.unit[CrowdControl.key], buff[CrowdControl.key], CrowdControl.model[CrowdControl.key], CrowdControl.point[CrowdControl.key])
+                                    LinkEffectToBuff(CrowdControl.unit[CrowdControl.key], buff[CrowdControl.type[CrowdControl.key]], CrowdControl.model[CrowdControl.key], CrowdControl.point[CrowdControl.key])
                                 else
                                     DestroyEffect(AddSpecialEffect(CrowdControl.model[CrowdControl.key], GetUnitX(CrowdControl.unit[CrowdControl.key]), GetUnitY(CrowdControl.unit[CrowdControl.key])))
                                 end
@@ -860,10 +1072,12 @@ do
                             timer[i][j] = nil
                         end
 
-                        UnitRemoveAbility(dummy, ability[CrowdControl.key])
+                        BlzUnitDisableAbility(dummy, ability[CrowdControl.type[CrowdControl.key]], true, true)
                     else
                         if CrowdControl.type[CrowdControl.key] == CROWD_CONTROL_FEAR then
                             Fear:apply(CrowdControl.unit[CrowdControl.key], CrowdControl.duration[CrowdControl.key], CrowdControl.model[CrowdControl.key], CrowdControl.point[CrowdControl.key])
+                        elseif CrowdControl.type[CrowdControl.key] == CROWD_CONTROL_TAUNT then
+                            Taunt:apply(CrowdControl.source[CrowdControl.key], CrowdControl.unit[CrowdControl.key], CrowdControl.duration[CrowdControl.key], CrowdControl.model[CrowdControl.key], CrowdControl.point[CrowdControl.key])
                         elseif CrowdControl.type[CrowdControl.key] == CROWD_CONTROL_KNOCKBACK then
                             Knockback:apply(CrowdControl.unit[CrowdControl.key], CrowdControl.angle[CrowdControl.key], CrowdControl.distance[CrowdControl.key], CrowdControl.duration[CrowdControl.key], CrowdControl.model[CrowdControl.key], CrowdControl.point[CrowdControl.key], CrowdControl.cliff[CrowdControl.key], CrowdControl.destructable[CrowdControl.key], CrowdControl.agent[CrowdControl.key])
                         elseif CrowdControl.type[CrowdControl.key] == CROWD_CONTROL_KNOCKUP then
@@ -885,7 +1099,7 @@ do
         end
 
         function mt:silence(unit, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SILENCE)
+            self:cast(nil, unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SILENCE)
         end
 
         function mt:silenced(unit)
@@ -893,7 +1107,7 @@ do
         end
 
         function mt:stun(unit, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_STUN)
+            self:cast(nil, unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_STUN)
         end
 
         function mt:stunned(unit)
@@ -901,7 +1115,7 @@ do
         end
 
         function mt:slow(unit, amount, duration, model, point, stack)
-            self:cast(unit, amount, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLOW)
+            self:cast(nil, unit, amount, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLOW)
         end
 
         function mt:slowed(unit)
@@ -909,7 +1123,7 @@ do
         end
 
         function mt:slowAttack(unit, amount, duration, model, point, stack)
-            self:cast(unit, amount, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLOW_ATTACK)
+            self:cast(nil, unit, amount, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLOW_ATTACK)
         end
 
         function mt:attackSlowed(unit)
@@ -917,7 +1131,7 @@ do
         end
 
         function mt:banish(unit, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_BANISH)
+            self:cast(nil, unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_BANISH)
         end
 
         function mt:banished(unit)
@@ -925,7 +1139,7 @@ do
         end
 
         function mt:ensnare(unit, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_ENSNARE)
+            self:cast(nil, unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_ENSNARE)
         end
 
         function mt:ensnared(unit)
@@ -933,7 +1147,7 @@ do
         end
 
         function mt:purge(unit, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_PURGE)
+            self:cast(nil, unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_PURGE)
         end
 
         function mt:purged(unit)
@@ -941,7 +1155,7 @@ do
         end
 
         function mt:hex(unit, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_HEX)
+            self:cast(nil, unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_HEX)
         end
 
         function mt:hexed(unit)
@@ -949,7 +1163,7 @@ do
         end
 
         function mt:sleep(unit, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLEEP)
+            self:cast(nil, unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SLEEP)
         end
 
         function mt:sleeping(unit)
@@ -957,7 +1171,7 @@ do
         end
 
         function mt:cyclone(unit, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_CYCLONE)
+            self:cast(nil, unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_CYCLONE)
         end
 
         function mt:cycloned(unit)
@@ -965,7 +1179,7 @@ do
         end
 
         function mt:entangle(unit, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_ENTANGLE)
+            self:cast(nil, unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_ENTANGLE)
         end
 
         function mt:entangled(unit)
@@ -973,7 +1187,7 @@ do
         end
 
         function mt:knockback(unit, angle, distance, duration, model, point, onCliff, onDestructable, onUnit, stack)
-            self:cast(unit, 0, angle, distance, 0, duration, model, point, stack, onCliff, onDestructable, onUnit, CROWD_CONTROL_KNOCKBACK)
+            self:cast(nil, unit, 0, angle, distance, 0, duration, model, point, stack, onCliff, onDestructable, onUnit, CROWD_CONTROL_KNOCKBACK)
         end
 
         function mt:knockedback(unit)
@@ -981,7 +1195,7 @@ do
         end
 
         function mt:knockup(unit, height, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, height, duration, model, point, stack, false, false, false, CROWD_CONTROL_KNOCKUP)
+            self:cast(nil, unit, 0, 0, 0, height, duration, model, point, stack, false, false, false, CROWD_CONTROL_KNOCKUP)
         end
 
         function mt:knockedup(unit)
@@ -989,7 +1203,7 @@ do
         end
 
         function mt:fear(unit, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_FEAR)
+            self:cast(nil, unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_FEAR)
         end
 
         function mt:feared(unit)
@@ -997,46 +1211,24 @@ do
         end
 
         function mt:disarm(unit, duration, model, point, stack)
-            self:cast(unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_DISARM)
+            self:cast(nil, unit, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_DISARM)
         end
 
         function mt:disarmed(unit)
             return GetUnitAbilityLevel(unit, DISARM_BUFF) > 0
         end
 
+        function mt:taunt(source, target, duration, model, point, stack)
+            self:cast(source, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_TAUNT)
+        end
+
+        function mt:taunted(unit)
+            return Taunt:taunted(unit)
+        end
+
         function mt:dispel(unit, type)
-            local buff
-
-            if type == CROWD_CONTROL_SILENCE then
-                buff = SILENCE_BUFF
-            elseif type == CROWD_CONTROL_STUN then
-                buff = STUN_BUFF
-            elseif type == CROWD_CONTROL_SLOW then
-                buff = MOVEMENT_SLOW_BUFF
-            elseif type == CROWD_CONTROL_SLOW_ATTACK then
-                buff = ATTACK_SLOW_BUFF
-            elseif type == CROWD_CONTROL_BANISH then
-                buff = BANISH_BUFF
-            elseif type == CROWD_CONTROL_ENSNARE then
-                buff = ENSNARE_BUFF
-            elseif type == CROWD_CONTROL_PURGE then
-                buff = PURGE_BUFF
-            elseif type == CROWD_CONTROL_HEX then
-                buff = HEX_BUFF
-            elseif type == CROWD_CONTROL_SLEEP then
-                buff = SLEEP_BUFF
-            elseif type == CROWD_CONTROL_CYCLONE then
-                buff = CYCLONE_BUFF
-            elseif type == CROWD_CONTROL_ENTANGLE then
-                buff = ENTANGLE_BUFF
-            elseif type == CROWD_CONTROL_DISARM then
-                buff = DISARM_BUFF
-            elseif type == CROWD_CONTROL_FEAR then
-                buff = FEAR_BUFF
-            end
-
-            if buff then
-                UnitRemoveAbility(unit, buff)
+            if buff[type] then
+                UnitRemoveAbility(unit, buff[type])
 
                 if timer[unit] then
                     PauseTimer(timer[unit][type])
@@ -1060,6 +1252,7 @@ do
             self:dispel(unit, CROWD_CONTROL_ENTANGLE)
             self:dispel(unit, CROWD_CONTROL_DISARM)
             self:dispel(unit, CROWD_CONTROL_FEAR)
+            self:dispel(unit, CROWD_CONTROL_TAUNT)
         end
 
         function mt:remaining(unit, type)

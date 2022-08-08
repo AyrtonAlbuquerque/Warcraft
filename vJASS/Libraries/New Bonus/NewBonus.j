@@ -157,6 +157,7 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
         private static trigger trigger = CreateTrigger()
         readonly static integer key = -1
         private static trigger array event
+        private static integer count = 0
         readonly static unit array unit
         readonly static integer last
         readonly static integer linkType
@@ -174,28 +175,37 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
         endmethod
 
         private static method onEvent takes integer key returns nothing
+            local integer i = 0
             local integer next = -1
             local integer prev = -2
 
-            if amount[key] != 0 then
+            set count = count + 1
+            
+            if amount[key] != 0 and (count - last < RECURSION_LIMIT) then
                 loop
-                    exitwhen type[key] == next or (key - last > RECURSION_LIMIT)
+                    exitwhen type[key] == next or (i - last > RECURSION_LIMIT)
                         set next = type[key]
 
                         if event[next] != null then
                             call TriggerEvaluate(event[next])
                         endif
 
-                        if next != prev then
-                            call TriggerEvaluate(trigger)
+                        if type[key] != next then
+                            set i = i + 1
+                        else
+                            if next != prev then
+                                call TriggerEvaluate(trigger)
 
-                            if type[key] != next then
-                                set prev = next
+                                if type[key] != next then
+                                    set i = i + 1
+                                    set prev = next
+                                endif
                             endif
                         endif
                 endloop
             endif
             
+            set count = count - 1
             set .key = key
         endmethod
         
@@ -479,23 +489,26 @@ library NewBonus requires optional DamageInterface, optional Evasion, optional C
                 endif
                 
                 call onEvent(key)
+                set value = amount[key] 
                 
                 if type[key] <= BONUS_SIGHT_RANGE then
-                    return Set(unit[key], type[key], checkOverflow(get(unit[key], type[key]), R2I(amount[key])), true)
+                    call Set(unit[key], type[key], checkOverflow(get(unit[key], type[key]), R2I(amount[key])), true)
                 else
                     static if EXTENDED and LIBRARY_DamageInterface and LIBRARY_Evasion and LIBRARY_CriticalStrike and LIBRARY_SpellPower and LIBRARY_LifeSteal and LIBRARY_SpellVamp and LIBRARY_Tenacity then
                         if type[key] == BONUS_COOLDOWN_REDUCTION or type[key] == BONUS_TENACITY then
-                            return Set(unit[key], type[key], amount[key], true)
+                            call Set(unit[key], type[key], amount[key], true)
                         else
-                            return Set(unit[key], type[key], get(unit[key], type[key]) + amount[key], true)
+                            call Set(unit[key], type[key], get(unit[key], type[key]) + amount[key], true)
                         endif
                     else
-                        return Set(unit[key], type[key], get(unit[key], type[key]) + amount[key], true)
+                        call Set(unit[key], type[key], get(unit[key], type[key]) + amount[key], true)
                     endif
                 endif
+                
+                return value
             endif
             
-            return -1.
+            return 0.
         endmethod
         
         static method register takes code c, integer bonus returns nothing

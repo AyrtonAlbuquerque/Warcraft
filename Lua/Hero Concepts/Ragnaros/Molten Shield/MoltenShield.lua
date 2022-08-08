@@ -1,5 +1,5 @@
 --[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, DamageInterface, NewBonusUtils
-    /* --------------------- Molten Shield v1.5 by Chopinski -------------------- */
+    /* --------------------- Molten Shield v1.6 by Chopinski -------------------- */
     // Credits:
     //     Power            - Shield model
     //     Mythic           - Explosion model
@@ -69,7 +69,6 @@ do
                 local this = {}
                 
                 this.unit = Spell.target.unit
-                --this.id = Spell.target.id
                 this.level = Spell.level
                 key = key + 1
                 array[key] = this
@@ -113,7 +112,6 @@ do
             if buffed > 0 and damage > 0 then
                 damage = damage*GetDamageFactor(buffed)
                 stored[Damage.target.unit] = (stored[Damage.target.unit] or 0) + damage
-                print(stored[Damage.target.unit])
                 BlzSetEventDamage(damage)
             end
         end)
