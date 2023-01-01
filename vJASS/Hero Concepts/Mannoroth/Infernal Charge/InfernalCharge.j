@@ -1,13 +1,13 @@
-library InfernalCharge requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities
-    /* ---------------------- Infernal Charge v1.4 by Chopinski --------------------- */
+library InfernalCharge requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl
+    /* ------------------------------------ Infernal Charge v1.5 ------------------------------------ */
     // Credits:
     //     marilynmonroe - Pit Infernal model
     //     Bribe         - SpellEffectEvent
-    /* ----------------------------------- END ---------------------------------- */
+    /* ---------------------------------------- By Chopinksi ---------------------------------------- */
     
-    /* -------------------------------------------------------------------------- */
-    /*                                Configuration                               */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                          Configuration                                         */
+    /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Infernal Charge ability
         private constant integer    ABILITY          = 'A003'
@@ -52,9 +52,9 @@ library InfernalCharge requires SpellEffectEvent, PluginSpellEffect, Missiles, U
         return UnitAlive(target) and IsUnitEnemy(target, owner) and not IsUnitType(target, UNIT_TYPE_STRUCTURE)
     endfunction
     
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             System                                             */
+    /* ---------------------------------------------------------------------------------------------- */
     private struct Charge extends Missiles
         real distance
         real knockback
@@ -68,8 +68,9 @@ library InfernalCharge requires SpellEffectEvent, PluginSpellEffect, Missiles, U
 
         method onHit takes unit hit returns boolean
             if ChargeFilter(owner, hit) then
-                call UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
-                call KnockbackUnit(hit, AngleBetweenCoordinates(x, y, GetUnitX(hit), GetUnitY(hit)), distance, knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, true, true, false, true)
+                if UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
+                    call KnockbackUnit(hit, AngleBetweenCoordinates(x, y, GetUnitX(hit), GetUnitY(hit)), distance, knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, true, true, false, false)
+                endif
             endif
 
             return false

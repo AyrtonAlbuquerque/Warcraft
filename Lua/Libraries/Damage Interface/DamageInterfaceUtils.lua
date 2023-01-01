@@ -1,6 +1,6 @@
 --[[
     /* ------- Utility Library for all the Damage Interface Custom Events ------- */
-    /* ---------------------------- v2.3 by Chopinski --------------------------- */
+    /* ---------------------------- v2.4 by Chopinski --------------------------- */
      The API:
          Evasion System:
              function UnitAddEvasionChanceTimed takes unit u, real amount, real duration returns nothing
@@ -383,15 +383,11 @@ do
     end
 
     function AbilitySpellDamage(unit, ability, field)
-        local i = GetUnitUserData(unit)
-        
-        return I2S(R2I((BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ability), field, GetUnitAbilityLevel(unit, ability) - 1) + (SpellPower.flat[i] or 0)) * (1 + (SpellPower.percent[i] or 0))))
+        return I2S(R2I((BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ability), field, GetUnitAbilityLevel(unit, ability) - 1) + (SpellPower.flat[unit] or 0)) * (1 + (SpellPower.percent[unit] or 0))))
     end
 
     function AbilitySpellDamageEx(real, unit)
-        local i = GetUnitUserData(unit)
-        
-        return I2S(R2I((real + (SpellPower.flat[i] or 0)) * (1 + (SpellPower.percent[i] or 0))))
+        return I2S(R2I((real + (SpellPower.flat[unit] or 0)) * (1 + (SpellPower.percent[unit] or 0))))
     end
     
     function UnitAddLifeStealTimed(unit, amount, duration)

@@ -1,5 +1,5 @@
---[[ requires SpellEffectEvent, Utilities, LineSegmentEnumeration
-    /* ------------------ Draconic Discharge v1.2 by Chopinski ------------------ */
+--[[ requires SpellEffectEvent, Utilities, LineSegmentEnumeration, CrowdControl
+    /* ------------------ Draconic Discharge v1.3 by Chopinski ------------------ */
     // Credits:
     //     N-ix Studio      - Icon
     //     Bribe            - SpellEffectEvent
@@ -13,13 +13,17 @@ do
     --                                Configuration                               --
     -- -------------------------------------------------------------------------- --
     -- The raw code of the ability
-    local ABILITY          = FourCC('A005')
+    local ABILITY     = FourCC('A005')
     -- The Model
-    local MODEL            = "Discharge.mdl"
+    local MODEL       = "Discharge.mdl"
     -- The model scale
-    local SCALE            = 0.8
+    local SCALE       = 1
     -- The model offset
-    local OFFSET           = 200
+    local OFFSET      = 200
+    -- The stun model
+    local STUN_MODEL  = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+    -- The stun model attach point
+    local STUN_ATTACH = "overhead"
 
     -- The AOE
     local function GetAoE(unit, level)
@@ -72,7 +76,7 @@ do
                 local unit = group[i]
                 if DamageFilter(player, unit) then
                     if UnitDamageTarget(source, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        StunUnit(unit, duration)
+                        StunUnit(unit, duration, STUN_MODEL, STUN_ATTACH, false)
                     end
                 end
             end

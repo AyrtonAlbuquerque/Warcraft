@@ -1,15 +1,15 @@
 --[[ requires RegisterPlayerUnitEvent, optional StormBolt, optional ThunderClap, optional Avatar
-   /* -------------------- Double Thunder v1.2 by Chopinski -------------------- */
-    // Credits:
-    //     Magtheridon96  - RegisterPlayerUnitEvent
-    //     Blizzard       - Icon
-    /* ----------------------------------- END ---------------------------------- */ 
+    -- ------------------------------------- Double Thunder v1.3 ------------------------------------ --
+    -- Credits:
+    --     Magtheridon96  - RegisterPlayerUnitEvent
+    --     Blizzard       - Icon
+    -- ---------------------------------------- By Chipinski ---------------------------------------- --
 ]]--
 
 do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                          Configuration                                         --
+    -- ---------------------------------------------------------------------------------------------- --
     -- The raw code of the Double Thunder ability
     local ABILITY = FourCC('A000')
 
@@ -39,9 +39,9 @@ do
         end
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             System                                             --
+    -- ---------------------------------------------------------------------------------------------- --
     onInit(function()
         local trigger = CreateTrigger()
         TriggerRegisterAnyUnitEventBJ(trigger, EVENT_PLAYER_UNIT_SPELL_EFFECT)
@@ -67,27 +67,11 @@ do
             if ThunderClap then
                 if ability == ThunderClap_ABILITY then
                     if GetRandomInt(1, 100) <= chance then
-                        if Avatar then
-                            if GetUnitAbilityLevel(source, Avatar_BUFF) > 0 then
-                                UnitAddAbility(source, ThunderClap_WAR_STOMP)
-                                SetUnitAbilityLevel(source, ThunderClap_WAR_STOMP, GetUnitAbilityLevel(source, ThunderClap_ABILITY))
-                                IssueImmediateOrder(source, "stomp")
-                                TriggerSleepAction(0.50)
-                                UnitRemoveAbility(source, ThunderClap_WAR_STOMP)
-                            else
-                                UnitAddAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
-                                SetUnitAbilityLevel(source, ThunderClap_THUNDER_CLAP_RECAST, GetUnitAbilityLevel(source, ThunderClap_ABILITY))
-                                IssueImmediateOrder(source, "creepthunderclap")
-                                TriggerSleepAction(0.50)
-                                UnitRemoveAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
-                            end
-                        else
-                            UnitAddAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
-                            SetUnitAbilityLevel(source, ThunderClap_THUNDER_CLAP_RECAST, GetUnitAbilityLevel(source, ThunderClap_ABILITY))
-                            IssueImmediateOrder(source, "creepthunderclap")
-                            TriggerSleepAction(0.50)
-                            UnitRemoveAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
-                        end
+                        UnitAddAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
+                        SetUnitAbilityLevel(source, ThunderClap_THUNDER_CLAP_RECAST, GetUnitAbilityLevel(source, ThunderClap_ABILITY))
+                        IssueImmediateOrder(source, "creepthunderclap")
+                        TriggerSleepAction(0.50)
+                        UnitRemoveAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
                     end
                 end
             end

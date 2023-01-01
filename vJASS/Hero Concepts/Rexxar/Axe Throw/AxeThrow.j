@@ -1,5 +1,5 @@
-library AxeThrow requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities
-    /* ----------------------- Axe Throw v1.0 by Chopinski ---------------------- */
+library AxeThrow requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl
+    /* ----------------------- Axe Throw v1.1 by Chopinski ---------------------- */
     // Credits:
     //     -Berz-          - Icon
     //     Bribe           - SpellEffectEvent
@@ -85,7 +85,7 @@ library AxeThrow requires SpellEffectEvent, PluginSpellEffect, Missiles, Utiliti
                         if not UnitAlive(u) then
                             call StartUnitAbilityCooldown(source, ABILITY, BlzGetUnitAbilityCooldownRemaining(source, ABILITY) - reduction)
                         else
-                            call SlowUnit(u, slow, time)
+                            call SlowUnit(u, slow, time, null, null, false)
                         endif
                     endif
                 endif

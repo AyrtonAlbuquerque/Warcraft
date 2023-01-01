@@ -1,5 +1,5 @@
 library Evasion requires DamageInterface
-    /* ------------------------ Evasion v2.3 by Chopinski ----------------------- */
+    /* ------------------------ Evasion v2.4 by Chopinski ----------------------- */
     // Evasion implements an easy way to register and detect a custom evasion event.
 
     // It works by monitoring custom evasion and missing values given to units,

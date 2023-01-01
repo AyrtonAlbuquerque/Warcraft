@@ -1,5 +1,5 @@
---[[ requires SpellEffectEvent, Missiles
-    /* ------------------------ Fissure v1.2 by CHopinski ----------------------- */
+--[[ requires SpellEffectEvent, Missiles, CrowdControl
+    /* ------------------------ Fissure v1.3 by CHopinski ----------------------- */
     // Credits:
     //     AnsonRuk    - Icon Darky29
     //     Darky29     - Fissure Model
@@ -24,6 +24,10 @@ do
     local BIRTH_SCALE = 0.7
     -- The Fissure Missile speed
     local SPEED       = 1500.
+    -- The Fissure stun model
+    local STUN_MODEL  = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+    -- The Fissure stun model attach point
+    local STUN_ATTACH = "overhead"
 
     -- The Fissure travel distance, by default the ability cast range
     local function GetDistance(unit, level)
@@ -92,7 +96,7 @@ do
             this.onHit = function(unit)
                 if DamageFilter(this.owner, unit) then
                     if UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        StunUnit(unit, this.stun)
+                        StunUnit(unit, this.stun, STUN_MODEL, STUN_ATTACH, false)
                     end
                 end
 

@@ -1,5 +1,5 @@
---[[ requires SpellEffectEvent, NewBonusUtils, Utilities, Missiles
-    /* ----------------------- Keg Smash v1.2 by Chopinski ---------------------- */
+--[[ requires SpellEffectEvent, NewBonusUtils, Utilities, Missiles, CrowdControl
+    /* ----------------------- Keg Smash v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard           - Icon
     //     Bribe              - SpellEffectEvent
@@ -44,6 +44,16 @@ do
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_RLF_DURATION_HERO, level - 1)
     end
 
+    -- The Keg Smash slow amount
+    local function GetSlow(unit, level)
+        return 0.4 + 0.*level
+    end
+
+    -- The Keg Smash slow duration
+    local function GetSlowDuration(unit, level)
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, DEBUFF), ABILITY_RLF_DURATION_HERO, level - 1)
+    end
+
     -- The Keg Smash AoE
     function KegSmash_GetAoE(unit, level)
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
@@ -66,9 +76,9 @@ do
         Ignite = setmetatable({}, {})
         local mt = getmetatable(Ignite)
         mt.__index = mt
-    
+
         local proxy = {}
-    
+
         function mt:create(x, y, damage, duration, aoe, interval, source)
             local this = {}
             local timer = CreateTimer()
@@ -97,10 +107,10 @@ do
                 DestroyTimer(timer)
             end)
         end
-        
+
         onInit(function()
             local this
-            
+
             if proxy[Damage.source.unit] and GetEventDamage() > 0 then
                 this = proxy[Damage.source.unit]
                 BlzSetEventDamage(0)
@@ -108,154 +118,165 @@ do
             end
         end)
     end
-    
-    BrewCloud = setmetatable({}, {})
-    local mt = getmetatable(BrewCloud)
-    mt.__index = mt
-    
-    local timer = CreateTimer()
-    local array = {}
-    local n = {}
-    local key = 0
-    
-    function mt:destroy(i)
-        UnitRemoveAbility(self.unit, DEBUFF)
-        DestroyGroup(self.group)
-        DestroyEffect(self.effect)
-        DummyRecycle(self.unit)
 
-        n[self.unit] = nil
-        array[i] = array[key]
-        key = key - 1
-        self = nil
+    do
+        BrewCloud = setmetatable({}, {})
+        local mt = getmetatable(BrewCloud)
+        mt.__index = mt
 
-        if key == 0 then
-            PauseTimer(timer)
+        local timer = CreateTimer()
+        local array = {}
+        local n = {}
+        local key = 0
+
+        function mt:destroy(i)
+            UnitRemoveAbility(self.unit, DEBUFF)
+            DestroyGroup(self.group)
+            DestroyEffect(self.effect)
+            DummyRecycle(self.unit)
+
+            n[self.unit] = nil
+            array[i] = array[key]
+            key = key - 1
+            self = nil
+
+            if key == 0 then
+                PauseTimer(timer)
+            end
+
+            return i - 1
         end
 
-        return i - 1
-    end
-    
-    function mt:ignite(unit, damage, duration, interval)
-        if n[unit] then
-            local this = n[unit]
-            if not this.ignited then
-                this.ignited = true
-                this.duration = 0
-                Ignite:create(this.x, this.y, damage, duration, this.aoe, interval, this.source)
+        function mt:ignite(unit, damage, duration, interval)
+            if n[unit] then
+                local this = n[unit]
+                if not this.ignited then
+                    this.ignited = true
+                    this.duration = 0
+                    Ignite:create(this.x, this.y, damage, duration, this.aoe, interval, this.source)
+                end
             end
         end
-    end
-    
-    function mt:active(unit)
-        local this = n[unit]
 
-        if this then
-            return not this.ignited
+        function mt:active(unit)
+            local this = n[unit]
+
+            if this then
+                return not this.ignited
+            end
+
+            return false
         end
 
-        return false
-    end
-    
-    function mt:create(player, source, unit, x, y, aoe, duration, level)
-        local this = {}
-        setmetatable(this, mt)
+        function mt:create(player, source, unit, x, y, aoe, duration, slow, slowDuration, level)
+            local this = {}
+            setmetatable(this, mt)
 
-        this.x = x 
-        this.y = y
-        this.aoe = aoe
-        this.level = level
-        this.source = source
-        this.player = player
-        this.unit = unit
-        this.ignited = false
-        this.group = CreateGroup()
-        this.effect = AddSpecialEffectEx(CLOUD, x, y, 0, CLOUD_SCALE)
-        this.duration = R2I(duration/PERIOD)
-        key = key + 1
-        array[key] = this
-        n[unit] = this
-        
+            this.x = x
+            this.y = y
+            this.aoe = aoe
+            this.slow = slow
+            this.slowDuration = slowDuration
+            this.level = level
+            this.source = source
+            this.player = player
+            this.unit = unit
+            this.ignited = false
+            this.group = CreateGroup()
+            this.effect = AddSpecialEffectEx(CLOUD, x, y, 0, CLOUD_SCALE)
+            this.duration = R2I(duration/PERIOD)
+            key = key + 1
+            array[key] = this
+            n[unit] = this
 
-        if key == 1 then
-            TimerStart(timer, PERIOD, true, function()
-                local i = 1
-                
-                while i <= key do
-                    local this = array[i]
-                
-                    if this.duration > 0 then
-                        if not this.ignited then
-                            GroupEnumUnitsInRange(this.group, this.x, this.y, this.aoe, nil)
-                            for j = 0, BlzGroupGetSize(this.group) - 1 do
-                                local u = BlzGroupUnitAt(this.group, j)
-                                if UnitAlive(u) and IsUnitEnemy(u, this.player) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
-                                    IssueTargetOrder(this.unit, "drunkenhaze", u)
+
+            if key == 1 then
+                TimerStart(timer, PERIOD, true, function()
+                    local i = 1
+
+                    while i <= key do
+                        local this = array[i]
+
+                        if this.duration > 0 then
+                            if not this.ignited then
+                                GroupEnumUnitsInRange(this.group, this.x, this.y, this.aoe, nil)
+                                for j = 0, BlzGroupGetSize(this.group) - 1 do
+                                    local u = BlzGroupUnitAt(this.group, j)
+                                    if UnitAlive(u) and IsUnitEnemy(u, this.player) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
+                                        IssueTargetOrder(this.unit, "drunkenhaze", u)
+                                        SlowUnit(u, this.slow, this.slowDuration, nil, nil, false)
+                                    end
                                 end
+                            else
+                                DestroyEffect(this.effect)
                             end
                         else
-                            DestroyEffect(this.effect)
+                            i = this:destroy(i)
                         end
-					else
-                        i = this:destroy(i)
+                        this.duration = this.duration - 1
+                        i = i + 1
                     end
-                    this.duration = this.duration - 1
-                    i = i + 1
+                end)
+            end
+        end
+    end
+
+    do
+        KegSmash = setmetatable({}, {})
+        local mt = getmetatable(KegSmash)
+        mt.__index = mt
+
+        function mt:onCast()
+            local this = Missiles:create(Spell.source.x, Spell.source.y, 60, Spell.x, Spell.y, 60)
+
+            this.unit = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
+            UnitAddAbility(this.unit, DEBUFF)
+            SetUnitAbilityLevel(this.unit, DEBUFF, Spell.level)
+
+            this:model(MODEL)
+            this:scale(SCALE)
+            this:speed(SPEED)
+            this.source = Spell.source.unit
+            this.owner = Spell.source.player
+            this.level = Spell.level
+            this.group = CreateGroup()
+            this.damage = GetDamage(Spell.level)
+            this.aoe = KegSmash_GetAoE(Spell.source.unit, Spell.level)
+            this.dur = GetDuration(Spell.source.unit, Spell.level)
+            this.slow = GetSlow(Spell.source.unit, Spell.level)
+            this.slowDuration = GetSlowDuration(this.unit, Spell.level)
+
+
+            this.onFinish = function()
+                BrewCloud:create(this.owner, this.source, this.unit, this.x, this.y, this.aoe, this.dur, this.slow, this.slowDuration, this.level)
+                GroupEnumUnitsInRange(this.group, this.x, this.y, this.aoe, nil)
+                for i = 0, BlzGroupGetSize(this.group) - 1 do
+                    local u = BlzGroupUnitAt(this.group, i)
+                    if DamageFilter(this.owner, u) then
+                        if UnitDamageTarget(this.source, u, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                            IssueTargetOrder(this.unit, "drunkenhaze", u)
+                            SlowUnit(u, this.slow, this.slowDuration, nil, nil, false)
+                        end
+                    end
+                end
+                DestroyGroup(this.group)
+
+                return true
+            end
+
+            this:launch()
+        end
+
+        onInit(function()
+            RegisterSpellEffectEvent(ABILITY, function()
+                KegSmash:onCast()
+            end)
+
+            RegisterSpellEffectEvent(DEBUFF, function()
+                if GetUnitAbilityLevel(Spell.target.unit, KegSmash_BUFF) == 0 then
+                    LinkBonusToBuff(Spell.target.unit, BONUS_MISS_CHANCE, GetChance(Spell.level), KegSmash_BUFF)
                 end
             end)
-        end
-    end
-    
-    KegSmash = setmetatable({}, {})
-    local mt = getmetatable(KegSmash)
-    mt.__index = mt
-    
-    function mt:onCast()
-        local this = Missiles:create(Spell.source.x, Spell.source.y, 60, Spell.x, Spell.y, 60)
-
-        this:model(MODEL)
-        this:scale(SCALE)
-        this:speed(SPEED)
-        this.source = Spell.source.unit 
-        this.owner = Spell.source.player
-        this.level = Spell.level
-        this.unit = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
-        this.group = CreateGroup()
-        this.damage = GetDamage(Spell.level)
-        this.aoe = KegSmash_GetAoE(Spell.source.unit, Spell.level)
-        this.dur = GetDuration(Spell.source.unit, Spell.level)
-
-        UnitAddAbility(this.unit, DEBUFF)
-        SetUnitAbilityLevel(this.unit, DEBUFF, Spell.level)
-        
-        this.onFinish = function()
-            BrewCloud:create(this.owner, this.source, this.unit, this.x, this.y, this.aoe, this.dur, this.level)
-            GroupEnumUnitsInRange(this.group, this.x, this.y, this.aoe, nil)
-            for i = 0, BlzGroupGetSize(this.group) - 1 do
-                local u = BlzGroupUnitAt(this.group, i)
-                if DamageFilter(this.owner, u) then
-                    if UnitDamageTarget(this.source, u, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        IssueTargetOrder(this.unit, "drunkenhaze", u)
-                    end
-                end
-            end
-            DestroyGroup(this.group)
-
-            return true
-        end
-        
-        this:launch()
-    end
-    
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
-            KegSmash:onCast()
         end)
-        
-        RegisterSpellEffectEvent(DEBUFF, function()
-            if GetUnitAbilityLevel(Spell.target.unit, KegSmash_BUFF) == 0 then
-                LinkBonusToBuff(Spell.target.unit, BONUS_MISS_CHANCE, GetChance(Spell.level), KegSmash_BUFF)
-            end
-        end)
-    end)
+    end
 end

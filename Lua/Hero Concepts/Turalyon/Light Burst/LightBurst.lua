@@ -1,16 +1,16 @@
---[[ requires SpellEffectEvent, NewBonusUtils, Utilities, optional LightInfusion
-    /* ---------------------- Light Burst v1.2 by Chopinski --------------------- */
-    // Credits:
-    //     Redeemer59         - Icon
-    //     Bribe              - SpellEffectEvent
-    //     AZ                 - Stomp and Misisle effect
-    /* ----------------------------------- END ---------------------------------- */
+--[[ requires SpellEffectEvent, NewBonusUtils, Utilities, CrowdControl optional LightInfusion
+    -- -------------------------------------- Light Burst v1.2 -------------------------------------- --
+    -- Credits:
+    --     Redeemer59         - Icon
+    --     Bribe              - SpellEffectEvent
+    --     AZ                 - Stomp and Misisle effect
+    -- ---------------------------------------- By Chopinski ---------------------------------------- --
 ]]--
 
 do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                          Configuration                                         --
+    -- ---------------------------------------------------------------------------------------------- --
     -- The Light Burst Ability
     local ABILITY      = FourCC('A004')
     -- The Light Burst Missile Model
@@ -26,7 +26,7 @@ do
     -- The Light Burst Stomp scale
     local STOMP_SCALE  = 0.55
     -- The Light Burst disarm Model
-    local DISARM       = "Abilities\\Spells\\Other\\TalkToMe\\TalkToMe"
+    local DISARM       = "Disarm.mdl"
     -- The Light Burst disarm attach point
     local ATTACH       = "overhead"
 
@@ -60,9 +60,9 @@ do
         return not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             System                                             --
+    -- ---------------------------------------------------------------------------------------------- --
     onInit(function()
         RegisterSpellEffectEvent(ABILITY, function()
             local this = Missiles:create(Spell.source.x, Spell.source.y, HEIGHT, Spell.x, Spell.y, 0)
@@ -96,11 +96,10 @@ do
                         if IsUnitEnemy(unit, this.owner) then
                             if DamageFilter(unit) then
                                 UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
-                                SlowUnit(unit, this.slow, this.dur)
+                                SlowUnit(unit, this.slow, this.dur, nil, nil, false)
 
                                 if this.infused then
-                                    DisarmUnitTimed(unit, this.dur)
-                                    DestroyEffectTimed(AddSpecialEffectTarget(DISARM, unit, ATTACH), this.dur)
+                                    DisarmUnit(unit, this.dur, DISARM, ATTACH, false)
                                 end
                             end
                         else

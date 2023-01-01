@@ -1,5 +1,5 @@
---[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, Utilities
-    /* ---------------------- Dragon Zone v1.1 by Chopinski --------------------- */
+--[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, Utilities, CrowdControl
+    /* ---------------------- Dragon Zone v1.2 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Bribe          - SpellEffectEvent

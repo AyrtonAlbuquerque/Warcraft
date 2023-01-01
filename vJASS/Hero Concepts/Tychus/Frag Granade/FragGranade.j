@@ -1,5 +1,5 @@
-library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewBonusUtils, TimerUtils, Utilities, optional ArsenalUpgrade
-    /* ---------------------- Bullet Time v1.2 by Chopinski --------------------- */
+library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewBonusUtils, TimerUtils, Utilities, CrowdControl, optional ArsenalUpgrade,
+    /* ---------------------- Bullet Time v1.3 by Chopinski --------------------- */
     // Credits:
     //     Blizzard          - Icon
     //     Vexorian          - TimerUtils
@@ -28,6 +28,10 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
         private constant real    EXP_SCALE = 1.
         // The Frag Granade proximity Period
         private constant real    PERIOD    = 0.25
+        // The Frag Granade stun model
+        private constant string  STUN_MODEL  = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+        // The Frag Granade stun model attach point
+        private constant string  STUN_ATTACH = "overhead"
     endglobals
 
     // The Frag Granade armor reduction duraton
@@ -74,23 +78,23 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Mine
-        static timer          timer = CreateTimer()
-        static integer        id    = -1
+        static timer timer = CreateTimer()
+        static integer id = -1
         static thistype array array
 
-        unit    unit
-        group   group
-        player  player
-        effect  effect
-        real    damage
-        real    proximity
-        real    duration
-        real    stun
-        real    armor
-        real    armor_dur
-        real    aoe
-        real    x
-        real    y
+        unit unit
+        group group
+        player player
+        effect effect
+        real damage
+        real proximity
+        real duration
+        real stun
+        real armor
+        real armor_dur
+        real aoe
+        real x
+        real y
 
         private method remove takes integer i returns integer
             call DestroyGroup(group)
@@ -124,7 +128,7 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
                         if UnitDamageTarget(unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                             call AddUnitBonusTimed(u, BONUS_ARMOR, -armor, armor_dur)
                             if stun > 0 then
-                                call StunUnit(u, stun)
+                                call StunUnit(u, stun, STUN_MODEL, STUN_ATTACH, false)
                             endif
                         endif
                     endif
@@ -133,8 +137,8 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
         endmethod
 
         private static method onPeriod takes nothing returns nothing
-            local integer  i = 0
-            local unit     u
+            local integer i = 0
+            local unit u
             local thistype this
 
             loop
@@ -171,20 +175,20 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
         static method create takes unit source, player owner, integer level, real tx, real ty, real amount, real area, real reduction, real armor_time, real stun_time, real timeout returns thistype
             local thistype this = thistype.allocate()
 
-            set unit      = source
-            set player    = owner
-            set damage    = amount
-            set duration  = timeout
-            set armor     = reduction
+            set unit = source
+            set player = owner
+            set damage = amount
+            set duration = timeout
+            set armor = reduction
             set armor_dur = armor_time
-            set aoe       = area
-            set x         = tx
-            set y         = ty
-            set stun      = stun_time
+            set aoe = area
+            set x = tx
+            set y = ty
+            set stun = stun_time
             set proximity = GetProximityAoE(level)
-            set effect    = AddSpecialEffectEx(MODEL, x, y, 20, SCALE)
-            set group     = CreateGroup()
-            set id        = id + 1
+            set effect = AddSpecialEffectEx(MODEL, x, y, 20, SCALE)
+            set group = CreateGroup()
+            set id = id + 1
             set array[id] = this
 
             call BlzSetSpecialEffectTimeScale(effect, 0)
@@ -198,16 +202,16 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
     endstruct
 
     private struct FragGranade extends Missiles
-        real    aoe
+        real aoe
         integer armor
-        real    armor_dur
-        real    stun
+        real armor_dur
+        real stun
         integer level
-        group   group
+        group group
 
         method onFinish takes nothing returns boolean
             local integer i = 0
-            local unit    u
+            local unit u
 
             call GroupEnumUnitsInRange(group, x, y, aoe, null)
             loop
@@ -218,7 +222,7 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
                         if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                             call AddUnitBonusTimed(u, BONUS_ARMOR, -armor, armor_dur)
                             if stun > 0 then
-                                call StunUnit(u, stun)
+                                call StunUnit(u, stun, STUN_MODEL, STUN_ATTACH, false)
                             endif
                         endif
                     endif
@@ -239,19 +243,19 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
         private static method onCast takes nothing returns nothing
             local thistype this = thistype.create(Spell.source.x, Spell.source.y, 75, Spell.x, Spell.y, 0)
 
-            set source    = Spell.source.unit
-            set owner     = Spell.source.player
-            set level     = Spell.level
-            set speed     = SPEED
-            set model     = MODEL
-            set scale     = SCALE
-            set arc       = ARC
-            set stun      = 0.
-            set damage    = GetDamage(level)
-            set aoe       = GetAoE(level)
-            set armor     = GetArmor(level)
+            set source = Spell.source.unit
+            set owner = Spell.source.player
+            set level = Spell.level
+            set speed = SPEED
+            set model = MODEL
+            set scale = SCALE
+            set arc = ARC
+            set stun = 0.
+            set damage = GetDamage(level)
+            set aoe = GetAoE(level)
+            set armor = GetArmor(level)
             set armor_dur = GetArmorDuration(level)
-            set group     = CreateGroup()
+            set group = CreateGroup()
 
             static if LIBRARY_ArsenalUpgrade then
                 if GetUnitAbilityLevel(Spell.source.unit, ArsenalUpgrade_ABILITY) > 0 then

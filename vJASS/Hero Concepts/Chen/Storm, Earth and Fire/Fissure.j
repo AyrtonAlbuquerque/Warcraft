@@ -1,5 +1,5 @@
-library Fissure requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities
-    /* ------------------------ Fissure v1.2 by CHopinski ----------------------- */
+library Fissure requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl
+    /* ------------------------ Fissure v1.3 by CHopinski ----------------------- */
     // Credits:
     //     AnsonRuk    - Icon Darky29
     //     Darky29     - Fissure Model
@@ -23,6 +23,10 @@ library Fissure requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilitie
         private constant real    BIRTH_SCALE = 0.7
         // The Fissure Missile speed
         private constant real    SPEED       = 1500.
+        // The Fissure stun model
+        private constant string  STUN_MODEL  = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+        // The Fissure stun model attach point
+        private constant string  STUN_ATTACH = "overhead"
     endglobals
 
     // The Fissure travel distance, by default the ability cast range
@@ -85,7 +89,7 @@ library Fissure requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilitie
         method onHit takes unit hit returns boolean
             if DamageFilter(owner, hit) then
                 if UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                    call StunUnit(hit, stun)
+                    call StunUnit(hit, stun, STUN_MODEL, STUN_ATTACH, false)
                 endif
             endif
 
@@ -97,14 +101,14 @@ library Fissure requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilitie
             local real d = GetDistance(Spell.source.unit, Spell.level)
             local thistype this = thistype.create(Spell.source.x, Spell.source.y, 0, Spell.source.x + d*Cos(a), Spell.source.y + d*Sin(a), 0)
 
-            set speed     = SPEED
-            set yaw       = a
-            set source    = Spell.source.unit
-            set owner     = Spell.source.player
-            set damage    = GetDamage(Spell.level)
+            set speed = SPEED
+            set yaw = a
+            set source = Spell.source.unit
+            set owner = Spell.source.player
+            set damage = GetDamage(Spell.level)
             set collision = GetAoE(Spell.level)     
-            set stun      = GetStunTime(Spell.level)
-            set dur       = GetFissureDuration(Spell.level)
+            set stun = GetStunTime(Spell.level)
+            set dur = GetFissureDuration(Spell.level)
 
             call launch()
         endmethod

@@ -1,5 +1,5 @@
 library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnitEvent
-    /* --------------------------------------- Utilities v1.7 --------------------------------------- */
+    /* --------------------------------------- Utilities v1.8 --------------------------------------- */
     // How to Import:
     // 1 - Copy this library into your map
     // 2 - Copy the dummy unit in object editor and match its raw code below
@@ -330,7 +330,7 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
     endfunction
 
     // Clones the items in the source unit inventory to the target unit
-    function CloneItems takes unit source, unit target returns nothing
+    function CloneItems takes unit source, unit target, boolean isIllusion returns nothing
         local integer i = 0
         local integer j
         local item k
@@ -342,6 +342,14 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
                 set k = CreateItem(GetItemTypeId(k), GetUnitX(target), GetUnitY(target))
                 call SetItemCharges(k, j)
                 call UnitAddItem(target, k)
+
+                if isIllusion then
+                    if GetItemTypeId(k) == 'ankh' then
+                        call BlzItemRemoveAbility(k, 'AIrc')
+                    endif
+
+                    call BlzSetItemBooleanField(k, ITEM_BF_ACTIVELY_USED, false)
+                endif
             set i = i + 1
         endloop
         

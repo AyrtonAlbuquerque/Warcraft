@@ -1,5 +1,5 @@
-library Stampede requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, TimerUtils
-    /* ----------------------- Stampede v1.0 by Chopinski ----------------------- */
+library Stampede requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, TimerUtils, CrowdControl
+    /* ----------------------- Stampede v1.1 by Chopinski ----------------------- */
     // Credits:
     //     Bribe           - SpellEffectEvent
     //     Vexorian        - TimerUtils
@@ -22,6 +22,10 @@ library Stampede requires SpellEffectEvent, PluginSpellEffect, Missiles, Utiliti
         private constant real    AOE_SCALE   = 1.7
         // The missile speed
         private constant real    SPEED       = 1000
+        // The stun model
+        private constant string  STUN_MODEL  = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+        // The stun model attach point
+        private constant string  STUN_ATTACH = "overhead"
     endglobals
 
     // The amount of damage dealt when a boar hits an enemy
@@ -68,7 +72,7 @@ library Stampede requires SpellEffectEvent, PluginSpellEffect, Missiles, Utiliti
         method onHit takes unit u returns boolean
             if UnitFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                    call StunUnit(u, stun)
+                    call StunUnit(u, stun, STUN_MODEL, STUN_ATTACH, false)
                 endif
             endif
 

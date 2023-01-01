@@ -1,14 +1,14 @@
-library BansheeCry requires SpellEffectEvent, PluginSpellEffect, Utilities
-    /* --------------- Cry of the Banshee Queen v1.2 by Chopinski --------------- */
+library BansheeCry requires SpellEffectEvent, PluginSpellEffect, Utilities, CrowdControl
+    /* -------------------------------- Cry of the Banshee Queen v1.3 ------------------------------- */
     // Credits:
     //     Bribe         - SpellEffectEvent
     //     Darkfang      - Void Curse Icon
     //     Mythic        - Call of the Dread model (edited by me)
-    /* ----------------------------------- END ---------------------------------- */
+    /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
-    /* -------------------------------------------------------------------------- */
-    /*                                Configuration                               */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                          Configuration                                         */
+    /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Cry of the Banshee Queen ability
         private constant integer ABILITY       = 'A00F'
@@ -50,16 +50,16 @@ library BansheeCry requires SpellEffectEvent, PluginSpellEffect, Utilities
         return IsUnitEnemy(target, op) and UnitAlive(target) and not IsUnitType(target, UNIT_TYPE_STRUCTURE)
     endfunction
 
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             System                                             */
+    /* ---------------------------------------------------------------------------------------------- */
     private struct BansheeCry extends array
         private static method onCast takes nothing returns nothing
-            local integer  i = 0
-            local group    g = CreateGroup()
-            local player   p = Spell.source.player
-            local integer  level = Spell.level
-            local unit     u
+            local integer i = 0
+            local group g = CreateGroup()
+            local player p = Spell.source.player
+            local integer level = Spell.level
+            local unit u
             local integer  size
 
             call SpamEffectUnit(Spell.source.unit, SCREAM_MODEL, ATTACH_SCREAM, 0.1, 5)
@@ -70,8 +70,8 @@ library BansheeCry requires SpellEffectEvent, PluginSpellEffect, Utilities
                     exitwhen i == size
                         set u =  BlzGroupUnitAt(g, i)
                         if Filtered(p, u) then
-                            call UnitApplyFear(u, GetDuration(u, level), FEAR_MODEL, ATTACH_FEAR)
-                            call SlowUnit(u, GetSlow(u, level), GetDuration(u, level))
+                            call FearUnit(u, GetDuration(u, level), FEAR_MODEL, ATTACH_FEAR, false)
+                            call SlowUnit(u, GetSlow(u, level), GetDuration(u, level), null, null, false)
                         endif
                     set i = i + 1
                 endloop

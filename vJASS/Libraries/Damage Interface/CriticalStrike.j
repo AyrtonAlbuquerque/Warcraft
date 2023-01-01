@@ -1,5 +1,5 @@
 library CriticalStrike requires DamageInterface optional Evasion
-    /* ------------------------ CriticalStrike v2.3 by Chopinski ----------------------- */
+    /* ------------------------ CriticalStrike v2.4 by Chopinski ----------------------- */
     // CriticalStrike implements an easy way to register and detect a custom critical event.
     // allows the manipulation of a unit critical strike chance and multiplier, as well as
     // manipulating the critical damage dealt.

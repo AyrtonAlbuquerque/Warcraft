@@ -1,15 +1,15 @@
-library Metamorphosis requires DamageInterface, SpellEffectEvent, PluginSpellEffect, Utilities, NewBonusUtils
-    /* --------------------- Metamorphosis v1.2 by Chopinski -------------------- */
+library Metamorphosis requires DamageInterface, SpellEffectEvent, PluginSpellEffect, Utilities, NewBonusUtils, CrowdControl
+    /* ------------------------------------- Metamorphosis v1.3 ------------------------------------- */
     // Credits:
     //     BLazeKraze      - Icon
     //     Bribe           - SpellEffectEvent
     //     Mythic          - Damnation Black model (edited by me)
     //     Henry           - Dark Illidan model from Warcraft Underground
-    /* ----------------------------------- END ---------------------------------- */
+    /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
-    /* -------------------------------------------------------------------------- */
-    /*                                Configuration                               */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                          Configuration                                         */
+    /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Metamorphosis ability
         private constant integer ABILITY     = 'A006'
@@ -65,21 +65,21 @@ library Metamorphosis requires DamageInterface, SpellEffectEvent, PluginSpellEff
         return UnitAlive(target) and IsUnitEnemy(target, owner) and not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE)
     endfunction
 
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             System                                             */
+    /* ---------------------------------------------------------------------------------------------- */
     private struct Metamorphosis
-        timer   timer
-        unit    unit
-        group   group
-        player  player
+        timer timer
+        unit unit
+        group group
+        player player
         integer level
 
         static method onExpire takes nothing returns nothing
             local thistype this = GetTimerData(GetExpiredTimer())
-            local integer  health = 0
-            local integer  damage = 0
-            local unit     u
+            local integer health = 0
+            local integer damage = 0
+            local unit u
 
             call DestroyEffect(AddSpecialEffectEx(MODEL, GetUnitX(unit), GetUnitY(unit), GetUnitZ(unit), 2))
             call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), GetAoE(level), null)
@@ -89,7 +89,7 @@ library Metamorphosis requires DamageInterface, SpellEffectEvent, PluginSpellEff
                     if FearFilter(player, u) then
                         set health = health + GetBonusHealth(u, level)
                         set damage = damage + GetBonusDamage(u, level)
-                        call UnitApplyFear(u, GetDuration(u, level), FEAR_MODEL, ATTACH_FEAR)
+                        call FearUnit(u, GetDuration(u, level), FEAR_MODEL, ATTACH_FEAR, false)
                     endif
                 call GroupRemoveUnit(group, u)
             endloop
@@ -99,20 +99,20 @@ library Metamorphosis requires DamageInterface, SpellEffectEvent, PluginSpellEff
             call ReleaseTimer(timer)
             call deallocate()
 
-            set timer  = null
-            set unit   = null
-            set group  = null
+            set timer = null
+            set unit = null
+            set group = null
             set player = null
         endmethod
 
         static method onCast takes nothing returns nothing
             local thistype this = thistype.allocate()
 
-            set timer  = NewTimerEx(this)
-            set group  = CreateGroup()
-            set unit   = Spell.source.unit
+            set timer = NewTimerEx(this)
+            set group = CreateGroup()
+            set unit = Spell.source.unit
             set player = Spell.source.player
-            set level  = Spell.level
+            set level = Spell.level
 
             call TimerStart(timer, 0.5, false, function thistype.onExpire)
         endmethod

@@ -1,14 +1,14 @@
-library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, TimedHandles, SpellPower, optional Avatar
-    /* ---------------------- Storm Bolt v1.2 by Chopinski ---------------------- */
+library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, TimedHandles, SpellPower, CrowdControl optional Avatar
+    /* --------------------------------------- Storm Bolt v1.3 -------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
     //     Bribe          - SpellEffectEvent
     //     TriggerHappy   - TimedHandles
-    /* ----------------------------------- END ---------------------------------- */
+    /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
-    /* -------------------------------------------------------------------------- */
-    /*                                Configuration                               */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                          Configuration                                         */
+    /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Storm Bolt ability
         public  constant integer    ABILITY            = 'A001'
@@ -26,10 +26,10 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
         private constant string     REFUND_MANA        = "Abilities\\Spells\\Items\\AIma\\AImaTarget.mdl"
         // The attachment point of the bonus dmaage model
         private constant string     ATTACH_POINT       = "origin"
-        // The attack type of the damage dealt
-        private constant attacktype ATTACK_TYPE        = ATTACK_TYPE_NORMAL  
-        // The damage type of the damage dealt
-        private constant damagetype DAMAGE_TYPE        = DAMAGE_TYPE_MAGIC
+        // The model used when storm bolt stuns a unit
+        private constant string     STUN_MODEL         = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+        // The attachment point of the stun model
+        private constant string     STUN_POINT         = "overhead"
     endglobals
 
     // The storm bolt damage
@@ -56,14 +56,9 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
         return BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_ILF_MANA_COST, level - 1)*0.5
     endfunction
 
-    // Returns true if the target unit is already stunned
-    private function Stunned takes unit target returns boolean
-        return GetUnitAbilityLevel(target, 'BPSE') > 0
-    endfunction
-
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             System                                             */
+    /* ---------------------------------------------------------------------------------------------- */
     private struct Hammer extends Missiles
         integer level
         real    dur
@@ -72,12 +67,12 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
 
         method onFinish takes nothing returns boolean
             if UnitAlive(target) then
-                if Stunned(target) then
+                if IsUnitStunned(target) then
                     set damage = GetSpellDamage(GetBonusDamage(damage, level), source)
                     set bonus  = true
                 endif
 
-                if UnitDamageTarget(source, target, damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
+                if UnitDamageTarget(source, target, damage, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                     if bonus then
                         call DestroyEffect(AddSpecialEffectTarget(BONUS_DAMAGE_MODEL, target, ATTACH_POINT))
                     endif
@@ -91,7 +86,7 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
                             endif
                         endif
                     else
-                        call StunUnit(target, dur)
+                        call StunUnit(target, dur, STUN_MODEL, STUN_POINT, false)
                     endif
                 endif
             endif
@@ -104,15 +99,15 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
         private static method onCast takes nothing returns nothing
             local Hammer hammer = Hammer.create(Spell.source.x, Spell.source.y, 60, Spell.target.x, Spell.target.y, 60)
 
-            set hammer.source   = Spell.source.unit
-            set hammer.target   = Spell.target.unit
-            set hammer.model    = MISSILE_MODEL
-            set hammer.speed    = MISSILE_SPEED
-            set hammer.scale    = MISSILE_SCALE
-            set hammer.level    = GetUnitAbilityLevel(Spell.source.unit, ABILITY)
-            set hammer.damage   = GetDamage(hammer.level)
-            set hammer.dur      = GetDuration(Spell.source.unit, Spell.target.unit, hammer.level)
-            set hammer.mana     = GetMana(Spell.source.unit, hammer.level)
+            set hammer.source = Spell.source.unit
+            set hammer.target = Spell.target.unit
+            set hammer.model = MISSILE_MODEL
+            set hammer.speed = MISSILE_SPEED
+            set hammer.scale = MISSILE_SCALE
+            set hammer.level = GetUnitAbilityLevel(Spell.source.unit, ABILITY)
+            set hammer.damage = GetDamage(hammer.level)
+            set hammer.dur = GetDuration(Spell.source.unit, Spell.target.unit, hammer.level)
+            set hammer.mana = GetMana(Spell.source.unit, hammer.level)
 
             call hammer.launch()
         endmethod

@@ -1,16 +1,16 @@
---[[ requires SpellEffectEvent, Missiles, Utilities, TimedHandles, optional Avatar
-    /* ---------------------- Storm Bolt v1.2 by Chopinski ---------------------- */
-    // Credits:
-    //     Blizzard       - Icon
-    //     Bribe          - SpellEffectEvent
-    //     TriggerHappy   - TimedHandles
-    /* ----------------------------------- END ---------------------------------- */
+--[[ requires SpellEffectEvent, Missiles, Utilities, TimedHandles, CrowdControl optional Avatar
+    -- --------------------------------------- Storm Bolt v1.3 -------------------------------------- --
+    -- Credits:
+    --     Blizzard       - Icon
+    --     Bribe          - SpellEffectEvent
+    --     TriggerHappy   - TimedHandles
+    -- ---------------------------------------- By Chipinski ---------------------------------------- --
 ]]--
 
 do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                          Configuration                                         --
+    -- ---------------------------------------------------------------------------------------------- --
     -- The raw code of the Storm Bolt ability
     StormBolt_ABILITY            = FourCC('A001')
     -- The raw code of the Storm Bolt Double Thunder ability
@@ -27,10 +27,10 @@ do
     local REFUND_MANA            = "Abilities\\Spells\\Items\\AIma\\AImaTarget.mdl"
     -- The attachment point of the bonus dmaage model
     local ATTACH_POINT           = "origin"
-    -- The attack type of the damage dealt
-    local ATTACK_TYPE            = ATTACK_TYPE_NORMAL  
-    -- The damage type of the damage dealt
-    local DAMAGE_TYPE            = DAMAGE_TYPE_MAGIC
+    -- The model used when storm bolt stuns a unit
+    local STUN_MODEL             = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+    -- The attachment point of the stun model
+    local STUN_POINT             = "overhead"
 
     -- The storm bolt damage
     function StormBolt_GetDamage(level)
@@ -56,14 +56,9 @@ do
         return BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(unit, StormBolt_ABILITY), ABILITY_ILF_MANA_COST, level - 1)*0.5
     end
 
-    -- Returns true if the target unit is already stunned
-    local function Stunned(unit)
-        return GetUnitAbilityLevel(unit, FourCC('BPSE')) > 0
-    end
-
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             System                                             --
+    -- ---------------------------------------------------------------------------------------------- --
     StormBolt = setmetatable({}, {})
     local mt = getmetatable(StormBolt)
     mt.__index = mt
@@ -83,12 +78,12 @@ do
 
         this.onFinish = function()
             if UnitAlive(this.target) then
-                if Stunned(this.target) then
+                if IsUnitStunned(this.target) then
                     this.damage = StormBolt_GetBonusDamage(this.damage, this.level)
                     this.bonus  = true
                 end
 
-                if UnitDamageTarget(this.source, this.target, this.damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
+                if UnitDamageTarget(this.source, this.target, this.damage, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                     if this.bonus then
                         DestroyEffect(AddSpecialEffectTarget(BONUS_DAMAGE_MODEL, this.target, ATTACH_POINT))
                     end
@@ -102,7 +97,7 @@ do
                             end
                         end
                     else
-                        StunUnit(this.target, this.dur)
+                        StunUnit(this.target, this.dur, STUN_MODEL, STUN_POINT, false)
                     end
                 end
             end

@@ -110,7 +110,15 @@ do
                 UnitApplyTimedLife(unit, FourCC('BTLF'), GetDuration(Spell.source.unit, Spell.level))
             end
         end)
-        
+
+        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function()
+            local unit = GetTriggerUnit()
+
+            if GetUnitTypeId(unit) == UNIT then
+                array[unit] = nil
+            end
+        end)
+
         RegisterAttackDamageEvent(function()
             local level = GetUnitAbilityLevel(Damage.source.unit, MISSILE)
 

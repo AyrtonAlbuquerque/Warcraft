@@ -1,5 +1,5 @@
---[[ requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities optional WaterElemental
-    /* --------------------- Crushing Wave v1.0 by Chopinski -------------------- */
+--[[ requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl optional WaterElemental
+    /* --------------------- Crushing Wave v1.1 by Chopinski -------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Bribe           - SpellEffectEvent
@@ -91,7 +91,7 @@ do
             this.onHit = function(unit)
                 if UnitFilter(this.owner, unit) then
                     if UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        SlowUnit(unit, this.slow, this.timeout)
+                        SlowUnit(unit, this.slow, this.timeout, nil, nil, false)
                     end
                 end
 

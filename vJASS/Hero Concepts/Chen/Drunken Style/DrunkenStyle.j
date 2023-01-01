@@ -1,5 +1,5 @@
-library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Missiles, TimerUtils, MouseUtils, NewBonus
-    /* --------------------- Drunken Style v1.2 by Chopinski -------------------- */
+library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Missiles, TimerUtils, MouseUtils, NewBonus, CrowdControl
+    /* --------------------- Drunken Style v1.3 by Chopinski -------------------- */
     // Credits:
     //     Blizzard           - Icon
     //     Bribe              - SpellEffectEvent
@@ -35,12 +35,12 @@ library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Mi
     endfunction
 
     // The Drunken Style knockback distance
-    private function GetKnockbackDistance takes integer level returns real
+    private function GetKnockDistance takes integer level returns real
         return 200. + 0.*level
     endfunction
 
     // The Drunken Style knockback duration
-    private function GetKnockbackDuration takes integer level returns real
+    private function GetKnockDuration takes integer level returns real
         return 0.25 + 0.*level
     endfunction
 
@@ -76,12 +76,12 @@ library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Mi
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Dash extends Missiles
-        real    fov
-        real    face
-        real    distance
-        real    knockback
-        real    centerX
-        real    centerY
+        real fov
+        real face
+        real distance
+        real knockback
+        real centerX
+        real centerY
 
         method onPeriod takes nothing returns boolean
             if UnitAlive(source) then
@@ -117,9 +117,9 @@ library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Mi
     
     private struct DrunkenStyle
         static thistype array n
-        static integer  array type
+        static integer array type
 
-        timer   timer
+        timer timer
         integer i
 
         private static method onExpire takes nothing returns nothing
@@ -128,16 +128,16 @@ library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Mi
             call ReleaseTimer(timer)
             call deallocate()
 
-            set n[i]    = 0
+            set n[i] = 0
             set type[i] = 0
-            set timer   = null
+            set timer = null
         endmethod
 
         private static method getAngle takes player owner, unit caster, real x, real y, real mx, real my, real aoe returns real
-            local group   g = CreateGroup() 
+            local group g = CreateGroup() 
             local integer j = 0
-            local real    a = 0.
-            local unit    u
+            local real a = 0.
+            local unit u
             local integer size
 
             call GroupEnumUnitsInRange(g, mx, my, aoe, null)
@@ -176,9 +176,9 @@ library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Mi
             if n[Spell.source.id] != 0 then
                 set this = n[Spell.source.id]
             else
-                set this  = thistype.allocate()
+                set this = thistype.allocate()
                 set timer = NewTimerEx(this)
-                set i     = Spell.source.id
+                set i = Spell.source.id
                 set n[i]  = this
             endif
 
@@ -197,19 +197,19 @@ library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Mi
                 call SetUnitAnimationByIndex(Spell.source.unit, 17)
             endif
 
-            set dash.model     = MODEL
-            set dash.source    = Spell.source.unit
-            set dash.owner     = Spell.source.player
-            set dash.centerX   = Spell.source.x
-            set dash.centerY   = Spell.source.y
-            set dash.type      = type[i]
-            set dash.face      = a*bj_RADTODEG
-            set dash.damage    = GetDamage(Spell.level, Spell.source.unit)
-            set dash.duration  = GetDuration(Spell.level)
+            set dash.model = MODEL
+            set dash.source = Spell.source.unit
+            set dash.owner = Spell.source.player
+            set dash.centerX = Spell.source.x
+            set dash.centerY = Spell.source.y
+            set dash.type = type[i]
+            set dash.face = a*bj_RADTODEG
+            set dash.damage = GetDamage(Spell.level, Spell.source.unit)
+            set dash.duration = GetDuration(Spell.level)
             set dash.collision = GetCollision(type[i])
-            set dash.fov       = GetDamageCone(type[i])
-            set dash.distance  = GetKnockbackDistance(Spell.level)
-            set dash.knockback = GetKnockbackDuration(Spell.level)
+            set dash.fov = GetDamageCone(type[i])
+            set dash.distance = GetKnockDistance(Spell.level)
+            set dash.knockback = GetKnockDuration(Spell.level)
 
             call dash.launch()
             call BlzUnitInterruptAttack(Spell.source.unit)

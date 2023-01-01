@@ -1,5 +1,5 @@
---[[ requires SpellEffectEvent, Utilities
-    /* --------------------- Dragon Burst v1.1 by Chopinski --------------------- */
+--[[ requires SpellEffectEvent, Utilities, CrowdControl
+    /* --------------------- Dragon Burst v1.2 by Chopinski --------------------- */
     // Credits:
     //     Blizzard, TheKaldorei    - Icon
     //     Bribe                    - SpellEffectEvent
@@ -80,9 +80,9 @@ do
                     
                     if UnitDamageTarget(Spell.source.unit, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                         if distance > center then
-                            KnockbackUnit(unit, angle, aoe - distance, GetKnockBackDuration(Spell.source.unit, Spell.level), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, true)
+                            KnockbackUnit(unit, angle, aoe - distance, GetKnockBackDuration(Spell.source.unit, Spell.level), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
                         else
-                            KnockupUnit(unit, GetKnockUpDuration(Spell.source.unit, Spell.level), height)
+                            KnockupUnit(unit, height, GetKnockUpDuration(Spell.source.unit, Spell.level), nil, nil, false)
                         end
                     end 
                 end

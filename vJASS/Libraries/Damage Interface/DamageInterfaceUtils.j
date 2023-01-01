@@ -1,6 +1,6 @@
 library DamageInterfaceUtils requires Evasion, CriticalStrike, LifeSteal, SpellPower, SpellVamp
     /* ------- Utility Library for all the Damage Interface Custom Events ------- */
-    /* ---------------------------- v2.3 by Chopinski --------------------------- */
+    /* ---------------------------- v2.4 by Chopinski --------------------------- */
     // JASS API:
     //     Evasion System:
     //         function UnitAddEvasionChanceTimed takes unit u, real amount, real duration returns nothing

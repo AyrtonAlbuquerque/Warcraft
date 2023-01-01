@@ -1,5 +1,5 @@
---[[ requires SpellEffectEvent
-    /* ------------------------ Switch v1.2 by Chopinski ------------------------ */
+--[[ requires SpellEffectEvent, MirrorImage
+    /* ------------------------ Switch v1.3 by Chopinski ------------------------ */
     // Credits:
     //     Bribe          - SpellEffectEvent
     //     Vexorian       - TimerUtils
@@ -42,7 +42,7 @@ do
         GroupEnumUnitsOfPlayer(g1, GetOwningPlayer(source), nil)
         for i = 0, BlzGroupGetSize(g1) - 1 do
             local unit = BlzGroupUnitAt(g1, i)
-            if GetUnitTypeId(unit) == GetUnitTypeId(source) and IsIllusion[unit] then
+            if GetUnitTypeId(unit) == GetUnitTypeId(source) and IsUnitIllusionEx(unit) then
                 PauseUnit(unit, true)
                 ShowUnit(unit, false)
                 DestroyEffect(AddSpecialEffect(SWITCH_EFFECT, GetUnitX(unit), GetUnitY(unit)))
@@ -60,7 +60,7 @@ do
     
     onInit(function()
         RegisterSpellEffectEvent(Switch_ABILITY, function()
-            if GetUnitTypeId(Spell.source.unit) == GetUnitTypeId(Spell.target.unit) and IsIllusion[Spell.target.unit] then
+            if GetUnitTypeId(Spell.source.unit) == GetUnitTypeId(Spell.target.unit) and IsUnitIllusionEx(Spell.target.unit) then
                 local timer = CreateTimer()
                 local unit = Spell.source.unit
                 local group = Switch:switch(Spell.source.unit, Spell.target.unit)
@@ -74,7 +74,7 @@ do
                         ShowUnit(v, true)
                     end
                     DestroyGroup(group)
-                    SelectUnit(unit, true)
+                    SelectUnitAddForPlayer(unit, GetOwningPlayer(unit))
                     PauseTimer(timer)
                     DestroyTimer(timer)
                 end)

@@ -1,5 +1,5 @@
 library DamageInterface requires optional Table
-    /* --------------------- DamageInterface v2.3 by Chopinski --------------------- */
+    /* --------------------- DamageInterface v2.4 by Chopinski --------------------- */
     // Allows for easy registration of specific damage type events like on attack
     // damage or on spell damage, etc...
     /* ----------------------------------- END ---------------------------------- */

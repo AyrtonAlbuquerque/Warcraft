@@ -1,5 +1,5 @@
 library Overkill requires RegisterPlayerUnitEvent, Missiles, Utilities, MouseUtils, NewBonus optional ArsenalUpgrade
-    /* ----------------------- Overkill v1.2 by Chopinski ----------------------- */
+    /* ----------------------- Overkill v1.3 by Chopinski ----------------------- */
     // Credits:
     //     Blizzard         - Icon
     //     Magtheridon96    - RegisterPlayerUnitEvent
@@ -89,28 +89,28 @@ library Overkill requires RegisterPlayerUnitEvent, Missiles, Utilities, MouseUti
     endstruct
 
     private struct Overkill
-        static timer          timer = CreateTimer()
-        static integer        key   = -1
+        static timer timer = CreateTimer()
+        static integer key = -1
         static thistype array array
         static thistype array n
 
-        unit    unit
+        unit unit
         player  player
-        real    prevX
-        real    prevY
+        real prevX
+        real prevY
         integer id
 
         private method remove takes integer i returns integer
             call AddUnitAnimationProperties(unit, "spin", false)
             call QueueUnitAnimation(unit, "Stand Ready")
             call IssueImmediateOrderById(unit, 852590)
-            call DisarmUnit(unit, false)
+            call UnitRemoveAbility(unit, 'Abun')
 
             set array[i] = array[key]
-            set key      = key - 1
-            set n[id]    = 0
-            set unit     = null
-            set player   = null
+            set key = key - 1
+            set n[id] = 0
+            set unit = null
+            set player = null
 
             if key == -1 then
                 call PauseTimer(timer)
@@ -122,23 +122,23 @@ library Overkill requires RegisterPlayerUnitEvent, Missiles, Utilities, MouseUti
         endmethod
 
         private static method onPeriod takes nothing returns nothing
-            local integer  i = 0
-            local integer  level
-            local real     cost
-            local real     offset
-            local real     face
-            local real     range
-            local real     x
-            local real     y
+            local integer i = 0
+            local integer level
+            local real cost
+            local real offset
+            local real face
+            local real range
+            local real x
+            local real y
             local boolean  morphed = false
             local thistype this
             local Bullet bullet
 
             loop
                 exitwhen i > key
-                    set this  = array[i]
+                    set this = array[i]
                     set level = GetUnitAbilityLevel(unit, ABILITY)
-                    set cost  = GetManaCost(unit, level)
+                    set cost = GetManaCost(unit, level)
 
                     static if LIBRARY_CommanderOdin then
                         set morphed = CommanderOdin.morphed[id]
@@ -146,17 +146,17 @@ library Overkill requires RegisterPlayerUnitEvent, Missiles, Utilities, MouseUti
 
                     if GetUnitAbilityLevel(unit, BUFF) > 0 and GetUnitState(unit, UNIT_STATE_MANA) >= cost and not morphed then
                         set offset = GetTravelDistance(level)
-                        set range  = GetRandomRange(GetMaxAoE(level))
-                        set face   = GetUnitFacing(unit)*bj_DEGTORAD
-                        set x      = GetUnitX(unit)
-                        set y      = GetUnitY(unit)
+                        set range = GetRandomRange(GetMaxAoE(level))
+                        set face = GetUnitFacing(unit)*bj_DEGTORAD
+                        set x = GetUnitX(unit)
+                        set y = GetUnitY(unit)
                         set bullet = Bullet.create(GetX(x, face), GetY(y, face), 70, GetRandomCoordInRange(x + offset*Cos(face), range, true), GetRandomCoordInRange(y + offset*Sin(face), range, false), GetRandomReal(0, 80))
-                        set bullet.model     = MODEL
-                        set bullet.speed     = SPEED
-                        set bullet.scale     = SCALE
-                        set bullet.source    = unit
-                        set bullet.owner     = player
-                        set bullet.damage    = GetDamage(level, unit)
+                        set bullet.model = MODEL
+                        set bullet.speed = SPEED
+                        set bullet.scale = SCALE
+                        set bullet.source = unit
+                        set bullet.owner = player
+                        set bullet.damage = GetDamage(level, unit)
                         set bullet.collision = GetCollision(level)
 
                         if x != prevX and y != prevY then
@@ -179,32 +179,34 @@ library Overkill requires RegisterPlayerUnitEvent, Missiles, Utilities, MouseUti
         endmethod
 
         private static method onOrder takes nothing returns nothing
-            local integer  order  = GetIssuedOrderId()
-            local unit     caster = GetOrderedUnit()
-            local integer  i      = GetUnitUserData(caster)
+            local integer order = GetIssuedOrderId()
+            local unit caster = GetOrderedUnit()
+            local integer i = GetUnitUserData(caster)
             local thistype this
 
             if order == 852589 then // On
                 if n[i] != 0 then
                     set this = n[i]
                 else
-                    set this       = thistype.allocate()
-                    set unit       = caster
-                    set id         = i
-                    set prevX      = GetUnitX(caster)
-                    set prevY      = GetUnitY(caster)
-                    set player     = GetOwningPlayer(caster)
-                    set key        = key + 1
+                    set this = thistype.allocate()
+                    set unit = caster
+                    set id = i
+                    set prevX = GetUnitX(caster)
+                    set prevY = GetUnitY(caster)
+                    set player = GetOwningPlayer(caster)
+                    set key = key + 1
                     set array[key] = this
-                    set n[i]       = this
+                    set n[i] = this
 
                     if key == 0 then
                         call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
                     endif
                 endif
 
-                call DisarmUnit(unit, true)
+                call UnitAddAbility(unit, 'Abun')
             endif
+
+            set caster = null
         endmethod
 
         private static method onInit takes nothing returns nothing

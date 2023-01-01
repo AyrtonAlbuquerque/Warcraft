@@ -1,8 +1,8 @@
-library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, RegisterPlayerUnitEvent, optional Tenacity
+library CrowdControl requires Utilities, WorldBounds, Indexer, TimerUtils, RegisterPlayerUnitEvent, optional Tenacity
     /* ------------------------------------- Crowd Control v1.0 ------------------------------------- */
     // How to Import:
     // 1 - Copy the Utilities library over to your map and follow its install instructions
-    // 2 - Copy the Missiles libraries over to your map and follow their install instructions
+    // 2 - Copy the WorldBounds library over to your map and follow its install instructions
     // 3 - Copy the Indexer library over to your map and follow its install instructions
     // 4 - Copy the TimerUtils library over to your map and follow its install instructions
     // 5 - Copy the RegisterPlayerUnitEvent library over to your map and follow its install instructions
@@ -385,100 +385,152 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
     /*                                             Systems                                            */
     /* ---------------------------------------------------------------------------------------------- */
     /* ------------------------------------------ Knockback ----------------------------------------- */
-    struct Knockback extends Missiles
-        private static integer array knocked
+    struct Knockback
+        private static timer timer = CreateTimer()
+        private static rect rect = Rect(0., 0., 0., 0.)
+        private static constant real period = 0.03125
+        private static thistype array array
+        private static integer array struct
+        private static integer key = -1
+        private static thistype temp
     
-        boolean cliff
-        boolean destructable
-        boolean unit
-        boolean isPaused
-        integer key
-        effect attachment
-    
-        method onPeriod takes nothing returns boolean
-            if UnitAlive(source) then
-                call SetUnitX(source, prevX)
-                call SetUnitY(source, prevY)
-                
-                return false
-            else
-                return true
+        private unit unit
+        private group group
+        private real angle
+        private real offset
+        private real distance
+        private real duration
+        private real collision
+        private integer id
+        private effect effect
+        private boolean onCliff
+        private boolean onDest
+        private boolean onUnit
+        
+        private method remove takes integer i returns integer
+            call DestroyGroup(group)
+            call DestroyEffect(effect)
+            call BlzPauseUnitEx(unit, false)
+
+            set unit = null
+            set group = null
+            set effect = null
+            set struct[id] = 0
+            set array[i] = array[key]
+            set key = key - 1
+
+            call deallocate()
+
+            if key == -1 then
+                call PauseTimer(timer)
+            endif
+
+            return i - 1
+        endmethod
+
+        private static method onDestructable takes nothing returns nothing
+            local thistype this = temp
+
+            if GetDestructableLife(GetEnumDestructable()) > 0 then
+                set duration = 0
+                return
             endif
         endmethod
-        
-        method onHit takes unit u returns boolean
-            if unit and u != source then
-                if UnitAlive(u) then
-                    return true
-                else
-                    return false
-                endif
-            else
-                return false
-            endif
+
+        private static method onPeriod takes nothing returns nothing
+            local integer i = 0
+            local thistype this
+            local real x
+            local real y
+            local unit u
+
+            loop
+                exitwhen i > key
+                    set this = array[i]
+
+                    if duration > 0 and UnitAlive(unit) then
+                        set duration = duration - period
+                        set x = GetUnitX(unit) + offset*Cos(angle)
+                        set y = GetUnitY(unit) + offset*Sin(angle)
+                        
+                        if onUnit and collision > 0 then
+                            call GroupEnumUnitsInRange(group, x, y, collision, null)
+                            call GroupRemoveUnit(group, unit)
+
+                            loop
+                                set u = FirstOfGroup(group)
+                                exitwhen u == null
+                                    if UnitAlive(u) then
+                                        set duration = 0
+                                        set u = null
+                                        exitwhen true
+                                    endif
+                                call GroupRemoveUnit(group, u)
+                            endloop
+                        endif
+
+                        if onDest and duration > 0 and collision > 0 then
+                            set temp = this
+                            call SetRect(rect, x - collision, y - collision, x + collision, y + collision)
+                            call EnumDestructablesInRect(rect, null, function thistype.onDestructable)
+                        endif
+
+                        if onCliff and duration > 0 then
+                            if GetTerrainCliffLevel(GetUnitX(unit), GetUnitY(unit)) < GetTerrainCliffLevel(x, y) and GetUnitZ(unit) < (GetTerrainCliffLevel(x, y) - GetTerrainCliffLevel(WorldBounds.maxX, WorldBounds.maxY))*bj_CLIFFHEIGHT then
+                                set duration = 0
+                            endif
+                        endif
+
+                        if duration > 0 then
+                            call SetUnitX(unit, x)
+                            call SetUnitY(unit, y)
+                        endif
+                    else
+                        set i = remove(i)
+                    endif
+                set i = i + 1
+            endloop
+        endmethod
+
+        static method knocked takes unit u returns boolean
+            return struct[GetUnitUserData(u)] != 0
         endmethod
         
-        method onDestructable takes destructable d returns boolean
-            if destructable then
-                if GetDestructableLife(d) > 0 then
-                    return true
-                else
-                    return false
-                endif
-            else
-                return false
-            endif
-        endmethod
-        
-        method onCliff takes nothing returns boolean
-            return cliff
-        endmethod
-        
-        method onPause takes nothing returns boolean
-            call pause(false)
-            return false
-        endmethod
-        
-        method onRemove takes nothing returns nothing
-            call DestroyEffect(attachment)
-            set knocked[key] = knocked[key] - 1
-            set attachment = null
-            
-            if knocked[key] == 0 then
-                call BlzPauseUnitEx(source, false)
-            endif
-        endmethod
-        
-        static method isUnitKnocked takes unit u returns boolean
-            return knocked[GetUnitUserData(u)] > 0
-        endmethod
-        
-        static method apply takes unit whichUnit, real angle, real distance, real duration, string model, string point, boolean onCliff, boolean onDestructable, boolean onUnit returns nothing
-            local real x = GetUnitX(whichUnit)
-            local real y = GetUnitY(whichUnit)
+        static method apply takes unit target, real angle, real distance, real duration, string model, string point, boolean onCliff, boolean onDestructable, boolean onUnit returns nothing
+            local integer id = GetUnitUserData(target)
             local thistype this
 
-            if duration > 0 then
-                set this = thistype.create(x, y, 0, x + distance*Cos(angle), y + distance*Sin(angle), 0)
-                set .source = whichUnit
+            if duration > 0 and UnitAlive(target) then
+                if struct[id] != 0 then
+                    set this = struct[id]
+                else
+                    set this = thistype.allocate()
+                    set .id = id
+                    set .unit = target
+                    set .collision = 2*BlzGetUnitCollisionSize(target)
+                    set .group = CreateGroup()
+                    set key = key + 1
+                    set array[key] = this
+                    set struct[id] = this
+
+                    call BlzPauseUnitEx(target, true)
+
+                    if model != null and point != null then
+                        set effect = AddSpecialEffectTarget(model, target, point)
+                    endif
+
+                    if key == 0 then
+                        call TimerStart(timer, period, true, function thistype.onPeriod)
+                    endif
+                endif
+
+                set .angle = angle
+                set .distance = distance
                 set .duration = duration
-                set .collision = 2*BlzGetUnitCollisionSize(whichUnit)
-                set .cliff = onCliff
-                set .destructable = onDestructable
-                set .unit = onUnit
-                set .isPaused = isPaused
-                set .key = GetUnitUserData(whichUnit)
-                set knocked[key] = knocked[key] + 1
-                
-                if model != null and point != null then
-                    set .attachment = AddSpecialEffectTarget(model, whichUnit, point)
-                endif
-                
-                if knocked[key] == 1 then
-                    call BlzPauseUnitEx(whichUnit, true)
-                endif
-                
-                call launch()
+                set .onCliff = onCliff
+                set .onDest = onDestructable
+                set .onUnit = onUnit
+                set .offset = RMaxBJ(0.00000001, distance*period/RMaxBJ(0.00000001, duration))
             endif
         endmethod
     endstruct
@@ -1204,7 +1256,7 @@ library CrowdControl requires Utilities, Missiles, Indexer, TimerUtils, Register
         endmethod
     
         static method knockedback takes unit target returns boolean
-            return Knockback.isUnitKnocked(target)
+            return Knockback.knocked(target)
         endmethod
 
         static method knockup takes unit target, real maxHeight, real duration, string model, string point, boolean stack returns nothing

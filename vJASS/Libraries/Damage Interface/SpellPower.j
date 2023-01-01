@@ -1,5 +1,5 @@
 library SpellPower requires DamageInterface
-    /* ------------------------ SpellPower v2.3 by Chopinski ----------------------- */
+    /* ------------------------ SpellPower v2.4 by Chopinski ----------------------- */
     // SpellPower intends to simulate a system similiar to Ability Power from LoL or
     // Spell Amplification from Dota 2.
 

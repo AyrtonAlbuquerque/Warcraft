@@ -1,15 +1,15 @@
-library ForsekenArrow requires SpellEffectEvent, PluginSpellEffect, Utilities, Missiles, optional BlackArrow
-    /* -------------------- Forseken Arrow v1.2 by Chopinski -------------------- */
+library ForsekenArrow requires SpellEffectEvent, PluginSpellEffect, Utilities, Missiles, CrowdControl optional BlackArrow
+    /* ------------------------------------- Forseken Arrow v1.3 ------------------------------------ */
     // Credits:
     //     Bribe          - SpellEffectEvent
     //     Darkfang       - Icon
     //     AZ             - Arrow model
     //     JetFangInferno - Dark Nova model
-    /* ----------------------------------- END ---------------------------------- */
+    /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
-    /* -------------------------------------------------------------------------- */
-    /*                                Configuration                               */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                          Configuration                                         */
+    /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Screaming Banshees ability
         private constant integer    ABILITY         = 'A00K'
@@ -79,9 +79,9 @@ library ForsekenArrow requires SpellEffectEvent, PluginSpellEffect, Utilities, M
             */ not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE)
     endfunction
 
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             System                                             */
+    /* ---------------------------------------------------------------------------------------------- */
     private struct ForsekenArrow extends Missiles
         real    exp_damage
         real    aoe
@@ -117,13 +117,16 @@ library ForsekenArrow requires SpellEffectEvent, PluginSpellEffect, Utilities, M
                     set u = BlzGroupUnitAt(g, i)
                     if Filtered(owner, u) then
                         set duration = GetDuration(source, u, level)
+
                         if curse then
                             call UnitAddAbilityTimed(u, ability, curse_duration, curse_level, true)
                         endif
-                        call UnitDamageTarget(source, u, exp_damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null)
-                        call UnitApplyFear(u, duration, FEAR_MODEL, ATTACH_FEAR)
-                        call SilenceUnit(u, duration)
-                        call SlowUnit(u, GetSlow(u, level), duration)
+                        
+                        if UnitDamageTarget(source, u, exp_damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
+                            call FearUnit(u, duration, FEAR_MODEL, ATTACH_FEAR, false)
+                            call SilenceUnit(u, duration, null, null, false)
+                            call SlowUnit(u, GetSlow(u, level), duration, null, null, false)
+                        endif
                     endif
                 set i = i + 1
             endloop

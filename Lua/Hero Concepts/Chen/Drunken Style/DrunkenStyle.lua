@@ -1,5 +1,5 @@
---[[ requires SpellEffectEvent, Utilities, Missiles, MouseUtils
-    /* --------------------- Drunken Style v1.2 by Chopinski -------------------- */
+--[[ requires SpellEffectEvent, Utilities, Missiles, MouseUtils, CrowdControl
+    /* --------------------- Drunken Style v1.3 by Chopinski -------------------- */
     // Credits:
     //     Blizzard           - Icon
     //     Bribe              - SpellEffectEvent
@@ -35,12 +35,12 @@ do
     end
 
     -- The Drunken Style knockback distance
-    local function GetKnockbackDistance(level)
+    local function GetKnockDistance(level)
         return 100. + 0.*level
     end
 
     -- The Drunken Style knockback duration
-    local function GetKnockbackDuration(level)
+    local function GetKnockDuration(level)
         return 0.25 + 0.*level
     end
 
@@ -141,8 +141,8 @@ do
             dash:duration(GetDuration(Spell.level))
             dash.collision = GetCollision(this.type[this.unit])
             dash.fov = GetDamageCone(this.type[this.unit])
-            dash.distance  = GetKnockbackDistance(Spell.level)
-            dash.knockback = GetKnockbackDuration(Spell.level)
+            dash.distance  = GetKnockDistance(Spell.level)
+            dash.knockback = GetKnockDuration(Spell.level)
             
             dash.onPeriod = function()
                 if UnitAlive(dash.source) then

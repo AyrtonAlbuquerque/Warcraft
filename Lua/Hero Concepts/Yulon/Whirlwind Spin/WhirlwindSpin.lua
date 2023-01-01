@@ -1,5 +1,5 @@
---[[ requires SpellEffectEvent, Utilities
-    /* --------------------- WhirlwindSpin v1.1 by Chopinski -------------------- */
+--[[ requires SpellEffectEvent, Utilities, CrowdControl
+    /* --------------------- WhirlwindSpin v1.2 by Chopinski -------------------- */
     // Credits:
     //     AnsonRuk    - Icon
     //     Bribe       - SpellEffectEvent
@@ -75,7 +75,7 @@ do
                     local distance = DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, x, y)
                     
                     if UnitDamageTarget(unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        KnockbackUnit(u, angle, aoe - distance, duration, KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, true)
+                        KnockbackUnit(u, angle, aoe - distance, duration, KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
                     end
                 end
             end

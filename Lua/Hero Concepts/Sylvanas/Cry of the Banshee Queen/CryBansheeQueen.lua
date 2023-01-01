@@ -1,16 +1,16 @@
---[[ requires SpellEffectEvent, Utilities
-    /* --------------- Cry of the Banshee Queen v1.2 by Chopinski --------------- */
-    // Credits:
-    //     Bribe         - SpellEffectEvent
-    //     Darkfang      - Void Curse Icon
-    //     Mythic        - Call of the Dread model (edited by me)
-    /* ----------------------------------- END ---------------------------------- */
+--[[ requires SpellEffectEvent, Utilities, CrowdControl
+    -- -------------------------------- Cry of the Banshee Queen v1.3 ------------------------------- --
+    -- Credits:
+    --     Bribe         - SpellEffectEvent
+    --     Darkfang      - Void Curse Icon
+    --     Mythic        - Call of the Dread model (edited by me)
+    -- ---------------------------------------- By Chopinski ---------------------------------------- --
 ]]--
 
 do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                          Configuration                                         --
+    -- ---------------------------------------------------------------------------------------------- --
     -- The raw code of the Cry of the Banshee Queen ability
     local ABILITY       = FourCC('A00F')
     -- The fear model
@@ -50,9 +50,9 @@ do
         return IsUnitEnemy(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             System                                             --
+    -- ---------------------------------------------------------------------------------------------- --
     onInit(function()
         RegisterSpellEffectEvent(ABILITY, function()
             local group = CreateGroup()
@@ -64,8 +64,8 @@ do
             for i = 0, BlzGroupGetSize(group) - 1 do
                 local unit = BlzGroupUnitAt(group, i)
                 if Filtered(player, unit) then
-                    UnitApplyFear(unit, GetDuration(unit, level), FEAR_MODEL, ATTACH_FEAR)
-                    SlowUnit(unit, GetSlow(unit, level), GetDuration(unit, level))
+                    FearUnit(unit, GetDuration(unit, level), FEAR_MODEL, ATTACH_FEAR, false)
+                    SlowUnit(unit, GetSlow(unit, level), GetDuration(unit, level), nil, nil, false)
                 end
             end
             DestroyGroup(group)

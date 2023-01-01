@@ -1,5 +1,5 @@
-library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities optional WaterElemental
-    /* --------------------- Crushing Wave v1.0 by Chopinski -------------------- */
+library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl optional WaterElemental
+    /* --------------------- Crushing Wave v1.1 by Chopinski -------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Bribe           - SpellEffectEvent
@@ -74,7 +74,7 @@ library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Uti
         method onHit takes unit u returns boolean
             if UnitFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                    call SlowUnit(u, slow, timeout)
+                    call SlowUnit(u, slow, timeout, null, null, false)
                 endif
             endif
 

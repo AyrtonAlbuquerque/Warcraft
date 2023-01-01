@@ -1,5 +1,5 @@
 --[[
-    /* ------------------------ SpellVamp v2.3 by Chopinski ----------------------- */
+    /* ------------------------ SpellVamp v2.4 by Chopinski ----------------------- */
      SpellVamp intends to introduce to warcraft a healing based on Spell damage, like
      in LoL or Dota 2.
 
@@ -33,8 +33,8 @@ do
         RegisterSpellDamageEvent(function()
             local damage = GetEventDamage()
         
-            if damage > 0 and (SpellVamp[Damage.source.id] or 0) > 0 and not Damage.target.isStructure then
-                SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (damage * (SpellVamp[Damage.source.id] or 0))))
+            if damage > 0 and (SpellVamp[Damage.source.unit] or 0) > 0 and not Damage.target.isStructure then
+                SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (damage * (SpellVamp[Damage.source.unit] or 0))))
             end
         end)
     end)
@@ -43,17 +43,15 @@ do
     --                                   LUA API                                  --
     -- -------------------------------------------------------------------------- --
     function SetUnitSpellVamp(unit, real)
-        SpellVamp[GetUnitUserData(unit)] = real
+        SpellVamp[unit] = real
     end
 
     function GetUnitSpellVamp(unit)
-        return SpellVamp[GetUnitUserData(unit)] or 0
+        return SpellVamp[unit] or 0
     end
 
     function UnitAddSpellVamp(unit, real)
-        local i = GetUnitUserData(unit)
-        
-        if not SpellVamp[i] then SpellVamp[i] = 0 end
-        SpellVamp[i] = SpellVamp[i] + real
+        if not SpellVamp[unit] then SpellVamp[unit] = 0 end
+        SpellVamp[unit] = SpellVamp[unit] + real
     end
 end

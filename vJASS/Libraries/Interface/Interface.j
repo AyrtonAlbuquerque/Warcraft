@@ -1,5 +1,5 @@
 library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit
-    /* --------------------------------------- Interface v1.3 --------------------------------------- */
+    /* --------------------------------------- Interface v1.4 --------------------------------------- */
     // Credits
     //      - Tasyen         - GetMainSelectedUnit
     //      - Magtheridon96  - RegisterPlayerUnitEvent
@@ -267,73 +267,73 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit
             set handle = BlzGetFrameByName("CommandButton_0", 0) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command0X1[id], command0Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command0X2[id], command0Y2[id]) 
-            call BlzFrameSetSize(handle, 0.03178, 0.03178)
+            call BlzFrameSetScale(handle, 0.82)
 
             // Reposition the Stop command button
             set handle = BlzGetFrameByName("CommandButton_1", 0) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command1X1[id], command1Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command1X2[id], command1Y2[id])
-            call BlzFrameSetSize(handle, 0.03178, 0.03178)
+            call BlzFrameSetScale(handle, 0.82)
             
             // Reposition the Hold command button
             set handle = BlzGetFrameByName("CommandButton_2", 0) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command2X1[id], command2Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command2X2[id], command2Y2[id]) 
-            call BlzFrameSetSize(handle, 0.03178, 0.03178)
+            call BlzFrameSetScale(handle, 0.82)
 
             // Reposition the Attack command button
             set handle = BlzGetFrameByName("CommandButton_3", 0) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command3X1[id], command3Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command3X2[id], command3Y2[id])
-            call BlzFrameSetSize(handle, 0.03178, 0.03178) 
+            call BlzFrameSetScale(handle, 0.82)
 
             // Reposition the Patrol command button
             set handle = BlzGetFrameByName("CommandButton_4", 0) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command4X1[id], command4Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command4X2[id], command4Y2[id]) 
-            call BlzFrameSetSize(handle, 0.03178, 0.03178)
+            call BlzFrameSetScale(handle, 0.82)
 
             // Reposition the D command button
             set handle = BlzGetFrameByName("CommandButton_5", 0) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command5X1[id], command5Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command5X2[id], command5Y2[id]) 
-            call BlzFrameSetSize(handle, 0.03178, 0.03178)
+            call BlzFrameSetScale(handle, 0.82)
             
             // Reposition the F command button
             set handle = BlzGetFrameByName("CommandButton_6", 0)
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command6X1[id], command6Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command6X2[id], command6Y2[id]) 
-            call BlzFrameSetSize(handle, 0.03178, 0.03178)
+            call BlzFrameSetScale(handle, 0.82)
             
             // Reposition the + command button
             set handle = BlzGetFrameByName("CommandButton_7", 0)
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command7X1[id], command7Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command7X2[id], command7Y2[id])
-            call BlzFrameSetSize(handle, 0.03178, 0.03178)
+            call BlzFrameSetScale(handle, 0.82)
             
             // Reposition the Q command button
             set handle = BlzGetFrameByName("CommandButton_8", 0)
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command8X1[id], command8Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command8X2[id], command8Y2[id]) 
-            call BlzFrameSetSize(handle, 0.03178, 0.03178)
+            call BlzFrameSetScale(handle, 0.82)
             
             // Reposition the W command button
             set handle = BlzGetFrameByName("CommandButton_9", 0)
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command9X1[id], command9Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command9X2[id], command9Y2[id])
-            call BlzFrameSetSize(handle, 0.03178, 0.03178)
+            call BlzFrameSetScale(handle, 0.82)
             
             // Reposition the E command button
             set handle = BlzGetFrameByName("CommandButton_10", 0)
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command10X1[id], command10Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command10X2[id], command10Y2[id]) 
-            call BlzFrameSetSize(handle, 0.03178, 0.03178) 
+            call BlzFrameSetScale(handle, 0.82)
             
             // Reposition the R command button
             set handle = BlzGetFrameByName("CommandButton_11", 0)
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command11X1[id], command11Y1[id]) 
             call BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command11X2[id], command11Y2[id])
-            call BlzFrameSetSize(handle, 0.03178, 0.03178)
+            call BlzFrameSetScale(handle, 0.82)
 
             set handle = null
         endmethod

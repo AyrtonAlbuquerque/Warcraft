@@ -1,5 +1,5 @@
 --[[ requires RegisterPlayerUnitEvent, TimerUtils
-    /* -------------------- Brilliance Aure v1.0 by Chopinski ------------------- */
+    /* -------------------- Brilliance Aure v1.1 by Chopinski ------------------- */
     // Credits
     //      Vexorian         - TimerUtils
     //      Magtheridon96    - RegisterPlayerUnitEvent
@@ -76,8 +76,6 @@ do
                             IncUnitAbilityLevel(unit, ABILITY)
                             DecUnitAbilityLevel(unit, ABILITY)
                         end
-
-                        TimerStart(this.timer, GetDuration(unit, level), false, function() this:onExpire() end)
                     else
                         if struct[unit] then
                             this = struct[unit]
@@ -101,9 +99,9 @@ do
                                 DecUnitAbilityLevel(unit, ABILITY)
                             end
                         end
-
-                        TimerStart(this.timer, GetDuration(unit, level), false, function() this:onExpire() end)
                     end
+
+                    TimerStart(this.timer, GetDuration(unit, level), false, function() this:onExpire() end)
                 end
             end)
         end)

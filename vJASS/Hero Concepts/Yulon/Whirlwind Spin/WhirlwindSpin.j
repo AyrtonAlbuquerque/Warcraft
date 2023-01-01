@@ -1,5 +1,5 @@
-library WhirlwindSpin requires SpellEffectEvent, PluginSpellEffect, Utilities
-    /* --------------------- WhirlwindSpin v1.1 by Chopinski -------------------- */
+library WhirlwindSpin requires SpellEffectEvent, PluginSpellEffect, Utilities, CrowdControl
+    /* --------------------- WhirlwindSpin v1.2 by Chopinski -------------------- */
     // Credits:
     //     AnsonRuk    - Icon
     //     Bribe       - SpellEffectEvent
@@ -94,7 +94,7 @@ library WhirlwindSpin requires SpellEffectEvent, PluginSpellEffect, Utilities
                         set distance = DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, x, y)
                         
                         if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                            call KnockbackUnit(u, angle, aoe - distance, duration, KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, true)
+                            call KnockbackUnit(u, angle, aoe - distance, duration, KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
                         endif
                     endif
                 call GroupRemoveUnit(g, u)

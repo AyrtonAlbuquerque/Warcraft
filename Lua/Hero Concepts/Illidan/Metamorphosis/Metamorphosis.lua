@@ -1,17 +1,17 @@
---[[ requires DamageInterface, SpellEffectEvent, Utilities, NewBonusUtils
-    /* --------------------- Metamorphosis v1.2 by Chopinski -------------------- */
-    // Credits:
-    //     BLazeKraze      - Icon
-    //     Bribe           - SpellEffectEvent
-    //     Mythic          - Damnation Black model (edited by me)
-    //     Henry           - Dark Illidan model from Warcraft Underground
-    /* ----------------------------------- END ---------------------------------- */
+--[[ requires DamageInterface, SpellEffectEvent, Utilities, NewBonusUtils, CrowdControl
+    -- ------------------------------------- Metamorphosis v1.3 ------------------------------------- --
+    -- Credits:
+    --     BLazeKraze      - Icon
+    --     Bribe           - SpellEffectEvent
+    --     Mythic          - Damnation Black model (edited by me)
+    --     Henry           - Dark Illidan model from Warcraft Underground
+    -- ---------------------------------------- By Chopinski ---------------------------------------- --
 ]]--
 
 do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                          Configuration                                         --
+    -- ---------------------------------------------------------------------------------------------- --
     -- The raw code of the Metamorphosis ability
     local ABILITY      = FourCC('A006')
     -- The raw code of the Metamorphosis buff
@@ -65,9 +65,9 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player) and not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             System                                             --
+    -- ---------------------------------------------------------------------------------------------- --
     Metamorphosis = setmetatable({}, {})
     local mt = getmetatable(Metamorphosis)
     mt.__index = mt
@@ -91,7 +91,7 @@ do
                     if FearFilter(player, u) then
                         health = health + GetBonusHealth(u, level)
                         damage = damage + GetBonusDamage(u, level)
-                        UnitApplyFear(u, GetDuration(u, level), FEAR_MODEL, ATTACH_FEAR)
+                        FearUnit(u, GetDuration(u, level), FEAR_MODEL, ATTACH_FEAR, false)
                     end
                 end
                 LinkBonusToBuff(unit, BONUS_HEALTH, health, Metamorphosis_BUFF)

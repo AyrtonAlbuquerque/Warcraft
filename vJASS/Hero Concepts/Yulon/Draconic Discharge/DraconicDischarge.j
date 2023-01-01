@@ -1,5 +1,5 @@
-library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilities, LineSegmentEnumeration
-    /* ------------------ Draconic Discharge v1.2 by Chopinski ------------------ */
+library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilities, LineSegmentEnumeration, CrowdControl
+    /* ------------------ Draconic Discharge v1.3 by Chopinski ------------------ */
     // Credits:
     //     N-ix Studio      - Icon
     //     Bribe            - SpellEffectEvent
@@ -12,13 +12,17 @@ library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilitie
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY          = 'A005'
+        private constant integer ABILITY     = 'A005'
         // The Model
-        private constant string  MODEL            = "Discharge.mdl"
+        private constant string  MODEL       = "Discharge.mdl"
         // The model scale
-        private constant real    SCALE            = 1
+        private constant real    SCALE       = 1
         // The model offset
-        private constant real    OFFSET           = 200
+        private constant real    OFFSET      = 200
+        // The stun model
+        private constant string  STUN_MODEL  = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+        // The stun model attach point
+        private constant string  STUN_ATTACH = "overhead"
     endglobals
 
     // The AOE
@@ -75,7 +79,7 @@ library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilitie
                 exitwhen u == null
                     if DamageFilter(owner, u) then
                         if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                            call StunUnit(u, duration)
+                            call StunUnit(u, duration, STUN_MODEL, STUN_ATTACH, false)
                         endif
                     endif
                 call GroupRemoveUnit(g, u)
@@ -85,6 +89,8 @@ library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilitie
             
             set g = null
             set e = null
+            set owner = null
+            set source = null
         endmethod
         
         private static method onInit takes nothing returns nothing

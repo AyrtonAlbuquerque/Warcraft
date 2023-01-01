@@ -1,5 +1,5 @@
-library FeralRoar requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities optional Misha
-    /* ---------------------- Feral Roar v1.0 by Chopinski ---------------------- */
+library FeralRoar requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities, CrowdControl optional Misha
+    /* ---------------------- Feral Roar v1.1 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Bribe           - SpellEffectEvent
@@ -77,7 +77,7 @@ library FeralRoar requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, U
                             endif
                         else
                             if UnitFilter(owner, u) then
-                                call UnitApplyFear(u, GetFearDuration(level), FEAR, ATTACH)
+                                call FearUnit(u, GetFearDuration(level), FEAR, ATTACH, false)
                             endif
                         endif
                     endif

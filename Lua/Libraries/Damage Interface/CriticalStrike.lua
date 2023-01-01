@@ -1,5 +1,5 @@
 --[[
-    /* ------------------------ CriticalStrike v2.3 by Chopinski ----------------------- */
+    /* ------------------------ CriticalStrike v2.4 by Chopinski ----------------------- */
      CriticalStrike implements an easy way to register and detect a custom critical event.
      allows the manipulation of a unit critical strike chance and multiplier, as well as
      manipulating the critical damage dealt.
@@ -82,10 +82,10 @@ do
         RegisterAttackDamageEvent(function()
             local damage = GetEventDamage()
         
-            if damage > 0 and GetRandomReal(0, 100) <= (Critical.chance[Damage.source.id] or 0) and Damage.isEnemy and not Damage.target.isStructure and (Critical.multiplier[Damage.source.id] or 0) > 0 then
+            if damage > 0 and GetRandomReal(0, 100) <= (Critical.chance[Damage.source.unit] or 0) and Damage.isEnemy and not Damage.target.isStructure and (Critical.multiplier[Damage.source.unit] or 0) > 0 then
                 Critical.source = Damage.source
                 Critical.target = Damage.target
-                Critical.damage = damage*(1 + (Critical.multiplier[Damage.source.id] or 0))
+                Critical.damage = damage*(1 + (Critical.multiplier[Damage.source.unit] or 0))
 
                 for i = 1, #event do
                     event[i]()
@@ -125,19 +125,19 @@ do
     end
 
     function GetUnitCriticalChance(unit)
-        return Critical.chance[GetUnitUserData(unit)] or 0
+        return Critical.chance[unit] or 0
     end
 
     function GetUnitCriticalMultiplier(unit)
-        return Critical.multiplier[GetUnitUserData(unit)] or 0
+        return Critical.multiplier[unit] or 0
     end
 
     function SetUnitCriticalChance(unit, real)
-        Critical.chance[GetUnitUserData(unit)] = real
+        Critical.chance[unit] = real
     end
 
     function SetUnitCriticalMultiplier(unit, real)
-        Critical.multiplier[GetUnitUserData(unit)] = real
+        Critical.multiplier[unit] = real
     end
 
     function SetCriticalEventDamage(real)
@@ -145,12 +145,10 @@ do
     end
 
     function UnitAddCriticalStrike(unit, chance, multiplier)
-        local i = GetUnitUserData(unit)
+        if not Critical.chance[unit] then Critical.chance[unit] = 0 end
+        if not Critical.multiplier[unit] then Critical.multiplier[unit] = 0 end
         
-        if not Critical.chance[i] then Critical.chance[i] = 0 end
-        if not Critical.multiplier[i] then Critical.multiplier[i] = 0 end
-        
-        Critical.chance[i] = Critical.chance[i] + chance
-        Critical.multiplier[i] = Critical.multiplier[i] + multiplier
+        Critical.chance[unit] = Critical.chance[unit] + chance
+        Critical.multiplier[unit] = Critical.multiplier[unit] + multiplier
     end
 end

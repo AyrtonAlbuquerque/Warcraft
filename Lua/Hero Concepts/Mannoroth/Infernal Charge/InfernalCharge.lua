@@ -1,15 +1,15 @@
---[[ requires SpellEffectEvent, Missiles, Utilities
-    /* ---------------------- Infernal Charge v1.4 by Chopinski --------------------- */
-    // Credits:
-    //     marilynmonroe - Pit Infernal model
-    //     Bribe         - SpellEffectEvent
-    /* ----------------------------------- END ---------------------------------- */
+--[[ requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl
+    -- ------------------------------------ Infernal Charge v1.5 ------------------------------------ --
+    -- Credits:
+    --     marilynmonroe - Pit Infernal model
+    --     Bribe         - SpellEffectEvent
+    -- ---------------------------------------- By Chopinski ---------------------------------------- --
 ]]--
 
 do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                          Configuration                                         --
+    -- ---------------------------------------------------------------------------------------------- --
     -- The raw code of the Infernal Charge ability
     local ABILITY          = FourCC('A003')
     -- The time scale of the pit infernal when charging
@@ -52,9 +52,9 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             System                                             --
+    -- ---------------------------------------------------------------------------------------------- --
     onInit(function()
         RegisterSpellEffectEvent(ABILITY, function()
             local this = Missiles:create(Spell.source.x, Spell.source.y, 0, Spell.x, Spell.y, 0)
@@ -77,8 +77,9 @@ do
             
             this.onHit = function(unit)
                 if ChargeFilter(this.owner, unit) then
-                    UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil)
-                    KnockbackUnit(unit, AngleBetweenCoordinates(this.x, this.y, GetUnitX(unit), GetUnitY(unit)), this.distance, this.knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, true, true, false, true)
+                    if UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
+                        KnockbackUnit(unit, AngleBetweenCoordinates(this.x, this.y, GetUnitX(unit), GetUnitY(unit)), this.distance, this.knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, true, true, false, false)
+                    end
                 end
 
                 return false

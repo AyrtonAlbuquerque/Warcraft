@@ -1,5 +1,5 @@
 library LifeSteal requires DamageInterface
-    /* ------------------------ LifeSteal v2.3 by Chopinski ----------------------- */
+    /* ------------------------ LifeSteal v2.4 by Chopinski ----------------------- */
     // LifeSteal intends to simulate the Life Steal system in warcraft, and allow you
     // to easily change the life steal amount of any unit.
 

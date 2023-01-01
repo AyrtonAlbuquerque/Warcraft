@@ -1,5 +1,5 @@
---[[ requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities optional Misha
-    /* ---------------------- Feral Roar v1.0 by Chopinski ---------------------- */
+--[[ requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities, CrowdControl optional Misha
+    /* ---------------------- Feral Roar v1.1 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Bribe           - SpellEffectEvent
@@ -73,7 +73,7 @@ do
                         end
                     else
                         if UnitFilter(player, u) then
-                            UnitApplyFear(u, GetFearDuration(level), FEAR, ATTACH)
+                            FearUnit(u, GetFearDuration(level), FEAR, ATTACH, false)
                         end
                     end
                 end

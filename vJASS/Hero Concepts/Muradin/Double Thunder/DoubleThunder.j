@@ -1,13 +1,13 @@
 library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, optional ThunderClap, optional Avatar
-    /* -------------------- Double Thunder v1.2 by Chopinski -------------------- */
+    /* ------------------------------------- Double Thunder v1.3 ------------------------------------ */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Blizzard       - Icon
-    /* ----------------------------------- END ---------------------------------- */
+    /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
-    /* -------------------------------------------------------------------------- */
-    /*                                Configuration                               */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                          Configuration                                         */
+    /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Double Thunder ability
         private constant integer ABILITY = 'A000'
@@ -39,9 +39,9 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
         endif
     endfunction
 
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             System                                             */
+    /* ---------------------------------------------------------------------------------------------- */
     private struct DoubleThunder extends array
         static method onLevel takes nothing returns nothing
             local unit    source = GetTriggerUnit()
@@ -55,10 +55,10 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
         endmethod
 
         private static method onCast takes nothing returns nothing
-            local unit    source = GetTriggerUnit()
-            local unit    target = GetSpellTargetUnit()
-            local integer skill  = GetSpellAbilityId()
-            local integer level  = GetUnitAbilityLevel(source, ABILITY)
+            local unit source = GetTriggerUnit()
+            local unit target = GetSpellTargetUnit()
+            local integer skill = GetSpellAbilityId()
+            local integer level = GetUnitAbilityLevel(source, ABILITY)
             local integer chance = GetDoubleChance(source, level)
         
             static if LIBRARY_StormBolt then
@@ -76,27 +76,11 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
             static if LIBRARY_ThunderClap then
                 if skill == ThunderClap_ABILITY then
                     if GetRandomInt(1, 100) <= chance then
-                        static if LIBRARY_Avatar then
-                            if GetUnitAbilityLevel(source, Avatar_BUFF) > 0 then
-                                call UnitAddAbility(source, ThunderClap_WAR_STOMP)
-                                call SetUnitAbilityLevel(source, ThunderClap_WAR_STOMP, GetUnitAbilityLevel(source, ThunderClap_ABILITY))
-                                call IssueImmediateOrder(source, "stomp")
-                                call TriggerSleepAction(0.50)
-                                call UnitRemoveAbility(source, ThunderClap_WAR_STOMP)
-                            else
-                                call UnitAddAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
-                                call SetUnitAbilityLevel(source, ThunderClap_THUNDER_CLAP_RECAST, GetUnitAbilityLevel(source, ThunderClap_ABILITY))
-                                call IssueImmediateOrder(source, "creepthunderclap")
-                                call TriggerSleepAction(0.50)
-                                call UnitRemoveAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
-                            endif
-                        else
-                            call UnitAddAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
-                            call SetUnitAbilityLevel(source, ThunderClap_THUNDER_CLAP_RECAST, GetUnitAbilityLevel(source, ThunderClap_ABILITY))
-                            call IssueImmediateOrder(source, "creepthunderclap")
-                            call TriggerSleepAction(0.50)
-                            call UnitRemoveAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
-                        endif
+                        call UnitAddAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
+                        call SetUnitAbilityLevel(source, ThunderClap_THUNDER_CLAP_RECAST, GetUnitAbilityLevel(source, ThunderClap_ABILITY))
+                        call IssueImmediateOrder(source, "creepthunderclap")
+                        call TriggerSleepAction(0.50)
+                        call UnitRemoveAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
                     endif
                 endif
             endif

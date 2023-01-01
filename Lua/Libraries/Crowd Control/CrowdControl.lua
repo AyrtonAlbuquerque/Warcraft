@@ -1,8 +1,8 @@
---[[ requires Utilities, Missiles, Indexer, TimerUtils, RegisterPlayerUnitEvent, optional Tenacity
+--[[ requires Utilities, WorldBounds, Indexer, TimerUtils, RegisterPlayerUnitEvent, optional Tenacity
     -- ------------------------------------- Crowd Control v1.0 ------------------------------------- --
     -- How to Import:
     -- 1 - Copy the Utilities library over to your map and follow its install instructions
-    -- 2 - Copy the Missiles libraries over to your map and follow their install instructions
+    -- 2 - Copy the WorldBounds library over to your map and follow its install instructions
     -- 3 - Copy the Indexer library over to your map and follow its install instructions
     -- 4 - Copy the RegisterPlayerUnitEvent library over to your map and follow its install instructions
     -- 5 - Copy the Tenacity library over to your map and follow its install instructions
@@ -389,88 +389,120 @@ do
         local mt = getmetatable(Knockback)
         mt.__index = mt
 
-        local knocked = {}
+        local timer = CreateTimer()
+        local rect = Rect(0., 0., 0., 0.)
+        local period = 0.03125
+        local array = {}
+        local struct = {}
+        local key = 0
 
-        function mt:isUnitKnocked(unit)
-            return (knocked[unit] or 0) > 0
+        function mt:destroy(i)
+            DestroyGroup(self.group)
+            DestroyEffect(self.effect)
+            BlzPauseUnitEx(self.unit, false)
+
+            struct[self.unit] = nil
+            array[i] = array[key]
+            key = key - 1
+            self = nil
+
+            if key == 0 then
+                PauseTimer(timer)
+            end
+
+            return i - 1
+        end
+
+        function mt:knocked(unit)
+            return struct[unit] ~= nil
         end
 
         function mt:apply(target, angle, distance, duration, model, point, cliff, dest, hit)
-            local x = GetUnitX(target)
-            local y = GetUnitY(target)
-            local this = Missiles:create(x, y, 0, x + distance*Cos(angle), y + distance*Sin(angle), 0)
+            local this
 
-            this.source = target
-            this:duration(duration)
-            this.collision = 2*BlzGetUnitCollisionSize(target)
-            this.cliff = cliff
-            this.dest = dest
-            this.hit = hit
-            knocked[target] = (knocked[target] or 0) + 1
-
-            if model and point then
-                this.attachment = AddSpecialEffectTarget(model, target, point)
-            end
-
-            if (knocked[target] or 0) == 1 then
-                BlzPauseUnitEx(target, true)
-            end
-
-            this.onPeriod = function()
-                if UnitAlive(this.source) then
-                    SetUnitX(this.source, this.prevX)
-                    SetUnitY(this.source, this.prevY)
-
-                    return false
+            if duration > 0 and UnitAlive(target) then
+                if struct[target] then
+                    this = struct[target]
                 else
-                    return true
-                end
-            end
+                    this = {}
+                    setmetatable(this, mt)
 
-            this.onHit = function(unit)
-                if this.hit and unit ~= this.source then
-                    if UnitAlive(unit) then
-                        return true
-                    else
-                        return false
+                    this.unit = target
+                    this.collision = 2*BlzGetUnitCollisionSize(target)
+                    this.group = CreateGroup()
+                    key = key + 1
+                    array[key] = this
+                    struct[target] = this
+
+                    BlzPauseUnitEx(target, true)
+
+                    if model and point then
+                        this.effect = AddSpecialEffectTarget(model, target, point)
                     end
-                else
-                    return false
-                end
-            end
 
-            this.onDestructable = function(destructable)
-                if this.dest then
-                    if GetDestructableLife(destructable) > 0 then
-                        return true
-                    else
-                        return false
+                    if key == 1 then
+                        TimerStart(timer, period, true, function()
+                            local i = 1
+                            local this
+
+                            while i <= key do
+                                this = array[i]
+
+                                if this.duration > 0 and UnitAlive(this.unit) then
+                                    local x = GetUnitX(this.unit) + this.offset*Cos(this.angle)
+                                    local y = GetUnitY(this.unit) + this.offset*Sin(this.angle)
+
+                                    this.duration = this.duration - period
+
+                                    if this.onUnit and this.collision > 0 then
+                                        GroupEnumUnitsInRange(this.group, x, y, this.collision, nil)
+                                        GroupRemoveUnit(this.group, this.unit)
+
+                                        for j = 0, BlzGroupGetSize(this.group) - 1 do
+                                            if UnitAlive(BlzGroupUnitAt(this.group, j)) then
+                                                this.duration = 0
+                                                break
+                                            end
+                                        end
+                                    end
+
+                                    if this.onDestructable and this.duration > 0 and this.collision > 0 then
+                                        SetRect(rect, x - this.collision, y - this.collision, x + this.collision, y + this.collision)
+                                        EnumDestructablesInRect(rect, nil, function()
+                                            if GetDestructableLife(GetEnumDestructable()) > 0 then
+                                                this.duration = 0
+                                                return
+                                            end
+                                        end)
+                                    end
+
+                                    if this.onCliff and this.duration > 0 then
+                                        if GetTerrainCliffLevel(GetUnitX(this.unit), GetUnitY(this.unit)) < GetTerrainCliffLevel(x, y) and GetUnitZ(this.unit) < (GetTerrainCliffLevel(x, y) - GetTerrainCliffLevel(WorldBounds.maxX, WorldBounds.maxY))*bj_CLIFFHEIGHT then
+                                            this.duration = 0
+                                        end
+                                    end
+
+                                    if this.duration > 0 then
+                                        SetUnitX(this.unit, x)
+                                        SetUnitY(this.unit, y)
+                                    end
+                                else
+                                    i = this:destroy(i)
+                                end
+                                i = i + 1
+                            end
+                        end)
                     end
-                else
-                    return false
                 end
+
+                this.angle = angle
+                this.distance = distance
+                this.duration = duration
+                this.onCliff = cliff
+                this.onDestructable = dest
+                this.onUnit = hit
+                this.offset = RMaxBJ(0.00000001, distance*period/RMaxBJ(0.00000001, duration))
             end
-
-            this.onCliff = function()
-                return this.cliff
-            end
-
-            this.onPause = function()
-                this:pause(false)
-                return false
-            end
-
-            this.onRemove = function()
-                DestroyEffect(this.attachment)
-
-                knocked[this.source] = (knocked[this.source] or 0) - 1
-
-                if (knocked[this.source] or 0) == 0 then
-                    BlzPauseUnitEx(this.source, false)
-                end
-            end
-
-            this:launch()
         end
     end
 
@@ -1191,7 +1223,7 @@ do
         end
 
         function mt:knockedback(unit)
-            return Knockback:isUnitKnocked(unit)
+            return Knockback:knocked(unit)
         end
 
         function mt:knockup(unit, height, duration, model, point, stack)

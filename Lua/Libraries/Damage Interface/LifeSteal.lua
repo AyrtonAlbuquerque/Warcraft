@@ -1,5 +1,5 @@
 --[[
-    /* ------------------------ LifeSteal v2.3 by Chopinski ----------------------- */
+    /* ------------------------ LifeSteal v2.4 by Chopinski ----------------------- */
      LifeSteal intends to simulate the Life Steal system in warcraft, and allow you
      to easily change the life steal amount of any unit.
 
@@ -37,8 +37,8 @@ do
         RegisterAttackDamageEvent(function()
             local damage = GetEventDamage()
             
-            if damage > 0 and (LifeSteal[Damage.source.id] or 0) > 0 and not Damage.target.isStructure then
-                SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (damage * (LifeSteal[Damage.source.id] or 0))))
+            if damage > 0 and (LifeSteal[Damage.source.unit] or 0) > 0 and not Damage.target.isStructure then
+                SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (damage * (LifeSteal[Damage.source.unit] or 0))))
                 DestroyEffect(AddSpecialEffectTarget(effect, Damage.source.unit, "origin"))
             end
         end)
@@ -48,17 +48,15 @@ do
     --                                   LUA API                                  --
     -- -------------------------------------------------------------------------- --
     function SetUnitLifeSteal(unit, real)
-        LifeSteal[GetUnitUserData(unit)] = real
+        LifeSteal[unit] = real
     end
 
     function GetUnitLifeSteal(unit)
-        return LifeSteal[GetUnitUserData(unit)] or 0
+        return LifeSteal[unit] or 0
     end
 
     function UnitAddLifeSteal(unit, real)
-        local i = GetUnitUserData(unit)
-        
-        if not LifeSteal[i] then LifeSteal[i] = 0 end
-        LifeSteal[i] = LifeSteal[i] + real
+        if not LifeSteal[unit] then LifeSteal[unit] = 0 end
+        LifeSteal[unit] = LifeSteal[unit] + real
     end
 end

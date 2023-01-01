@@ -1,5 +1,5 @@
-library MirrorImage requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, NewBonusUtils, TimerUtils, TimedHandles, Indexer optional Switch
-    /* ---------------------- MirrorImage v1.2 by Chopinski --------------------- */
+library MirrorImage requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, NewBonusUtils, TimerUtils, TimedHandles, Indexer
+    /* ---------------------- MirrorImage v1.3 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96    - RegisterPlayerUnitEvent
     //     Bribe            - SpellEffectEvent
@@ -12,20 +12,34 @@ library MirrorImage requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSp
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Mirror Image ability
-        private constant integer ABILITY       = 'A002'
+        private constant integer ABILITY            = 'A002'
+        // The raw code of the Cloned Hero ability
+        private constant integer CLONED_HERO        = 'A007'
+        // The raw code of the Cloned Inventory ability
+        private constant integer CLONE_INVENTORY    = 'A008'
         // The model that is used to identify the real Samuro
-        private constant string  ID_MODEL      = "CloudAura.mdx"
+        private constant string  ID_MODEL           = "CloudAura.mdx"
+        // The model attchment point
+        private constant string  ATTACH             = "origin"
         // The model that is used when a illusion dies
-        private constant string  DEATH_EFFECT  = "Abilities\\Spells\\Orc\\MirrorImage\\MirrorImageDeathCaster.mdl"
-        // The raw code of the Mirror Image ability
-        private constant player  PLAYER_EXTRA  = Player(bj_PLAYER_NEUTRAL_EXTRA)
-        // You can use this to do some other stuff if you like
-        boolean array IsIllusion
+        private constant string  DEATH_EFFECT       = "Abilities\\Spells\\Orc\\MirrorImage\\MirrorImageDeathCaster.mdl"
+        // The player that will receive the dead illusion ownership
+        private constant player  PLAYER_EXTRA       = Player(bj_PLAYER_NEUTRAL_EXTRA)
     endglobals
+
+    // Use this function to also check if a unit is a illusion
+    function IsUnitIllusionEx takes unit source returns boolean
+        return GetUnitAbilityLevel(source, CLONED_HERO) > 0
+    endfunction
 
     // The expirience multiplyer value per illusion count
     private constant function GetBonusExp takes nothing returns real
         return 1.
+    endfunction
+
+    // The number of illusions created per level
+    private function GetNumberOfIllusions takes integer level returns integer
+        return level
     endfunction
 
     // The illusions duration. By default the object editor field value
@@ -47,121 +61,116 @@ library MirrorImage requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSp
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct MirrorImage
-        static effect array effects
-        static real   array dealt
-        static real   array taken
+        static effect array effect
+        static integer array source
+        static group array group
+        static real array dealt
+        static real array taken
 
-        timer   t
-        group   g
-        integer idx
+        timer timer
+        unit unit
+        player player
+        integer id
         integer level
-        real    delay
-        real    duration
-        player  owner
-        string  effect
-        unit    source
+        integer amount
+        real delay
+        real duration
 
-
-        private static method CloneStats takes unit source, unit illusion returns nothing
-            call SetHeroXP(illusion, GetHeroXP(source), false)
-            call SetHeroStr(illusion, GetHeroStr(source, false), true)
-            call SetHeroAgi(illusion, GetHeroAgi(source, false), true)
-            call SetHeroInt(illusion, GetHeroInt(source, false), true)
-            call BlzSetUnitMaxHP(illusion, BlzGetUnitMaxHP(source))
-            call BlzSetUnitMaxMana(illusion, BlzGetUnitMaxMana(source))
-            call BlzSetUnitBaseDamage(illusion, BlzGetUnitBaseDamage(source, 0), 0)
-            call SetWidgetLife(illusion, GetWidgetLife(source))
-            call SetUnitState(illusion, UNIT_STATE_MANA, GetUnitState(source, UNIT_STATE_MANA))
+        private static method CloneStats takes unit original, unit illusion returns nothing
+            call SetHeroXP(illusion, GetHeroXP(original), false)
+            call SetHeroStr(illusion, GetHeroStr(original, false), true)
+            call SetHeroAgi(illusion, GetHeroAgi(original, false), true)
+            call SetHeroInt(illusion, GetHeroInt(original, false), true)
+            call BlzSetUnitMaxHP(illusion, BlzGetUnitMaxHP(original))
+            call BlzSetUnitMaxMana(illusion, BlzGetUnitMaxMana(original))
+            call BlzSetUnitBaseDamage(illusion, BlzGetUnitBaseDamage(original, 0), 0)
+            call SetWidgetLife(illusion, GetWidgetLife(original))
+            call SetUnitState(illusion, UNIT_STATE_MANA, GetUnitState(original, UNIT_STATE_MANA))
             call ModifyHeroSkillPoints(illusion, bj_MODIFYMETHOD_SET, 0)
         endmethod
 
         private static method mirror takes nothing returns nothing
-            local thistype this   = GetTimerData(GetExpiredTimer())
-            local real     facing = GetUnitFacing(source)
-            local real     x      = GetUnitX(source)
-            local real     y      = GetUnitY(source) 
-            local integer  i      = 0
-            local integer  index
-            local unit     illusion
-            
+            local thistype this = GetTimerData(GetExpiredTimer())
+            local real facing = GetUnitFacing(unit)
+            local real x = GetUnitX(unit)
+            local real y = GetUnitY(unit) 
+            local integer i = 0
+            local integer index
+            local unit illusion
         
             loop
-                exitwhen i >= level
-                    set illusion          = CreateUnit(owner, GetUnitTypeId(source), x, y, facing)
-                    set index             = GetUnitUserData(illusion)
-                    set dealt[index]      = GetDamageDealt(source, level)
-                    set taken[index]      = GetDamageTaken(source, level)  
-                    set IsIllusion[index] = true
+                exitwhen i >= amount
+                    set illusion = CreateUnit(player, GetUnitTypeId(unit), x, y, facing)
+                    set index = GetUnitUserData(illusion)
+                    set source[index] = id
+                    set dealt[index] = GetDamageDealt(unit, level)
+                    set taken[index] = GetDamageTaken(unit, level)  
+                    
+                    call GroupAddUnit(group[id], illusion)
+                    call UnitRemoveAbility(illusion, 'AInv')
+                    call UnitAddAbility(illusion, CLONE_INVENTORY)
+                    call CloneItems(unit, illusion, true)
+                    call UnitAddAbility(illusion, CLONED_HERO)
+                    call CloneStats(unit, illusion)
+                    call UnitMirrorBonuses(unit, illusion)
+                    call UnitApplyTimedLife(illusion, 'BTLF', duration)
+                    call SetPlayerHandicapXP(player, GetPlayerHandicapXP(player) + GetBonusExp())
 
-                    call CloneItems(source, illusion)
-                    call CloneStats(source, illusion)
-                    call UnitMirrorBonuses(source, illusion)
-                    call SetUnitAbilityLevel(illusion, 'AInv', 2)
-                    call UnitApplyTimedLife(illusion, 'BTLF', GetDuration(source, level))
-                    call SetPlayerHandicapXP(owner, GetPlayerHandicapXP(owner) + GetBonusExp())
                     static if LIBRARY_Switch then
                         call UnitRemoveAbility(illusion, Switch_ABILITY)
                     endif
                 set i = i + 1
             endloop
 
-            call ReleaseTimer(t)
-            set t         = null
-            set g         = null
-            set source    = null
-            set owner     = null
-            set illusion  = null
+            call ReleaseTimer(timer)
             call deallocate()
+
+            set timer = null
+            set unit = null
+            set player = null
+            set illusion = null
         endmethod
 
         private static method onCast takes nothing returns nothing
             local thistype this = thistype.allocate()
-            local unit     v
-            local effect   e
+            local string model = ID_MODEL
+            local unit u
 
-            set t        = NewTimerEx(this)
-            set g        = CreateGroup()
-            set source   = Spell.source.unit
-            set owner    = Spell.source.player
-            set effect   = ID_MODEL
-            set level    = Spell.level
-            set delay    = BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_ANIMATION_DELAY, level - 1)
-            set duration = GetDuration(source, level)
-            set idx      = GetUnitUserData(source)
-            set e        = effects[idx]
+            set timer = NewTimerEx(this)
+            set unit = Spell.source.unit
+            set player = Spell.source.player
+            set id = Spell.source.id
+            set level = Spell.level
+            set amount = GetNumberOfIllusions(level)
+            set delay = BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_RLF_ANIMATION_DELAY, level - 1)
+            set duration = GetDuration(unit, level)
             
-        
-            call DestroyEffect(e)
-            call GroupEnumUnitsOfPlayer(g, owner, null)
+            if group[id] == null then
+                set group[id] = CreateGroup()
+            endif
+
+            call DestroyEffect(effect[id])
             loop
-                set v = FirstOfGroup(g)
-                exitwhen v == null
-                    if GetUnitTypeId(v) == GetUnitTypeId(source) and IsIllusion[GetUnitUserData(v)] then
-                        call ShowUnit(v, false)
-                        call KillUnit(v)
-                    endif
-                call GroupRemoveUnit(g, v)
+                set u = FirstOfGroup(group[id])
+                exitwhen u == null
+                    call ShowUnit(u, false)
+                    call KillUnit(u)
+                call GroupRemoveUnit(group[id], u)
             endloop
-            call DestroyGroup(g)
         
-            if IsPlayerEnemy(GetLocalPlayer(), owner) then
-                set effect = ".mdl"
+            if IsPlayerEnemy(GetLocalPlayer(), player) then
+                set model = ".mdl"
             endif
         
-            set e = AddSpecialEffectTarget(effect, source, "origin") 
-            set effects[idx] = e
-            call DestroyEffectTimed(e, duration)
-            call TimerStart(t, delay, false, function thistype.mirror)
-
-            set e = null
+            set effect[id] = AddSpecialEffectTarget(model, unit, ATTACH) 
+            call DestroyEffectTimed(effect[id], duration)
+            call TimerStart(timer, delay, false, function thistype.mirror)
         endmethod
 
         private static method onLevelUp takes nothing returns nothing
-            local unit    source = GetTriggerUnit()
-            local integer index  = GetUnitUserData(source)
-            local integer level  = GetHeroLevel(source)
+            local unit source = GetTriggerUnit()
         
-            if IsIllusion[index] then
+            if IsUnitIllusionEx(source) then
                 call ModifyHeroSkillPoints(source, bj_MODIFYMETHOD_SET, 0)
             endif
         
@@ -171,23 +180,33 @@ library MirrorImage requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSp
         static method onDamage takes nothing returns nothing
             local real damage = GetEventDamage()
         
-            if IsIllusion[Damage.source.id] and damage > 0 then
+            if IsUnitIllusionEx(Damage.source.unit) and damage > 0 then
                 call BlzSetEventDamage(damage * dealt[Damage.source.id])
             endif
         
-            if IsIllusion[Damage.target.id] and damage > 0 then
+            if IsUnitIllusionEx(Damage.target.unit) and damage > 0 then
                 call BlzSetEventDamage(damage * taken[Damage.target.id])
             endif    
         endmethod
 
         static method onDeath takes nothing returns nothing
-            local unit    killed = GetTriggerUnit()
-            local player  owner  = GetOwningPlayer(killed)
-            local integer index  = GetUnitUserData(killed)
-            local integer j      = 0
-            local item    i
+            local unit killed = GetTriggerUnit()
+            local player owner
+            local integer j = 0
+            local integer id
+            local item i
         
-            if IsIllusion[index] then
+            if IsUnitIllusionEx(killed) then
+                set owner = GetOwningPlayer(killed)
+                set id = source[GetUnitUserData(killed)]
+
+                call GroupRemoveUnit(group[id], killed)
+
+                if BlzGroupGetSize(group[id]) == 0 then
+                    call DestroyEffect(effect[id])
+                    set effect[id] = null
+                endif
+
                 loop
                     set i = UnitItemInSlot(killed, j)
                     if i != null then
@@ -203,14 +222,15 @@ library MirrorImage requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSp
                 call ShowUnit(killed, false)
             endif
             
-            set i      = null
+            set i = null
+            set owner = null
             set killed = null
         endmethod
 
         static method onIndex takes nothing returns nothing
             local integer i = GetUnitUserData(GetIndexUnit())
-            
-            set IsIllusion[i] = false
+
+            set source[i] = 0
 
             static if LIBRARY_CriticalStrike then
                 set Critical.chance[i] = 0
@@ -236,26 +256,31 @@ library MirrorImage requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSp
                 set SpellVamp.amount[i] = 0
             endif
         endmethod
+
+        static method onDeindex takes nothing returns nothing
+            local unit removed = GetIndexUnit()
+            local integer id
+
+            if GetUnitAbilityLevel(removed, ABILITY) > 0 then
+                set id = GetUnitUserData(removed)
+
+                call DestroyGroup(group[id])
+                call DestroyEffect(effect[id])
+
+                set group[id] = null
+                set effect[id] = null
+            endif
+        endmethod
         
         static method onPickup takes nothing returns nothing
-            local item i
-            local integer id
-            
-            if IsIllusion[GetUnitUserData(GetManipulatingUnit())] then
-                set i = GetManipulatedItem()
-                set id = GetItemTypeId(i)
-                
-                if id == 'ankh' then
-                    call BlzItemRemoveAbility(i, 'AIrc')
-                endif
-                call BlzSetItemBooleanField(i, ITEM_BF_ACTIVELY_USED, false)
+            if IsUnitIllusionEx(GetManipulatingUnit()) then
+                call UnitRemoveItem(GetManipulatingUnit(), GetManipulatedItem())
             endif
-            
-            set i = null
         endmethod
 
         static method onInit takes nothing returns nothing
             call RegisterUnitIndexEvent(function thistype.onIndex)
+            call RegisterUnitDeindexEvent(function thistype.onDeindex)
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevelUp)

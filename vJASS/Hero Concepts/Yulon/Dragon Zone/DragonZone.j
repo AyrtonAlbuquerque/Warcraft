@@ -1,5 +1,5 @@
-library DragonZone requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, Utilities
-    /* ---------------------- Dragon Zone v1.1 by Chopinski --------------------- */
+library DragonZone requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, Utilities, CrowdControl
+    /* ---------------------- Dragon Zone v1.2 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Bribe          - SpellEffectEvent

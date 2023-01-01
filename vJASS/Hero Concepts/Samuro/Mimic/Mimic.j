@@ -1,5 +1,5 @@
-library Mimic requires RegisterPlayerUnitEvent, optional WindWalk, optional Bladestorm
-    /* ------------------------- Mimic v1.2 by Chopinski ------------------------ */
+library Mimic requires RegisterPlayerUnitEvent, MirrorImage, optional WindWalk, optional Bladestorm
+    /* ------------------------- Mimic v1.3 by Chopinski ------------------------ */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     CRAZYRUSSIAN   - Icon
@@ -83,7 +83,7 @@ library Mimic requires RegisterPlayerUnitEvent, optional WindWalk, optional Blad
             loop
                 exitwhen i == size
                     set u = BlzGroupUnitAt(g, i)
-                    if GetUnitTypeId(u) == GetUnitTypeId(source) and IsIllusion[GetUnitUserData(u)] then
+                    if GetUnitTypeId(u) == GetUnitTypeId(source) and IsUnitIllusionEx(u) then
                         call SetUnitState(u, UNIT_STATE_MANA, mana)
                         call UnitRemoveAbility(u, skill)
                         call UnitAddAbility(u, skill)
@@ -109,13 +109,13 @@ library Mimic requires RegisterPlayerUnitEvent, optional WindWalk, optional Blad
             local integer skill  = GetSpellAbilityId()
         
             static if LIBRARY_WindWalk then
-                if level >= GetWindWalkMimicLevel() and skill == WindWalk_ABILITY and not IsIllusion[GetUnitUserData(source)] then
+                if level >= GetWindWalkMimicLevel() and skill == WindWalk_ABILITY and not IsUnitIllusionEx(source) then
                     call mimic(source, skill, GetUnitAbilityLevel(source, skill), GetUnitState(source, UNIT_STATE_MANA), ABILITY_RLF_BACKSTAB_DAMAGE, "windwalk")
                 endif
             endif
 
             static if LIBRARY_Bladestorm then
-                if level >= GetBladestormMimicLevel() and skill == Bladestorm_ABILITY and not IsIllusion[GetUnitUserData(source)] then
+                if level >= GetBladestormMimicLevel() and skill == Bladestorm_ABILITY and not IsUnitIllusionEx(source) then
                     call mimic(source, skill, GetUnitAbilityLevel(source, skill), GetUnitState(source, UNIT_STATE_MANA), ABILITY_RLF_DAMAGE_PER_SECOND_OWW1, "whirlwind")
                 endif
             endif

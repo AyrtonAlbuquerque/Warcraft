@@ -1,5 +1,5 @@
 library SpellVamp requires DamageInterface
-    /* ------------------------ SpellVamp v2.3 by Chopinski ----------------------- */
+    /* ------------------------ SpellVamp v2.4 by Chopinski ----------------------- */
     // SpellVamp intends to introduce to warcraft a healing based on Spell damage, like
     // in LoL or Dota 2.
 

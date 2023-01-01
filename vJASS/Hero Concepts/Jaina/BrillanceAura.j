@@ -1,5 +1,5 @@
 library BrillanceAura requires RegisterPlayerUnitEvent, TimerUtils
-    /* -------------------- Brilliance Aure v1.0 by Chopinski ------------------- */
+    /* -------------------- Brilliance Aure v1.1 by Chopinski ------------------- */
     // Credits
     //      Vexorian         - TimerUtils
     //      Magtheridon96    - RegisterPlayerUnitEvent
@@ -86,8 +86,6 @@ library BrillanceAura requires RegisterPlayerUnitEvent, TimerUtils
                             call DecUnitAbilityLevel(source, ABILITY)
                         set i = i + 1
                     endloop
-                    
-                    call TimerStart(timer, GetDuration(source, level), false, function thistype.onExpire)
                 else
                     if struct[GetUnitUserData(source)] != 0 then
                         set this = struct[GetUnitUserData(source)]
@@ -114,10 +112,12 @@ library BrillanceAura requires RegisterPlayerUnitEvent, TimerUtils
                             set i = i + 1
                         endloop
                     endif
-
-                    call TimerStart(timer, GetDuration(source, level), false, function thistype.onExpire)
                 endif
+
+                call TimerStart(timer, GetDuration(source, level), false, function thistype.onExpire)
             endif
+
+            set source = null
         endmethod
 
         private static method onInit takes nothing returns nothing

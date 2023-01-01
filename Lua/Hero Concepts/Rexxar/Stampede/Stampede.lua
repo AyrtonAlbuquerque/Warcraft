@@ -1,5 +1,5 @@
---[[ requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, TimerUtils
-    /* ----------------------- Stampede v1.0 by Chopinski ----------------------- */
+--[[ requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, TimerUtils, CrowdControl
+    /* ----------------------- Stampede v1.1 by Chopinski ----------------------- */
     -- Credits:
     --     Bribe           - SpellEffectEvent
     --     Vexorian        - TimerUtils
@@ -23,6 +23,10 @@ do
     local AOE_SCALE = 1.7
     -- The missile speed
     local SPEED = 1000
+    -- The stun model
+    local STUN_MODEL  = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+    -- The stun model attach point
+    local STUN_ATTACH = "overhead"
 
     -- The amount of damage dealt when a boar hits an enemy
     local function GetDamage(unit, level)
@@ -97,7 +101,7 @@ do
                     this.onHit = function(u)
                         if UnitFilter(this.owner, u) then
                             if UnitDamageTarget(this.source, u, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                                StunUnit(u, this.stun)
+                                StunUnit(u, this.stun, STUN_MODEL, STUN_ATTACH, false)
                             end
                         end
 

@@ -1,5 +1,5 @@
 --[[requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, DamageInterface, Missiles, Utilities, TimerUtils
-    /* --------------------- Water Shield v1.0 by Chopinski --------------------- */
+    /* --------------------- Water Shield v1.1 by Chopinski --------------------- */
     -- Credits:
     --     Darkfang        - Icon
     --     Bribe           - SpellEffectEvent
@@ -147,8 +147,6 @@ do
                     this.amount = GetBoltDamage(this.source, this.level)
                     this.angle = GetAngle(this.source, this.level)
                     this.aoe = GetAoE(this.source, this.level)
-
-                    TimerStart(this.timer, GetDuration(this.source, this.level), false, function() this:onExpire() end)
                 else
                     if defense[Spell.target.unit] then
                         this = defense[Spell.target.unit]
@@ -166,9 +164,9 @@ do
                     this.level = Spell.level
                     this.amount = (this.amount or 0) + GetAmount(this.source, this.level)
                     this.aoe = GetExplosionAoE(this.source, this.level)
-
-                    TimerStart(this.timer, GetDuration(this.source, this.level), false, function() this:onExpire() end)
                 end
+
+                TimerStart(this.timer, GetDuration(this.source, this.level), false, function() this:onExpire() end)
             end)
 
             RegisterAnyDamageEvent(function()

@@ -1,5 +1,5 @@
 --[[
-    /* ------------------------ Evasion v2.3 by Chopinski ----------------------- */
+    /* ------------------------ Evasion v2.4 by Chopinski ----------------------- */
     Evasion implements an easy way to register and detect a custom evasion event.
 
      It works by monitoring custom evasion and missing values given to units,
@@ -84,8 +84,8 @@ do
             local damage = GetEventDamage()
         
             Evasion.evade = false
-            if damage > 0 and not ((Evasion.neverMiss[Damage.source.id] or 0) > 0) then
-                Evasion.evade = GetRandomReal(0, 100) <= (Evasion.evasion[Damage.target.id] or 0) or GetRandomReal(0, 100) <= (Evasion.miss[Damage.source.id] or 0)
+            if damage > 0 and not ((Evasion.neverMiss[Damage.source.unit] or 0) > 0) then
+                Evasion.evade = GetRandomReal(0, 100) <= (Evasion.evasion[Damage.target.unit] or 0) or GetRandomReal(0, 100) <= (Evasion.miss[Damage.source.unit] or 0)
                 if Evasion.evade then
                     Evasion.source = Damage.source
                     Evasion.target = Damage.target
@@ -129,47 +129,41 @@ do
     end
 
     function GetUnitEvasionChance(unit)
-        return Evasion.evasion[GetUnitUserData(unit)] or 0
+        return Evasion.evasion[unit] or 0
     end
 
     function GetUnitMissChance(unit)
-        return Evasion.miss[GetUnitUserData(unit)] or 0
+        return Evasion.miss[unit] or 0
     end
 
     function SetUnitEvasionChance(unit, real)
-        Evasion.evasion[GetUnitUserData(unit)] = real
+        Evasion.evasion[unit] = real
     end
 
     function SetUnitMissChance(unit, real)
-        Evasion.miss[GetUnitUserData(unit)] = real
+        Evasion.miss[unit] = real
     end
 
     function UnitAddEvasionChance(unit, real)
-        local i = GetUnitUserData(unit)
-        
-        if not Evasion.evasion[i] then Evasion.evasion[i] = 0 end
-        Evasion.evasion[i] = Evasion.evasion[i] + real
+        if not Evasion.evasion[unit] then Evasion.evasion[unit] = 0 end
+        Evasion.evasion[unit] = Evasion.evasion[unit] + real
     end
 
     function UnitAddMissChance(unit, real)
-        local i = GetUnitUserData(unit)
-        
-        if not Evasion.miss[i] then Evasion.miss[i] = 0 end
-        Evasion.miss[i] = Evasion.miss[i] + real
+        if not Evasion.miss[unit] then Evasion.miss[unit] = 0 end
+        Evasion.miss[unit] = Evasion.miss[unit] + real
     end
 
     function MakeUnitNeverMiss(unit, flag)
-        local i = GetUnitUserData(unit)
-        
-        if not Evasion.neverMiss[i] then Evasion.neverMiss[i] = 0 end
+        if not Evasion.neverMiss[unit] then Evasion.neverMiss[unit] = 0 end
         if flag then
-            Evasion.neverMiss[i] = Evasion.neverMiss[i] + 1
+            Evasion.neverMiss[unit] = Evasion.neverMiss[unit] + 1
         else
-            Evasion.neverMiss[i] = Evasion.neverMiss[i] - 1
+            Evasion.neverMiss[unit] = Evasion.neverMiss[unit] - 1
         end
     end
 
     function DoUnitNeverMiss(unit)
-        return Evasion.neverMiss[GetUnitUserData(unit)] > 0
+        return Evasion.neverMiss[unit] > 0
     end
 end

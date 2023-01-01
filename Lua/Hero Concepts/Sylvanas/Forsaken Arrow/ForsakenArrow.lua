@@ -1,17 +1,17 @@
---[[ requires SpellEffectEvent, Utilities, Missiles, optional BlackArrow
-    /* -------------------- Forseken Arrow v1.2 by Chopinski -------------------- */
-    // Credits:
-    //     Bribe          - SpellEffectEvent
-    //     Darkfang       - Icon
-    //     AZ             - Arrow model
-    //     JetFangInferno - Dark Nova model
-    /* ----------------------------------- END ---------------------------------- */
+--[[ requires SpellEffectEvent, Utilities, Missiles, CrowdControl optional BlackArrow
+    -- ------------------------------------- Forseken Arrow v1.3 ------------------------------------ --
+    -- Credits:
+    --     Bribe          - SpellEffectEvent
+    --     Darkfang       - Icon
+    --     AZ             - Arrow model
+    --     JetFangInferno - Dark Nova model
+    -- ---------------------------------------- By Chopinski ---------------------------------------- --
 ]]--
 
 do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                          Configuration                                         --
+    -- ---------------------------------------------------------------------------------------------- --a
     -- The raw code of the Screaming Banshees ability
     local ABILITY         = FourCC('A00K')
     -- The missile model
@@ -76,9 +76,9 @@ do
         return IsUnitEnemy(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             System                                             --
+    -- ---------------------------------------------------------------------------------------------- --
     onInit(function()
         RegisterSpellEffectEvent(ABILITY, function()
             local this = Missiles:create(Spell.source.x, Spell.source.y, 50, Spell.x, Spell.y, 50)
@@ -123,13 +123,16 @@ do
                     local unit = BlzGroupUnitAt(group, i)
                     if Filtered(this.owner, unit) then
                         local dur = GetDuration(this.source, unit, this.level)
-                        if curse then
+
+                        if this.curse then
                             UnitAddAbilityTimed(unit, this.ability, this.curse_duration, this.curse_level, true)
                         end
-                        UnitDamageTarget(this.source, unit, this.exp_damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, nil)
-                        UnitApplyFear(unit, dur, FEAR_MODEL, ATTACH_FEAR)
-                        SilenceUnit(unit, dur)
-                        SlowUnit(unit, GetSlow(unit, this.level), dur)
+
+                        if UnitDamageTarget(this.source, unit, this.exp_damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
+                            FearUnit(unit, dur, FEAR_MODEL, ATTACH_FEAR, false)
+                            SilenceUnit(unit, dur, nil, nil, false)
+                            SlowUnit(unit, GetSlow(unit, this.level), dur, nil, nil, false)
+                        end
                     end
                 end
                 DestroyGroup(group)

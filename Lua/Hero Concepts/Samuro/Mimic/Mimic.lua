@@ -1,5 +1,5 @@
---[[ requires RegisterPlayerUnitEvent, optional WindWalk, optional Bladestorm
-    /* ------------------------- Mimic v1.2 by Chopinski ------------------------ */
+--[[ requires RegisterPlayerUnitEvent, MirrorImage, optional WindWalk, optional Bladestorm
+    /* ------------------------- Mimic v1.3 by Chopinski ------------------------ */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     CRAZYRUSSIAN   - Icon
@@ -69,7 +69,7 @@ do
         GroupEnumUnitsOfPlayer(group, GetOwningPlayer(unit), nil)
         for i = 0, BlzGroupGetSize(group) - 1 do
             local u = BlzGroupUnitAt(group, i)
-            if GetUnitTypeId(u) == GetUnitTypeId(unit) and IsIllusion[u] then
+            if GetUnitTypeId(u) == GetUnitTypeId(unit) and IsUnitIllusionEx(u) then
                 SetUnitState(u, UNIT_STATE_MANA, mana)
                 UnitRemoveAbility(u, ability)
                 UnitAddAbility(u, ability)
@@ -109,13 +109,13 @@ do
             local ability = GetSpellAbilityId()
         
             if WindWalk then
-                if level >= GetWindWalkMimicLevel() and ability == WindWalk_ABILITY and not IsIllusion[unit] then
+                if level >= GetWindWalkMimicLevel() and ability == WindWalk_ABILITY and not IsUnitIllusionEx(unit) then
                     Mimic(unit, ability, GetUnitAbilityLevel(unit, ability), GetUnitState(unit, UNIT_STATE_MANA), ABILITY_RLF_BACKSTAB_DAMAGE, "windwalk")
                 end
             end
 
             if Bladestorm then
-                if level >= GetBladestormMimicLevel() and ability == Bladestorm_ABILITY and not IsIllusion[unit] then
+                if level >= GetBladestormMimicLevel() and ability == Bladestorm_ABILITY and not IsUnitIllusionEx(unit) then
                     Mimic(unit, ability, GetUnitAbilityLevel(unit, ability), GetUnitState(unit, UNIT_STATE_MANA), ABILITY_RLF_DAMAGE_PER_SECOND_OWW1, "whirlwind")
                 end
             end

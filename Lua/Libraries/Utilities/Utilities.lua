@@ -1,5 +1,5 @@
 --[[ requires Indexer, TimedHandles, RegisterPlayerUnitEvent
-    -- --------------------------------------- Utilities v1.7 --------------------------------------- --
+    -- --------------------------------------- Utilities v1.8 --------------------------------------- --
     -- How to Import:
     -- 1 - Copy this library into your map
     -- 2 - Copy the dummy unit in object editor and match its raw code below
@@ -305,13 +305,21 @@ do
     end
 
     -- Clones the items in the source unit inventory to the target unit
-    function CloneItems(source, target)
+    function CloneItems(source, target, isIllusion)
         for i = 0, bj_MAX_INVENTORY do
             local item = UnitItemInSlot(source, i)
             local j = GetItemCharges(item)
             item = CreateItem(GetItemTypeId(item), GetUnitX(target), GetUnitY(target))
             SetItemCharges(item, j)
             UnitAddItem(target, item)
+
+            if isIllusion then
+                if GetItemTypeId(item) == FourCC('ankh') then
+                    BlzItemRemoveAbility(item, FourCC('AIrc'))
+                end
+
+                BlzSetItemBooleanField(item, ITEM_BF_ACTIVELY_USED, false)
+            end
         end
     end
 

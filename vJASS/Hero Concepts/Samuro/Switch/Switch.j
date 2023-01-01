@@ -1,5 +1,5 @@
-library Switch requires SpellEffectEvent, PluginSpellEffect, TimerUtils
-    /* ------------------------ Switch v1.2 by Chopinski ------------------------ */
+library Switch requires SpellEffectEvent, PluginSpellEffect, TimerUtils, MirrorImage
+    /* ------------------------ Switch v1.3 by Chopinski ------------------------ */
     // Credits:
     //     Bribe          - SpellEffectEvent
     //     Vexorian       - TimerUtils
@@ -25,13 +25,13 @@ library Switch requires SpellEffectEvent, PluginSpellEffect, TimerUtils
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Switch
-        unit  unit
+        unit unit
         group group
         timer timer
 
         static method after takes nothing returns nothing
             local thistype this = GetTimerData(GetExpiredTimer())
-            local unit     v
+            local unit v
 
             call PauseUnit(unit, false)
             call ShowUnit(unit, true)
@@ -44,25 +44,24 @@ library Switch requires SpellEffectEvent, PluginSpellEffect, TimerUtils
             endloop
             call DestroyGroup(group)
             call SelectUnit(unit, true)
+            call SelectUnitAddForPlayer(unit, GetOwningPlayer(unit))
             call ReleaseTimer(timer)
 
             set timer = null
-            set unit  = null
+            set unit = null
             set group = null
 
             call deallocate()
         endmethod
 
         private static method switch takes unit source, unit target returns group
-            local integer  sIdx    = GetUnitUserData(source)
-            local integer  tIdx    = GetUnitUserData(target)
-            local real     sFacing = GetUnitFacing(source)
-            local real     tFacing = GetUnitFacing(target)
-            local real     x       = GetUnitX(source)
-            local real     y       = GetUnitY(source)
-            local group    g1      = CreateGroup()
-            local group    g2      = CreateGroup()
-            local unit     v
+            local real sFacing = GetUnitFacing(source)
+            local real tFacing = GetUnitFacing(target)
+            local real x = GetUnitX(source)
+            local real y = GetUnitY(source)
+            local group g1 = CreateGroup()
+            local group g2 = CreateGroup()
+            local unit v
 
             call PauseUnit(source, true)
             call ShowUnit(source, false)
@@ -71,7 +70,7 @@ library Switch requires SpellEffectEvent, PluginSpellEffect, TimerUtils
             loop
                 set v = FirstOfGroup(g1)
                 exitwhen v == null
-                    if GetUnitTypeId(v) == GetUnitTypeId(source) and IsIllusion[GetUnitUserData(v)] then
+                    if GetUnitTypeId(v) == GetUnitTypeId(source) and IsUnitIllusionEx(v) then
                         call PauseUnit(v, true)
                         call ShowUnit(v, false)
                         call DestroyEffect(AddSpecialEffect(SWITCH_EFFECT, GetUnitX(v), GetUnitY(v)))
@@ -92,9 +91,9 @@ library Switch requires SpellEffectEvent, PluginSpellEffect, TimerUtils
         private static method onCast takes nothing returns nothing
             local thistype this
         
-            if GetUnitTypeId(Spell.source.unit) == GetUnitTypeId(Spell.target.unit) and IsIllusion[Spell.target.id] then
-                set this  = thistype.allocate()
-                set unit  = Spell.source.unit
+            if GetUnitTypeId(Spell.source.unit) == GetUnitTypeId(Spell.target.unit) and IsUnitIllusionEx(Spell.target.unit) then
+                set this = thistype.allocate()
+                set unit = Spell.source.unit
                 set group = switch(Spell.source.unit, Spell.target.unit)
                 set timer = NewTimerEx(this)
 

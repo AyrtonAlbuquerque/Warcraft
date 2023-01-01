@@ -1,5 +1,5 @@
-library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities, Missiles, TimerUtils
-    /* ----------------------- Keg Smash v1.2 by Chopinski ---------------------- */
+library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities, Missiles, TimerUtils, CrowdControl
+    /* ----------------------- Keg Smash v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard           - Icon
     //     Bribe              - SpellEffectEvent
@@ -42,6 +42,16 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
     // The Keg Smash Brew Cloud duration
     private function GetDuration takes unit source, integer level returns real
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DURATION_HERO, level - 1)
+    endfunction
+
+    // The Keg Smash slow amount
+    private function GetSlow takes unit source, integer level returns real
+        return 0.4 + 0.*level
+    endfunction
+
+    // The Keg Smash slow duration
+    private function GetSlowDuration takes unit source, integer level returns real
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, DEBUFF), ABILITY_RLF_DURATION_HERO, level - 1)
     endfunction
 
     // The Keg Smash AoE
@@ -130,21 +140,23 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
     struct BrewCloud
         private static thistype array n
         private static thistype array data
-		private static integer 		  didx  = -1
-        private static timer 		  timer = CreateTimer()
+		private static integer didx  = -1
+        private static timer timer = CreateTimer()
 
-        private unit    source
-        private unit    unit
-        private group   group
-        private player  player
-        private effect  effect
+        private unit source
+        private unit unit
+        private group group
+        private player player
+        private effect effect
         private boolean ignited
         private integer duration
         private integer level
         private integer index
-        private real    aoe
-        private real    x
-        private real    y
+        private real slow
+        private real slowDuration
+        private real aoe
+        private real x
+        private real y
 
         private method remove takes integer i returns integer
             call UnitRemoveAbility(unit, DEBUFF)
@@ -152,14 +164,14 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
             call DestroyEffect(effect)
             call DummyRecycle(unit)
 
-            set unit     = null
-            set group    = null
-            set player   = null
-            set effect   = null
-            set source   = null
+            set unit = null
+            set group = null
+            set player = null
+            set effect = null
+            set source = null
             set n[index] = 0
-			set data[i]  = data[didx]
-			set didx 	 = didx - 1
+			set data[i] = data[didx]
+			set didx = didx - 1
 
 			if didx == -1 then
 				call PauseTimer(timer)
@@ -188,6 +200,7 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
                                     if UnitAlive(u) and IsUnitEnemy(u, player) and GetUnitAbilityLevel(u, BUFF) == 0 then
                                         if not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
                                             call IssueTargetOrder(unit, "drunkenhaze", u)
+                                            call SlowUnit(u, slow, slowDuration, null, null, false)
                                         endif
                                     endif
                                 call GroupRemoveUnit(group, u)
@@ -227,24 +240,26 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
             return false
         endmethod
 
-        static method create takes player owner, unit source, unit dummy, real x, real y, real aoe, real dur, integer level returns thistype
+        static method create takes player owner, unit source, unit dummy, real x, real y, real aoe, real dur, real slow, real slowDuration, integer level returns thistype
             local thistype this = thistype.allocate()
 
-            set .x         = x 
-            set .y         = y
-            set .aoe       = aoe
-            set .level     = level
-            set .source    = source
-            set player     = owner
-            set unit       = dummy
-            set ignited    = false
-            set index      = GetUnitUserData(dummy)
-            set group      = CreateGroup()
-            set effect     = AddSpecialEffectEx(CLOUD, x, y, 0, CLOUD_SCALE)
-            set duration   = R2I(dur/PERIOD)
-            set didx       = didx + 1
+            set .x = x 
+            set .y = y
+            set .aoe = aoe
+            set .slow = slow
+            set .slowDuration = slowDuration
+            set .level = level
+            set .source = source
+            set player = owner
+            set unit = dummy
+            set ignited = false
+            set index = GetUnitUserData(dummy)
+            set group = CreateGroup()
+            set effect = AddSpecialEffectEx(CLOUD, x, y, 0, CLOUD_SCALE)
+            set duration = R2I(dur/PERIOD)
+            set didx = didx + 1
             set data[didx] = this
-            set n[index]   = this
+            set n[index] = this
             
 
             if didx == 0 then
@@ -266,16 +281,18 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
     endstruct
 
     private struct KegSmash extends Missiles
-        unit    unit
-        group   group
+        unit unit
+        group group
         integer level
-        real    aoe
-        real    dur
+        real aoe
+        real dur
+        real slow
+        real slowDuration
 
         method onFinish takes nothing returns boolean
             local unit u
 
-            call BrewCloud.create(owner, source, unit, x, y, aoe, dur, level)
+            call BrewCloud.create(owner, source, unit, x, y, aoe, dur, slow, slowDuration, level)
             call GroupEnumUnitsInRange(group, x, y, aoe, null)
             loop
                 set u = FirstOfGroup(group)
@@ -283,13 +300,14 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
                     if DamageFilter(owner, u) then
                         if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                             call IssueTargetOrder(unit, "drunkenhaze", u)
+                            call SlowUnit(u, slow, slowDuration, null, null, false)
                         endif
                     endif
                 call GroupRemoveUnit(group, u)
             endloop
             call DestroyGroup(group)
 
-            set unit  = null
+            set unit = null
             set group = null
             return true
         endmethod
@@ -297,20 +315,23 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
         private static method onCast takes nothing returns nothing
             local thistype this = thistype.create(Spell.source.x, Spell.source.y, 60, Spell.x, Spell.y, 60)
 
-            set model  = MODEL
-            set scale  = SCALE
-            set speed  = SPEED
-            set source = Spell.source.unit 
-            set owner  = Spell.source.player
-            set level  = Spell.level
-            set unit   = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
-            set group  = CreateGroup()
-            set damage = GetDamage(Spell.level)
-            set aoe    = GetAoE(Spell.source.unit, Spell.level)
-            set dur    = GetDuration(Spell.source.unit, Spell.level)
-
+            set unit = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
             call UnitAddAbility(unit, DEBUFF)
             call SetUnitAbilityLevel(unit, DEBUFF, Spell.level)
+
+            set model = MODEL
+            set scale = SCALE
+            set speed = SPEED
+            set source = Spell.source.unit 
+            set owner = Spell.source.player
+            set level = Spell.level
+            set group = CreateGroup()
+            set damage = GetDamage(Spell.level)
+            set aoe = GetAoE(Spell.source.unit, Spell.level)
+            set dur = GetDuration(Spell.source.unit, Spell.level)
+            set slow = GetSlow(Spell.source.unit, Spell.level)
+            set slowDuration = GetSlowDuration(unit, Spell.level)
+
             call launch()
         endmethod
 

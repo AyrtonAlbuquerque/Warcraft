@@ -1,5 +1,5 @@
 library WaterShield requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, DamageInterface, Missiles, Utilities, TimerUtils
-    /* --------------------- Water Shield v1.0 by Chopinski --------------------- */
+    /* --------------------- Water Shield v1.1 by Chopinski --------------------- */
     // Credits:
     //     Darkfang        - Icon
     //     Bribe           - SpellEffectEvent
@@ -233,8 +233,6 @@ library WaterShield requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSp
                 set amount = GetBoltDamage(source, level)
                 set angle = GetAngle(source, level)
                 set aoe = GetAoE(source, level)
-
-                call TimerStart(timer, GetDuration(source, level), false, function thistype.onExpire)
             else
                 if defense[Spell.target.id] != 0 then
                     set this = defense[Spell.target.id]
@@ -254,9 +252,9 @@ library WaterShield requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSp
                 set level = Spell.level
                 set amount = amount + GetAmount(source, level)
                 set aoe = GetExplosionAoE(source, level)
-
-                call TimerStart(timer, GetDuration(source, level), false, function thistype.onExpire)
             endif
+
+            call TimerStart(timer, GetDuration(source, level), false, function thistype.onExpire)
         endmethod
 
         private static method onInit takes nothing returns nothing

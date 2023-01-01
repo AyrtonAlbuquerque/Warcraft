@@ -1,14 +1,14 @@
-library LightBurst requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities, optional LightInfusion
-    /* ---------------------- Light Burst v1.2 by Chopinski --------------------- */
+library LightBurst requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities, CrowdControl optional LightInfusion
+    /* -------------------------------------- Light Burst v1.3 -------------------------------------- */
     // Credits:
     //     Redeemer59         - Icon
     //     Bribe              - SpellEffectEvent
     //     AZ                 - Stomp and Misisle effect
-    /* ----------------------------------- END ---------------------------------- */
+    /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
-    /* -------------------------------------------------------------------------- */
-    /*                                Configuration                               */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                          Configuration                                         */
+    /* ---------------------------------------------------------------------------------------------- */
     globals
         // The Light Burst Ability
         private constant integer ABILITY      = 'A004'
@@ -25,7 +25,7 @@ library LightBurst requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, 
         // The Light Burst Stomp scale
         private constant real    STOMP_SCALE  = 0.55
         // The Light Burst disarm Model
-        private constant string  DISARM       = "Abilities\\Spells\\Other\\TalkToMe\\TalkToMe"
+        private constant string  DISARM       = "Disarm.mdl"
         // The Light Burst disarm attach point
         private constant string  ATTACH       = "overhead"
     endglobals
@@ -60,9 +60,9 @@ library LightBurst requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, 
         return not IsUnitType(target, UNIT_TYPE_STRUCTURE) and not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE)
     endfunction
 
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                             System                                             */
+    /* ---------------------------------------------------------------------------------------------- */
     private struct Missile extends Missiles
         real    aoe
         real    dur
@@ -83,11 +83,10 @@ library LightBurst requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, 
                         if IsUnitEnemy(u, owner) then
                             if DamageFilter(u) then
                                 call UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
-                                call SlowUnit(u, slow, dur)
+                                call SlowUnit(u, slow, dur, null, null, false)
 
                                 if infused then
-                                    call DisarmUnitTimed(u, dur)
-                                    call DestroyEffectTimed(AddSpecialEffectTarget(DISARM, u, ATTACH), dur)
+                                    call DisarmUnit(u, dur, DISARM, ATTACH, false)
                                 endif
                             endif
                         else

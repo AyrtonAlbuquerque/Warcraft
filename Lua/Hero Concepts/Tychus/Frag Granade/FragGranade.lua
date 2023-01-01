@@ -1,5 +1,5 @@
---[[ requires SpellEffectEvent, Missiles, NewBonusUtils, Utilities, optional ArsenalUpgrade
-    /* ---------------------- Bullet Time v1.2 by Chopinski --------------------- */
+--[[ requires SpellEffectEvent, Missiles, NewBonusUtils, Utilities, optional ArsenalUpgrade, CrowdControl
+    /* ---------------------- Bullet Time v1.3 by Chopinski --------------------- */
     // Credits:
     //     Blizzard          - Icon
     //     Vexorian          - TimerUtils
@@ -29,6 +29,10 @@ do
     local EXP_SCALE       = 1.
     -- The Frag Granade proximity Period
     local PERIOD          = 0.25
+    -- The Frag Granade stun model
+    local STUN_MODEL      = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+    -- The Frag Granade stun model attach point
+    local STUN_ATTACH     = "overhead"
 
     -- The Frag Granade armor reduction duraton
     local function GetArmorDuration(level)
@@ -106,7 +110,7 @@ do
                     if UnitDamageTarget(self.unit, u, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                         AddUnitBonusTimed(u, BONUS_ARMOR, -self.armor, self.armor_dur)
                         if self.stun > 0 then
-                            StunUnit(u, self.stun)
+                            StunUnit(u, self.stun, STUN_MODEL, STUN_ATTACH, false)
                         end
                     end
                 end
@@ -206,7 +210,7 @@ do
                     if UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                         AddUnitBonusTimed(unit, BONUS_ARMOR, -this.armor, this.armor_dur)
                         if this.stun > 0 then
-                            StunUnit(unit, this.stun)
+                            StunUnit(unit, this.stun, STUN_MODEL, STUN_ATTACH, false)
                         end
                     end
                 end

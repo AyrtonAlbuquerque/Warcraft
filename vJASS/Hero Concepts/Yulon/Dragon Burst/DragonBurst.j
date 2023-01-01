@@ -1,5 +1,5 @@
-library DragonBurst requires SpellEffectEvent, PluginSpellEffect, Utilities
-    /* --------------------- Dragon Burst v1.1 by Chopinski --------------------- */
+library DragonBurst requires SpellEffectEvent, PluginSpellEffect, Utilities, CrowdControl
+    /* --------------------- Dragon Burst v1.2 by Chopinski --------------------- */
     // Credits:
     //     Blizzard, TheKaldorei    - Icon
     //     Bribe                    - SpellEffectEvent
@@ -86,9 +86,9 @@ library DragonBurst requires SpellEffectEvent, PluginSpellEffect, Utilities
                         
                         if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                             if distance > center then
-                                call KnockbackUnit(u, angle, aoe - distance, GetKnockBackDuration(Spell.source.unit, Spell.level), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, true)
+                                call KnockbackUnit(u, angle, aoe - distance, GetKnockBackDuration(Spell.source.unit, Spell.level), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
                             else
-                                call KnockupUnit(u, GetKnockUpDuration(Spell.source.unit, Spell.level), height)
+                                call KnockupUnit(u, height, GetKnockUpDuration(Spell.source.unit, Spell.level), null, null, false)
                             endif
                         endif
                     endif
