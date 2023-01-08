@@ -1,5 +1,5 @@
 --[[ requires DamageInterface, optional StormBolt, optional ThunderClap, optional Avatar
-    /* ---------------------- HammerTime v1.2 by Chopinski ---------------------- */
+    /* ---------------------- HammerTime v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard       - Icon
     /* ----------------------------------- END ---------------------------------- */
@@ -81,7 +81,7 @@ do
                     reduction = GetAvatarCooldown(level)
                     if cooldown > 0 then
                         if cooldown - reduction <= 0 then
-                            ResetUnitAbilityCooldown(Damage.source.unit, ThunderClap_ABILITY)
+                            ResetUnitAbilityCooldown(Damage.source.unit, Avatar_ABILITY)
                         else
                             BlzStartUnitAbilityCooldown(Damage.source.unit, Avatar_ABILITY, cooldown - reduction)
                         end

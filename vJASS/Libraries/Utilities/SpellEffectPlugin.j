@@ -1,10 +1,11 @@
 library PluginSpellEffect requires RegisterPlayerUnitEvent
-    /* ------------------- SpellEffectPlugin v1.1 by Chopinski ------------------ */
+    /* ------------------- SpellEffectPlugin v1.2 by Chopinski ------------------ */
     // Simple plugin for the SpellEffectEvent library by Bribe to cache some usefull
     // values.
 
     // Credits to Bribe and Magtheridon96
     /* ----------------------------------- END ---------------------------------- */
+
     private struct SUnit
         unit    unit
         player  player
@@ -47,32 +48,34 @@ library PluginSpellEffect requires RegisterPlayerUnitEvent
         endmethod
 
         private static method onCast takes nothing returns nothing
-            set source.unit   = GetTriggerUnit()
-            set source.player = GetOwningPlayer(source.unit)
-            set source.handle = GetHandleId(source.unit)
-            set source.id     = GetUnitUserData(source.unit)
-            set source.x      = GetUnitX(source.unit)
-            set source.y      = GetUnitY(source.unit)
-            set source.z      = GetUnitZ(source.unit)
-            set source.isHero = IsUnitType(source.unit, UNIT_TYPE_HERO)
-            set source.isStructure = IsUnitType(source.unit, UNIT_TYPE_STRUCTURE)
-            
-            set target.unit   = GetSpellTargetUnit()
-            set target.player = GetOwningPlayer(target.unit)
-            set target.handle = GetHandleId(target.unit)
-            set target.id     = GetUnitUserData(target.unit)
-            set target.x      = GetUnitX(target.unit)
-            set target.y      = GetUnitY(target.unit)
-            set target.z      = GetUnitZ(target.unit)
-            set target.isHero = IsUnitType(target.unit, UNIT_TYPE_HERO)
-            set target.isStructure = IsUnitType(target.unit, UNIT_TYPE_STRUCTURE)
-            
-            set x             = GetSpellTargetX()
-            set y             = GetSpellTargetY()
-            set z             = GetSpellTargetZ()
-            set id            = GetSpellAbilityId()
-            set level         = GetUnitAbilityLevel(source.unit, id)
-            set ability       = BlzGetUnitAbility(source.unit, id)
+            if GetUnitAbilityLevel(GetTriggerUnit(), 'Aloc') == 0 then
+                set source.unit   = GetTriggerUnit()
+                set source.player = GetOwningPlayer(source.unit)
+                set source.handle = GetHandleId(source.unit)
+                set source.id     = GetUnitUserData(source.unit)
+                set source.x      = GetUnitX(source.unit)
+                set source.y      = GetUnitY(source.unit)
+                set source.z      = GetUnitZ(source.unit)
+                set source.isHero = IsUnitType(source.unit, UNIT_TYPE_HERO)
+                set source.isStructure = IsUnitType(source.unit, UNIT_TYPE_STRUCTURE)
+                
+                set target.unit   = GetSpellTargetUnit()
+                set target.player = GetOwningPlayer(target.unit)
+                set target.handle = GetHandleId(target.unit)
+                set target.id     = GetUnitUserData(target.unit)
+                set target.x      = GetUnitX(target.unit)
+                set target.y      = GetUnitY(target.unit)
+                set target.z      = GetUnitZ(target.unit)
+                set target.isHero = IsUnitType(target.unit, UNIT_TYPE_HERO)
+                set target.isStructure = IsUnitType(target.unit, UNIT_TYPE_STRUCTURE)
+                
+                set x             = GetSpellTargetX()
+                set y             = GetSpellTargetY()
+                set z             = GetSpellTargetZ()
+                set id            = GetSpellAbilityId()
+                set level         = GetUnitAbilityLevel(source.unit, id)
+                set ability       = BlzGetUnitAbility(source.unit, id)
+            endif
         endmethod
 
         private static method onInit takes nothing returns nothing

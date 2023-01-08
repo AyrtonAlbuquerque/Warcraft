@@ -65,32 +65,34 @@ do
                     local f = funcs[GetSpellAbilityId()]
                     
                     if f then
-                        Spell.source.unit   = GetTriggerUnit()
-                        Spell.source.player = GetOwningPlayer(Spell.source.unit)
-                        Spell.source.handle = GetHandleId(Spell.source.unit)
-                        Spell.source.id     = GetUnitUserData(Spell.source.unit)
-                        Spell.source.x      = GetUnitX(Spell.source.unit)
-                        Spell.source.y      = GetUnitY(Spell.source.unit)
-                        Spell.source.z      = GetUnitZ(Spell.source.unit)
-                        Spell.source.isHero = IsUnitType(Spell.source.unit, UNIT_TYPE_HERO)
-                        Spell.source.isStructure = IsUnitType(Spell.source.unit, UNIT_TYPE_STRUCTURE)
-                        
-                        Spell.target.unit   = GetSpellTargetUnit()
-                        Spell.target.player = GetOwningPlayer(Spell.target.unit)
-                        Spell.target.handle = GetHandleId(Spell.target.unit)
-                        Spell.target.id     = GetUnitUserData(Spell.target.unit)
-                        Spell.target.x      = GetUnitX(Spell.target.unit)
-                        Spell.target.y      = GetUnitY(Spell.target.unit)
-                        Spell.target.z      = GetUnitZ(Spell.target.unit)
-                        Spell.target.isHero = IsUnitType(Spell.target.unit, UNIT_TYPE_HERO)
-                        Spell.target.isStructure = IsUnitType(Spell.target.unit, UNIT_TYPE_STRUCTURE)
-                        
-                        Spell.x             = GetSpellTargetX()
-                        Spell.y             = GetSpellTargetY()
-                        Spell.z             = GetSpellTargetZ()
-                        Spell.id            = GetSpellAbilityId()
-                        Spell.level         = GetUnitAbilityLevel(Spell.source.unit, Spell.id)
-                        Spell.ability       = BlzGetUnitAbility(Spell.source.unit, Spell.id)
+                        if GetUnitAbilityLevel(GetTriggerUnit(), FourCC('Aloc')) == 0 then
+                            Spell.source.unit   = GetTriggerUnit()
+                            Spell.source.player = GetOwningPlayer(Spell.source.unit)
+                            Spell.source.handle = GetHandleId(Spell.source.unit)
+                            Spell.source.id     = GetUnitUserData(Spell.source.unit)
+                            Spell.source.x      = GetUnitX(Spell.source.unit)
+                            Spell.source.y      = GetUnitY(Spell.source.unit)
+                            Spell.source.z      = GetUnitZ(Spell.source.unit)
+                            Spell.source.isHero = IsUnitType(Spell.source.unit, UNIT_TYPE_HERO)
+                            Spell.source.isStructure = IsUnitType(Spell.source.unit, UNIT_TYPE_STRUCTURE)
+
+                            Spell.target.unit   = GetSpellTargetUnit()
+                            Spell.target.player = GetOwningPlayer(Spell.target.unit)
+                            Spell.target.handle = GetHandleId(Spell.target.unit)
+                            Spell.target.id     = GetUnitUserData(Spell.target.unit)
+                            Spell.target.x      = GetUnitX(Spell.target.unit)
+                            Spell.target.y      = GetUnitY(Spell.target.unit)
+                            Spell.target.z      = GetUnitZ(Spell.target.unit)
+                            Spell.target.isHero = IsUnitType(Spell.target.unit, UNIT_TYPE_HERO)
+                            Spell.target.isStructure = IsUnitType(Spell.target.unit, UNIT_TYPE_STRUCTURE)
+
+                            Spell.x             = GetSpellTargetX()
+                            Spell.y             = GetSpellTargetY()
+                            Spell.z             = GetSpellTargetZ()
+                            Spell.id            = GetSpellAbilityId()
+                            Spell.level         = GetUnitAbilityLevel(Spell.source.unit, Spell.id)
+                            Spell.ability       = BlzGetUnitAbility(Spell.source.unit, Spell.id)
+                        end
                         
                         f() 
                     end

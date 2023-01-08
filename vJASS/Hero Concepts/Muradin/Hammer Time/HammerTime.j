@@ -1,5 +1,5 @@
 library HammerTime requires DamageInterface, optional StormBolt, optional ThunderClap, optional Avatar
-    /* ---------------------- HammerTime v1.2 by Chopinski ---------------------- */
+    /* ---------------------- HammerTime v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard       - Icon
     /* ----------------------------------- END ---------------------------------- */
@@ -84,7 +84,7 @@ library HammerTime requires DamageInterface, optional StormBolt, optional Thunde
                     set reduction = GetAvatarCooldown(level)
                     if cooldown > 0 then
                         if cooldown - reduction <= 0 then
-                            call ResetUnitAbilityCooldown(Damage.source.unit, ThunderClap_ABILITY)
+                            call ResetUnitAbilityCooldown(Damage.source.unit, Avatar_ABILITY)
                         else
                             call BlzStartUnitAbilityCooldown(Damage.source.unit, Avatar_ABILITY, cooldown - reduction)
                         endif
