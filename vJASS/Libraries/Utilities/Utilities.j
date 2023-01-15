@@ -1,5 +1,5 @@
 library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnitEvent
-    /* --------------------------------------- Utilities v1.8 --------------------------------------- */
+    /* --------------------------------------- Utilities v1.9 --------------------------------------- */
     // How to Import:
     // 1 - Copy this library into your map
     // 2 - Copy the dummy unit in object editor and match its raw code below
@@ -71,46 +71,17 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
         local unit  w
         
         call GroupEnumUnitsInRange(h, x, y, aoe, null)
-        if structures and magicImmune then
-            loop
-                set w = FirstOfGroup(h)
-                exitwhen w == null
-                    if IsUnitEnemy(w, enemyOf) and UnitAlive(w) then
-                        call GroupAddUnit(g, w)
-                    endif
-                call GroupRemoveUnit(h, w)
-            endloop
-        elseif structures and not magicImmune then
-            loop
-                set w = FirstOfGroup(h)
-                exitwhen w == null
-                    if IsUnitEnemy(w, enemyOf) and UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE) then
-                        call GroupAddUnit(g, w)
-                    endif
-                call GroupRemoveUnit(h, w)
-            endloop
-        elseif magicImmune and not structures then
-            loop
-                set w = FirstOfGroup(h)
-                exitwhen w == null
-                    if IsUnitEnemy(w, enemyOf) and UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_STRUCTURE) then
-                        call GroupAddUnit(g, w)
-                    endif
-                call GroupRemoveUnit(h, w)
-            endloop
-        else
-            loop
-                set w = FirstOfGroup(h)
-                exitwhen w == null
-                    if IsUnitEnemy(w, enemyOf) and UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_STRUCTURE) and not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE) then
-                        call GroupAddUnit(g, w)
-                    endif
-                call GroupRemoveUnit(h, w)
-            endloop
-        endif
+        loop
+            set w = FirstOfGroup(h)
+            exitwhen w == null
+                if IsUnitEnemy(w, enemyOf) and UnitAlive(w) and (structures or (not IsUnitType(w, UNIT_TYPE_STRUCTURE))) and (magicImmune or (not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE))) then
+                    call GroupAddUnit(g, w)
+                endif
+            call GroupRemoveUnit(h, w)
+        endloop
         call DestroyGroup(h)
     
-        set    h = null
+        set h = null
         return g
     endfunction
 
@@ -192,91 +163,23 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
 
     // Makes the specified source damage an area respecting some basic unit filters
     function UnitDamageArea takes unit source, real x, real y, real aoe, real damage, attacktype atkType, damagetype dmgType, boolean structures, boolean magicImmune, boolean allies returns nothing
-        local group  h       = CreateGroup()
+        local group h = CreateGroup()
         local player enemyOf = GetOwningPlayer(source)
-        local unit   w
+        local unit w
         
         call GroupEnumUnitsInRange(h, x, y, aoe, null)
-        if allies then
-            if structures and magicImmune then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (UnitAlive(w) and w != source) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            elseif structures and not magicImmune then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE) and w != source) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            elseif magicImmune and not structures then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_STRUCTURE) and w != source) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            else
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_STRUCTURE) and not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE) and w != source) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            endif
-        else
-            if structures and magicImmune then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (IsUnitEnemy(w, enemyOf) and UnitAlive(w)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            elseif structures and not magicImmune then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (IsUnitEnemy(w, enemyOf) and UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            elseif magicImmune and not structures then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (IsUnitEnemy(w, enemyOf) and UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_STRUCTURE)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            else
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (IsUnitEnemy(w, enemyOf) and UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_STRUCTURE) and not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            endif
-        endif
+        call GroupRemoveUnit(h, source)
+        loop
+            set w = FirstOfGroup(h)
+            exitwhen w == null
+                if UnitAlive(w) and (allies or IsUnitEnemy(w, enemyOf)) and (structures or (not IsUnitType(w, UNIT_TYPE_STRUCTURE))) and (magicImmune or (not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE))) then
+                    call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
+                endif
+            call GroupRemoveUnit(h, w)
+        endloop
         call DestroyGroup(h)
     
-        set h       = null
+        set h = null
         set enemyOf = null
     endfunction
 
@@ -501,91 +404,25 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
 
     // Makes the source unit damage enemy unit in a cone given a direction, foy and range
     function UnitDamageCone takes unit source, real x, real y, real face, real fov, real aoe, real damage, attacktype atkType, damagetype dmgType, boolean structures, boolean magicImmune, boolean allies returns nothing
-        local group  h       = CreateGroup()
+        local group h = CreateGroup()
         local player enemyOf = GetOwningPlayer(source)
-        local unit   w
+        local unit w
         
         call GroupEnumUnitsInRange(h, x, y, aoe, null)
-        if allies then
-            if structures and magicImmune then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (UnitAlive(w) and w != source and IsUnitInCone(w, x, y, aoe, face, fov)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            elseif structures and not magicImmune then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE) and w != source and IsUnitInCone(w, x, y, aoe, face, fov)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            elseif magicImmune and not structures then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_STRUCTURE) and w != source and IsUnitInCone(w, x, y, aoe, face, fov)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            else
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_STRUCTURE) and not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE) and w != source and IsUnitInCone(w, x, y, aoe, face, fov)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            endif
-        else
-            if structures and magicImmune then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (IsUnitEnemy(w, enemyOf) and UnitAlive(w) and IsUnitInCone(w, x, y, aoe, face, fov)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            elseif structures and not magicImmune then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (IsUnitEnemy(w, enemyOf) and UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE) and IsUnitInCone(w, x, y, aoe, face, fov)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            elseif magicImmune and not structures then
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (IsUnitEnemy(w, enemyOf) and UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_STRUCTURE) and IsUnitInCone(w, x, y, aoe, face, fov)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            else
-                loop
-                    set w = FirstOfGroup(h)
-                    exitwhen w == null
-                        if (IsUnitEnemy(w, enemyOf) and UnitAlive(w) and not IsUnitType(w, UNIT_TYPE_STRUCTURE) and not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE) and IsUnitInCone(w, x, y, aoe, face, fov)) then
-                            call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
-                        endif
-                    call GroupRemoveUnit(h, w)
-                endloop
-            endif
-        endif
+        call GroupRemoveUnit(h, source)
+        loop
+            set w = FirstOfGroup(h)
+            exitwhen w == null
+                if (UnitAlive(w) and IsUnitInCone(w, x, y, aoe, face, fov)) then
+                    if (allies or IsUnitEnemy(w, enemyOf)) and (structures or (not IsUnitType(w, UNIT_TYPE_STRUCTURE))) and (magicImmune or (not IsUnitType(w, UNIT_TYPE_MAGIC_IMMUNE))) then
+                        call UnitDamageTarget(source, w, damage, true, false, atkType, dmgType, null)
+                    endif
+                endif
+            call GroupRemoveUnit(h, w)
+        endloop
         call DestroyGroup(h)
     
-        set h       = null
+        set h = null
         set enemyOf = null
     endfunction
 

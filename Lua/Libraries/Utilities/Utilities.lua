@@ -1,5 +1,5 @@
 --[[ requires Indexer, TimedHandles, RegisterPlayerUnitEvent
-    -- --------------------------------------- Utilities v1.8 --------------------------------------- --
+    -- --------------------------------------- Utilities v1.9 --------------------------------------- --
     -- How to Import:
     -- 1 - Copy this library into your map
     -- 2 - Copy the dummy unit in object editor and match its raw code below
@@ -64,34 +64,11 @@ do
         local g = CreateGroup()
         local unit
 
-        GroupEnumUnitsInRange(g, x, y, aoe, null)
-        if structures and magicImmune then
-            for i = 0, BlzGroupGetSize(g) - 1 do
-                unit = BlzGroupUnitAt(g, i)
-                if IsUnitEnemy(unit, player) and UnitAlive(unit) then
-                    GroupAddUnit(group, unit)
-                end
-            end
-        elseif structures and not magicImmune then
-            for i = 0, BlzGroupGetSize(g) - 1 do
-                unit = BlzGroupUnitAt(g, i)
-                if IsUnitEnemy(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE) then
-                    GroupAddUnit(group, unit)
-                end
-            end
-        elseif magicImmune and not structures then
-            for i = 0, BlzGroupGetSize(g) - 1 do
-                unit = BlzGroupUnitAt(g, i)
-                if IsUnitEnemy(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) then
-                    GroupAddUnit(group, unit)
-                end
-            end
-        else
-            for i = 0, BlzGroupGetSize(g) - 1 do
-                unit = BlzGroupUnitAt(g, i)
-                if IsUnitEnemy(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE) then
-                    GroupAddUnit(group, unit)
-                end
+        GroupEnumUnitsInRange(g, x, y, aoe, nil)
+        for i = 0, BlzGroupGetSize(g) - 1 do
+            unit = BlzGroupUnitAt(g, i)
+            if IsUnitEnemy(unit, player) and UnitAlive(unit) and (structures or (not IsUnitType(unit, UNIT_TYPE_STRUCTURE))) and (magicImmune or (not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE))) then
+                GroupAddUnit(group, unit)
             end
         end
         DestroyGroup(g)
@@ -190,72 +167,14 @@ do
     -- Makes the specified source damage an area respecting some basic unit filters
     function UnitDamageArea(unit, x, y, aoe, damage, attacktype, damagetype, structures, magicImmune, allies)
         local group = CreateGroup()
+        local player = GetOwningPlayer(unit)
 
-        GroupEnumUnitsInRange(group, x, y, aoe, null)
+        GroupEnumUnitsInRange(group, x, y, aoe, nil)
         GroupRemoveUnit(group, unit)
-        if allies then
-            if structures and magicImmune then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    local u = BlzGroupUnitAt(group, i)
-                    if UnitAlive(u) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            elseif structures and not magicImmune then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    local u = BlzGroupUnitAt(group, i)
-                    if UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            elseif magicImmune and not structures then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    local u = BlzGroupUnitAt(group, i)
-                    if UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            else
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    local u = BlzGroupUnitAt(group, i)
-                    if UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            end
-        else
-            if structures and magicImmune then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    local u = BlzGroupUnitAt(group, i)
-                    local player = GetOwningPlayer(unit)
-                    if IsUnitEnemy(u, player) and UnitAlive(u) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            elseif structures and not magicImmune then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    local u = BlzGroupUnitAt(group, i)
-                    local player = GetOwningPlayer(unit)
-                    if IsUnitEnemy(u, player) and UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            elseif magicImmune and not structures then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    local u = BlzGroupUnitAt(group, i)
-                    local player = GetOwningPlayer(unit)
-                    if IsUnitEnemy(u, player) and UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            else
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    local u = BlzGroupUnitAt(group, i)
-                    local player = GetOwningPlayer(unit)
-                    if IsUnitEnemy(u, player) and UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
+        for i = 0, BlzGroupGetSize(group) - 1 do
+            local u = BlzGroupUnitAt(group, i)
+            if UnitAlive(u) and (allies or IsUnitEnemy(u, player)) and (structures or (not IsUnitType(u, UNIT_TYPE_STRUCTURE))) and (magicImmune or (not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE))) then
+                UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, nil)
             end
         end
         DestroyGroup(group)
@@ -525,70 +444,16 @@ do
 
     -- Makes the source unit damage enemy unit in a cone given a direction, foy and range
     function UnitDamageCone(unit, x, y, face, fov, aoe, damage, attacktype, damagetype, structures, magicImmune, allies)
-        local group  = CreateGroup()
+        local group = CreateGroup()
         local player = GetOwningPlayer(unit)
-        local u
 
-        GroupEnumUnitsInRange(group, x, y, aoe, null)
+        GroupEnumUnitsInRange(group, x, y, aoe, nil)
         GroupRemoveUnit(group, unit)
-        if allies then
-            if structures and magicImmune then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    u = BlzGroupUnitAt(group, i)
-                    if UnitAlive(u) and IsUnitInCone(u, x, y, aoe, face, fov) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            elseif structures and not magicImmune then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    u = BlzGroupUnitAt(group, i)
-                    if UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) and IsUnitInCone(u, x, y, aoe, face, fov) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            elseif magicImmune and not structures then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    u = BlzGroupUnitAt(group, i)
-                    if UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and IsUnitInCone(u, x, y, aoe, face, fov) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            else
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    u = BlzGroupUnitAt(group, i)
-                    if UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) and IsUnitInCone(u, x, y, aoe, face, fov) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            end
-        else
-            if structures and magicImmune then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    u = BlzGroupUnitAt(group, i)
-                    if IsUnitEnemy(u, player) and UnitAlive(u) and IsUnitInCone(u, x, y, aoe, face, fov) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            elseif structures and not magicImmune then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    u = BlzGroupUnitAt(group, i)
-                    if IsUnitEnemy(u, player) and UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) and IsUnitInCone(u, x, y, aoe, face, fov) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            elseif magicImmune and not structures then
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    u = BlzGroupUnitAt(group, i)
-                    if IsUnitEnemy(u, player) and UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and IsUnitInCone(u, x, y, aoe, face, fov) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
-                end
-            else
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    u = BlzGroupUnitAt(group, i)
-                    if IsUnitEnemy(u, player) and UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) and IsUnitInCone(u, x, y, aoe, face, fov) then
-                        UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, null)
-                    end
+        for i = 0, BlzGroupGetSize(group) - 1 do
+            local u = BlzGroupUnitAt(group, i)
+            if UnitAlive(u) and IsUnitInCone(u, x, y, aoe, face, fov) then
+                if (allies or IsUnitEnemy(u, player)) and (structures or (not IsUnitType(u, UNIT_TYPE_STRUCTURE))) and (magicImmune or (not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE))) then
+                    UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, nil)
                 end
             end
         end
@@ -600,7 +465,7 @@ do
         local group = CreateGroup()
         local unit
 
-        GroupEnumUnitsInRange(group, x, y, aoe, null)
+        GroupEnumUnitsInRange(group, x, y, aoe, nil)
         for i = 0, BlzGroupGetSize(group) - 1 do
             unit = BlzGroupUnitAt(group, i)
             if IsUnitAlly(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) then
