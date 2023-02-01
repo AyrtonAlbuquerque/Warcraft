@@ -1,5 +1,5 @@
 --[[ requires DamageInterface, SpellEffectEvent, NewBonusUtils
-    /* -------------------- Fortifying Brew v1.2 by Chopinski ------------------- */
+    /* -------------------- Fortifying Brew v1.3 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Bribe           - SpellEffectEvent
@@ -22,17 +22,17 @@ do
 
     -- The Fortifying Brew health regen bonus
     local function GetHealthRegen(level)
-        return 5.*level
+        return 2.*level
     end
 
     -- The Fortifying Brew mana regen bonus
     local function GetManaRegen(level)
-        return 2.*level
+        return 1.*level
     end
 
     -- The Fortifying Brew damage reduction
     local function GetDamageReduction(level)
-        return 0.33 + 0.*level
+        return 0.075 + 0.025*level
     end
 
     -- The Fortifying Brew level up base on hero level

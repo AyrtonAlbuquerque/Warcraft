@@ -1,5 +1,5 @@
-library FortifyingBrew requires DamageInterface, SpellEffectEvent, PluginSpellEffect, NewBonusUtils
-    /* -------------------- Fortifying Brew v1.2 by Chopinski ------------------- */
+library FortifyingBrew requires DamageInterface, SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities
+    /* -------------------- Fortifying Brew v1.3 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Bribe           - SpellEffectEvent
@@ -10,9 +10,11 @@ library FortifyingBrew requires DamageInterface, SpellEffectEvent, PluginSpellEf
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Fortifying Brew ability
-        private constant integer ABILITY = 'A000'
-        // The raw code of the Fortifying Brew bUFF
-        private constant integer BUFF    = 'B001'
+        private constant integer ABILITY    = 'A00E'
+        // The raw code of the Fortifying Brew Reduction ability
+        private constant integer REDUCTION  = 'A00F'
+        // The raw code of the Fortifying Brew buff
+        private constant integer BUFF       = 'B001'
     endglobals
 
     // The Fortifying Brew health/mana regen bonus duration per cast
@@ -22,17 +24,17 @@ library FortifyingBrew requires DamageInterface, SpellEffectEvent, PluginSpellEf
 
     // The Fortifying Brew health regen bonus
     private function GetHealthRegen takes integer level returns real
-        return 5.*level
+        return 2.*level
     endfunction
 
     // The Fortifying Brew mana regen bonus
     private function GetManaRegen takes integer level returns real
-        return 2.*level
+        return 1.*level
     endfunction
 
     // The Fortifying Brew damage reduction
     private function GetDamageReduction takes integer level returns real
-        return 0.33 + 0.*level
+        return 0.075 + 0.025*level
     endfunction
 
     // The Fortifying Brew level up base on hero level
@@ -43,10 +45,21 @@ library FortifyingBrew requires DamageInterface, SpellEffectEvent, PluginSpellEf
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct FortifyingBrew
+    struct FortifyingBrew extends array
         private static method onCast takes nothing returns nothing
-            call AddUnitBonusTimed(Spell.source.unit, BONUS_HEALTH_REGEN, GetHealthRegen(Spell.level), GetDuration(Spell.source.unit, Spell.level))
-            call AddUnitBonusTimed(Spell.source.unit, BONUS_MANA_REGEN, GetManaRegen(Spell.level), GetDuration(Spell.source.unit, Spell.level))
+            local unit source = GetTriggerUnit()
+            local integer level = GetUnitAbilityLevel(source, ABILITY)
+            local real duration
+
+            if level > 0 then
+                set duration = GetDuration(source, level)
+
+                call UnitAddAbilityTimed(source, REDUCTION, duration, 1, true)
+                call AddUnitBonusTimed(source, BONUS_HEALTH_REGEN, GetHealthRegen(level), duration)
+                call AddUnitBonusTimed(source, BONUS_MANA_REGEN, GetManaRegen(level), duration)
+            endif
+
+            set source = null
         endmethod
 
         private static method onLevel takes nothing returns nothing
@@ -68,7 +81,7 @@ library FortifyingBrew requires DamageInterface, SpellEffectEvent, PluginSpellEf
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCast)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod

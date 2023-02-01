@@ -273,8 +273,8 @@ do
             end)
 
             RegisterSpellEffectEvent(DEBUFF, function()
-                if GetUnitAbilityLevel(Spell.target.unit, KegSmash_BUFF) == 0 then
-                    LinkBonusToBuff(Spell.target.unit, BONUS_MISS_CHANCE, GetChance(Spell.level), KegSmash_BUFF)
+                if GetUnitAbilityLevel(GetSpellTargetUnit(), KegSmash_BUFF) == 0 then
+                    LinkBonusToBuff(GetSpellTargetUnit(), BONUS_MISS_CHANCE, GetChance(GetUnitAbilityLevel(GetTriggerUnit(), DEBUFF)), KegSmash_BUFF)
                 end
             end)
         end)

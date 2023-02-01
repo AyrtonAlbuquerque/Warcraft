@@ -270,8 +270,8 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
         endmethod
 
         private static method onCast takes nothing returns nothing
-            if GetUnitAbilityLevel(Spell.target.unit, BUFF) == 0 then
-                call LinkBonusToBuff(Spell.target.unit, BONUS_MISS_CHANCE, GetChance(Spell.level), BUFF)
+            if GetUnitAbilityLevel(GetSpellTargetUnit(), BUFF) == 0 then
+                call LinkBonusToBuff(GetSpellTargetUnit(), BONUS_MISS_CHANCE, GetChance(GetUnitAbilityLevel(GetTriggerUnit(), DEBUFF)), BUFF)
             endif
         endmethod
 
