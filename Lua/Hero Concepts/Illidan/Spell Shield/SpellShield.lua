@@ -1,5 +1,5 @@
---[[ requires DamageInterface, SpellEffectEvent, Utilities, NewBonusUtils, optional Metamorphosis
-    /* --------------------- Spell Shield v1.2 by Chopinski --------------------- */
+--[[ requires DamageInterface, SpellEffectEvent, Utilities, NewBonusUtils, CrowdControl, optional Metamorphosis
+    /* --------------------- Spell Shield v1.3 by Chopinski --------------------- */
     // Credits:
     //     Darkfang        - Icon
     //     Bribe           - SpellEffectEvent
@@ -12,8 +12,6 @@ do
     -- -------------------------------------------------------------------------- --
     -- The raw code of the Spell Shield ability
     local ABILITY      = FourCC('A004')
-    -- The raw code of the Spell Block ability
-    local SPELL_BLOCK  = FourCC('A005')
     -- The raw code of the Spell Shield buff
     local BUFF         = FourCC('B003')
     -- The Spell Shield model
@@ -24,11 +22,6 @@ do
     -- The Adaptive Strike damage
     local function GetConversion(level)
         return 0.2 + 0.1*level
-    end
-
-    -- The Spell Shield Duration
-    local function GetDuration(unit, level)
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_RLF_DURATION_HERO, level - 1)
     end
 
     -- -------------------------------------------------------------------------- --
@@ -128,12 +121,17 @@ do
     
     onInit(function()
         RegisterSpellEffectEvent(ABILITY, function()
-            UnitRemoveBuffs(Spell.source.unit, false, true)
-            UnitAddAbilityTimed(Spell.source.unit, SPELL_BLOCK, GetDuration(Spell.source.unit, Spell.level), Spell.level, true)
+            UnitDispelAllCrowdControl(Spell.source.unit)
         end)
         
         RegisterSpellDamageEvent(function()
             SpellShield:onDamage()
+        end)
+
+        RegisterAnyCrowdControlEvent(function()
+            if GetUnitAbilityLevel(GetCrowdControlUnit(), BUFF) > 0 then
+                SetCrowdControlDuration(0)
+            end
         end)
     end)
 end

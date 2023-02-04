@@ -1,5 +1,5 @@
-library SpellShield requires DamageInterface, SpellEffectEvent, PluginSpellEffect, Utilities, NewBonusUtils, optional Metamorphosis
-    /* --------------------- Spell Shield v1.2 by Chopinski --------------------- */
+library SpellShield requires DamageInterface, SpellEffectEvent, PluginSpellEffect, Utilities, NewBonusUtils, CrowdControl optional Metamorphosis
+    /* --------------------- Spell Shield v1.3 by Chopinski --------------------- */
     // Credits:
     //     Darkfang        - Icon
     //     Bribe           - SpellEffectEvent
@@ -11,8 +11,6 @@ library SpellShield requires DamageInterface, SpellEffectEvent, PluginSpellEffec
     globals
         // The raw code of the Spell Shield ability
         private constant integer ABILITY      = 'A004'
-        // The raw code of the Spell Block ability
-        private constant integer SPELL_BLOCK  = 'A005'
         // The raw code of the Spell Shield buff
         private constant integer BUFF         = 'B003'
         // The Spell Shield model
@@ -26,37 +24,32 @@ library SpellShield requires DamageInterface, SpellEffectEvent, PluginSpellEffec
         return 0.2 + 0.1*level
     endfunction
 
-    // The Spell Shield Duration
-    private function GetDuration takes unit source, integer level returns real
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DURATION_HERO, level - 1)
-    endfunction
-
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct SpellShield
-        static thistype array data
-        static integer        didx  = -1
-        static timer          timer = CreateTimer()
+        static thistype array array
+        static integer key = -1
+        static timer timer = CreateTimer()
 
-        unit    source
-        unit    target
-        effect  effect
+        unit source
+        unit target
+        effect effect
         integer count
-        real    angle
-        real    x
-        real    y
+        real angle
+        real x
+        real y
 
         method remove takes integer i returns integer
             call DestroyEffect(effect)
 
-            set data[i] = data[didx]
-            set didx    = didx - 1
-            set source  = null
-            set target  = null
-            set effect  = null
+            set array[i] = array[key]
+            set key = key - 1
+            set source = null
+            set target = null
+            set effect = null
 
-            if didx == -1 then
+            if key == -1 then
                 call PauseTimer(timer)
             endif
 
@@ -71,14 +64,14 @@ library SpellShield requires DamageInterface, SpellEffectEvent, PluginSpellEffec
             local thistype this
 
             loop
-                exitwhen i > didx
-                    set this = data[i]
+                exitwhen i > key
+                    set this = array[i]
 
                     if count <= 0 then
                         set i = remove(i)
                     else
-                        set x     = GetUnitX(target)
-                        set y     = GetUnitY(target)
+                        set x = GetUnitX(target)
+                        set y = GetUnitY(target)
                         set angle = AngleBetweenCoordinates(x, y, GetUnitX(source), GetUnitY(source))
 
                         static if LIBRARY_Metamorphosis then
@@ -106,16 +99,16 @@ library SpellShield requires DamageInterface, SpellEffectEvent, PluginSpellEffec
 
             if damage > 0 and GetUnitAbilityLevel(Damage.target.unit, BUFF) > 0 then
                 set this = thistype.allocate()
-                set source     = Damage.source.unit
-                set target     = Damage.target.unit
-                set angle      = AngleBetweenCoordinates(Damage.target.x, Damage.target.y, Damage.source.x, Damage.source.y)
-                set x          = Damage.target.x + 60*Cos(angle)
-                set y          = Damage.target.y + 60*Sin(angle)
-                set count      = 16
-                set effect     = AddSpecialEffect(MODEL, x, y)
-                set didx       = didx + 1
-                set data[didx] = this
-                set damage     = damage*(1 - GetConversion(GetUnitAbilityLevel(Damage.target.unit, ABILITY)))
+                set source = Damage.source.unit
+                set target = Damage.target.unit
+                set angle = AngleBetweenCoordinates(Damage.target.x, Damage.target.y, Damage.source.x, Damage.source.y)
+                set x = Damage.target.x + 60*Cos(angle)
+                set y = Damage.target.y + 60*Sin(angle)
+                set count = 16
+                set effect = AddSpecialEffect(MODEL, x, y)
+                set key = key + 1
+                set array[key] = this
+                set damage = damage*(1 - GetConversion(GetUnitAbilityLevel(Damage.target.unit, ABILITY)))
 
                 static if LIBRARY_Metamorphosis then
                     if GetUnitAbilityLevel(Damage.target.unit, Metamorphosis_BUFF) > 0 then
@@ -134,20 +127,26 @@ library SpellShield requires DamageInterface, SpellEffectEvent, PluginSpellEffec
                 call BlzSetEventDamage(damage)
                 call LinkBonusToBuff(Damage.target.unit, BONUS_DAMAGE, damage, BUFF)
 
-                if didx == 0 then
+                if key == 0 then
                     call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
                 endif
             endif
         endmethod
 
         static method onCast takes nothing returns nothing
-            call UnitRemoveBuffs(Spell.source.unit, false, true)
-            call UnitAddAbilityTimed(Spell.source.unit, SPELL_BLOCK, GetDuration(Spell.source.unit, Spell.level), Spell.level, true)
+            call UnitDispelAllCrowdControl(Spell.source.unit)
+        endmethod
+
+        static method onCrowdControl takes nothing returns nothing
+            if GetUnitAbilityLevel(GetCrowdControlUnit(), BUFF) > 0 then
+                call SetCrowdControlDuration(0)
+            endif
         endmethod
 
         private static method onInit takes nothing returns nothing
             call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
             call RegisterSpellDamageEvent(function thistype.onDamage)
+            call RegisterAnyCrowdControlEvent(function thistype.onCrowdControl)
         endmethod
     endstruct
 endlibrary
