@@ -1,5 +1,5 @@
 library MissileUtils requires Missiles, Alloc
-    /* ------------------------------------- Missile Utils v2.7 ------------------------------------- */
+    /* ------------------------------------- Missile Utils v2.8 ------------------------------------- */
     // This is a simple Utils library for the Relativistic Missiles system.
     // Credits:
     //     Sevion for the Alloc module

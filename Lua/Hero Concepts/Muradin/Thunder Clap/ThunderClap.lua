@@ -1,5 +1,5 @@
 --[[ requires SpellEffectEvent, TimedHandles, CrowdControl optional Avatar
-    -- -------------------------------------- Thunder Clap v1.3 ------------------------------------- --
+    -- -------------------------------------- Thunder Clap v1.4 ------------------------------------- --
     -- Credits:
     --     Blizzard       - Icon
     --     Bribe          - SpellEffectEvent
@@ -54,7 +54,15 @@ do
 
     -- The AoE for calculating the heal
     local function GetAoE(unit, level)
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ThunderClap_ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
+        local aoe = BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ThunderClap_ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
+
+        if Avatar then
+            if GetUnitAbilityLevel(unit, Avatar_BUFF) > 0 then
+                aoe = aoe * 1.5
+            end
+        end
+
+        return aoe
     end
 
     -- The healing amount

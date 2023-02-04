@@ -1,5 +1,5 @@
 library ThunderClap requires SpellEffectEvent, PluginSpellEffect, TimedHandles, CrowdControl optional Avatar
-    /* -------------------------------------- Thunder Clap v1.3 ------------------------------------- */
+    /* -------------------------------------- Thunder Clap v1.4 ------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
     //     Bribe          - SpellEffectEvent
@@ -54,7 +54,15 @@ library ThunderClap requires SpellEffectEvent, PluginSpellEffect, TimedHandles, 
 
     // The AoE
     private function GetAoE takes unit source, integer level returns real
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
+        local real aoe = BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
+
+        static if LIBRARY_Avatar then
+            if GetUnitAbilityLevel(source, Avatar_BUFF) > 0 then
+                set aoe = aoe * 1.5
+            endif
+        endif
+
+        return aoe
     endfunction
 
     // The healing amount

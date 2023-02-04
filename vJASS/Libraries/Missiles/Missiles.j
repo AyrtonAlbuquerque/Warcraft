@@ -1,5 +1,5 @@
 library Missiles requires MissileEffect, TimerUtils, WorldBounds
-    /* ---------------------------------------- Missiles v2.7 --------------------------------------- */
+    /* ---------------------------------------- Missiles v2.8 --------------------------------------- */
     // Thanks and Credits to BPower, Dirac and Vexorian for the Missile Library's at which i based
     // this Missiles library. Credits and thanks to AGD and for the effect orientation ideas.
     // This version of Missiles requires patch 1.31+

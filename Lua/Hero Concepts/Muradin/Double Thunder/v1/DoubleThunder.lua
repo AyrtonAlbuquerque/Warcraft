@@ -1,5 +1,5 @@
 --[[ requires RegisterPlayerUnitEvent, optional StormBolt, optional ThunderClap, optional Avatar
-    -- ------------------------------------- Double Thunder v1.3 ------------------------------------ --
+    -- ------------------------------------- Double Thunder v1.4 ------------------------------------ --
     -- Credits:
     --     Magtheridon96  - RegisterPlayerUnitEvent
     --     Blizzard       - Icon

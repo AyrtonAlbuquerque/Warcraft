@@ -1,5 +1,5 @@
 library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, optional ThunderClap, optional Avatar
-    /* ------------------------------------- Double Thunder v1.3 ------------------------------------ */
+    /* ------------------------------------- Double Thunder v1.4 ------------------------------------ */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Blizzard       - Icon
@@ -56,17 +56,17 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
 
         private static method onCast takes nothing returns nothing
             local unit source = GetTriggerUnit()
-            local unit target = GetSpellTargetUnit()
             local integer skill = GetSpellAbilityId()
             local integer level = GetUnitAbilityLevel(source, ABILITY)
             local integer chance = GetDoubleChance(source, level)
+            local integer id = GetUnitUserData(source)
         
             static if LIBRARY_StormBolt then
                 if skill == StormBolt_ABILITY then
                     if GetRandomInt(1, 100) <= chance then
                         call UnitAddAbility(source,  StormBolt_STORM_BOLT_RECAST)
                         call TriggerSleepAction(0.10)
-                        call IssueTargetOrder(source, "creepthunderbolt", target)
+                        call IssuePointOrder(source, "creepthunderbolt", StormBolt.x[id], StormBolt.y[id])
                         call TriggerSleepAction(0.50)
                         call UnitRemoveAbility(source, StormBolt_STORM_BOLT_RECAST)
                     endif
@@ -86,7 +86,6 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
             endif
         
             set source = null
-            set target = null
         endmethod
 
         static method onInit takes nothing returns nothing

@@ -1,5 +1,5 @@
 --[[ requires SpellEffectEvent, Missiles, Utilities, TimedHandles, CrowdControl optional Avatar
-    -- --------------------------------------- Storm Bolt v1.3 -------------------------------------- --
+    -- --------------------------------------- Storm Bolt v1.4 -------------------------------------- --
     -- Credits:
     --     Blizzard       - Icon
     --     Bribe          - SpellEffectEvent
