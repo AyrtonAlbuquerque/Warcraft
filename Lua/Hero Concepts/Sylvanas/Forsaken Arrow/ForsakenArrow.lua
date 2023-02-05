@@ -1,5 +1,5 @@
 --[[ requires SpellEffectEvent, Utilities, Missiles, CrowdControl optional BlackArrow
-    -- ------------------------------------- Forseken Arrow v1.3 ------------------------------------ --
+    -- ------------------------------------- Forseken Arrow v1.4 ------------------------------------ --
     -- Credits:
     --     Bribe          - SpellEffectEvent
     --     Darkfang       - Icon
@@ -97,18 +97,19 @@ do
             if BlackArrow then
                 this.curse_level = GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)
                 this.ability = BlackArrow_BLACK_ARROW_CURSE
-                this.curse = true
-                this.curse_duration = BlackArrow_GetCurseDuration(curse_level)
+                this.curse = this.curse_level > 0
+                this.curse_duration = BlackArrow_GetCurseDuration(this.curse_level)
             else
                 this.curse = false
             end
 
             this.onHit = function(unit)
                 if Filtered(this.owner, unit) then
-                    if this.curse then
-                        UnitAddAbilityTimed(unit, this.ability, this.curse_duration, this.curse_level, true)
+                    if UnitDamageTarget(this.source, unit, this.damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, nil) and this.curse then
+                        if BlackArrow then
+                            BlackArrow:curse(unit, this.source, this.owner)
+                        end
                     end
-                    UnitDamageTarget(this.source, unit, this.damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, nil)
                 end
 
                 return false
@@ -122,16 +123,18 @@ do
                 for i = 0, BlzGroupGetSize(group) - 1 do
                     local unit = BlzGroupUnitAt(group, i)
                     if Filtered(this.owner, unit) then
-                        local dur = GetDuration(this.source, unit, this.level)
-
-                        if this.curse then
-                            UnitAddAbilityTimed(unit, this.ability, this.curse_duration, this.curse_level, true)
-                        end
-
                         if UnitDamageTarget(this.source, unit, this.exp_damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
-                            FearUnit(unit, dur, FEAR_MODEL, ATTACH_FEAR, false)
-                            SilenceUnit(unit, dur, nil, nil, false)
-                            SlowUnit(unit, GetSlow(unit, this.level), dur, nil, nil, false)
+                            local duration = GetDuration(this.source, unit, this.level)
+
+                            if BlackArrow then
+                                if this.curse then
+                                    BlackArrow:curse(unit, this.source, this.owner)
+                                end
+                            end
+
+                            FearUnit(unit, duration, FEAR_MODEL, ATTACH_FEAR, false)
+                            SilenceUnit(unit, duration, nil, nil, false)
+                            SlowUnit(unit, GetSlow(unit, this.level), duration, nil, nil, false)
                         end
                     end
                 end

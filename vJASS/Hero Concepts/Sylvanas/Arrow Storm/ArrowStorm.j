@@ -1,5 +1,5 @@
 library ArrowStorm requires SpellEffectEvent, PluginSpellEffect, Utilities, Missiles, optional BlackArrow
-    /* ---------------------- ArrowStorm v1.2 by Chopinski ---------------------- */
+    /* ---------------------- ArrowStorm v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Bribe        - SpellEffectEvent
     //     Deathclaw24  - Arrow Storm Icon
@@ -60,14 +60,14 @@ library ArrowStorm requires SpellEffectEvent, PluginSpellEffect, Utilities, Miss
         integer level
         integer ability
         boolean curse
-        real    aoe
-        real    curse_duration
+        real aoe
+        real curse_duration
 
         method onFinish takes nothing returns boolean
-            local group   g = CreateGroup()
+            local group g = CreateGroup()
             local integer i = 0
-            local real    size
-            local unit    u
+            local real size
+            local unit u
 
             call GroupEnumUnitsInRange(g, x, y, aoe, null)
             set size = BlzGroupGetSize(g)
@@ -75,16 +75,19 @@ library ArrowStorm requires SpellEffectEvent, PluginSpellEffect, Utilities, Miss
                 loop
                     exitwhen i == size
                         set u = BlzGroupUnitAt(g, i)
+
                         if Filtered(owner, u) then
-                            if curse then
-                                call UnitAddAbilityTimed(u, ability, curse_duration, level, true)
+                            if UnitDamageTarget(source, u, damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null) and curse then
+                                static if LIBRARY_BlackArrow then
+                                    call BlackArrow.curse(u, source, owner)
+                                endif
                             endif
-                            call UnitDamageTarget(source, u, damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null)
                         endif
                     set i = i + 1
                 endloop
             endif
             call DestroyGroup(g)
+
             set u = null
             set g = null
 
@@ -92,29 +95,29 @@ library ArrowStorm requires SpellEffectEvent, PluginSpellEffect, Utilities, Miss
         endmethod
 
         private static method onCast takes nothing returns nothing
-            local integer  i     = 0
-            local integer  count = GetArrowCount(Spell.level)
-            local real     aoe   = GetAoE(Spell.source.unit, Spell.level)
-            local real     radius
+            local integer i = 0
+            local integer count = GetArrowCount(Spell.level)
+            local real aoe = GetAoE(Spell.source.unit, Spell.level)
+            local real radius
             local thistype this
 
             loop
                 exitwhen i == count
                     set radius = GetRandomRange(aoe)
-                    set this   = ArrowStorm.create(Spell.source.x, Spell.source.y, 85, GetRandomCoordInRange(Spell.x, radius, true), GetRandomCoordInRange(Spell.y, radius, false), 0)
+                    set this = ArrowStorm.create(Spell.source.x, Spell.source.y, 85, GetRandomCoordInRange(Spell.x, radius, true), GetRandomCoordInRange(Spell.y, radius, false), 0)
                     set source = Spell.source.unit
-                    set owner  = Spell.source.player
-                    set speed  = ARROW_SPEED
-                    set arc    = ARROW_ARC
+                    set owner = Spell.source.player
+                    set speed = ARROW_SPEED
+                    set arc = ARROW_ARC
                     set damage = GetDamage(Spell.level)
-                    set .aoe   = GetArrowAoE(Spell.level)
+                    set .aoe = GetArrowAoE(Spell.level)
 
                     static if LIBRARY_BlackArrow then
-                        set level = GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)
                         if BlackArrow.active[GetUnitUserData(Spell.source.unit)] then
-                            set model    = CURSE_ARROW_MODEL
-                            set curse    = true
-                            set ability  = BlackArrow_BLACK_ARROW_CURSE
+                            set level = GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)
+                            set model = CURSE_ARROW_MODEL
+                            set curse = level > 0
+                            set ability = BlackArrow_BLACK_ARROW_CURSE
                             set curse_duration = BlackArrow_GetCurseDuration(level)
                         else    
                             set model = ARROW_MODEL
@@ -124,6 +127,7 @@ library ArrowStorm requires SpellEffectEvent, PluginSpellEffect, Utilities, Miss
                         set model = ARROW_MODEL
                         set curse = false
                     endif
+
                     set scale  = ARROW_SCALE
 
                     call launch()

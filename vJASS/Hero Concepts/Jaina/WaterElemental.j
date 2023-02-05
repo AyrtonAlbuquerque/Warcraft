@@ -1,5 +1,5 @@
 library WaterElemental requires SpellEffectEvent, PluginSpellEffect, NewBonus, Indexer
-    /* -------------------- Water Elemental v1.0 by Chopinski ------------------- */
+    /* -------------------- Water Elemental v1.1 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Bribe           - SpellEffectEvent
@@ -13,6 +13,10 @@ library WaterElemental requires SpellEffectEvent, PluginSpellEffect, NewBonus, I
         private constant integer ABILITY   = 'A000'
         // The raw code of the Water Elemental unit
         public  constant integer ELEMENTAL = 'h001'
+        // The summon effect
+        private constant string MODEL      = "WaterBurst.mdl"
+        // The summon effect scale
+        private constant real SCALE        = 1.
     endglobals
 
     // The unit damage
@@ -196,7 +200,10 @@ library WaterElemental requires SpellEffectEvent, PluginSpellEffect, NewBonus, I
 
         private static method onCast takes nothing returns nothing
             local thistype this
-            local unit u = CreateUnit(Spell.source.player, ELEMENTAL, Spell.source.x, Spell.source.y, GetUnitFacing(Spell.source.unit))
+            local real angle = GetUnitFacing(Spell.source.unit)
+            local unit u = CreateUnit(Spell.source.player, ELEMENTAL, Spell.source.x + 250*Cos(Deg2Rad(angle)), Spell.source.y + 250*Sin(Deg2Rad(angle)), angle)
+
+            call DestroyEffect(AddSpecialEffectEx(MODEL, GetUnitX(u), GetUnitY(u), 0, SCALE))
 
             if struct[Spell.source.id] != 0 then
                 set this = struct[Spell.source.id]

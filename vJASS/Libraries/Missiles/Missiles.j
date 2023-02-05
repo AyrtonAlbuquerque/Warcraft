@@ -685,7 +685,7 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds
             set target = null
             set toZ = tz
             
-            if z < locZ then
+            if z < locZ and .onTerrain.exists then
                 set nextX = prevX
                 set nextY = prevY
                 set nextZ = prevZ

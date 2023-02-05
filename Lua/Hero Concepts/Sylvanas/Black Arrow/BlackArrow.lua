@@ -1,5 +1,5 @@
 --[[ requires DamageInterface, RegisterPlayerUnitEvent, Utilities, NewBonus optional WitheringFire
-    /* ---------------------- Black Arrow v1.2 by Chopinski --------------------- */
+    /* ---------------------- Black Arrow v1.3 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96 - RegisterPlayerUnitEvent
     //     AZ            - Black Arrow model
@@ -103,7 +103,17 @@ do
     local skeletons = {}
     local source = {}
     local player = {}
-    
+
+    function mt:curse(target, unit, owner)
+        if target and unit and owner then
+            local level = GetUnitAbilityLevel(unit, BlackArrow_ABILITY)
+
+            source[target] = unit
+            player[target] = owner
+            UnitAddAbilityTimed(target, BlackArrow_BLACK_ARROW_CURSE, BlackArrow_GetCurseDuration(level), level, true)
+        end
+    end
+
     onInit(function()
         RegisterAttackDamageEvent(function()
             local level = GetUnitAbilityLevel(Damage.source.unit, BlackArrow_ABILITY)

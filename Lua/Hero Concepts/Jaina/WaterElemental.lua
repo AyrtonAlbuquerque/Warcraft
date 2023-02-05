@@ -1,5 +1,5 @@
 --[[ requires SpellEffectEvent, PluginSpellEffect, NewBonus, Indexer
-    /* -------------------- Water Elemental v1.0 by Chopinski ------------------- */
+    /* -------------------- Water Elemental v1.1 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Bribe           - SpellEffectEvent
@@ -14,6 +14,10 @@ do
     local ABILITY               = FourCC('A000')
     -- The raw code of the Water Elemental unit
     WaterElemental_ELEMENTAL    = FourCC('h001')
+    -- The summon effect
+    local MODEL                 = "WaterBurst.mdl"
+    -- The summon effect scale
+    local SCALE                 = 1
 
     -- The unit damage
     local function GetDamage(unit, level)
@@ -174,8 +178,11 @@ do
 
         onInit(function()
             RegisterSpellEffectEvent(ABILITY, function()
-                local unit = CreateUnit(Spell.source.player, WaterElemental_ELEMENTAL, Spell.source.x, Spell.source.y, GetUnitFacing(Spell.source.unit))
+                local angle = GetUnitFacing(Spell.source.unit)
+                local unit = CreateUnit(Spell.source.player, WaterElemental_ELEMENTAL, Spell.source.x + 250*Cos(Deg2Rad(angle)), Spell.source.y + 250*Sin(Deg2Rad(angle)), angle)
                 local this
+
+                DestroyEffect(AddSpecialEffectEx(MODEL, GetUnitX(unit), GetUnitY(unit), 0, SCALE))
 
                 if struct[Spell.source.unit] then
                     this = struct[Spell.source.unit]

@@ -668,7 +668,7 @@ do
     function mt:deflect(tx, ty, tz)
         local locZ = GetLocZ(self.x, self.y)
 
-        if self.z < locZ then
+        if self.z < locZ and self.onTerrain then
             self.nextX = self.prevX
             self.nextY = self.prevY
             self.nextZ = self.prevZ

@@ -1,5 +1,5 @@
 library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities, NewBonus optional WitheringFire
-    /* ---------------------- Black Arrow v1.2 by Chopinski --------------------- */
+    /* ---------------------- Black Arrow v1.3 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96 - RegisterPlayerUnitEvent
     //     AZ            - Black Arrow model
@@ -97,12 +97,25 @@ library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities,
         private static integer array counter
         private static integer array elite
         private static integer array skeletons
-        private static player array owner
-        private static unit array source
+        static player array owner
+        static unit array source
         static boolean array active
 
         timer   t
         integer idx
+
+        static method curse takes unit target, unit source, player owner returns nothing
+            local integer id
+            local integer level
+
+            if target != null and source != null and owner != null then
+                set id = GetUnitUserData(target)
+                set level = GetUnitAbilityLevel(source, ABILITY)
+                set .owner[id] = owner
+                set .source[id] = source
+                call UnitAddAbilityTimed(target, BLACK_ARROW_CURSE, GetCurseDuration(level), level, true)
+            endif
+        endmethod
 
         private static method onPeriod takes nothing returns nothing
             local thistype this = GetTimerData(GetExpiredTimer())

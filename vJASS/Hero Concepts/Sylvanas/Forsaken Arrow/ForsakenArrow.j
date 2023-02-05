@@ -1,5 +1,5 @@
 library ForsekenArrow requires SpellEffectEvent, PluginSpellEffect, Utilities, Missiles, CrowdControl optional BlackArrow
-    /* ------------------------------------- Forseken Arrow v1.3 ------------------------------------ */
+    /* ------------------------------------- Forseken Arrow v1.4 ------------------------------------ */
     // Credits:
     //     Bribe          - SpellEffectEvent
     //     Darkfang       - Icon
@@ -83,9 +83,9 @@ library ForsekenArrow requires SpellEffectEvent, PluginSpellEffect, Utilities, M
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
     private struct ForsekenArrow extends Missiles
-        real    exp_damage
-        real    aoe
-        real    curse_duration
+        real exp_damage
+        real aoe
+        real curse_duration
         integer curse_level
         integer level
         integer ability
@@ -93,21 +93,22 @@ library ForsekenArrow requires SpellEffectEvent, PluginSpellEffect, Utilities, M
 
         method onHit takes unit hit returns boolean
             if Filtered(owner, hit) then
-                if curse then
-                    call UnitAddAbilityTimed(hit, ability, curse_duration, curse_level, true)
+                if UnitDamageTarget(source, hit, damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null) and curse then
+                    static if LIBRARY_BlackArrow then
+                        call BlackArrow.curse(hit, source, owner)
+                    endif
                 endif
-                call UnitDamageTarget(source, hit, damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null)
             endif
 
             return false
         endmethod
 
         method onFinish takes nothing returns boolean
-            local group   g = CreateGroup()
+            local group g = CreateGroup()
             local integer i = 0
             local integer size
-            local unit    u
-            local real    duration
+            local unit u
+            local real duration
 
             call DestroyEffect(AddSpecialEffectEx(EXPLOSION_MODEL, x, y, z, EXPLOSION_SCALE))
             call GroupEnumUnitsInRange(g, x, y, aoe, null)
@@ -115,14 +116,17 @@ library ForsekenArrow requires SpellEffectEvent, PluginSpellEffect, Utilities, M
             loop
                 exitwhen i == size
                     set u = BlzGroupUnitAt(g, i)
-                    if Filtered(owner, u) then
-                        set duration = GetDuration(source, u, level)
 
-                        if curse then
-                            call UnitAddAbilityTimed(u, ability, curse_duration, curse_level, true)
-                        endif
-                        
+                    if Filtered(owner, u) then
                         if UnitDamageTarget(source, u, exp_damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
+                            set duration = GetDuration(source, u, level)
+
+                            static if LIBRARY_BlackArrow then
+                                if curse then
+                                    call BlackArrow.curse(u, source, owner)
+                                endif
+                            endif
+
                             call FearUnit(u, duration, FEAR_MODEL, ATTACH_FEAR, false)
                             call SilenceUnit(u, duration, null, null, false)
                             call SlowUnit(u, GetSlow(u, level), duration, null, null, false)
@@ -131,6 +135,7 @@ library ForsekenArrow requires SpellEffectEvent, PluginSpellEffect, Utilities, M
                 set i = i + 1
             endloop
             call DestroyGroup(g)
+
             set g = null
             set u = null
 
@@ -140,22 +145,22 @@ library ForsekenArrow requires SpellEffectEvent, PluginSpellEffect, Utilities, M
         private static method onCast takes nothing returns nothing
             local thistype this = thistype.create(Spell.source.x, Spell.source.y, 50, Spell.x, Spell.y, 50)
 
-            set source     = Spell.source.unit
-            set speed      = MISSILE_SPEED
-            set model      = MISSILE_MODEL
-            set scale      = MISSILE_SCALE
-            set level      = Spell.level
-            set owner      = Spell.source.player
-            set vision     = 500
-            set aoe        = GetAoE(Spell.source.unit, Spell.level)
-            set damage     = GetCollisionDamage(Spell.source.unit, Spell.level)
-            set collision  = GetCollisionSize(Spell.level)
+            set source = Spell.source.unit
+            set speed = MISSILE_SPEED
+            set model = MISSILE_MODEL
+            set scale = MISSILE_SCALE
+            set level = Spell.level
+            set owner = Spell.source.player
+            set vision = 500
+            set aoe = GetAoE(Spell.source.unit, Spell.level)
+            set damage = GetCollisionDamage(Spell.source.unit, Spell.level)
+            set collision = GetCollisionSize(Spell.level)
             set exp_damage = GetExplosionDamage(Spell.source.unit, Spell.level)
 
             static if LIBRARY_BlackArrow then
-                set curse_level    = GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)
-                set curse          = true
-                set ability        = BlackArrow_BLACK_ARROW_CURSE
+                set curse_level = GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)
+                set curse = curse_level > 0
+                set ability = BlackArrow_BLACK_ARROW_CURSE
                 set curse_duration = BlackArrow_GetCurseDuration(curse_level)
             else
                 set curse = false

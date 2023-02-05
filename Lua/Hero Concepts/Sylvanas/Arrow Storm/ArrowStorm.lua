@@ -1,5 +1,5 @@
 --[[ requires SpellEffectEvent, Utilities, Missiles, optional BlackArrow
-    /* ---------------------- ArrowStorm v1.2 by Chopinski ---------------------- */
+    /* ---------------------- ArrowStorm v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Bribe        - SpellEffectEvent
     //     Deathclaw24  - Arrow Storm Icon
@@ -72,12 +72,12 @@ do
                 this:arc(ARROW_ARC)
 
                 if BlackArrow then
-                    this.level = GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)
                     if BlackArrow.active[Spell.source.unit] then
+                        this.level = GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)
                         this:model(CURSE_ARROW_MODEL)
-                        this.curse = true
+                        this.curse = this.level > 0
                         this.ability = BlackArrow_BLACK_ARROW_CURSE
-                        this.curse_duration = BlackArrow_GetCurseDuration(level)
+                        this.curse_duration = BlackArrow_GetCurseDuration(this.level)
                     else    
                         this:model(ARROW_MODEL)
                         this.curse = false
@@ -86,19 +86,21 @@ do
                     this:model(ARROW_MODEL)
                     this.curse = false
                 end
+
                 this:scale(ARROW_SCALE)
 
                 this.onFinish = function()
                     local group = CreateGroup()
 
-                    GroupEnumUnitsInRange(group, this.x, this.y, this.aoe, null)
-                    for i = 0, BlzGroupGetSize(group) - 1 do
-                        local unit = BlzGroupUnitAt(group, i)
+                    GroupEnumUnitsInRange(group, this.x, this.y, this.aoe, nil)
+                    for j = 0, BlzGroupGetSize(group) - 1 do
+                        local unit = BlzGroupUnitAt(group, j)
                         if Filtered(this.owner, unit) then
-                            if this.curse then
-                                UnitAddAbilityTimed(unit, this.ability, this.curse_duration, this.level, true)
+                            if UnitDamageTarget(this.source, unit, this.damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, nil) and this.curse then
+                                if BlackArrow then
+                                    BlackArrow:curse(unit, this.source, this.owner)
+                                end
                             end
-                            UnitDamageTarget(this.source, unit, this.damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, nil)
                         end
                     end
                     DestroyGroup(group)
