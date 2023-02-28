@@ -299,6 +299,9 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         endmethod
 
         method move takes integer row, integer column returns nothing
+            set .row = row
+            set .column = column
+
             call BlzFrameClearAllPoints(slot)
             call BlzFrameSetPoint(slot, FRAMEPOINT_TOPLEFT, shop.main, FRAMEPOINT_TOPLEFT, 0.030000 + ((SLOT_WIDTH + SLOT_GAP_X) * column), - (0.030000 + ((SLOT_HEIGHT + SLOT_GAP_Y) * row)))
         endmethod
@@ -582,20 +585,18 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
         method scroll takes boolean down returns nothing
             local Slot slot = first
-            local integer i = 0
 
             if first != 0 and last != 0 then
                 if down then
                     if size > ROWS*COLUMNS and last.postion > size then
                         loop
                             exitwhen slot.right == 0
-                                if i < COLUMNS then
+                                if slot.position <= COLUMNS then
                                     set slot.visible = false
                                 else
                                     call slot.move(slot.row - 1, slot.column)
                                     set slot.visible = slot.position < ROWS*COLUMNS + 1
                                 endif
-                                set i = i + 1
                             set slot = slot.right
                         endloop
                     else
