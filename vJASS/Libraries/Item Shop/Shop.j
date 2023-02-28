@@ -524,7 +524,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
                     set enabled[i] = not enabled[i]
-                    call shop.filter(value[i], true)
+                    // call shop.filter(value[i], true)
                 endif
 
                 call enable(backdrop[i], icon[i], enabled[i])
@@ -554,6 +554,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         readonly integer size
         readonly Slot first
         readonly Slot last
+        readonly Slot head
+        readonly Slot tail
 
         method destroy takes nothing returns nothing
             local Item i
@@ -586,38 +588,69 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         method scroll takes boolean down returns nothing
             local Slot slot = first
 
+            call ClearTextMessages()
+
+            if down then
+                call BJDebugMsg("Down")
+            else    
+                call BJDebugMsg("Up")
+            endif
+
             if first != 0 and last != 0 then
-                if down then
-                    if size > ROWS*COLUMNS and last.postion > size then
+                if down and tail != last then
+                    loop
+                        exitwhen slot == 0
+                            if slot.position <= COLUMNS then
+                                set slot.visible = false
+
+                                if slot.position == COLUMNS then
+                                    set head = slot.right
+                                endif
+                            else
+                                call slot.move(slot.row - 1, slot.column)
+                                set slot.visible = slot.position < ROWS*COLUMNS + 1
+
+                                if slot.visible then
+                                    set tail = slot
+                                endif
+                            endif
+                        set slot = slot.right
+                    endloop
+                else
+                    if not down and head != first then
                         loop
-                            exitwhen slot.right == 0
-                                if slot.position <= COLUMNS then
-                                    set slot.visible = false
-                                else
-                                    call slot.move(slot.row - 1, slot.column)
-                                    set slot.visible = slot.position < ROWS*COLUMNS + 1
+                            exitwhen slot == 0
+                                call slot.move(slot.row + 1, slot.column)
+                                set slot.visible = slot.position < ROWS*COLUMNS + 1
+
+                                if slot.position == 1 then
+                                    set head = slot
+                                    call BJDebugMsg("Head: " + head.item.name)
+                                endif
+
+                                if slot.position == ROWS*COLUMNS then
+                                    set tail = slot
+                                    call BJDebugMsg("Tail: " + tail.item.name)
                                 endif
                             set slot = slot.right
                         endloop
-                    else
-                        call BJDebugMsg("No more pages down")
                     endif
-                else
-
                 endif
             endif
         endmethod
 
-        method filter takes integer value, boolean andLogic then
+        method filter takes integer value, boolean andLogic returns nothing
             local Slot slot = LoadInteger(itempool, this, 0)
             local integer i = -1
 
             set size = 0
             set first = 0
             set last = 0
+            set head = 0
+            set tail = 0
 
             loop
-                exitwhen slot.next == 0
+                exitwhen slot == 0
                     if value == 0 or ((andLogic or (not (BlzBitAnd(value, slot.item.categories) >= value))) and (not andLogic or (not (BlzBitAnd(value, slot.item.categories) > 0)))) then
                         set i = i + 1
                         set size = size + 1
@@ -628,6 +661,11 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                             set last.right = slot
                         else
                             set first = slot
+                            set head = first
+                        endif
+
+                        if slot.visible then
+                            set tail = slot
                         endif
 
                         set last = slot
@@ -648,6 +686,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 set .id = id
                 set first = 0
                 set last = 0
+                set head = 0
+                set tail = 0
                 set size = 0
                 set index = -1
                 set category = Category.create(this)
@@ -709,6 +749,11 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                             set last.right = slot
                         else
                             set first = slot
+                            set head = slot
+                        endif
+
+                        if slot.visible then
+                            set tail = slot
                         endif
 
                         set last = slot
