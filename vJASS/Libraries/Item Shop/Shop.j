@@ -592,8 +592,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                                 if i < COLUMNS then
                                     set slot.visible = false
                                 else
-                                    set slot.visible = true
                                     call slot.move(slot.row - 1, slot.column)
+                                    set slot.visible = slot.position < ROWS*COLUMNS + 1
                                 endif
                                 set i = i + 1
                             set slot = slot.right
