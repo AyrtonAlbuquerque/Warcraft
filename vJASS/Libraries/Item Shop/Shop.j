@@ -432,6 +432,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         framehandle array tooltip[CATEGORY_COUNT]
         boolean array enabled[CATEGORY_COUNT]
         integer count
+        integer active
+        boolean andLogic
         Shop shop
 
         method destroy takes nothing returns nothing
@@ -479,7 +481,6 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 set box[count] = BlzCreateFrame("Leaderboard", frame[count], 0, 0)
                 set tooltip[count] = BlzCreateFrameByType("TEXT", "", box[count], "", 0)
 
-
                 call BlzFrameSetPoint(backdrop[count], FRAMEPOINT_TOPLEFT, shop.leftPanel, FRAMEPOINT_TOPLEFT, 0.023750, - (0.021500 + CATEGORY_SIZE*count + CATEGORY_GAP))
                 call BlzFrameSetSize(backdrop[count], CATEGORY_SIZE, CATEGORY_SIZE)
                 call BlzFrameSetAllPoints(button[count], backdrop[count])
@@ -494,7 +495,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
                 return value[count]
             else
-                call BJDebugMsg("Maximun number os categories reached.")
+                call BJDebugMsg("Maximum number os categories reached.")
             endif
 
             return 0
@@ -504,6 +505,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             local thistype this = thistype.allocate()
 
             set count = -1
+            set active = 0
+            set andLogic = true
             set .shop = shop
 
             return this
@@ -517,7 +520,14 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
                     set enabled[i] = not enabled[i]
-                    // call shop.filter(value[i], true)
+
+                    if enabled[i] then
+                        set active = active + value[i]
+                    else
+                        set active = active - value[i]
+                    endif
+
+                    call shop.filter(active, andLogic)
                 endif
 
                 call enable(backdrop[i], icon[i], enabled[i])
@@ -627,8 +637,9 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             endif
         endmethod
 
-        method filter takes integer value, boolean andLogic returns nothing
+        method filter takes integer categories, boolean andLogic returns nothing
             local Slot slot = LoadInteger(itempool, this, 0)
+            local boolean process
             local integer i = -1
 
             set size = 0
@@ -639,9 +650,16 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
             loop
                 exitwhen slot == 0
-                    if value == 0 or ((andLogic or (not (BlzBitAnd(value, slot.item.categories) >= value))) and (not andLogic or (not (BlzBitAnd(value, slot.item.categories) > 0)))) then
+                    if andLogic then
+                        set process = categories == 0 or BlzBitAnd(slot.item.categories, categories) >= categories
+                    else
+                        set process = categories == 0 or BlzBitAnd(slot.item.categories, categories) > 0
+                    endif
+
+                    if process then
                         set i = i + 1
                         set size = size + 1
+                        call slot.move(R2I(i/COLUMNS), ModuloInteger(i, COLUMNS))
                         set slot.visible = slot.row >= 0 and slot.row <= ROWS - 1 and slot.column >= 0 and slot.column <= COLUMNS - 1
                     
                         if i > 0 then
@@ -657,8 +675,6 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                         endif
 
                         set last = slot
-
-                        call slot.move(R2I(i/COLUMNS), ModuloInteger(i, COLUMNS))
                     else
                         set slot.visible = false
                     endif
