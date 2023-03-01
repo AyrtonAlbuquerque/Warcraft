@@ -39,9 +39,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         private constant real SLOT_GAP_Y                = 0.022
         private constant string GOLD_ICON               = "UI\\Feedback\\Resources\\ResourceGold.blp"
 
-        // Update tooltip position when the mouse
-        // leaves the item icon (can cause flickering)
-        private constant boolean UPDATE_ON_LEAVE        = true
+        // Scroll
+        private constant real SCROLL_DELAY              = 0.01
 
         // Dont touch
         private hashtable table = InitHashtable()
@@ -244,7 +243,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
     
     private struct Slot
         readonly static trigger click = CreateTrigger()
-        readonly static trigger leave = CreateTrigger()
+        readonly static trigger scroll = CreateTrigger()
 
         private boolean isVisible = true
 
@@ -304,6 +303,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
             call BlzFrameClearAllPoints(slot)
             call BlzFrameSetPoint(slot, FRAMEPOINT_TOPLEFT, shop.main, FRAMEPOINT_TOPLEFT, 0.030000 + ((SLOT_WIDTH + SLOT_GAP_X) * column), - (0.030000 + ((SLOT_HEIGHT + SLOT_GAP_Y) * row)))
+            call updateTooltip(button)
         endmethod
 
         method setTooltip takes framepointtype point, framehandle parent returns framehandle
@@ -385,12 +385,18 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             call BlzFrameSetTooltip(button, tooltipFrame)
             call SaveInteger(table, GetHandleId(button), 0, this)
             call BlzTriggerRegisterFrameEvent(click, button, FRAMEEVENT_CONTROL_CLICK)
-
-            static if UPDATE_ON_LEAVE then
-                call BlzTriggerRegisterFrameEvent(leave, button, FRAMEEVENT_MOUSE_LEAVE)
-            endif
+            call BlzTriggerRegisterFrameEvent(scroll, button, FRAMEEVENT_MOUSE_WHEEL)
+            call updateTooltip(button)
 
             return this
+        endmethod
+
+        static method onScroll takes nothing returns nothing
+            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+
+            if this != 0 then
+                call shop.scroll(BlzGetTriggerFrameValue() < 0, GetTriggerPlayer())
+            endif
         endmethod
 
         static method onClick takes nothing returns nothing
@@ -399,20 +405,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
-                    call updateTooltip(frame)
-                endif
-            endif
-
-            set frame = null
-        endmethod
-
-        static method onLeave takes nothing returns nothing
-            local framehandle frame = BlzGetTriggerFrame()
-            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
-
-            if this != 0 then
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    call updateTooltip(frame)
+                    //
                 endif
             endif
 
@@ -421,7 +414,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
         static method onInit takes nothing returns nothing
             call TriggerAddAction(click, function thistype.onClick)
-            call TriggerAddAction(leave, function thistype.onLeave)
+            call TriggerAddAction(scroll, function thistype.onScroll)
         endmethod
     endstruct
 
@@ -543,6 +536,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
     struct Shop
         private static hashtable itempool = InitHashtable()
         private static trigger trigger = CreateTrigger()
+        readonly static timer array timer
+        readonly static boolean array canScroll
 
         readonly framehandle base
         readonly framehandle main
@@ -558,15 +553,20 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         readonly Slot tail
 
         method destroy takes nothing returns nothing
-            local Item i
+            local Slot slot = LoadInteger(itempool, this, 0)
+            local integer i = 0
 
             loop
-                exitwhen index == -1
-                    if HaveSavedInteger(itempool, this, index) then
-                        set i = LoadInteger(itempool, this, index)
-                        call i.destroy()
-                    endif
-                set index = index - 1
+                exitwhen i > bj_MAX_PLAYER_SLOTS
+                    call DestroyTimer(timer[i])
+                    set timer[i] = null
+                set i = i + 1
+            endloop
+
+            loop
+                exitwhen slot == 0
+                    call slot.destroy()
+                set slot = slot.next
             endloop
 
             call FlushChildHashtable(table, id)
@@ -585,57 +585,45 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set rightPanel = null
         endmethod
 
-        method scroll takes boolean down returns nothing
+        method scroll takes boolean down, player p returns nothing
             local Slot slot = first
+            local integer i = GetPlayerId(GetLocalPlayer())
+            local real delay = TimerGetRemaining(timer[i])
+            
+            if p == GetLocalPlayer() then
+                if canScroll[i] then
+                    set delay = SCROLL_DELAY
 
-            call ClearTextMessages()
+                    if SCROLL_DELAY > 0 then
+                        set canScroll[i] = false
+                    endif
 
-            if down then
-                call BJDebugMsg("Down")
-            else    
-                call BJDebugMsg("Up")
-            endif
-
-            if first != 0 and last != 0 then
-                if down and tail != last then
-                    loop
-                        exitwhen slot == 0
-                            if slot.position <= COLUMNS then
-                                set slot.visible = false
-
-                                if slot.position == COLUMNS then
-                                    set head = slot.right
-                                endif
-                            else
-                                call slot.move(slot.row - 1, slot.column)
-                                set slot.visible = slot.position < ROWS*COLUMNS + 1
-
-                                if slot.visible then
-                                    set tail = slot
-                                endif
-                            endif
-                        set slot = slot.right
-                    endloop
-                else
-                    if not down and head != first then
+                    if (down and tail != last) or (not down and head != first) then
                         loop
                             exitwhen slot == 0
-                                call slot.move(slot.row + 1, slot.column)
-                                set slot.visible = slot.position < ROWS*COLUMNS + 1
-
-                                if slot.position == 1 then
-                                    set head = slot
-                                    call BJDebugMsg("Head: " + head.item.name)
+                                if down then
+                                    call slot.move(slot.row - 1, slot.column)
+                                else
+                                    call slot.move(slot.row + 1, slot.column)
                                 endif
 
-                                if slot.position == ROWS*COLUMNS then
+                                set slot.visible = slot.row >= 0 and slot.row <= ROWS - 1 and slot.column >= 0 and slot.column <= COLUMNS - 1
+
+                                if slot.row == 0 and slot.column == 0 then
+                                    set head = slot
+                                endif
+
+                                if (slot.row == ROWS - 1 and slot.column == COLUMNS - 1) or (slot == last and slot.visible) then
                                     set tail = slot
-                                    call BJDebugMsg("Tail: " + tail.item.name)
                                 endif
                             set slot = slot.right
                         endloop
                     endif
                 endif
+            endif
+
+            if SCROLL_DELAY > 0 then
+                call TimerStart(timer[i], delay, false, function thistype.onExpire)
             endif
         endmethod
 
@@ -654,7 +642,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                     if value == 0 or ((andLogic or (not (BlzBitAnd(value, slot.item.categories) >= value))) and (not andLogic or (not (BlzBitAnd(value, slot.item.categories) > 0)))) then
                         set i = i + 1
                         set size = size + 1
-                        set slot.visible = i < ROWS*COLUMNS
+                        set slot.visible = slot.row >= 0 and slot.row <= ROWS - 1 and slot.column >= 0 and slot.column <= COLUMNS - 1
                     
                         if i > 0 then
                             set slot.left = last
@@ -680,6 +668,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
         static method create takes integer id returns thistype
             local thistype this
+            local integer i = 0
 
             if not HaveSavedInteger(table, id, 0) then
                 set this = thistype.allocate()
@@ -691,7 +680,14 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 set size = 0
                 set index = -1
                 set category = Category.create(this)
-                
+
+                loop
+                    exitwhen i > bj_MAX_PLAYER_SLOTS
+                        set timer[i] = CreateTimer()
+                        set canScroll[i] = true
+                    set i = i + 1
+                endloop
+
                 set base = BlzCreateFrame("EscMenuBackdrop", BlzGetFrameByName("ConsoleUIBackdrop", 0), 0, 0)
                 call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, X, Y)
                 call BlzFrameSetSize(base, WIDTH, HEIGHT)
@@ -740,7 +736,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                         set size = size + 1
                         set index = index + 1
                         set slot = Slot.create(this, Item.create(i, index, categories), R2I(index/COLUMNS), ModuloInteger(index, COLUMNS))
-                        set slot.visible = index < ROWS*COLUMNS
+                        set slot.visible = slot.row >= 0 and slot.row <= ROWS - 1 and slot.column >= 0 and slot.column <= COLUMNS - 1
 
                         if index > 0 then
                             set slot.prev = last
@@ -772,14 +768,16 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set i = null
         endmethod
 
+        static method onExpire takes nothing returns nothing
+            set canScroll[GetPlayerId(GetLocalPlayer())] = true
+        endmethod
+
         static method onScroll takes nothing returns nothing
             local framehandle frame = BlzGetTriggerFrame()
             local thistype this = LoadInteger(table, GetHandleId(frame), 0)
 
             if this != 0 then
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    call scroll(BlzGetTriggerFrameValue() < 0)
-                endif
+                call scroll(BlzGetTriggerFrameValue() < 0, GetTriggerPlayer())
             endif
 
             set frame = null
