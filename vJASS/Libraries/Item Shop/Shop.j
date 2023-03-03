@@ -21,10 +21,15 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         private constant real SIDE_WIDTH                = 0.075
         private constant real SIDE_HEIGHT               = 0.4
 
-        // Category buttons
+        // Category and Favorite buttons
         private constant integer CATEGORY_COUNT         = 13
         private constant real CATEGORY_SIZE             = 0.02750
         private constant real CATEGORY_GAP              = 0.0
+
+        // Favorite key 
+        // LSHIT, LCONTROL are buggy on KeyDown event, 
+        // complain to blizzard, not me
+        private constant oskeytype FAVORITE_KEY         = OSKEY_TAB
 
         // Item slots
         private constant real SLOT_WIDTH                = 0.04
@@ -242,6 +247,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
     endstruct
     
     private struct Slot
+
         readonly static trigger click = CreateTrigger()
         readonly static trigger scroll = CreateTrigger()
 
@@ -366,7 +372,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set gold = BlzCreateFrameByType("BACKDROP", "", slot, "", 0)
             set cost = BlzCreateFrameByType("TEXT", "", gold, "", 0)
             set tooltipFrame = setTooltip(FRAMEPOINT_TOPLEFT, button)
-
+            
             call BlzFrameSetPoint(slot, FRAMEPOINT_TOPLEFT, shop.main, FRAMEPOINT_TOPLEFT, 0.030000 + ((SLOT_WIDTH + SLOT_GAP_X) * column), - (0.030000 + ((SLOT_HEIGHT + SLOT_GAP_Y) * row)))
             call BlzFrameSetSize(slot, SLOT_WIDTH, SLOT_HEIGHT)
             call BlzFrameSetPoint(icon, FRAMEPOINT_TOPLEFT, slot, FRAMEPOINT_TOPLEFT, 0.0000, 0.0000)
@@ -405,7 +411,9 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
-                    //
+                    if Shop.tag[GetPlayerId(GetTriggerPlayer())] then
+                        call shop.favorites.add(item)
+                    endif
                 endif
             endif
 
@@ -418,13 +426,183 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         endmethod
     endstruct
 
+    private struct Favorites
+        readonly static trigger event = CreateTrigger()
+
+        Shop shop
+        integer count
+        Item array item[CATEGORY_COUNT]
+        framehandle array frame[CATEGORY_COUNT]
+        framehandle array icon[CATEGORY_COUNT]
+        framehandle array button[CATEGORY_COUNT]
+        framehandle array tooltipFrame[CATEGORY_COUNT]
+        framehandle array tooltipIcon[CATEGORY_COUNT]
+        framehandle array tooltipName[CATEGORY_COUNT]
+        framehandle array tooltip[CATEGORY_COUNT]
+
+        method destroy takes nothing returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i == CATEGORY_COUNT
+                    call FlushChildHashtable(table, GetHandleId(button[i]))
+                    call BlzDestroyFrame(tooltip[i])
+                    call BlzDestroyFrame(tooltipFrame[i])
+                    call BlzDestroyFrame(button[i])
+                    call BlzDestroyFrame(icon[i])
+                    call BlzDestroyFrame(frame[i])
+                    set tooltip[i] = null
+                    set tooltipFrame[i] = null
+                    set button[i] = null
+                    set icon[i] = null
+                    set frame[i] = null
+                set i = i + 1
+            endloop
+
+            call FlushChildHashtable(table, this)
+            call deallocate()
+        endmethod
+
+        method setTooltip takes framepointtype point, framehandle parent, integer i returns framehandle
+            local framehandle frame = BlzCreateFrame("TooltipBoxFrame", parent, 0, 0)
+            local framehandle box = BlzGetFrameByName("TooltipBox", 0)
+            local framehandle tooltipSeparator = BlzGetFrameByName("TooltipSeperator", 0)
+
+            set tooltip[i] = BlzGetFrameByName("TooltipText", 0)
+            set tooltipIcon[i] = BlzGetFrameByName("TooltipIcon", 0)
+            set tooltipName[i] = BlzGetFrameByName("TooltipName", 0)
+
+            if point == FRAMEPOINT_TOPLEFT then
+                call BlzFrameSetPoint(tooltip[i], point, parent, FRAMEPOINT_TOPRIGHT, 0.005, -0.05)
+            elseif point == FRAMEPOINT_TOPRIGHT then
+                call BlzFrameSetPoint(tooltip[i], point, parent, FRAMEPOINT_TOPLEFT, -0.005, -0.05)
+            elseif point == FRAMEPOINT_BOTTOMLEFT then
+                call BlzFrameSetPoint(tooltip[i], point, parent, FRAMEPOINT_BOTTOMRIGHT, 0.005, 0.0)
+            else
+                call BlzFrameSetPoint(tooltip[i], point, parent, FRAMEPOINT_BOTTOMLEFT, -0.005, 0.0)
+            endif
+
+            call BlzFrameSetPoint(box, FRAMEPOINT_TOPLEFT, tooltipIcon[i], FRAMEPOINT_TOPLEFT, -0.005, 0.005)
+            call BlzFrameSetPoint(box, FRAMEPOINT_BOTTOMRIGHT, tooltip[i], FRAMEPOINT_BOTTOMRIGHT, 0.005, -0.005)
+            // call BlzFrameSetText(tooltip[i], item.tooltip)
+            // call BlzFrameSetText(tooltipName, item.name)
+            // call BlzFrameSetTexture(tooltipIcon, item.icon, 0, false)
+            call BlzFrameSetSize(tooltip[i], TOOLTIP_SIZE, 0)
+
+            return frame
+        endmethod
+
+        method has takes integer id returns boolean
+            local integer i = 0
+
+            loop
+                exitwhen i > count
+                    if item[i].id == id then
+                        return true
+                    endif
+                set i = i + 1
+            endloop
+
+            return false
+        endmethod
+
+        method remove takes integer i returns nothing
+            loop
+                exitwhen i >= count
+                    set item[i] = item[i + 1]
+
+                    call BlzFrameSetTexture(icon[i], item[i].icon, 0, true)
+                    call BlzFrameSetText(tooltip[i], item[i].tooltip)
+                    call BlzFrameSetText(tooltipName[i], item[i].name)
+                    call BlzFrameSetTexture(tooltipIcon[i], item[i].icon, 0, false)
+                set i = i + 1
+            endloop
+
+            call BlzFrameSetVisible(frame[count], false)
+            set count = count - 1
+        endmethod
+
+        method add takes Item i returns nothing
+            if count < CATEGORY_COUNT - 1 then
+                if not has(i.id) then
+                    set count = count + 1
+                    set item[count] = i
+            
+                    call BlzFrameSetTexture(icon[count], i.icon, 0, true)
+                    call BlzFrameSetText(tooltip[count], i.tooltip)
+                    call BlzFrameSetText(tooltipName[count], i.name)
+                    call BlzFrameSetTexture(tooltipIcon[count], i.icon, 0, false)
+                    call BlzFrameSetVisible(frame[count], true)
+                endif
+            endif
+        endmethod
+
+        static method create takes Shop shop returns thistype
+            local thistype this = thistype.allocate()
+            local integer i = 0
+
+            set .shop = shop
+            set count = -1
+            
+            loop
+                exitwhen i == CATEGORY_COUNT
+                    set frame[i] = BlzCreateFrameByType("FRAME", "", shop.rightPanel, "", 0)
+                    set icon[i] = BlzCreateFrameByType("BACKDROP", "", frame[i], "", 0)    
+                    set button[i] = BlzCreateFrame("IconButtonTemplate", icon[i], 0, 0)
+
+                    if i <= 6 then
+                        set tooltipFrame[i] = setTooltip(FRAMEPOINT_TOPRIGHT, button[i], i)
+                    else
+                        set tooltipFrame[i] = setTooltip(FRAMEPOINT_BOTTOMRIGHT, button[i], i)
+                    endif
+
+                    call BlzFrameSetPoint(frame[i], FRAMEPOINT_TOPLEFT, shop.rightPanel, FRAMEPOINT_TOPLEFT, 0.023750, - (0.021500 + CATEGORY_SIZE*i + CATEGORY_GAP))
+                    call BlzFrameSetSize(frame[i], CATEGORY_SIZE, CATEGORY_SIZE)
+
+                    call BlzFrameSetPoint(icon[i], FRAMEPOINT_TOPLEFT, frame[i], FRAMEPOINT_TOPLEFT, 0.0000, 0.0000)
+                    call BlzFrameSetSize(icon[i], CATEGORY_SIZE, CATEGORY_SIZE)
+                    call BlzFrameSetTexture(icon[i], "ReplaceableTextures\\CommandButtons\\BTNSteelMelee", 0, true)
+
+                    call BlzFrameSetAllPoints(button[i], icon[i])
+                    call BlzFrameSetTooltip(button[i], tooltipFrame[i])
+                    call BlzFrameSetVisible(frame[i], false)
+
+                    call SaveInteger(table, GetHandleId(button[i]), 0, this)
+                    call SaveInteger(table, GetHandleId(button[i]), 1, i)
+                    call BlzTriggerRegisterFrameEvent(event, button[i], FRAMEEVENT_CONTROL_CLICK)
+                set i = i + 1
+            endloop
+
+            return this
+        endmethod
+
+        static method onClick takes nothing returns nothing
+            local framehandle frame = BlzGetTriggerFrame()
+            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
+            local integer i = LoadInteger(table, GetHandleId(frame), 1)
+
+            if this != 0 then
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    if Shop.tag[GetPlayerId(GetTriggerPlayer())] then
+                        call remove(i)
+                    endif
+                endif
+            endif
+
+            set frame = null
+        endmethod
+
+        static method onInit takes nothing returns nothing
+            call TriggerAddAction(event, function thistype.onClick)
+        endmethod
+    endstruct
+
     private struct Category
         readonly static trigger event = CreateTrigger()
 
         string array icon[CATEGORY_COUNT]
         string array description[CATEGORY_COUNT]
         integer array value[CATEGORY_COUNT]
-        trigger array trigger[CATEGORY_COUNT]
         framehandle array button[CATEGORY_COUNT]
         framehandle array backdrop[CATEGORY_COUNT]
         framehandle array frame[CATEGORY_COUNT]
@@ -439,13 +617,12 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         method destroy takes nothing returns nothing
             loop
                 exitwhen count == -1
-                    call DestroyTrigger(trigger[count])
+                    call FlushChildHashtable(table, GetHandleId(button[count]))
                     call BlzDestroyFrame(tooltip[count])
                     call BlzDestroyFrame(box[count])
                     call BlzDestroyFrame(frame[count])
                     call BlzDestroyFrame(button[count])
                     call BlzDestroyFrame(backdrop[count])
-                    set trigger[count] = null
                     set backdrop[count] = null
                     set button[count] = null
                     set frame[count] = null
@@ -474,13 +651,12 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 set .icon[count] = icon
                 set .description[count] = description
                 set enabled[count] = false
-                set trigger[count] = CreateTrigger()
                 set backdrop[count] = BlzCreateFrameByType("BACKDROP", "", shop.leftPanel, "", 0)
                 set button[count] = BlzCreateFrameByType("GLUETEXTBUTTON", I2S(count), backdrop[count], "", 0)
                 set frame[count] = BlzCreateFrameByType("FRAME", "", button[count], "", 0)
                 set box[count] = BlzCreateFrame("Leaderboard", frame[count], 0, 0)
                 set tooltip[count] = BlzCreateFrameByType("TEXT", "", box[count], "", 0)
-
+                
                 call BlzFrameSetPoint(backdrop[count], FRAMEPOINT_TOPLEFT, shop.leftPanel, FRAMEPOINT_TOPLEFT, 0.023750, - (0.021500 + CATEGORY_SIZE*count + CATEGORY_GAP))
                 call BlzFrameSetSize(backdrop[count], CATEGORY_SIZE, CATEGORY_SIZE)
                 call BlzFrameSetAllPoints(button[count], backdrop[count])
@@ -546,14 +722,20 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
     struct Shop
         private static hashtable itempool = InitHashtable()
         private static trigger trigger = CreateTrigger()
+        private static trigger keyPress = CreateTrigger()
+        private static trigger keyReleased = CreateTrigger()
+        private static trigger escPressed = CreateTrigger()
+        private static integer count = -1
         readonly static timer array timer
         readonly static boolean array canScroll
+        readonly static boolean array tag
 
         readonly framehandle base
         readonly framehandle main
         readonly framehandle leftPanel
         readonly framehandle rightPanel
         readonly Category category
+        readonly Favorites favorites
         readonly integer id
         readonly integer index
         readonly integer size
@@ -567,8 +749,9 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             local integer i = 0
 
             loop
-                exitwhen i > bj_MAX_PLAYER_SLOTS
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
                     call DestroyTimer(timer[i])
+                    call FlushChildHashtable(table, GetHandleId(Player(i)))
                     set timer[i] = null
                 set i = i + 1
             endloop
@@ -587,6 +770,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             call BlzDestroyFrame(main)
             call BlzDestroyFrame(base)
             call category.destroy()
+            call favorites.destroy()
             call deallocate()
 
             set base = null
@@ -695,28 +879,32 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 set tail = 0
                 set size = 0
                 set index = -1
+                set count = count + 1
+                set base = BlzCreateFrame("EscMenuBackdrop", BlzGetFrameByName("ConsoleUIBackdrop", 0), 0, 0)
+                set main = BlzCreateFrameByType("BUTTON", "main", base, "", 0)
+                set leftPanel = BlzCreateFrame("EscMenuBackdrop", base, 0, 0)
+                set rightPanel = BlzCreateFrame("EscMenuBackdrop", base, 0, 0)
                 set category = Category.create(this)
+                set favorites = Favorites.create(this)
 
                 loop
-                    exitwhen i > bj_MAX_PLAYER_SLOTS
+                    exitwhen i >= bj_MAX_PLAYER_SLOTS
                         set timer[i] = CreateTimer()
                         set canScroll[i] = true
+                        call SaveInteger(table, GetHandleId(Player(i)), id, this)
+                        call SaveInteger(table, GetHandleId(Player(i)), count, id)
                     set i = i + 1
                 endloop
 
-                set base = BlzCreateFrame("EscMenuBackdrop", BlzGetFrameByName("ConsoleUIBackdrop", 0), 0, 0)
                 call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, X, Y)
                 call BlzFrameSetSize(base, WIDTH, HEIGHT)
 
-                set main = BlzCreateFrameByType("BUTTON", "main", base, "", 0) //BlzCreateFrame("EscMenuBackdrop", base, 0, 0)
                 call BlzFrameSetPoint(main, FRAMEPOINT_TOPLEFT, base, FRAMEPOINT_TOPLEFT, 0.0000, 0.0000)
                 call BlzFrameSetSize(main, WIDTH, HEIGHT)
 
-                set leftPanel = BlzCreateFrame("EscMenuBackdrop", base, 0, 0)
                 call BlzFrameSetPoint(leftPanel, FRAMEPOINT_TOPLEFT, base, FRAMEPOINT_TOPLEFT, -0.065000, 0.0000)
                 call BlzFrameSetSize(leftPanel, SIDE_WIDTH, SIDE_HEIGHT)
 
-                set rightPanel = BlzCreateFrame("EscMenuBackdrop", base, 0, 0)
                 call BlzFrameSetPoint(rightPanel, FRAMEPOINT_TOPLEFT, base, FRAMEPOINT_TOPLEFT, 0.79000, 0.0000)
                 call BlzFrameSetSize(rightPanel, SIDE_WIDTH, SIDE_HEIGHT)
 
@@ -809,9 +997,44 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             endif
         endmethod
 
+        static method onKey takes nothing returns nothing
+            set tag[GetPlayerId(GetTriggerPlayer())] = BlzGetTriggerPlayerIsKeyDown()
+        endmethod
+
+        static method onEsc takes nothing returns nothing
+            local thistype this
+            local integer i = 0
+            local integer id = GetHandleId(GetTriggerPlayer())
+            
+            loop
+                exitwhen i > count
+                    set this = LoadInteger(table, id, LoadInteger(table, id, i))
+
+                    if this != 0 then
+                        if GetLocalPlayer() == GetTriggerPlayer() then
+                            call BlzFrameSetVisible(base, false)
+                        endif
+                    endif
+                set i = i + 1
+            endloop
+        endmethod
+
         static method onInit takes nothing returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    set tag[i] = false
+                    call BlzTriggerRegisterPlayerKeyEvent(keyPress, Player(i), FAVORITE_KEY, 0, true)
+                    call BlzTriggerRegisterPlayerKeyEvent(keyPress, Player(i), FAVORITE_KEY, 0, false)
+                    call TriggerRegisterPlayerEventEndCinematic(escPressed, Player(i))
+                set i = i + 1
+            endloop
+
             call BlzLoadTOCFile("Shop.toc")
             call TriggerAddAction(trigger, function thistype.onScroll)
+            call TriggerAddCondition(keyPress, function thistype.onKey)
+            call TriggerAddCondition(escPressed, function thistype.onEsc)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function thistype.onSelect)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DESELECTED, function thistype.onSelect)
         endmethod
