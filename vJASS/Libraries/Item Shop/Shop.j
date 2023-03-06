@@ -16,6 +16,12 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         private constant real HEIGHT                    = 0.4
         private constant integer ROWS                   = 5
         private constant integer COLUMNS                = 13
+        private constant integer DETAILED_ROWS          = 5
+        private constant integer DETAILED_COLUMNS       = 8
+
+        // Details window
+        private constant real DETAIL_WIDTH              = 0.3125
+        private constant real DETAIL_HEIGHT             = 0.4
 
         // Side Panels
         private constant real SIDE_WIDTH                = 0.075
@@ -64,6 +70,10 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
     function ShopAddItem takes integer id, integer itemId, integer categories returns nothing
         call Shop.addItem(id, itemId, categories)
+    endfunction
+
+    function ItemAddComponents takes integer whichItem, integer a, integer b, integer c, integer d, integer e returns nothing
+        call Item.addComponents(whichItem, a, b, c, d, e)
     endfunction
 
     function A2S takes integer id returns string
@@ -187,52 +197,120 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
     /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
-    private struct Item
+    struct Item
         private static unit shop
         private static rect rect
         private static player player = Player(bj_PLAYER_NEUTRAL_EXTRA)
+        readonly static hashtable itempool = InitHashtable()
+        readonly static hashtable relation = InitHashtable()
 
         string name
         string icon
         string tooltip
         integer id
         integer gold
-        integer index
         integer categories
         
         method destroy takes nothing returns nothing
             call deallocate()
         endmethod
 
-        static method create takes item i, integer idx, integer category returns thistype
-            local thistype this = thistype.allocate()
+        method operator components takes nothing returns integer
+            return LoadInteger(itempool, id, 6)
+        endmethod
 
-            set id = GetItemTypeId(i)
-            set index = idx
-            set categories = category
-            set name = GetItemName(i)
-            set icon = BlzGetItemIconPath(i)
-            set tooltip = BlzGetItemExtendedTooltip(i)
-            set gold = cost(id)
+        static method get takes integer id returns thistype
+            return LoadInteger(itempool, id, 0)
+        endmethod
 
-            return this
+        static method save takes integer id, integer component returns nothing
+            local thistype this
+            local integer i = 0
+
+            if component > 0 and component != id then
+                if not LoadBoolean(relation, component, id) then
+                    loop
+                        exitwhen not HaveSavedInteger(relation, component, i)
+                        set i = i + 1
+                    endloop
+    
+                    call SaveBoolean(relation, component, id, true)
+                    call SaveInteger(relation, component, i, id)
+                endif
+
+                call SaveInteger(itempool, id, 6, LoadInteger(itempool, id, 6) + 1)
+            endif
+        endmethod
+
+        static method addComponents takes integer id, integer a, integer b, integer c, integer d, integer e returns nothing
+            local thistype this
+
+            if id > 0 then
+                call SaveInteger(itempool, id, 1, a)
+                call SaveInteger(itempool, id, 2, b)
+                call SaveInteger(itempool, id, 3, c)
+                call SaveInteger(itempool, id, 4, d)
+                call SaveInteger(itempool, id, 5, e)
+                call SaveInteger(itempool, id, 6, 0)
+                call save(id, a)
+                call save(id, b)
+                call save(id, c)
+                call save(id, d)
+                call save(id, e)
+                call create(id, 0)
+            endif
         endmethod
 
         static method clear takes nothing returns nothing
             call RemoveItem(GetEnumItem())
         endmethod
 
-        static method cost takes integer itemId returns integer
+        static method cost takes integer id returns integer
             local integer old
 
-            call AddItemToStock(shop, itemId, 1, 1)
+            call AddItemToStock(shop, id, 1, 1)
             call SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, 9999999)
             set old = GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD)
-            call IssueNeutralImmediateOrderById(player, shop, itemId)
-            call RemoveItemFromStock(shop, itemId)
+            call IssueNeutralImmediateOrderById(player, shop, id)
+            call RemoveItemFromStock(shop, id)
             call EnumItemsInRect(rect, null, function thistype.clear)
 
             return old - GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD)
+        endmethod
+
+        static method create takes integer id, integer category returns thistype
+            local thistype this
+            local item i
+
+            if HaveSavedInteger(itempool, id, 0) then
+                set this = LoadInteger(itempool, id, 0)
+
+                if category > 0 then
+                    set categories = category
+                endif
+
+                return this
+            else
+                set i = CreateItem(id, 0, 0)
+
+                if i != null then
+                    set this = thistype.allocate()
+                    set .id = id
+                    set categories = category
+                    set name = GetItemName(i)
+                    set icon = BlzGetItemIconPath(i)
+                    set tooltip = BlzGetItemExtendedTooltip(i)
+                    set gold = cost(id)
+
+                    call RemoveItem(i)
+                    call SaveInteger(itempool, id, 0, this)
+
+                    set i = null
+                    return this
+                else
+                    return 0
+                endif
+            endif
         endmethod
 
         static method onInit takes nothing returns nothing
@@ -247,27 +325,43 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
     endstruct
     
     private struct Slot
-
-        readonly static trigger click = CreateTrigger()
-        readonly static trigger scroll = CreateTrigger()
-
         private boolean isVisible = true
+        private real xPos
+        private real yPos
 
-        Shop shop
         Item item
-        Slot next
-        Slot prev
-        Slot right
-        Slot left
-        integer row
-        integer column
+        framehandle parent
         framehandle slot
         framehandle icon
         framehandle gold
         framehandle cost
         framehandle button
-        framehandle tooltipFrame
         framehandle tooltip
+        framehandle tooltipFrame
+        framehandle tooltipName
+        framehandle tooltipIcon
+
+        method operator x= takes real newX returns nothing
+            set xPos = newX
+
+            call BlzFrameClearAllPoints(slot)
+            call BlzFrameSetPoint(slot, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
+        endmethod
+
+        method operator x takes nothing returns real
+            return xPos
+        endmethod
+
+        method operator y= takes real newY returns nothing
+            set yPos = newY
+
+            call BlzFrameClearAllPoints(slot)
+            call BlzFrameSetPoint(slot, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
+        endmethod
+
+        method operator y takes nothing returns real
+            return yPos
+        endmethod
 
         method operator visible= takes boolean visibility returns nothing
             set isVisible = visibility
@@ -278,20 +372,16 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             return isVisible
         endmethod
 
-        method operator position takes nothing returns integer 
-            return (COLUMNS * row) + (column + 1)
-        endmethod
-
         method destroy takes nothing returns nothing
-            call FlushChildHashtable(table, GetHandleId(button))
             call BlzDestroyFrame(tooltip)
             call BlzDestroyFrame(tooltipFrame)
+            call BlzDestroyFrame(tooltipName)
+            call BlzDestroyFrame(tooltipIcon)
             call BlzDestroyFrame(cost)
             call BlzDestroyFrame(gold)
             call BlzDestroyFrame(button)
             call BlzDestroyFrame(icon)
             call BlzDestroyFrame(slot)
-            call item.destroy()
             call deallocate()
 
             set slot = null
@@ -301,25 +391,18 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set button = null
             set tooltip = null
             set tooltipFrame = null
-        endmethod
-
-        method move takes integer row, integer column returns nothing
-            set .row = row
-            set .column = column
-
-            call BlzFrameClearAllPoints(slot)
-            call BlzFrameSetPoint(slot, FRAMEPOINT_TOPLEFT, shop.main, FRAMEPOINT_TOPLEFT, 0.030000 + ((SLOT_WIDTH + SLOT_GAP_X) * column), - (0.030000 + ((SLOT_HEIGHT + SLOT_GAP_Y) * row)))
-            call updateTooltip(button)
+            set tooltipName = null
+            set tooltipIcon = null
         endmethod
 
         method setTooltip takes framepointtype point, framehandle parent returns framehandle
             local framehandle frame = BlzCreateFrame("TooltipBoxFrame", parent, 0, 0)
             local framehandle box = BlzGetFrameByName("TooltipBox", 0)
-            local framehandle tooltipIcon = BlzGetFrameByName("TooltipIcon", 0)
-            local framehandle tooltipName = BlzGetFrameByName("TooltipName", 0)
             local framehandle tooltipSeparator = BlzGetFrameByName("TooltipSeperator", 0)
 
             set tooltip = BlzGetFrameByName("TooltipText", 0)
+            set tooltipIcon = BlzGetFrameByName("TooltipIcon", 0)
+            set tooltipName = BlzGetFrameByName("TooltipName", 0)
 
             if point == FRAMEPOINT_TOPLEFT then
                 call BlzFrameSetPoint(tooltip, point, parent, FRAMEPOINT_TOPRIGHT, 0.005, -0.05)
@@ -333,22 +416,91 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
             call BlzFrameSetPoint(box, FRAMEPOINT_TOPLEFT, tooltipIcon, FRAMEPOINT_TOPLEFT, -0.005, 0.005)
             call BlzFrameSetPoint(box, FRAMEPOINT_BOTTOMRIGHT, tooltip, FRAMEPOINT_BOTTOMRIGHT, 0.005, -0.005)
-            call BlzFrameSetText(tooltip, item.tooltip)
-            call BlzFrameSetText(tooltipName, item.name)
-            call BlzFrameSetTexture(tooltipIcon, item.icon, 0, false)
             call BlzFrameSetSize(tooltip, TOOLTIP_SIZE, 0)
+
+            if item != 0 then
+                call BlzFrameSetText(tooltip, item.tooltip)
+                call BlzFrameSetText(tooltipName, item.name)
+                call BlzFrameSetTexture(tooltipIcon, item.icon, 0, false)
+            endif
 
             return frame
         endmethod
 
-        method updateTooltip takes framehandle frame returns nothing
+        static method create takes framehandle parent, Item i, real x, real y, framepointtype point returns thistype
+            local thistype this = thistype.allocate()
+
+            set item = i
+            set xPos = x
+            set yPos = y
+            set .parent = parent
+            set slot = BlzCreateFrameByType("FRAME", "", parent, "", 0)
+            set icon = BlzCreateFrameByType("BACKDROP", "", slot, "", 0)    
+            set button = BlzCreateFrame("IconButtonTemplate", icon, 0, 0)
+            set gold = BlzCreateFrameByType("BACKDROP", "", slot, "", 0)
+            set cost = BlzCreateFrameByType("TEXT", "", gold, "", 0)
+            set tooltipFrame = setTooltip(point, button)
+            
+            call BlzFrameSetPoint(slot, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            call BlzFrameSetSize(slot, SLOT_WIDTH, SLOT_HEIGHT)
+            call BlzFrameSetPoint(icon, FRAMEPOINT_TOPLEFT, slot, FRAMEPOINT_TOPLEFT, 0.0000, 0.0000)
+            call BlzFrameSetSize(icon, ITEM_SIZE, ITEM_SIZE)
+            // call BlzFrameSetTexture(icon, item.icon, 0, true)
+            call BlzFrameSetPoint(gold, FRAMEPOINT_TOPLEFT, slot, FRAMEPOINT_TOPLEFT, 0.0000, - 0.040000)
+            call BlzFrameSetSize(gold, GOLD_SIZE, GOLD_SIZE)
+            call BlzFrameSetTexture(gold, GOLD_ICON, 0, true)
+            call BlzFrameSetPoint(cost, FRAMEPOINT_TOPLEFT, gold, FRAMEPOINT_TOPLEFT, 0.013250, - 0.0019300)
+            call BlzFrameSetSize(cost, COST_WIDTH, COST_HEIGHT)
+            // call BlzFrameSetText(cost, "|cffFFCC00" + I2S(item.gold) + "|r")
+            call BlzFrameSetEnable(cost, false)
+            call BlzFrameSetScale(cost, COST_SCALE)
+            call BlzFrameSetTextAlignment(cost, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            call BlzFrameSetAllPoints(button, icon)
+            call BlzFrameSetTooltip(button, tooltipFrame)
+
+            if item != 0 then
+                call BlzFrameSetTexture(icon, item.icon, 0, true)
+                call BlzFrameSetText(cost, "|cffFFCC00" + I2S(item.gold) + "|r")
+            endif
+
+            return this
+        endmethod
+    endstruct
+
+    private struct ShopSlot extends Slot
+        readonly static trigger click = CreateTrigger()
+        readonly static trigger scroll = CreateTrigger()
+
+        Shop shop
+        Slot next
+        Slot prev
+        Slot right
+        Slot left
+        integer row
+        integer column
+
+        method destroy takes nothing returns nothing
+            call FlushChildHashtable(table, GetHandleId(button))
+            call deallocate()
+        endmethod
+
+        method move takes integer row, integer column returns nothing
+            set .row = row
+            set .column = column
+            set x = 0.030000 + ((SLOT_WIDTH + SLOT_GAP_X) * column)
+            set y = - (0.030000 + ((SLOT_HEIGHT + SLOT_GAP_Y) * row))
+
+            call update(button)
+        endmethod
+
+        method update takes framehandle frame returns nothing
             call BlzFrameClearAllPoints(tooltip)
 
-            if column <= 6 and row < 3 then
+            if column <= (shop.columns / 2) and row < 3 then
                 call BlzFrameSetPoint(tooltip, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPRIGHT, 0.005, -0.05)
-            elseif column >= 7 and row < 3 then
+            elseif column >= ((shop.columns / 2) + 1) and row < 3 then
                 call BlzFrameSetPoint(tooltip, FRAMEPOINT_TOPRIGHT, frame, FRAMEPOINT_TOPLEFT, -0.005, -0.05)
-            elseif column <= 6 and row >= 3 then
+            elseif column <= (shop.columns / 2) and row >= 3 then
                 call BlzFrameSetPoint(tooltip, FRAMEPOINT_BOTTOMLEFT, frame, FRAMEPOINT_BOTTOMRIGHT, 0.005, 0.0)
             else
                 call BlzFrameSetPoint(tooltip, FRAMEPOINT_BOTTOMRIGHT, frame, FRAMEPOINT_BOTTOMLEFT, -0.005, 0.0)
@@ -356,43 +508,20 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         endmethod
 
         static method create takes Shop shop, Item i, integer row, integer column returns thistype
-            local thistype this = thistype.allocate()
+            local thistype this = thistype.allocate(shop.main, i, 0.030000 + ((SLOT_WIDTH + SLOT_GAP_X) * column), - (0.030000 + ((SLOT_HEIGHT + SLOT_GAP_Y) * row)), FRAMEPOINT_TOPLEFT)
 
             set .shop = shop
-            set item = i
             set next = 0
             set prev = 0
             set right = 0
             set left = 0
             set .row = row
             set .column = column
-            set slot = BlzCreateFrameByType("FRAME", "", shop.main, "", 0)
-            set icon = BlzCreateFrameByType("BACKDROP", "", slot, "", 0)    
-            set button = BlzCreateFrame("IconButtonTemplate", icon, 0, 0)
-            set gold = BlzCreateFrameByType("BACKDROP", "", slot, "", 0)
-            set cost = BlzCreateFrameByType("TEXT", "", gold, "", 0)
-            set tooltipFrame = setTooltip(FRAMEPOINT_TOPLEFT, button)
             
-            call BlzFrameSetPoint(slot, FRAMEPOINT_TOPLEFT, shop.main, FRAMEPOINT_TOPLEFT, 0.030000 + ((SLOT_WIDTH + SLOT_GAP_X) * column), - (0.030000 + ((SLOT_HEIGHT + SLOT_GAP_Y) * row)))
-            call BlzFrameSetSize(slot, SLOT_WIDTH, SLOT_HEIGHT)
-            call BlzFrameSetPoint(icon, FRAMEPOINT_TOPLEFT, slot, FRAMEPOINT_TOPLEFT, 0.0000, 0.0000)
-            call BlzFrameSetSize(icon, ITEM_SIZE, ITEM_SIZE)
-            call BlzFrameSetTexture(icon, item.icon, 0, true)
-            call BlzFrameSetPoint(gold, FRAMEPOINT_TOPLEFT, slot, FRAMEPOINT_TOPLEFT, 0.0000, - 0.040000)
-            call BlzFrameSetSize(gold, GOLD_SIZE, GOLD_SIZE)
-            call BlzFrameSetTexture(gold, GOLD_ICON, 0, true)
-            call BlzFrameSetPoint(cost, FRAMEPOINT_TOPLEFT, gold, FRAMEPOINT_TOPLEFT, 0.013250, - 0.0019300)
-            call BlzFrameSetSize(cost, COST_WIDTH, COST_HEIGHT)
-            call BlzFrameSetText(cost, "|cffFFCC00" + I2S(item.gold) + "|r")
-            call BlzFrameSetEnable(cost, false)
-            call BlzFrameSetScale(cost, COST_SCALE)
-            call BlzFrameSetTextAlignment(cost, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetAllPoints(button, icon)
-            call BlzFrameSetTooltip(button, tooltipFrame)
             call SaveInteger(table, GetHandleId(button), 0, this)
             call BlzTriggerRegisterFrameEvent(click, button, FRAMEEVENT_CONTROL_CLICK)
             call BlzTriggerRegisterFrameEvent(scroll, button, FRAMEEVENT_MOUSE_WHEEL)
-            call updateTooltip(button)
+            call update(button)
 
             return this
         endmethod
@@ -413,6 +542,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 if GetLocalPlayer() == GetTriggerPlayer() then
                     if Shop.tag[GetPlayerId(GetTriggerPlayer())] then
                         call shop.favorites.add(item)
+                    else
+                        call shop.detail(item)
                     endif
                 endif
             endif
@@ -423,6 +554,370 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         static method onInit takes nothing returns nothing
             call TriggerAddAction(click, function thistype.onClick)
             call TriggerAddAction(scroll, function thistype.onScroll)
+        endmethod
+    endstruct
+
+    private struct Detail
+        Shop shop
+        Item item
+        Slot main
+        Slot center
+        Slot left1
+        Slot left2
+        Slot right1
+        Slot right2
+        framehandle frame
+        framehandle tooltip
+        framehandle topSeparator
+        framehandle bottomSeparator
+        framehandle usedIn
+        framehandle mainVerticalLine
+        framehandle centerVerticalLine
+        framehandle left1HorizontalLine
+        framehandle left1VerticalLine
+        framehandle left2HorizontalLine
+        framehandle left2VerticalLine
+        framehandle right1HorizontalLine
+        framehandle right1VerticalLine
+        framehandle right2HorizontalLine
+        framehandle right2VerticalLine
+
+        method destroy takes nothing returns nothing
+            call main.destroy()
+            call center.destroy()
+            call left1.destroy()
+            call left2.destroy()
+            call right1.destroy()
+            call right2.destroy()
+            call BlzDestroyFrame(topSeparator)
+            call BlzDestroyFrame(bottomSeparator)
+            call BlzDestroyFrame(usedIn)
+            call BlzDestroyFrame(mainVerticalLine)
+            call BlzDestroyFrame(centerVerticalLine)
+            call BlzDestroyFrame(left1HorizontalLine)
+            call BlzDestroyFrame(left1VerticalLine)
+            call BlzDestroyFrame(left2HorizontalLine)
+            call BlzDestroyFrame(left2VerticalLine)
+            call BlzDestroyFrame(right1HorizontalLine)
+            call BlzDestroyFrame(right1VerticalLine)
+            call BlzDestroyFrame(right2HorizontalLine)
+            call BlzDestroyFrame(right2VerticalLine)
+            call BlzDestroyFrame(tooltip)
+            call BlzDestroyFrame(frame)
+            call deallocate()
+
+            set frame = null
+            set tooltip = null
+            set topSeparator = null
+            set bottomSeparator = null
+            set usedIn = null
+            set mainVerticalLine = null
+            set centerVerticalLine = null
+            set left1HorizontalLine = null
+            set left1VerticalLine = null
+            set left2HorizontalLine = null
+            set left2VerticalLine = null
+            set right1HorizontalLine = null
+            set right1VerticalLine = null
+            set right2HorizontalLine = null
+            set right2VerticalLine = null
+        endmethod
+
+        method update takes framehandle frame, framepointtype point, framehandle parent, framepointtype relative, real width, real height, real x, real y, boolean visible returns nothing
+            if visible then
+                call BlzFrameClearAllPoints(frame)
+                call BlzFrameSetPoint(frame, point, parent, relative, x, y)
+                call BlzFrameSetSize(frame, width, height)
+            endif
+
+            call BlzFrameSetVisible(frame, visible)
+        endmethod
+
+        method hide takes nothing returns nothing
+            call BlzFrameSetVisible(frame, false)
+        endmethod
+
+        method show takes Item i returns nothing
+            local Item component
+            local Slot slot
+            local integer j = 1
+            local integer k = 1
+            local integer cost
+
+            if i != 0 then
+                set item = i
+                set cost = item.gold
+
+                if item.components > 0 then
+                    loop
+                        exitwhen j > item.components or k > 5
+                            set component = item.get(LoadInteger(item.itempool, item.id, j))
+
+                            if component != 0 then
+                                if item.components == 1 then
+                                    set slot = center
+                                    set left1.visible = false
+                                    set left2.visible = false
+                                    set right1.visible = false
+                                    set right2.visible = false
+
+                                    call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.13625, - 0.10200, true)
+                                    call BlzFrameSetVisible(mainVerticalLine, true)
+                                    call BlzFrameSetVisible(centerVerticalLine, true)
+                                    call BlzFrameSetVisible(left1HorizontalLine, false)
+                                    call BlzFrameSetVisible(left1VerticalLine, false)
+                                    call BlzFrameSetVisible(left2HorizontalLine, false)
+                                    call BlzFrameSetVisible(left2VerticalLine, false)
+                                    call BlzFrameSetVisible(right1HorizontalLine, false)
+                                    call BlzFrameSetVisible(right1VerticalLine, false)
+                                    call BlzFrameSetVisible(right2HorizontalLine, false)
+                                    call BlzFrameSetVisible(right2VerticalLine, false)
+                                elseif item.components == 2 then
+                                    if j == 1 then
+                                        set slot = left1
+                                        set center.visible = false
+                                        set left2.visible = false
+                                        set right2.visible = false
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.087250, - 0.10200, true)
+                                        call update(left1HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.048, 0.001, 0.10700, - 0.091500, true)
+                                        call update(left1VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.10700, - 0.092500, true)
+                                        call BlzFrameSetVisible(mainVerticalLine, true)
+                                        call BlzFrameSetVisible(centerVerticalLine, false)
+                                        call BlzFrameSetVisible(left2HorizontalLine, false)
+                                        call BlzFrameSetVisible(left2VerticalLine, false)
+                                    else
+                                        set slot = right1
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.18525, - 0.10200, true)
+                                        call update(right1HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.048, 0.001, 0.15700, - 0.091500, true)
+                                        call update(right1VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.20500, - 0.092500, true)
+                                        call BlzFrameSetVisible(right2HorizontalLine, false)
+                                        call BlzFrameSetVisible(right2VerticalLine, false)
+                                    endif
+                                elseif item.components == 3 then
+                                    if j == 1 then
+                                        set slot = left2
+                                        set left1.visible = false
+                                        set right1.visible = false
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.038250, - 0.10200, true)
+                                        call update(left2HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.057000, - 0.091500, true)
+                                        call update(left2VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.057000, - 0.092500, true)
+                                        call BlzFrameSetVisible(mainVerticalLine, true)
+                                        call BlzFrameSetVisible(left1HorizontalLine, false)
+                                        call BlzFrameSetVisible(left1VerticalLine, false)
+                                    elseif j == 2 then
+                                        set slot = center
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.13625, - 0.10200, true)
+                                        call BlzFrameSetVisible(centerVerticalLine, true)
+                                    else
+                                        set slot = right2
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.23425, - 0.10200, true)
+                                        call update(right2HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.15700, - 0.091500, true)
+                                        call update(right2VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.25600, - 0.092500, true)
+                                        call BlzFrameSetVisible(right1HorizontalLine, false)
+                                        call BlzFrameSetVisible(right1VerticalLine, false)
+                                    endif
+                                elseif item.components == 4 then
+                                    if j == 1 then
+                                        set slot = left2
+                                        set right2.visible = false
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.038250, - 0.10200, true)
+                                        call update(left2HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.057000, - 0.091500, true)
+                                        call update(left2VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.057000, - 0.092500, true)
+                                        call BlzFrameSetVisible(mainVerticalLine, true)
+                                    elseif j == 2 then
+                                        set slot = left1
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.10350, - 0.10200, true)
+                                        call update(left1VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.12250, - 0.092500, true)
+                                        call BlzFrameSetVisible(left1HorizontalLine, false)
+                                    elseif j == 3 then
+                                        set slot = center
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.16875, - 0.10200, true)
+                                        call update(right1VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.18950, - 0.092500, true)
+                                        call BlzFrameSetVisible(centerVerticalLine, false)
+                                    else
+                                        set slot = right1
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.23400, - 0.10200, true)
+                                        call update(right2HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.15700, - 0.091500, true)
+                                        call update(right2VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.25600, - 0.092500, true)
+                                        call BlzFrameSetVisible(right1HorizontalLine, false)
+                                    endif
+                                else
+                                    if j == 1 then
+                                        set slot = left2
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.038250, - 0.10200, true)
+                                        call update(left2HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.057000, - 0.091500, true)
+                                        call update(left2VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.057000, - 0.092500, true)
+                                        call BlzFrameSetVisible(mainVerticalLine, true)
+                                    elseif j == 2 then
+                                        set slot = left1
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.087250, - 0.10200, true)
+                                        call update(left1VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.10700, - 0.092500, true)
+                                        call BlzFrameSetVisible(left1HorizontalLine, false)
+                                    elseif j == 3 then
+                                        set slot = center
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.13625, - 0.10200, true)
+                                        call BlzFrameSetVisible(centerVerticalLine, true)
+                                    elseif j == 4 then
+                                        set slot = right1
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.18525, - 0.10200, true)
+                                        call update(right1VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.20500, - 0.092500, true)
+                                        call BlzFrameSetVisible(right1HorizontalLine, false)
+                                    else
+                                        set slot = right2
+
+                                        call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.23425, - 0.10200, true)
+                                        call update(right2HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.15700, - 0.091500, true)
+                                        call update(right2VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.25600, - 0.092500, true)
+                                    endif
+                                endif
+
+                                call BlzFrameSetTexture(slot.icon, component.icon, 0, true)
+                                call BlzFrameSetText(slot.cost, "|cffFFCC00" + I2S(component.gold) + "|r")
+                                call BlzFrameSetText(slot.tooltip, component.tooltip)
+                                call BlzFrameSetText(slot.tooltipName, component.name)
+                                call BlzFrameSetTexture(slot.tooltipIcon, component.icon, 0, false)
+                                
+                                //set cost = cost + component.gold
+                                set slot.visible = true
+                                set j = j + 1
+                            endif
+                        set k = k + 1
+                    endloop
+                else
+                    set center.visible = false
+                    set left1.visible = false
+                    set left2.visible = false
+                    set right1.visible = false
+                    set right2.visible = false
+
+                    call BlzFrameSetVisible(mainVerticalLine, false)
+                    call BlzFrameSetVisible(centerVerticalLine, false)
+                    call BlzFrameSetVisible(left1HorizontalLine, false)
+                    call BlzFrameSetVisible(left1VerticalLine, false)
+                    call BlzFrameSetVisible(left2HorizontalLine, false)
+                    call BlzFrameSetVisible(left2VerticalLine, false)
+                    call BlzFrameSetVisible(right1HorizontalLine, false)
+                    call BlzFrameSetVisible(right1VerticalLine, false)
+                    call BlzFrameSetVisible(right2HorizontalLine, false)
+                    call BlzFrameSetVisible(right2VerticalLine, false)
+                endif
+
+                call BlzFrameSetTexture(main.icon, item.icon, 0, true)
+                call BlzFrameSetText(main.cost, "|cffFFCC00" + I2S(cost) + "|r")
+                call BlzFrameSetText(main.tooltip, item.tooltip)
+                call BlzFrameSetText(main.tooltipName, item.name)
+                call BlzFrameSetTexture(main.tooltipIcon, item.icon, 0, false)
+                call BlzFrameSetText(tooltip, item.tooltip)
+                call BlzFrameSetVisible(frame, true)
+            endif
+        endmethod
+
+        static method create takes Shop shop returns thistype
+            local thistype this = thistype.allocate()
+            local integer i = 0
+
+            set .shop = shop
+            set frame = BlzCreateFrame("EscMenuBackdrop", shop.main, 0, 0)
+            set main = Slot.create(frame, 0, 0.13625, - 0.030000, FRAMEPOINT_TOPRIGHT)
+            set center = Slot.create(frame, 0, 0.13625, - 0.10200, FRAMEPOINT_TOPRIGHT)
+            set left1 = Slot.create(frame, 0, 0.087250, - 0.10200, FRAMEPOINT_TOPRIGHT)
+            set left2 = Slot.create(frame, 0, 0.038250, - 0.10200, FRAMEPOINT_TOPRIGHT)
+            set right1 = Slot.create(frame, 0, 0.18525, - 0.10200, FRAMEPOINT_TOPRIGHT)
+            set right2 = Slot.create(frame, 0, 0.23425, - 0.10200, FRAMEPOINT_TOPRIGHT)
+            set topSeparator = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set bottomSeparator = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set usedIn = BlzCreateFrameByType("TEXT", "", frame, "", 0)
+            set mainVerticalLine = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set centerVerticalLine = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set left1HorizontalLine = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set left1VerticalLine = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set left2HorizontalLine = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set left2VerticalLine = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set right1HorizontalLine = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set right1VerticalLine = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set right2HorizontalLine = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set right2VerticalLine = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set tooltip = BlzCreateFrame("DescriptionArea", frame, 0, 0)
+            set center.visible = false
+            set left1.visible = false
+            set left2.visible = false
+            set right1.visible = false
+            set right2.visible = false
+
+            call BlzFrameSetPoint(frame, FRAMEPOINT_TOPLEFT, shop.main, FRAMEPOINT_TOPLEFT, WIDTH - DETAIL_WIDTH, 0.0000)
+            call BlzFrameSetSize(frame, DETAIL_WIDTH, DETAIL_HEIGHT)
+
+            call BlzFrameSetPoint(mainVerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.15600, - 0.082500)
+            call BlzFrameSetSize(mainVerticalLine, 0.001, 0.01)
+            call BlzFrameSetTexture(mainVerticalLine, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+
+            call BlzFrameSetPoint(centerVerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.15600, - 0.092500)
+            call BlzFrameSetSize(centerVerticalLine, 0.001, 0.01)
+            call BlzFrameSetTexture(centerVerticalLine, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+
+            // call BlzFrameSetPoint(left1HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.10700, - 0.091500)
+            // call BlzFrameSetSize(left1HorizontalLine, 0.048, 0.001)
+            call BlzFrameSetTexture(left1HorizontalLine, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+
+            // call BlzFrameSetPoint(left1VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.10700, - 0.092500)
+            // call BlzFrameSetSize(left1VerticalLine, 0.001, 0.01)
+            call BlzFrameSetTexture(left1VerticalLine, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+
+            // call BlzFrameSetPoint(left2HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.057000, - 0.091500)
+            // call BlzFrameSetSize(left2HorizontalLine, 0.1, 0.001)
+            call BlzFrameSetTexture(left2HorizontalLine, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+
+            // call BlzFrameSetPoint(left2VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.057000, - 0.092500)
+            // call BlzFrameSetSize(left2VerticalLine, 0.001, 0.01)
+            call BlzFrameSetTexture(left2VerticalLine, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+
+            // call BlzFrameSetPoint(right1HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.15700, - 0.091500)
+            // call BlzFrameSetSize(right1HorizontalLine, 0.048, 0.001)
+            call BlzFrameSetTexture(right1HorizontalLine, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+
+            // call BlzFrameSetPoint(right1VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.20500, - 0.092500)
+            // call BlzFrameSetSize(right1VerticalLine, 0.001, 0.01)
+            call BlzFrameSetTexture(right1VerticalLine, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+
+            // call BlzFrameSetPoint(right2HorizontalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.15700, - 0.091500)
+            // call BlzFrameSetSize(right2HorizontalLine, 0.1, 0.001)
+            call BlzFrameSetTexture(right2HorizontalLine, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+
+            // call BlzFrameSetPoint(right2VerticalLine, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.25600, - 0.092500)
+            // call BlzFrameSetSize(right2VerticalLine, 0.001, 0.01)
+            call BlzFrameSetTexture(right2VerticalLine, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+
+            call BlzFrameSetPoint(topSeparator, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.027500, - 0.15585)
+            call BlzFrameSetSize(topSeparator, 0.255, 0.001)
+            call BlzFrameSetTexture(topSeparator, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+            call BlzFrameSetPoint(bottomSeparator, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.027500, - 0.31585)
+            call BlzFrameSetSize(bottomSeparator, 0.255, 0.001)
+            call BlzFrameSetTexture(bottomSeparator, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+            call BlzFrameSetPoint(usedIn, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.13750, - 0.31800)
+            call BlzFrameSetSize(usedIn, 0.04, 0.012)
+            call BlzFrameSetText(usedIn, "|cffFFCC00Used in:|r")
+            call BlzFrameSetEnable(usedIn, false)
+            call BlzFrameSetScale(usedIn, 1.00)
+            call BlzFrameSetTextAlignment(usedIn, TEXT_JUSTIFY_TOP, TEXT_JUSTIFY_LEFT)
+            call BlzFrameSetPoint(tooltip, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.027500, - 0.15950)
+            call BlzFrameSetSize(tooltip, 0.31, 0.16)
+            call BlzFrameSetText(tooltip, "")
+            call BlzFrameSetVisible(frame, false)
+
+            return this
         endmethod
     endstruct
 
@@ -723,7 +1218,6 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         private static hashtable itempool = InitHashtable()
         private static trigger trigger = CreateTrigger()
         private static trigger keyPress = CreateTrigger()
-        private static trigger keyReleased = CreateTrigger()
         private static trigger escPressed = CreateTrigger()
         private static integer count = -1
         readonly static timer array timer
@@ -736,16 +1230,20 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         readonly framehandle rightPanel
         readonly Category category
         readonly Favorites favorites
+        readonly Detail details
         readonly integer id
         readonly integer index
         readonly integer size
-        readonly Slot first
-        readonly Slot last
-        readonly Slot head
-        readonly Slot tail
+        readonly integer rows
+        readonly integer columns
+        readonly ShopSlot first
+        readonly ShopSlot last
+        readonly ShopSlot head
+        readonly ShopSlot tail
+        readonly boolean detailed
 
         method destroy takes nothing returns nothing
-            local Slot slot = LoadInteger(itempool, this, 0)
+            local ShopSlot slot = LoadInteger(itempool, this, 0)
             local integer i = 0
 
             loop
@@ -771,6 +1269,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             call BlzDestroyFrame(base)
             call category.destroy()
             call favorites.destroy()
+            call details.destroy()
             call deallocate()
 
             set base = null
@@ -780,7 +1279,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         endmethod
 
         method scroll takes boolean down, player p returns nothing
-            local Slot slot = first
+            local ShopSlot slot = first
             local integer i = GetPlayerId(GetLocalPlayer())
             local real delay = TimerGetRemaining(timer[i])
             
@@ -801,13 +1300,13 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                                     call slot.move(slot.row + 1, slot.column)
                                 endif
 
-                                set slot.visible = slot.row >= 0 and slot.row <= ROWS - 1 and slot.column >= 0 and slot.column <= COLUMNS - 1
+                                set slot.visible = slot.row >= 0 and slot.row <= rows - 1 and slot.column >= 0 and slot.column <= columns - 1
 
                                 if slot.row == 0 and slot.column == 0 then
                                     set head = slot
                                 endif
 
-                                if (slot.row == ROWS - 1 and slot.column == COLUMNS - 1) or (slot == last and slot.visible) then
+                                if (slot.row == rows - 1 and slot.column == columns - 1) or (slot == last and slot.visible) then
                                     set tail = slot
                                 endif
                             set slot = slot.right
@@ -822,7 +1321,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         endmethod
 
         method filter takes integer categories, boolean andLogic returns nothing
-            local Slot slot = LoadInteger(itempool, this, 0)
+            local ShopSlot slot = LoadInteger(itempool, this, 0)
             local boolean process
             local integer i = -1
 
@@ -843,8 +1342,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                     if process then
                         set i = i + 1
                         set size = size + 1
-                        call slot.move(R2I(i/COLUMNS), ModuloInteger(i, COLUMNS))
-                        set slot.visible = slot.row >= 0 and slot.row <= ROWS - 1 and slot.column >= 0 and slot.column <= COLUMNS - 1
+                        call slot.move(R2I(i/columns), ModuloInteger(i, columns))
+                        set slot.visible = slot.row >= 0 and slot.row <= rows - 1 and slot.column >= 0 and slot.column <= columns - 1
                     
                         if i > 0 then
                             set slot.left = last
@@ -866,6 +1365,26 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             endloop
         endmethod
 
+        method detail takes Item i returns nothing
+            if i != 0 then
+                set rows = DETAILED_ROWS
+                set columns = DETAILED_COLUMNS
+
+                if not detailed then
+                    set detailed = true
+                    call filter(category.active, category.andLogic)
+                endif
+
+                call details.show(i)
+            else
+                set rows = ROWS
+                set columns = COLUMNS
+                set detailed  = false
+                call filter(category.active, category.andLogic)
+                call details.hide()
+            endif
+        endmethod
+
         static method create takes integer id returns thistype
             local thistype this
             local integer i = 0
@@ -879,13 +1398,17 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 set tail = 0
                 set size = 0
                 set index = -1
+                set rows = ROWS
+                set columns = COLUMNS
                 set count = count + 1
+                set detailed = false
                 set base = BlzCreateFrame("EscMenuBackdrop", BlzGetFrameByName("ConsoleUIBackdrop", 0), 0, 0)
                 set main = BlzCreateFrameByType("BUTTON", "main", base, "", 0)
                 set leftPanel = BlzCreateFrame("EscMenuBackdrop", base, 0, 0)
                 set rightPanel = BlzCreateFrame("EscMenuBackdrop", base, 0, 0)
                 set category = Category.create(this)
                 set favorites = Favorites.create(this)
+                set details = Detail.create(this)
 
                 loop
                     exitwhen i >= bj_MAX_PLAYER_SLOTS
@@ -902,10 +1425,10 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 call BlzFrameSetPoint(main, FRAMEPOINT_TOPLEFT, base, FRAMEPOINT_TOPLEFT, 0.0000, 0.0000)
                 call BlzFrameSetSize(main, WIDTH, HEIGHT)
 
-                call BlzFrameSetPoint(leftPanel, FRAMEPOINT_TOPLEFT, base, FRAMEPOINT_TOPLEFT, -0.065000, 0.0000)
+                call BlzFrameSetPoint(leftPanel, FRAMEPOINT_TOPLEFT, base, FRAMEPOINT_TOPLEFT, -0.04800, 0.0000)
                 call BlzFrameSetSize(leftPanel, SIDE_WIDTH, SIDE_HEIGHT)
 
-                call BlzFrameSetPoint(rightPanel, FRAMEPOINT_TOPLEFT, base, FRAMEPOINT_TOPLEFT, 0.79000, 0.0000)
+                call BlzFrameSetPoint(rightPanel, FRAMEPOINT_TOPLEFT, base, FRAMEPOINT_TOPLEFT, 0.77300, 0.0000)
                 call BlzFrameSetSize(rightPanel, SIDE_WIDTH, SIDE_HEIGHT)
 
                 call SaveInteger(table, id, 0, this)
@@ -929,17 +1452,17 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
         static method addItem takes integer id, integer itemId, integer categories returns nothing
             local thistype this = LoadInteger(table, id, 0)
-            local Slot slot
-            local item i
+            local ShopSlot slot
+            local Item i
 
             if this != 0 then
                 if not HaveSavedInteger(table, this, itemId) then
-                    set i = CreateItem(itemId, 0, 0)
+                    set i = Item.create(itemId, categories)
                     
-                    if i != null then
+                    if i != 0 then
                         set size = size + 1
                         set index = index + 1
-                        set slot = Slot.create(this, Item.create(i, index, categories), R2I(index/COLUMNS), ModuloInteger(index, COLUMNS))
+                        set slot = ShopSlot.create(this, i, R2I(index/COLUMNS), ModuloInteger(index, COLUMNS))
                         set slot.visible = slot.row >= 0 and slot.row <= ROWS - 1 and slot.column >= 0 and slot.column <= COLUMNS - 1
 
                         if index > 0 then
@@ -960,7 +1483,6 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
                         call SaveInteger(itempool, this, index, slot)
                         call SaveInteger(table, this, itemId, slot)
-                        call RemoveItem(i)
                     else
                         call BJDebugMsg("Invalid item code: " + A2S(itemId))
                     endif
@@ -968,8 +1490,6 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                     call BJDebugMsg("The item " + GetObjectName(itemId) + " is already registered for the shop " + GetObjectName(id))
                 endif
             endif
-
-            set i = null
         endmethod
 
         static method onExpire takes nothing returns nothing
@@ -989,6 +1509,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
         static method onSelect takes nothing returns nothing
             local thistype this = LoadInteger(table, GetUnitTypeId(GetTriggerUnit()), 0)
+            local ShopSlot slot
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
