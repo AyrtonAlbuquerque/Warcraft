@@ -18,10 +18,18 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         private constant integer COLUMNS                = 13
         private constant integer DETAILED_ROWS          = 5
         private constant integer DETAILED_COLUMNS       = 8
+        private constant string CLOSE_ICON              = "ui\\widgets\\battlenet\\chaticons\\bnet-squelch"
+        private constant string CLEAR_ICON              = "ReplaceableTextures\\CommandButtons\\BTNCancel.blp"
+        private constant string HELP_ICON               = "UI\\Widgets\\EscMenu\\Human\\quest-unknown.blp"
 
         // Details window
         private constant real DETAIL_WIDTH              = 0.3125
         private constant real DETAIL_HEIGHT             = 0.4
+        private constant integer DETAIL_USED_COUNT      = 6
+        private constant real DETAIL_BUTTON_SIZE        = 0.035
+        private constant real DETAIL_BUTTON_GAP         = 0.044
+        private constant string USED_RIGHT              = "ReplaceableTextures\\CommandButtons\\BTNReplay-SpeedDown.blp"
+        private constant string USED_LEFT               = "ReplaceableTextures\\CommandButtons\\BTNReplay-SpeedUp.blp"
 
         // Side Panels
         private constant real SIDE_WIDTH                = 0.075
@@ -49,11 +57,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         private constant real SLOT_GAP_X                = 0.018
         private constant real SLOT_GAP_Y                = 0.022
         private constant string GOLD_ICON               = "UI\\Feedback\\Resources\\ResourceGold.blp"
-
-        // Detail panel
-        private constant integer DETAIL_USED_COUNT      = 6
-        private constant real DEATIL_BUTTON_SIZE        = 0.035
-        private constant real DEATIL_BUTTON_GAP         = 0.044
+        private constant string ACQUIRED_ITEM           = "UI\\Widgets\\EscMenu\\Human\\checkbox-check.blp"
+        private constant string UNAVAILABLE_ITEM        = "ui\\widgets\\battlenet\\chaticons\\bnet-squelch"
 
         // Scroll
         private constant real SCROLL_DELAY              = 0.01
@@ -334,6 +339,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
     struct Button
         private framehandle iconFrame
+        private framehandle backdrop
         private framehandle parent
         private boolean isVisible
         private string texture
@@ -427,7 +433,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set widhtSize = width
             set heightSize = height
             set isVisible = true
-            set iconFrame = BlzCreateFrameByType("BACKDROP", "", owner, "", 0)    
+            set iconFrame = BlzCreateFrameByType("BACKDROP", "", owner, "", 0)   
+            set backdrop = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)  
             set frame = BlzCreateFrame("IconButtonTemplate", iconFrame, 0, 0)
             set tooltip = Tooltip.create(frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT)
             
@@ -435,6 +442,9 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             call BlzFrameSetSize(iconFrame, width, height)
             call BlzFrameSetAllPoints(frame, iconFrame)
             call BlzFrameSetTooltip(frame, tooltip.frame)
+
+            call BlzFrameSetAllPoints(backdrop, iconFrame)
+            call BlzFrameSetTexture(backdrop, UNAVAILABLE_ITEM, 0, true)
 
             return this
         endmethod
@@ -761,6 +771,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         Slot right2
         Item array used[CATEGORY_COUNT]
         Button array button[DETAIL_USED_COUNT]
+        integer count
         framehandle frame
         framehandle tooltip
         framehandle topSeparator
@@ -826,6 +837,35 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             call BlzFrameSetVisible(frame, false)
         endmethod
 
+        method showUsed takes nothing returns nothing
+            local Item i
+            local integer j = 0
+            
+            loop
+                exitwhen j == DETAIL_USED_COUNT
+                    set button[j].visible = false
+                set j = j + 1
+            endloop
+
+            set j = 0
+
+            loop
+                exitwhen not HaveSavedInteger(item.relation, item.id, j) or j == DETAIL_USED_COUNT
+                    set i = item.get(LoadInteger(item.relation, item.id, j))
+
+                    if i != 0 then
+                        set used[j] = i
+                        set button[count].icon = i.icon
+                        set button[count].tooltip.text = i.tooltip
+                        set button[count].tooltip.name = i.name
+                        set button[count].tooltip.icon = i.icon
+                        set button[count].visible = true
+                        set count = count + 1
+                    endif
+                set j = j + 1
+            endloop
+        endmethod
+
         method show takes Item i returns nothing
             local Item component
             local Slot slot
@@ -835,7 +875,10 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
             if i != 0 then
                 set item = i
+                set count = 0
                 set cost = item.gold
+
+                call showUsed()
 
                 if item.components > 0 then
                     loop
@@ -1008,6 +1051,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             local integer i = 0
 
             set .shop = shop
+            set count = 0
             set frame = BlzCreateFrame("EscMenuBackdrop", shop.main, 0, 0)
             set main = Slot.create(frame, 0, 0.13625, - 0.030000, FRAMEPOINT_TOPRIGHT)
             set center = Slot.create(frame, 0, 0.13625, - 0.10200, FRAMEPOINT_TOPRIGHT)
@@ -1061,7 +1105,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
             loop
                 exitwhen i == DETAIL_USED_COUNT
-                    set button[i] = Button.create(frame, DEATIL_BUTTON_SIZE, DEATIL_BUTTON_SIZE, 0.027500, - (0.021500 + DEATIL_BUTTON_SIZE*i + DEATIL_BUTTON_GAP))
+                    set button[i] = Button.create(frame, DETAIL_BUTTON_SIZE, DETAIL_BUTTON_SIZE, 0.027500 + DETAIL_BUTTON_GAP*i, - 0.33500)
                     set button[i].visible = false
                     set button[i].tooltip.point = FRAMEPOINT_BOTTOMRIGHT
 
