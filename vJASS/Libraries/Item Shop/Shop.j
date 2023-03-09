@@ -28,6 +28,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         private constant integer DETAIL_USED_COUNT      = 6
         private constant real DETAIL_BUTTON_SIZE        = 0.035
         private constant real DETAIL_BUTTON_GAP         = 0.044
+        private constant real DETAIL_CLOSE_BUTTON_SIZE  = 0.02
+        private constant real DETAIL_SHIFT_BUTTON_SIZE  = 0.012
         private constant string USED_RIGHT              = "ReplaceableTextures\\CommandButtons\\BTNReplay-SpeedDown.blp"
         private constant string USED_LEFT               = "ReplaceableTextures\\CommandButtons\\BTNReplay-SpeedUp.blp"
 
@@ -279,7 +281,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
         method operator visible= takes boolean visibility returns nothing
             set isVisible = visibility
-            call BlzFrameSetVisible(frame, visibility)
+            call BlzFrameSetVisible(box, visibility)
         endmethod
 
         method operator visible takes nothing returns boolean
@@ -339,9 +341,12 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
     struct Button
         private framehandle iconFrame
-        private framehandle backdrop
+        private framehandle availableFrame
+        private framehandle checkedFrame
         private framehandle parent
         private boolean isVisible
+        private boolean isAvailable
+        private boolean isChecked
         private string texture
         private real widhtSize
         private real heightSize
@@ -375,7 +380,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
         method operator icon= takes string texture returns nothing
             set .texture = texture
-            call BlzFrameSetTexture(iconFrame, texture, 0, false)
+            call BlzFrameSetTexture(iconFrame, texture, 0, true)
         endmethod
 
         method operator icon takes nothing returns string
@@ -413,6 +418,36 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             return isVisible
         endmethod
 
+        method operator available= takes boolean flag returns nothing
+            set isAvailable = flag
+
+            if flag then
+                call BlzFrameSetVisible(availableFrame, false)
+            else
+                call BlzFrameSetVisible(availableFrame, true)
+                call BlzFrameSetTexture(availableFrame, UNAVAILABLE_ITEM, 0, true)
+            endif
+        endmethod
+
+        method operator available takes nothing returns boolean
+            return isAvailable
+        endmethod
+
+        method operator checked= takes boolean flag returns nothing
+            set isChecked = flag
+
+            if flag then
+                call BlzFrameSetVisible(checkedFrame, true)
+                call BlzFrameSetTexture(checkedFrame, ACQUIRED_ITEM, 0, true)
+            else
+                call BlzFrameSetVisible(checkedFrame, false)
+            endif
+        endmethod
+
+        method operator checked takes nothing returns boolean
+            return isChecked
+        endmethod
+
         method destroy takes nothing returns nothing
             call BlzDestroyFrame(frame)
             call BlzDestroyFrame(iconFrame)
@@ -433,8 +468,11 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set widhtSize = width
             set heightSize = height
             set isVisible = true
+            set isAvailable = true
+            set isChecked = false
             set iconFrame = BlzCreateFrameByType("BACKDROP", "", owner, "", 0)   
-            set backdrop = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)  
+            set availableFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)  
+            set checkedFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)
             set frame = BlzCreateFrame("IconButtonTemplate", iconFrame, 0, 0)
             set tooltip = Tooltip.create(frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT)
             
@@ -442,9 +480,10 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             call BlzFrameSetSize(iconFrame, width, height)
             call BlzFrameSetAllPoints(frame, iconFrame)
             call BlzFrameSetTooltip(frame, tooltip.frame)
-
-            call BlzFrameSetAllPoints(backdrop, iconFrame)
-            call BlzFrameSetTexture(backdrop, UNAVAILABLE_ITEM, 0, true)
+            call BlzFrameSetAllPoints(availableFrame, iconFrame)
+            call BlzFrameSetVisible(availableFrame, false)
+            call BlzFrameSetAllPoints(checkedFrame, iconFrame)
+            call BlzFrameSetVisible(checkedFrame, false)
 
             return this
         endmethod
@@ -492,6 +531,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 endif
 
                 call SaveInteger(itempool, id, 6, LoadInteger(itempool, id, 6) + 1)
+                call create(component, 0)
             endif
         endmethod
 
@@ -760,9 +800,15 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
     private struct Detail
         readonly static trigger event = CreateTrigger()
+        readonly static trigger trigger = CreateTrigger()
+        readonly static timer array timer
+        readonly static boolean array canScroll
 
         Shop shop
         Item item
+        Button close
+        Button left
+        Button right
         Slot main
         Slot center
         Slot left1
@@ -777,6 +823,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         framehandle topSeparator
         framehandle bottomSeparator
         framehandle usedIn
+        framehandle scrollFrame
         framehandle horizontalRight
         framehandle horizontalLeft
         framehandle verticalMain
@@ -787,6 +834,14 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         framehandle verticalRight2
 
         method destroy takes nothing returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i == DETAIL_USED_COUNT
+                    call button[i].destroy()
+                set i = i + 1
+            endloop
+
             call main.destroy()
             call center.destroy()
             call left1.destroy()
@@ -796,6 +851,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             call BlzDestroyFrame(topSeparator)
             call BlzDestroyFrame(bottomSeparator)
             call BlzDestroyFrame(usedIn)
+            call BlzDestroyFrame(scrollFrame)
             call BlzDestroyFrame(horizontalRight)
             call BlzDestroyFrame(horizontalLeft)
             call BlzDestroyFrame(verticalMain)
@@ -813,6 +869,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set topSeparator = null
             set bottomSeparator = null
             set usedIn = null
+            set scrollFrame = null
             set horizontalRight = null
             set horizontalLeft = null
             set verticalMain = null
@@ -835,6 +892,75 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
         method hide takes nothing returns nothing
             call BlzFrameSetVisible(frame, false)
+        endmethod
+
+        method shift takes boolean left returns nothing
+            local Item i
+            local integer j
+
+            if left then
+                if HaveSavedInteger(item.relation, item.id, count) and count >= DETAIL_USED_COUNT  then
+                    set j = 0
+
+                    loop
+                        exitwhen j == DETAIL_USED_COUNT - 1
+                            set used[j] = used[j + 1]
+                            set button[j].icon = used[j].icon
+                            set button[j].tooltip.text = used[j].tooltip
+                            set button[j].tooltip.name = used[j].name
+                            set button[j].tooltip.icon = used[j].icon
+                            set button[j].visible = true
+                            set button[j].available = shop.has(used[j].id)
+                            // set button[j].checked = true
+                        set j = j + 1
+                    endloop
+
+                    set i = item.get(LoadInteger(item.relation, item.id, count))
+
+                    if i != 0 then
+                        set count = count + 1
+                        set used[j] = i
+                        set button[j].icon = used[j].icon
+                        set button[j].tooltip.text = used[j].tooltip
+                        set button[j].tooltip.name = used[j].name
+                        set button[j].tooltip.icon = used[j].icon
+                        set button[j].visible = true
+                        set button[j].available = shop.has(used[j].id)
+                        // set button[j].checked = true
+                    endif
+                endif
+            else
+                if count > DETAIL_USED_COUNT then
+                    set j = DETAIL_USED_COUNT - 1
+
+                    loop
+                        exitwhen j == 0
+                            set used[j] = used[j - 1]
+                            set button[j].icon = used[j].icon
+                            set button[j].tooltip.text = used[j].tooltip
+                            set button[j].tooltip.name = used[j].name
+                            set button[j].tooltip.icon = used[j].icon
+                            set button[j].visible = true
+                            set button[j].available = shop.has(used[j].id)
+                            // set button[j].checked = true
+                        set j = j - 1
+                    endloop
+                    
+                    set i = item.get(LoadInteger(item.relation, item.id, count - DETAIL_USED_COUNT - 1))
+
+                    if i != 0 then
+                        set count = count - 1
+                        set used[j] = i
+                        set button[j].icon = used[j].icon
+                        set button[j].tooltip.text = used[j].tooltip
+                        set button[j].tooltip.name = used[j].name
+                        set button[j].tooltip.icon = used[j].icon
+                        set button[j].visible = true
+                        set button[j].available = shop.has(used[j].id)
+                        // set button[j].checked = true
+                    endif
+                endif
+            endif
         endmethod
 
         method showUsed takes nothing returns nothing
@@ -860,6 +986,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                         set button[count].tooltip.name = i.name
                         set button[count].tooltip.icon = i.icon
                         set button[count].visible = true
+                        set button[count].available = shop.has(i.id)
+                        // set button[count].checked = true
                         set count = count + 1
                     endif
                 set j = j + 1
@@ -877,14 +1005,15 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 set item = i
                 set count = 0
                 set cost = item.gold
+                set main.item = item
 
                 call showUsed()
-
+                
                 if item.components > 0 then
                     loop
                         exitwhen j > item.components or k > 5
                             set component = item.get(LoadInteger(item.itempool, item.id, j))
-
+                            
                             if component != 0 then
                                 if item.components == 1 then
                                     set slot = center
@@ -1006,10 +1135,13 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                                     endif
                                 endif
 
+                                set slot.item = component
                                 set slot.button.icon = component.icon
                                 set slot.button.tooltip.text = component.tooltip
                                 set slot.button.tooltip.name = component.name
                                 set slot.button.tooltip.icon = component.icon
+                                set slot.button.available = shop.has(component.id)
+                                // set slot.button.checked = true
                                 call BlzFrameSetText(slot.cost, "|cffFFCC00" + I2S(component.gold) + "|r")
                                 
                                 //set cost = cost + component.gold
@@ -1039,6 +1171,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 set main.button.tooltip.text = item.tooltip
                 set main.button.tooltip.name = item.name
                 set main.button.tooltip.icon = item.icon
+                set main.button.available = shop.has(item.id)
 
                 call BlzFrameSetText(main.cost, "|cffFFCC00" + I2S(cost) + "|r")
                 call BlzFrameSetText(tooltip, item.tooltip)
@@ -1053,6 +1186,10 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set .shop = shop
             set count = 0
             set frame = BlzCreateFrame("EscMenuBackdrop", shop.main, 0, 0)
+            set scrollFrame = BlzCreateFrameByType("BUTTON", "", frame, "", 0)
+            set close = Button.create(frame, DETAIL_CLOSE_BUTTON_SIZE, DETAIL_CLOSE_BUTTON_SIZE, 0.26676, - 0.025000)
+            set left = Button.create(scrollFrame, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, 0.0050000, - 0.0025000)
+            set right = Button.create(scrollFrame, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, 0.24800, - 0.0025000)
             set main = Slot.create(frame, 0, 0.13625, - 0.030000, FRAMEPOINT_TOPRIGHT)
             set center = Slot.create(frame, 0, 0.13625, - 0.10200, FRAMEPOINT_TOPRIGHT)
             set left1 = Slot.create(frame, 0, 0.087250, - 0.10200, FRAMEPOINT_TOPRIGHT)
@@ -1061,7 +1198,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set right2 = Slot.create(frame, 0, 0.23425, - 0.10200, FRAMEPOINT_TOPRIGHT)
             set topSeparator = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set bottomSeparator = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
-            set usedIn = BlzCreateFrameByType("TEXT", "", frame, "", 0)
+            set usedIn = BlzCreateFrameByType("TEXT", "", scrollFrame, "", 0)
             set tooltip = BlzCreateFrame("DescriptionArea", frame, 0, 0)
             set horizontalLeft = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set horizontalRight = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
@@ -1071,6 +1208,12 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set verticalLeft2 = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set verticalRight1 = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set verticalRight2 = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set close.icon = CLOSE_ICON
+            set left.icon = USED_LEFT
+            set right.icon = USED_RIGHT
+            set close.tooltip.visible = false
+            set left.tooltip.visible = false
+            set right.tooltip.visible = false
             set center.visible = false
             set left1.visible = false
             set left2.visible = false
@@ -1078,11 +1221,13 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set right2.visible = false
 
             call BlzFrameSetPoint(frame, FRAMEPOINT_TOPLEFT, shop.main, FRAMEPOINT_TOPLEFT, WIDTH - DETAIL_WIDTH, 0.0000)
+            call BlzFrameSetPoint(scrollFrame, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.022500, - 0.31550)
             call BlzFrameSetPoint(topSeparator, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.027500, - 0.15585)
             call BlzFrameSetPoint(bottomSeparator, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.027500, - 0.31585)
-            call BlzFrameSetPoint(usedIn, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.13750, - 0.31800)
+            call BlzFrameSetPoint(usedIn, FRAMEPOINT_TOPLEFT, scrollFrame, FRAMEPOINT_TOPLEFT, 0.11500, - 0.0025000)
             call BlzFrameSetPoint(tooltip, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.027500, - 0.15950)
             call BlzFrameSetSize(frame, DETAIL_WIDTH, DETAIL_HEIGHT)
+            call BlzFrameSetSize(scrollFrame, 0.26750, 0.06100)
             call BlzFrameSetSize(topSeparator, 0.255, 0.001)
             call BlzFrameSetSize(bottomSeparator, 0.255, 0.001)
             call BlzFrameSetSize(usedIn, 0.04, 0.012)
@@ -1102,22 +1247,81 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             call BlzFrameSetTexture(verticalLeft2, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
             call BlzFrameSetTexture(verticalRight1, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
             call BlzFrameSetTexture(verticalRight2, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+            call SaveInteger(table, GetHandleId(close.frame), 0, this)
+            call SaveInteger(table, GetHandleId(left.frame), 0, this)
+            call SaveInteger(table, GetHandleId(right.frame), 0, this)
+            call SaveInteger(table, GetHandleId(scrollFrame), 0, this)
+            call SaveInteger(table, GetHandleId(main.button.frame), 0, this)
+            call SaveInteger(table, GetHandleId(center.button.frame), 0, this)
+            call SaveInteger(table, GetHandleId(left1.button.frame), 0, this)
+            call SaveInteger(table, GetHandleId(left2.button.frame), 0, this)
+            call SaveInteger(table, GetHandleId(right1.button.frame), 0, this)
+            call SaveInteger(table, GetHandleId(right2.button.frame), 0, this)
+            call BlzTriggerRegisterFrameEvent(trigger, scrollFrame, FRAMEEVENT_MOUSE_WHEEL)
+            call BlzTriggerRegisterFrameEvent(event, close.frame, FRAMEEVENT_CONTROL_CLICK)
+            call BlzTriggerRegisterFrameEvent(event, left.frame, FRAMEEVENT_CONTROL_CLICK)
+            call BlzTriggerRegisterFrameEvent(event, right.frame, FRAMEEVENT_CONTROL_CLICK)
+            call BlzTriggerRegisterFrameEvent(event, main.button.frame, FRAMEEVENT_CONTROL_CLICK)
+            call BlzTriggerRegisterFrameEvent(event, center.button.frame, FRAMEEVENT_CONTROL_CLICK)
+            call BlzTriggerRegisterFrameEvent(event, left1.button.frame, FRAMEEVENT_CONTROL_CLICK)
+            call BlzTriggerRegisterFrameEvent(event, left2.button.frame, FRAMEEVENT_CONTROL_CLICK)
+            call BlzTriggerRegisterFrameEvent(event, right1.button.frame, FRAMEEVENT_CONTROL_CLICK)
+            call BlzTriggerRegisterFrameEvent(event, right2.button.frame, FRAMEEVENT_CONTROL_CLICK)
 
             loop
                 exitwhen i == DETAIL_USED_COUNT
-                    set button[i] = Button.create(frame, DETAIL_BUTTON_SIZE, DETAIL_BUTTON_SIZE, 0.027500 + DETAIL_BUTTON_GAP*i, - 0.33500)
+                    set button[i] = Button.create(scrollFrame, DETAIL_BUTTON_SIZE, DETAIL_BUTTON_SIZE, 0.0050000 + DETAIL_BUTTON_GAP*i, - 0.019500)
                     set button[i].visible = false
                     set button[i].tooltip.point = FRAMEPOINT_BOTTOMRIGHT
 
                     call SaveInteger(table, GetHandleId(button[i].frame), 0, this)
                     call SaveInteger(table, GetHandleId(button[i].frame), 1, i)
                     call BlzTriggerRegisterFrameEvent(event, button[i].frame, FRAMEEVENT_CONTROL_CLICK)
+                    call BlzTriggerRegisterFrameEvent(trigger, button[i].frame, FRAMEEVENT_MOUSE_WHEEL)
+                set i = i + 1
+            endloop
+
+            set i = 0
+
+            loop
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    set timer[i] = CreateTimer()
+                    set canScroll[i] = true
                 set i = i + 1
             endloop
 
             call BlzFrameSetVisible(frame, false)
 
             return this
+        endmethod
+
+        static method onExpire takes nothing returns nothing
+            set canScroll[GetPlayerId(GetLocalPlayer())] = true
+        endmethod
+
+        static method onScroll takes nothing returns nothing
+            local framehandle frame = BlzGetTriggerFrame()
+            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
+            local integer i = GetPlayerId(GetLocalPlayer())
+            local real delay = TimerGetRemaining(timer[i])
+
+            if this != 0 then
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    if canScroll[i] then
+                        if SCROLL_DELAY > 0 then
+                            set canScroll[i] = false
+                        endif
+
+                        call shift(BlzGetTriggerFrameValue() < 0)
+                    endif
+                endif
+            endif
+
+            if SCROLL_DELAY > 0 then
+                call TimerStart(timer[i], delay, false, function thistype.onExpire)
+            endif
+
+            set frame = null
         endmethod
 
         static method onClick takes nothing returns nothing
@@ -1127,7 +1331,53 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
-                    //
+                    if frame == close.frame then
+                        call shop.detail(0)
+                    elseif frame == left.frame then
+                        call shift(false)
+                    elseif frame == right.frame then
+                        call shift(true)
+                    elseif frame == center.button.frame then
+                        if Shop.tag[GetPlayerId(GetTriggerPlayer())] then
+                            call shop.favorites.add(center.item)
+                        else
+                            call shop.detail(center.item)
+                        endif
+                    elseif frame == left1.button.frame then
+                        if Shop.tag[GetPlayerId(GetTriggerPlayer())] then
+                            call shop.favorites.add(left1.item)
+                        else
+                            call shop.detail(left1.item)
+                        endif
+                    elseif frame == left2.button.frame then
+                        if Shop.tag[GetPlayerId(GetTriggerPlayer())] then
+                            call shop.favorites.add(left2.item)
+                        else
+                            call shop.detail(left2.item)
+                        endif
+                    elseif frame == right1.button.frame then
+                        if Shop.tag[GetPlayerId(GetTriggerPlayer())] then
+                            call shop.favorites.add(right1.item)
+                        else
+                            call shop.detail(right1.item)
+                        endif
+                    elseif frame == right2.button.frame then
+                        if Shop.tag[GetPlayerId(GetTriggerPlayer())] then
+                            call shop.favorites.add(right2.item)
+                        else
+                            call shop.detail(right2.item)
+                        endif
+                    elseif frame != main.button.frame then
+                        if Shop.tag[GetPlayerId(GetTriggerPlayer())] then
+                            call shop.favorites.add(used[i])
+                        else
+                            call shop.detail(used[i])
+                        endif
+                    elseif frame == main.button.frame then
+                        if Shop.tag[GetPlayerId(GetTriggerPlayer())] then
+                            call shop.favorites.add(main.item)
+                        endif
+                    endif 
                 endif
             endif
 
@@ -1136,6 +1386,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
         static method onInit takes nothing returns nothing
             call TriggerAddAction(event, function thistype.onClick)
+            call TriggerAddAction(trigger, function thistype.onScroll)
         endmethod
     endstruct
 
@@ -1238,6 +1489,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 if GetLocalPlayer() == GetTriggerPlayer() then
                     if Shop.tag[GetPlayerId(GetTriggerPlayer())] then
                         call remove(i)
+                    else
+                        call shop.detail(item[i])
                     endif
                 endif
             endif
@@ -1541,6 +1794,10 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 call filter(category.active, category.andLogic)
                 call details.hide()
             endif
+        endmethod
+
+        method has takes integer id returns boolean
+            return HaveSavedInteger(table, this, id)
         endmethod
 
         static method create takes integer id returns thistype
