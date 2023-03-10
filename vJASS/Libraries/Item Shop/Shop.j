@@ -1,4 +1,4 @@
-library Shop requires RegisterPlayerUnitEvent, TimerUtils
+library Shop requires RegisterPlayerUnitEvent, Components
     /* --------------------------------------- Shop v1.0 --------------------------------------- */
     // Credits:
     //      Taysen: TasItemShop and FDF file
@@ -55,15 +55,12 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         private constant real COST_WIDTH                = 0.045
         private constant real COST_HEIGHT               = 0.01
         private constant real COST_SCALE                = 0.8
-        private constant real TOOLTIP_SIZE              = 0.2
         private constant real SLOT_GAP_X                = 0.018
         private constant real SLOT_GAP_Y                = 0.022
         private constant string GOLD_ICON               = "UI\\Feedback\\Resources\\ResourceGold.blp"
-        private constant string ACQUIRED_ITEM           = "UI\\Widgets\\EscMenu\\Human\\checkbox-check.blp"
-        private constant string UNAVAILABLE_ITEM        = "ui\\widgets\\battlenet\\chaticons\\bnet-squelch"
 
         // Scroll
-        private constant real SCROLL_DELAY              = 0.01
+        private constant real SCROLL_DELAY = 0.01
 
         // Dont touch
         private hashtable table = InitHashtable()
@@ -209,286 +206,6 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
     /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
-    struct Tooltip
-        private framehandle box
-        private framehandle line
-        private framehandle tooltip
-        private framehandle iconFrame
-        private framehandle nameFrame
-        private framehandle parent
-        private framepointtype pointType
-        private real widthSize
-        private string texture
-        private boolean isVisible
-
-        readonly framehandle frame
-
-        method operator text= takes string description returns nothing
-            call BlzFrameSetText(tooltip, description)
-        endmethod
-
-        method operator text takes nothing returns string
-            return BlzFrameGetText(tooltip)
-        endmethod
-
-        method operator name= takes string newName returns nothing
-            call BlzFrameSetText(nameFrame, newName)
-        endmethod
-
-        method operator name takes nothing returns string
-            return BlzFrameGetText(nameFrame)
-        endmethod
-
-        method operator icon= takes string texture returns nothing
-            set .texture = texture
-            call BlzFrameSetTexture(iconFrame, texture, 0, false)
-        endmethod
-
-        method operator icon takes nothing returns string
-            return texture
-        endmethod
-
-        method operator width= takes real newWidth returns nothing
-            set widthSize = newWidth
-
-            call BlzFrameClearAllPoints(tooltip)
-            call BlzFrameSetSize(tooltip, newWidth, 0)
-        endmethod
-
-        method operator width takes nothing returns real
-            return widthSize
-        endmethod
-
-        method operator point= takes framepointtype newPoint returns nothing
-            set pointType = newPoint
-
-            call BlzFrameClearAllPoints(tooltip)
-            
-            if newPoint == FRAMEPOINT_TOPLEFT then
-                call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_TOPRIGHT, 0.005, -0.05)
-            elseif newPoint == FRAMEPOINT_TOPRIGHT then
-                call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_TOPLEFT, -0.005, -0.05)
-            elseif newPoint == FRAMEPOINT_BOTTOMLEFT then
-                call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_BOTTOMRIGHT, 0.005, 0.0)
-            else
-                call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_BOTTOMLEFT, -0.005, 0.0)
-            endif
-        endmethod
-
-        method operator point takes nothing returns framepointtype
-            return pointType
-        endmethod
-
-        method operator visible= takes boolean visibility returns nothing
-            set isVisible = visibility
-            call BlzFrameSetVisible(box, visibility)
-        endmethod
-
-        method operator visible takes nothing returns boolean
-            return isVisible
-        endmethod
-
-        method destroy takes nothing returns nothing
-            call BlzDestroyFrame(nameFrame)
-            call BlzDestroyFrame(iconFrame)
-            call BlzDestroyFrame(tooltip)
-            call BlzDestroyFrame(line)
-            call BlzDestroyFrame(box)
-            call BlzDestroyFrame(frame)
-            call deallocate()
-
-            set frame = null
-            set box = null
-            set line = null
-            set tooltip = null
-            set iconFrame = null
-            set nameFrame = null
-            set pointType = null
-            set parent = null
-        endmethod
-
-        static method create takes framehandle owner, real width, framepointtype point returns thistype
-            local thistype this = thistype.allocate()
-
-            set parent = owner
-            set widthSize = width
-            set pointType = point
-            set isVisible = true
-            set frame = BlzCreateFrame("TooltipBoxFrame", owner, 0, 0)
-            set box = BlzGetFrameByName("TooltipBox", 0)
-            set line = BlzGetFrameByName("TooltipSeperator", 0)
-            set tooltip = BlzGetFrameByName("TooltipText", 0)
-            set iconFrame = BlzGetFrameByName("TooltipIcon", 0)
-            set nameFrame = BlzGetFrameByName("TooltipName", 0)
-
-            if point == FRAMEPOINT_TOPLEFT then
-                call BlzFrameSetPoint(tooltip, point, owner, FRAMEPOINT_TOPRIGHT, 0.005, -0.05)
-            elseif point == FRAMEPOINT_TOPRIGHT then
-                call BlzFrameSetPoint(tooltip, point, owner, FRAMEPOINT_TOPLEFT, -0.005, -0.05)
-            elseif point == FRAMEPOINT_BOTTOMLEFT then
-                call BlzFrameSetPoint(tooltip, point, owner, FRAMEPOINT_BOTTOMRIGHT, 0.005, 0.0)
-            else
-                call BlzFrameSetPoint(tooltip, point, owner, FRAMEPOINT_BOTTOMLEFT, -0.005, 0.0)
-            endif
-
-            call BlzFrameSetPoint(box, FRAMEPOINT_TOPLEFT, iconFrame, FRAMEPOINT_TOPLEFT, -0.005, 0.005)
-            call BlzFrameSetPoint(box, FRAMEPOINT_BOTTOMRIGHT, tooltip, FRAMEPOINT_BOTTOMRIGHT, 0.005, -0.005)
-            call BlzFrameSetSize(tooltip, width, 0)
-
-            return this
-        endmethod
-    endstruct
-
-    struct Button
-        private framehandle iconFrame
-        private framehandle availableFrame
-        private framehandle checkedFrame
-        private framehandle parent
-        private boolean isVisible
-        private boolean isAvailable
-        private boolean isChecked
-        private string texture
-        private real widhtSize
-        private real heightSize
-        private real xPos
-        private real yPos
-        
-        readonly framehandle frame
-        Tooltip tooltip
-
-        method operator x= takes real newX returns nothing
-            set xPos = newX
-
-            call BlzFrameClearAllPoints(iconFrame)
-            call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
-        endmethod
-
-        method operator x takes nothing returns real
-            return xPos
-        endmethod
-
-        method operator y= takes real newY returns nothing
-            set yPos = newY
-
-            call BlzFrameClearAllPoints(iconFrame)
-            call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
-        endmethod
-
-        method operator y takes nothing returns real
-            return yPos
-        endmethod
-
-        method operator icon= takes string texture returns nothing
-            set .texture = texture
-            call BlzFrameSetTexture(iconFrame, texture, 0, true)
-        endmethod
-
-        method operator icon takes nothing returns string
-            return texture
-        endmethod
-
-        method operator width= takes real newWidth returns nothing
-            set widhtSize = newWidth
-
-            call BlzFrameClearAllPoints(iconFrame)
-            call BlzFrameSetSize(iconFrame, newWidth, heightSize)
-        endmethod
-
-        method operator width takes nothing returns real
-            return widhtSize
-        endmethod
-
-        method operator height= takes real newHeight returns nothing
-            set heightSize = newHeight
-
-            call BlzFrameClearAllPoints(iconFrame)
-            call BlzFrameSetSize(iconFrame, widhtSize, newHeight)
-        endmethod
-
-        method operator height takes nothing returns real
-            return heightSize
-        endmethod
-
-        method operator visible= takes boolean visibility returns nothing
-            set isVisible = visibility
-            call BlzFrameSetVisible(iconFrame, visibility)
-        endmethod
-
-        method operator visible takes nothing returns boolean
-            return isVisible
-        endmethod
-
-        method operator available= takes boolean flag returns nothing
-            set isAvailable = flag
-
-            if flag then
-                call BlzFrameSetVisible(availableFrame, false)
-            else
-                call BlzFrameSetVisible(availableFrame, true)
-                call BlzFrameSetTexture(availableFrame, UNAVAILABLE_ITEM, 0, true)
-            endif
-        endmethod
-
-        method operator available takes nothing returns boolean
-            return isAvailable
-        endmethod
-
-        method operator checked= takes boolean flag returns nothing
-            set isChecked = flag
-
-            if flag then
-                call BlzFrameSetVisible(checkedFrame, true)
-                call BlzFrameSetTexture(checkedFrame, ACQUIRED_ITEM, 0, true)
-            else
-                call BlzFrameSetVisible(checkedFrame, false)
-            endif
-        endmethod
-
-        method operator checked takes nothing returns boolean
-            return isChecked
-        endmethod
-
-        method destroy takes nothing returns nothing
-            call BlzDestroyFrame(frame)
-            call BlzDestroyFrame(iconFrame)
-            call tooltip.destroy()
-            call deallocate()
-
-            set iconFrame = null
-            set parent = null
-            set frame = null
-        endmethod
-
-        static method create takes framehandle owner, real width, real height, real x, real y returns thistype
-            local thistype this = thistype.allocate()
-
-            set parent = owner
-            set xPos = x
-            set yPos = y
-            set widhtSize = width
-            set heightSize = height
-            set isVisible = true
-            set isAvailable = true
-            set isChecked = false
-            set iconFrame = BlzCreateFrameByType("BACKDROP", "", owner, "", 0)   
-            set availableFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)  
-            set checkedFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)
-            set frame = BlzCreateFrame("IconButtonTemplate", iconFrame, 0, 0)
-            set tooltip = Tooltip.create(frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT)
-            
-            call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, owner, FRAMEPOINT_TOPLEFT, x, y)
-            call BlzFrameSetSize(iconFrame, width, height)
-            call BlzFrameSetAllPoints(frame, iconFrame)
-            call BlzFrameSetTooltip(frame, tooltip.frame)
-            call BlzFrameSetAllPoints(availableFrame, iconFrame)
-            call BlzFrameSetVisible(availableFrame, false)
-            call BlzFrameSetAllPoints(checkedFrame, iconFrame)
-            call BlzFrameSetVisible(checkedFrame, false)
-
-            return this
-        endmethod
-    endstruct
-
     struct Item
         private static unit shop
         private static rect rect
@@ -531,6 +248,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 endif
 
                 call SaveInteger(itempool, id, 6, LoadInteger(itempool, id, 6) + 1)
+                // call SaveInteger(itempool, id, component, LoadInteger(itempool, id, component) + 1)
                 call create(component, 0)
             endif
         endmethod
@@ -545,6 +263,11 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                 call SaveInteger(itempool, id, 4, d)
                 call SaveInteger(itempool, id, 5, e)
                 call SaveInteger(itempool, id, 6, 0)
+                // call SaveInteger(itempool, id, a, 0)
+                // call SaveInteger(itempool, id, b, 0)
+                // call SaveInteger(itempool, id, c, 0)
+                // call SaveInteger(itempool, id, d, 0)
+                // call SaveInteger(itempool, id, e, 0)
                 call save(id, a)
                 call save(id, b)
                 call save(id, c)
@@ -674,7 +397,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set parent = null
         endmethod
 
-        static method create takes framehandle parent, Item i, real x, real y, framepointtype point returns thistype
+        static method create takes framehandle parent, Item i, real x, real y, framepointtype point, code onClick, code onScroll, boolean simpleTooltip returns thistype
             local thistype this = thistype.allocate()
 
             set item = i
@@ -684,7 +407,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set slot = BlzCreateFrameByType("FRAME", "", parent, "", 0)
             set gold = BlzCreateFrameByType("BACKDROP", "", slot, "", 0)
             set cost = BlzCreateFrameByType("TEXT", "", gold, "", 0)
-            set button = Button.create(slot, ITEM_SIZE, ITEM_SIZE, 0, 0)
+            set button = Button.create(slot, ITEM_SIZE, ITEM_SIZE, 0, 0, onClick, onScroll, simpleTooltip)
             set button.tooltip.point = point
             
             call BlzFrameSetPoint(slot, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, x, y)
@@ -711,9 +434,6 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
     endstruct
 
     private struct ShopSlot extends Slot
-        readonly static trigger click = CreateTrigger()
-        readonly static trigger scroll = CreateTrigger()
-
         Shop shop
         Slot next
         Slot prev
@@ -749,7 +469,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         endmethod
 
         static method create takes Shop shop, Item i, integer row, integer column returns thistype
-            local thistype this = thistype.allocate(shop.main, i, 0.030000 + ((SLOT_WIDTH + SLOT_GAP_X) * column), - (0.030000 + ((SLOT_HEIGHT + SLOT_GAP_Y) * row)), FRAMEPOINT_TOPLEFT)
+            local thistype this = thistype.allocate(shop.main, i, 0.030000 + ((SLOT_WIDTH + SLOT_GAP_X) * column), - (0.030000 + ((SLOT_HEIGHT + SLOT_GAP_Y) * row)), FRAMEPOINT_TOPLEFT, function thistype.onClick, function thistype.onScroll, false)
 
             set .shop = shop
             set next = 0
@@ -759,10 +479,8 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set .row = row
             set .column = column
             
-            call SaveInteger(table, GetHandleId(button.frame), 0, this)
-            call BlzTriggerRegisterFrameEvent(click, button.frame, FRAMEEVENT_CONTROL_CLICK)
-            call BlzTriggerRegisterFrameEvent(scroll, button.frame, FRAMEEVENT_MOUSE_WHEEL)
             call update()
+            call SaveInteger(table, GetHandleId(button.frame), 0, this)
 
             return this
         endmethod
@@ -771,13 +489,14 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
 
             if this != 0 then
-                call shop.scroll(BlzGetTriggerFrameValue() < 0, GetTriggerPlayer())
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    call shop.scroll(BlzGetTriggerFrameValue() < 0)
+                endif
             endif
         endmethod
 
         static method onClick takes nothing returns nothing
-            local framehandle frame = BlzGetTriggerFrame()
-            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
+            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -788,21 +507,11 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                     endif
                 endif
             endif
-
-            set frame = null
-        endmethod
-
-        static method onInit takes nothing returns nothing
-            call TriggerAddAction(click, function thistype.onClick)
-            call TriggerAddAction(scroll, function thistype.onScroll)
         endmethod
     endstruct
 
     private struct Detail
-        readonly static trigger event = CreateTrigger()
         readonly static trigger trigger = CreateTrigger()
-        readonly static timer array timer
-        readonly static boolean array canScroll
 
         Shop shop
         Item item
@@ -815,7 +524,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         Slot left2
         Slot right1
         Slot right2
-        Item array used[CATEGORY_COUNT]
+        Item array used[DETAIL_USED_COUNT]
         Button array button[DETAIL_USED_COUNT]
         integer count
         framehandle frame
@@ -1134,7 +843,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                                         call update(verticalRight2, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.25600, - 0.092500, true)
                                     endif
                                 endif
-
+                                
                                 set slot.item = component
                                 set slot.button.icon = component.icon
                                 set slot.button.tooltip.text = component.tooltip
@@ -1187,15 +896,15 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set count = 0
             set frame = BlzCreateFrame("EscMenuBackdrop", shop.main, 0, 0)
             set scrollFrame = BlzCreateFrameByType("BUTTON", "", frame, "", 0)
-            set close = Button.create(frame, DETAIL_CLOSE_BUTTON_SIZE, DETAIL_CLOSE_BUTTON_SIZE, 0.26676, - 0.025000)
-            set left = Button.create(scrollFrame, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, 0.0050000, - 0.0025000)
-            set right = Button.create(scrollFrame, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, 0.24800, - 0.0025000)
-            set main = Slot.create(frame, 0, 0.13625, - 0.030000, FRAMEPOINT_TOPRIGHT)
-            set center = Slot.create(frame, 0, 0.13625, - 0.10200, FRAMEPOINT_TOPRIGHT)
-            set left1 = Slot.create(frame, 0, 0.087250, - 0.10200, FRAMEPOINT_TOPRIGHT)
-            set left2 = Slot.create(frame, 0, 0.038250, - 0.10200, FRAMEPOINT_TOPRIGHT)
-            set right1 = Slot.create(frame, 0, 0.18525, - 0.10200, FRAMEPOINT_TOPRIGHT)
-            set right2 = Slot.create(frame, 0, 0.23425, - 0.10200, FRAMEPOINT_TOPRIGHT)
+            set close = Button.create(frame, DETAIL_CLOSE_BUTTON_SIZE, DETAIL_CLOSE_BUTTON_SIZE, 0.26676, - 0.025000, function thistype.onClick, null, true)
+            set left = Button.create(scrollFrame, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, 0.0050000, - 0.0025000, function thistype.onClick, null, true)
+            set right = Button.create(scrollFrame, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, 0.24800, - 0.0025000, function thistype.onClick, null, true)
+            set main = Slot.create(frame, 0, 0.13625, - 0.030000, FRAMEPOINT_TOPRIGHT, function thistype.onClick, null, false)
+            set center = Slot.create(frame, 0, 0.13625, - 0.10200, FRAMEPOINT_TOPRIGHT, function thistype.onClick, null, false)
+            set left1 = Slot.create(frame, 0, 0.087250, - 0.10200, FRAMEPOINT_TOPRIGHT, function thistype.onClick, null, false)
+            set left2 = Slot.create(frame, 0, 0.038250, - 0.10200, FRAMEPOINT_TOPRIGHT, function thistype.onClick, null, false)
+            set right1 = Slot.create(frame, 0, 0.18525, - 0.10200, FRAMEPOINT_TOPRIGHT, function thistype.onClick, null, false)
+            set right2 = Slot.create(frame, 0, 0.23425, - 0.10200, FRAMEPOINT_TOPRIGHT, function thistype.onClick, null, false)
             set topSeparator = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set bottomSeparator = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set usedIn = BlzCreateFrameByType("TEXT", "", scrollFrame, "", 0)
@@ -1209,11 +918,11 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set verticalRight1 = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set verticalRight2 = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set close.icon = CLOSE_ICON
+            set close.tooltip.text = "Close"
             set left.icon = USED_LEFT
+            set left.tooltip.text = "Scroll Left"
             set right.icon = USED_RIGHT
-            set close.tooltip.visible = false
-            set left.tooltip.visible = false
-            set right.tooltip.visible = false
+            set right.tooltip.text = "Scroll Right"
             set center.visible = false
             set left1.visible = false
             set left2.visible = false
@@ -1258,35 +967,15 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             call SaveInteger(table, GetHandleId(right1.button.frame), 0, this)
             call SaveInteger(table, GetHandleId(right2.button.frame), 0, this)
             call BlzTriggerRegisterFrameEvent(trigger, scrollFrame, FRAMEEVENT_MOUSE_WHEEL)
-            call BlzTriggerRegisterFrameEvent(event, close.frame, FRAMEEVENT_CONTROL_CLICK)
-            call BlzTriggerRegisterFrameEvent(event, left.frame, FRAMEEVENT_CONTROL_CLICK)
-            call BlzTriggerRegisterFrameEvent(event, right.frame, FRAMEEVENT_CONTROL_CLICK)
-            call BlzTriggerRegisterFrameEvent(event, main.button.frame, FRAMEEVENT_CONTROL_CLICK)
-            call BlzTriggerRegisterFrameEvent(event, center.button.frame, FRAMEEVENT_CONTROL_CLICK)
-            call BlzTriggerRegisterFrameEvent(event, left1.button.frame, FRAMEEVENT_CONTROL_CLICK)
-            call BlzTriggerRegisterFrameEvent(event, left2.button.frame, FRAMEEVENT_CONTROL_CLICK)
-            call BlzTriggerRegisterFrameEvent(event, right1.button.frame, FRAMEEVENT_CONTROL_CLICK)
-            call BlzTriggerRegisterFrameEvent(event, right2.button.frame, FRAMEEVENT_CONTROL_CLICK)
 
             loop
                 exitwhen i == DETAIL_USED_COUNT
-                    set button[i] = Button.create(scrollFrame, DETAIL_BUTTON_SIZE, DETAIL_BUTTON_SIZE, 0.0050000 + DETAIL_BUTTON_GAP*i, - 0.019500)
-                    set button[i].visible = false
+                    set button[i] = Button.create(scrollFrame, DETAIL_BUTTON_SIZE, DETAIL_BUTTON_SIZE, 0.0050000 + DETAIL_BUTTON_GAP*i, - 0.019500, function thistype.onClick, function thistype.onScroll, false)
+                    set button[i].visible = true
                     set button[i].tooltip.point = FRAMEPOINT_BOTTOMRIGHT
 
                     call SaveInteger(table, GetHandleId(button[i].frame), 0, this)
                     call SaveInteger(table, GetHandleId(button[i].frame), 1, i)
-                    call BlzTriggerRegisterFrameEvent(event, button[i].frame, FRAMEEVENT_CONTROL_CLICK)
-                    call BlzTriggerRegisterFrameEvent(trigger, button[i].frame, FRAMEEVENT_MOUSE_WHEEL)
-                set i = i + 1
-            endloop
-
-            set i = 0
-
-            loop
-                exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    set timer[i] = CreateTimer()
-                    set canScroll[i] = true
                 set i = i + 1
             endloop
 
@@ -1295,33 +984,14 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             return this
         endmethod
 
-        static method onExpire takes nothing returns nothing
-            set canScroll[GetPlayerId(GetLocalPlayer())] = true
-        endmethod
-
         static method onScroll takes nothing returns nothing
-            local framehandle frame = BlzGetTriggerFrame()
-            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
-            local integer i = GetPlayerId(GetLocalPlayer())
-            local real delay = TimerGetRemaining(timer[i])
+            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
-                    if canScroll[i] then
-                        if SCROLL_DELAY > 0 then
-                            set canScroll[i] = false
-                        endif
-
-                        call shift(BlzGetTriggerFrameValue() < 0)
-                    endif
+                    call shift(BlzGetTriggerFrameValue() < 0)
                 endif
             endif
-
-            if SCROLL_DELAY > 0 then
-                call TimerStart(timer[i], delay, false, function thistype.onExpire)
-            endif
-
-            set frame = null
         endmethod
 
         static method onClick takes nothing returns nothing
@@ -1385,14 +1055,11 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         endmethod
 
         static method onInit takes nothing returns nothing
-            call TriggerAddAction(event, function thistype.onClick)
             call TriggerAddAction(trigger, function thistype.onScroll)
         endmethod
     endstruct
 
     private struct Favorites
-        readonly static trigger event = CreateTrigger()
-
         Shop shop
         integer count
         Item array item[CATEGORY_COUNT]
@@ -1463,7 +1130,7 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             
             loop
                 exitwhen i == CATEGORY_COUNT
-                    set button[i] = Button.create(shop.rightPanel, CATEGORY_SIZE, CATEGORY_SIZE, 0.023750, - (0.021500 + CATEGORY_SIZE*i + CATEGORY_GAP))
+                    set button[i] = Button.create(shop.rightPanel, CATEGORY_SIZE, CATEGORY_SIZE, 0.023750, - (0.021500 + CATEGORY_SIZE*i + CATEGORY_GAP), function thistype.onClick, null, false)
                     set button[i].visible = false
                     set button[i].tooltip.point = FRAMEPOINT_TOPRIGHT
 
@@ -1473,7 +1140,6 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
                     call SaveInteger(table, GetHandleId(button[i].frame), 0, this)
                     call SaveInteger(table, GetHandleId(button[i].frame), 1, i)
-                    call BlzTriggerRegisterFrameEvent(event, button[i].frame, FRAMEEVENT_CONTROL_CLICK)
                 set i = i + 1
             endloop
 
@@ -1497,83 +1163,38 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
             set frame = null
         endmethod
-
-        static method onInit takes nothing returns nothing
-            call TriggerAddAction(event, function thistype.onClick)
-        endmethod
     endstruct
 
     private struct Category
-        readonly static trigger event = CreateTrigger()
-
-        string array icon[CATEGORY_COUNT]
-        string array description[CATEGORY_COUNT]
-        integer array value[CATEGORY_COUNT]
-        framehandle array button[CATEGORY_COUNT]
-        framehandle array backdrop[CATEGORY_COUNT]
-        framehandle array frame[CATEGORY_COUNT]
-        framehandle array box[CATEGORY_COUNT]
-        framehandle array tooltip[CATEGORY_COUNT]
-        boolean array enabled[CATEGORY_COUNT]
+        Shop shop
         integer count
         integer active
         boolean andLogic
-        Shop shop
+        integer array value[CATEGORY_COUNT]
+        Button array button[CATEGORY_COUNT]
 
         method destroy takes nothing returns nothing
             loop
                 exitwhen count == -1
-                    call FlushChildHashtable(table, GetHandleId(button[count]))
-                    call BlzDestroyFrame(tooltip[count])
-                    call BlzDestroyFrame(box[count])
-                    call BlzDestroyFrame(frame[count])
-                    call BlzDestroyFrame(button[count])
-                    call BlzDestroyFrame(backdrop[count])
-                    set backdrop[count] = null
-                    set button[count] = null
-                    set frame[count] = null
-                    set box[count] = null
-                    set tooltip[count] = null
+                    call FlushChildHashtable(table, GetHandleId(button[count].frame))
+                    call button[count].destroy()
                 set count = count - 1
             endloop
 
             call deallocate()
         endmethod
 
-        method enable takes framehandle frame, string icon, boolean flag returns nothing
-            if not flag then
-                if SubString(icon, 34, 35) == "\\" then
-                    set icon = SubString(icon, 0, 34) + "Disabled\\DIS" + SubString(icon, 35, StringLength(icon))
-                endif
-            endif
-
-            call BlzFrameSetTexture(frame, icon, 0, false)
-        endmethod
-
         method add takes string icon, string description returns integer
             if count < CATEGORY_COUNT then
                 set count = count + 1
                 set value[count] = R2I(Pow(2, count))
-                set .icon[count] = icon
-                set .description[count] = description
-                set enabled[count] = false
-                set backdrop[count] = BlzCreateFrameByType("BACKDROP", "", shop.leftPanel, "", 0)
-                set button[count] = BlzCreateFrameByType("GLUETEXTBUTTON", I2S(count), backdrop[count], "", 0)
-                set frame[count] = BlzCreateFrameByType("FRAME", "", button[count], "", 0)
-                set box[count] = BlzCreateFrame("Leaderboard", frame[count], 0, 0)
-                set tooltip[count] = BlzCreateFrameByType("TEXT", "", box[count], "", 0)
-                
-                call BlzFrameSetPoint(backdrop[count], FRAMEPOINT_TOPLEFT, shop.leftPanel, FRAMEPOINT_TOPLEFT, 0.023750, - (0.021500 + CATEGORY_SIZE*count + CATEGORY_GAP))
-                call BlzFrameSetSize(backdrop[count], CATEGORY_SIZE, CATEGORY_SIZE)
-                call BlzFrameSetAllPoints(button[count], backdrop[count])
-                call BlzFrameSetPoint(tooltip[count], FRAMEPOINT_BOTTOM, button[count], FRAMEPOINT_TOP, 0, 0.008)
-                call BlzFrameSetPoint(box[count], FRAMEPOINT_TOPLEFT, tooltip[count], FRAMEPOINT_TOPLEFT, -0.008, 0.008)
-                call BlzFrameSetPoint(box[count], FRAMEPOINT_BOTTOMRIGHT, tooltip[count], FRAMEPOINT_BOTTOMRIGHT, 0.008, -0.008)
-                call BlzFrameSetText(tooltip[count], description)
-                call BlzFrameSetTooltip(button[count], frame[count])
-                call SaveInteger(table, GetHandleId(button[count]), 0, this)
-                call BlzTriggerRegisterFrameEvent(event, button[count], FRAMEEVENT_CONTROL_CLICK)
-                call enable(backdrop[count], icon, enabled[count])
+                set button[count] = Button.create(shop.leftPanel, CATEGORY_SIZE, CATEGORY_SIZE, 0.023750, - (0.021500 + CATEGORY_SIZE*count + CATEGORY_GAP), function thistype.onClick, null, true)
+                set button[count].icon = icon
+                set button[count].tooltip.text = description
+                set button[count].enabled = false
+
+                call SaveInteger(table, GetHandleId(button[count].frame), 0, this)
+                call SaveInteger(table, GetHandleId(button[count].frame), 1, count)
 
                 return value[count]
             else
@@ -1597,13 +1218,13 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         static method onClick takes nothing returns nothing
             local framehandle frame = BlzGetTriggerFrame()
             local thistype this = LoadInteger(table, GetHandleId(frame), 0)
-            local integer i = S2I(BlzFrameGetName(frame))
+            local integer i = LoadInteger(table, GetHandleId(frame), 1)
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
-                    set enabled[i] = not enabled[i]
+                    set button[i].enabled = not button[i].enabled
 
-                    if enabled[i] then
+                    if button[i].enabled then
                         set active = active + value[i]
                     else
                         set active = active - value[i]
@@ -1612,16 +1233,11 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
                     call shop.filter(active, andLogic)
                 endif
 
-                call enable(backdrop[i], icon[i], enabled[i])
                 call BlzFrameSetEnable(frame, false)
                 call BlzFrameSetEnable(frame, true)
             endif
 
             set frame = null
-        endmethod
-
-        static method onInit takes nothing returns nothing
-            call TriggerAddAction(event, function thistype.onClick)
         endmethod
     endstruct
     
@@ -1655,15 +1271,6 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
 
         method destroy takes nothing returns nothing
             local ShopSlot slot = LoadInteger(itempool, this, 0)
-            local integer i = 0
-
-            loop
-                exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    call DestroyTimer(timer[i])
-                    call FlushChildHashtable(table, GetHandleId(Player(i)))
-                    set timer[i] = null
-                set i = i + 1
-            endloop
 
             loop
                 exitwhen slot == 0
@@ -1689,45 +1296,29 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
             set rightPanel = null
         endmethod
 
-        method scroll takes boolean down, player p returns nothing
+        method scroll takes boolean down returns nothing
             local ShopSlot slot = first
-            local integer i = GetPlayerId(GetLocalPlayer())
-            local real delay = TimerGetRemaining(timer[i])
             
-            if p == GetLocalPlayer() then
-                if canScroll[i] then
-                    set delay = SCROLL_DELAY
+            if (down and tail != last) or (not down and head != first) then
+                loop
+                    exitwhen slot == 0
+                        if down then
+                            call slot.move(slot.row - 1, slot.column)
+                        else
+                            call slot.move(slot.row + 1, slot.column)
+                        endif
 
-                    if SCROLL_DELAY > 0 then
-                        set canScroll[i] = false
-                    endif
+                        set slot.visible = slot.row >= 0 and slot.row <= rows - 1 and slot.column >= 0 and slot.column <= columns - 1
 
-                    if (down and tail != last) or (not down and head != first) then
-                        loop
-                            exitwhen slot == 0
-                                if down then
-                                    call slot.move(slot.row - 1, slot.column)
-                                else
-                                    call slot.move(slot.row + 1, slot.column)
-                                endif
+                        if slot.row == 0 and slot.column == 0 then
+                            set head = slot
+                        endif
 
-                                set slot.visible = slot.row >= 0 and slot.row <= rows - 1 and slot.column >= 0 and slot.column <= columns - 1
-
-                                if slot.row == 0 and slot.column == 0 then
-                                    set head = slot
-                                endif
-
-                                if (slot.row == rows - 1 and slot.column == columns - 1) or (slot == last and slot.visible) then
-                                    set tail = slot
-                                endif
-                            set slot = slot.right
-                        endloop
-                    endif
-                endif
-            endif
-
-            if SCROLL_DELAY > 0 then
-                call TimerStart(timer[i], delay, false, function thistype.onExpire)
+                        if (slot.row == rows - 1 and slot.column == columns - 1) or (slot == last and slot.visible) then
+                            set tail = slot
+                        endif
+                    set slot = slot.right
+                endloop
             endif
         endmethod
 
@@ -1912,14 +1503,24 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         endmethod
 
         static method onScroll takes nothing returns nothing
-            local framehandle frame = BlzGetTriggerFrame()
-            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
+            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local integer i = GetPlayerId(GetLocalPlayer())
 
             if this != 0 then
-                call scroll(BlzGetTriggerFrameValue() < 0, GetTriggerPlayer())
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    if canScroll[i] then
+                        if SCROLL_DELAY > 0 then
+                            set canScroll[i] = false
+                        endif
+    
+                        call scroll(BlzGetTriggerFrameValue() < 0)
+                    endif
+                endif
             endif
 
-            set frame = null
+            if SCROLL_DELAY > 0 then
+                call TimerStart(timer[i], TimerGetRemaining(timer[i]), false, function thistype.onExpire)
+            endif
         endmethod
 
         static method onSelect takes nothing returns nothing
@@ -1976,4 +1577,3 @@ library Shop requires RegisterPlayerUnitEvent, TimerUtils
         endmethod
     endstruct
 endlibrary
-    
