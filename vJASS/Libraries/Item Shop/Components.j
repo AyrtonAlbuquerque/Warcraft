@@ -84,6 +84,10 @@ library Components
                     call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_TOPLEFT, -0.005, -0.05)
                 elseif newPoint == FRAMEPOINT_BOTTOMLEFT then
                     call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_BOTTOMRIGHT, 0.005, 0.0)
+                elseif newPoint == FRAMEPOINT_BOTTOM then
+                    call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_TOP, 0.0, 0.005)
+                elseif newPoint == FRAMEPOINT_TOP then
+                    call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_BOTTOM, 0.0, -0.05)
                 else
                     call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_BOTTOMLEFT, -0.005, 0.0)
                 endif

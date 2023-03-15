@@ -35,11 +35,13 @@ library Shop requires RegisterPlayerUnitEvent, Components
         private constant string BUYER_LEFT              = "ReplaceableTextures\\CommandButtons\\BTNReplay-SpeedUp.blp"
 
         // Inventory Panel
-        private constant real INVENTORY_WIDTH           = WIDTH/2
-        private constant real INVENTORY_HEIGHT          = 0.08
-        private constant real INVENTORY_SIZE            = 0.032
-        private constant real INVENTORY_GAP             = 0.057
+        private constant real INVENTORY_WIDTH           = 0.23780
+        private constant real INVENTORY_HEIGHT          = 0.03740
+        private constant real INVENTORY_SIZE            = 0.031
+        private constant real INVENTORY_GAP             = 0.04
         private constant integer INVENTORY_COUNT        = 6
+        private constant string INVENTORY_TEXTURE       = "Inventory.blp"
+        
 
         // Details window
         private constant real DETAIL_WIDTH              = 0.3125
@@ -1127,12 +1129,146 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
     endstruct
 
+    private struct Inventory
+        private boolean isVisible
+
+        Shop shop
+        framehandle frame
+        framehandle scrollFrame
+        Item array item[INVENTORY_COUNT]
+        Button array button[INVENTORY_COUNT]
+
+        method operator visible= takes boolean visibility returns nothing
+            set isVisible = visibility
+            call BlzFrameSetVisible(frame, visibility)
+        endmethod
+
+        method operator visible takes nothing returns boolean
+            return isVisible
+        endmethod
+
+        method destroy takes nothing returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i == INVENTORY_COUNT
+                    call FlushChildHashtable(table, GetHandleId(button[i].frame))
+                    call button[i].destroy()
+                set i = i + 1
+            endloop
+
+            call BlzDestroyFrame(frame)
+            call BlzDestroyFrame(scrollFrame)
+            call deallocate()
+
+            set frame = null
+            set scrollFrame = null
+        endmethod
+
+        method move takes framepointtype point, framehandle relative, framepointtype relativePoint returns nothing
+            call BlzFrameClearAllPoints(frame)
+            call BlzFrameSetPoint(frame, point, relative, relativePoint, 0, 0)
+        endmethod
+
+        method show takes unit u returns nothing
+            local item i
+            local integer j = 0
+
+            if u != null then
+                loop
+                    exitwhen j == INVENTORY_COUNT
+                        set i = UnitItemInSlot(u, j)
+
+                        if i != null then
+                            set item[j] = Item.get(GetItemTypeId(i))
+                            set button[j].icon = item[j].icon
+                            set button[j].tooltip.icon = item[j].icon
+                            set button[j].tooltip.name = item[j].name
+                            set button[j].tooltip.text = item[j].tooltip
+                            set button[j].visible = true
+                        else
+                            set button[j].visible = false
+                        endif
+                    set j = j + 1
+                endloop
+            else
+                loop
+                    exitwhen j == INVENTORY_COUNT
+                        set item[j] = 0
+                        set button[j].visible = false
+                    set j = j + 1
+                endloop
+            endif
+
+            set i = null
+        endmethod
+
+        static method create takes Shop shop returns thistype
+            local thistype this = thistype.allocate()
+            local integer i = 0
+
+            set .shop = shop
+            set isVisible = true
+            set frame = BlzCreateFrameByType("BACKDROP", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
+            set scrollFrame = BlzCreateFrameByType("BUTTON", "", frame, "", 0)
+
+            call BlzFrameSetPoint(frame, FRAMEPOINT_TOPLEFT, shop.buyer.frame, FRAMEPOINT_TOPLEFT, 0, 0)
+            call BlzFrameSetSize(frame, INVENTORY_WIDTH, INVENTORY_HEIGHT)
+            call BlzFrameSetTexture(frame, INVENTORY_TEXTURE, 0, false)
+            call BlzFrameSetAllPoints(scrollFrame, frame)
+
+            loop
+                exitwhen i == INVENTORY_COUNT
+                    set button[i] = Button.create(scrollFrame, INVENTORY_SIZE, INVENTORY_SIZE, 0.0033700 + INVENTORY_GAP*i, - 0.0037500, false)
+                    set button[i].tooltip.point = FRAMEPOINT_BOTTOM
+                    set button[i].onDoubleClick = function thistype.onDoubleClick
+                    set button[i].onRightClick = function thistype.onRightClick
+                    set button[i].visible = false
+
+                    call SaveInteger(table, GetHandleId(button[i].frame), 0, this)
+                    call SaveInteger(table, GetHandleId(button[i].frame), 1, i)
+                set i = i + 1
+            endloop
+
+            return this
+        endmethod
+
+        static method onDoubleClick takes nothing returns nothing
+            local framehandle frame = BlzGetTriggerFrame()
+            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
+            local integer i = LoadInteger(table, GetHandleId(frame), 1)
+
+            if this != 0 then
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    //
+                endif
+            endif
+
+            set frame = null
+        endmethod
+
+        static method onRightClick takes nothing returns nothing
+            local framehandle frame = BlzGetTriggerFrame()
+            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
+            local integer i = LoadInteger(table, GetHandleId(frame), 1)
+
+            if this != 0 then
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    //
+                endif
+            endif
+
+            set frame = null
+        endmethod
+    endstruct
+
     private struct Buyer
         readonly static trigger trigger = CreateTrigger()
 
         private boolean isVisible
 
         Shop shop
+        Inventory inventory
         unit selected
         integer index
         integer size
@@ -1145,7 +1281,23 @@ library Shop requires RegisterPlayerUnitEvent, Components
         unit array unit[BUYER_COUNT]
 
         method operator visible= takes boolean visibility returns nothing
+            local integer i = 0
+
             set isVisible = visibility
+            set inventory.visible = visibility
+
+            if isVisible then
+                loop
+                    exitwhen i == BUYER_COUNT
+                        if unit[i] == selected then
+                            call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                            call inventory.show(selected)
+                            exitwhen true
+                        endif
+                    set i = i + 1
+                endloop
+            endif
+
             call BlzFrameSetVisible(frame, visibility)
         endmethod
 
@@ -1168,6 +1320,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
             call BlzDestroyFrame(scrollFrame)
             call left.destroy()
             call right.destroy()
+            call inventory.destroy()
             call deallocate()
 
             set frame = null
@@ -1178,6 +1331,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         method shift takes boolean left returns nothing
             local integer i
             local unit u
+            local boolean flag = false
 
             if left then
                 if (index + 1 + BUYER_COUNT) <= size and size > 0 then
@@ -1191,6 +1345,11 @@ library Shop requires RegisterPlayerUnitEvent, Components
                             set button[i].tooltip.text = button[i + 1].tooltip.text
                             set button[i].visible = true
                             set button[i].highlighted = selected == unit[i]
+
+                            if button[i].highlighted then
+                                set flag = true
+                                call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                            endif
                         set i = i + 1
                     endloop
 
@@ -1202,7 +1361,14 @@ library Shop requires RegisterPlayerUnitEvent, Components
                         set button[i].tooltip.text = GetUnitName(u)
                         set button[i].visible = true
                         set button[i].highlighted = selected == unit[i]
+
+                        if button[i].highlighted then
+                            set flag = true
+                            call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                        endif
                     endif
+
+                    set inventory.visible = flag
                 endif
             else
                 if index - 1 >= 0 and size > 0 then
@@ -1216,6 +1382,11 @@ library Shop requires RegisterPlayerUnitEvent, Components
                             set button[i].tooltip.text = button[i - 1].tooltip.text
                             set button[i].visible = true
                             set button[i].highlighted = selected == unit[i]
+
+                            if button[i].highlighted then
+                                set flag = true
+                                call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                            endif
                         set i = i - 1
                     endloop
                     
@@ -1227,7 +1398,14 @@ library Shop requires RegisterPlayerUnitEvent, Components
                         set button[i].tooltip.text = GetUnitName(u)
                         set button[i].visible = true
                         set button[i].highlighted = selected == unit[i]
+
+                        if button[i].highlighted then
+                            set flag = true
+                            call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                        endif
                     endif
+
+                    set inventory.visible = flag
                 endif
             endif
         endmethod
@@ -1247,12 +1425,14 @@ library Shop requires RegisterPlayerUnitEvent, Components
                 if not IsUnitInGroup(selected, g) then
                     set index = 0
                     set selected = FirstOfGroup(g)
+                    call inventory.move(FRAMEPOINT_TOP, button[0].frame, FRAMEPOINT_BOTTOM)
+                    call inventory.show(selected)
                 endif
                 
                 set j = index
 
                 loop
-                    exitwhen (i == BUYER_COUNT)
+                    exitwhen i == BUYER_COUNT
                         if j >= size then
                             set unit[i] = null
                             set button[i].visible = false
@@ -1268,6 +1448,12 @@ library Shop requires RegisterPlayerUnitEvent, Components
                             set button[i].tooltip.text = GetUnitName(u)
                             set button[i].highlighted = selected == u
                             set button[i].visible = true
+
+                            if button[i].highlighted then
+                                set inventory.visible = true
+                                call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                            endif
+
                             set j = j + 1
                         endif
                     set i = i + 1
@@ -1275,6 +1461,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
             else
                 set index = 0
                 set selected = null
+                set inventory.visible = false
 
                 loop
                     exitwhen i == BUYER_COUNT
@@ -1305,9 +1492,10 @@ library Shop requires RegisterPlayerUnitEvent, Components
             set right.onClick = function thistype.onClick
             set right.icon = BUYER_RIGHT
             set right.tooltip.text = "Scroll Right"
+            set inventory = Inventory.create(shop)
 
-            call BlzFrameSetPoint(frame, FRAMEPOINT_TOPLEFT, shop.base, FRAMEPOINT_TOPLEFT, 0.0000, (0.02750 - HEIGHT))
-            call BlzFrameSetSize(frame, BUYER_WIDTH + 0.005, BUYER_HEIGHT)
+            call BlzFrameSetPoint(frame, FRAMEPOINT_TOP, shop.base, FRAMEPOINT_BOTTOM, 0, 0.02750)
+            call BlzFrameSetSize(frame, BUYER_WIDTH, BUYER_HEIGHT)
             call BlzFrameSetAllPoints(scrollFrame, frame)
             call SaveInteger(table, GetHandleId(left.frame), 0, this)
             call SaveInteger(table, GetHandleId(right.frame), 0, this)
@@ -1355,6 +1543,9 @@ library Shop requires RegisterPlayerUnitEvent, Components
                         set last.highlighted = false
                         set button[i].highlighted = true
                         set last = button[i]
+                        
+                        call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                        call inventory.show(selected)
                     endif 
                 endif
 
@@ -1367,71 +1558,6 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
         static method onInit takes nothing returns nothing
             call TriggerAddAction(trigger, function thistype.onScroll)
-        endmethod
-    endstruct
-
-    private struct Inventory
-        private boolean isVisible
-
-        Shop shop
-        framehandle frame
-        Item array item[INVENTORY_COUNT]
-        Button array button[INVENTORY_COUNT]
-
-        method operator visible= takes boolean visibility returns nothing
-            set isVisible = visibility
-            call BlzFrameSetVisible(frame, visibility)
-        endmethod
-
-        method operator visible takes nothing returns boolean
-            return isVisible
-        endmethod
-
-        method destroy takes nothing returns nothing
-            local integer i = 0
-
-            loop
-                exitwhen i == BUYER_COUNT
-                    call FlushChildHashtable(table, GetHandleId(button[i].frame))
-                    call button[i].destroy()
-                set i = i + 1
-            endloop
-
-            call BlzDestroyFrame(frame)
-            call deallocate()
-
-            set frame = null
-        endmethod
-
-        static method create takes Shop shop returns thistype
-            local thistype this = thistype.allocate()
-            local integer i = 0
-
-            set .shop = shop
-            set isVisible = true
-            set frame = BlzCreateFrame("EscMenuBackdrop", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 0, 0)
-
-            call BlzFrameSetPoint(frame, FRAMEPOINT_TOPLEFT, shop.base, FRAMEPOINT_TOPLEFT, (INVENTORY_WIDTH - 0.005), (0.02750 - HEIGHT))
-            call BlzFrameSetSize(frame, INVENTORY_WIDTH + 0.005, INVENTORY_HEIGHT)
-
-            loop
-                exitwhen i == INVENTORY_COUNT
-                    set button[i] = Button.create(frame, INVENTORY_SIZE, INVENTORY_SIZE, 0.040000 + INVENTORY_GAP*i, - 0.023000, false)
-                    set button[i].tooltip.point = FRAMEPOINT_BOTTOMLEFT
-                    set button[i].visible = false
-                    // set button[i].onClick = function thistype.onClick
-                    // set button[i].onScroll = function thistype.onScroll
-
-                    if i > 2 then
-                        set button[i].tooltip.point = FRAMEPOINT_BOTTOMRIGHT
-                    endif
-
-                    call SaveInteger(table, GetHandleId(button[i].frame), 0, this)
-                    call SaveInteger(table, GetHandleId(button[i].frame), 1, i)
-                set i = i + 1
-            endloop
-
-            return this
         endmethod
     endstruct
 
@@ -1666,7 +1792,6 @@ library Shop requires RegisterPlayerUnitEvent, Components
         readonly Favorites favorites
         readonly Detail details
         readonly Buyer buyer
-        readonly Inventory inventory
         readonly Button close
         readonly Button help
         readonly Button logic
@@ -1687,7 +1812,6 @@ library Shop requires RegisterPlayerUnitEvent, Components
         method operator visible= takes boolean visibility returns nothing
             set isVisible = visibility
             set buyer.visible = visibility
-            set inventory.visible = visibility
 
             if not visibility then
                 set buyer.index = 0
@@ -1720,7 +1844,6 @@ library Shop requires RegisterPlayerUnitEvent, Components
             call favorites.destroy()
             call details.destroy()
             call buyer.destroy()
-            call inventory.destroy()
             call deallocate()
 
             set base = null
@@ -1926,7 +2049,6 @@ library Shop requires RegisterPlayerUnitEvent, Components
                 set favorites = Favorites.create(this)
                 set details = Detail.create(this)
                 set buyer = Buyer.create(this)
-                set inventory = Inventory.create(this)
                 set close = Button.create(main, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, (WIDTH - 2*TOOLBAR_BUTTON_SIZE), 0.015000, true)
                 set close.icon = CLOSE_ICON
                 set close.onClick = function thistype.onClose
