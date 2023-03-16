@@ -1,7 +1,8 @@
-library Components
+library Components requires Table
     /* ------------------------------------ Components v1.0 ------------------------------------ */
     // Credits:
     //      Taysen: TasItemShop and FDF file
+    //      Bribe: Table library
     /* -------------------------------------- By Chopinski ------------------------------------- */
 
     /* ----------------------------------------------------------------------------------------- */
@@ -171,13 +172,13 @@ library Components
     endstruct
 
     struct Button
-        private static hashtable table = InitHashtable()
         private static trigger clicked = CreateTrigger()
         private static trigger scrolled = CreateTrigger()
         private static trigger rightClicked = CreateTrigger()
         private static timer double = CreateTimer()
         private static timer array timer
         private static boolean array canScroll
+        private static Table table
 
         private trigger click
         private trigger scroll
@@ -369,7 +370,7 @@ library Components
         endmethod
 
         method destroy takes nothing returns nothing
-            call FlushChildHashtable(table, GetHandleId(frame))
+            call table.remove(GetHandleId(frame))
             call DestroyTrigger(click)
             call DestroyTrigger(scroll)
             call DestroyTrigger(doubleClick)
@@ -412,6 +413,7 @@ library Components
             set highlightFrame = BlzCreateFrame("HighlightFrame", iconFrame, 0, 0)
             set frame = BlzCreateFrame("IconButtonTemplate", iconFrame, 0, 0)
             set tooltip = Tooltip.create(frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT, simpleTooltip)
+            set table[GetHandleId(frame)] = this
             
             call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, owner, FRAMEPOINT_TOPLEFT, x, y)
             call BlzFrameSetSize(iconFrame, width, height)
@@ -424,7 +426,6 @@ library Components
             call BlzFrameSetPoint(highlightFrame, FRAMEPOINT_TOPLEFT, iconFrame, FRAMEPOINT_TOPLEFT, - 0.0040000, 0.0045000)
             call BlzFrameSetSize(highlightFrame, width + 0.0085, height + 0.0085)
             call BlzFrameSetVisible(highlightFrame, false)
-            call SaveInteger(table, GetHandleId(frame), 0, this)
             call BlzTriggerRegisterFrameEvent(clicked, frame, FRAMEEVENT_CONTROL_CLICK)
             call BlzTriggerRegisterFrameEvent(scrolled, frame, FRAMEEVENT_MOUSE_WHEEL)
             call BlzTriggerRegisterFrameEvent(rightClicked, frame, FRAMEEVENT_MOUSE_UP)
@@ -444,7 +445,7 @@ library Components
         endmethod
 
         private static method onScrolled takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
             local integer i = GetPlayerId(GetLocalPlayer())
 
             if this != 0 then
@@ -463,7 +464,7 @@ library Components
         endmethod
 
         private static method onRightClicked takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
 
             if this != 0 then
                 if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_RIGHT and rightClick != null then
@@ -473,7 +474,7 @@ library Components
         endmethod
 
         private static method onClicked takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
             local real time
 
             if this != 0 then
@@ -498,6 +499,8 @@ library Components
         endmethod
 
         private static method onInit takes nothing returns nothing
+            set table = Table.create()
+            
             call TimerStart(double, 9999999999, false, null)
             call TriggerAddAction(clicked, function thistype.onClicked)
             call TriggerAddAction(scrolled, function thistype.onScrolled)

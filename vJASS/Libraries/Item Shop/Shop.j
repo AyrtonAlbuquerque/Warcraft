@@ -1,4 +1,4 @@
-library Shop requires RegisterPlayerUnitEvent, Components
+library Shop requires Table, RegisterPlayerUnitEvent, Components
     /* --------------------------------------- Shop v1.0 --------------------------------------- */
     // Credits:
     //      Taysen: TasItemShop and FDF file
@@ -89,7 +89,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         private constant real UPDATE_PERIOD             = 0.33
 
         // Dont touch
-        private hashtable table                         = InitHashtable()
+        private HashTable table
     endglobals 
 
     /* ----------------------------------------------------------------------------------------- */
@@ -240,8 +240,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
         private static unit shop
         private static rect rect
         private static player player = Player(bj_PLAYER_NEUTRAL_EXTRA)
-        readonly static hashtable itempool = InitHashtable()
-        readonly static hashtable relation = InitHashtable()
+        readonly static HashTable itempool
+        readonly static HashTable relation
 
         string name
         string icon
@@ -255,15 +255,15 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         method operator components takes nothing returns integer
-            return LoadInteger(itempool, id, 6)
+            return itempool[id][6]
         endmethod
 
         method count takes integer component returns integer
-            return LoadInteger(itempool, id, component)
+            return itempool[id][component]
         endmethod
 
         static method get takes integer id returns thistype
-            return LoadInteger(itempool, id, 0)
+            return itempool[id][0]
         endmethod
 
         static method save takes integer id, integer component returns nothing
@@ -271,18 +271,18 @@ library Shop requires RegisterPlayerUnitEvent, Components
             local integer i = 0
 
             if component > 0 and component != id then
-                if not LoadBoolean(relation, component, id) then
+                if not relation[component].boolean[id] then
                     loop
-                        exitwhen not HaveSavedInteger(relation, component, i)
+                        exitwhen not relation[component].has(i)
                         set i = i + 1
                     endloop
     
-                    call SaveBoolean(relation, component, id, true)
-                    call SaveInteger(relation, component, i, id)
+                    set relation[component].boolean[id] = true
+                    set relation[component][i] = id
                 endif
 
-                call SaveInteger(itempool, id, 6, LoadInteger(itempool, id, 6) + 1)
-                call SaveInteger(itempool, id, component, LoadInteger(itempool, id, component) + 1)
+                set itempool[id][6] = itempool[id][6] + 1
+                set itempool[id][component] = itempool[id][component] +1
                 call create(component, 0)
             endif
         endmethod
@@ -291,31 +291,31 @@ library Shop requires RegisterPlayerUnitEvent, Components
             local thistype this
 
             if id > 0 then
-                call SaveInteger(itempool, id, 1, a)
-                call SaveInteger(itempool, id, 2, b)
-                call SaveInteger(itempool, id, 3, c)
-                call SaveInteger(itempool, id, 4, d)
-                call SaveInteger(itempool, id, 5, e)
-                call SaveInteger(itempool, id, 6, 0)
+                set itempool[id][1] = a
+                set itempool[id][2] = b
+                set itempool[id][3] = c
+                set itempool[id][4] = d
+                set itempool[id][5] = e
+                set itempool[id][6] = 0
 
                 if a > 6 and a != id then
-                    call SaveInteger(itempool, id, a, 0)
+                    set itempool[id][a] = 0
                 endif
 
                 if b > 6 and b != id then
-                    call SaveInteger(itempool, id, b, 0)
+                    set itempool[id][b] = 0
                 endif
 
                 if c > 6 and c != id then
-                    call SaveInteger(itempool, id, c, 0)
+                    set itempool[id][c] = 0
                 endif
 
                 if d > 6 and d != id then
-                    call SaveInteger(itempool, id, d, 0)
+                    set itempool[id][d] = 0
                 endif
 
                 if e > 6 and e != id then
-                    call SaveInteger(itempool, id, e, 0)
+                    set itempool[id][e] = 0
                 endif
 
                 call save(id, a)
@@ -348,8 +348,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
             local thistype this
             local item i
 
-            if HaveSavedInteger(itempool, id, 0) then
-                set this = LoadInteger(itempool, id, 0)
+            if itempool[id].has(0) then
+                set this = itempool[id][0]
 
                 if category > 0 then
                     set categories = category
@@ -367,9 +367,9 @@ library Shop requires RegisterPlayerUnitEvent, Components
                     set icon = BlzGetItemIconPath(i)
                     set tooltip = BlzGetItemExtendedTooltip(i)
                     set gold = cost(id)
+                    set itempool[id][0] = this
 
                     call RemoveItem(i)
-                    call SaveInteger(itempool, id, 0, this)
 
                     set i = null
                     return this
@@ -381,6 +381,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
         static method onInit takes nothing returns nothing
             set rect = Rect(0, 0, 0, 0)
+            set itempool = HashTable.create()
+            set relation = HashTable.create()
             set shop = CreateUnit(player, 'nmrk', 0, 0, 0)
 
             call SetRect(rect, GetUnitX(shop) - 1000, GetUnitY(shop) - 1000, GetUnitX(shop) + 1000, GetUnitY(shop) + 1000)
@@ -501,7 +503,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         integer column
 
         method destroy takes nothing returns nothing
-            call FlushChildHashtable(table, GetHandleId(button.frame))
+            call table.remove(GetHandleId(button.frame))
             call deallocate()
         endmethod
 
@@ -538,15 +540,15 @@ library Shop requires RegisterPlayerUnitEvent, Components
             set .column = column
             set onClick = function thistype.onClicked
             set onScroll = function thistype.onScrolled
-            
+            set table[GetHandleId(button.frame)][0] = this
+
             call update()
-            call SaveInteger(table, GetHandleId(button.frame), 0, this)
 
             return this
         endmethod
 
         static method onScrolled takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -556,7 +558,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         static method onClicked takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -668,7 +670,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
             local integer j
 
             if left then
-                if HaveSavedInteger(item.relation, item.id, count) and count >= DETAIL_USED_COUNT then
+                if item.relation[item.id].has(count) and count >= DETAIL_USED_COUNT then
                     set j = 0
 
                     loop
@@ -684,7 +686,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
                         set j = j + 1
                     endloop
 
-                    set i = item.get(LoadInteger(item.relation, item.id, count))
+                    set i = item.get(item.relation[item.id][count])
 
                     if i != 0 then
                         set count = count + 1
@@ -715,7 +717,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
                         set j = j - 1
                     endloop
                     
-                    set i = item.get(LoadInteger(item.relation, item.id, count - DETAIL_USED_COUNT - 1))
+                    set i = item.get(item.relation[item.id][count - DETAIL_USED_COUNT - 1])
 
                     if i != 0 then
                         set count = count - 1
@@ -745,8 +747,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
             set j = 0
 
             loop
-                exitwhen not HaveSavedInteger(item.relation, item.id, j) or j == DETAIL_USED_COUNT
-                    set i = item.get(LoadInteger(item.relation, item.id, j))
+                exitwhen not item.relation[item.id].has(j) or j == DETAIL_USED_COUNT
+                    set i = item.get(item.relation[item.id][j])
 
                     if i != 0 then
                         set used[j] = i
@@ -781,7 +783,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
                 if item.components > 0 then
                     loop
                         exitwhen j > item.components or k > 5
-                            set component = item.get(LoadInteger(item.itempool, item.id, j))
+                            set component = item.get(item.itempool[item.id][j])
                             
                             if component != 0 then
                                 if item.components == 1 then
@@ -996,6 +998,16 @@ library Shop requires RegisterPlayerUnitEvent, Components
             set right2 = Slot.create(frame, 0, 0.23425, - 0.10200, FRAMEPOINT_TOPRIGHT, false)
             set right2.visible = false
             set right2.onClick = function thistype.onClick
+            set table[GetHandleId(close.frame)][0] = this
+            set table[GetHandleId(left.frame)][0] = this
+            set table[GetHandleId(right.frame)][0] = this
+            set table[GetHandleId(scrollFrame)][0] = this
+            set table[GetHandleId(main.button.frame)][0] = this
+            set table[GetHandleId(center.button.frame)][0] = this
+            set table[GetHandleId(left1.button.frame)][0] = this
+            set table[GetHandleId(left2.button.frame)][0] = this
+            set table[GetHandleId(right1.button.frame)][0] = this
+            set table[GetHandleId(right2.button.frame)][0] = this
 
             call BlzFrameSetPoint(frame, FRAMEPOINT_TOPLEFT, shop.main, FRAMEPOINT_TOPLEFT, WIDTH - DETAIL_WIDTH, 0.0000)
             call BlzFrameSetPoint(scrollFrame, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.022500, - 0.31550)
@@ -1024,16 +1036,6 @@ library Shop requires RegisterPlayerUnitEvent, Components
             call BlzFrameSetTexture(verticalLeft2, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
             call BlzFrameSetTexture(verticalRight1, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
             call BlzFrameSetTexture(verticalRight2, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
-            call SaveInteger(table, GetHandleId(close.frame), 0, this)
-            call SaveInteger(table, GetHandleId(left.frame), 0, this)
-            call SaveInteger(table, GetHandleId(right.frame), 0, this)
-            call SaveInteger(table, GetHandleId(scrollFrame), 0, this)
-            call SaveInteger(table, GetHandleId(main.button.frame), 0, this)
-            call SaveInteger(table, GetHandleId(center.button.frame), 0, this)
-            call SaveInteger(table, GetHandleId(left1.button.frame), 0, this)
-            call SaveInteger(table, GetHandleId(left2.button.frame), 0, this)
-            call SaveInteger(table, GetHandleId(right1.button.frame), 0, this)
-            call SaveInteger(table, GetHandleId(right2.button.frame), 0, this)
             call BlzTriggerRegisterFrameEvent(trigger, scrollFrame, FRAMEEVENT_MOUSE_WHEEL)
 
             loop
@@ -1043,9 +1045,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
                     set button[i].onScroll = function thistype.onScroll
                     set button[i].visible = true
                     set button[i].tooltip.point = FRAMEPOINT_BOTTOMRIGHT
-
-                    call SaveInteger(table, GetHandleId(button[i].frame), 0, this)
-                    call SaveInteger(table, GetHandleId(button[i].frame), 1, i)
+                    set table[GetHandleId(button[i].frame)][0] = this
+                    set table[GetHandleId(button[i].frame)][1] = i
                 set i = i + 1
             endloop
 
@@ -1055,7 +1056,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         static method onScroll takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -1066,8 +1067,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
         static method onClick takes nothing returns nothing
             local framehandle frame = BlzGetTriggerFrame()
-            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
-            local integer i = LoadInteger(table, GetHandleId(frame), 1)
+            local thistype this = table[GetHandleId(frame)][0]
+            local integer i = table[GetHandleId(frame)][1]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -1152,7 +1153,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
             loop
                 exitwhen i == INVENTORY_COUNT
-                    call FlushChildHashtable(table, GetHandleId(button[i].frame))
+                    call table.remove(GetHandleId(button[i].frame))
                     call button[i].destroy()
                 set i = i + 1
             endloop
@@ -1224,9 +1225,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
                     set button[i].onDoubleClick = function thistype.onDoubleClick
                     set button[i].onRightClick = function thistype.onRightClick
                     set button[i].visible = false
-
-                    call SaveInteger(table, GetHandleId(button[i].frame), 0, this)
-                    call SaveInteger(table, GetHandleId(button[i].frame), 1, i)
+                    set table[GetHandleId(button[i].frame)][0] = this
+                    set table[GetHandleId(button[i].frame)][1] = i
                 set i = i + 1
             endloop
 
@@ -1235,8 +1235,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
         static method onDoubleClick takes nothing returns nothing
             local framehandle frame = BlzGetTriggerFrame()
-            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
-            local integer i = LoadInteger(table, GetHandleId(frame), 1)
+            local thistype this = table[GetHandleId(frame)][0]
+            local integer i = table[GetHandleId(frame)][1]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -1249,8 +1249,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
         static method onRightClick takes nothing returns nothing
             local framehandle frame = BlzGetTriggerFrame()
-            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
-            local integer i = LoadInteger(table, GetHandleId(frame), 1)
+            local thistype this = table[GetHandleId(frame)][0]
+            local integer i = table[GetHandleId(frame)][1]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -1311,7 +1311,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
             loop
                 exitwhen i == BUYER_COUNT
                     set unit[i] = null
-                    call FlushChildHashtable(table, GetHandleId(button[i].frame))
+                    call table.remove(GetHandleId(button[i].frame))
                     call button[i].destroy()
                 set i = i + 1
             endloop
@@ -1493,13 +1493,13 @@ library Shop requires RegisterPlayerUnitEvent, Components
             set right.icon = BUYER_RIGHT
             set right.tooltip.text = "Scroll Right"
             set inventory = Inventory.create(shop)
+            set table[GetHandleId(left.frame)][0] = this
+            set table[GetHandleId(right.frame)][0] = this
+            set table[GetHandleId(scrollFrame)][0] = this
 
             call BlzFrameSetPoint(frame, FRAMEPOINT_TOP, shop.base, FRAMEPOINT_BOTTOM, 0, 0.02750)
             call BlzFrameSetSize(frame, BUYER_WIDTH, BUYER_HEIGHT)
             call BlzFrameSetAllPoints(scrollFrame, frame)
-            call SaveInteger(table, GetHandleId(left.frame), 0, this)
-            call SaveInteger(table, GetHandleId(right.frame), 0, this)
-            call SaveInteger(table, GetHandleId(scrollFrame), 0, this)
             call BlzTriggerRegisterFrameEvent(trigger, scrollFrame, FRAMEEVENT_MOUSE_WHEEL)
 
             loop
@@ -1508,9 +1508,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
                     set button[i].onClick = function thistype.onClick
                     set button[i].onScroll = function thistype.onScroll
                     set button[i].visible = false
-
-                    call SaveInteger(table, GetHandleId(button[i].frame), 0, this)
-                    call SaveInteger(table, GetHandleId(button[i].frame), 1, i)
+                    set table[GetHandleId(button[i].frame)][0] = this
+                    set table[GetHandleId(button[i].frame)][1] = i
                 set i = i + 1
             endloop
 
@@ -1518,7 +1517,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         static method onScroll takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -1529,8 +1528,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
         static method onClick takes nothing returns nothing
             local framehandle frame = BlzGetTriggerFrame()
-            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
-            local integer i = LoadInteger(table, GetHandleId(frame), 1)
+            local thistype this = table[GetHandleId(frame)][0]
+            local integer i = table[GetHandleId(frame)][1]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -1572,7 +1571,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
             loop
                 exitwhen i == CATEGORY_COUNT
-                    call FlushChildHashtable(table, GetHandleId(button[i].frame))
+                    call table.remove(GetHandleId(button[i].frame))
                     call button[i].destroy()
                 set i = i + 1
             endloop
@@ -1644,13 +1643,12 @@ library Shop requires RegisterPlayerUnitEvent, Components
                     set button[i].visible = false
                     set button[i].onClick = function thistype.onClick
                     set button[i].tooltip.point = FRAMEPOINT_TOPRIGHT
+                    set table[GetHandleId(button[i].frame)][0] = this
+                    set table[GetHandleId(button[i].frame)][1] = i
 
                     if i > 6 then
                         set button[i].tooltip.point = FRAMEPOINT_BOTTOMRIGHT
                     endif
-
-                    call SaveInteger(table, GetHandleId(button[i].frame), 0, this)
-                    call SaveInteger(table, GetHandleId(button[i].frame), 1, i)
                 set i = i + 1
             endloop
 
@@ -1659,8 +1657,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
         static method onClick takes nothing returns nothing
             local framehandle frame = BlzGetTriggerFrame()
-            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
-            local integer i = LoadInteger(table, GetHandleId(frame), 1)
+            local thistype this = table[GetHandleId(frame)][0]
+            local integer i = table[GetHandleId(frame)][1]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -1687,7 +1685,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         method destroy takes nothing returns nothing
             loop
                 exitwhen count == -1
-                    call FlushChildHashtable(table, GetHandleId(button[count].frame))
+                    call table.remove(GetHandleId(button[count].frame))
                     call button[count].destroy()
                 set count = count - 1
             endloop
@@ -1718,9 +1716,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
                 set button[count].enabled = false
                 set button[count].onClick = function thistype.onClick
                 set button[count].tooltip.text = description
-
-                call SaveInteger(table, GetHandleId(button[count].frame), 0, this)
-                call SaveInteger(table, GetHandleId(button[count].frame), 1, count)
+                set table[GetHandleId(button[count].frame)][0] = this
+                set table[GetHandleId(button[count].frame)][1] = count
 
                 return value[count]
             else
@@ -1743,8 +1740,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
         static method onClick takes nothing returns nothing
             local framehandle frame = BlzGetTriggerFrame()
-            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
-            local integer i = LoadInteger(table, GetHandleId(frame), 1)
+            local thistype this = table[GetHandleId(frame)][0]
+            local integer i = table[GetHandleId(frame)][1]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -1768,13 +1765,13 @@ library Shop requires RegisterPlayerUnitEvent, Components
     endstruct
     
     struct Shop
-        private static hashtable itempool = InitHashtable()
         private static trigger trigger = CreateTrigger()
         private static trigger search = CreateTrigger()
         private static trigger keyPress = CreateTrigger()
         private static trigger escPressed = CreateTrigger()
         private static integer count = -1
         private static timer update = CreateTimer()
+        private static HashTable itempool
         readonly static group array group
         readonly static timer array timer
         readonly static boolean array canScroll
@@ -1825,7 +1822,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         method destroy takes nothing returns nothing
-            local ShopSlot slot = LoadInteger(itempool, this, 0)
+            local ShopSlot slot = itempool[this][0]
 
             loop
                 exitwhen slot == 0
@@ -1833,9 +1830,9 @@ library Shop requires RegisterPlayerUnitEvent, Components
                 set slot = slot.next
             endloop
 
-            call FlushChildHashtable(table, id)
-            call FlushChildHashtable(table, this)
-            call FlushChildHashtable(itempool, this)
+            call table.remove(id)
+            call table.remove(this)
+            call itempool.remove(this)
             call BlzDestroyFrame(rightPanel)
             call BlzDestroyFrame(leftPanel)
             call BlzDestroyFrame(main)
@@ -1879,7 +1876,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         method filter takes integer categories, boolean andLogic returns nothing
-            local ShopSlot slot = LoadInteger(itempool, this, 0)
+            local ShopSlot slot = itempool[this][0]
             local string text = BlzFrameGetText(edit)
             local boolean process
             local integer i = -1
@@ -1949,7 +1946,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         method has takes integer id returns boolean
-            return HaveSavedInteger(table, this, id)
+            return table[this].has(id)
         endmethod
 
         private method find takes string source, string target returns boolean
@@ -1971,7 +1968,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         static method addCategory takes integer id, string icon, string description returns integer
-            local thistype this = LoadInteger(table, id, 0)
+            local thistype this = table[id][0]
 
             if this != 0 then
                 return category.add(icon, description)
@@ -1981,12 +1978,12 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         static method addItem takes integer id, integer itemId, integer categories returns nothing
-            local thistype this = LoadInteger(table, id, 0)
+            local thistype this = table[id][0]
             local ShopSlot slot
             local Item i
 
             if this != 0 then
-                if not HaveSavedInteger(table, this, itemId) then
+                if not table[this].has(itemId) then
                     set i = Item.create(itemId, categories)
                     
                     if i != 0 then
@@ -2010,9 +2007,8 @@ library Shop requires RegisterPlayerUnitEvent, Components
                         endif
 
                         set last = slot
-
-                        call SaveInteger(itempool, this, index, slot)
-                        call SaveInteger(table, this, itemId, slot)
+                        set table[this][itemId] = slot
+                        set itempool[this][index] = slot
                     else
                         call BJDebugMsg("Invalid item code: " + A2S(itemId))
                     endif
@@ -2026,7 +2022,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
             local thistype this
             local integer i = 0
 
-            if not HaveSavedInteger(table, id, 0) then
+            if not table[id].has(0) then
                 set this = thistype.allocate()
                 set .id = id
                 set .aoe = aoe
@@ -2066,39 +2062,34 @@ library Shop requires RegisterPlayerUnitEvent, Components
                 set logic.onClick = function thistype.onLogic
                 set logic.enabled = false
                 set logic.tooltip.text = "AND Logic"
+                set table[id][0] = this
+                set table[GetHandleId(main)][0] = this
+                set table[GetHandleId(close.frame)][0] = this
+                set table[GetHandleId(clearCategory.frame)][0] = this
+                set table[GetHandleId(clearFavorites.frame)][0] = this
+                set table[GetHandleId(logic.frame)][0] = this
+                set table[GetHandleId(edit)][0] = this
 
                 loop
                     exitwhen i >= bj_MAX_PLAYER_SLOTS
                         set timer[i] = CreateTimer()
                         set group[i] = CreateGroup()
                         set canScroll[i] = true
-                        call SaveInteger(table, GetHandleId(Player(i)), id, this)
-                        call SaveInteger(table, GetHandleId(Player(i)), count, id)
+                        set table[GetHandleId(Player(i))][id] = this
+                        set table[GetHandleId(Player(i))][count] = id
                     set i = i + 1
                 endloop
 
                 call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, X, Y)
                 call BlzFrameSetSize(base, WIDTH, HEIGHT)
-
                 call BlzFrameSetPoint(main, FRAMEPOINT_TOPLEFT, base, FRAMEPOINT_TOPLEFT, 0.0000, 0.0000)
                 call BlzFrameSetSize(main, WIDTH, HEIGHT)
-
                 call BlzFrameSetPoint(edit, FRAMEPOINT_TOPLEFT, main, FRAMEPOINT_TOPLEFT, 0.021000, 0.020000)
                 call BlzFrameSetSize(edit, EDIT_WIDTH, EDIT_HEIGHT)
-
                 call BlzFrameSetPoint(leftPanel, FRAMEPOINT_TOPLEFT, base, FRAMEPOINT_TOPLEFT, -0.04800, 0.0000)
                 call BlzFrameSetSize(leftPanel, SIDE_WIDTH, SIDE_HEIGHT)
-
                 call BlzFrameSetPoint(rightPanel, FRAMEPOINT_TOPLEFT, base, FRAMEPOINT_TOPLEFT, (WIDTH - 0.027), 0.0000)
                 call BlzFrameSetSize(rightPanel, SIDE_WIDTH, SIDE_HEIGHT)
-
-                call SaveInteger(table, id, 0, this)
-                call SaveInteger(table, GetHandleId(main), 0, this)
-                call SaveInteger(table, GetHandleId(close.frame), 0, this)
-                call SaveInteger(table, GetHandleId(clearCategory.frame), 0, this)
-                call SaveInteger(table, GetHandleId(clearFavorites.frame), 0, this)
-                call SaveInteger(table, GetHandleId(logic.frame), 0, this)
-                call SaveInteger(table, GetHandleId(edit), 0, this)
                 call BlzTriggerRegisterFrameEvent(trigger, main, FRAMEEVENT_MOUSE_WHEEL)
                 call BlzTriggerRegisterFrameEvent(search, edit, FRAMEEVENT_EDITBOX_TEXT_CHANGED)
 
@@ -2116,7 +2107,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
             local integer i = GetPlayerId(GetLocalPlayer())
             local unit shop = current[i]
             local group g = CreateGroup()
-            local thistype this = LoadInteger(table, GetUnitTypeId(shop), 0)
+            local thistype this = table[GetUnitTypeId(shop)][0]
             local unit u
 
             if this != 0 then
@@ -2142,7 +2133,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         private static method onSearch takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -2152,7 +2143,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         private static method onLogic takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -2175,7 +2166,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
         private static method onClear takes nothing returns nothing
             local framehandle frame = BlzGetTriggerFrame()
-            local thistype this = LoadInteger(table, GetHandleId(frame), 0)
+            local thistype this = table[GetHandleId(frame)][0]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -2194,7 +2185,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         private static method onClose takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
@@ -2205,7 +2196,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         private static method onScroll takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetHandleId(BlzGetTriggerFrame()), 0)
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
             local integer i = GetPlayerId(GetLocalPlayer())
 
             if this != 0 then
@@ -2226,7 +2217,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
         endmethod
 
         private static method onSelect takes nothing returns nothing
-            local thistype this = LoadInteger(table, GetUnitTypeId(GetTriggerUnit()), 0)
+            local thistype this = table[GetUnitTypeId(GetTriggerUnit())][0]
             local ShopSlot slot
 
             if this != 0 then
@@ -2253,7 +2244,7 @@ library Shop requires RegisterPlayerUnitEvent, Components
             
             loop
                 exitwhen i > count
-                    set this = LoadInteger(table, id, LoadInteger(table, id, i))
+                    set this = table[id][table[id][i]]
 
                     if this != 0 then
                         if GetLocalPlayer() == GetTriggerPlayer() then
@@ -2267,6 +2258,9 @@ library Shop requires RegisterPlayerUnitEvent, Components
 
         private static method onInit takes nothing returns nothing
             local integer i = 0
+
+            set table = HashTable.create()
+            set itempool = HashTable.create()
 
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
