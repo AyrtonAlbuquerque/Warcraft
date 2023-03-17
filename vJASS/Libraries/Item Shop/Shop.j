@@ -240,8 +240,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private static unit shop
         private static rect rect
         private static player player = Player(bj_PLAYER_NEUTRAL_EXTRA)
-        readonly static HashTable itempool
-        readonly static HashTable relation
+        readonly static Table itempool
+
+        private integer componentCount
 
         string name
         string icon
@@ -249,41 +250,49 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         integer id
         integer gold
         integer categories
+        Table component
+        Table counter
+        Table relation
         
         method destroy takes nothing returns nothing
+            call component.destroy()
+            call relation.destroy()
+            call counter.destroy()
             call deallocate()
         endmethod
 
         method operator components takes nothing returns integer
-            return itempool[id][6]
+            return componentCount
         endmethod
 
-        method count takes integer component returns integer
-            return itempool[id][component]
+        method count takes integer id returns integer
+            return counter[id]
         endmethod
 
         static method get takes integer id returns thistype
-            return itempool[id][0]
+            return itempool[id]
         endmethod
 
-        static method save takes integer id, integer component returns nothing
+        static method save takes integer id, integer comp returns nothing
             local thistype this
+            local thistype part
             local integer i = 0
 
-            if component > 0 and component != id then
-                if not relation[component].boolean[id] then
-                    loop
-                        exitwhen not relation[component].has(i)
-                        set i = i + 1
-                    endloop
-    
-                    set relation[component].boolean[id] = true
-                    set relation[component][i] = id
-                endif
+            if comp > 0 and comp != id then
+                set this = create(id, 0)
+                set part = create(comp, 0)
+                set component[componentCount] = comp
+                set componentCount = componentCount + 1
+                set counter[comp] = counter[comp] + 1
 
-                set itempool[id][6] = itempool[id][6] + 1
-                set itempool[id][component] = itempool[id][component] +1
-                call create(component, 0)
+                loop
+                    exitwhen part.relation[i] == id
+                        if not part.relation.has(i) then
+                            set part.relation[i] = id
+                            exitwhen true
+                        endif
+                    set i = i + 1
+                endloop
             endif
         endmethod
 
@@ -291,39 +300,16 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local thistype this
 
             if id > 0 then
-                set itempool[id][1] = a
-                set itempool[id][2] = b
-                set itempool[id][3] = c
-                set itempool[id][4] = d
-                set itempool[id][5] = e
-                set itempool[id][6] = 0
+                set this = create(id, 0)
+                set componentCount = 0
 
-                if a > 6 and a != id then
-                    set itempool[id][a] = 0
-                endif
-
-                if b > 6 and b != id then
-                    set itempool[id][b] = 0
-                endif
-
-                if c > 6 and c != id then
-                    set itempool[id][c] = 0
-                endif
-
-                if d > 6 and d != id then
-                    set itempool[id][d] = 0
-                endif
-
-                if e > 6 and e != id then
-                    set itempool[id][e] = 0
-                endif
-
+                call component.flush()
+                call counter.flush()
                 call save(id, a)
                 call save(id, b)
                 call save(id, c)
                 call save(id, d)
                 call save(id, e)
-                call create(id, 0)
             endif
         endmethod
 
@@ -348,8 +334,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local thistype this
             local item i
 
-            if itempool[id].has(0) then
-                set this = itempool[id][0]
+            if itempool.has(id) then
+                set this = itempool[id]
 
                 if category > 0 then
                     set categories = category
@@ -367,7 +353,11 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     set icon = BlzGetItemIconPath(i)
                     set tooltip = BlzGetItemExtendedTooltip(i)
                     set gold = cost(id)
-                    set itempool[id][0] = this
+                    set componentCount = 0
+                    set component = Table.create()
+                    set counter = Table.create()
+                    set relation = Table.create()
+                    set itempool[id] = this
 
                     call RemoveItem(i)
 
@@ -381,8 +371,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
         static method onInit takes nothing returns nothing
             set rect = Rect(0, 0, 0, 0)
-            set itempool = HashTable.create()
-            set relation = HashTable.create()
+            set itempool = Table.create()
             set shop = CreateUnit(player, 'nmrk', 0, 0, 0)
 
             call SetRect(rect, GetUnitX(shop) - 1000, GetUnitY(shop) - 1000, GetUnitX(shop) + 1000, GetUnitY(shop) + 1000)
@@ -670,7 +659,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local integer j
 
             if left then
-                if item.relation[item.id].has(count) and count >= DETAIL_USED_COUNT then
+                if item.relation.has(count) and count >= DETAIL_USED_COUNT then
                     set j = 0
 
                     loop
@@ -686,7 +675,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                         set j = j + 1
                     endloop
 
-                    set i = item.get(item.relation[item.id][count])
+                    set i = item.get(item.relation[count])
 
                     if i != 0 then
                         set count = count + 1
@@ -717,7 +706,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                         set j = j - 1
                     endloop
                     
-                    set i = item.get(item.relation[item.id][count - DETAIL_USED_COUNT - 1])
+                    set i = item.get(item.relation[count - DETAIL_USED_COUNT - 1])
 
                     if i != 0 then
                         set count = count - 1
@@ -747,8 +736,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set j = 0
 
             loop
-                exitwhen not item.relation[item.id].has(j) or j == DETAIL_USED_COUNT
-                    set i = item.get(item.relation[item.id][j])
+                exitwhen not item.relation.has(j) or j == DETAIL_USED_COUNT
+                    set i = item.get(item.relation[j])
 
                     if i != 0 then
                         set used[j] = i
@@ -768,8 +757,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         method show takes Item i returns nothing
             local Item component
             local Slot slot
-            local integer j = 1
-            local integer k = 1
+            local integer j = 0
+            local integer k = 0
             local integer cost
 
             if i != 0 then
@@ -782,8 +771,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 
                 if item.components > 0 then
                     loop
-                        exitwhen j > item.components or k > 5
-                            set component = item.get(item.itempool[item.id][j])
+                        exitwhen j == item.components or k == 5
+                            set component = item.get(item.component[j])
                             
                             if component != 0 then
                                 if item.components == 1 then
@@ -803,7 +792,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                                     call BlzFrameSetVisible(verticalRight1, false)
                                     call BlzFrameSetVisible(verticalRight2, false)
                                 elseif item.components == 2 then
-                                    if j == 1 then
+                                    if j == 0 then
                                         set slot = left1
                                         set center.visible = false
                                         set left2.visible = false
@@ -824,7 +813,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                                         call BlzFrameSetVisible(verticalRight2, false)
                                     endif
                                 elseif item.components == 3 then
-                                    if j == 1 then
+                                    if j == 0 then
                                         set slot = left2
                                         set left1.visible = false
                                         set right1.visible = false
@@ -834,7 +823,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                                         call update(horizontalLeft, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.057000, - 0.091500, true)
                                         call update(verticalLeft2, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.057000, - 0.092500, true)
                                         call BlzFrameSetVisible(verticalLeft1, false)
-                                    elseif j == 2 then
+                                    elseif j == 1 then
                                         set slot = center
 
                                         call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.13625, - 0.10200, true)
@@ -848,7 +837,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                                         call BlzFrameSetVisible(verticalRight1, false)
                                     endif
                                 elseif item.components == 4 then
-                                    if j == 1 then
+                                    if j == 0 then
                                         set slot = left2
                                         set right2.visible = false
 
@@ -856,12 +845,12 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                                         call update(verticalMain, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.15600, - 0.082500, true)
                                         call update(horizontalLeft, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.057000, - 0.091500, true)
                                         call update(verticalLeft2, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.057000, - 0.092500, true)
-                                    elseif j == 2 then
+                                    elseif j == 1 then
                                         set slot = left1
 
                                         call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.10350, - 0.10200, true)
                                         call update(verticalLeft1, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.12250, - 0.092500, true)
-                                    elseif j == 3 then
+                                    elseif j == 2 then
                                         set slot = center
 
                                         call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.16875, - 0.10200, true)
@@ -875,24 +864,24 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                                         call update(verticalRight2, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.25600, - 0.092500, true)
                                     endif
                                 else
-                                    if j == 1 then
+                                    if j == 0 then
                                         set slot = left2
 
                                         call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.038250, - 0.10200, true)
                                         call update(verticalMain, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.15600, - 0.082500, true)
                                         call update(horizontalLeft, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.057000, - 0.091500, true)
                                         call update(verticalLeft2, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.057000, - 0.092500, true)
-                                    elseif j == 2 then
+                                    elseif j == 1 then
                                         set slot = left1
 
                                         call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.087250, - 0.10200, true)
                                         call update(verticalLeft1, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.10700, - 0.092500, true)
-                                    elseif j == 3 then
+                                    elseif j == 2 then
                                         set slot = center
 
                                         call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.13625, - 0.10200, true)
                                         call update(verticalCenter, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.15600, - 0.092500, true)
-                                    elseif j == 4 then
+                                    elseif j == 3 then
                                         set slot = right1
 
                                         call update(slot.slot, FRAMEPOINT_TOPLEFT, slot.parent, FRAMEPOINT_TOPLEFT, SLOT_WIDTH, SLOT_HEIGHT, 0.18525, - 0.10200, true)
