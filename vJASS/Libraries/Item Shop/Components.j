@@ -179,6 +179,8 @@ library Components requires Table
         private static timer array timer
         private static boolean array canScroll
         private static Table table
+        private static HashTable doubleTime
+        private static HashTable time
 
         private trigger click
         private trigger scroll
@@ -199,7 +201,6 @@ library Components requires Table
         private real heightSize
         private real xPos
         private real yPos
-        private real doubleTime
         
         readonly framehandle frame
         Tooltip tooltip
@@ -400,7 +401,6 @@ library Components requires Table
             set parent = owner
             set xPos = x
             set yPos = y
-            set doubleTime = 0
             set widhtSize = width
             set heightSize = height
             set isVisible = true
@@ -474,33 +474,34 @@ library Components requires Table
         endmethod
 
         private static method onClicked takes nothing returns nothing
-            local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
-            local real time
+            local integer i = GetPlayerId(GetTriggerPlayer())
+            local integer j = GetHandleId(BlzGetTriggerFrame())
+            local thistype this = table[j]
 
             if this != 0 then
+                set time[i].real[j] = TimerGetElapsed(double)
+
                 if click != null then
                     call TriggerEvaluate(click)
                 endif
 
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    set time = TimerGetElapsed(double)
+                if time[i].real[j] - doubleTime[i].real[j] <= DOUBLE_CLICK_DELAY then
+                    set doubleTime[i][j] = 0
 
-                    if time - doubleTime <= DOUBLE_CLICK_DELAY then
-                        set doubleTime = 0
-
-                        if doubleClick != null then
-                            call TriggerEvaluate(doubleClick)
-                        endif
-                    else
-                        set doubleTime = time
+                    if doubleClick != null then
+                        call TriggerEvaluate(doubleClick)
                     endif
+                else
+                    set doubleTime[i].real[j] = time[i].real[j]
                 endif
             endif
         endmethod
 
         private static method onInit takes nothing returns nothing
             set table = Table.create()
-            
+            set time = HashTable.create()
+            set doubleTime = HashTable.create()
+
             call TimerStart(double, 9999999999, false, null)
             call TriggerAddAction(clicked, function thistype.onClicked)
             call TriggerAddAction(scrolled, function thistype.onScrolled)

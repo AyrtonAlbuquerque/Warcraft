@@ -2,7 +2,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
     /* --------------------------------------- Shop v1.0 --------------------------------------- */
     // Credits:
     //      Taysen: TasItemShop and FDF file
-    //      Nestharus and Bribe: A2S funciton
+    //      Bribe: A2S funciton and Table library
     /* -------------------------------------- By Chopinski ------------------------------------- */
 
     /* ----------------------------------------------------------------------------------------- */
@@ -109,6 +109,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
     function ItemAddComponents takes integer whichItem, integer a, integer b, integer c, integer d, integer e returns nothing
         call Item.addComponents(whichItem, a, b, c, d, e)
+    endfunction
+
+    function UnitHasItemOfType takes unit u, integer id returns boolean
+        return Item.hasType(u, id)
+    endfunction
+
+    function UnitCountItemOfType takes unit u, integer id returns integer
+        return Item.countType(u, id)
     endfunction
 
     function ShopFilter takes unit u, player owner, unit shop returns boolean
@@ -239,8 +247,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
     struct Item
         private static unit shop
         private static rect rect
+        private static trigger trigger = CreateTrigger()
         private static player player = Player(bj_PLAYER_NEUTRAL_EXTRA)
         readonly static Table itempool
+        readonly static HashTable unit
 
         private integer componentCount
 
@@ -273,7 +283,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             return itempool[id]
         endmethod
 
-        static method save takes integer id, integer comp returns nothing
+        private static method save takes integer id, integer comp returns nothing
             local thistype this
             local thistype part
             local integer i = 0
@@ -313,10 +323,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             endif
         endmethod
 
-        static method clear takes nothing returns nothing
-            call RemoveItem(GetEnumItem())
-        endmethod
-
         static method cost takes integer id returns integer
             local integer old
 
@@ -328,6 +334,18 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             call EnumItemsInRect(rect, null, function thistype.clear)
 
             return old - GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD)
+        endmethod
+
+        private static method clear takes nothing returns nothing
+            call RemoveItem(GetEnumItem())
+        endmethod
+
+        static method hasType takes unit u, integer id returns boolean
+            return unit[GetHandleId(u)][id] > 0
+        endmethod
+
+        static method countType takes unit u, integer id returns integer
+            return unit[GetHandleId(u)][id]
         endmethod
 
         static method create takes integer id, integer category returns thistype
@@ -369,15 +387,32 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             endif
         endmethod
 
-        static method onInit takes nothing returns nothing
+        private static method onPickup takes nothing returns nothing
+            local integer u = GetHandleId(GetManipulatingUnit())
+            local integer i = GetItemTypeId(GetManipulatedItem())
+
+            set unit[u][i] = unit[u][i] + 1
+        endmethod
+
+        private static method onDrop takes nothing returns nothing
+            local integer u = GetHandleId(GetManipulatingUnit())
+            local integer i = GetItemTypeId(GetManipulatedItem())
+
+            set unit[u][i] = unit[u][i] - 1
+        endmethod
+
+        private static method onInit takes nothing returns nothing
             set rect = Rect(0, 0, 0, 0)
             set itempool = Table.create()
+            set unit = HashTable.create()
             set shop = CreateUnit(player, 'nmrk', 0, 0, 0)
 
             call SetRect(rect, GetUnitX(shop) - 1000, GetUnitY(shop) - 1000, GetUnitX(shop) + 1000, GetUnitY(shop) + 1000)
             call UnitAddAbility(shop, 'AInv')
             call IssueNeutralTargetOrder(player, shop, "smart", shop)
             call ShowUnit(shop, false)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, function thistype.onPickup)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function thistype.onDrop)
         endmethod
     endstruct
 
@@ -431,6 +466,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
         method operator onScroll= takes code c returns nothing
             set button.onScroll = c
+        endmethod
+
+        method operator onRightClick= takes code c returns nothing
+            set button.onRightClick = c
+        endmethod
+
+        method operator onDoubleClick= takes code c returns nothing
+            set button.onDoubleClick = c
         endmethod
 
         method destroy takes nothing returns nothing
@@ -529,6 +572,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set .column = column
             set onClick = function thistype.onClicked
             set onScroll = function thistype.onScrolled
+            set onDoubleClick = function thistype.onDoubleClicked
+            set onRightClick = function thistype.onRightClicked
             set table[GetHandleId(button.frame)][0] = this
 
             call update()
@@ -559,10 +604,28 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 endif
             endif
         endmethod
+
+        static method onDoubleClicked takes nothing returns nothing
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
+
+            if this != 0 then
+                call shop.buy(item, GetTriggerPlayer())
+            endif
+        endmethod
+
+        static method onRightClicked takes nothing returns nothing
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
+
+            if this != 0 then
+                call shop.buy(item, GetTriggerPlayer())
+            endif
+        endmethod
     endstruct
 
     private struct Detail
         readonly static trigger trigger = CreateTrigger()
+
+        private boolean isVisible
 
         Shop shop
         Item item
@@ -592,6 +655,15 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         framehandle verticalLeft2
         framehandle verticalRight1
         framehandle verticalRight2
+
+        method operator visible= takes boolean visibility returns nothing
+            set isVisible = visibility
+            call BlzFrameSetVisible(frame, visibility)
+        endmethod
+
+        method operator visible takes nothing returns boolean
+            return isVisible
+        endmethod
 
         method destroy takes nothing returns nothing
             local integer i = 0
@@ -648,10 +720,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             endif
 
             call BlzFrameSetVisible(frame, visible)
-        endmethod
-
-        method hide takes nothing returns nothing
-            call BlzFrameSetVisible(frame, false)
         endmethod
 
         method shift takes boolean left returns nothing
@@ -747,11 +815,16 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                         set button[count].tooltip.icon = i.icon
                         set button[count].visible = true
                         set button[count].available = shop.has(i.id)
-                        // set button[count].checked = true
                         set count = count + 1
                     endif
                 set j = j + 1
             endloop
+        endmethod
+
+        method refresh takes nothing returns nothing
+            if isVisible and item != 0 then
+                call show(item)
+            endif
         endmethod
 
         method show takes Item i returns nothing
@@ -760,6 +833,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local integer j = 0
             local integer k = 0
             local integer cost
+            local integer id = GetPlayerId(GetLocalPlayer())
+            local Table counter = Table.create()
 
             if i != 0 then
                 set item = i
@@ -894,17 +969,34 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                                         call update(verticalRight2, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.25600, - 0.092500, true)
                                     endif
                                 endif
-                                
+
                                 set slot.item = component
                                 set slot.button.icon = component.icon
                                 set slot.button.tooltip.text = component.tooltip
                                 set slot.button.tooltip.name = component.name
                                 set slot.button.tooltip.icon = component.icon
                                 set slot.button.available = shop.has(component.id)
-                                // set slot.button.checked = true
                                 call BlzFrameSetText(slot.cost, "|cffFFCC00" + I2S(component.gold) + "|r")
                                 
-                                //set cost = cost + component.gold
+                                if shop.buyer.selected.unit[id] != null then
+                                    if UnitHasItemOfType(shop.buyer.selected.unit[id], component.id) then
+                                        if UnitCountItemOfType(shop.buyer.selected.unit[id], component.id) >= item.count(component.id) then
+                                            set slot.button.checked = true
+                                        else
+                                            set counter[component.id] = counter[component.id] + 1
+                                            set slot.button.checked = counter[component.id] <= UnitCountItemOfType(shop.buyer.selected.unit[id], component.id)
+                                        endif
+                                    else
+                                        set slot.button.checked = false
+                                    endif
+                                else
+                                    set slot.button.checked = false
+                                endif
+
+                                if slot.button.checked then
+                                    set cost = cost - component.gold
+                                endif
+
                                 set slot.visible = true
                                 set j = j + 1
                             endif
@@ -935,8 +1027,11 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
                 call BlzFrameSetText(main.cost, "|cffFFCC00" + I2S(cost) + "|r")
                 call BlzFrameSetText(tooltip, item.tooltip)
-                call BlzFrameSetVisible(frame, true)
+
+                set visible = true
             endif
+
+            call counter.destroy()
         endmethod
 
         static method create takes Shop shop returns thistype
@@ -945,6 +1040,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
             set .shop = shop
             set count = 0
+            set isVisible = false
             set frame = BlzCreateFrame("EscMenuBackdrop", shop.main, 0, 0)
             set topSeparator = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set bottomSeparator = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
@@ -972,21 +1068,33 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set right.onClick = function thistype.onClick
             set right.tooltip.text = "Scroll Right"
             set main = Slot.create(frame, 0, 0.13625, - 0.030000, FRAMEPOINT_TOPRIGHT, false)
+            set main.onRightClick = function thistype.onRightClick
+            set main.onDoubleClick = function thistype.onDoubleClick
             set center = Slot.create(frame, 0, 0.13625, - 0.10200, FRAMEPOINT_TOPRIGHT, false)
             set center.visible = false
             set center.onClick = function thistype.onClick
+            set center.onRightClick = function thistype.onRightClick
+            set center.onDoubleClick = function thistype.onDoubleClick
             set left1 = Slot.create(frame, 0, 0.087250, - 0.10200, FRAMEPOINT_TOPRIGHT, false)
             set left1.visible = false
             set left1.onClick = function thistype.onClick
+            set left1.onRightClick = function thistype.onRightClick
+            set left1.onDoubleClick = function thistype.onDoubleClick
             set left2 = Slot.create(frame, 0, 0.038250, - 0.10200, FRAMEPOINT_TOPRIGHT, false)
             set left2.visible = false
             set left2.onClick = function thistype.onClick
+            set left2.onRightClick = function thistype.onRightClick
+            set left2.onDoubleClick = function thistype.onDoubleClick
             set right1 = Slot.create(frame, 0, 0.18525, - 0.10200, FRAMEPOINT_TOPRIGHT, false)
             set right1.visible = false
             set right1.onClick = function thistype.onClick
+            set right1.onRightClick = function thistype.onRightClick
+            set right1.onDoubleClick = function thistype.onDoubleClick
             set right2 = Slot.create(frame, 0, 0.23425, - 0.10200, FRAMEPOINT_TOPRIGHT, false)
             set right2.visible = false
             set right2.onClick = function thistype.onClick
+            set right2.onRightClick = function thistype.onRightClick
+            set right2.onDoubleClick = function thistype.onDoubleClick
             set table[GetHandleId(close.frame)][0] = this
             set table[GetHandleId(left.frame)][0] = this
             set table[GetHandleId(right.frame)][0] = this
@@ -1032,8 +1140,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     set button[i] = Button.create(scrollFrame, DETAIL_BUTTON_SIZE, DETAIL_BUTTON_SIZE, 0.0050000 + DETAIL_BUTTON_GAP*i, - 0.019500, false)
                     set button[i].onClick = function thistype.onClick
                     set button[i].onScroll = function thistype.onScroll
-                    set button[i].visible = true
+                    set button[i].onRightClick = function thistype.onRightClick
+                    //set button[i].onDoubleClick = function thistype.onDoubleClick
                     set button[i].tooltip.point = FRAMEPOINT_BOTTOMRIGHT
+                    set button[i].visible = true
                     set table[GetHandleId(button[i].frame)][0] = this
                     set table[GetHandleId(button[i].frame)][1] = i
                 set i = i + 1
@@ -1108,6 +1218,58 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                             call shop.favorites.add(main.item)
                         endif
                     endif 
+                endif
+            endif
+
+            set frame = null
+        endmethod
+
+        static method onRightClick takes nothing returns nothing
+            local framehandle frame = BlzGetTriggerFrame()
+            local thistype this = table[GetHandleId(frame)][0]
+            local integer i = table[GetHandleId(frame)][1]
+
+            if this != 0 then
+                if frame == main.button.frame then
+                    call shop.buy(main.item, GetTriggerPlayer())
+                elseif frame == center.button.frame then
+                    call shop.buy(center.item, GetTriggerPlayer())
+                elseif frame == left1.button.frame then
+                    call shop.buy(left1.item, GetTriggerPlayer())
+                elseif frame == left2.button.frame then
+                    call shop.buy(left2.item, GetTriggerPlayer())
+                elseif frame == right1.button.frame then
+                    call shop.buy(right1.item, GetTriggerPlayer())
+                elseif frame == right2.button.frame then
+                    call shop.buy(right2.item, GetTriggerPlayer())
+                else
+                    call shop.buy(used[i], GetTriggerPlayer())
+                endif
+            endif
+
+            set frame = null
+        endmethod
+
+        static method onDoubleClick takes nothing returns nothing
+            local framehandle frame = BlzGetTriggerFrame()
+            local thistype this = table[GetHandleId(frame)][0]
+            local integer i = table[GetHandleId(frame)][1]
+
+            if this != 0 then
+                if frame == main.button.frame then
+                    call shop.buy(main.item, GetTriggerPlayer())
+                elseif frame == center.button.frame then
+                    call shop.buy(center.item, GetTriggerPlayer())
+                elseif frame == left1.button.frame then
+                    call shop.buy(left1.item, GetTriggerPlayer())
+                elseif frame == left2.button.frame then
+                    call shop.buy(left2.item, GetTriggerPlayer())
+                elseif frame == right1.button.frame then
+                    call shop.buy(right1.item, GetTriggerPlayer())
+                elseif frame == right2.button.frame then
+                    call shop.buy(right2.item, GetTriggerPlayer())
+                else
+                    call shop.buy(used[i], GetTriggerPlayer())
                 endif
             endif
 
@@ -1228,9 +1390,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local integer i = table[GetHandleId(frame)][1]
 
             if this != 0 then
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    //
-                endif
+                call shop.sell(item[i], GetTriggerPlayer())
             endif
 
             set frame = null
@@ -1242,9 +1402,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local integer i = table[GetHandleId(frame)][1]
 
             if this != 0 then
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    //
-                endif
+                call shop.sell(item[i], GetTriggerPlayer())
             endif
 
             set frame = null
@@ -1252,25 +1410,28 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
     endstruct
 
     private struct Buyer
+        private static Table current
         readonly static trigger trigger = CreateTrigger()
 
         private boolean isVisible
 
         Shop shop
         Inventory inventory
-        unit selected
-        integer index
-        integer size
         framehandle frame
         framehandle scrollFrame
         Button left
         Button right
-        Button last
-        Button array button[BUYER_COUNT]
-        unit array unit[BUYER_COUNT]
+        Table last
+        Table index
+        Table size
+        Table selected
+        HashTable button
+        HashTable unit
 
         method operator visible= takes boolean visibility returns nothing
             local integer i = 0
+            local integer id = GetPlayerId(GetLocalPlayer())
+            local Button b
 
             set isVisible = visibility
             set inventory.visible = visibility
@@ -1278,9 +1439,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             if isVisible then
                 loop
                     exitwhen i == BUYER_COUNT
-                        if unit[i] == selected then
-                            call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
-                            call inventory.show(selected)
+                        if unit[id].unit[i] == selected.unit[id] then
+                            set b = button[id][i]
+                            call inventory.move(FRAMEPOINT_TOP, b.frame, FRAMEPOINT_BOTTOM)
+                            call inventory.show(selected.unit[id])
                             exitwhen true
                         endif
                     set i = i + 1
@@ -1296,151 +1458,205 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
         method destroy takes nothing returns nothing
             local integer i = 0
+            local integer j
+            local Button b
 
             loop
-                exitwhen i == BUYER_COUNT
-                    set unit[i] = null
-                    call table.remove(GetHandleId(button[i].frame))
-                    call button[i].destroy()
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    set j = 0
+
+                    loop
+                        exitwhen j == BUYER_COUNT
+                            set b = button[i][j]
+                            call table.remove(GetHandleId(b.frame))
+                            call b.destroy()
+                        set j = j + 1
+                    endloop
+
+                    call button.remove(i)
+                    call unit.remove(i)
                 set i = i + 1
             endloop
 
             call BlzDestroyFrame(frame)
             call BlzDestroyFrame(scrollFrame)
+            call last.destroy()
+            call index.destroy()
+            call size.destroy()
+            call selected.destroy()
             call left.destroy()
             call right.destroy()
             call inventory.destroy()
             call deallocate()
 
             set frame = null
-            set selected = null
             set scrollFrame = null
         endmethod
 
-        method shift takes boolean left returns nothing
+        method shift takes boolean left, player p returns nothing
             local integer i
             local unit u
+            local Button b
+            local Button c
             local boolean flag = false
+            local integer id = GetPlayerId(p)
 
             if left then
-                if (index + 1 + BUYER_COUNT) <= size and size > 0 then
-                    set index = index + 1
+                if (index[id] + 1 + BUYER_COUNT) <= size[id] and size[id] > 0 then
+                    set index[id] = index[id] + 1
                     set i = 0
 
                     loop
                         exitwhen i == BUYER_COUNT - 1
-                            set unit[i] = unit[i + 1]
-                            set button[i].icon = button[i + 1].icon
-                            set button[i].tooltip.text = button[i + 1].tooltip.text
-                            set button[i].visible = true
-                            set button[i].highlighted = selected == unit[i]
+                            set unit[id].unit[i] = unit[id].unit[i + 1]
 
-                            if button[i].highlighted then
-                                set flag = true
-                                call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                            if GetLocalPlayer() == p then
+                                set b = button[id][i]
+                                set c = button[id][i + 1]
+                                set b.icon = c.icon
+                                set b.tooltip.text = c.tooltip.text
+                                set b.visible = true
+                                set b.highlighted = selected.unit[id] == unit[id].unit[i]
+
+                                if b.highlighted then
+                                    set flag = true
+                                    call inventory.move(FRAMEPOINT_TOP, b.frame, FRAMEPOINT_BOTTOM)
+                                endif
                             endif
                         set i = i + 1
                     endloop
 
-                    set u = BlzGroupUnitAt(shop.group[GetPlayerId(GetLocalPlayer())], index + BUYER_COUNT)
+                    set u = BlzGroupUnitAt(shop.group[id], index[id] + BUYER_COUNT)
 
                     if u != null then
-                        set unit[i] = u
-                        set button[i].icon = BlzGetAbilityIcon(GetUnitTypeId(u))
-                        set button[i].tooltip.text = GetUnitName(u)
-                        set button[i].visible = true
-                        set button[i].highlighted = selected == unit[i]
+                        set unit[id].unit[i] = u
 
-                        if button[i].highlighted then
-                            set flag = true
-                            call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                        if GetLocalPlayer() == p then
+                            set b = button[id][i]
+                            set b.icon = BlzGetAbilityIcon(GetUnitTypeId(u))
+                            set b.tooltip.text = GetUnitName(u)
+                            set b.visible = true
+                            set b.highlighted = selected.unit[id] == unit[id].unit[i]
+
+                            if b.highlighted then
+                                set flag = true
+                                call inventory.move(FRAMEPOINT_TOP, b.frame, FRAMEPOINT_BOTTOM)
+                            endif
                         endif
                     endif
 
-                    set inventory.visible = flag
+                    if GetLocalPlayer() == p then
+                        set inventory.visible = flag
+                    endif
                 endif
             else
-                if index - 1 >= 0 and size > 0 then
-                    set index = index - 1
+                if index[id] - 1 >= 0 and size[id] > 0 then
+                    set index[id] = index[id] - 1
                     set i = BUYER_COUNT - 1
 
                     loop
                         exitwhen i == 0
-                            set unit[i] = unit[i - 1]
-                            set button[i].icon = button[i - 1].icon
-                            set button[i].tooltip.text = button[i - 1].tooltip.text
-                            set button[i].visible = true
-                            set button[i].highlighted = selected == unit[i]
+                            set unit[id].unit[i] = unit[id].unit[i - 1]
 
-                            if button[i].highlighted then
-                                set flag = true
-                                call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                            if GetLocalPlayer() == p then
+                                set b = button[id][i]
+                                set c = button[id][i - 1]
+                                set b.icon = c.icon
+                                set b.tooltip.text = c.tooltip.text
+                                set b.visible = true
+                                set b.highlighted = selected.unit[id] == unit[id].unit[i]
+
+                                if b.highlighted then
+                                    set flag = true
+                                    call inventory.move(FRAMEPOINT_TOP, b.frame, FRAMEPOINT_BOTTOM)
+                                endif
                             endif
                         set i = i - 1
                     endloop
                     
-                    set u = BlzGroupUnitAt(shop.group[GetPlayerId(GetLocalPlayer())], index)
+                    set u = BlzGroupUnitAt(shop.group[id], index[id])
 
                     if u != null then
-                        set unit[i] = u
-                        set button[i].icon = BlzGetAbilityIcon(GetUnitTypeId(u))
-                        set button[i].tooltip.text = GetUnitName(u)
-                        set button[i].visible = true
-                        set button[i].highlighted = selected == unit[i]
+                        set unit[id].unit[i] = u
 
-                        if button[i].highlighted then
-                            set flag = true
-                            call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                        if GetLocalPlayer() == p then
+                            set b = button[id][i]
+                            set b.icon = BlzGetAbilityIcon(GetUnitTypeId(u))
+                            set b.tooltip.text = GetUnitName(u)
+                            set b.visible = true
+                            set b.highlighted = selected.unit[id] == unit[id].unit[i]
+
+                            if b.highlighted then
+                                set flag = true
+                                call inventory.move(FRAMEPOINT_TOP, b.frame, FRAMEPOINT_BOTTOM)
+                            endif
                         endif
                     endif
 
-                    set inventory.visible = flag
+                    if GetLocalPlayer() == p then
+                        set inventory.visible = flag
+                    endif
                 endif
             endif
         endmethod
 
-        method update takes group g returns nothing
+        method update takes group g, integer id returns nothing
             local integer i = 0
             local integer j
             local unit u
+            local Button b
             
-            set size = BlzGroupGetSize(g)
+            set size[id] = BlzGroupGetSize(g)
 
-            if size > 0 then
-                if index + BUYER_COUNT > size then
-                    set index = 0
+            if size[id] > 0 then
+                if (index.integer[id] + BUYER_COUNT) > size.integer[id] then
+                    set index[id] = 0
                 endif
 
-                if not IsUnitInGroup(selected, g) then
-                    set index = 0
-                    set selected = FirstOfGroup(g)
-                    call inventory.move(FRAMEPOINT_TOP, button[0].frame, FRAMEPOINT_BOTTOM)
-                    call inventory.show(selected)
+                if not IsUnitInGroup(selected.unit[id], g) then
+                    set index[id] = 0
+                    call current.remove(GetHandleId(selected.unit[id]))
+                    set selected.unit[id] = FirstOfGroup(g)
+                    set current[GetHandleId(selected.unit[id])] = this
+
+                    if GetLocalPlayer() == Player(id) then
+                        set b = button[id][0]
+                        call inventory.move(FRAMEPOINT_TOP, b.frame, FRAMEPOINT_BOTTOM)
+                        call inventory.show(selected.unit[id])
+                        call shop.details.refresh()
+                    endif
                 endif
                 
-                set j = index
+                set j = index[id]
 
                 loop
                     exitwhen i == BUYER_COUNT
-                        if j >= size then
-                            set unit[i] = null
-                            set button[i].visible = false
+                        if j >= size[id] then
+                            set unit[id].unit[i] = null
+
+                            if GetLocalPlayer() == Player(id) then
+                                set b = button[id][i]
+                                set b.visible = false
+                            endif
                         else
                             set u = BlzGroupUnitAt(g, j)
+                            set unit[id].unit[i] = u
 
-                            if selected == u then
-                                set last = button[i]
+                            if selected.unit[id] == u then
+                                set last[id] = button[id][i]
                             endif
 
-                            set unit[i] = u
-                            set button[i].icon = BlzGetAbilityIcon(GetUnitTypeId(u))
-                            set button[i].tooltip.text = GetUnitName(u)
-                            set button[i].highlighted = selected == u
-                            set button[i].visible = true
+                            if GetLocalPlayer() == Player(id) then
+                                set b = button[id][i]
+                                set b.icon = BlzGetAbilityIcon(GetUnitTypeId(u))
+                                set b.tooltip.text = GetUnitName(u)
+                                set b.highlighted = selected.unit[id] == u
+                                set b.visible = true
 
-                            if button[i].highlighted then
-                                set inventory.visible = true
-                                call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
+                                if b.highlighted then
+                                    set inventory.visible = true
+                                    call inventory.move(FRAMEPOINT_TOP, b.frame, FRAMEPOINT_BOTTOM)
+                                endif
                             endif
 
                             set j = j + 1
@@ -1448,29 +1664,42 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     set i = i + 1
                 endloop
             else
-                set index = 0
-                set selected = null
-                set inventory.visible = false
+                call current.remove(GetHandleId(selected.unit[id]))
 
-                loop
-                    exitwhen i == BUYER_COUNT
-                        set unit[i] = null
-                        set button[i].highlighted = false
-                        set button[i].visible = false
-                    set i = i + 1
-                endloop
+                set index[id] = 0
+                set selected.unit[id] = null
+
+                if GetLocalPlayer() == Player(id) then
+                    set inventory.visible = false
+
+                    loop
+                        exitwhen i == BUYER_COUNT
+                            set b = button[id][i]
+                            set unit[id].unit[i] = null
+                            set b.highlighted = false
+                            set b.visible = false
+                        set i = i + 1
+                    endloop
+
+                    call shop.details.refresh()
+                endif
             endif
         endmethod
 
         static method create takes Shop shop returns thistype
             local thistype this = thistype.allocate()
             local integer i = 0
+            local integer j = 0
+            local Button b
 
             set .shop = shop
-            set index = 0
-            set size = 0
-            set selected = null
             set isVisible = true
+            set last = Table.create()
+            set size = Table.create()
+            set index = Table.create()
+            set selected = Table.create()
+            set button = HashTable.create()
+            set unit = HashTable.create()
             set frame = BlzCreateFrame("EscMenuBackdrop", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 0, 0)
             set scrollFrame = BlzCreateFrameByType("BUTTON", "", frame, "", 0)
             set left = Button.create(scrollFrame, BUYER_SHIFT_BUTTON_SIZE, BUYER_SHIFT_BUTTON_SIZE, 0.027500, - 0.032500, true)
@@ -1492,13 +1721,20 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             call BlzTriggerRegisterFrameEvent(trigger, scrollFrame, FRAMEEVENT_MOUSE_WHEEL)
 
             loop
-                exitwhen i == BUYER_COUNT
-                    set button[i] = Button.create(scrollFrame, BUYER_SIZE, BUYER_SIZE, 0.045000 + BUYER_GAP*i, - 0.023000, true)
-                    set button[i].onClick = function thistype.onClick
-                    set button[i].onScroll = function thistype.onScroll
-                    set button[i].visible = false
-                    set table[GetHandleId(button[i].frame)][0] = this
-                    set table[GetHandleId(button[i].frame)][1] = i
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    set j = 0
+
+                    loop
+                        exitwhen j == BUYER_COUNT
+                            set b = Button.create(scrollFrame, BUYER_SIZE, BUYER_SIZE, 0.045000 + BUYER_GAP*j, - 0.023000, true)
+                            set b.onClick = function thistype.onClick
+                            set b.onScroll = function thistype.onScroll
+                            set b.visible = false
+                            set table[GetHandleId(b.frame)][0] = this
+                            set table[GetHandleId(b.frame)][1] = j
+                            set button[i][j] = b
+                        set j = j + 1
+                    endloop
                 set i = i + 1
             endloop
 
@@ -1509,9 +1745,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
 
             if this != 0 then
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    call shift(BlzGetTriggerFrameValue() < 0)
-                endif
+                call shift(BlzGetTriggerFrameValue() < 0, GetTriggerPlayer())
             endif
         endmethod
 
@@ -1519,33 +1753,86 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local framehandle frame = BlzGetTriggerFrame()
             local thistype this = table[GetHandleId(frame)][0]
             local integer i = table[GetHandleId(frame)][1]
+            local integer id = GetPlayerId(GetTriggerPlayer())
+            local Button b
 
             if this != 0 then
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    if frame == left.frame then
-                        call shift(false)
-                    elseif frame == right.frame then
-                        call shift(true)
-                    else
-                        set selected = unit[i]
-                        set last.highlighted = false
-                        set button[i].highlighted = true
-                        set last = button[i]
+                if frame == left.frame then
+                    call shift(false, GetTriggerPlayer())
+                elseif frame == right.frame then
+                    call shift(true, GetTriggerPlayer())
+                else
+                    call current.remove(GetHandleId(selected.unit[id]))
+                    set selected.unit[id] = unit[id].unit[i]
+                    set current[GetHandleId(selected.unit[id])] = this
+
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        set b = last[id]
+                        set b.highlighted = false
+                        set b = button[id][i]
+                        set b.highlighted = true
+                        set last[id] = button[id][i]
                         
-                        call inventory.move(FRAMEPOINT_TOP, button[i].frame, FRAMEPOINT_BOTTOM)
-                        call inventory.show(selected)
-                    endif 
-                endif
+                        call inventory.move(FRAMEPOINT_TOP, b.frame, FRAMEPOINT_BOTTOM)
+                        call inventory.show(selected.unit[id])
+                        call shop.details.refresh()
+                    endif
+                endif 
 
                 call BlzFrameSetEnable(frame, false)
                 call BlzFrameSetEnable(frame, true)
+                call BJDebugMsg(GetUnitName(selected.unit[id]))
             endif
 
             set frame = null
         endmethod
 
+        private static method onPickup takes nothing returns nothing
+            local unit u = GetManipulatingUnit()
+            local integer i = GetPlayerId(GetOwningPlayer(u))
+            local thistype this = current[GetHandleId(u)]
+
+            if this != 0 then
+                if shop.current[i] != null then
+                    if GetLocalPlayer() == GetOwningPlayer(u) then
+                        if selected.unit[i] == u and IsUnitInRange(u, shop.current[i], shop.aoe) then
+                            call inventory.show(u)
+                            call shop.details.refresh()
+                            call BJDebugMsg(GetUnitName(u) + " picked up " + GetItemName(GetManipulatedItem()))
+                        endif
+                    endif
+                endif
+            endif
+
+            set u = null
+        endmethod
+
+        private static method onDrop takes nothing returns nothing
+            local unit u = GetManipulatingUnit()
+            local integer i = GetPlayerId(GetOwningPlayer(u))
+            local thistype this = current[GetHandleId(u)]
+
+            if this != 0 then
+                if shop.current[i] != null then
+                    if GetLocalPlayer() == GetOwningPlayer(u) then
+                        if selected.unit[i] == u and IsUnitInRange(u, shop.current[i], shop.aoe) then
+                            call inventory.show(u)
+                            call shop.details.refresh()
+                            call BJDebugMsg(GetUnitName(u) + " dropped " + GetItemName(GetManipulatedItem()))
+                        endif
+                    endif
+                endif
+            endif
+
+            set u = null
+        endmethod
+
         static method onInit takes nothing returns nothing
+            set current = Table.create()
+
             call TriggerAddAction(trigger, function thistype.onScroll)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, function thistype.onPickup)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function thistype.onDrop)
         endmethod
     endstruct
 
@@ -1631,6 +1918,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     set button[i] = Button.create(shop.rightPanel, CATEGORY_SIZE, CATEGORY_SIZE, 0.023750, - (0.021500 + CATEGORY_SIZE*i + CATEGORY_GAP), false)
                     set button[i].visible = false
                     set button[i].onClick = function thistype.onClick
+                    set button[i].onDoubleClick = function thistype.onDoubleClick
                     set button[i].tooltip.point = FRAMEPOINT_TOPRIGHT
                     set table[GetHandleId(button[i].frame)][0] = this
                     set table[GetHandleId(button[i].frame)][1] = i
@@ -1657,6 +1945,18 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                         call shop.detail(item[i])
                     endif
                 endif
+            endif
+
+            set frame = null
+        endmethod
+
+        static method onDoubleClick takes nothing returns nothing
+            local framehandle frame = BlzGetTriggerFrame()
+            local thistype this = table[GetHandleId(frame)][0]
+            local integer i = table[GetHandleId(frame)][1]
+
+            if this != 0 then
+                call shop.buy(item[i], GetTriggerPlayer())
             endif
 
             set frame = null
@@ -1758,14 +2058,16 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private static trigger search = CreateTrigger()
         private static trigger keyPress = CreateTrigger()
         private static trigger escPressed = CreateTrigger()
-        private static integer count = -1
         private static timer update = CreateTimer()
+        private static integer count = -1
         private static HashTable itempool
         readonly static group array group
         readonly static timer array timer
         readonly static boolean array canScroll
         readonly static boolean array tag
         readonly static unit array current
+        static HashTable unit
+        static HashTable item
 
         private boolean isVisible
 
@@ -1801,6 +2103,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
             if not visibility then
                 set buyer.index = 0
+            else
+                if details.visible then
+                    call details.refresh()
+                endif
             endif
 
             call BlzFrameSetVisible(base, visibility)
@@ -1836,6 +2142,68 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set main = null
             set leftPanel = null
             set rightPanel = null
+        endmethod
+
+        method buy takes Item i, player p returns boolean
+            local Item component
+            local integer j = 0
+            local integer k = 0
+            local integer cost = i.gold
+            local integer gold = GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD)
+            local unit u = buyer.selected.unit[GetPlayerId(p)]
+            local boolean canBuy = true
+
+            call BJDebugMsg(i.name)
+            call BJDebugMsg(GetUnitName(u))
+
+            // if i != 0 then
+            //     if has(i.id) then
+            //         if i.components > 0 then
+            //             loop
+            //                 exitwhen j == i.components or not canBuy
+            //                     set component = Item.get(i.component[j])
+
+            //                     if UnitCountItemOfType(u, component.id) >= i.count(component.id) then
+            //                         set cost = cost - component.gold
+            //                     else
+            //                         set canBuy = has(component.id)
+            //                     endif
+            //                 set j = j + 1
+            //             endloop
+            //         endif
+
+            //         if canBuy and gold >= cost then
+            //             call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, gold - cost)
+            //             set j = 0
+
+            //             if i.components > 0 then
+            //                 loop
+            //                     exitwhen j == i.components
+            //                         set k = 0
+            //                         loop
+            //                             exitwhen k == UnitInventorySize(u)
+            //                                 if GetItemTypeId(UnitItemInSlot(u, k)) == i.component[j] then
+            //                                     call RemoveItem(UnitItemInSlot(u, k))
+            //                                     exitwhen true
+            //                                 endif
+            //                             set k = k + 1
+            //                         endloop
+            //                     set j = j + 1
+            //                 endloop
+            //             endif
+
+            //             call UnitAddItem(u, CreateItem(i.id, GetUnitX(u), GetUnitY(u)))
+            //         else
+            //             set canBuy = false
+            //         endif
+            //     endif
+            // endif
+
+            return canBuy
+        endmethod
+
+        method sell takes Item i, player p returns nothing
+            call BJDebugMsg("Sell " + i.name)
         endmethod
 
         method scroll takes boolean down returns nothing
@@ -1929,8 +2297,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 set rows = ROWS
                 set columns = COLUMNS
                 set detailed  = false
+                set details.visible = false
                 call filter(category.active, category.andLogic)
-                call details.hide()
+                // call details.hide()
             endif
         endmethod
 
@@ -2093,29 +2462,37 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         endmethod
 
         private static method onPeriod takes nothing returns nothing
-            local integer i = GetPlayerId(GetLocalPlayer())
-            local unit shop = current[i]
-            local group g = CreateGroup()
-            local thistype this = table[GetUnitTypeId(shop)][0]
+            local thistype this
+            local unit shop
             local unit u
+            local group g
+            local integer i = 0
 
-            if this != 0 then
-                call GroupClear(group[i])
-                call GroupEnumUnitsInRange(g, GetUnitX(shop), GetUnitY(shop), aoe, null)
-                
-                loop
-                    set u = FirstOfGroup(g)
-                    exitwhen u == null
-                        if ShopFilter(u, GetLocalPlayer(), shop) then
-                            call GroupAddUnit(group[i], u)
-                        endif
-                    call GroupRemoveUnit(g, u)
-                endloop
+            loop
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    set g = CreateGroup()
+                    set shop = current[i]
+                    set this = table[GetUnitTypeId(shop)][0]
 
-                call buyer.update(group[i])
-            endif
-            
-            call DestroyGroup(g)
+                    if this != 0 then
+                        call GroupClear(group[i])
+                        call GroupEnumUnitsInRange(g, GetUnitX(shop), GetUnitY(shop), aoe, null)
+                        
+                        loop
+                            set u = FirstOfGroup(g)
+                            exitwhen u == null
+                                if ShopFilter(u, Player(i), shop) then
+                                    call GroupAddUnit(group[i], u)
+                                endif
+                            call GroupRemoveUnit(g, u)
+                        endloop
+
+                        call buyer.update(group[i], i)
+                    endif
+
+                    call DestroyGroup(g)
+                set i = i + 1
+            endloop
 
             set g = null
             set shop = null
@@ -2207,17 +2584,16 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
         private static method onSelect takes nothing returns nothing
             local thistype this = table[GetUnitTypeId(GetTriggerUnit())][0]
-            local ShopSlot slot
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
                     set visible = GetTriggerEventId() == EVENT_PLAYER_UNIT_SELECTED
+                endif
 
-                    if visible then
-                        set current[GetPlayerId(GetLocalPlayer())] = GetTriggerUnit()
-                    else
-                        set current[GetPlayerId(GetLocalPlayer())] = null
-                    endif
+                if GetTriggerEventId() == EVENT_PLAYER_UNIT_SELECTED then
+                    set current[GetPlayerId(GetTriggerPlayer())] = GetTriggerUnit()
+                else
+                    set current[GetPlayerId(GetTriggerPlayer())] = null
                 endif
             endif
         endmethod
@@ -2248,6 +2624,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private static method onInit takes nothing returns nothing
             local integer i = 0
 
+            set unit = HashTable.create()
+            set item = HashTable.create()
             set table = HashTable.create()
             set itempool = HashTable.create()
 
