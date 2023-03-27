@@ -1,7 +1,7 @@
 library Components requires Table
     /* ------------------------------------ Components v1.0 ------------------------------------ */
     // Credits:
-    //      Taysen: TasItemShop and FDF file
+    //      Taysen: FDF file
     //      Bribe: Table library
     /* -------------------------------------- By Chopinski ------------------------------------- */
 
@@ -190,6 +190,7 @@ library Components requires Table
         private framehandle availableFrame
         private framehandle checkedFrame
         private framehandle highlightFrame
+        private framehandle spriteFrame
         private framehandle parent
         private boolean isVisible
         private boolean isAvailable
@@ -376,6 +377,7 @@ library Components requires Table
             call DestroyTrigger(scroll)
             call DestroyTrigger(doubleClick)
             call DestroyTrigger(rightClick)
+            call BlzDestroyFrame(spriteFrame)
             call BlzDestroyFrame(frame)
             call BlzDestroyFrame(iconFrame)
             call BlzDestroyFrame(availableFrame)
@@ -385,6 +387,7 @@ library Components requires Table
 
             set availableFrame = null
             set checkedFrame = null
+            set spriteFrame = null
             set iconFrame = null
             set doubleClick = null
             set rightClick = null
@@ -392,6 +395,17 @@ library Components requires Table
             set scroll = null
             set frame = null
             set click = null
+        endmethod
+
+        method play takes string model, real scale, integer animation returns nothing
+            if model != "" and model != null then
+                call BlzFrameClearAllPoints(spriteFrame)
+                call BlzFrameSetPoint(spriteFrame, FRAMEPOINT_CENTER, frame, FRAMEPOINT_CENTER, 0, 0)
+                call BlzFrameSetSize(spriteFrame, widhtSize, heightSize)
+                call BlzFrameSetModel(spriteFrame, model, 0)
+                call BlzFrameSetScale(spriteFrame, scale)
+                call BlzFrameSetSpriteAnimate(spriteFrame, animation, 0)
+            endif
         endmethod
 
         static method create takes framehandle owner, real width, real height, real x, real y, boolean simpleTooltip returns thistype
@@ -412,6 +426,7 @@ library Components requires Table
             set checkedFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)
             set highlightFrame = BlzCreateFrame("HighlightFrame", iconFrame, 0, 0)
             set frame = BlzCreateFrame("IconButtonTemplate", iconFrame, 0, 0)
+            set spriteFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
             set tooltip = Tooltip.create(frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT, simpleTooltip)
             set table[GetHandleId(frame)] = this
             
