@@ -191,6 +191,7 @@ library Components requires Table
         private framehandle checkedFrame
         private framehandle highlightFrame
         private framehandle spriteFrame
+        private framehandle displayFrame
         private framehandle parent
         private boolean isVisible
         private boolean isAvailable
@@ -377,6 +378,7 @@ library Components requires Table
             call DestroyTrigger(scroll)
             call DestroyTrigger(doubleClick)
             call DestroyTrigger(rightClick)
+            call BlzDestroyFrame(displayFrame)
             call BlzDestroyFrame(spriteFrame)
             call BlzDestroyFrame(frame)
             call BlzDestroyFrame(iconFrame)
@@ -388,6 +390,7 @@ library Components requires Table
             set availableFrame = null
             set checkedFrame = null
             set spriteFrame = null
+            set displayFrame = null
             set iconFrame = null
             set doubleClick = null
             set rightClick = null
@@ -405,6 +408,19 @@ library Components requires Table
                 call BlzFrameSetModel(spriteFrame, model, 0)
                 call BlzFrameSetScale(spriteFrame, scale)
                 call BlzFrameSetSpriteAnimate(spriteFrame, animation, 0)
+            endif
+        endmethod
+
+        method display takes string model, real width, real height, real scale, framepointtype point, framepointtype relativePoint, real offsetX, real offsetY returns nothing
+            if model != "" and model != null then
+                call BlzFrameClearAllPoints(displayFrame)
+                call BlzFrameSetPoint(displayFrame, point, frame, relativePoint, offsetX, offsetY)
+                call BlzFrameSetSize(displayFrame, width, height)
+                call BlzFrameSetScale(displayFrame, scale)
+                call BlzFrameSetModel(displayFrame, model, 0)
+                call BlzFrameSetVisible(displayFrame, true)
+            else
+                call BlzFrameSetVisible(displayFrame, false)
             endif
         endmethod
 
@@ -426,6 +442,7 @@ library Components requires Table
             set checkedFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)
             set highlightFrame = BlzCreateFrame("HighlightFrame", iconFrame, 0, 0)
             set frame = BlzCreateFrame("IconButtonTemplate", iconFrame, 0, 0)
+            set displayFrame = BlzCreateFrameByType("SPRITE", "", frame, "WarCraftIIILogo", 0)
             set spriteFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
             set tooltip = Tooltip.create(frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT, simpleTooltip)
             set table[GetHandleId(frame)] = this

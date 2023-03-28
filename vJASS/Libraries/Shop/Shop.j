@@ -85,6 +85,12 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private constant real SLOT_GAP_X                = 0.018
         private constant real SLOT_GAP_Y                = 0.022
         private constant string GOLD_ICON               = "UI\\Feedback\\Resources\\ResourceGold.blp"
+        private constant string ITEM_HIGHLIGHT          = "neon_sprite.mdx"
+        private constant real HIGHLIGHT_WIDTH           = 0.00001
+        private constant real HIGHLIGHT_HEIGHT          = 0.00001
+        private constant real HIGHLIGHT_SCALE           = 0.75
+        private constant real HIGHLIGHT_XOFFSET         = -0.0052
+        private constant real HIGHLIGHT_YOFFSET         = -0.0048
 
         // Scroll
         private constant real SCROLL_DELAY              = 0.01
@@ -523,12 +529,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 else
                     call shop.detail(item, p)
 
-                    if shop.lastClicked[id] != 0 then
-                        set Button(shop.lastClicked[id]).highlighted = false
+                    if GetLocalPlayer() == p then
+                        if shop.lastClicked[id] != 0 then
+                            call Button(shop.lastClicked[id]).display(null, 0, 0, 0, null, null, 0, 0)
+                        endif
+        
+                        call button.display(ITEM_HIGHLIGHT, HIGHLIGHT_WIDTH, HIGHLIGHT_HEIGHT, HIGHLIGHT_SCALE, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
+                        set shop.lastClicked[id] = button
                     endif
-    
-                    set button.highlighted = true
-                    set shop.lastClicked[id] = button
                 endif
             endif
 
