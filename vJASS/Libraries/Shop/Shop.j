@@ -4,6 +4,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
     //      Taysen: FDF file and A2S function
     //      Bribe: Table library
     //      Magtheridon: RegisterPlayerUnitEvent library
+    //      Hate: Frame border effects
     /* -------------------------------------- By Chopinski ------------------------------------- */
 
     /* ----------------------------------------------------------------------------------------- */
@@ -1614,7 +1615,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     exitwhen i == BUYER_COUNT
                         if unit[id].unit[i] == selected.unit[id] then
                             call inventory.move(FRAMEPOINT_TOP, Button(button[id][i]).frame, FRAMEPOINT_BOTTOM)
-                            // call inventory.show(selected.unit[id])
                             exitwhen true
                         endif
                     set i = i + 1
@@ -2414,6 +2414,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                         if not GetSoundIsPlaying(success) then
                             call StartSoundForPlayerBJ(p, success)
                         endif
+
+                        call buyer.inventory.show(u)
+                        call details.refresh(p)
                     else
                         set canBuy = false
 
@@ -2465,6 +2468,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 if GetItemTypeId(UnitItemInSlot(u, slot)) == i.id then
                     call RemoveItem(UnitItemInSlot(u, slot))
                     call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, gold + cost)
+                    call buyer.inventory.show(u)
+                    call details.refresh(p)
                     set sold = true
                 endif
 
