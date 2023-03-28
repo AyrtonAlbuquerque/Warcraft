@@ -192,6 +192,7 @@ library Components requires Table
         private framehandle highlightFrame
         private framehandle spriteFrame
         private framehandle displayFrame
+        private framehandle tagFrame
         private framehandle parent
         private boolean isVisible
         private boolean isAvailable
@@ -380,6 +381,7 @@ library Components requires Table
             call DestroyTrigger(rightClick)
             call BlzDestroyFrame(displayFrame)
             call BlzDestroyFrame(spriteFrame)
+            call BlzDestroyFrame(tagFrame)
             call BlzDestroyFrame(frame)
             call BlzDestroyFrame(iconFrame)
             call BlzDestroyFrame(availableFrame)
@@ -392,6 +394,7 @@ library Components requires Table
             set spriteFrame = null
             set displayFrame = null
             set iconFrame = null
+            set tagFrame = null
             set doubleClick = null
             set rightClick = null
             set parent = null
@@ -424,6 +427,19 @@ library Components requires Table
             endif
         endmethod
 
+        method tag takes string model, real width, real height, real scale, framepointtype point, framepointtype relativePoint, real offsetX, real offsetY returns nothing
+            if model != "" and model != null then
+                call BlzFrameClearAllPoints(tagFrame)
+                call BlzFrameSetPoint(tagFrame, point, frame, relativePoint, offsetX, offsetY)
+                call BlzFrameSetSize(tagFrame, width, height)
+                call BlzFrameSetScale(tagFrame, scale)
+                call BlzFrameSetModel(tagFrame, model, 0)
+                call BlzFrameSetVisible(tagFrame, true)
+            else
+                call BlzFrameSetVisible(tagFrame, false)
+            endif
+        endmethod
+
         static method create takes framehandle owner, real width, real height, real x, real y, boolean simpleTooltip returns thistype
             local thistype this = thistype.allocate()
             local integer i = 0
@@ -443,6 +459,7 @@ library Components requires Table
             set highlightFrame = BlzCreateFrame("HighlightFrame", iconFrame, 0, 0)
             set frame = BlzCreateFrame("IconButtonTemplate", iconFrame, 0, 0)
             set displayFrame = BlzCreateFrameByType("SPRITE", "", frame, "WarCraftIIILogo", 0)
+            set tagFrame = BlzCreateFrameByType("SPRITE", "", frame, "WarCraftIIILogo", 0)
             set spriteFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
             set tooltip = Tooltip.create(frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT, simpleTooltip)
             set table[GetHandleId(frame)] = this

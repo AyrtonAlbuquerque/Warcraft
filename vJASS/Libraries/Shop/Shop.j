@@ -85,12 +85,22 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private constant real SLOT_GAP_X                = 0.018
         private constant real SLOT_GAP_Y                = 0.022
         private constant string GOLD_ICON               = "UI\\Feedback\\Resources\\ResourceGold.blp"
+
+        // Selected item highlight
         private constant string ITEM_HIGHLIGHT          = "neon_sprite.mdx"
         private constant real HIGHLIGHT_WIDTH           = 0.00001
         private constant real HIGHLIGHT_HEIGHT          = 0.00001
         private constant real HIGHLIGHT_SCALE           = 0.75
         private constant real HIGHLIGHT_XOFFSET         = -0.0052
         private constant real HIGHLIGHT_YOFFSET         = -0.0048
+
+        // Tagged item highlight
+        private constant string TAG_HIGHLIGHT          = "crystallid_sprite.mdx"
+        private constant real TAG_HIGHLIGHT_WIDTH      = 0.00001
+        private constant real TAG_HIGHLIGHT_HEIGHT     = 0.00001
+        private constant real TAG_HIGHLIGHT_SCALE      = 0.75
+        private constant real TAG_HIGHLIGHT_XOFFSET    = -0.0052
+        private constant real TAG_HIGHLIGHT_YOFFSET    = -0.0048
 
         // Scroll
         private constant real SCROLL_DELAY              = 0.01
@@ -2028,6 +2038,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 exitwhen count[id] == -1
                     if GetLocalPlayer() == p then
                         set Button(button[id][count[id]]).visible = false
+                        call ShopSlot(table[shop][Item(item[id][count[id]]).id]).button.tag(null, 0, 0, 0, null, null, 0, 0)
                     endif
                 set count[id] = count[id] - 1
             endloop
@@ -2035,6 +2046,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
         method remove takes integer i, player p returns nothing
             local integer id = GetPlayerId(p)
+
+            if GetLocalPlayer() == p then
+                call ShopSlot(table[shop][Item(item[id][i]).id]).button.tag(null, 0, 0, 0, null, null, 0, 0)
+            endif
 
             loop
                 exitwhen i >= count[id]
@@ -2070,6 +2085,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                         set Button(button[id][count[id]]).tooltip.name = i.name
                         set Button(button[id][count[id]]).tooltip.icon = i.icon
                         set Button(button[id][count[id]]).visible = true
+                        call ShopSlot(table[shop][i.id]).button.tag(TAG_HIGHLIGHT, TAG_HIGHLIGHT_WIDTH, TAG_HIGHLIGHT_HEIGHT, TAG_HIGHLIGHT_SCALE, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT, TAG_HIGHLIGHT_XOFFSET, TAG_HIGHLIGHT_YOFFSET)
                     endif
                 endif
             endif
