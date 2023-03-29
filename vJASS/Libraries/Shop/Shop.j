@@ -540,14 +540,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 else
                     call shop.detail(item, p)
 
-                    if GetLocalPlayer() == p then
-                        if shop.lastClicked[id] != 0 then
-                            call Button(shop.lastClicked[id]).display(null, 0, 0, 0, null, null, 0, 0)
-                        endif
+                    // if GetLocalPlayer() == p then
+                    //     if shop.lastClicked[id] != 0 then
+                    //         call Button(shop.lastClicked[id]).display(null, 0, 0, 0, null, null, 0, 0)
+                    //     endif
         
-                        call button.display(ITEM_HIGHLIGHT, HIGHLIGHT_WIDTH, HIGHLIGHT_HEIGHT, HIGHLIGHT_SCALE, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
-                        set shop.lastClicked[id] = button
-                    endif
+                    //     call button.display(ITEM_HIGHLIGHT, HIGHLIGHT_WIDTH, HIGHLIGHT_HEIGHT, HIGHLIGHT_SCALE, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
+                    //     set shop.lastClicked[id] = button
+                    // endif
                 endif
             endif
 
@@ -1288,6 +1288,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 elseif frame == Slot(main[id]).button.frame then
                     if Shop.tag[id] then
                         call shop.favorites.add(Slot(main[id]).item, GetTriggerPlayer())
+                    else
+                        call shop.select(Slot(main[id]).item, GetTriggerPlayer())
                     endif
                 endif
             endif
@@ -2561,6 +2563,19 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             endloop
         endmethod
 
+        method select takes Item i, player p returns nothing
+            local integer id = GetPlayerId(p)
+
+            if i != 0 and GetLocalPlayer() == p then
+                if lastClicked[id] != 0 then
+                    call Button(lastClicked[id]).display(null, 0, 0, 0, null, null, 0, 0)
+                endif
+
+                set lastClicked[id] = ShopSlot(table[this][i.id]).button
+                call Button(lastClicked[id]).display(ITEM_HIGHLIGHT, HIGHLIGHT_WIDTH, HIGHLIGHT_HEIGHT, HIGHLIGHT_SCALE, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
+            endif
+        endmethod
+
         method detail takes Item i, player p returns nothing
             if i != 0 then
                 if GetLocalPlayer() == p then
@@ -2573,6 +2588,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     endif
                 endif
 
+                call select(i, p)
                 call details.show(i, p)
             else
                 if GetLocalPlayer() == p then
