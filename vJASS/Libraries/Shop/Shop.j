@@ -25,6 +25,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private constant string CLEAR_ICON              = "ReplaceableTextures\\CommandButtons\\BTNCancel.blp"
         private constant string HELP_ICON               = "UI\\Widgets\\EscMenu\\Human\\quest-unknown.blp"
         private constant string LOGIC_ICON              = "ReplaceableTextures\\CommandButtons\\BTNMagicalSentry.blp"
+        private constant string UNDO_ICON               = "ReplaceableTextures\\CommandButtons\\BTNReplay-Loop.blp"
+        private constant string DISMANTLE_ICON          = "UI\\Feedback\\Resources\\ResourceUpkeep.blp"
 
         // Buyer Panel
         private constant real BUYER_WIDTH               = WIDTH/2
@@ -577,6 +579,108 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     endif
                 endif
             endif
+        endmethod
+    endstruct
+
+    private struct Transaction
+        private integer index
+
+        Shop shop
+        Item item
+        unit unit
+        player player
+        string type
+        integer gold
+        Table component
+
+        method destroy takes nothing returns nothing
+            call component.destroy()
+            call deallocate()
+
+            set unit = null
+            set player = null
+        endmethod
+
+        method rollback takes nothing returns nothing
+            local integer i = 0
+            local integer j = 0
+            local integer id = GetPlayerId(player)
+
+            if IsUnitInGroup(unit, shop.group[id]) then
+                if type == "buy" then
+                    loop
+                        exitwhen i == UnitInventorySize(unit)
+                            if GetItemTypeId(UnitItemInSlot(unit, i)) == item.id then
+                                call RemoveItem(UnitItemInSlot(unit, i))
+                                exitwhen true
+                            endif
+                        set i = i + 1
+                    endloop
+
+                    set i = 0 
+
+                    loop
+                        exitwhen i == index
+                            call UnitAddItemById(unit, Item(component[i]).id)
+                        set i = i + 1
+                    endloop
+
+                    call SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) + gold)
+                elseif type == "sell" then
+                    call UnitAddItemById(unit, item.id)
+                    call SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) - gold)
+                else
+                    loop
+                        exitwhen i == item.components
+                            set j = 0
+
+                            loop
+                                exitwhen j == UnitInventorySize(unit)
+                                    if GetItemTypeId(UnitItemInSlot(unit, j)) == Item.get(item.component[i]).id then
+                                        call RemoveItem(UnitItemInSlot(unit, j))
+                                        exitwhen true
+                                    endif
+                                set j = j + 1
+                            endloop
+                        set i = i + 1
+                    endloop
+
+                    call UnitAddItemById(unit, item.id)
+                endif
+
+                if not GetSoundIsPlaying(shop.success) then
+                    call StartSoundForPlayerBJ(player, shop.success)
+                endif
+            else
+                if not GetSoundIsPlaying(shop.error) then
+                    call StartSoundForPlayerBJ(player, shop.error)
+                endif
+            endif
+
+            set shop.transactionCount[id] = shop.transactionCount[id] - 1
+            call shop.transaction[id].remove(shop.transactionCount[id])
+            call destroy()
+        endmethod
+
+        method add takes Item i returns nothing
+            if i != 0 then
+                set component[index] = i
+                set index = index + 1
+            endif
+        endmethod
+
+        static method create takes Shop shop, unit u, Item i, string transaction returns thistype
+            local thistype this = thistype.allocate()
+
+            set item = i
+            set unit = u
+            set .shop = shop
+            set type = transaction
+            set index = 0
+            set player = GetOwningPlayer(u)
+            set component = Table.create()
+
+            return this
         endmethod
     endstruct
 
@@ -1422,6 +1526,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         Shop shop
         framehandle frame
         framehandle scrollFrame
+        Table selected
         HashTable item
         HashTable button
 
@@ -1456,6 +1561,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
             call BlzDestroyFrame(frame)
             call BlzDestroyFrame(scrollFrame)
+            call selected.destroy()
             call button.destroy()
             call item.destroy()
             call deallocate()
@@ -1520,6 +1626,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
             set .shop = shop
             set isVisible = true
+            set selected = Table.create()
             set item = HashTable.create()
             set button = HashTable.create()
             set frame = BlzCreateFrameByType("BACKDROP", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
@@ -1538,6 +1645,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                         exitwhen j == INVENTORY_COUNT
                             set button[i][j] = Button.create(scrollFrame, INVENTORY_SIZE, INVENTORY_SIZE, 0.0033700 + INVENTORY_GAP*j, - 0.0037500, false)
                             set Button(button[i][j]).tooltip.point = FRAMEPOINT_BOTTOM
+                            set Button(button[i][j]).onClick = function thistype.onClick
                             set Button(button[i][j]).onDoubleClick = function thistype.onDoubleClick
                             set Button(button[i][j]).onRightClick = function thistype.onRightClick
                             set Button(button[i][j]).visible = false
@@ -1549,6 +1657,18 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             endloop
 
             return this
+        endmethod
+
+        static method onClick takes nothing returns nothing
+            local framehandle frame = BlzGetTriggerFrame()
+            local thistype this = table[GetHandleId(frame)][0]
+            local integer i = table[GetHandleId(frame)][1]
+
+            if this != 0 then
+                set selected[GetPlayerId(GetTriggerPlayer())] = i
+            endif
+
+            set frame = null
         endmethod
 
         static method onDoubleClick takes nothing returns nothing
@@ -1926,6 +2046,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     set current[GetHandleId(selected.unit[id])] = this
                     call IssueNeutralTargetOrder(GetTriggerPlayer(), shop.current[id], "smart", selected.unit[id])
                     call inventory.show(selected.unit[id])
+                    call inventory.selected.remove(id)
 
                     if GetLocalPlayer() == GetTriggerPlayer() then
                         set Button(last[id]).highlighted = false
@@ -2267,9 +2388,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private static timer update = CreateTimer()
         private static integer count = -1
         private static HashTable itempool
-        private static sound success
-        private static sound error
-        private static sound array noGold
+        readonly static sound success
+        readonly static sound error
+        readonly static sound array noGold
         readonly static group array group
         readonly static timer array timer
         readonly static boolean array canScroll
@@ -2288,7 +2409,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         readonly Detail details
         readonly Buyer buyer
         readonly Button close
-        readonly Button help
+        readonly Button break
+        readonly Button revert
         readonly Button logic
         readonly Button clearCategory
         readonly Button clearFavorites
@@ -2305,6 +2427,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         readonly real aoe
         readonly real tax
         Table lastClicked
+        HashTable transaction
+        Table transactionCount
 
         method operator visible= takes boolean visibility returns nothing
             set isVisible = visibility
@@ -2326,7 +2450,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         endmethod
 
         method destroy takes nothing returns nothing
+            local integer i = 0
             local ShopSlot slot = itempool[this][0]
+
+            loop
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    call transaction[i].flush()
+                set i = i + 1
+            endloop
 
             loop
                 exitwhen slot == 0
@@ -2342,6 +2473,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             call BlzDestroyFrame(main)
             call BlzDestroyFrame(base)
             call lastClicked.destroy()
+            call transaction.destroy()
+            call transactionCount.destroy()
+            call break.destroy()
+            call revert.destroy()
             call category.destroy()
             call favorites.destroy()
             call details.destroy()
@@ -2358,17 +2493,19 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local unit u
             local item new
             local Item component
+            local Transaction t
             local integer cost
             local integer gold
             local integer j = 0
             local integer k = 0
+            local integer id = GetPlayerId(p)
             local boolean canBuy = false
             local Table counter = Table.create()
 
-            if i != 0 and buyer.selected.unit.has(GetPlayerId(p)) then
+            if i != 0 and buyer.selected.unit.has(id) then
                 if has(i.id) then
                     set canBuy = true
-                    set u = buyer.selected.unit[GetPlayerId(p)]
+                    set u = buyer.selected.unit[id]
                     set gold = GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD)
                     set cost = i.gold
 
@@ -2389,6 +2526,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
                     if canBuy and gold >= cost then
                         call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, gold - cost)
+                        set t = Transaction.create(this, u, i, "buy")
+                        set t.gold = cost
                         set j = 0
 
                         if i.components > 0 then
@@ -2398,6 +2537,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                                     loop
                                         exitwhen k == UnitInventorySize(u)
                                             if GetItemTypeId(UnitItemInSlot(u, k)) == i.component[j] then
+                                                call t.add(Item.get(GetItemTypeId(UnitItemInSlot(u, k))))
                                                 call RemoveItem(UnitItemInSlot(u, k))
                                                 exitwhen true
                                             endif
@@ -2407,6 +2547,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                             endloop
                         endif
 
+                        set transaction[id][transactionCount[id]] = t
+                        set transactionCount[id] = transactionCount[id] + 1
                         set new = CreateItem(i.id, GetUnitX(u), GetUnitY(u))
 
                         if not UnitAddItem(u, new) then
@@ -2451,13 +2593,15 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
         method sell takes Item i, player p, integer slot returns boolean
             local unit u
+            local Transaction t
             local integer cost
             local integer gold
             local integer charges
+            local integer id = GetPlayerId(p)
             local boolean sold = false
 
-            if i != 0 and buyer.selected.unit.has(GetPlayerId(p)) then
-                set u = buyer.selected.unit[GetPlayerId(p)]
+            if i != 0 and buyer.selected.unit.has(id) then
+                set u = buyer.selected.unit[id]
                 set charges = GetItemCharges(UnitItemInSlot(u, slot))
 
                 if charges == 0 then
@@ -2468,11 +2612,16 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 set cost = R2I(R2I(i.gold / i.charges) * charges * tax)
 
                 if GetItemTypeId(UnitItemInSlot(u, slot)) == i.id then
+                    set sold = true
+                    set t = Transaction.create(this, u, i, "sell")
+                    set t.gold = cost
+                    set transaction[id][transactionCount[id]] = t
+                    set transactionCount[id] = transactionCount[id] + 1
+
                     call RemoveItem(UnitItemInSlot(u, slot))
                     call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, gold + cost)
                     call buyer.inventory.show(u)
                     call details.refresh(p)
-                    set sold = true
                 endif
 
                 if not GetSoundIsPlaying(success) then
@@ -2485,6 +2634,78 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             endif
 
             return sold
+        endmethod
+
+        method dismantle takes Item i, player p, integer slot returns nothing
+            local unit u
+            local Transaction t
+            local integer slots = 0
+            local integer j = 0
+            local integer id = GetPlayerId(p)
+
+            if i != 0 and buyer.selected.unit.has(id) then
+                if i.components > 0 then
+                    set u = buyer.selected.unit[id]
+
+                    loop
+                        exitwhen j == UnitInventorySize(u)
+                            if UnitItemInSlot(u, j) == null then
+                                set slots = slots + 1
+                            endif
+                        set j = j + 1
+                    endloop
+
+                    if (slots + 1) >= i.components then
+                        set j = 0
+                        set t = Transaction.create(this, u, i, "dismantle")
+                        set transaction[id][transactionCount[id]] = t
+                        set transactionCount[id] = transactionCount[id] + 1
+
+                        call RemoveItem(UnitItemInSlot(u, slot))
+
+                        loop
+                            exitwhen j == i.components
+                                call UnitAddItemById(u, Item.get(i.component[j]).id)
+                            set j = j + 1
+                        endloop
+
+                        if not GetSoundIsPlaying(success) then
+                            call StartSoundForPlayerBJ(p, success)
+                        endif
+
+                        call buyer.inventory.show(u)
+                        call details.refresh(p)
+                    else
+                        if not GetSoundIsPlaying(error) then
+                            call StartSoundForPlayerBJ(p, error)
+                        endif
+                    endif
+                else
+                    if not GetSoundIsPlaying(error) then
+                        call StartSoundForPlayerBJ(p, error)
+                    endif
+                endif
+            else
+                if not GetSoundIsPlaying(error) then
+                    call StartSoundForPlayerBJ(p, error)
+                endif
+            endif
+
+            set u = null
+        endmethod
+
+        method undo takes player p returns nothing
+            local integer id = GetPlayerId(p)
+
+            if transactionCount[id] > 0 then
+                call Transaction(transaction[id][transactionCount[id] - 1]).rollback()
+                call buyer.inventory.show(buyer.selected.unit[id])
+                call details.refresh(p)
+            else
+                if not GetSoundIsPlaying(error) then
+                    call StartSoundForPlayerBJ(p, error)
+                endif
+            endif
         endmethod
 
         method scroll takes boolean down returns nothing
@@ -2605,6 +2826,20 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             return table[this].has(id)
         endmethod
 
+        method clearTransactions takes player p returns nothing
+            local integer i = 0
+            local integer id = GetPlayerId(p)
+
+            loop
+                exitwhen i == transactionCount[id]
+                    call Transaction(transaction[id][i]).destroy()
+                set i = i + 1
+            endloop
+
+            set transactionCount[id] = 0
+            call transaction[id].flush()
+        endmethod
+
         private method find takes string source, string target returns boolean
             local integer sourceLength = StringLength(source)
             local integer targetLenght = StringLength(target)
@@ -2694,6 +2929,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 set count = count + 1
                 set detailed = false
                 set lastClicked = Table.create()
+                set transactionCount = Table.create()
+                set transaction = HashTable.create()
                 set base = BlzCreateFrame("EscMenuBackdrop", BlzGetFrameByName("ConsoleUIBackdrop", 0), 0, 0)
                 set main = BlzCreateFrameByType("BUTTON", "main", base, "", 0)
                 set edit = BlzCreateFrame("EscMenuEditBoxTemplate", main, 0, 0)
@@ -2707,6 +2944,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 set close.icon = CLOSE_ICON
                 set close.onClick = function thistype.onClose
                 set close.tooltip.text = "Close"
+                set break = Button.create(main, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, (WIDTH - 2*TOOLBAR_BUTTON_SIZE - 0.0205), 0.015000, true)
+                set break.icon = DISMANTLE_ICON
+                set break.onClick = function thistype.onDismantle
+                set break.tooltip.text = "Dismantle"
+                set revert = Button.create(main, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, (WIDTH - 2*TOOLBAR_BUTTON_SIZE - 0.0410), 0.015000, true)
+                set revert.icon = UNDO_ICON
+                set revert.onClick = function thistype.onUndo
+                set revert.tooltip.text = "Undo"
                 set clearCategory = Button.create(leftPanel, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, 0.028000, 0.015000, true)
                 set clearCategory.icon = CLEAR_ICON
                 set clearCategory.onClick = function thistype.onClear
@@ -2723,6 +2968,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 set table[id][0] = this
                 set table[GetHandleId(main)][0] = this
                 set table[GetHandleId(close.frame)][0] = this
+                set table[GetHandleId(break.frame)][0] = this
+                set table[GetHandleId(revert.frame)][0] = this
                 set table[GetHandleId(clearCategory.frame)][0] = this
                 set table[GetHandleId(clearFavorites.frame)][0] = this
                 set table[GetHandleId(logic.frame)][0] = this
@@ -2852,13 +3099,55 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
         private static method onClose takes nothing returns nothing
             local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
+            local player p = GetTriggerPlayer()
+            local integer id = GetPlayerId(p)
 
             if this != 0 then
-                if GetLocalPlayer() == GetTriggerPlayer() then
+                if GetLocalPlayer() == p then
                     set visible = false
-                    set current[GetPlayerId(GetTriggerPlayer())] = null
+                endif
+
+                set current[id] = null
+                call clearTransactions(p)
+            endif
+
+            set p = null
+        endmethod
+
+        private static method onDismantle takes nothing returns nothing
+            local framehandle frame = BlzGetTriggerFrame()
+            local thistype this = table[GetHandleId(frame)][0]
+            local player p = GetTriggerPlayer()
+            local integer id = GetPlayerId(p)
+
+            if this != 0 then
+                call BlzFrameSetEnable(frame, false)
+                call BlzFrameSetEnable(frame, true)
+
+                if buyer.inventory.selected.has(id) then
+                    call dismantle(Item(buyer.inventory.item[id][buyer.inventory.selected[id]]), p, buyer.inventory.selected[id])
+                else
+                    if not GetSoundIsPlaying(error) then
+                        call StartSoundForPlayerBJ(p, error)
+                    endif
                 endif
             endif
+
+            set p = null
+            set frame = null
+        endmethod
+
+        private static method onUndo takes nothing returns nothing
+            local framehandle frame = BlzGetTriggerFrame()
+            local thistype this = table[GetHandleId(frame)][0]
+
+            if this != 0 then
+                call BlzFrameSetEnable(frame, false)
+                call BlzFrameSetEnable(frame, true)
+                call undo(GetTriggerPlayer())
+            endif
+
+            set frame = null
         endmethod
 
         private static method onScroll takes nothing returns nothing
@@ -2884,19 +3173,24 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
         private static method onSelect takes nothing returns nothing
             local thistype this = table[GetUnitTypeId(GetTriggerUnit())][0]
+            local player p = GetTriggerPlayer()
+            local integer id = GetPlayerId(p)
 
             if this != 0 then
-                if GetLocalPlayer() == GetTriggerPlayer() then
+                if GetLocalPlayer() == p then
                     set visible = GetTriggerEventId() == EVENT_PLAYER_UNIT_SELECTED
                 endif
 
                 if GetTriggerEventId() == EVENT_PLAYER_UNIT_SELECTED then
-                    set current[GetPlayerId(GetTriggerPlayer())] = GetTriggerUnit()
-                    call buyer.inventory.show(buyer.selected.unit[GetPlayerId(GetTriggerPlayer())])
+                    set current[id] = GetTriggerUnit()
+                    call buyer.inventory.show(buyer.selected.unit[id])
                 else
-                    set current[GetPlayerId(GetTriggerPlayer())] = null
+                    set current[id] = null
+                    call clearTransactions(p)
                 endif
             endif
+
+            set p = null
         endmethod
 
         private static method onKey takes nothing returns nothing
@@ -2905,21 +3199,26 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
         private static method onEsc takes nothing returns nothing
             local thistype this
+            local player p = GetTriggerPlayer()
             local integer i = 0
-            local integer id = GetHandleId(GetTriggerPlayer())
+            local integer id = GetHandleId(p)
             
             loop
                 exitwhen i > count
                     set this = table[id][table[id][i]]
 
                     if this != 0 then
-                        if GetLocalPlayer() == GetTriggerPlayer() then
+                        if GetLocalPlayer() == p then
                             set visible = false
-                            set current[GetPlayerId(GetTriggerPlayer())] = null
                         endif
+
+                        set current[GetPlayerId(p)] = null
+                        call clearTransactions(p)
                     endif
                 set i = i + 1
             endloop
+
+            set p = null
         endmethod
 
         private static method onInit takes nothing returns nothing
