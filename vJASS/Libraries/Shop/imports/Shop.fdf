@@ -12,7 +12,7 @@ Frame "FRAME" "TooltipBoxFrame" {
     Frame "BACKDROP" "TooltipBox" {
         DecorateFileNames,
         BackdropTileBackground,
-        BackdropBackground  "ToolTipBackground",
+        BackdropBackground  "EscMenuBackground",
         BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
         BackdropCornerSize  0.01,
         BackdropBackgroundSize  0.256,

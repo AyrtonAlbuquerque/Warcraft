@@ -608,27 +608,41 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
             if IsUnitInGroup(unit, shop.group[id]) then
                 if type == "buy" then
-                    loop
-                        exitwhen i == UnitInventorySize(unit)
-                            if GetItemTypeId(UnitItemInSlot(unit, i)) == item.id then
-                                call RemoveItem(UnitItemInSlot(unit, i))
-                                exitwhen true
-                            endif
-                        set i = i + 1
-                    endloop
+                    if UnitHasItemOfType(unit, item.id) then
+                        loop
+                            exitwhen i == UnitInventorySize(unit)
+                                if GetItemTypeId(UnitItemInSlot(unit, i)) == item.id then
+                                    call RemoveItem(UnitItemInSlot(unit, i))
+                                    exitwhen true
+                                endif
+                            set i = i + 1
+                        endloop
 
-                    set i = 0 
+                        set i = 0 
 
-                    loop
-                        exitwhen i == index
-                            call UnitAddItemById(unit, Item(component[i]).id)
-                        set i = i + 1
-                    endloop
+                        loop
+                            exitwhen i == index
+                                call UnitAddItemById(unit, Item(component[i]).id)
+                            set i = i + 1
+                        endloop
 
-                    call SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) + gold)
+                        call SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) + gold)
+
+                        if not GetSoundIsPlaying(shop.success) then
+                            call StartSoundForPlayerBJ(player, shop.success)
+                        endif
+                    else
+                        if not GetSoundIsPlaying(shop.error) then
+                            call StartSoundForPlayerBJ(player, shop.error)
+                        endif
+                    endif
                 elseif type == "sell" then
                     call UnitAddItemById(unit, item.id)
                     call SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) - gold)
+
+                    if not GetSoundIsPlaying(shop.success) then
+                        call StartSoundForPlayerBJ(player, shop.success)
+                    endif
                 else
                     loop
                         exitwhen i == item.components
@@ -646,10 +660,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     endloop
 
                     call UnitAddItemById(unit, item.id)
-                endif
 
-                if not GetSoundIsPlaying(shop.success) then
-                    call StartSoundForPlayerBJ(player, shop.success)
+                    if not GetSoundIsPlaying(shop.success) then
+                        call StartSoundForPlayerBJ(player, shop.success)
+                    endif
                 endif
             else
                 if not GetSoundIsPlaying(shop.error) then
