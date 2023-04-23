@@ -1,5 +1,5 @@
 library Components requires Table
-    /* ------------------------------------ Components v1.0 ------------------------------------ */
+    /* ------------------------------------ Components v1.1 ------------------------------------ */
     // Credits:
     //      Taysen: FDF file
     //      Bribe: Table library

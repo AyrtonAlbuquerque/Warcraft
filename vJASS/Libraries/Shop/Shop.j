@@ -1,5 +1,5 @@
 library Shop requires Table, RegisterPlayerUnitEvent, Components
-    /* --------------------------------------- Shop v1.0 --------------------------------------- */
+    /* --------------------------------------- Shop v1.1 --------------------------------------- */
     // Credits:
     //      Taysen: FDF file and A2S function
     //      Bribe: Table library
@@ -77,7 +77,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         // complain to blizzard, not me
         private constant oskeytype FAVORITE_KEY         = OSKEY_TAB
 
-        // Item slots
+        // ItemTable slots
         private constant real SLOT_WIDTH                = 0.04
         private constant real SLOT_HEIGHT               = 0.05
         private constant real ITEM_SIZE                 = 0.04
@@ -137,15 +137,15 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
     endfunction
 
     function ItemAddComponents takes integer whichItem, integer a, integer b, integer c, integer d, integer e returns nothing
-        call Item.addComponents(whichItem, a, b, c, d, e)
+        call ItemTable.addComponents(whichItem, a, b, c, d, e)
     endfunction
 
     function UnitHasItemOfType takes unit u, integer id returns boolean
-        return Item.hasType(u, id)
+        return ItemTable.hasType(u, id)
     endfunction
 
     function UnitCountItemOfType takes unit u, integer id returns integer
-        return Item.countType(u, id)
+        return ItemTable.countType(u, id)
     endfunction
 
     function ShopFilter takes unit u, player owner, unit shop returns boolean
@@ -173,7 +173,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
     /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
-    struct Item
+    struct ItemTable
         private static unit shop
         private static rect rect
         private static trigger trigger = CreateTrigger()
@@ -362,7 +362,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         readonly framehandle gold
         readonly framehandle cost
 
-        Item item
+        ItemTable item
         Button button
 
         method operator x= takes real newX returns nothing
@@ -425,7 +425,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set parent = null
         endmethod
 
-        static method create takes framehandle parent, Item i, real x, real y, framepointtype point, boolean simpleTooltip returns thistype
+        static method create takes framehandle parent, ItemTable i, real x, real y, framepointtype point, boolean simpleTooltip returns thistype
             local thistype this = thistype.allocate()
 
             set item = i
@@ -496,7 +496,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             endif
         endmethod
 
-        static method create takes Shop shop, Item i, integer row, integer column returns thistype
+        static method create takes Shop shop, ItemTable i, integer row, integer column returns thistype
             local thistype this = thistype.allocate(shop.main, i, 0.030000 + ((SLOT_WIDTH + SLOT_GAP_X) * column), - (0.030000 + ((SLOT_HEIGHT + SLOT_GAP_Y) * row)), FRAMEPOINT_TOPLEFT, false)
 
             set .shop = shop
@@ -586,7 +586,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private integer index
 
         Shop shop
-        Item item
+        ItemTable item
         unit unit
         player player
         string type
@@ -622,7 +622,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
                         loop
                             exitwhen i == index
-                                call UnitAddItemById(unit, Item(component[i]).id)
+                                call UnitAddItemById(unit, ItemTable(component[i]).id)
                             set i = i + 1
                         endloop
 
@@ -650,7 +650,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
                             loop
                                 exitwhen j == UnitInventorySize(unit)
-                                    if GetItemTypeId(UnitItemInSlot(unit, j)) == Item.get(item.component[i]).id then
+                                    if GetItemTypeId(UnitItemInSlot(unit, j)) == ItemTable.get(item.component[i]).id then
                                         call RemoveItem(UnitItemInSlot(unit, j))
                                         exitwhen true
                                     endif
@@ -676,14 +676,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             call destroy()
         endmethod
 
-        method add takes Item i returns nothing
+        method add takes ItemTable i returns nothing
             if i != 0 then
                 set component[index] = i
                 set index = index + 1
             endif
         endmethod
 
-        static method create takes Shop shop, unit u, Item i, string transaction returns thistype
+        static method create takes Shop shop, unit u, ItemTable i, string transaction returns thistype
             local thistype this = thistype.allocate()
 
             set item = i
@@ -827,12 +827,12 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         endmethod
 
         method shift takes boolean left, player p returns nothing
-            local Item i
+            local ItemTable i
             local integer j
             local integer id = GetPlayerId(p)
 
             if left then
-                if Item(item[id]).relation.has(count[id]) and count[id] >= DETAIL_USED_COUNT then
+                if ItemTable(item[id]).relation.has(count[id]) and count[id] >= DETAIL_USED_COUNT then
                     set j = 0
 
                     loop
@@ -840,17 +840,17 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                             set used[id][j] = used[id][j + 1]
 
                             if GetLocalPlayer() == p then
-                                set Button(button[id][j]).icon = Item(used[id][j]).icon
-                                set Button(button[id][j]).tooltip.text = Item(used[id][j]).tooltip
-                                set Button(button[id][j]).tooltip.name = Item(used[id][j]).name
-                                set Button(button[id][j]).tooltip.icon = Item(used[id][j]).icon
-                                set Button(button[id][j]).available = shop.has(Item(used[id][j]).id)
+                                set Button(button[id][j]).icon = ItemTable(used[id][j]).icon
+                                set Button(button[id][j]).tooltip.text = ItemTable(used[id][j]).tooltip
+                                set Button(button[id][j]).tooltip.name = ItemTable(used[id][j]).name
+                                set Button(button[id][j]).tooltip.icon = ItemTable(used[id][j]).icon
+                                set Button(button[id][j]).available = shop.has(ItemTable(used[id][j]).id)
                                 set Button(button[id][j]).visible = true
                             endif
                         set j = j + 1
                     endloop
 
-                    set i = Item.get(Item(item[id]).relation[count[id]])
+                    set i = ItemTable.get(ItemTable(item[id]).relation[count[id]])
 
                     if i != 0 then
                         set count[id] = count[id] + 1
@@ -875,17 +875,17 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                             set used[id][j] = used[id][j - 1]
 
                             if GetLocalPlayer() == p then
-                                set Button(button[id][j]).icon = Item(used[id][j]).icon
-                                set Button(button[id][j]).tooltip.text = Item(used[id][j]).tooltip
-                                set Button(button[id][j]).tooltip.name = Item(used[id][j]).name
-                                set Button(button[id][j]).tooltip.icon = Item(used[id][j]).icon
-                                set Button(button[id][j]).available = shop.has(Item(used[id][j]).id)
+                                set Button(button[id][j]).icon = ItemTable(used[id][j]).icon
+                                set Button(button[id][j]).tooltip.text = ItemTable(used[id][j]).tooltip
+                                set Button(button[id][j]).tooltip.name = ItemTable(used[id][j]).name
+                                set Button(button[id][j]).tooltip.icon = ItemTable(used[id][j]).icon
+                                set Button(button[id][j]).available = shop.has(ItemTable(used[id][j]).id)
                                 set Button(button[id][j]).visible = true
                             endif
                         set j = j - 1
                     endloop
                     
-                    set i = Item.get(Item(item[id]).relation[count[id] - DETAIL_USED_COUNT - 1])
+                    set i = ItemTable.get(ItemTable(item[id]).relation[count[id] - DETAIL_USED_COUNT - 1])
 
                     if i != 0 then
                         set count[id] = count[id] - 1
@@ -905,7 +905,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         endmethod
 
         method showUsed takes player p returns nothing
-            local Item i
+            local ItemTable i
             local integer j = 0
             local integer id = GetPlayerId(p)
             
@@ -920,8 +920,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set j = 0
 
             loop
-                exitwhen not Item(item[id]).relation.has(j) or j == DETAIL_USED_COUNT
-                    set i = Item.get(Item(item[id]).relation[j])
+                exitwhen not ItemTable(item[id]).relation.has(j) or j == DETAIL_USED_COUNT
+                    set i = ItemTable.get(ItemTable(item[id]).relation[j])
 
                     if i != 0 then
                         set used[id][j] = i
@@ -949,8 +949,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             endif
         endmethod
 
-        method show takes Item i, player p returns nothing
-            local Item component
+        method show takes ItemTable i, player p returns nothing
+            local ItemTable component
             local Slot slot
             local integer j = 0
             local integer k = 0
@@ -969,7 +969,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 if i.components > 0 then
                     loop
                         exitwhen j == i.components or k == 5
-                            set component = Item.get(i.component[j])
+                            set component = ItemTable.get(i.component[j])
 
                             if component != 0 then
                                 if i.components == 1 then
@@ -1600,13 +1600,13 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                         set i = UnitItemInSlot(u, j)
 
                         if i != null then
-                            set item[id][j] = Item.get(GetItemTypeId(i))
+                            set item[id][j] = ItemTable.get(GetItemTypeId(i))
 
                             if GetLocalPlayer() == GetOwningPlayer(u) then
-                                set Button(button[id][j]).icon = Item(item[id][j]).icon
-                                set Button(button[id][j]).tooltip.icon = Item(item[id][j]).icon
-                                set Button(button[id][j]).tooltip.name = Item(item[id][j]).name
-                                set Button(button[id][j]).tooltip.text = Item(item[id][j]).tooltip
+                                set Button(button[id][j]).icon = ItemTable(item[id][j]).icon
+                                set Button(button[id][j]).tooltip.icon = ItemTable(item[id][j]).icon
+                                set Button(button[id][j]).tooltip.name = ItemTable(item[id][j]).name
+                                set Button(button[id][j]).tooltip.text = ItemTable(item[id][j]).tooltip
                                 set Button(button[id][j]).visible = true
                             endif
                         else
@@ -2159,7 +2159,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
             loop
                 exitwhen i > count.integer[pid]
-                    if Item(item[pid][i]).id == id then
+                    if ItemTable(item[pid][i]).id == id then
                         return true
                     endif
                 set i = i + 1
@@ -2175,7 +2175,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 exitwhen count[id] == -1
                     if GetLocalPlayer() == p then
                         set Button(button[id][count[id]]).visible = false
-                        call ShopSlot(table[shop][Item(item[id][count[id]]).id]).button.tag(null, 0, 0, 0, null, null, 0, 0)
+                        call ShopSlot(table[shop][ItemTable(item[id][count[id]]).id]).button.tag(null, 0, 0, 0, null, null, 0, 0)
                     endif
                 set count[id] = count[id] - 1
             endloop
@@ -2185,7 +2185,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local integer id = GetPlayerId(p)
 
             if GetLocalPlayer() == p then
-                call ShopSlot(table[shop][Item(item[id][i]).id]).button.tag(null, 0, 0, 0, null, null, 0, 0)
+                call ShopSlot(table[shop][ItemTable(item[id][i]).id]).button.tag(null, 0, 0, 0, null, null, 0, 0)
             endif
 
             loop
@@ -2193,10 +2193,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     set item[id][i] = item[id][i + 1]
 
                     if GetLocalPlayer() == p then
-                        set Button(button[id][i]).icon = Item(item[id][i]).icon
-                        set Button(button[id][i]).tooltip.text = Item(item[id][i]).tooltip
-                        set Button(button[id][i]).tooltip.name = Item(item[id][i]).name
-                        set Button(button[id][i]).tooltip.icon = Item(item[id][i]).icon
+                        set Button(button[id][i]).icon = ItemTable(item[id][i]).icon
+                        set Button(button[id][i]).tooltip.text = ItemTable(item[id][i]).tooltip
+                        set Button(button[id][i]).tooltip.name = ItemTable(item[id][i]).name
+                        set Button(button[id][i]).tooltip.icon = ItemTable(item[id][i]).icon
                     endif
                 set i = i + 1
             endloop
@@ -2208,7 +2208,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set count[id] = count[id] - 1
         endmethod
 
-        method add takes Item i, player p returns nothing
+        method add takes ItemTable i, player p returns nothing
             local integer id = GetPlayerId(p)
 
             if count.integer[id] < CATEGORY_COUNT - 1 then
@@ -2503,10 +2503,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set rightPanel = null
         endmethod
 
-        method buy takes Item i, player p returns boolean
+        method buy takes ItemTable i, player p returns boolean
             local unit u
             local item new
-            local Item component
+            local ItemTable component
             local Transaction t
             local integer cost
             local integer gold
@@ -2526,7 +2526,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     if i.components > 0 then
                         loop
                             exitwhen j == i.components or not canBuy
-                                set component = Item.get(i.component[j])
+                                set component = ItemTable.get(i.component[j])
 
                                 if UnitHasItemOfType(u, component.id) and counter.integer[component.id] < UnitCountItemOfType(u, component.id) then
                                     set cost = cost - component.gold
@@ -2551,7 +2551,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                                     loop
                                         exitwhen k == UnitInventorySize(u)
                                             if GetItemTypeId(UnitItemInSlot(u, k)) == i.component[j] then
-                                                call t.add(Item.get(GetItemTypeId(UnitItemInSlot(u, k))))
+                                                call t.add(ItemTable.get(GetItemTypeId(UnitItemInSlot(u, k))))
                                                 call RemoveItem(UnitItemInSlot(u, k))
                                                 exitwhen true
                                             endif
@@ -2605,7 +2605,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             return canBuy
         endmethod
 
-        method sell takes Item i, player p, integer slot returns boolean
+        method sell takes ItemTable i, player p, integer slot returns boolean
             local unit u
             local Transaction t
             local integer cost
@@ -2650,7 +2650,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             return sold
         endmethod
 
-        method dismantle takes Item i, player p, integer slot returns nothing
+        method dismantle takes ItemTable i, player p, integer slot returns nothing
             local unit u
             local Transaction t
             local integer slots = 0
@@ -2679,7 +2679,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
                         loop
                             exitwhen j == i.components
-                                call UnitAddItemById(u, Item.get(i.component[j]).id)
+                                call UnitAddItemById(u, ItemTable.get(i.component[j]).id)
                             set j = j + 1
                         endloop
 
@@ -2798,7 +2798,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             endloop
         endmethod
 
-        method select takes Item i, player p returns nothing
+        method select takes ItemTable i, player p returns nothing
             local integer id = GetPlayerId(p)
 
             if i != 0 and GetLocalPlayer() == p then
@@ -2811,7 +2811,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             endif
         endmethod
 
-        method detail takes Item i, player p returns nothing
+        method detail takes ItemTable i, player p returns nothing
             if i != 0 then
                 if GetLocalPlayer() == p then
                     set rows = DETAILED_ROWS
@@ -2885,11 +2885,11 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         static method addItem takes integer id, integer itemId, integer categories returns nothing
             local thistype this = table[id][0]
             local ShopSlot slot
-            local Item i
+            local ItemTable i
 
             if this != 0 then
                 if not table[this].has(itemId) then
-                    set i = Item.create(itemId, categories)
+                    set i = ItemTable.create(itemId, categories)
                     
                     if i != 0 then
                         set size = size + 1
@@ -3139,7 +3139,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 call BlzFrameSetEnable(frame, true)
 
                 if buyer.inventory.selected.has(id) then
-                    call dismantle(Item(buyer.inventory.item[id][buyer.inventory.selected[id]]), p, buyer.inventory.selected[id])
+                    call dismantle(ItemTable(buyer.inventory.item[id][buyer.inventory.selected[id]]), p, buyer.inventory.selected[id])
                 else
                     if not GetSoundIsPlaying(error) then
                         call StartSoundForPlayerBJ(p, error)

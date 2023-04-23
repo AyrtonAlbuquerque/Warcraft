@@ -1,5 +1,5 @@
 library NewBonusUtils requires NewBonus, RegisterPlayerUnitEvent
-    /* ------------------------------------- NewBonusUtils v2.4 ------------------------------------- */
+    /* ------------------------------------- NewBonusUtils v2.5 ------------------------------------- */
     // Required Library: RegisterPlayerUnitEvent -> www.hiveworkshop.com/threads/snippet-registerplayerunitevent.203338/
 
     // API:
@@ -140,46 +140,55 @@ library NewBonusUtils requires NewBonus, RegisterPlayerUnitEvent
         endmethod
 
         static method linkTimed takes unit source, integer bonus, real amount, real duration, boolean link returns nothing
-            local thistype this = thistype.allocate()
-
-            set this.source = source
-            set this.duration = duration
-            set this.link = link
-            set this.value = AddUnitBonus(source, bonus, amount)
-            set this.bonus_t = linkType
-            set index = index + 1
-            set array[index] = this
-         
-            if index == 0 then
-                call TimerStart(timer, period, true, function thistype.onPeriod)
+            local thistype this
+            
+            if amount != 0 then
+                set this = thistype.allocate()
+                set this.source = source
+                set this.duration = duration
+                set this.link = link
+                set this.value = AddUnitBonus(source, bonus, amount)
+                set this.bonus_t = linkType
+                set index = index + 1
+                set array[index] = this
+            
+                if index == 0 then
+                    call TimerStart(timer, period, true, function thistype.onPeriod)
+                endif
             endif
         endmethod
 
         static method linkBuff takes unit source, integer bonus, real amount, integer id, boolean link returns nothing
-            local thistype this = thistype.allocate()
+            local thistype this
 
-            set this.source = source
-            set this.buff = id
-            set this.link = link
-            set this.value = AddUnitBonus(source, bonus, amount)
-            set this.bonus_t = linkType
-            set index = index + 1
-            set array[index] = this
-         
-            if index == 0 then
-                call TimerStart(timer, period, true, function thistype.onPeriod)
+            if amount != 0 then
+                set this = thistype.allocate()
+                set this.source = source
+                set this.buff = id
+                set this.link = link
+                set this.value = AddUnitBonus(source, bonus, amount)
+                set this.bonus_t = linkType
+                set index = index + 1
+                set array[index] = this
+            
+                if index == 0 then
+                    call TimerStart(timer, period, true, function thistype.onPeriod)
+                endif
             endif
         endmethod
 
         static method linkItem takes unit source, integer bonus, real amount, item i returns nothing
-            local thistype this = thistype.allocate()
-
-            set this.source = source
-            set this.item = i
-            set this.value = AddUnitBonus(source, bonus, amount)
-            set this.bonus_t = linkType
-            set k = k + 1
-            set items[k] = this
+            local thistype this
+            
+            if amount != 0 then
+                set this = thistype.allocate()
+                set this.source = source
+                set this.item = i
+                set this.value = AddUnitBonus(source, bonus, amount)
+                set this.bonus_t = linkType
+                set k = k + 1
+                set items[k] = this
+            endif
         endmethod
 
         static method copy takes unit source, unit target returns nothing

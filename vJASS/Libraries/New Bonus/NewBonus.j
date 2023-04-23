@@ -1,5 +1,5 @@
 library NewBonus requires optional DamageInterface, optional Evasion, optional CriticalStrike, optional SpellPower, optional LifeSteal, optional SpellVamp, optional CooldownReduction, optional Tenacity
-    /* ---------------------------------------- NewBonus v2.4 --------------------------------------- */
+    /* ---------------------------------------- NewBonus v2.5 --------------------------------------- */
     // Since ObjectMerger is broken and we still have no means to edit
     // bonus values (green values) i decided to create a light weight
     // Bonus library that works in the same way that the original Bonus Mod
