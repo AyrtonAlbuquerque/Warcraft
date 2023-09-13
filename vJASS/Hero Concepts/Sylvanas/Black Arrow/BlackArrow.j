@@ -1,4 +1,4 @@
-library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities, NewBonus optional WitheringFire
+library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities, NewBonus optional RangerPrecision
     /* ---------------------- Black Arrow v1.3 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96 - RegisterPlayerUnitEvent
@@ -12,13 +12,13 @@ library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities,
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Black Arrow ability
-        public  constant integer ABILITY           = 'A00C'
+        public  constant integer ABILITY           = 'A00N'
         // The raw code of the Black Arrow Curse debuff
-        public  constant integer BLACK_ARROW_CURSE = 'A00D'
+        public  constant integer BLACK_ARROW_CURSE = 'A00O'
         // The raw code of the melee unit
-        private constant integer SKELETON_WARRIOR  = 'u000'
+        private constant integer SKELETON_WARRIOR  = 'u004'
         // The raw code of the ranged unit
-        private constant integer SKELETON_ARCHER   = 'n001'
+        private constant integer SKELETON_ARCHER   = 'n005'
         // The raw code of the Elite unit
         private constant integer SKELETON_ELITE    = 'n000'
         // The effect created when the skelton warrior spawns
@@ -127,15 +127,15 @@ library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities,
         endmethod
 
         private static method onOrder takes nothing returns nothing
-            local unit    source = GetOrderedUnit()
-            local integer id     = GetIssuedOrderId()
-            local integer idx    = GetUnitUserData(source)
+            local unit source = GetOrderedUnit()
+            local integer id = GetIssuedOrderId()
+            local integer idx = GetUnitUserData(source)
 
             if id == 852174 or id == 852175 then
                 set active[idx] = id == 852174
-                static if LIBRARY_WitheringFire then
-                    if GetUnitAbilityLevel(source, WitheringFire_ABILITY) > 0 then
-                        call WitheringFire.setMissileArt(source, active[idx])
+                static if LIBRARY_RangerPrecision then
+                    if GetUnitAbilityLevel(source, RangerPrecision_ABILITY) > 0 then
+                        call RangerPrecision.enable(source, active[idx])
                     endif
                 endif
             endif

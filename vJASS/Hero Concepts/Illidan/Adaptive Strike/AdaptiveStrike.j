@@ -25,15 +25,15 @@ library AdaptiveStrike requires RegisterPlayerUnitEvent, NewBonus
 
     // The Adaptive Strike damage
     private function GetDamage takes unit source, integer level returns real
-        return 50*level + GetUnitBonus(source, BONUS_DAMAGE)*0.5
+        return 25*level + GetUnitBonus(source, BONUS_DAMAGE)*0.5
     endfunction
 
     // The Adaptive Strike AoE
     private function GetAoE takes boolean slash, integer level returns real
         if slash then
-            return 250. + 0.*level
+            return 300. + 0.*level
         else
-            return 250. + 0.*level
+            return 300. + 0.*level
         endif
     endfunction
 

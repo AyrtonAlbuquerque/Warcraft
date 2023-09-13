@@ -12,11 +12,6 @@ library Switch requires SpellEffectEvent, PluginSpellEffect, TimerUtils, MirrorI
     globals
         // The raw code of the Switch ability
         public  constant integer ABILITY       = 'A006'
-        // The raw code of the Samuro unit in the editor
-        private constant integer SAMURO_ID     = 'O000'
-        // The GAIN_AT_LEVEL is greater than 0
-        // Samuro will gain Switch at this level 
-        private constant integer GAIN_AT_LEVEL = 20
         // The switch effect
         private constant string  SWITCH_EFFECT = "Abilities\\Spells\\Orc\\MirrorImage\\MirrorImageCaster.mdl"
     endglobals
@@ -101,22 +96,8 @@ library Switch requires SpellEffectEvent, PluginSpellEffect, TimerUtils, MirrorI
             endif
         endmethod
 
-        private static method onLevelUp takes nothing returns nothing
-            local unit u = GetTriggerUnit()
-        
-            if GAIN_AT_LEVEL > 0 then
-                if GetUnitTypeId(u) == SAMURO_ID and GetHeroLevel(u) == GAIN_AT_LEVEL then
-                    call UnitAddAbility(u, ABILITY)
-                    call UnitMakeAbilityPermanent(u, true, ABILITY)
-                endif
-            endif
-        
-            set u = null
-        endmethod
-
         static method onInit takes nothing returns nothing
             call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevelUp)
         endmethod
     endstruct
 endlibrary

@@ -11,20 +11,16 @@ library Reanimation requires RegisterPlayerUnitEvent, TimerUtils
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the reanimation ability
-        private constant integer ABILITY                   = 'A005'
-        // The raw code of the Mannoroth unit in the editor
-        private constant integer MANNOROTH_ID              = 'N000'
+        private constant integer ABILITY                    = 'A02M'
         // The raw code of the reanimation metamorphosis 
         // ability that is used to change its model
-        private constant integer REANIMATION_METAMORPHOSIS = 'A006'
-        // The GAIN_AT_LEVEL is greater than 0
-        // Mannoroth will gain reanimation at this level 
-        private constant integer GAIN_AT_LEVEL             = 20
-        // The effect created on the gorund when mannoroth
-        // dies
-        private constant string  MANNOROTH_SKELETON        = "Mannorothemerdg.mdl"
+        private constant integer REANIMATION_METAMORPHOSIS  = 'A02X'
+        // The Reanimation buff
+        private constant integer REANIMATION_BUFF           = 'B00Q'
+        // The effect created on the gorund when mannoroth dies
+        private constant string  MANNOROTH_SKELETON         = "Reanimation.mdl"
         // The size of the skeleton model
-        private constant real    SKELETON_SCALE            = 0.4
+        private constant real    SKELETON_SCALE             = 0.4
     endglobals
 
     // The Ability Cooldown
@@ -37,15 +33,15 @@ library Reanimation requires RegisterPlayerUnitEvent, TimerUtils
     /* -------------------------------------------------------------------------- */
     private struct Reanimate
         static boolean array Reanimated
-        static trigger       trigger = CreateTrigger()
+        static trigger trigger = CreateTrigger()
 
-        timer   timer
-        unit    unit
-        effect  effect
+        timer timer
+        unit unit
+        effect effect
         integer level
         integer index
         integer stage
-        real    face
+        real face
 
         static method onExpire takes nothing returns nothing
             local thistype this = GetTimerData(GetExpiredTimer())
@@ -79,29 +75,29 @@ library Reanimation requires RegisterPlayerUnitEvent, TimerUtils
                 call BlzSetAbilityStringLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_SLF_ICON_NORMAL, level - 1, "ReplaceableTextures\\CommandButtons\\PASReanimation.blp")
                 call IncUnitAbilityLevel(unit, ABILITY)
                 call DecUnitAbilityLevel(unit, ABILITY)
-                set timer  = null
-                set unit   = null
+                set timer = null
+                set unit = null
                 set effect = null
                 call deallocate()
             endif
         endmethod   
 
         private static method onDamage takes nothing returns nothing
-            local unit     target = BlzGetEventDamageTarget()
-            local real     damage = GetEventDamage()
-            local integer  index  = GetUnitUserData(target)
-            local integer  level  = GetUnitAbilityLevel(target, ABILITY)
+            local unit target = BlzGetEventDamageTarget()
+            local real damage = GetEventDamage()
+            local integer index = GetUnitUserData(target)
+            local integer level = GetUnitAbilityLevel(target, ABILITY)
             local thistype this
             
         
             if level > 0 and damage >= GetWidgetLife(target) and not Reanimated[index] then
-                set this              = thistype.allocate()
-                set .timer            = NewTimerEx(this)
-                set .unit             = target
-                set .level            = level
-                set .index            = index
-                set .stage            = 0
-                set .face             = GetUnitFacing(target)*bj_DEGTORAD
+                set this = thistype.allocate()
+                set .timer = NewTimerEx(this)
+                set .unit = target
+                set .level = level
+                set .index = index
+                set .stage = 0
+                set .face = GetUnitFacing(target)*bj_DEGTORAD
                 set Reanimated[index] = true
                 call TimerStart(timer, 3, false, function thistype.onExpire)
         
@@ -117,23 +113,8 @@ library Reanimation requires RegisterPlayerUnitEvent, TimerUtils
             set target = null
         endmethod
 
-        static method onLevel takes nothing returns nothing
-            local unit u 
-
-            if GAIN_AT_LEVEL > 0 then
-                set u = GetTriggerUnit()
-                if GetUnitTypeId(u) == MANNOROTH_ID and GetHeroLevel(u) == GAIN_AT_LEVEL then
-                    call UnitAddAbility(u, ABILITY)
-                    call UnitMakeAbilityPermanent(u, true, ABILITY)
-                endif
-            endif
-        
-            set u = null
-        endmethod
-
         static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDamage)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
         endmethod
     endstruct
 endlibrary

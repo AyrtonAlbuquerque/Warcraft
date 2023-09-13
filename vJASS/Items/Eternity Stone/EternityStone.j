@@ -15,7 +15,7 @@ scope EternityStone
     endfunction
 
     private constant function GetDuration takes nothing returns real
-        return 30.
+        return 60.
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */
@@ -35,7 +35,7 @@ scope EternityStone
         private integer index
         
         method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc005|r Health Regeneration\n+ |cffffcc00400|r Health\n\n|cff00ff00Passive|r: |cffffcc00Eternal Youth|r: When killing a unit |cff00ff00Heatlh Regeneration|r is increased by |cffffcc000.2|r and |cffff0000Maximum Health|r is increased by |cffffcc005|r for |cffffcc0030|r seconds.\n\nHeath Bonus: |cffff0000" + I2S(EternityStone.healthBonus[id]) + "|r\nHealth Regeneration Bonus: |cff00ff00" + R2SW(EternityStone.regen[id], 1, 1) + "|r")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc005|r Health Regeneration\n+ |cffffcc00400|r Health\n\n|cff00ff00Passive|r: |cffffcc00Eternal Youth|r: When killing a unit |cff00ff00Heatlh Regeneration|r is increased by |cffffcc000.2|r and |cffff0000Maximum Health|r is increased by |cffffcc005|r for |cffffcc0060|r seconds.\n\nHeath Bonus: |cffff0000" + I2S(EternityStone.healthBonus[id]) + "|r\nHealth Regeneration Bonus: |cff00ff00" + R2SW(EternityStone.regen[id], 1, 1) + "|r")
         endmethod
 
         private static method onExpire takes nothing returns nothing
