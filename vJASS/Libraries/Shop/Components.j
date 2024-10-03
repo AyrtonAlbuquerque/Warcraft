@@ -1,5 +1,5 @@
 library Components requires Table
-    /* ------------------------------------ Components v1.1 ------------------------------------ */
+    /* ------------------------------------ Components v1.2 ------------------------------------ */
     // Credits:
     //      Taysen: FDF file
     //      Bribe: Table library
@@ -26,7 +26,7 @@ library Components requires Table
         private framehandle tooltip
         private framehandle iconFrame
         private framehandle nameFrame
-        private framehandle parent
+        private framehandle parentFrame
         private framepointtype pointType
         private real widthSize
         private string texture
@@ -34,6 +34,10 @@ library Components requires Table
         private boolean simple
 
         readonly framehandle frame
+
+        method operator parent takes nothing returns framehandle
+            return parentFrame
+        endmethod
 
         method operator text= takes string description returns nothing
             call BlzFrameSetText(tooltip, description)
@@ -124,13 +128,13 @@ library Components requires Table
             set iconFrame = null
             set nameFrame = null
             set pointType = null
-            set parent = null
+            set parentFrame = null
         endmethod
 
         static method create takes framehandle owner, real width, framepointtype point, boolean simpleTooltip returns thistype
             local thistype this = thistype.allocate()
 
-            set parent = owner
+            set parentFrame = owner
             set simple = simpleTooltip
             set widthSize = width
             set pointType = point
@@ -175,6 +179,7 @@ library Components requires Table
         private static trigger clicked = CreateTrigger()
         private static trigger scrolled = CreateTrigger()
         private static trigger rightClicked = CreateTrigger()
+        private static trigger enter = CreateTrigger()
         private static timer double = CreateTimer()
         private static timer array timer
         private static boolean array canScroll
@@ -186,7 +191,10 @@ library Components requires Table
         private trigger scroll
         private trigger doubleClick
         private trigger rightClick
+        private framehandle base
         private framehandle iconFrame
+        private framehandle topEventFrame
+        private framehandle botEventFrame
         private framehandle availableFrame
         private framehandle checkedFrame
         private framehandle highlightFrame
@@ -206,13 +214,17 @@ library Components requires Table
         private real yPos
         
         readonly framehandle frame
+        static framehandle array current
         Tooltip tooltip
 
         method operator x= takes real newX returns nothing
             set xPos = newX
 
-            call BlzFrameClearAllPoints(iconFrame)
-            call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            if base == null then
+                call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            else
+                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            endif
         endmethod
 
         method operator x takes nothing returns real
@@ -222,8 +234,11 @@ library Components requires Table
         method operator y= takes real newY returns nothing
             set yPos = newY
 
-            call BlzFrameClearAllPoints(iconFrame)
-            call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            if base == null then
+                call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            else
+                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            endif
         endmethod
 
         method operator y takes nothing returns real
@@ -389,6 +404,8 @@ library Components requires Table
             call tooltip.destroy()
             call deallocate()
 
+            set topEventFrame = null
+            set botEventFrame = null
             set availableFrame = null
             set checkedFrame = null
             set spriteFrame = null
@@ -401,6 +418,7 @@ library Components requires Table
             set scroll = null
             set frame = null
             set click = null
+            set base = null
         endmethod
 
         method play takes string model, real scale, integer animation returns nothing
@@ -414,11 +432,10 @@ library Components requires Table
             endif
         endmethod
 
-        method display takes string model, real width, real height, real scale, framepointtype point, framepointtype relativePoint, real offsetX, real offsetY returns nothing
+        method display takes string model, real scale, framepointtype point, framepointtype relativePoint, real offsetX, real offsetY returns nothing
             if model != "" and model != null then
-                call BlzFrameClearAllPoints(displayFrame)
                 call BlzFrameSetPoint(displayFrame, point, frame, relativePoint, offsetX, offsetY)
-                call BlzFrameSetSize(displayFrame, width, height)
+                call BlzFrameSetSize(displayFrame, 0.00001, 0.00001)
                 call BlzFrameSetScale(displayFrame, scale)
                 call BlzFrameSetModel(displayFrame, model, 0)
                 call BlzFrameSetVisible(displayFrame, true)
@@ -427,11 +444,10 @@ library Components requires Table
             endif
         endmethod
 
-        method tag takes string model, real width, real height, real scale, framepointtype point, framepointtype relativePoint, real offsetX, real offsetY returns nothing
+        method tag takes string model, real scale, framepointtype point, framepointtype relativePoint, real offsetX, real offsetY returns nothing
             if model != "" and model != null then
-                call BlzFrameClearAllPoints(tagFrame)
                 call BlzFrameSetPoint(tagFrame, point, frame, relativePoint, offsetX, offsetY)
-                call BlzFrameSetSize(tagFrame, width, height)
+                call BlzFrameSetSize(tagFrame, 0.00001, 0.00001)
                 call BlzFrameSetScale(tagFrame, scale)
                 call BlzFrameSetModel(tagFrame, model, 0)
                 call BlzFrameSetVisible(tagFrame, true)
@@ -444,7 +460,17 @@ library Components requires Table
             local thistype this = thistype.allocate()
             local integer i = 0
 
-            set parent = owner
+            if owner == null then
+                set base = BlzCreateFrameByType("BUTTON", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
+                set parent = base
+
+                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, x, y)
+                call BlzFrameSetSize(base, width, height)
+            else
+                set base = null
+                set parent = owner
+            endif
+
             set xPos = x
             set yPos = y
             set widhtSize = width
@@ -453,21 +479,34 @@ library Components requires Table
             set isAvailable = true
             set isChecked = false
             set isHighlighted = false
-            set iconFrame = BlzCreateFrameByType("BACKDROP", "", owner, "", 0)   
+            set iconFrame = BlzCreateFrameByType("BACKDROP", "", parent, "", 0)   
             set availableFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)  
             set checkedFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)
             set highlightFrame = BlzCreateFrame("HighlightFrame", iconFrame, 0, 0)
+            set botEventFrame = BlzCreateFrameByType("POPUPMENU", "", iconFrame, "", 0)
             set frame = BlzCreateFrame("IconButtonTemplate", iconFrame, 0, 0)
-            set displayFrame = BlzCreateFrameByType("SPRITE", "", frame, "WarCraftIIILogo", 0)
-            set tagFrame = BlzCreateFrameByType("SPRITE", "", frame, "WarCraftIIILogo", 0)
+            set topEventFrame = BlzCreateFrameByType("POPUPMENU", "", iconFrame, "", 0)
+            set displayFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
+            set tagFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
             set spriteFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
             set tooltip = Tooltip.create(frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT, simpleTooltip)
             set table[GetHandleId(frame)] = this
+            set table[GetHandleId(botEventFrame)] = this
+            set table[GetHandleId(topEventFrame)] = this
             
-            call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, owner, FRAMEPOINT_TOPLEFT, x, y)
+            if owner == null then
+                call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, 0, 0)
+            else
+                call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, x, y)
+            endif
+
             call BlzFrameSetSize(iconFrame, width, height)
+            call BlzFrameSetPoint(botEventFrame, FRAMEPOINT_TOPLEFT, iconFrame, FRAMEPOINT_TOPLEFT, - 0.0040000, 0.0045000)
+            call BlzFrameSetSize(botEventFrame, width + 0.0085, height + 0.0085)
             call BlzFrameSetAllPoints(frame, iconFrame)
+            call BlzFrameSetAllPoints(topEventFrame, iconFrame)
             call BlzFrameSetTooltip(frame, tooltip.frame)
+            call BlzFrameSetTooltip(topEventFrame, tooltip.frame)
             call BlzFrameSetAllPoints(availableFrame, iconFrame)
             call BlzFrameSetVisible(availableFrame, false)
             call BlzFrameSetAllPoints(checkedFrame, iconFrame)
@@ -477,12 +516,14 @@ library Components requires Table
             call BlzFrameSetVisible(highlightFrame, false)
             call BlzTriggerRegisterFrameEvent(clicked, frame, FRAMEEVENT_CONTROL_CLICK)
             call BlzTriggerRegisterFrameEvent(scrolled, frame, FRAMEEVENT_MOUSE_WHEEL)
-            call BlzTriggerRegisterFrameEvent(rightClicked, frame, FRAMEEVENT_MOUSE_UP)
+            call BlzTriggerRegisterFrameEvent(enter, botEventFrame, FRAMEEVENT_MOUSE_ENTER)
+            call BlzTriggerRegisterFrameEvent(enter, topEventFrame, FRAMEEVENT_MOUSE_ENTER)
 
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
                     set timer[i] = CreateTimer()
                     set canScroll[i] = true
+                    set current[i] = null
                 set i = i + 1
             endloop
 
@@ -513,7 +554,7 @@ library Components requires Table
         endmethod
 
         private static method onRightClicked takes nothing returns nothing
-            local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
+            local thistype this = table[GetHandleId(current[GetPlayerId(GetTriggerPlayer())])]
 
             if this != 0 then
                 if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_RIGHT and rightClick != null then
@@ -526,7 +567,7 @@ library Components requires Table
             local integer i = GetPlayerId(GetTriggerPlayer())
             local integer j = GetHandleId(BlzGetTriggerFrame())
             local thistype this = table[j]
-
+            
             if this != 0 then
                 set time[i].real[j] = TimerGetElapsed(double)
 
@@ -546,7 +587,36 @@ library Components requires Table
             endif
         endmethod
 
+        private static method onEnter takes nothing returns nothing
+            local integer id = GetPlayerId(GetTriggerPlayer())
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
+            local thistype last = table[GetHandleId(current[id])]
+
+            if this != 0 then
+                if GetHandleId(BlzGetTriggerFrame()) == GetHandleId(topEventFrame) then
+                    set current[id] = frame
+
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        call BlzFrameSetVisible(topEventFrame, false)
+                    endif
+                else
+                    set current[id] = null
+
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        call BlzFrameSetVisible(topEventFrame, true)
+                    endif
+
+                    if last != 0 then
+                        if GetLocalPlayer() == GetTriggerPlayer() then
+                            call BlzFrameSetVisible(last.topEventFrame, true)
+                        endif
+                    endif
+                endif
+            endif
+        endmethod
+
         private static method onInit takes nothing returns nothing
+            local integer i = 0
             set table = Table.create()
             set time = HashTable.create()
             set doubleTime = HashTable.create()
@@ -554,6 +624,14 @@ library Components requires Table
             call TimerStart(double, 9999999999, false, null)
             call TriggerAddAction(clicked, function thistype.onClicked)
             call TriggerAddAction(scrolled, function thistype.onScrolled)
+            call TriggerAddAction(enter, function thistype.onEnter)
+
+            loop
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    call TriggerRegisterPlayerEvent(rightClicked, Player(i), EVENT_PLAYER_MOUSE_UP)
+                set i = i + 1
+            endloop
+
             call TriggerAddAction(rightClicked, function thistype.onRightClicked)
         endmethod
     endstruct

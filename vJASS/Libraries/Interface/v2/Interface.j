@@ -853,6 +853,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit
             local integer i = 0
             local fogmodifier fog
 
+            call BlzEnableUIAutoPosition(false)
             call BlzFrameSetAlpha(BlzGetFrameByName("SimpleInventoryCover", 0), 0)
             call BlzFrameSetScale(BlzGetFrameByName("InventoryText", 0), 0.0001)
             call BlzFrameSetAbsPoint(BlzGetFrameByName("ConsoleUI", 0), FRAMEPOINT_TOPLEFT, 0.0, 0.633)
