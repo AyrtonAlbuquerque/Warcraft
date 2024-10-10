@@ -32,7 +32,7 @@ library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilitie
 
     // The Damage dealt
     private function GetDamage takes unit source, integer level returns real
-        return 250.*level
+        return 125.*level
     endfunction
 
     // The blast range
@@ -42,7 +42,7 @@ library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilitie
     
     // The stun duration
     private function GetStunDuration takes unit source, integer level returns real
-        return 1. + 1.*level
+        return 1. + 0.*level
     endfunction
 
     // The Damage Filter.

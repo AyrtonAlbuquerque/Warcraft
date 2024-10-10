@@ -27,9 +27,6 @@ library DragonZone requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
         private constant string  ATTACH_POINT     = "origin"
         // The pdate period
         private constant real    PERIOD           = 0.1
-        // The GAIN_AT_LEVEL is greater than 0
-        // Yu'lon will gain Dragon Zone at this level 
-        private constant integer GAIN_AT_LEVEL    = 20
     endglobals
 
     // The AOE
@@ -154,22 +151,8 @@ library DragonZone requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
             
             set dummy = null
         endmethod
-        
-        private static method onLevelUp takes nothing returns nothing
-            local unit u = GetTriggerUnit()
-        
-            if GAIN_AT_LEVEL > 0 then
-                if GetUnitTypeId(u) == YULON_ID and GetHeroLevel(u) == GAIN_AT_LEVEL then
-                    call UnitAddAbility(u, ABILITY)
-                    call UnitMakeAbilityPermanent(u, true, ABILITY)
-                endif
-            endif
-        
-            set u = null
-        endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevelUp)
             call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
         endmethod
     endstruct

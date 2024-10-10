@@ -644,7 +644,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local player p = GetTriggerPlayer()
             local thistype this = table[GetHandleId(Button.current[GetPlayerId(p)])][0] // table[GetHandleId(BlzGetTriggerFrame())][0]
 
-            if this != 0 then
+            if this != 0 and Shop.current[GetPlayerId(p)] != null then
                 if shop.buy(item, p) then
                     if GetLocalPlayer() == p then
                         call button.play(SPRITE_MODEL, SPRITE_SCALE, 0)
@@ -1486,7 +1486,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local integer i = table[GetHandleId(frame)][1]
             local integer id = GetPlayerId(p)
 
-            if this != 0 then
+            if this != 0 and Shop.current[id] != null then
                 if frame == Slot(main[id]).button.frame then
                     if shop.buy(Slot(main[id]).item, p) then
                         if GetLocalPlayer() == p then
@@ -1802,7 +1802,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local thistype this = table[GetHandleId(frame)][0]
             local integer i = table[GetHandleId(frame)][1]
 
-            if this != 0 then
+            if this != 0 and Shop.current[id] != null then
                 if shop.sell(item[id][i], p, i) then
                     call show(shop.buyer.selected.unit[id])
                 endif
@@ -2655,13 +2655,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 set new = CreateItem(i.id, GetUnitX(u), GetUnitY(u))
 
                 call buyer.inventory.removeComponents(i, u, t)
-                call buyer.inventory.show(u)
-                call details.refresh(p)
-                call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) - t.gold)
 
                 if not UnitAddItem(u, new) then
                     call IssueTargetItemOrder(u, "smart", new)
                 endif
+
+                call buyer.inventory.show(u)
+                call details.refresh(p)
+                call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) - t.gold)
 
                 if not GetSoundIsPlaying(success) then
                     call StartSoundForPlayerBJ(p, success)
@@ -3233,10 +3234,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
                 set selected[id] = 0
                 set current[id] = null
+                set Button.current[id] = null
                 call clearTransactions(p)
             endif
 
-            set Button.current[id] = null
             set p = null
         endmethod
 
@@ -3340,12 +3341,12 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
                         set selected[id] = 0
                         set current[GetPlayerId(p)] = null
+                        set Button.current[GetPlayerId(p)] = null
                         call clearTransactions(p)
                     endif
                 set i = i + 1
             endloop
 
-            set Button.current[GetPlayerId(p)] = null
             set p = null
         endmethod
 
