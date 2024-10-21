@@ -1246,6 +1246,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
             local integer i = 0
 
             call BlzLoadTOCFile("Templates.toc")
+            call BlzLoadTOCFile("Shop.toc")
 
             set menu = Button.create(null, MENU_WIDTH, MENU_HEIGHT, MENU_X, MENU_Y, true)
             set menu.icon = OPEN_MENU_TEXTURE

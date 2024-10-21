@@ -10,7 +10,6 @@ library Components requires Table
     /* ----------------------------------------------------------------------------------------- */
     globals
         private constant real TOOLTIP_SIZE          = 0.2
-        private constant real SCROLL_DELAY          = 0.01
         private constant real DOUBLE_CLICK_DELAY    = 0.25
         private constant string HIGHLIGHT           = "UI\\Widgets\\Glues\\GlueScreen-Button-KeyboardHighlight"
         private constant string CHECKED_BUTTON      = "UI\\Widgets\\EscMenu\\Human\\checkbox-check.blp"
@@ -181,8 +180,6 @@ library Components requires Table
         private static trigger rightClicked = CreateTrigger()
         private static trigger enter = CreateTrigger()
         private static timer double = CreateTimer()
-        private static timer array timer
-        private static boolean array canScroll
         private static Table table
         private static HashTable doubleTime
         private static HashTable time
@@ -521,8 +518,6 @@ library Components requires Table
 
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    set timer[i] = CreateTimer()
-                    set canScroll[i] = true
                     set current[i] = null
                 set i = i + 1
             endloop
@@ -530,26 +525,11 @@ library Components requires Table
             return this
         endmethod
 
-        private static method onExpire takes nothing returns nothing
-            set canScroll[GetPlayerId(GetLocalPlayer())] = true
-        endmethod
-
         private static method onScrolled takes nothing returns nothing
             local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
-            local integer i = GetPlayerId(GetLocalPlayer())
 
             if this != 0 then
-                if canScroll[i] and scroll != null then
-                    if SCROLL_DELAY > 0 then
-                        set canScroll[i] = false
-                    endif
-
-                    call TriggerEvaluate(scroll)
-                endif
-            endif
-
-            if SCROLL_DELAY > 0 then
-                call TimerStart(timer[i], TimerGetRemaining(timer[i]), false, function thistype.onExpire)
+                call TriggerEvaluate(scroll)
             endif
         endmethod
 

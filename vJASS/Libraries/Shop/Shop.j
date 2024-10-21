@@ -106,7 +106,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private constant framepointtype TAG_HIGHLIGHT_RELATIVE_POINT = FRAMEPOINT_BOTTOMLEFT
 
         // Scroll
-        private constant real SCROLL_DELAY              = 0.01
+        private constant real SCROLL_DELAY              = 0.03
 
         // Update time
         private constant real UPDATE_PERIOD             = 0.33
@@ -602,7 +602,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
             if this != 0 then
                 if GetLocalPlayer() == GetTriggerPlayer() then
-                    call shop.scroll(BlzGetTriggerFrameValue() < 0)
+                    call Shop.onSlotScroll(this)
                 endif
             endif
         endmethod
@@ -2521,8 +2521,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         readonly static sound error
         readonly static sound array noGold
         readonly static group array group
-        readonly static timer array timer
-        readonly static boolean array canScroll
         readonly static boolean array tag
         readonly static unit array current
 
@@ -2556,6 +2554,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         readonly boolean detailed
         readonly real aoe
         readonly real tax
+        Table timer
+        Table scrollCount
+        Table scrollFlag
         Table lastClicked
         HashTable transaction
         Table transactionCount
@@ -3048,6 +3049,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 set columns = COLUMNS
                 set count = count + 1
                 set detailed = false
+                set timer = Table.create()
+                set scrollCount = Table.create()
+                set scrollFlag = Table.create()
                 set lastClicked = Table.create()
                 set transactionCount = Table.create()
                 set transaction = HashTable.create()
@@ -3099,9 +3103,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
                 loop
                     exitwhen i >= bj_MAX_PLAYER_SLOTS
-                        set timer[i] = CreateTimer()
-                        set group[i] = CreateGroup()
-                        set canScroll[i] = true
+                        set timer.timer[i] = CreateTimer()
+                        set table[GetHandleId(timer.timer[i])][0] = this
+                        set table[GetHandleId(timer.timer[i])][1] = i
                         set table[GetHandleId(Player(i))][id] = this
                         set table[GetHandleId(Player(i))][count] = id
                     set i = i + 1
@@ -3129,8 +3133,92 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             return this
         endmethod
 
+        static method onSlotScroll takes ShopSlot slot returns nothing
+            local thistype this = slot.shop
+            local integer i = GetPlayerId(GetTriggerPlayer())
+            local boolean direction = BlzGetTriggerFrameValue() < 0
+
+            if this != 0 then
+                if scrollFlag.boolean[i] != direction then
+                    set scrollFlag.boolean[i] = direction
+                    set scrollCount[i] = 0
+    
+                    call PauseTimer(timer.timer[i])
+
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        call scroll(scrollFlag.boolean[i])
+                    endif
+                else
+                    set scrollCount[i] = scrollCount[i] + 1
+                endif
+
+                if SCROLL_DELAY > 0 then
+                    if scrollCount[i] == 1 then
+                        call TimerStart(timer.timer[i], SCROLL_DELAY, true, function thistype.onExpire)
+
+                        if GetLocalPlayer() == GetTriggerPlayer() then
+                            call scroll(direction)
+                        endif
+                    endif
+                else
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        call scroll(direction)
+                    endif
+                endif
+            endif
+        endmethod
+
+        static method onScroll takes nothing returns nothing
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
+            local integer i = GetPlayerId(GetTriggerPlayer())
+            local boolean direction = BlzGetTriggerFrameValue() < 0
+
+            if this != 0 then
+                if scrollFlag.boolean[i] != direction then
+                    set scrollFlag.boolean[i] = direction
+                    set scrollCount[i] = 0
+    
+                    call PauseTimer(timer.timer[i])
+
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        call scroll(scrollFlag.boolean[i])
+                    endif
+                else
+                    set scrollCount[i] = scrollCount[i] + 1
+                endif
+
+                if SCROLL_DELAY > 0 then
+                    if scrollCount[i] == 1 then
+                        call TimerStart(timer.timer[i], SCROLL_DELAY, true, function thistype.onExpire)
+
+                        if GetLocalPlayer() == GetTriggerPlayer() then
+                            call scroll(direction)
+                        endif
+                    endif
+                else
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        call scroll(direction)
+                    endif
+                endif
+            endif
+        endmethod
+
         private static method onExpire takes nothing returns nothing
-            set canScroll[GetPlayerId(GetLocalPlayer())] = true
+            local thistype this = table[GetHandleId(GetExpiredTimer())][0]
+            local integer i = table[GetHandleId(GetExpiredTimer())][1]
+
+            set scrollCount[i] = scrollCount[i] - 1
+
+            if scrollCount[i] > 0 then
+                if GetLocalPlayer() == Player(i) then
+                    if not scroll(scrollFlag.boolean[i]) then
+                        set scrollCount[i] = 0
+                    endif
+                endif
+            else
+                set scrollCount[i] = 0
+                call PauseTimer(GetExpiredTimer())
+            endif
         endmethod
 
         private static method onPeriod takes nothing returns nothing
@@ -3277,27 +3365,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set frame = null
         endmethod
 
-        private static method onScroll takes nothing returns nothing
-            local thistype this = table[GetHandleId(BlzGetTriggerFrame())][0]
-            local integer i = GetPlayerId(GetLocalPlayer())
-
-            if this != 0 then
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    if canScroll[i] then
-                        if SCROLL_DELAY > 0 then
-                            set canScroll[i] = false
-                        endif
-    
-                        call scroll(BlzGetTriggerFrameValue() < 0)
-                    endif
-                endif
-            endif
-
-            if SCROLL_DELAY > 0 then
-                call TimerStart(timer[i], TimerGetRemaining(timer[i]), false, function thistype.onExpire)
-            endif
-        endmethod
-
         private static method onSelect takes nothing returns nothing
             local thistype this = table[GetUnitTypeId(GetTriggerUnit())][0]
             local player p = GetTriggerPlayer()
@@ -3389,6 +3456,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
                     set tag[i] = false
+                    set group[i] = CreateGroup()
                     call BlzTriggerRegisterPlayerKeyEvent(keyPress, Player(i), FAVORITE_KEY, 0, true)
                     call BlzTriggerRegisterPlayerKeyEvent(keyPress, Player(i), FAVORITE_KEY, 0, false)
                     call TriggerRegisterPlayerEventEndCinematic(escPressed, Player(i))

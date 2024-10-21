@@ -1,0 +1,62 @@
+IncludeFile "UI\FrameDef\UI\EscMenuTemplates.fdf",
+
+Frame "TEXT" "TextTemplate" {
+    FrameFont "InfoPanelTextFont", 0.010, "",
+    FontColor 1.0 1.0 1.0 1.0,
+    FontShadowColor 0.0 0.0 0.0 0.9,
+    FontShadowOffset 0.001 -0.001,
+    LayerStyle "IGNORETRACKEVENTS",
+}
+
+Frame "FRAME" "TooltipBoxFrame" {
+    Frame "BACKDROP" "TooltipBox" {
+        DecorateFileNames,
+        BackdropTileBackground,
+        BackdropBackground  "EscMenuBackground",
+        BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+        BackdropCornerSize  0.01,
+        BackdropBackgroundSize  0.256,
+        BackdropBackgroundInsets 0.0003 0.0003 0.0003 0.0003,
+        BackdropEdgeFile  "ToolTipBorder",
+        BackdropBlendAll,
+        Frame "TEXT" "TooltipText" INHERITS "TextTemplate" {
+            Width 0.2,
+            DecorateFileNames,
+        }
+        Frame "BACKDROP" "TooltipSeperator" {
+            Height 0.001,
+            UseActiveContext,
+            SetPoint BOTTOMLEFT, "TooltipText", TOPLEFT, 0, 0.005,
+            SetPoint BOTTOMRIGHT, "TooltipText", TOPRIGHT, 0, 0.005,
+            
+            BackdropBackground "replaceabletextures\teamcolor\teamcolor08",
+        }
+        Frame "BACKDROP" "TooltipIcon" {
+            Width 0.035,
+            Height 0.035,
+            UseActiveContext,
+            SetPoint BOTTOMLEFT, "TooltipSeperator", TOPLEFT, 0, 0.005,
+        }
+        Frame "TEXT" "TooltipName" INHERITS "TextTemplate" {
+            UseActiveContext,
+            SetPoint TOPLEFT, "TooltipIcon", TOPRIGHT, 0.005, -0.002,
+            SetPoint BOTTOMRIGHT, "TooltipSeperator", TOPRIGHT, -0.005, 0.005,
+            DecorateFileNames,
+            FontJustificationH JUSTIFYCENTER,
+            FontJustificationV JUSTIFYMIDDLE,
+            FrameFont "InfoPanelTextFont", 0.013, "",
+        }
+    }
+}
+
+Frame "TEXTAREA" "DescriptionArea" {
+    TextAreaLineHeight 0.0105,
+    TextAreaInset 0.0,
+    TextAreaLineGap 0.0
+}
+
+Frame "HIGHLIGHT" "HighlightFrame" {
+    HighlightType "FILETEXTURE",
+    HighlightAlphaFile "UI\Widgets\Glues\GlueScreen-Button-KeyboardHighlight",
+    HighlightAlphaMode "ADD",
+}
