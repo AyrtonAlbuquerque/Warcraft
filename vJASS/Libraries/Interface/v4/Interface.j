@@ -724,7 +724,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
             call BlzFrameSetScale(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR_LABEL, 0), 0.00001)
 
             // Reposition the Attack 1 block
-            set damage = Button.create(null, DAMAGE_WIDTH, DAMAGE_HEIGHT, INFO_X + DAMAGE_X, INFO_Y + DAMAGE_Y, true)
+            set damage = Button.create(null, DAMAGE_WIDTH, DAMAGE_HEIGHT, INFO_X + DAMAGE_X, INFO_Y + DAMAGE_Y, true, false)
             set damage.icon = DAMAGE_TEXTURE
             set damage.tooltip.text = "Damage"
             set damage.visible = false
@@ -741,7 +741,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
             // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconValue", 0), FRAMEPOINT_BOTTOMRIGHT, INFO_X + DAMAGE_X + DAMAGE_TEXT_X + DAMAGE_TEXT_WIDTH, INFO_Y + DAMAGE_Y + DAMAGE_TEXT_Y - DAMAGE_TEXT_HEIGHT)
             
             // Reposition the Armor block
-            set armor = Button.create(null, ARMOR_WIDTH, ARMOR_HEIGHT, INFO_X + ARMOR_X, INFO_Y + ARMOR_Y, true)
+            set armor = Button.create(null, ARMOR_WIDTH, ARMOR_HEIGHT, INFO_X + ARMOR_X, INFO_Y + ARMOR_Y, true, false)
             set armor.icon = ARMOR_TEXTURE
             set armor.tooltip.text = "Armor"
             set armor.visible = false
@@ -758,7 +758,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
             // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconValue", 2), FRAMEPOINT_BOTTOMRIGHT, INFO_X + ARMOR_X + ARMOR_TEXT_X + ARMOR_TEXT_WIDTH, INFO_Y + ARMOR_Y + ARMOR_TEXT_Y - ARMOR_TEXT_HEIGHT)
 
             // Reposition the Strength label and value
-            set strength = Button.create(null, STRENGTH_WIDTH, STRENGTH_HEIGHT, INFO_X + STRENGTH_X, INFO_Y + STRENGTH_Y, true)
+            set strength = Button.create(null, STRENGTH_WIDTH, STRENGTH_HEIGHT, INFO_X + STRENGTH_X, INFO_Y + STRENGTH_Y, true, false)
             set strength.icon = STRENGTH_TEXTURE
             set strength.tooltip.text = "Strength"
             set strength.visible = false
@@ -774,7 +774,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
             // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconHeroStrengthValue", 6), FRAMEPOINT_BOTTOMRIGHT, INFO_X + STRENGTH_X + STRENGTH_TEXT_X + STRENGTH_TEXT_WIDTH, INFO_Y + STRENGTH_Y + STRENGTH_TEXT_Y - STRENGTH_TEXT_HEIGHT)
 
             // Reposition the Agility label and value
-            set agility = Button.create(null, AGILITY_WIDTH, AGILITY_HEIGHT, INFO_X + AGILITY_X, INFO_Y + AGILITY_Y, true)
+            set agility = Button.create(null, AGILITY_WIDTH, AGILITY_HEIGHT, INFO_X + AGILITY_X, INFO_Y + AGILITY_Y, true, false)
             set agility.icon = AGILITY_TEXTURE
             set agility.tooltip.text = "Agility"
             set agility.visible = false
@@ -790,7 +790,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
             // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconHeroAgilityValue", 6), FRAMEPOINT_BOTTOMRIGHT, INFO_X + AGILITY_X + AGILITY_TEXT_X + AGILITY_TEXT_WIDTH, INFO_Y + AGILITY_Y + AGILITY_TEXT_Y - AGILITY_TEXT_HEIGHT)
 
             // Reposition the Intelligence label and value
-            set intelligence = Button.create(null, INTELLIGENCE_WIDTH, INTELLIGENCE_HEIGHT, INFO_X + INTELLIGENCE_X, INFO_Y + INTELLIGENCE_Y, true)
+            set intelligence = Button.create(null, INTELLIGENCE_WIDTH, INTELLIGENCE_HEIGHT, INFO_X + INTELLIGENCE_X, INFO_Y + INTELLIGENCE_Y, true, false)
             set intelligence.icon = INTELLIGENCE_TEXTURE
             set intelligence.tooltip.text = "Intelligence"
             set intelligence.visible = false
@@ -1248,7 +1248,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
             call BlzLoadTOCFile("Templates.toc")
             call BlzLoadTOCFile("Shop.toc")
 
-            set menu = Button.create(null, MENU_WIDTH, MENU_HEIGHT, MENU_X, MENU_Y, true)
+            set menu = Button.create(null, MENU_WIDTH, MENU_HEIGHT, MENU_X, MENU_Y, true, false)
             set menu.icon = OPEN_MENU_TEXTURE
             set menu.tooltip.text = "Open Menu"
             set menu.visible = true

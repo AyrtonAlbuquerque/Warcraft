@@ -177,7 +177,7 @@ library Components requires Table
     struct Button
         private static trigger clicked = CreateTrigger()
         private static trigger scrolled = CreateTrigger()
-        private static trigger rightClicked = CreateTrigger()
+        private static trigger mouseClicked = CreateTrigger()
         private static trigger enter = CreateTrigger()
         private static timer double = CreateTimer()
         private static Table table
@@ -204,6 +204,7 @@ library Components requires Table
         private boolean isChecked
         private boolean isHighlighted
         private boolean isEnabled
+        private boolean keepFocus
         private string texture
         private real widhtSize
         private real heightSize
@@ -453,7 +454,7 @@ library Components requires Table
             endif
         endmethod
 
-        static method create takes framehandle owner, real width, real height, real x, real y, boolean simpleTooltip returns thistype
+        static method create takes framehandle owner, real width, real height, real x, real y, boolean simpleTooltip, boolean keepFocus returns thistype
             local thistype this = thistype.allocate()
             local integer i = 0
 
@@ -476,6 +477,7 @@ library Components requires Table
             set isAvailable = true
             set isChecked = false
             set isHighlighted = false
+            set .keepFocus = keepFocus
             set iconFrame = BlzCreateFrameByType("BACKDROP", "", parent, "", 0)   
             set availableFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)  
             set checkedFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)
@@ -516,12 +518,6 @@ library Components requires Table
             call BlzTriggerRegisterFrameEvent(enter, botEventFrame, FRAMEEVENT_MOUSE_ENTER)
             call BlzTriggerRegisterFrameEvent(enter, topEventFrame, FRAMEEVENT_MOUSE_ENTER)
 
-            loop
-                exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    set current[i] = null
-                set i = i + 1
-            endloop
-
             return this
         endmethod
 
@@ -533,10 +529,14 @@ library Components requires Table
             endif
         endmethod
 
-        private static method onRightClicked takes nothing returns nothing
+        private static method onMouseClicked takes nothing returns nothing
             local thistype this = table[GetHandleId(current[GetPlayerId(GetTriggerPlayer())])]
 
             if this != 0 then
+                if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_LEFT and click != null then
+                    call TriggerEvaluate(click)
+                endif
+
                 if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_RIGHT and rightClick != null then
                     call TriggerEvaluate(rightClick)
                 endif
@@ -547,9 +547,14 @@ library Components requires Table
             local integer i = GetPlayerId(GetTriggerPlayer())
             local integer j = GetHandleId(BlzGetTriggerFrame())
             local thistype this = table[j]
-            
+
             if this != 0 then
                 set time[i].real[j] = TimerGetElapsed(double)
+
+                if not keepFocus then
+                    call BlzFrameSetEnable(frame, false)
+                    call BlzFrameSetEnable(frame, true)
+                endif
 
                 if click != null then
                     call TriggerEvaluate(click)
@@ -608,11 +613,12 @@ library Components requires Table
 
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    call TriggerRegisterPlayerEvent(rightClicked, Player(i), EVENT_PLAYER_MOUSE_UP)
+                    set current[i] = null
+                    call TriggerRegisterPlayerEvent(mouseClicked, Player(i), EVENT_PLAYER_MOUSE_UP)
                 set i = i + 1
             endloop
 
-            call TriggerAddAction(rightClicked, function thistype.onRightClicked)
+            call TriggerAddAction(mouseClicked, function thistype.onMouseClicked)
         endmethod
     endstruct
 endlibrary
