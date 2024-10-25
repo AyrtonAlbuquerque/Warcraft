@@ -8,6 +8,11 @@ Frame "TEXT" "TextTemplate" {
     LayerStyle "IGNORETRACKEVENTS",
 }
 
+Frame "POPUPMENU" "ComponentFrame" {
+    Frame "GLUETEXTBUTTON" "ComponentButton" {
+    }
+}
+
 Frame "FRAME" "TooltipBoxFrame" {
     Frame "BACKDROP" "TooltipBox" {
         DecorateFileNames,

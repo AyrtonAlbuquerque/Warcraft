@@ -17,6 +17,13 @@ library Components requires Table
     endglobals
 
     /* ----------------------------------------------------------------------------------------- */
+    /*                                          JASS API                                         */
+    /* ----------------------------------------------------------------------------------------- */
+    function GetTriggerButton takes nothing returns Button
+        return Button.get()
+    endfunction
+
+    /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
     struct Tooltip
@@ -177,42 +184,42 @@ library Components requires Table
     struct Button
         private static trigger clicked = CreateTrigger()
         private static trigger scrolled = CreateTrigger()
-        private static trigger mouseClicked = CreateTrigger()
         private static trigger enter = CreateTrigger()
+        private static trigger leave = CreateTrigger()
         private static timer double = CreateTimer()
         private static Table table
         private static HashTable doubleTime
         private static HashTable time
+        private static thistype array current
 
         private trigger click
         private trigger scroll
         private trigger doubleClick
         private trigger rightClick
         private framehandle base
+        private framehandle parent
+        private framehandle tagFrame
         private framehandle iconFrame
-        private framehandle topEventFrame
-        private framehandle botEventFrame
-        private framehandle availableFrame
-        private framehandle checkedFrame
-        private framehandle highlightFrame
         private framehandle spriteFrame
         private framehandle displayFrame
-        private framehandle tagFrame
-        private framehandle parent
-        private boolean isVisible
-        private boolean isAvailable
-        private boolean isChecked
-        private boolean isHighlighted
-        private boolean isEnabled
+        private framehandle checkedFrame
+        private framehandle availableFrame
+        private framehandle highlightFrame
         private boolean keepFocus
+        private boolean isVisible
+        private boolean isChecked
+        private boolean isAvailable
+        private boolean isEnabled
+        private boolean isHighlighted
         private string texture
-        private real widhtSize
-        private real heightSize
         private real xPos
         private real yPos
+        private real widhtSize
+        private real heightSize
         
         readonly framehandle frame
-        static framehandle array current
+        readonly framehandle button
+
         Tooltip tooltip
 
         method operator x= takes real newX returns nothing
@@ -402,8 +409,6 @@ library Components requires Table
             call tooltip.destroy()
             call deallocate()
 
-            set topEventFrame = null
-            set botEventFrame = null
             set availableFrame = null
             set checkedFrame = null
             set spriteFrame = null
@@ -415,6 +420,7 @@ library Components requires Table
             set parent = null
             set scroll = null
             set frame = null
+            set button = null
             set click = null
             set base = null
         endmethod
@@ -454,6 +460,10 @@ library Components requires Table
             endif
         endmethod
 
+        static method get takes nothing returns thistype
+            return current[GetPlayerId(GetTriggerPlayer())]
+        endmethod
+
         static method create takes framehandle owner, real width, real height, real x, real y, boolean simpleTooltip, boolean keepFocus returns thistype
             local thistype this = thistype.allocate()
             local integer i = 0
@@ -482,16 +492,14 @@ library Components requires Table
             set availableFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)  
             set checkedFrame = BlzCreateFrameByType("BACKDROP", "", iconFrame, "", 0)
             set highlightFrame = BlzCreateFrame("HighlightFrame", iconFrame, 0, 0)
-            set botEventFrame = BlzCreateFrameByType("POPUPMENU", "", iconFrame, "", 0)
-            set frame = BlzCreateFrame("IconButtonTemplate", iconFrame, 0, 0)
-            set topEventFrame = BlzCreateFrameByType("POPUPMENU", "", iconFrame, "", 0)
+            set frame = BlzCreateFrame("ComponentFrame", iconFrame, 0, 0)
+            set button = BlzFrameGetChild(frame, 0)
             set displayFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
             set tagFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
             set spriteFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
             set tooltip = Tooltip.create(frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT, simpleTooltip)
             set table[GetHandleId(frame)] = this
-            set table[GetHandleId(botEventFrame)] = this
-            set table[GetHandleId(topEventFrame)] = this
+            set table[GetHandleId(button)] = this
             
             if owner == null then
                 call BlzFrameSetPoint(iconFrame, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, 0, 0)
@@ -500,12 +508,8 @@ library Components requires Table
             endif
 
             call BlzFrameSetSize(iconFrame, width, height)
-            call BlzFrameSetPoint(botEventFrame, FRAMEPOINT_TOPLEFT, iconFrame, FRAMEPOINT_TOPLEFT, - 0.0040000, 0.0045000)
-            call BlzFrameSetSize(botEventFrame, width + 0.0085, height + 0.0085)
             call BlzFrameSetAllPoints(frame, iconFrame)
-            call BlzFrameSetAllPoints(topEventFrame, iconFrame)
             call BlzFrameSetTooltip(frame, tooltip.frame)
-            call BlzFrameSetTooltip(topEventFrame, tooltip.frame)
             call BlzFrameSetAllPoints(availableFrame, iconFrame)
             call BlzFrameSetVisible(availableFrame, false)
             call BlzFrameSetAllPoints(checkedFrame, iconFrame)
@@ -513,10 +517,10 @@ library Components requires Table
             call BlzFrameSetPoint(highlightFrame, FRAMEPOINT_TOPLEFT, iconFrame, FRAMEPOINT_TOPLEFT, - 0.0040000, 0.0045000)
             call BlzFrameSetSize(highlightFrame, width + 0.0085, height + 0.0085)
             call BlzFrameSetVisible(highlightFrame, false)
-            call BlzTriggerRegisterFrameEvent(clicked, frame, FRAMEEVENT_CONTROL_CLICK)
-            call BlzTriggerRegisterFrameEvent(scrolled, frame, FRAMEEVENT_MOUSE_WHEEL)
-            call BlzTriggerRegisterFrameEvent(enter, botEventFrame, FRAMEEVENT_MOUSE_ENTER)
-            call BlzTriggerRegisterFrameEvent(enter, topEventFrame, FRAMEEVENT_MOUSE_ENTER)
+            call BlzTriggerRegisterFrameEvent(enter, frame, FRAMEEVENT_MOUSE_ENTER)
+            call BlzTriggerRegisterFrameEvent(leave, frame, FRAMEEVENT_MOUSE_LEAVE)
+            call BlzTriggerRegisterFrameEvent(clicked, button, FRAMEEVENT_CONTROL_CLICK)
+            call BlzTriggerRegisterFrameEvent(scrolled, button, FRAMEEVENT_MOUSE_WHEEL)
 
             return this
         endmethod
@@ -525,100 +529,78 @@ library Components requires Table
             local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
 
             if this != 0 then
-                call TriggerEvaluate(scroll)
-            endif
-        endmethod
-
-        private static method onMouseClicked takes nothing returns nothing
-            local thistype this = table[GetHandleId(current[GetPlayerId(GetTriggerPlayer())])]
-
-            if this != 0 then
-                if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_LEFT and click != null then
-                    call TriggerEvaluate(click)
-                endif
-
-                if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_RIGHT and rightClick != null then
-                    call TriggerEvaluate(rightClick)
+                if scroll != null then
+                    call TriggerEvaluate(scroll)
                 endif
             endif
         endmethod
 
         private static method onClicked takes nothing returns nothing
-            local integer i = GetPlayerId(GetTriggerPlayer())
-            local integer j = GetHandleId(BlzGetTriggerFrame())
-            local thistype this = table[j]
+            local integer id = GetPlayerId(GetTriggerPlayer())
+            local thistype this
 
-            if this != 0 then
-                set time[i].real[j] = TimerGetElapsed(double)
+            if GetTriggerEventId() == EVENT_PLAYER_MOUSE_UP then
+                set this = current[id]
 
-                if not keepFocus then
+                if this != 0 then
+                    if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_RIGHT and rightClick != null then
+                        call TriggerEvaluate(rightClick)
+                    endif
+                endif
+            else
+                set this = table[GetHandleId(BlzGetTriggerFrame())]
+
+                if this != 0 then
+                    set time[id].real[this] = TimerGetElapsed(double)
+
                     call BlzFrameSetEnable(frame, false)
                     call BlzFrameSetEnable(frame, true)
-                endif
-
-                if click != null then
-                    call TriggerEvaluate(click)
-                endif
-
-                if time[i].real[j] - doubleTime[i].real[j] <= DOUBLE_CLICK_DELAY then
-                    set doubleTime[i][j] = 0
-
-                    if doubleClick != null then
-                        call TriggerEvaluate(doubleClick)
+    
+                    if click != null then
+                        call TriggerEvaluate(click)
                     endif
-                else
-                    set doubleTime[i].real[j] = time[i].real[j]
+    
+                    if time[id].real[this] - doubleTime[id].real[this] <= DOUBLE_CLICK_DELAY then
+                        set doubleTime[id][this] = 0
+    
+                        if doubleClick != null then
+                            call TriggerEvaluate(doubleClick)
+                        endif
+                    else
+                        set doubleTime[id].real[this] = time[id].real[this]
+                    endif
                 endif
             endif
         endmethod
 
         private static method onEnter takes nothing returns nothing
-            local integer id = GetPlayerId(GetTriggerPlayer())
-            local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
-            local thistype last = table[GetHandleId(current[id])]
+            set current[GetPlayerId(GetTriggerPlayer())] = table[GetHandleId(BlzGetTriggerFrame())]
+        endmethod
 
-            if this != 0 then
-                if GetHandleId(BlzGetTriggerFrame()) == GetHandleId(topEventFrame) then
-                    set current[id] = frame
-
-                    if GetLocalPlayer() == GetTriggerPlayer() then
-                        call BlzFrameSetVisible(topEventFrame, false)
-                    endif
-                else
-                    set current[id] = null
-
-                    if GetLocalPlayer() == GetTriggerPlayer() then
-                        call BlzFrameSetVisible(topEventFrame, true)
-                    endif
-
-                    if last != 0 then
-                        if GetLocalPlayer() == GetTriggerPlayer() then
-                            call BlzFrameSetVisible(last.topEventFrame, true)
-                        endif
-                    endif
-                endif
-            endif
+        private static method onLeave takes nothing returns nothing
+            set current[GetPlayerId(GetTriggerPlayer())] = 0
         endmethod
 
         private static method onInit takes nothing returns nothing
             local integer i = 0
+
             set table = Table.create()
             set time = HashTable.create()
             set doubleTime = HashTable.create()
 
+            call BlzLoadTOCFile("Shop.toc")
             call TimerStart(double, 9999999999, false, null)
+            call TriggerAddAction(enter, function thistype.onEnter)
+            call TriggerAddAction(leave, function thistype.onLeave)
             call TriggerAddAction(clicked, function thistype.onClicked)
             call TriggerAddAction(scrolled, function thistype.onScrolled)
-            call TriggerAddAction(enter, function thistype.onEnter)
 
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    set current[i] = null
-                    call TriggerRegisterPlayerEvent(mouseClicked, Player(i), EVENT_PLAYER_MOUSE_UP)
+                    set current[i] = 0
+                    call TriggerRegisterPlayerEvent(clicked, Player(i), EVENT_PLAYER_MOUSE_UP)
                 set i = i + 1
             endloop
-
-            call TriggerAddAction(mouseClicked, function thistype.onMouseClicked)
         endmethod
     endstruct
 endlibrary
