@@ -9,7 +9,16 @@ Frame "TEXT" "TextTemplate" {
 }
 
 Frame "POPUPMENU" "ComponentFrame" {
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
     Frame "GLUETEXTBUTTON" "ComponentButton" {
+    }
+
+    ControlMouseOverHighlight "ComponentFrameHighLight",
+    Frame "HIGHLIGHT" "ComponentFrameHighLight" {
+        HighlightType "FILETEXTURE",
+        HighlightAlphaFile "UI\Widgets\BattleNet\bnet-button01-highlight-mouse.blp",
+        HighlightAlphaMode "ADD",
     }
 }
 

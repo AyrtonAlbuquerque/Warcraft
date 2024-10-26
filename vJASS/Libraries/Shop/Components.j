@@ -588,7 +588,7 @@ library Components requires Table
             set time = HashTable.create()
             set doubleTime = HashTable.create()
 
-            call BlzLoadTOCFile("Shop.toc")
+            call BlzLoadTOCFile("Components.toc")
             call TimerStart(double, 9999999999, false, null)
             call TriggerAddAction(enter, function thistype.onEnter)
             call TriggerAddAction(leave, function thistype.onLeave)

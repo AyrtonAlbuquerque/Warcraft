@@ -640,7 +640,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local player p = GetTriggerPlayer()
             local thistype this = table[GetTriggerButton()][0]
 
-            if this != 0 and Shop.current[GetPlayerId(p)] != null then
+            if this != 0 then
                 if shop.buy(item, p) then
                     if GetLocalPlayer() == p then
                         call button.play(SPRITE_MODEL, SPRITE_SCALE, 0)
@@ -1665,11 +1665,13 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                                 set Button(button[id][j]).tooltip.name = ItemTable(item[id][j]).name
                                 set Button(button[id][j]).tooltip.text = ItemTable(item[id][j]).tooltip
                                 set Button(button[id][j]).visible = true
+                                set Button(button[id][j]).highlighted = false
                             endif
                         else
                             set item[id][j] = 0
 
                             if GetLocalPlayer() == GetOwningPlayer(u) then
+                                set Button(button[id][j]).highlighted = false
                                 set Button(button[id][j]).visible = false
                             endif
                         endif
@@ -1681,6 +1683,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                         set item[id][j] = 0
 
                         if GetLocalPlayer() == GetOwningPlayer(u) then
+                            set Button(button[id][j]).highlighted = false
                             set Button(button[id][j]).visible = false
                         endif
                     set j = j + 1
@@ -1760,12 +1763,19 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         endmethod
 
         static method onClick takes nothing returns nothing
+            local player p = GetTriggerPlayer()
             local Button b = GetTriggerButton()
-            local thistype this = table[b][0]
+            local integer id = GetPlayerId(p)
             local integer i = table[b][1]
+            local thistype this = table[b][0]
 
             if this != 0 then
-                set selected[GetPlayerId(GetTriggerPlayer())] = i
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    set Button(button[id][selected[id]]).highlighted = false
+                    set Button(button[id][i]).highlighted = true
+                endif
+
+                set selected[id] = i
             endif
         endmethod
 
@@ -1792,7 +1802,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             local thistype this = table[b][0]
             local integer i = table[b][1]
 
-            if this != 0 and Shop.current[id] != null then
+            if this != 0 then
                 if shop.sell(item[id][i], p, i) then
                     call show(shop.buyer.selected.unit[id])
                 endif
@@ -2490,6 +2500,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private static trigger escPressed = CreateTrigger()
         private static trigger enter = CreateTrigger()
         private static timer update = CreateTimer()
+        private static timer timer = CreateTimer()
         private static integer count = -1
         private static HashTable itempool
         private static ItemTable array selected
@@ -2529,7 +2540,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         readonly boolean detailed
         readonly real aoe
         readonly real tax
-        Table timer
         Table scrollCount
         Table scrollFlag
         Table lastClicked
@@ -3024,7 +3034,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 set columns = COLUMNS
                 set count = count + 1
                 set detailed = false
-                set timer = Table.create()
                 set scrollCount = Table.create()
                 set scrollFlag = Table.create()
                 set lastClicked = Table.create()
@@ -3077,9 +3086,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
                 loop
                     exitwhen i >= bj_MAX_PLAYER_SLOTS
-                        set timer.timer[i] = CreateTimer()
-                        set table[GetHandleId(timer.timer[i])][0] = this
-                        set table[GetHandleId(timer.timer[i])][1] = i
                         set table[GetHandleId(Player(i))][id] = this
                         set table[GetHandleId(Player(i))][count] = id
                     set i = i + 1
@@ -3113,26 +3119,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 if scrollFlag.boolean[i] != direction then
                     set scrollFlag.boolean[i] = direction
                     set scrollCount[i] = 0
-    
-                    call PauseTimer(timer.timer[i])
-
-                    if GetLocalPlayer() == GetTriggerPlayer() then
-                        call scroll(scrollFlag.boolean[i])
-                    endif
                 else
                     set scrollCount[i] = scrollCount[i] + 1
                 endif
 
-                if SCROLL_DELAY > 0 then
+                if GetLocalPlayer() == GetTriggerPlayer() then
                     if scrollCount[i] == 1 then
-                        call TimerStart(timer.timer[i], SCROLL_DELAY, true, function thistype.onExpire)
-
-                        if GetLocalPlayer() == GetTriggerPlayer() then
-                            call scroll(direction)
-                        endif
-                    endif
-                else
-                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        call scroll(direction)
+                    else
                         call scroll(direction)
                     endif
                 endif
@@ -3140,20 +3134,17 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         endmethod
 
         private static method onExpire takes nothing returns nothing
-            local thistype this = table[GetHandleId(GetExpiredTimer())][0]
-            local integer i = table[GetHandleId(GetExpiredTimer())][1]
+            local integer id = GetPlayerId(GetLocalPlayer())
+            local thistype this = table[GetUnitTypeId(current[id])][0]
 
-            set scrollCount[i] = scrollCount[i] - 1
+            if this != 0 then
+                set scrollCount[id] = scrollCount[id] - 1
 
-            if scrollCount[i] > 0 then
-                if GetLocalPlayer() == Player(i) then
-                    if not scroll(scrollFlag.boolean[i]) then
-                        set scrollCount[i] = 0
-                    endif
+                if scrollCount[id] > 0 then
+                    call scroll(scrollFlag.boolean[id])
+                else
+                    set scrollCount[id] = 0
                 endif
-            else
-                set scrollCount[i] = 0
-                call PauseTimer(GetExpiredTimer())
             endif
         endmethod
 
@@ -3375,7 +3366,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 set i = i + 1
             endloop
 
-            call BlzLoadTOCFile("Shop.toc")
+            if SCROLL_DELAY > 0 then
+                call TimerStart(timer, SCROLL_DELAY, true, function thistype.onExpire)
+            endif
+
             call TimerStart(update, UPDATE_PERIOD, true, function thistype.onPeriod)
             call TriggerAddAction(trigger, function thistype.onScroll)
             call TriggerAddCondition(search, Condition(function thistype.onSearch)) 
