@@ -56,10 +56,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private constant real DETAIL_SHIFT_BUTTON_SIZE  = 0.012
         private constant string USED_RIGHT              = "ReplaceableTextures\\CommandButtons\\BTNReplay-SpeedDown.blp"
         private constant string USED_LEFT               = "ReplaceableTextures\\CommandButtons\\BTNReplay-SpeedUp.blp"
-        
-        // When true, a click in a component in the
-        // detail panel will detail the clicked component
-        private constant boolean DETAIL_COMPONENT       = true
 
         // Side Panels
         private constant real SIDE_WIDTH                = 0.075
@@ -71,11 +67,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         private constant integer CATEGORY_COUNT         = 13
         private constant real CATEGORY_SIZE             = 0.02750
         private constant real CATEGORY_GAP              = 0.0
-
-        // Favorite key 
-        // LSHIT, LCONTROL are buggy on KeyDown event, 
-        // complain to blizzard, not me
-        private constant oskeytype FAVORITE_KEY         = OSKEY_TAB
 
         // ItemTable slots
         private constant real SLOT_WIDTH                = 0.04
@@ -488,6 +479,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set button.onRightClick = c
         endmethod
 
+        method operator onMiddleClick= takes code c returns nothing
+            set button.onMiddleClick = c
+        endmethod
+
         method operator onDoubleClick= takes code c returns nothing
             set button.onDoubleClick = c
         endmethod
@@ -589,6 +584,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set .column = column
             set onClick = function thistype.onClicked
             set onScroll = function thistype.onScrolled
+            set onMiddleClick = function thistype.onMiddleClicked
             set onDoubleClick = function thistype.onDoubleClicked
             set onRightClick = function thistype.onRightClicked
             set table[button][0] = this
@@ -610,18 +606,23 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         endmethod
 
         static method onClicked takes nothing returns nothing
-            local player p = GetTriggerPlayer()
             local thistype this = table[GetTriggerButton()][0]
 
             if this != 0 then
-                if Shop.tag[GetPlayerId(p)] then
-                    call shop.favorites.add(item, p)
+                call shop.detail(item, GetTriggerPlayer())
+            endif
+        endmethod
+
+        static method onMiddleClicked takes nothing returns nothing
+            local thistype this = table[GetTriggerButton()][0]
+
+            if this != 0 then
+                if shop.favorites.has(item.id, GetTriggerPlayer()) then
+                    call shop.favorites.remove(item, GetTriggerPlayer())
                 else
-                    call shop.detail(item, p)
+                    call shop.favorites.add(item, GetTriggerPlayer())
                 endif
             endif
-
-            set p = null
         endmethod
 
         static method onDoubleClicked takes nothing returns nothing
@@ -637,12 +638,11 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         endmethod
 
         static method onRightClicked takes nothing returns nothing
-            local player p = GetTriggerPlayer()
             local thistype this = table[GetTriggerButton()][0]
 
             if this != 0 then
-                if shop.buy(item, p) then
-                    if GetLocalPlayer() == p then
+                if shop.buy(item, GetTriggerPlayer()) then
+                    if GetLocalPlayer() == GetTriggerPlayer() then
                         call button.play(SPRITE_MODEL, SPRITE_SCALE, 0)
                     endif
                 endif
@@ -1340,31 +1340,37 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                     set Slot(main[i]).visible = GetLocalPlayer() == Player(i)
                     set Slot(main[i]).onClick = function thistype.onClick
                     set Slot(main[i]).onRightClick = function thistype.onRightClick
+                    set Slot(main[i]).onMiddleClick = function thistype.onMiddleClick
                     set Slot(main[i]).onDoubleClick = function thistype.onDoubleClick
                     set center[i] = Slot.create(frame, 0, 0.13625, - 0.10200, FRAMEPOINT_TOPRIGHT, false)
                     set Slot(center[i]).visible = false
                     set Slot(center[i]).onClick = function thistype.onClick
                     set Slot(center[i]).onRightClick = function thistype.onRightClick
+                    set Slot(center[i]).onMiddleClick = function thistype.onMiddleClick
                     set Slot(center[i]).onDoubleClick = function thistype.onDoubleClick
                     set left1[i] = Slot.create(frame, 0, 0.087250, - 0.10200, FRAMEPOINT_TOPRIGHT, false)
                     set Slot(left1[i]).visible = false
                     set Slot(left1[i]).onClick = function thistype.onClick
                     set Slot(left1[i]).onRightClick = function thistype.onRightClick
+                    set Slot(left1[i]).onMiddleClick = function thistype.onMiddleClick
                     set Slot(left1[i]).onDoubleClick = function thistype.onDoubleClick
                     set left2[i] = Slot.create(frame, 0, 0.038250, - 0.10200, FRAMEPOINT_TOPRIGHT, false)
                     set Slot(left2[i]).visible = false
                     set Slot(left2[i]).onClick = function thistype.onClick
                     set Slot(left2[i]).onRightClick = function thistype.onRightClick
+                    set Slot(left2[i]).onMiddleClick = function thistype.onMiddleClick
                     set Slot(left2[i]).onDoubleClick = function thistype.onDoubleClick
                     set right1[i] = Slot.create(frame, 0, 0.18525, - 0.10200, FRAMEPOINT_TOPRIGHT, false)
                     set Slot(right1[i]).visible = false
                     set Slot(right1[i]).onClick = function thistype.onClick
                     set Slot(right1[i]).onRightClick = function thistype.onRightClick
+                    set Slot(right1[i]).onMiddleClick = function thistype.onMiddleClick
                     set Slot(right1[i]).onDoubleClick = function thistype.onDoubleClick
                     set right2[i] = Slot.create(frame, 0, 0.23425, - 0.10200, FRAMEPOINT_TOPRIGHT, false)
                     set Slot(right2[i]).visible = false
                     set Slot(right2[i]).onClick = function thistype.onClick
                     set Slot(right2[i]).onRightClick = function thistype.onRightClick
+                    set Slot(right2[i]).onMiddleClick = function thistype.onMiddleClick
                     set Slot(right2[i]).onDoubleClick = function thistype.onDoubleClick
                     set table[Slot(main[i]).button][0] = this
                     set table[Slot(center[i]).button][0] = this
@@ -1379,6 +1385,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                             set Button(button[i][j]).onClick = function thistype.onClick
                             set Button(button[i][j]).onScroll = function thistype.onScroll
                             set Button(button[i][j]).onRightClick = function thistype.onRightClick
+                            set Button(button[i][j]).onMiddleClick = function thistype.onMiddleClick
                             set Button(button[i][j]).tooltip.point = FRAMEPOINT_BOTTOMRIGHT
                             set Button(button[i][j]).visible = false
                             set table[button[i][j]][0] = this
@@ -1407,9 +1414,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
         static method onClick takes nothing returns nothing
             local Button b = GetTriggerButton()
-            local thistype this = table[b][0]
-            local integer i = table[b][1]
             local integer id = GetPlayerId(GetTriggerPlayer())
+            local thistype this = table[b][0]
 
             if this != 0 then
                 if b == close then
@@ -1419,56 +1425,70 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                 elseif b == right then
                     call shift(true, GetTriggerPlayer())
                 elseif b == Slot(center[id]).button then
-                    if Shop.tag[id] then
-                        call shop.favorites.add(Slot(center[id]).item, GetTriggerPlayer())
+                    call shop.detail(Slot(center[id]).item, GetTriggerPlayer())
+                elseif b == Slot(left1[id]).button then
+                    call shop.detail(Slot(left1[id]).item, GetTriggerPlayer())
+                elseif b == Slot(left2[id]).button then
+                    call shop.detail(Slot(left2[id]).item, GetTriggerPlayer())
+                elseif b == Slot(right1[id]).button then
+                    call shop.detail(Slot(right1[id]).item, GetTriggerPlayer())
+                elseif b == Slot(right2[id]).button then
+                    call shop.detail(Slot(right2[id]).item, GetTriggerPlayer())
+                elseif b != Slot(main[id]).button then
+                    call shop.detail(used[id][table[b][1]], GetTriggerPlayer())
+                elseif b == Slot(main[id]).button then
+                    call shop.select(Slot(main[id]).item, GetTriggerPlayer())
+                endif
+            endif
+        endmethod
+
+        static method onMiddleClick takes nothing returns nothing
+            local Button b = GetTriggerButton()
+            local integer id = GetPlayerId(GetTriggerPlayer())
+            local thistype this = table[b][0]
+
+            if this != 0 then
+                if b == Slot(center[id]).button then
+                    if shop.favorites.has(Slot(center[id]).item.id, GetTriggerPlayer()) then
+                        call shop.favorites.remove(Slot(center[id]).item, GetTriggerPlayer())
                     else
-                        static if DETAIL_COMPONENT then
-                            call shop.detail(Slot(center[id]).item, GetTriggerPlayer())
-                        endif
+                        call shop.favorites.add(Slot(center[id]).item, GetTriggerPlayer())
                     endif
                 elseif b == Slot(left1[id]).button then
-                    if Shop.tag[id] then
-                        call shop.favorites.add(Slot(left1[id]).item, GetTriggerPlayer())
+                    if shop.favorites.has(Slot(left1[id]).item.id, GetTriggerPlayer()) then
+                        call shop.favorites.remove(Slot(left1[id]).item, GetTriggerPlayer())
                     else
-                        static if DETAIL_COMPONENT then
-                            call shop.detail(Slot(left1[id]).item, GetTriggerPlayer())
-                        endif
+                        call shop.favorites.add(Slot(left1[id]).item, GetTriggerPlayer())
                     endif
                 elseif b == Slot(left2[id]).button then
-                    if Shop.tag[id] then
-                        call shop.favorites.add(Slot(left2[id]).item, GetTriggerPlayer())
+                    if shop.favorites.has(Slot(left2[id]).item.id, GetTriggerPlayer()) then
+                        call shop.favorites.remove(Slot(left2[id]).item, GetTriggerPlayer())
                     else
-                        static if DETAIL_COMPONENT then
-                            call shop.detail(Slot(left2[id]).item, GetTriggerPlayer())
-                        endif
+                        call shop.favorites.add(Slot(left2[id]).item, GetTriggerPlayer())
                     endif
                 elseif b == Slot(right1[id]).button then
-                    if Shop.tag[id] then
-                        call shop.favorites.add(Slot(right1[id]).item, GetTriggerPlayer())
+                    if shop.favorites.has(Slot(right1[id]).item.id, GetTriggerPlayer()) then
+                        call shop.favorites.remove(Slot(right1[id]).item, GetTriggerPlayer())
                     else
-                        static if DETAIL_COMPONENT then
-                            call shop.detail(Slot(right1[id]).item, GetTriggerPlayer())
-                        endif
+                        call shop.favorites.add(Slot(right1[id]).item, GetTriggerPlayer())
                     endif
                 elseif b == Slot(right2[id]).button then
-                    if Shop.tag[id] then
-                        call shop.favorites.add(Slot(right2[id]).item, GetTriggerPlayer())
+                    if shop.favorites.has(Slot(right2[id]).item.id, GetTriggerPlayer()) then
+                        call shop.favorites.remove(Slot(right2[id]).item, GetTriggerPlayer())
                     else
-                        static if DETAIL_COMPONENT then
-                            call shop.detail(Slot(right2[id]).item, GetTriggerPlayer())
-                        endif
+                        call shop.favorites.add(Slot(right2[id]).item, GetTriggerPlayer())
                     endif
                 elseif b != Slot(main[id]).button then
-                    if Shop.tag[id] then
-                        call shop.favorites.add(used[id][i], GetTriggerPlayer())
+                    if shop.favorites.has(ItemTable(used[id][table[b][1]]).id, GetTriggerPlayer()) then
+                        call shop.favorites.remove(used[id][table[b][1]], GetTriggerPlayer())
                     else
-                        call shop.detail(used[id][i], GetTriggerPlayer())
+                        call shop.favorites.add(used[id][table[b][1]], GetTriggerPlayer())
                     endif
                 elseif b == Slot(main[id]).button then
-                    if Shop.tag[id] then
-                        call shop.favorites.add(Slot(main[id]).item, GetTriggerPlayer())
+                    if shop.favorites.has(Slot(main[id]).item.id, GetTriggerPlayer()) then
+                        call shop.favorites.remove(Slot(main[id]).item, GetTriggerPlayer())
                     else
-                        call shop.select(Slot(main[id]).item, GetTriggerPlayer())
+                        call shop.favorites.add(Slot(main[id]).item, GetTriggerPlayer())
                     endif
                 endif
             endif
@@ -2272,31 +2292,44 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             endloop
         endmethod
 
-        method remove takes integer i, player p returns nothing
+        method remove takes ItemTable i, player p returns nothing
+            local integer j = 0
+            local integer k = 0
             local integer id = GetPlayerId(p)
 
-            if GetLocalPlayer() == p then
-                call ShopSlot(table[shop][ItemTable(item[id][i]).id]).button.tag(null, 0, null, null, 0, 0)
+            if has(i.id, p) then
+                loop
+                    exitwhen j > count.integer[id]
+                        if ItemTable(item[id][j]).id == i.id then
+                            set k = j
+
+                            if GetLocalPlayer() == p then
+                                call ShopSlot(table[shop][i.id]).button.tag(null, 0, null, null, 0, 0)
+                            endif
+                
+                            loop
+                                exitwhen k >= count[id]
+                                    set item[id][k] = item[id][k + 1]
+                
+                                    if GetLocalPlayer() == p then
+                                        set Button(button[id][k]).icon = ItemTable(item[id][k]).icon
+                                        set Button(button[id][k]).tooltip.text = ItemTable(item[id][k]).tooltip
+                                        set Button(button[id][k]).tooltip.name = ItemTable(item[id][k]).name
+                                        set Button(button[id][k]).tooltip.icon = ItemTable(item[id][k]).icon
+                                    endif
+                                set k = k + 1
+                            endloop
+                
+                            if GetLocalPlayer() == p then
+                                set Button(button[id][count[id]]).visible = false
+                            endif
+                            
+                            set count[id] = count[id] - 1
+                            exitwhen true
+                        endif
+                    set j = j + 1
+                endloop
             endif
-
-            loop
-                exitwhen i >= count[id]
-                    set item[id][i] = item[id][i + 1]
-
-                    if GetLocalPlayer() == p then
-                        set Button(button[id][i]).icon = ItemTable(item[id][i]).icon
-                        set Button(button[id][i]).tooltip.text = ItemTable(item[id][i]).tooltip
-                        set Button(button[id][i]).tooltip.name = ItemTable(item[id][i]).name
-                        set Button(button[id][i]).tooltip.icon = ItemTable(item[id][i]).icon
-                    endif
-                set i = i + 1
-            endloop
-
-            if GetLocalPlayer() == p then
-                set Button(button[id][count[id]]).visible = false
-            endif
-            
-            set count[id] = count[id] - 1
         endmethod
 
         method add takes ItemTable i, player p returns nothing
@@ -2339,6 +2372,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
                             set button[i][j] = Button.create(shop.rightPanel, CATEGORY_SIZE, CATEGORY_SIZE, 0.023750, - (0.021500 + CATEGORY_SIZE*j + CATEGORY_GAP), false, false)
                             set Button(button[i][j]).visible = false
                             set Button(button[i][j]).onClick = function thistype.onClick
+                            set Button(button[i][j]).onMiddleClick = function thistype.onMiddleClick
                             set Button(button[i][j]).onDoubleClick = function thistype.onDoubleClick
                             set Button(button[i][j]).onRightClick = function thistype.onRightClick
                             set Button(button[i][j]).tooltip.point = FRAMEPOINT_TOPRIGHT
@@ -2359,15 +2393,18 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         static method onClick takes nothing returns nothing
             local Button b = GetTriggerButton()
             local thistype this = table[b][0]
-            local integer i = table[b][1]
-            local integer id = GetPlayerId(GetTriggerPlayer())
 
             if this != 0 then
-                if Shop.tag[id] then
-                    call remove(i, GetTriggerPlayer())
-                else
-                    call shop.detail(item[id][i], GetTriggerPlayer())
-                endif
+                call shop.detail(item[GetPlayerId(GetTriggerPlayer())][table[b][1]], GetTriggerPlayer())
+            endif
+        endmethod
+
+        static method onMiddleClick takes nothing returns nothing
+            local Button b = GetTriggerButton()
+            local thistype this = table[b][0]
+
+            if this != 0 then
+                call remove(item[GetPlayerId(GetTriggerPlayer())][table[b][1]], GetTriggerPlayer())
             endif
         endmethod
 
@@ -2496,7 +2533,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
     struct Shop
         private static trigger trigger = CreateTrigger()
         private static trigger search = CreateTrigger()
-        private static trigger keyPress = CreateTrigger()
         private static trigger escPressed = CreateTrigger()
         private static trigger enter = CreateTrigger()
         private static timer update = CreateTimer()
@@ -2508,7 +2544,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
         readonly static sound error
         readonly static sound array noGold
         readonly static group array group
-        readonly static boolean array tag
         readonly static unit array current
 
         private boolean isVisible
@@ -3295,10 +3330,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
             set p = null
         endmethod
 
-        private static method onKey takes nothing returns nothing
-            set tag[GetPlayerId(GetTriggerPlayer())] = BlzGetTriggerPlayerIsKeyDown()
-        endmethod
-
         private static method onEsc takes nothing returns nothing
             local thistype this
             local player p = GetTriggerPlayer()
@@ -3358,10 +3389,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    set tag[i] = false
                     set group[i] = CreateGroup()
-                    call BlzTriggerRegisterPlayerKeyEvent(keyPress, Player(i), FAVORITE_KEY, 0, true)
-                    call BlzTriggerRegisterPlayerKeyEvent(keyPress, Player(i), FAVORITE_KEY, 0, false)
                     call TriggerRegisterPlayerEventEndCinematic(escPressed, Player(i))
                 set i = i + 1
             endloop
@@ -3372,8 +3400,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components
 
             call TimerStart(update, UPDATE_PERIOD, true, function thistype.onPeriod)
             call TriggerAddAction(trigger, function thistype.onScroll)
-            call TriggerAddCondition(search, Condition(function thistype.onSearch)) 
-            call TriggerAddCondition(keyPress, Condition(function thistype.onKey))
+            call TriggerAddCondition(search, Condition(function thistype.onSearch))
             call TriggerAddCondition(escPressed, Condition(function thistype.onEsc))
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function thistype.onSelect)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DESELECTED, function thistype.onSelect)

@@ -196,6 +196,7 @@ library Components requires Table
         private trigger scroll
         private trigger doubleClick
         private trigger rightClick
+        private trigger middleClick
         private framehandle base
         private framehandle parent
         private framehandle tagFrame
@@ -203,6 +204,7 @@ library Components requires Table
         private framehandle spriteFrame
         private framehandle displayFrame
         private framehandle checkedFrame
+        private framehandle chargesFrame
         private framehandle availableFrame
         private framehandle highlightFrame
         private boolean keepFocus
@@ -393,6 +395,16 @@ library Components requires Table
             endif
         endmethod
 
+        method operator onMiddleClick= takes code c returns nothing
+            call DestroyTrigger(middleClick)
+            set middleClick = null
+
+            if c != null then
+                set middleClick = CreateTrigger()
+                call TriggerAddCondition(middleClick, Condition(c))
+            endif
+        endmethod
+
         method destroy takes nothing returns nothing
             call table.remove(GetHandleId(frame))
             call DestroyTrigger(click)
@@ -545,6 +557,10 @@ library Components requires Table
                 if this != 0 then
                     if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_RIGHT and rightClick != null then
                         call TriggerEvaluate(rightClick)
+                    endif
+
+                    if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_MIDDLE and middleClick != null then
+                        call TriggerEvaluate(middleClick)
                     endif
                 endif
             else
