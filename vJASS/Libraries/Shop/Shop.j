@@ -673,8 +673,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         HashTable used
         HashTable button
         framehandle tooltip
-        framehandle topSeparator
-        framehandle bottomSeparator
+        framehandle tooltip1
+        framehandle tooltip2
+        framehandle tooltip3
+        framehandle separator
         framehandle usedText
         framehandle horizontalRight
         framehandle horizontalLeft
@@ -729,8 +731,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             call uses.destroy()
             call used.destroy()
             call button.destroy()
-            call BlzDestroyFrame(topSeparator)
-            call BlzDestroyFrame(bottomSeparator)
+            call BlzDestroyFrame(separator)
             call BlzDestroyFrame(usedText)
             call BlzDestroyFrame(horizontalRight)
             call BlzDestroyFrame(horizontalLeft)
@@ -741,10 +742,12 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             call BlzDestroyFrame(verticalRight1)
             call BlzDestroyFrame(verticalRight2)
             call BlzDestroyFrame(tooltip)
+            call BlzDestroyFrame(tooltip1)
+            call BlzDestroyFrame(tooltip2)
+            call BlzDestroyFrame(tooltip3)
 
             set tooltip = null
-            set topSeparator = null
-            set bottomSeparator = null
+            set separator = null
             set usedText = null
             set horizontalRight = null
             set horizontalLeft = null
@@ -1145,8 +1148,18 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                 set Slot(main[id]).available = shop.has(i.id)
 
                 if GetLocalPlayer() == p then
-                    call BlzFrameSetText(Slot(main[id]).cost, "|cffFFCC00" + I2S(i.cost(shop.buyer.selected.unit[id])) + "|r")
+                    set uses.visible = count[id] > 0
+
                     call BlzFrameSetText(tooltip, i.tooltip)
+                    call BlzFrameSetText(tooltip1, i.tooltip)
+                    call BlzFrameSetText(tooltip2, i.tooltip)
+                    call BlzFrameSetText(tooltip3, i.tooltip)
+                    call BlzFrameSetVisible(tooltip, uses.visible and i.components > 0)
+                    call BlzFrameSetVisible(tooltip1, uses.visible and i.components == 0)
+                    call BlzFrameSetVisible(tooltip2, not uses.visible and i.components > 0)
+                    call BlzFrameSetVisible(tooltip3, not uses.visible and i.components == 0)
+                    call BlzFrameSetText(Slot(main[id]).cost, "|cffFFCC00" + I2S(i.cost(shop.buyer.selected.unit[id])) + "|r")
+
                     set visible = true
                 endif
             endif
@@ -1170,9 +1183,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set right2 = Table.create()
             set used = HashTable.create()
             set button = HashTable.create()
-            set topSeparator = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
-            set bottomSeparator = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set tooltip = BlzCreateFrame("DescriptionArea", frame, 0, 0)
+            set tooltip1 = BlzCreateFrame("DescriptionArea", frame, 0, 0)
+            set tooltip2 = BlzCreateFrame("DescriptionArea", frame, 0, 0)
+            set tooltip3 = BlzCreateFrame("DescriptionArea", frame, 0, 0)
             set horizontalLeft = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set horizontalRight = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set verticalMain = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
@@ -1183,6 +1197,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set verticalRight2 = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set uses = Panel.create(x + 0.0225, y - 0.3155,  0.2675, 0.061, frame, "TransparentBackdrop")
             set uses.onScroll = function thistype.onScrolled
+            set separator = BlzCreateFrameByType("BACKDROP", "", uses.frame, "", 0)
             set usedText = BlzCreateFrameByType("TEXT", "", uses.frame, "", 0)
             set close = Button.create(0.26676, - 0.025, DETAIL_CLOSE_BUTTON_SIZE, DETAIL_CLOSE_BUTTON_SIZE, frame, true)
             set close.icon = CLOSE_ICON
@@ -1201,21 +1216,27 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set table[right][0] = this
             set table[uses][0] = this
 
-            call BlzFrameSetPoint(topSeparator, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.0275, - 0.15585)
-            call BlzFrameSetPoint(bottomSeparator, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.0275, - 0.31585)
+            call BlzFrameSetPoint(separator, FRAMEPOINT_TOPLEFT, uses.frame, FRAMEPOINT_TOPLEFT, 0, 0)
             call BlzFrameSetPoint(usedText, FRAMEPOINT_TOPLEFT, uses.frame, FRAMEPOINT_TOPLEFT, 0.115, - 0.0025)
-            call BlzFrameSetPoint(tooltip, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.0275, - 0.1595)
-            call BlzFrameSetSize(topSeparator, 0.255, 0.001)
-            call BlzFrameSetSize(bottomSeparator, 0.255, 0.001)
+            call BlzFrameSetPoint(tooltip, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.0275, - 0.16)
+            call BlzFrameSetPoint(tooltip1, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.0275, - 0.09)
+            call BlzFrameSetPoint(tooltip2, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.0275, - 0.16)
+            call BlzFrameSetPoint(tooltip3, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.0275, - 0.09)
+            call BlzFrameSetSize(separator, 0.2675, 0.001)
             call BlzFrameSetSize(usedText, 0.04, 0.012)
             call BlzFrameSetSize(tooltip, 0.31, 0.16)
+            call BlzFrameSetSize(tooltip1, 0.31, 0.23)
+            call BlzFrameSetSize(tooltip2, 0.31, 0.22)
+            call BlzFrameSetSize(tooltip3, 0.31, 0.29)
             call BlzFrameSetText(tooltip, "")
+            call BlzFrameSetText(tooltip1, "")
+            call BlzFrameSetText(tooltip2, "")
+            call BlzFrameSetText(tooltip3, "")
             call BlzFrameSetText(usedText, "|cffFFCC00 Used in|r")
             call BlzFrameSetEnable(usedText, false)
             call BlzFrameSetScale(usedText, 1)
             call BlzFrameSetTextAlignment(usedText, TEXT_JUSTIFY_TOP, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetTexture(bottomSeparator, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
-            call BlzFrameSetTexture(topSeparator, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
+            call BlzFrameSetTexture(separator, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
             call BlzFrameSetTexture(horizontalLeft, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
             call BlzFrameSetTexture(horizontalRight, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
             call BlzFrameSetTexture(verticalMain, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
