@@ -22,6 +22,17 @@ Frame "POPUPMENU" "ComponentFrame" {
     }
 }
 
+Frame "POPUPMENU" "PanelFrame" {
+    Frame "GLUETEXTBUTTON" "PanelButton" {
+    }
+}
+
+Frame "BACKDROP" "TransparentBackdrop" {
+    DecorateFileNames,
+    BackdropBackground  "EscMenuBlankBackground",
+    BackdropBlendAll,
+}
+
 Frame "FRAME" "TooltipBoxFrame" {
     Frame "BACKDROP" "TooltipBox" {
         DecorateFileNames,

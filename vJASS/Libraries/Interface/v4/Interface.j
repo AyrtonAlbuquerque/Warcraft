@@ -24,7 +24,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
         private constant real PORTRAIT_WIDTH = 0.085
         private constant real PORTRAIT_HEIGHT = 0.09
         // Portrait darkness level (<= 0 -> None, > 0 -> Darker)
-        private constant integer PORTRAIT_DARKNESS = 2
+        private constant integer PORTRAIT_DARKNESS = 1
         /* --------------------------------------- Health Bar -------------------------------------- */
         // The initial position of the health bar (relative to the info panel)
         private constant real HEALTH_X = 0.017
@@ -376,7 +376,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
         private constant real MINIMAP_WIDTH = 0.15
         private constant real MINIMAP_HEIGHT = 0.15
         // Minimap initial transparency (0 -> 100%, 255 -> 0%)
-        private constant real MAP_TRANSPARENCY = 64
+        private constant real MAP_TRANSPARENCY = 255
         // The minimap toggle key
         private constant oskeytype MINIMAP_TOGGLE_KEY = OSKEY_TAB
         /* ------------------------------------------ Shop ----------------------------------------- */
