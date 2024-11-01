@@ -207,7 +207,7 @@ library Components requires Table
 
         private real xPos
         private real yPos
-        private real widhtSize
+        private real widthSize
         private real heightSize
         private string path
         private boolean isVisible
@@ -255,28 +255,28 @@ library Components requires Table
         endmethod
 
         method operator width= takes real newWidth returns nothing
-            set widhtSize = newWidth
+            set widthSize = newWidth
 
             call BlzFrameClearAllPoints(base)
             call BlzFrameSetSize(base, newWidth, heightSize)
         endmethod
 
         method operator width takes nothing returns real
-            return widhtSize
+            return widthSize
         endmethod
 
         method operator height= takes real newHeight returns nothing
             set heightSize = newHeight
 
             call BlzFrameClearAllPoints(base)
-            call BlzFrameSetSize(base, widhtSize, newHeight)
+            call BlzFrameSetSize(base, widthSize, newHeight)
         endmethod
 
         method operator height takes nothing returns real
             return heightSize
         endmethod
 
-        method operator icon= takes string path returns nothing
+        method operator texture= takes string path returns nothing
             set .path = path
 
             if path != "" and path != null then
@@ -287,7 +287,7 @@ library Components requires Table
             endif
         endmethod
 
-        method operator icon takes nothing returns string
+        method operator texture takes nothing returns string
             return path
         endmethod
 

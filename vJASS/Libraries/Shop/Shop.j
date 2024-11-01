@@ -239,7 +239,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             call BlzFrameSetTextAlignment(cost, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
 
             if item != 0 then
-                set icon = item.icon
+                set texture = item.icon
                 set tooltip.text = item.tooltip
                 set tooltip.name = item.name
                 set tooltip.icon = item.icon
@@ -506,7 +506,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                             set item[id][j] = Item.get(GetItemTypeId(i))
 
                             if GetLocalPlayer() == GetOwningPlayer(u) then
-                                set Button(button[id][j]).icon = Item(item[id][j]).icon
+                                set Button(button[id][j]).texture = Item(item[id][j]).icon
                                 set Button(button[id][j]).tooltip.icon = Item(item[id][j]).icon
                                 set Button(button[id][j]).tooltip.name = Item(item[id][j]).name
                                 set Button(button[id][j]).tooltip.text = Item(item[id][j]).tooltip
@@ -788,7 +788,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                             set used[id][j] = used[id][j + 1]
 
                             if GetLocalPlayer() == p then
-                                set Button(button[id][j]).icon = Item(used[id][j]).icon
+                                set Button(button[id][j]).texture = Item(used[id][j]).icon
                                 set Button(button[id][j]).tooltip.text = Item(used[id][j]).tooltip
                                 set Button(button[id][j]).tooltip.name = Item(used[id][j]).name
                                 set Button(button[id][j]).tooltip.icon = Item(used[id][j]).icon
@@ -805,7 +805,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                         set used[id][j] = i
 
                         if GetLocalPlayer() == p then
-                            set Button(button[id][j]).icon = i.icon
+                            set Button(button[id][j]).texture = i.icon
                             set Button(button[id][j]).tooltip.text = i.tooltip
                             set Button(button[id][j]).tooltip.name = i.name
                             set Button(button[id][j]).tooltip.icon = i.icon
@@ -823,7 +823,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                             set used[id][j] = used[id][j - 1]
 
                             if GetLocalPlayer() == p then
-                                set Button(button[id][j]).icon = Item(used[id][j]).icon
+                                set Button(button[id][j]).texture = Item(used[id][j]).icon
                                 set Button(button[id][j]).tooltip.text = Item(used[id][j]).tooltip
                                 set Button(button[id][j]).tooltip.name = Item(used[id][j]).name
                                 set Button(button[id][j]).tooltip.icon = Item(used[id][j]).icon
@@ -840,7 +840,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                         set used[id][j] = i
 
                         if GetLocalPlayer() == p then
-                            set Button(button[id][j]).icon = i.icon
+                            set Button(button[id][j]).texture = i.icon
                             set Button(button[id][j]).tooltip.text = i.tooltip
                             set Button(button[id][j]).tooltip.name = i.name
                             set Button(button[id][j]).tooltip.icon = i.icon
@@ -865,7 +865,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                         set used[id][j] = i
 
                         if GetLocalPlayer() == p then
-                            set Button(button[id][count[id]]).icon = i.icon
+                            set Button(button[id][count[id]]).texture = i.icon
                             set Button(button[id][count[id]]).tooltip.text = i.tooltip
                             set Button(button[id][count[id]]).tooltip.name = i.name
                             set Button(button[id][count[id]]).tooltip.icon = i.icon
@@ -1093,7 +1093,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                                 endif
 
                                 set slot.item = component
-                                set slot.icon = component.icon
+                                set slot.texture = component.icon
                                 set slot.tooltip.text = component.tooltip
                                 set slot.tooltip.name = component.name
                                 set slot.tooltip.icon = component.icon
@@ -1146,7 +1146,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                     endif
                 endif
 
-                set Slot(main[id]).icon = i.icon
+                set Slot(main[id]).texture = i.icon
                 set Slot(main[id]).tooltip.text = i.tooltip
                 set Slot(main[id]).tooltip.name = i.name
                 set Slot(main[id]).tooltip.icon = i.icon
@@ -1205,15 +1205,15 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set separator = BlzCreateFrameByType("BACKDROP", "", uses.frame, "", 0)
             set usedText = BlzCreateFrameByType("TEXT", "", uses.frame, "", 0)
             set close = Button.create(0.26676, - 0.025, DETAIL_CLOSE_BUTTON_SIZE, DETAIL_CLOSE_BUTTON_SIZE, frame, true)
-            set close.icon = CLOSE_ICON
+            set close.texture = CLOSE_ICON
             set close.tooltip.text = "Close"
             set close.onClick = function thistype.onClicked
             set left = Button.create(0.005, - 0.0025, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, uses.frame, true)
-            set left.icon = USED_LEFT
+            set left.texture = USED_LEFT
             set left.tooltip.text = "Scroll Left"
             set left.onClick = function thistype.onClicked
             set right = Button.create(0.248, - 0.0025, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, uses.frame, true)
-            set right.icon = USED_RIGHT
+            set right.texture = USED_RIGHT
             set right.tooltip.text = "Scroll Right"
             set right.onClick = function thistype.onClicked
             set table[close][0] = this
@@ -1454,7 +1454,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                             set unit[id].unit[i] = unit[id].unit[i + 1]
 
                             if GetLocalPlayer() == p then
-                                set Button(button[id][i]).icon = Button(button[id][i + 1]).icon
+                                set Button(button[id][i]).texture = Button(button[id][i + 1]).texture
                                 set Button(button[id][i]).tooltip.text = Button(button[id][i + 1]).tooltip.text
                                 set Button(button[id][i]).highlighted = selected.unit[id] == unit[id].unit[i]
                                 set Button(button[id][i]).visible = true
@@ -1473,7 +1473,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                         set unit[id].unit[i] = u
 
                         if GetLocalPlayer() == p then
-                            set Button(button[id][i]).icon = BlzGetAbilityIcon(GetUnitTypeId(u))
+                            set Button(button[id][i]).texture = BlzGetAbilityIcon(GetUnitTypeId(u))
                             set Button(button[id][i]).tooltip.text = GetUnitName(u)
                             set Button(button[id][i]).visible = true
                             set Button(button[id][i]).highlighted = selected.unit[id] == unit[id].unit[i]
@@ -1499,7 +1499,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                             set unit[id].unit[i] = unit[id].unit[i - 1]
 
                             if GetLocalPlayer() == p then
-                                set Button(button[id][i]).icon = Button(button[id][i - 1]).icon
+                                set Button(button[id][i]).texture = Button(button[id][i - 1]).texture
                                 set Button(button[id][i]).tooltip.text = Button(button[id][i - 1]).tooltip.text
                                 set Button(button[id][i]).highlighted = selected.unit[id] == unit[id].unit[i]
                                 set Button(button[id][i]).visible = true
@@ -1518,7 +1518,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                         set unit[id].unit[i] = u
 
                         if GetLocalPlayer() == p then
-                            set Button(button[id][i]).icon = BlzGetAbilityIcon(GetUnitTypeId(u))
+                            set Button(button[id][i]).texture = BlzGetAbilityIcon(GetUnitTypeId(u))
                             set Button(button[id][i]).tooltip.text = GetUnitName(u)
                             set Button(button[id][i]).visible = true
                             set Button(button[id][i]).highlighted = selected.unit[id] == unit[id].unit[i]
@@ -1582,7 +1582,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                             endif
 
                             if GetLocalPlayer() == Player(id) then
-                                set Button(button[id][i]).icon = BlzGetAbilityIcon(GetUnitTypeId(u))
+                                set Button(button[id][i]).texture = BlzGetAbilityIcon(GetUnitTypeId(u))
                                 set Button(button[id][i]).tooltip.text = GetUnitName(u)
                                 set Button(button[id][i]).highlighted = selected.unit[id] == u
                                 set Button(button[id][i]).visible = true
@@ -1633,11 +1633,11 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set unit = HashTable.create()
             set inventory = Inventory.create(shop)
             set left = Button.create(0.027500, - 0.032500, BUYER_SHIFT_BUTTON_SIZE, BUYER_SHIFT_BUTTON_SIZE, frame, true)
-            set left.icon = BUYER_LEFT
+            set left.texture = BUYER_LEFT
             set left.tooltip.text = "Scroll Left"
             set left.onClick = function thistype.onClicked
             set right = Button.create(0.36350, - 0.032500, BUYER_SHIFT_BUTTON_SIZE, BUYER_SHIFT_BUTTON_SIZE, frame, true)
-            set right.icon = BUYER_RIGHT
+            set right.texture = BUYER_RIGHT
             set right.tooltip.text = "Scroll Right"
             set right.onClick = function thistype.onClicked
             set table[left][0] = this
@@ -1828,7 +1828,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                                     set item[id][k] = item[id][k + 1]
                 
                                     if GetLocalPlayer() == p then
-                                        set Button(button[id][k]).icon = Item(item[id][k]).icon
+                                        set Button(button[id][k]).texture = Item(item[id][k]).icon
                                         set Button(button[id][k]).tooltip.text = Item(item[id][k]).tooltip
                                         set Button(button[id][k]).tooltip.name = Item(item[id][k]).name
                                         set Button(button[id][k]).tooltip.icon = Item(item[id][k]).icon
@@ -1857,7 +1857,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                     set item[id][count[id]] = i
 
                     if GetLocalPlayer() == p then
-                        set Button(button[id][count[id]]).icon = i.icon
+                        set Button(button[id][count[id]]).texture = i.icon
                         set Button(button[id][count[id]]).tooltip.text = i.tooltip
                         set Button(button[id][count[id]]).tooltip.name = i.name
                         set Button(button[id][count[id]]).tooltip.icon = i.icon
@@ -1878,7 +1878,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set item = HashTable.create()
             set button = HashTable.create()
             set clear = Button.create(0.027, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
-            set clear.icon = CLEAR_ICON
+            set clear.texture = CLEAR_ICON
             set clear.tooltip.text = "Clear"
             set clear.onClick = function thistype.onClear
             set table[clear][0] = this
@@ -2001,7 +2001,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                 set count = count + 1
                 set value[count] = R2I(Pow(2, count))
                 set button[count] = Button.create(0.023750, - (0.021500 + CATEGORY_SIZE*count + CATEGORY_GAP), CATEGORY_SIZE, CATEGORY_SIZE, frame, true)
-                set button[count].icon = icon
+                set button[count].texture = icon
                 set button[count].enabled = false
                 set button[count].tooltip.text = description
                 set button[count].onClick = function thistype.onClicked
@@ -2024,11 +2024,11 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set .shop = shop
             set andLogic = true
             set clear = Button.create(0.028, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
-            set clear.icon = CLEAR_ICON
+            set clear.texture = CLEAR_ICON
             set clear.tooltip.text = "Clear"
             set clear.onClick = function thistype.onClear
             set logic = Button.create(X + 0.048, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
-            set logic.icon = LOGIC_ICON
+            set logic.texture = LOGIC_ICON
             set logic.enabled = false
             set logic.tooltip.text = "AND"
             set logic.onClick = function thistype.onLogic
@@ -2092,19 +2092,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         readonly static group array group
         readonly static unit array current
 
-        readonly Category category
-        readonly Favorites favorites
-        readonly Detail details
-        readonly Buyer buyer
-        private Button close
-        private Button break
-        private Button revert
-        private framehandle edit
-        private boolean isVisible
-        readonly Slot first
-        readonly Slot last
-        readonly Slot head
-        readonly Slot tail
         readonly real aoe
         readonly real tax
         readonly integer id
@@ -2113,6 +2100,19 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         readonly integer rows
         readonly integer columns
         readonly boolean detailed
+        private framehandle edit
+        private boolean isVisible
+        readonly Category category
+        readonly Favorites favorites
+        readonly Detail details
+        readonly Buyer buyer
+        private Button close
+        private Button break
+        private Button revert
+        readonly Slot first
+        readonly Slot last
+        readonly Slot head
+        readonly Slot tail
         Table scrollCount
         Table scrollFlag
         Table lastClicked
@@ -2588,15 +2588,15 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                 set favorites = Favorites.create(this)
                 set edit = BlzCreateFrame("EscMenuEditBoxTemplate", frame, 0, 0)
                 set close = Button.create((WIDTH - 2*TOOLBAR_BUTTON_SIZE), 0.015000, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
-                set close.icon = CLOSE_ICON
+                set close.texture = CLOSE_ICON
                 set close.tooltip.text = "Close"
                 set close.onClick = function thistype.onClose
                 set break = Button.create((WIDTH - 2*TOOLBAR_BUTTON_SIZE - 0.0205), 0.015000, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
-                set break.icon = DISMANTLE_ICON
+                set break.texture = DISMANTLE_ICON
                 set break.tooltip.text = "Dismantle"
                 set break.onClick = function thistype.onDismantle
                 set revert = Button.create((WIDTH - 2*TOOLBAR_BUTTON_SIZE - 0.0410), 0.015000, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
-                set revert.icon = UNDO_ICON
+                set revert.texture = UNDO_ICON
                 set revert.tooltip.text = "Undo"
                 set revert.onClick = function thistype.onUndo
                 set table[id][0] = this
