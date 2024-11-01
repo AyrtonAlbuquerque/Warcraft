@@ -97,7 +97,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         private constant framepointtype TAG_HIGHLIGHT_RELATIVE_POINT = FRAMEPOINT_BOTTOMLEFT
 
         // Scroll
-        private constant real SCROLL_DELAY              = 0.03
+        private constant real SCROLL_DELAY              = 0.075
 
         // Update time
         private constant real UPDATE_PERIOD             = 0.33
@@ -608,7 +608,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
 
         private static method onClick takes nothing returns nothing
             local player p = GetTriggerPlayer()
-            local Button b = GetTriggerButton()
+            local Button b = GetTriggerComponent()
             local integer id = GetPlayerId(p)
             local integer i = table[b][1]
             local thistype this = table[b][0]
@@ -624,7 +624,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onDoubleClick takes nothing returns nothing
-            local Button b = GetTriggerButton()
+            local Button b = GetTriggerComponent()
             local player p = GetTriggerPlayer()
             local thistype this = table[b][0]
             local integer i = table[b][1]
@@ -642,7 +642,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         private static method onRightClick takes nothing returns nothing
             local player p = GetTriggerPlayer()
             local integer id = GetPlayerId(p)
-            local Button b = GetTriggerButton()
+            local Button b = GetTriggerComponent()
             local thistype this = table[b][0]
             local integer i = table[b][1]
 
@@ -728,7 +728,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             call right2.destroy()
             call count.destroy()
             call item.destroy()
-            call uses.destroy()
+            call close.destroy()
+            call left.destroy()
+            call right.destroy()
             call used.destroy()
             call button.destroy()
             call BlzDestroyFrame(separator)
@@ -747,6 +749,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             call BlzDestroyFrame(tooltip3)
 
             set tooltip = null
+            set tooltip1 = null
+            set tooltip2 = null
+            set tooltip3 = null
             set separator = null
             set usedText = null
             set horizontalRight = null
@@ -1168,7 +1173,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         static method create takes Shop shop returns thistype
-            local thistype this = thistype.allocate(WIDTH - DETAIL_WIDTH, Y, DETAIL_WIDTH, DETAIL_HEIGHT, shop.frame, "EscMenuBackdrop")
+            local thistype this = thistype.allocate(WIDTH - DETAIL_WIDTH, 0, DETAIL_WIDTH, DETAIL_HEIGHT, shop.frame, "EscMenuBackdrop")
             local integer i = 0
             local integer j
 
@@ -1195,7 +1200,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set verticalLeft2 = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set verticalRight1 = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set verticalRight2 = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
-            set uses = Panel.create(x + 0.0225, y - 0.3155,  0.2675, 0.061, frame, "TransparentBackdrop")
+            set uses = Panel.create(0.0225, - 0.3155,  0.2675, 0.061, frame, "TransparentBackdrop")
             set uses.onScroll = function thistype.onScrolled
             set separator = BlzCreateFrameByType("BACKDROP", "", uses.frame, "", 0)
             set usedText = BlzCreateFrameByType("TEXT", "", uses.frame, "", 0)
@@ -1296,7 +1301,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onClicked takes nothing returns nothing
-            local Button b = GetTriggerButton()
+            local Button b = GetTriggerComponent()
             local player p = GetTriggerPlayer()
             local integer id = GetPlayerId(p)
             local thistype this = table[b][0]
@@ -1315,10 +1320,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onScrolled takes nothing returns nothing
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
 
             if this == 0 then
-                set this = table[GetTriggerPanel()][0]
+                set this = table[GetTriggerComponent()][0]
             endif
 
             if this != 0 then
@@ -1327,7 +1332,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onMiddleClicked takes nothing returns nothing
-            local Button b = GetTriggerButton()
+            local Button b = GetTriggerComponent()
             local player p = GetTriggerPlayer()
             local integer id = GetPlayerId(p)
             local thistype this = table[b][0]
@@ -1344,7 +1349,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onRightClicked takes nothing returns nothing
-            local Button b = GetTriggerButton()
+            local Button b = GetTriggerComponent()
             local player p = GetTriggerPlayer()
             local integer id = GetPlayerId(p)
             local thistype this = table[b][0]
@@ -1663,7 +1668,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onScrolled takes nothing returns nothing
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
 
             if this != 0 then
                 call shift(BlzGetTriggerFrameValue() < 0, GetTriggerPlayer())
@@ -1671,7 +1676,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onClicked takes nothing returns nothing
-            local Button b = GetTriggerButton()
+            local Button b = GetTriggerComponent()
             local thistype this = table[b][0]
             local integer i = table[b][1]
             local integer id = GetPlayerId(GetTriggerPlayer())
@@ -1864,7 +1869,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         static method create takes Shop shop returns thistype
-            local thistype this = thistype.allocate(X + (WIDTH - 0.027), Y, SIDE_WIDTH, SIDE_HEIGHT, shop.frame, "EscMenuBackdrop")
+            local thistype this = thistype.allocate(X + (WIDTH - 0.027), 0, SIDE_WIDTH, SIDE_HEIGHT, shop.frame, "EscMenuBackdrop")
             local integer i = 0
             local integer j
 
@@ -1907,7 +1912,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onClear takes nothing returns nothing
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
 
             if this != 0 then
                 call reset(GetTriggerPlayer())
@@ -1915,40 +1920,40 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onClicked takes nothing returns nothing
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
 
             if this != 0 then
-                call shop.detail(item[GetPlayerId(GetTriggerPlayer())][table[GetTriggerButton()][1]], GetTriggerPlayer())
+                call shop.detail(item[GetPlayerId(GetTriggerPlayer())][table[GetTriggerComponent()][1]], GetTriggerPlayer())
             endif
         endmethod
 
         private static method onMiddleClicked takes nothing returns nothing
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
 
             if this != 0 then
-                call remove(item[GetPlayerId(GetTriggerPlayer())][table[GetTriggerButton()][1]], GetTriggerPlayer())
+                call remove(item[GetPlayerId(GetTriggerPlayer())][table[GetTriggerComponent()][1]], GetTriggerPlayer())
             endif
         endmethod
 
         private static method onDoubleClicked takes nothing returns nothing
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
 
             if this != 0 then
-                if shop.buy(item[GetPlayerId(GetTriggerPlayer())][table[GetTriggerButton()][1]], GetTriggerPlayer()) then
+                if shop.buy(item[GetPlayerId(GetTriggerPlayer())][table[GetTriggerComponent()][1]], GetTriggerPlayer()) then
                     if GetLocalPlayer() == GetTriggerPlayer() then
-                        call Button(button[GetPlayerId(GetTriggerPlayer())][table[GetTriggerButton()][1]]).play(SPRITE_MODEL, SPRITE_SCALE, 0)
+                        call Button(button[GetPlayerId(GetTriggerPlayer())][table[GetTriggerComponent()][1]]).play(SPRITE_MODEL, SPRITE_SCALE, 0)
                     endif
                 endif
             endif
         endmethod
 
         private static method onRightClicked takes nothing returns nothing
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
 
             if this != 0 then
-                if shop.buy(item[GetPlayerId(GetTriggerPlayer())][table[GetTriggerButton()][1]], GetTriggerPlayer()) then
+                if shop.buy(item[GetPlayerId(GetTriggerPlayer())][table[GetTriggerComponent()][1]], GetTriggerPlayer()) then
                     if GetLocalPlayer() == GetTriggerPlayer() then
-                        call Button(button[GetPlayerId(GetTriggerPlayer())][table[GetTriggerButton()][1]]).play(SPRITE_MODEL, SPRITE_SCALE, 0)
+                        call Button(button[GetPlayerId(GetTriggerPlayer())][table[GetTriggerComponent()][1]]).play(SPRITE_MODEL, SPRITE_SCALE, 0)
                     endif
                 endif
             endif
@@ -2012,7 +2017,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         static method create takes Shop shop returns thistype
-            local thistype this = thistype.allocate(X - 0.048, Y, SIDE_WIDTH, SIDE_HEIGHT, shop.frame, "EscMenuBackdrop")
+            local thistype this = thistype.allocate(X - 0.048, 0, SIDE_WIDTH, SIDE_HEIGHT, shop.frame, "EscMenuBackdrop")
 
             set count = -1
             set active = 0
@@ -2034,7 +2039,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onClicked takes nothing returns nothing
-            local Button category = GetTriggerButton()
+            local Button category = GetTriggerComponent()
             local thistype this = table[category][0]
 
             if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
@@ -2051,7 +2056,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onClear takes nothing returns nothing
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
 
             if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
                 call reset()
@@ -2059,7 +2064,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onLogic takes nothing returns nothing
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
 
             if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
                 set logic.enabled = not logic.enabled
@@ -2095,6 +2100,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         private Button break
         private Button revert
         private framehandle edit
+        private boolean isVisible
         readonly Slot first
         readonly Slot last
         readonly Slot head
@@ -2102,7 +2108,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         readonly real aoe
         readonly real tax
         readonly integer id
-        private boolean isVisible
         readonly integer index
         readonly integer size
         readonly integer rows
@@ -2558,7 +2563,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             local integer i = 0
 
             if not table[id].has(0) then
-                set this = thistype.allocate(X, Y, WIDTH, HEIGHT, null, "EscMenuBackdrop")
+                set this = thistype.allocate(X, Y, WIDTH, HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0), "EscMenuBackdrop")
                 set .id = id
                 set .aoe = aoe
                 set tax = returnRate
@@ -2698,7 +2703,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onClose takes nothing returns nothing
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
             local integer id = GetPlayerId(GetTriggerPlayer())
 
             if this != 0 then
@@ -2715,7 +2720,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
 
         private static method onDismantle takes nothing returns nothing
             local integer id = GetPlayerId(GetTriggerPlayer())
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
 
             if this != 0 then
                 if buyer.inventory.selected.has(id) then
@@ -2727,7 +2732,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         private static method onUndo takes nothing returns nothing
-            local thistype this = table[GetTriggerButton()][0]
+            local thistype this = table[GetTriggerComponent()][0]
 
             if this != 0 then
                 call undo(GetTriggerPlayer())
