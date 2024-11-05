@@ -25,10 +25,15 @@ library Components requires Table
         return Component.get()
     endfunction
 
+    function GetTriggerEditBox takes nothing returns EditBox
+        return EditBox.get()
+    endfunction
+
     /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
     private interface Events
+        method onText takes nothing returns nothing defaults nothing
         method onEnter takes nothing returns nothing defaults nothing
         method onLeave takes nothing returns nothing defaults nothing
         method onClick takes nothing returns nothing defaults nothing
@@ -203,7 +208,7 @@ library Components requires Table
         private static HashTable doubleTime
         private static framehandle console
         private static framehandle world
-        private static thistype array current
+        private static thistype array array
 
         private real xPos
         private real yPos
@@ -411,7 +416,7 @@ library Components requires Table
         endmethod
 
         static method get takes nothing returns thistype
-            return current[GetPlayerId(GetTriggerPlayer())]
+            return array[GetPlayerId(GetTriggerPlayer())]
         endmethod
 
         static method create takes real x, real y, real width, real height, framehandle parent, string frameType, string template returns thistype
@@ -470,7 +475,7 @@ library Components requires Table
 
         private static method onClicked takes nothing returns nothing
             local integer id = GetPlayerId(GetTriggerPlayer())
-            local thistype this = current[id]
+            local thistype this = array[id]
 
             if this != 0 then
                 if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_LEFT then
@@ -527,7 +532,7 @@ library Components requires Table
         private static method onEntered takes nothing returns nothing
             local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
 
-            set current[GetPlayerId(GetTriggerPlayer())] = this
+            set array[GetPlayerId(GetTriggerPlayer())] = this
 
             if this != 0 then
                 if onEnter.exists then
@@ -543,7 +548,7 @@ library Components requires Table
         private static method onExited takes nothing returns nothing
             local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
 
-            set current[GetPlayerId(GetTriggerPlayer())] = 0
+            set array[GetPlayerId(GetTriggerPlayer())] = 0
 
             if this != 0 then
                 if onLeave.exists then
@@ -574,7 +579,7 @@ library Components requires Table
 
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    set current[i] = 0
+                    set array[i] = 0
                     call TriggerRegisterPlayerEvent(click, Player(i), EVENT_PLAYER_MOUSE_UP)
                 set i = i + 1
             endloop
@@ -722,6 +727,211 @@ library Components requires Table
     struct Panel extends Component
         static method create takes real x, real y, real width, real height, framehandle parent, string template returns thistype
             return thistype.allocate(x, y, width, height, parent, "PanelFrame", template)
+        endmethod
+    endstruct
+
+    struct EditBox extends Events
+        private static trigger typing = CreateTrigger()
+        private static trigger enter = CreateTrigger()
+        private static Table table
+        private static framehandle console
+        private static framehandle world
+
+        private real xPos
+        private real yPos
+        private real widthSize
+        private real heightSize
+        private string value
+        private integer textLength
+        private boolean isVisible
+        private trigger typed
+        private trigger entered
+        private framehandle base
+
+        readonly framehandle parent
+
+        method operator x= takes real newX returns nothing
+            set xPos = newX
+
+            if parent == console or parent == world then
+                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            else
+                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            endif
+        endmethod
+
+        method operator x takes nothing returns real
+            return xPos
+        endmethod
+
+        method operator y= takes real newY returns nothing
+            set yPos = newY
+
+            if parent == console or parent == world then
+                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            else
+                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            endif
+        endmethod
+
+        method operator y takes nothing returns real
+            return yPos
+        endmethod
+
+        method operator width= takes real newWidth returns nothing
+            set widthSize = newWidth
+
+            call BlzFrameClearAllPoints(base)
+            call BlzFrameSetSize(base, newWidth, heightSize)
+        endmethod
+
+        method operator width takes nothing returns real
+            return widthSize
+        endmethod
+
+        method operator height= takes real newHeight returns nothing
+            set heightSize = newHeight
+
+            call BlzFrameClearAllPoints(base)
+            call BlzFrameSetSize(base, widthSize, newHeight)
+        endmethod
+
+        method operator height takes nothing returns real
+            return heightSize
+        endmethod
+
+        method operator limit= takes integer length returns nothing
+            set textLength = length
+            call BlzFrameSetTextSizeLimit(base, length)
+        endmethod
+
+        method operator limit takes nothing returns integer
+            return textLength
+        endmethod
+
+        method operator text= takes string newText returns nothing
+            set value = newText
+            call BlzFrameSetText(base, newText)
+        endmethod
+
+        method operator text takes nothing returns string
+            set value = BlzFrameGetText(base)
+            return value
+        endmethod
+
+        stub method operator visible= takes boolean visibility returns nothing
+            set isVisible = visibility
+            call BlzFrameSetVisible(base, visibility)
+        endmethod
+
+        stub method operator visible takes nothing returns boolean
+            return isVisible
+        endmethod
+
+        method operator frame takes nothing returns framehandle
+            return base
+        endmethod
+
+        method operator onEnter= takes code c returns nothing
+            call DestroyTrigger(entered)
+            set entered = null
+
+            if c != null then
+                set entered = CreateTrigger()
+                call TriggerAddCondition(entered, Condition(c))
+            endif
+        endmethod
+
+        method operator onText= takes code c returns nothing
+            call DestroyTrigger(typed)
+            set typed = null
+
+            if c != null then
+                set typed = CreateTrigger()
+                call TriggerAddCondition(typed, Condition(c))
+            endif
+        endmethod
+
+        method destroy takes nothing returns nothing
+            call BlzDestroyFrame(base)
+
+            set base = null
+            set parent = null
+        endmethod
+
+        static method get takes nothing returns thistype
+            return table[GetHandleId(BlzGetTriggerFrame())]
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent, string template returns thistype
+            local thistype this = thistype.allocate()
+
+            if parent == null then
+                set parent = console
+            endif
+
+            if template == "" or template == null then
+                set template = "EscMenuEditBoxTemplate"
+            endif
+
+            set .x = x
+            set .y = y
+            set .width = width
+            set .height = height
+            set .parent = parent
+            set base = BlzCreateFrame(template, parent, 0, 0)
+            set table[GetHandleId(base)] = this
+
+            if parent == console or parent == world then
+                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, x, y)
+            else
+                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, x, y)
+            endif
+
+            call BlzFrameSetSize(base, width, height)
+            call BlzTriggerRegisterFrameEvent(enter, base, FRAMEEVENT_EDITBOX_ENTER)
+            call BlzTriggerRegisterFrameEvent(typing, base, FRAMEEVENT_EDITBOX_TEXT_CHANGED)
+
+            return this
+        endmethod
+
+        private static method onTyping takes nothing returns nothing
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
+
+            if this != 0 then
+                set value = BlzGetTriggerFrameText()
+
+                if onText.exists then
+                    call onText()
+                endif
+
+                if typed != null then
+                    call TriggerEvaluate(typed)
+                endif
+            endif
+        endmethod
+
+        private static method onEntered takes nothing returns nothing
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
+
+            if this != 0 then
+                if onEnter.exists then
+                    call onEnter()
+                endif
+
+                if entered != null then
+                    call TriggerEvaluate(entered)
+                endif
+            endif
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            set table = Table.create()
+            set console = BlzGetFrameByName("ConsoleUIBackdrop", 0)
+            set world = BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0)
+
+            call TriggerAddAction(enter, function thistype.onEntered)
+            call TriggerAddAction(typing, function thistype.onTyping)
         endmethod
     endstruct
 endlibrary
