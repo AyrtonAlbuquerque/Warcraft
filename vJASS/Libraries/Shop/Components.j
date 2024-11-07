@@ -16,6 +16,8 @@ library Components requires Table
         private constant string UNAVAILABLE_BUTTON  = "ui\\widgets\\battlenet\\chaticons\\bnet-squelch"
 
         private timer DOUBLE = CreateTimer()
+        private framehandle CONSOLE
+        private framehandle WORLD
     endglobals
 
     /* ----------------------------------------------------------------------------------------- */
@@ -91,7 +93,6 @@ library Components requires Table
             set widthSize = newWidth
 
             if not simple then
-                call BlzFrameClearAllPoints(tooltip)
                 call BlzFrameSetSize(tooltip, newWidth, 0)
             endif
         endmethod
@@ -206,8 +207,6 @@ library Components requires Table
         private static Table table
         private static HashTable time
         private static HashTable doubleTime
-        private static framehandle console
-        private static framehandle world
         private static thistype array array
 
         private real xPos
@@ -234,7 +233,7 @@ library Components requires Table
         method operator x= takes real newX returns nothing
             set xPos = newX
 
-            if parent == console or parent == world then
+            if parent == CONSOLE or parent == WORLD then
                 call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
             else
                 call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
@@ -248,7 +247,7 @@ library Components requires Table
         method operator y= takes real newY returns nothing
             set yPos = newY
 
-            if parent == console or parent == world then
+            if parent == CONSOLE or parent == WORLD then
                 call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
             else
                 call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
@@ -262,7 +261,6 @@ library Components requires Table
         method operator width= takes real newWidth returns nothing
             set widthSize = newWidth
 
-            call BlzFrameClearAllPoints(base)
             call BlzFrameSetSize(base, newWidth, heightSize)
         endmethod
 
@@ -273,7 +271,6 @@ library Components requires Table
         method operator height= takes real newHeight returns nothing
             set heightSize = newHeight
 
-            call BlzFrameClearAllPoints(base)
             call BlzFrameSetSize(base, widthSize, newHeight)
         endmethod
 
@@ -423,7 +420,7 @@ library Components requires Table
             local thistype this = thistype.allocate()
 
             if parent == null then
-                set parent = console
+                set parent = CONSOLE
             endif
 
             if template == "" or template == null then
@@ -442,7 +439,7 @@ library Components requires Table
             set table[GetHandleId(listener)] = this
             set table[GetHandleId(button)] = this
 
-            if parent == console or parent == world then
+            if parent == CONSOLE or parent == WORLD then
                 call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, x, y)
             else
                 call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, x, y)
@@ -567,8 +564,8 @@ library Components requires Table
             set table = Table.create()
             set time = HashTable.create()
             set doubleTime = HashTable.create()
-            set console = BlzGetFrameByName("ConsoleUIBackdrop", 0)
-            set world = BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0)
+            set CONSOLE = BlzGetFrameByName("ConsoleUIBackdrop", 0)
+            set WORLD = BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0)
 
             call BlzLoadTOCFile("Components.toc")
             call TimerStart(DOUBLE, 9999999999, false, null)
@@ -734,8 +731,6 @@ library Components requires Table
         private static trigger typing = CreateTrigger()
         private static trigger enter = CreateTrigger()
         private static Table table
-        private static framehandle console
-        private static framehandle world
 
         private real xPos
         private real yPos
@@ -753,7 +748,7 @@ library Components requires Table
         method operator x= takes real newX returns nothing
             set xPos = newX
 
-            if parent == console or parent == world then
+            if parent == CONSOLE or parent == WORLD then
                 call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
             else
                 call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
@@ -767,7 +762,7 @@ library Components requires Table
         method operator y= takes real newY returns nothing
             set yPos = newY
 
-            if parent == console or parent == world then
+            if parent == CONSOLE or parent == WORLD then
                 call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
             else
                 call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
@@ -781,7 +776,6 @@ library Components requires Table
         method operator width= takes real newWidth returns nothing
             set widthSize = newWidth
 
-            call BlzFrameClearAllPoints(base)
             call BlzFrameSetSize(base, newWidth, heightSize)
         endmethod
 
@@ -792,7 +786,6 @@ library Components requires Table
         method operator height= takes real newHeight returns nothing
             set heightSize = newHeight
 
-            call BlzFrameClearAllPoints(base)
             call BlzFrameSetSize(base, widthSize, newHeight)
         endmethod
 
@@ -867,7 +860,7 @@ library Components requires Table
             local thistype this = thistype.allocate()
 
             if parent == null then
-                set parent = console
+                set parent = CONSOLE
             endif
 
             if template == "" or template == null then
@@ -882,7 +875,7 @@ library Components requires Table
             set base = BlzCreateFrame(template, parent, 0, 0)
             set table[GetHandleId(base)] = this
 
-            if parent == console or parent == world then
+            if parent == CONSOLE or parent == WORLD then
                 call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, x, y)
             else
                 call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, x, y)
@@ -927,11 +920,135 @@ library Components requires Table
 
         private static method onInit takes nothing returns nothing
             set table = Table.create()
-            set console = BlzGetFrameByName("ConsoleUIBackdrop", 0)
-            set world = BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0)
 
             call TriggerAddAction(enter, function thistype.onEntered)
             call TriggerAddAction(typing, function thistype.onTyping)
+        endmethod
+    endstruct
+
+    struct Line
+        private real xPos
+        private real yPos
+        private real widthSize
+        private real heightSize
+        private string path
+        private framehandle base
+        private boolean isVisible
+
+        readonly framehandle parent
+
+        method operator x= takes real newX returns nothing
+            set xPos = newX
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            else
+                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            endif
+        endmethod
+
+        method operator x takes nothing returns real
+            return xPos
+        endmethod
+
+        method operator y= takes real newY returns nothing
+            set yPos = newY
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            else
+                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
+            endif
+        endmethod
+
+        method operator y takes nothing returns real
+            return yPos
+        endmethod
+
+        method operator width= takes real newWidth returns nothing
+            set widthSize = newWidth
+
+            call BlzFrameSetSize(base, newWidth, heightSize)
+        endmethod
+
+        method operator width takes nothing returns real
+            return widthSize
+        endmethod
+
+        method operator height= takes real newHeight returns nothing
+            set heightSize = newHeight
+
+            call BlzFrameSetSize(base, widthSize, newHeight)
+        endmethod
+
+        method operator height takes nothing returns real
+            return heightSize
+        endmethod
+
+        method operator texture= takes string path returns nothing
+            set .path = path
+
+            if path != "" and path != null then
+                call BlzFrameSetTexture(base, path, 0, true)
+                call BlzFrameSetVisible(base, true)
+            else
+                call BlzFrameSetVisible(base, false)
+            endif
+        endmethod
+
+        method operator texture takes nothing returns string
+            return path
+        endmethod
+
+        stub method operator visible= takes boolean visibility returns nothing
+            set isVisible = visibility
+            call BlzFrameSetVisible(base, visibility)
+        endmethod
+
+        stub method operator visible takes nothing returns boolean
+            return isVisible
+        endmethod
+
+        method operator frame takes nothing returns framehandle
+            return base
+        endmethod
+
+        method destroy takes nothing returns nothing
+            call BlzDestroyFrame(base)
+
+            set base = null
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent, string texture returns thistype
+            local thistype this = thistype.allocate()
+
+            if parent == null then
+                set parent = CONSOLE
+            endif
+
+            if texture == "" or texture == null then
+                set texture = "replaceabletextures\\teamcolor\\teamcolor08"
+            endif
+
+            set .x = x
+            set .y = y
+            set .width = width
+            set .height = height
+            set .parent = parent
+            set .texture = texture
+            set base = BlzCreateFrameByType("BACKDROP", "", parent, "", 0)
+
+            call BlzFrameSetTexture(base, texture, 0, true)
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, x, y)
+            else
+                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, x, y)
+            endif
+
+            call BlzFrameSetSize(base, width, height)
+
+            return this
         endmethod
     endstruct
 endlibrary

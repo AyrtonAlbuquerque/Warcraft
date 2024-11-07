@@ -730,10 +730,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         framehandle tooltip1
         framehandle tooltip2
         framehandle tooltip3
-        framehandle separator
+        Line separator
         framehandle usedText
         framehandle horizontalRight
-        framehandle horizontalLeft
+        Line horizontalLeft
         framehandle verticalMain
         framehandle verticalCenter
         framehandle verticalLeft1
@@ -787,10 +787,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             call right.destroy()
             call used.destroy()
             call button.destroy()
-            call BlzDestroyFrame(separator)
+            call separator.destroy()
+            call horizontalLeft.destroy()
             call BlzDestroyFrame(usedText)
             call BlzDestroyFrame(horizontalRight)
-            call BlzDestroyFrame(horizontalLeft)
             call BlzDestroyFrame(verticalMain)
             call BlzDestroyFrame(verticalCenter)
             call BlzDestroyFrame(verticalLeft1)
@@ -806,10 +806,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set tooltip1 = null
             set tooltip2 = null
             set tooltip3 = null
-            set separator = null
             set usedText = null
             set horizontalRight = null
-            set horizontalLeft = null
             set verticalMain = null
             set verticalCenter = null
             set verticalLeft1 = null
@@ -972,6 +970,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                                     if GetLocalPlayer() == p then
                                         set slot.x = 0.13625
                                         set slot.y = - 0.10200
+                                        set horizontalLeft.visible = false
                                         set Slot(left1[id]).visible = false
                                         set Slot(left2[id]).visible = false
                                         set Slot(right1[id]).visible = false
@@ -979,7 +978,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
 
                                         call update(verticalMain, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.15600, - 0.082500, true)
                                         call update(verticalCenter, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.15600, - 0.092500, true)
-                                        call BlzFrameSetVisible(horizontalLeft, false)
                                         call BlzFrameSetVisible(horizontalRight, false)
                                         call BlzFrameSetVisible(verticalLeft1, false)
                                         call BlzFrameSetVisible(verticalLeft2, false)
@@ -993,12 +991,16 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                                         if GetLocalPlayer() == p then
                                             set slot.x = 0.087250
                                             set slot.y = - 0.10200
+                                            set horizontalLeft.x = 0.107
+                                            set horizontalLeft.y = -0.0915
+                                            set horizontalLeft.width = 0.048
+                                            set horizontalLeft.height = 0.001
+                                            set horizontalLeft.visible = true
                                             set Slot(center[id]).visible = false
                                             set Slot(left2[id]).visible = false
                                             set Slot(right2[id]).visible = false
 
                                             call update(verticalMain, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.15600, - 0.082500, true)
-                                            call update(horizontalLeft, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.048, 0.001, 0.10700, - 0.091500, true)
                                             call update(verticalLeft1, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.10700, - 0.092500, true)
                                             call BlzFrameSetVisible(verticalCenter, false)
                                             call BlzFrameSetVisible(verticalLeft2, false)
@@ -1022,11 +1024,15 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                                         if GetLocalPlayer() == p then
                                             set slot.x = 0.038250
                                             set slot.y = - 0.10200
+                                            set horizontalLeft.x = 0.057
+                                            set horizontalLeft.y = -0.0915
+                                            set horizontalLeft.width = 0.1
+                                            set horizontalLeft.height = 0.001
+                                            set horizontalLeft.visible = true
                                             set Slot(left1[id]).visible = false
                                             set Slot(right1[id]).visible = false
 
                                             call update(verticalMain, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.15600, - 0.082500, true)
-                                            call update(horizontalLeft, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.057000, - 0.091500, true)
                                             call update(verticalLeft2, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.057000, - 0.092500, true)
                                             call BlzFrameSetVisible(verticalLeft1, false)
                                         endif
@@ -1059,9 +1065,13 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                                             set Slot(right2[id]).visible = false
                                             set slot.x = 0.038250
                                             set slot.y = - 0.10200
+                                            set horizontalLeft.x = 0.057
+                                            set horizontalLeft.y = -0.0915
+                                            set horizontalLeft.width = 0.1
+                                            set horizontalLeft.height = 0.001
+                                            set horizontalLeft.visible = true
 
                                             call update(verticalMain, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.15600, - 0.082500, true)
-                                            call update(horizontalLeft, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.057000, - 0.091500, true)
                                             call update(verticalLeft2, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.057000, - 0.092500, true)
                                         endif
                                     elseif j == 1 then
@@ -1101,9 +1111,13 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                                         if GetLocalPlayer() == p then
                                             set slot.x = 0.038250
                                             set slot.y = - 0.10200
+                                            set horizontalLeft.x = 0.057
+                                            set horizontalLeft.y = -0.0915
+                                            set horizontalLeft.width = 0.1
+                                            set horizontalLeft.height = 0.001
+                                            set horizontalLeft.visible = true
 
                                             call update(verticalMain, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.15600, - 0.082500, true)
-                                            call update(horizontalLeft, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.1, 0.001, 0.057000, - 0.091500, true)
                                             call update(verticalLeft2, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.001, 0.01, 0.057000, - 0.092500, true)
                                         endif
                                     elseif j == 1 then
@@ -1188,8 +1202,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                         set Slot(left2[id]).visible = false
                         set Slot(right1[id]).visible = false
                         set Slot(right2[id]).visible = false
+                        set horizontalLeft.visible = false
 
-                        call BlzFrameSetVisible(horizontalLeft, false)
                         call BlzFrameSetVisible(horizontalRight, false)
                         call BlzFrameSetVisible(verticalMain, false)
                         call BlzFrameSetVisible(verticalCenter, false)
@@ -1246,7 +1260,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set tooltip1 = BlzCreateFrame("DescriptionArea", frame, 0, 0)
             set tooltip2 = BlzCreateFrame("DescriptionArea", frame, 0, 0)
             set tooltip3 = BlzCreateFrame("DescriptionArea", frame, 0, 0)
-            set horizontalLeft = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set horizontalLeft = Line.create(0.057, - 0.0915, 0.048, 0.001, frame, "replaceabletextures\\teamcolor\\teamcolor08") // BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
+            set horizontalLeft.visible = false
             set horizontalRight = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set verticalMain = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set verticalCenter = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
@@ -1256,7 +1271,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set verticalRight2 = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
             set uses = Panel.create(0.0225, - 0.3155,  0.2675, 0.061, frame, "TransparentBackdrop")
             set uses.onScroll = function thistype.onScrolled
-            set separator = BlzCreateFrameByType("BACKDROP", "", uses.frame, "", 0)
+            set separator = Line.create(0, 0, uses.width, 0.001, uses.frame, "replaceabletextures\\teamcolor\\teamcolor08")
             set usedText = BlzCreateFrameByType("TEXT", "", uses.frame, "", 0)
             set close = Button.create(0.26676, - 0.025, DETAIL_CLOSE_BUTTON_SIZE, DETAIL_CLOSE_BUTTON_SIZE, frame, true)
             set close.texture = CLOSE_ICON
@@ -1275,13 +1290,11 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set table[right][0] = this
             set table[uses][0] = this
 
-            call BlzFrameSetPoint(separator, FRAMEPOINT_TOPLEFT, uses.frame, FRAMEPOINT_TOPLEFT, 0, 0)
             call BlzFrameSetPoint(usedText, FRAMEPOINT_TOPLEFT, uses.frame, FRAMEPOINT_TOPLEFT, 0.115, - 0.0025)
             call BlzFrameSetPoint(tooltip, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.0275, - 0.16)
             call BlzFrameSetPoint(tooltip1, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.0275, - 0.09)
             call BlzFrameSetPoint(tooltip2, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.0275, - 0.16)
             call BlzFrameSetPoint(tooltip3, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, 0.0275, - 0.09)
-            call BlzFrameSetSize(separator, 0.2675, 0.001)
             call BlzFrameSetSize(usedText, 0.04, 0.012)
             call BlzFrameSetSize(tooltip, 0.31, 0.16)
             call BlzFrameSetSize(tooltip1, 0.31, 0.23)
@@ -1295,8 +1308,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             call BlzFrameSetEnable(usedText, false)
             call BlzFrameSetScale(usedText, 1)
             call BlzFrameSetTextAlignment(usedText, TEXT_JUSTIFY_TOP, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetTexture(separator, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
-            call BlzFrameSetTexture(horizontalLeft, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
             call BlzFrameSetTexture(horizontalRight, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
             call BlzFrameSetTexture(verticalMain, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
             call BlzFrameSetTexture(verticalCenter, "replaceabletextures\\teamcolor\\teamcolor08", 0, true)
@@ -2145,7 +2156,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         readonly static unit array unit
         readonly static group array group
 
-
         private boolean isVisible
 
         readonly real aoe
@@ -2156,19 +2166,19 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         readonly integer rows
         readonly integer columns
         readonly boolean detailed
-        readonly HashTable scrolls
-        readonly EditBox edit
-        readonly Category category
-        readonly Favorites favorites
-        readonly Detail details
-        readonly Buyer buyer
-        readonly Button close
-        readonly Button break
-        readonly Button revert
         readonly Slot first
         readonly Slot last
         readonly Slot head
         readonly Slot tail
+        readonly EditBox edit
+        readonly Button close
+        readonly Button break
+        readonly Button revert
+        readonly Buyer buyer
+        readonly Detail details
+        readonly Category category
+        readonly Favorites favorites
+        readonly HashTable scrolls
 
         method operator visible= takes boolean visibility returns nothing
             set isVisible = visibility
