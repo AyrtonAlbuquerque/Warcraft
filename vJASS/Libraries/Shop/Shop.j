@@ -912,8 +912,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             local Slot slot
 
             if i != 0 then
-                set item[id] = i
-                set count[id] = 0
                 set cost = i.gold
                 set Slot(main[id]).item = i
                 set Slot(main[id]).texture = i.icon
@@ -922,7 +920,12 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                 set Slot(main[id]).tooltip.icon = i.icon
                 set Slot(main[id]).available = shop.has(i.id)
 
-                call showUsed(p)
+                if i != item[id] then
+                    set item[id] = i
+                    set count[id] = 0
+
+                    call showUsed(p)
+                endif
 
                 if GetLocalPlayer() == p then
                     set visible = true
@@ -1142,10 +1145,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
 
         private static method onScrolled takes nothing returns nothing
             local thistype this = table[GetTriggerComponent()][0]
-
-            if this == 0 then
-                set this = table[GetTriggerComponent()][0]
-            endif
 
             if this != 0 then
                 call shift(BlzGetTriggerFrameValue() < 0, GetTriggerPlayer())
