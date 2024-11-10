@@ -45,6 +45,141 @@ library Components requires Table
         method onDoubleClick takes nothing returns nothing defaults nothing
     endinterface
 
+    private module Operators
+        private real _x
+        private real _y
+        private real _scale
+        private real _width
+        private real _height
+        private boolean _enabled
+        private boolean _visible
+        private framehandle _frame
+        private framepointtype _point = FRAMEPOINT_TOPLEFT
+        private framepointtype _relative = FRAMEPOINT_TOPLEFT
+
+        readonly framehandle parent
+
+        method operator x= takes real newX returns nothing
+            set _x = newX
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, _point, _x, _y)
+            else
+                call BlzFrameSetPoint(frame, _point, parent, _relative, _x, _y)
+            endif
+        endmethod
+
+        method operator x takes nothing returns real
+            return _x
+        endmethod
+
+        method operator y= takes real newY returns nothing
+            set _y = newY
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, _point, _x, _y)
+            else
+                call BlzFrameSetPoint(frame, _point, parent, _relative, _x, _y)
+            endif
+        endmethod
+
+        method operator y takes nothing returns real
+            return _y
+        endmethod
+
+        method operator point= takes framepointtype newPoint returns nothing
+            set _point = newPoint
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, _point, _x, _y)
+            else
+                call BlzFrameSetPoint(frame, _point, parent, _relative, _x, _y)
+            endif
+        endmethod
+
+        method operator point takes nothing returns framepointtype
+            return _point
+        endmethod
+
+        method operator relative= takes framepointtype newPoint returns nothing
+            set _relative = newPoint
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, _point, _x, _y)
+            else
+                call BlzFrameSetPoint(frame, _point, parent, _relative, _x, _y)
+            endif
+        endmethod
+
+        method operator relative takes nothing returns framepointtype
+            return _relative
+        endmethod
+
+        method operator scale= takes real newScale returns nothing
+            set _scale = newScale
+            call BlzFrameSetScale(frame, newScale)
+        endmethod
+
+        method operator scale takes nothing returns real
+            return _scale
+        endmethod
+
+        method operator width= takes real newWidth returns nothing
+            set _width = newWidth
+
+            call BlzFrameSetSize(frame, newWidth, _height)
+        endmethod
+
+        method operator width takes nothing returns real
+            return _width
+        endmethod
+
+        method operator height= takes real newHeight returns nothing
+            set _height = newHeight
+
+            call BlzFrameSetSize(frame, _width, newHeight)
+        endmethod
+
+        method operator height takes nothing returns real
+            return _height
+        endmethod
+
+        method operator enabled= takes boolean flag returns nothing
+            set _enabled = flag
+
+            call BlzFrameSetEnable(frame, flag)
+        endmethod
+
+        method operator enabled takes nothing returns boolean
+            return _enabled
+        endmethod
+
+        stub method operator visible= takes boolean visibility returns nothing
+            set _visible = visibility
+            call BlzFrameSetVisible(frame, visibility)
+        endmethod
+
+        stub method operator visible takes nothing returns boolean
+            return _visible
+        endmethod
+
+        method operator frame= takes framehandle newFrame returns nothing
+            set _frame = newFrame
+        endmethod
+
+        method operator frame takes nothing returns framehandle
+            return _frame
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            set CONSOLE = BlzGetFrameByName("ConsoleUIBackdrop", 0)
+            set WORLD = BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0)
+
+            call BlzLoadTOCFile("Components.toc")
+            call TimerStart(DOUBLE, 9999999999, false, null)
+        endmethod
+    endmodule
+
     struct Tooltip
         private framehandle box
         private framehandle line
@@ -199,6 +334,270 @@ library Components requires Table
         endmethod
     endstruct
 
+    struct Backdrop
+        private string path
+
+        implement Operators
+
+        method operator texture= takes string path returns nothing
+            set .path = path
+
+            if path != "" and path != null then
+                call BlzFrameSetTexture(frame, path, 0, true)
+                call BlzFrameSetVisible(frame, true)
+            else
+                call BlzFrameSetVisible(frame, false)
+            endif
+        endmethod
+
+        method operator texture takes nothing returns string
+            return path
+        endmethod
+
+        method destroy takes nothing returns nothing
+            call BlzDestroyFrame(frame)
+
+            set frame = null
+            set parent = null
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent, string texture returns thistype
+            local thistype this = thistype.allocate()
+
+            if parent == null then
+                set parent = CONSOLE
+            endif
+
+            set .x = x
+            set .y = y
+            set .width = width
+            set .height = height
+            set .parent = parent
+            set .texture = texture
+            set frame = BlzCreateFrameByType("BACKDROP", "", parent, "", 0)
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, point, x, y)
+            else
+                call BlzFrameSetPoint(frame, point, parent, relative, x, y)
+            endif
+
+            call BlzFrameSetSize(frame, width, height)
+            call BlzFrameSetTexture(frame, texture, 0, true)
+
+            return this
+        endmethod
+    endstruct
+
+    struct Sprite
+        private string path
+        private integer index
+        private integer animtype
+
+        implement Operators
+
+        method operator model= takes string path returns nothing
+            set .path = path
+
+            call BlzFrameSetModel(frame, path, index)
+        endmethod
+
+        method operator model takes nothing returns string
+            return path
+        endmethod
+
+        method operator camera= takes integer index returns nothing
+            set .index = index
+
+            call BlzFrameSetModel(frame, path, index)
+        endmethod
+
+        method operator camera takes nothing returns integer
+            return index
+        endmethod
+
+        method operator animation= takes integer i returns nothing
+            set .animtype = i
+
+            call BlzFrameSetSpriteAnimate(frame, i, 0)
+        endmethod
+
+        method operator animation takes nothing returns integer
+            return animtype
+        endmethod
+
+        method destroy takes nothing returns nothing
+            call BlzDestroyFrame(frame)
+
+            set frame = null
+            set parent = null
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent, framepointtype point, framepointtype relative returns thistype
+            local thistype this = thistype.allocate()
+            
+            if parent == null then
+                set parent = CONSOLE
+            endif
+            
+            set .x = x
+            set .y = y
+            set .point = point
+            set .relative = relative
+            set .width = width
+            set .height = height
+            set .parent = parent
+            set frame = BlzCreateFrameByType("SPRITE", "", parent, "", 0)
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, point, x, y)
+            else
+                call BlzFrameSetPoint(frame, point, parent, relative, x, y)
+            endif
+
+            call BlzFrameSetSize(frame, width, height)
+
+            return this
+        endmethod
+    endstruct
+
+    struct Text
+        private string value
+        private textaligntype vert
+        private textaligntype horz
+
+        implement Operators
+
+        method operator text= takes string value returns nothing
+            set .value = value
+
+            call BlzFrameSetText(frame, value)
+        endmethod
+
+        method operator text takes nothing returns string
+            return value
+        endmethod
+
+        method operator vertical= takes textaligntype alignment returns nothing
+            set vert = alignment
+            call BlzFrameSetTextAlignment(frame, alignment, horz)
+        endmethod
+
+        method operator vertical takes nothing returns textaligntype
+            return vert
+        endmethod
+
+        method operator horizontal= takes textaligntype alignment returns nothing
+            set horz = alignment
+            call BlzFrameSetTextAlignment(frame, vert, alignment)
+        endmethod
+
+        method operator horizontal takes nothing returns textaligntype
+            return horz
+        endmethod
+
+        method destroy takes nothing returns nothing
+            call BlzDestroyFrame(frame)
+
+            set frame = null
+            set parent = null
+        endmethod
+
+        static method create takes real x, real y, real width, real height, real scale, boolean enabled, framehandle parent, string value, textaligntype vert, textaligntype horz returns thistype
+            local thistype this = thistype.allocate()
+
+            if parent == null then
+                set parent = CONSOLE
+            endif
+
+            if vert == null then
+                set vert = TEXT_JUSTIFY_CENTER
+            endif
+
+            if horz == null then
+                set horz = TEXT_JUSTIFY_CENTER
+            endif
+
+            set .x = x
+            set .y = y
+            set .text = value
+            set .scale = scale
+            set .width = width
+            set .height = height
+            set .enabled = enabled
+            set .parent = parent
+            set .vertical = vert
+            set .horizontal = horz
+            set frame = BlzCreateFrameByType("TEXT", "", parent, "", 0)
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, point, x, y)
+            else
+                call BlzFrameSetPoint(frame, point, parent, relative, x, y)
+            endif
+
+            call BlzFrameSetSize(frame, width, height)
+            call BlzFrameSetText(frame, value)
+            call BlzFrameSetEnable(frame, enabled)
+            call BlzFrameSetScale(frame, scale)
+            call BlzFrameSetTextAlignment(frame, vert, horz)
+
+            return this
+        endmethod
+    endstruct
+
+    struct TextArea
+        private string value
+
+        implement Operators
+
+        method operator text= takes string value returns nothing
+            set .value = value
+
+            call BlzFrameSetText(frame, value)
+        endmethod
+
+        method operator text takes nothing returns string
+            return value
+        endmethod
+
+        method destroy takes nothing returns nothing
+            call BlzDestroyFrame(frame)
+
+            set frame = null
+            set parent = null
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent, string template returns thistype
+            local thistype this = thistype.allocate()
+
+            if parent == null then
+                set parent = CONSOLE
+            endif
+
+            if template == "" or template == null then
+                set template = "DescriptionArea"
+            endif
+
+            set .x = x
+            set .y = y
+            set .width = width
+            set .height = height
+            set .parent = parent
+            set frame = BlzCreateFrame(template, parent, 0, 0)
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, point, x, y)
+            else
+                call BlzFrameSetPoint(frame, point, parent, relative, x, y)
+            endif
+
+            call BlzFrameSetSize(frame, width, height)
+
+            return this
+        endmethod
+    endstruct
+
     struct Component extends Events
         private static trigger click = CreateTrigger()
         private static trigger enter = CreateTrigger()
@@ -209,13 +608,8 @@ library Components requires Table
         private static HashTable doubleTime
         private static thistype array array
 
-        private real xPos
-        private real yPos
-        private real widthSize
-        private real heightSize
-        private string path
-        private boolean isVisible
-        private boolean isEnabled
+        private Backdrop image
+        private boolean isActive
         private trigger exited
         private trigger entered
         private trigger clicked
@@ -223,105 +617,35 @@ library Components requires Table
         private trigger rightClicked
         private trigger doubleClicked
         private trigger middleClicked
-        private framehandle base
-        private framehandle image
         private framehandle button
         private framehandle listener
 
-        readonly framehandle parent
-
-        method operator x= takes real newX returns nothing
-            set xPos = newX
-
-            if parent == CONSOLE or parent == WORLD then
-                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            else
-                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            endif
-        endmethod
-
-        method operator x takes nothing returns real
-            return xPos
-        endmethod
-
-        method operator y= takes real newY returns nothing
-            set yPos = newY
-
-            if parent == CONSOLE or parent == WORLD then
-                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            else
-                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            endif
-        endmethod
-
-        method operator y takes nothing returns real
-            return yPos
-        endmethod
-
-        method operator width= takes real newWidth returns nothing
-            set widthSize = newWidth
-
-            call BlzFrameSetSize(base, newWidth, heightSize)
-        endmethod
-
-        method operator width takes nothing returns real
-            return widthSize
-        endmethod
-
-        method operator height= takes real newHeight returns nothing
-            set heightSize = newHeight
-
-            call BlzFrameSetSize(base, widthSize, newHeight)
-        endmethod
-
-        method operator height takes nothing returns real
-            return heightSize
-        endmethod
+        implement Operators
 
         method operator texture= takes string path returns nothing
-            set .path = path
-
-            if path != "" and path != null then
-                call BlzFrameSetTexture(image, path, 0, true)
-                call BlzFrameSetVisible(image, true)
-            else
-                call BlzFrameSetVisible(image, false)
-            endif
+            set image.texture = path
         endmethod
 
         method operator texture takes nothing returns string
-            return path
+            return image.texture
         endmethod
 
-        stub method operator visible= takes boolean visibility returns nothing
-            set isVisible = visibility
-            call BlzFrameSetVisible(base, visibility)
-        endmethod
-
-        stub method operator visible takes nothing returns boolean
-            return isVisible
-        endmethod
-
-        method operator enabled= takes boolean flag returns nothing
-            local string t = path
-
-            set isEnabled = flag
+        method operator active= takes boolean flag returns nothing
+            set isActive = flag
 
             if not flag then
-                if SubString(t, 34, 35) == "\\" then
-                    set t = SubString(t, 0, 34) + "Disabled\\DIS" + SubString(t, 35, StringLength(t))
+                if SubString(image.texture, 34, 35) == "\\" then
+                    set image.texture = SubString(image.texture, 0, 34) + "Disabled\\DIS" + SubString(image.texture, 35, StringLength(image.texture))
+                endif
+            else
+                if SubString(image.texture, 34, 46) == "Disabled\\DIS" then
+                    set image.texture = SubString(image.texture, 0, 34) + "\\" + SubString(image.texture, 46, StringLength(image.texture))
                 endif
             endif
-    
-            call BlzFrameSetTexture(image, t, 0, true)
         endmethod
 
-        method operator enabled takes nothing returns boolean
-            return isEnabled
-        endmethod
-
-        method operator frame takes nothing returns framehandle
-            return base
+        method operator active takes nothing returns boolean
+            return isActive
         endmethod
 
         method operator actor takes nothing returns framehandle
@@ -399,14 +723,13 @@ library Components requires Table
         endmethod
 
         method destroy takes nothing returns nothing
+            call image.destroy()
             call table.remove(GetHandleId(listener))
             call table.remove(GetHandleId(button))
-            call BlzDestroyFrame(image)
+            call BlzDestroyFrame(frame)
             call BlzDestroyFrame(listener)
-            call BlzDestroyFrame(base)
 
-            set base = null
-            set image = null
+            set frame = null
             set button = null
             set parent = null
             set listener = null
@@ -432,23 +755,22 @@ library Components requires Table
             set .width = width
             set .height = height
             set .parent = parent
-            set base = BlzCreateFrame(template, parent, 0, 0)
-            set listener = BlzCreateFrame(frameType, base, 0, 0)
+            set frame = BlzCreateFrame(template, parent, 0, 0)
+            set listener = BlzCreateFrame(frameType, frame, 0, 0)
             set button = BlzFrameGetChild(listener, 0)
-            set image = BlzCreateFrameByType("BACKDROP", "", listener, "", 0)
+            set image = Backdrop.create(0, 0, width, height, listener, null)
+            set image.visible = false
             set table[GetHandleId(listener)] = this
             set table[GetHandleId(button)] = this
 
             if parent == CONSOLE or parent == WORLD then
-                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, x, y)
+                call BlzFrameSetAbsPoint(frame, point, x, y)
             else
-                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, x, y)
+                call BlzFrameSetPoint(frame, point, parent, relative, x, y)
             endif
 
-            call BlzFrameSetSize(base, width, height)
-            call BlzFrameSetAllPoints(listener, base)
-            call BlzFrameSetAllPoints(image, listener)
-            call BlzFrameSetVisible(image, false)
+            call BlzFrameSetSize(frame, width, height)
+            call BlzFrameSetAllPoints(listener, frame)
             call BlzTriggerRegisterFrameEvent(enter, listener, FRAMEEVENT_MOUSE_ENTER)
             call BlzTriggerRegisterFrameEvent(leave, listener, FRAMEEVENT_MOUSE_LEAVE)
             call BlzTriggerRegisterFrameEvent(scroll, button, FRAMEEVENT_MOUSE_WHEEL)
@@ -564,11 +886,7 @@ library Components requires Table
             set table = Table.create()
             set time = HashTable.create()
             set doubleTime = HashTable.create()
-            set CONSOLE = BlzGetFrameByName("ConsoleUIBackdrop", 0)
-            set WORLD = BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0)
-
-            call BlzLoadTOCFile("Components.toc")
-            call TimerStart(DOUBLE, 9999999999, false, null)
+            
             call TriggerAddAction(enter, function thistype.onEntered)
             call TriggerAddAction(leave, function thistype.onExited)
             call TriggerAddAction(click, function thistype.onClicked)
@@ -576,154 +894,12 @@ library Components requires Table
 
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    set array[i] = 0
-                    call TriggerRegisterPlayerEvent(click, Player(i), EVENT_PLAYER_MOUSE_UP)
+                    if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                        set array[i] = 0
+                        call TriggerRegisterPlayerEvent(click, Player(i), EVENT_PLAYER_MOUSE_UP)
+                    endif
                 set i = i + 1
             endloop
-        endmethod
-    endstruct
-
-    struct Button extends Component
-        private boolean isChecked
-        private boolean isAvailable
-        private boolean isHighlighted
-        private framehandle tagFrame
-        private framehandle spriteFrame
-        private framehandle displayFrame
-        private framehandle checkedFrame
-        private framehandle chargesFrame
-        private framehandle availableFrame
-        private framehandle highlightFrame
-
-        Tooltip tooltip
-
-        method operator available= takes boolean flag returns nothing
-            set isAvailable = flag
-
-            if flag then
-                call BlzFrameSetVisible(availableFrame, false)
-            else
-                call BlzFrameSetVisible(availableFrame, true)
-                call BlzFrameSetTexture(availableFrame, UNAVAILABLE_BUTTON, 0, true)
-            endif
-        endmethod
-
-        method operator available takes nothing returns boolean
-            return isAvailable
-        endmethod
-
-        method operator checked= takes boolean flag returns nothing
-            set isChecked = flag
-
-            if flag then
-                call BlzFrameSetVisible(checkedFrame, true)
-                call BlzFrameSetTexture(checkedFrame, CHECKED_BUTTON, 0, true)
-            else
-                call BlzFrameSetVisible(checkedFrame, false)
-            endif
-        endmethod
-
-        method operator checked takes nothing returns boolean
-            return isChecked
-        endmethod
-
-        method operator highlighted= takes boolean flag returns nothing
-            set isHighlighted = flag
-
-            if flag then
-                call BlzFrameSetVisible(highlightFrame, true)
-                call BlzFrameSetTexture(highlightFrame, HIGHLIGHT, 0, true)
-            else
-                call BlzFrameSetVisible(highlightFrame, false)
-            endif
-        endmethod
-
-        method operator highlighted takes nothing returns boolean
-            return isHighlighted
-        endmethod
-
-        method destroy takes nothing returns nothing
-            call BlzDestroyFrame(tagFrame)
-            call BlzDestroyFrame(spriteFrame)
-            call BlzDestroyFrame(displayFrame)
-            call BlzDestroyFrame(checkedFrame)
-            call BlzDestroyFrame(availableFrame)
-            call BlzDestroyFrame(highlightFrame)
-            call tooltip.destroy()
-
-            set tagFrame = null
-            set spriteFrame = null
-            set checkedFrame = null
-            set displayFrame = null
-            set highlightFrame = null
-            set availableFrame = null
-        endmethod
-
-        method play takes string model, real scale, integer animation returns nothing
-            if model != "" and model != null then
-                call BlzFrameClearAllPoints(spriteFrame)
-                call BlzFrameSetPoint(spriteFrame, FRAMEPOINT_CENTER, frame, FRAMEPOINT_CENTER, 0, 0)
-                call BlzFrameSetSize(spriteFrame, width, height)
-                call BlzFrameSetModel(spriteFrame, model, 0)
-                call BlzFrameSetScale(spriteFrame, scale)
-                call BlzFrameSetSpriteAnimate(spriteFrame, animation, 0)
-            endif
-        endmethod
-
-        method display takes string model, real scale, framepointtype point, framepointtype relativePoint, real offsetX, real offsetY returns nothing
-            if model != "" and model != null then
-                call BlzFrameSetPoint(displayFrame, point, frame, relativePoint, offsetX, offsetY)
-                call BlzFrameSetSize(displayFrame, 0.00001, 0.00001)
-                call BlzFrameSetScale(displayFrame, scale)
-                call BlzFrameSetModel(displayFrame, model, 0)
-                call BlzFrameSetVisible(displayFrame, true)
-            else
-                call BlzFrameSetVisible(displayFrame, false)
-            endif
-        endmethod
-
-        method tag takes string model, real scale, framepointtype point, framepointtype relativePoint, real offsetX, real offsetY returns nothing
-            if model != "" and model != null then
-                call BlzFrameSetPoint(tagFrame, point, frame, relativePoint, offsetX, offsetY)
-                call BlzFrameSetSize(tagFrame, 0.00001, 0.00001)
-                call BlzFrameSetScale(tagFrame, scale)
-                call BlzFrameSetModel(tagFrame, model, 0)
-                call BlzFrameSetVisible(tagFrame, true)
-            else
-                call BlzFrameSetVisible(tagFrame, false)
-            endif
-        endmethod
-
-        static method create takes real x, real y, real width, real height, framehandle parent, boolean simpleTooltip returns thistype
-            local thistype this = thistype.allocate(x, y, width, height, parent, "ComponentFrame", null)
-            
-            set availableFrame = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)  
-            set checkedFrame = BlzCreateFrameByType("BACKDROP", "", frame, "", 0)
-            set highlightFrame = BlzCreateFrame("HighlightFrame", frame, 0, 0)
-            set displayFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
-            set tagFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
-            set spriteFrame = BlzCreateFrameByType("SPRITE", "", frame, "", 0)
-            set tooltip = Tooltip.create(frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT, simpleTooltip)
-            set available = true
-            set checked = false
-            set highlighted = false
-
-            call BlzFrameSetTooltip(actor, tooltip.frame)
-            call BlzFrameSetAllPoints(availableFrame, frame)
-            call BlzFrameSetVisible(availableFrame, false)
-            call BlzFrameSetAllPoints(checkedFrame, frame)
-            call BlzFrameSetVisible(checkedFrame, false)
-            call BlzFrameSetPoint(highlightFrame, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, - 0.004, 0.0045)
-            call BlzFrameSetSize(highlightFrame, width + 0.0085, height + 0.0085)
-            call BlzFrameSetVisible(highlightFrame, false)
-
-            return this
-        endmethod
-    endstruct
-
-    struct Panel extends Component
-        static method create takes real x, real y, real width, real height, framehandle parent, string template returns thistype
-            return thistype.allocate(x, y, width, height, parent, "PanelFrame", template)
         endmethod
     endstruct
 
@@ -732,97 +908,31 @@ library Components requires Table
         private static trigger enter = CreateTrigger()
         private static Table table
 
-        private real xPos
-        private real yPos
-        private real widthSize
-        private real heightSize
         private string value
-        private integer textLength
-        private boolean isVisible
+        private integer length
         private trigger typed
         private trigger entered
-        private framehandle base
 
-        readonly framehandle parent
-
-        method operator x= takes real newX returns nothing
-            set xPos = newX
-
-            if parent == CONSOLE or parent == WORLD then
-                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            else
-                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            endif
-        endmethod
-
-        method operator x takes nothing returns real
-            return xPos
-        endmethod
-
-        method operator y= takes real newY returns nothing
-            set yPos = newY
-
-            if parent == CONSOLE or parent == WORLD then
-                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            else
-                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            endif
-        endmethod
-
-        method operator y takes nothing returns real
-            return yPos
-        endmethod
-
-        method operator width= takes real newWidth returns nothing
-            set widthSize = newWidth
-
-            call BlzFrameSetSize(base, newWidth, heightSize)
-        endmethod
-
-        method operator width takes nothing returns real
-            return widthSize
-        endmethod
-
-        method operator height= takes real newHeight returns nothing
-            set heightSize = newHeight
-
-            call BlzFrameSetSize(base, widthSize, newHeight)
-        endmethod
-
-        method operator height takes nothing returns real
-            return heightSize
-        endmethod
+        implement Operators
 
         method operator limit= takes integer length returns nothing
-            set textLength = length
-            call BlzFrameSetTextSizeLimit(base, length)
+            set .length = length
+
+            call BlzFrameSetTextSizeLimit(frame, length)
         endmethod
 
         method operator limit takes nothing returns integer
-            return textLength
+            return length
         endmethod
 
         method operator text= takes string newText returns nothing
             set value = newText
-            call BlzFrameSetText(base, newText)
+            call BlzFrameSetText(frame, newText)
         endmethod
 
         method operator text takes nothing returns string
-            set value = BlzFrameGetText(base)
+            set value = BlzFrameGetText(frame)
             return value
-        endmethod
-
-        stub method operator visible= takes boolean visibility returns nothing
-            set isVisible = visibility
-            call BlzFrameSetVisible(base, visibility)
-        endmethod
-
-        stub method operator visible takes nothing returns boolean
-            return isVisible
-        endmethod
-
-        method operator frame takes nothing returns framehandle
-            return base
         endmethod
 
         method operator onEnter= takes code c returns nothing
@@ -846,9 +956,9 @@ library Components requires Table
         endmethod
 
         method destroy takes nothing returns nothing
-            call BlzDestroyFrame(base)
+            call BlzDestroyFrame(frame)
 
-            set base = null
+            set frame = null
             set parent = null
         endmethod
 
@@ -872,18 +982,18 @@ library Components requires Table
             set .width = width
             set .height = height
             set .parent = parent
-            set base = BlzCreateFrame(template, parent, 0, 0)
-            set table[GetHandleId(base)] = this
+            set frame = BlzCreateFrame(template, parent, 0, 0)
+            set table[GetHandleId(frame)] = this
 
             if parent == CONSOLE or parent == WORLD then
-                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, x, y)
+                call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, x, y)
             else
-                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, x, y)
+                call BlzFrameSetPoint(frame, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, x, y)
             endif
 
-            call BlzFrameSetSize(base, width, height)
-            call BlzTriggerRegisterFrameEvent(enter, base, FRAMEEVENT_EDITBOX_ENTER)
-            call BlzTriggerRegisterFrameEvent(typing, base, FRAMEEVENT_EDITBOX_TEXT_CHANGED)
+            call BlzFrameSetSize(frame, width, height)
+            call BlzTriggerRegisterFrameEvent(enter, frame, FRAMEEVENT_EDITBOX_ENTER)
+            call BlzTriggerRegisterFrameEvent(typing, frame, FRAMEEVENT_EDITBOX_TEXT_CHANGED)
 
             return this
         endmethod
@@ -926,129 +1036,118 @@ library Components requires Table
         endmethod
     endstruct
 
-    struct Line
-        private real xPos
-        private real yPos
-        private real widthSize
-        private real heightSize
-        private string path
-        private framehandle base
-        private boolean isVisible
+    struct Button extends Component
+        private Sprite tagger
+        private Sprite sprite
+        private Sprite player
+        private Backdrop check
+        private Backdrop block
+        private boolean isHighlighted
+        private framehandle highlight
+        private framehandle chargesFrame
 
-        readonly framehandle parent
+        Tooltip tooltip
 
-        method operator x= takes real newX returns nothing
-            set xPos = newX
-
-            if parent == CONSOLE or parent == WORLD then
-                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            else
-                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            endif
+        method operator available= takes boolean flag returns nothing
+            set block.visible = not flag
         endmethod
 
-        method operator x takes nothing returns real
-            return xPos
+        method operator available takes nothing returns boolean
+            return block.visible
         endmethod
 
-        method operator y= takes real newY returns nothing
-            set yPos = newY
-
-            if parent == CONSOLE or parent == WORLD then
-                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            else
-                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, xPos, yPos)
-            endif
+        method operator checked= takes boolean flag returns nothing
+            set check.visible = flag
         endmethod
 
-        method operator y takes nothing returns real
-            return yPos
+        method operator checked takes nothing returns boolean
+            return check.visible
         endmethod
 
-        method operator width= takes real newWidth returns nothing
-            set widthSize = newWidth
+        method operator highlighted= takes boolean flag returns nothing
+            set isHighlighted = flag
 
-            call BlzFrameSetSize(base, newWidth, heightSize)
+            call BlzFrameSetVisible(highlight, flag)
         endmethod
 
-        method operator width takes nothing returns real
-            return widthSize
-        endmethod
-
-        method operator height= takes real newHeight returns nothing
-            set heightSize = newHeight
-
-            call BlzFrameSetSize(base, widthSize, newHeight)
-        endmethod
-
-        method operator height takes nothing returns real
-            return heightSize
-        endmethod
-
-        method operator texture= takes string path returns nothing
-            set .path = path
-
-            if path != "" and path != null then
-                call BlzFrameSetTexture(base, path, 0, true)
-                call BlzFrameSetVisible(base, true)
-            else
-                call BlzFrameSetVisible(base, false)
-            endif
-        endmethod
-
-        method operator texture takes nothing returns string
-            return path
-        endmethod
-
-        stub method operator visible= takes boolean visibility returns nothing
-            set isVisible = visibility
-            call BlzFrameSetVisible(base, visibility)
-        endmethod
-
-        stub method operator visible takes nothing returns boolean
-            return isVisible
-        endmethod
-
-        method operator frame takes nothing returns framehandle
-            return base
+        method operator highlighted takes nothing returns boolean
+            return isHighlighted
         endmethod
 
         method destroy takes nothing returns nothing
-            call BlzDestroyFrame(base)
+            call check.destroy()
+            call block.destroy()
+            call tagger.destroy()
+            call sprite.destroy()
+            call player.destroy()
+            call tooltip.destroy()
+            call BlzDestroyFrame(highlight)
 
-            set base = null
+            set highlight = null
         endmethod
 
-        static method create takes real x, real y, real width, real height, framehandle parent, string texture returns thistype
-            local thistype this = thistype.allocate()
-
-            if parent == null then
-                set parent = CONSOLE
+        method play takes string model, real scale, integer animation returns nothing
+            if model != "" and model != null then
+                set sprite.scale = scale
+                set sprite.model = model
+                set sprite.animation = animation
             endif
+        endmethod
 
-            if texture == "" or texture == null then
-                set texture = "replaceabletextures\\teamcolor\\teamcolor08"
+        method display takes string model, real scale, real offsetX, real offsetY returns nothing
+            set player.visible = model != "" and model != null
+
+            if player.visible then
+                set player.x = offsetX
+                set player.y = offsetY
+                set player.scale = scale
+                set player.model = model
             endif
+        endmethod
 
-            set .x = x
-            set .y = y
-            set .width = width
-            set .height = height
-            set .parent = parent
-            set .texture = texture
-            set base = BlzCreateFrameByType("BACKDROP", "", parent, "", 0)
-
-            call BlzFrameSetTexture(base, texture, 0, true)
-
-            if parent == CONSOLE or parent == WORLD then
-                call BlzFrameSetAbsPoint(base, FRAMEPOINT_TOPLEFT, x, y)
-            else
-                call BlzFrameSetPoint(base, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, x, y)
+        method tag takes string model, real scale, real offsetX, real offsetY returns nothing
+            set tagger.visible = model != "" and model != null
+            
+            if tagger.visible then
+                set tagger.x = offsetX
+                set tagger.y = offsetY
+                set tagger.scale = scale
+                set tagger.model = model
             endif
+        endmethod
 
-            call BlzFrameSetSize(base, width, height)
+        static method create takes real x, real y, real width, real height, framehandle parent, boolean simpleTooltip returns thistype
+            local thistype this = thistype.allocate(x, y, width, height, parent, "ComponentFrame", null)
+
+            set check = Backdrop.create(0, 0, width, height, frame, CHECKED_BUTTON)
+            set block = Backdrop.create(0, 0, width, height, frame, UNAVAILABLE_BUTTON)
+            set sprite = Sprite.create(0, 0, width, height, frame, FRAMEPOINT_CENTER, FRAMEPOINT_CENTER)
+            set tagger = Sprite.create(0, 0, 0.00001, 0.00001, frame, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT)
+            set player = Sprite.create(0, 0, 0.00001, 0.00001, frame, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT)
+            set tooltip = Tooltip.create(frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT, simpleTooltip)
+            set highlight = BlzCreateFrame("HighlightFrame", frame, 0, 0)
+            set checked = false
+            set available = true
+            set highlighted = false
+
+            call BlzFrameSetTooltip(actor, tooltip.frame)
+            call BlzFrameSetPoint(highlight, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, - 0.004, 0.0045)
+            call BlzFrameSetSize(highlight, width + 0.0085, height + 0.0085)
+            call BlzFrameSetTexture(highlight, HIGHLIGHT, 0, true)
 
             return this
+        endmethod
+    endstruct
+
+    struct Panel extends Component
+        static method create takes real x, real y, real width, real height, framehandle parent, string template returns thistype
+            return thistype.allocate(x, y, width, height, parent, "PanelFrame", template)
+        endmethod
+    endstruct
+
+    struct Line extends Backdrop
+        static method create takes real x, real y, real width, real height, framehandle parent, string texture returns thistype
+            return thistype.allocate(x, y, width, height, parent, texture)
         endmethod
     endstruct
 endlibrary
