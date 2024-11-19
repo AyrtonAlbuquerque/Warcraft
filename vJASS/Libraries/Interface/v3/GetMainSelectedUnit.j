@@ -107,6 +107,7 @@ library GetMainSelectedUnit initializer init_function
             local integer i = 0
             local framehandle console = BlzGetFrameByName("ConsoleUI", 0)
             local framehandle bottomUI = BlzFrameGetChild(console, 1)
+            local framehandle bottomUI = BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0))
             local framehandle groupframe = BlzFrameGetChild(bottomUI, 5)
             local framehandle buttonContainer
             //globals

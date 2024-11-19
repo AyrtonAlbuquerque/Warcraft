@@ -33,6 +33,12 @@ Frame "BACKDROP" "TransparentBackdrop" {
     BackdropBlendAll,
 }
 
+Frame "BACKDROP" "SemiTransparentBackdrop" {
+    DecorateFileNames,
+    BackdropBackground  "EscMenuBackground",
+    BackdropBlendAll,
+}
+
 Frame "FRAME" "TooltipBoxFrame" {
     Frame "BACKDROP" "TooltipBox" {
         DecorateFileNames,

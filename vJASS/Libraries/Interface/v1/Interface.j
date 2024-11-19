@@ -1,5 +1,5 @@
 library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit
-    /* --------------------------------------- Interface v1.5 --------------------------------------- */
+    /* --------------------------------------- Interface v1.6 --------------------------------------- */
     // Credits
     //      - Tasyen         - GetMainSelectedUnit
     //      - Magtheridon96  - RegisterPlayerUnitEvent
@@ -877,9 +877,11 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit
             call BlzFrameSetAbsPoint(BlzGetFrameByName("ConsoleUI", 0), FRAMEPOINT_TOPLEFT, 0.0, 0.633)
             call BlzFrameSetVisible(BlzGetFrameByName("ResourceBarFrame", 0), false)
             call BlzFrameSetVisible(BlzGetFrameByName("UpperButtonBarFrame", 0), false)
-            call BlzFrameSetVisible(BlzFrameGetChild(BlzGetFrameByName("ConsoleUI", 0), 7), false)
             call BlzFrameSetVisible(BlzFrameGetChild(BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 5),0), false)
             call BlzFrameSetParent(BlzGetFrameByName("MiniMapFrame", 0), BlzGetFrameByName("ConsoleUIBackdrop", 0))
+            call BlzFrameSetVisible(BlzFrameGetChild(BlzGetFrameByName("ConsoleBottomBar", 0), 3), false)
+            call BlzFrameSetParent(BlzGetOriginFrame(ORIGIN_FRAME_UBERTOOLTIP , 0), BlzGetFrameByName("ConsoleUIBackdrop", 0))
+            call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UBERTOOLTIP , 0), FRAMEPOINT_BOTTOMRIGHT, 0.8, 0.165)
 
             set UI = BlzCreateFrameByType("BACKDROP", "UI", BlzGetFrameByName("ConsoleUIBackdrop", 0), "", 1) 
             call BlzFrameSetAbsPoint(UI, FRAMEPOINT_TOPLEFT, 0.00000, 0.100000) 

@@ -31,15 +31,26 @@ library Components requires Table
         return EditBox.get()
     endfunction
 
+    function GetTriggerCheckBox takes nothing returns CheckBox
+        return CheckBox.get()
+    endfunction
+
+    function GetTriggerSlider takes nothing returns Slider
+        return Slider.get()
+    endfunction
+
     /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
     private interface Events
         method onText takes nothing returns nothing defaults nothing
+        method onCheck takes nothing returns nothing defaults nothing
         method onEnter takes nothing returns nothing defaults nothing
         method onLeave takes nothing returns nothing defaults nothing
         method onClick takes nothing returns nothing defaults nothing
+        method onSlide takes nothing returns nothing defaults nothing
         method onScroll takes nothing returns nothing defaults nothing
+        method onUncheck takes nothing returns nothing defaults nothing
         method onRightClick takes nothing returns nothing defaults nothing
         method onMiddleClick takes nothing returns nothing defaults nothing
         method onDoubleClick takes nothing returns nothing defaults nothing
@@ -51,6 +62,7 @@ library Components requires Table
         private real _scale
         private real _width
         private real _height
+        private integer _alpha
         private boolean _enabled
         private boolean _visible
         private framehandle _frame
@@ -90,6 +102,8 @@ library Components requires Table
         method operator point= takes framepointtype newPoint returns nothing
             set _point = newPoint
 
+            call BlzFrameClearAllPoints(frame)
+
             if parent == CONSOLE or parent == WORLD then
                 call BlzFrameSetAbsPoint(frame, _point, _x, _y)
             else
@@ -104,6 +118,8 @@ library Components requires Table
         method operator relative= takes framepointtype newPoint returns nothing
             set _relative = newPoint
 
+            call BlzFrameClearAllPoints(frame)
+
             if parent == CONSOLE or parent == WORLD then
                 call BlzFrameSetAbsPoint(frame, _point, _x, _y)
             else
@@ -113,6 +129,16 @@ library Components requires Table
 
         method operator relative takes nothing returns framepointtype
             return _relative
+        endmethod
+
+        method operator alpha= takes integer newAlpha returns nothing
+            set _alpha = newAlpha
+
+            call BlzFrameSetAlpha(frame, newAlpha)
+        endmethod
+
+        method operator alpha takes nothing returns integer
+            return _alpha
         endmethod
 
         method operator scale= takes real newScale returns nothing
@@ -169,6 +195,25 @@ library Components requires Table
 
         method operator frame takes nothing returns framehandle
             return _frame
+        endmethod
+
+        method operator set= takes framehandle target returns nothing
+            call BlzFrameSetAllPoints(frame, target)
+        endmethod
+
+        method setPoint takes framepointtype point, framepointtype relative, real x, real y returns nothing
+            set _x = x
+            set _y = y
+            set _point = point
+            set _relative = relative
+
+            call BlzFrameClearAllPoints(frame)
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, point, x, y)
+            else
+                call BlzFrameSetPoint(frame, point, parent, relative, x, y)
+            endif
         endmethod
 
         private static method onInit takes nothing returns nothing
@@ -598,6 +643,70 @@ library Components requires Table
         endmethod
     endstruct
 
+    struct StatusBar
+        private string path
+
+        implement Operators
+
+        method operator value= takes real val returns nothing
+            call BlzFrameSetValue(frame, val)
+        endmethod
+
+        method operator value takes nothing returns real
+            return BlzFrameGetValue(frame)
+        endmethod
+
+        method operator texture= takes string path returns nothing
+            set .path = path
+
+            if path != "" and path != null then
+                call BlzFrameSetTexture(frame, path, 0, true)
+                call BlzFrameSetVisible(frame, true)
+            else
+                call BlzFrameSetVisible(frame, false)
+            endif
+        endmethod
+
+        method operator texture takes nothing returns string
+            return path
+        endmethod
+
+        method destroy takes nothing returns nothing
+            call BlzDestroyFrame(frame)
+
+            set frame = null
+            set parent = null
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent, string texture returns thistype
+            local thistype this = thistype.allocate()
+
+            if parent == null then
+                set parent = CONSOLE
+            endif
+
+            set .x = x
+            set .y = y
+            set .width = width
+            set .height = height
+            set .parent = parent
+            set .texture = texture
+            set frame = BlzCreateFrameByType("SIMPLESTATUSBAR", "", parent, "", 0)
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, point, x, y)
+            else
+                call BlzFrameSetPoint(frame, point, parent, relative, x, y)
+            endif
+
+            call BlzFrameSetValue(frame, 0)
+            call BlzFrameSetSize(frame, width, height)
+            call BlzFrameSetTexture(frame, texture, 0, true)
+
+            return this
+        endmethod
+    endstruct
+
     struct Component extends Events
         private static trigger click = CreateTrigger()
         private static trigger enter = CreateTrigger()
@@ -728,11 +837,25 @@ library Components requires Table
             call table.remove(GetHandleId(button))
             call BlzDestroyFrame(frame)
             call BlzDestroyFrame(listener)
+            call DestroyTrigger(exited)
+            call DestroyTrigger(entered)
+            call DestroyTrigger(clicked)
+            call DestroyTrigger(scrolled)
+            call DestroyTrigger(rightClicked)
+            call DestroyTrigger(doubleClicked)
+            call DestroyTrigger(middleClicked)
 
             set frame = null
             set button = null
             set parent = null
             set listener = null
+            set exited = null
+            set entered = null
+            set clicked = null
+            set scrolled = null
+            set rightClicked = null
+            set doubleClicked = null
+            set middleClicked = null
         endmethod
 
         static method get takes nothing returns thistype
@@ -957,9 +1080,13 @@ library Components requires Table
 
         method destroy takes nothing returns nothing
             call BlzDestroyFrame(frame)
+            call DestroyTrigger(typed)
+            call DestroyTrigger(entered)
 
             set frame = null
+            set typed = null
             set parent = null
+            set entered = null
         endmethod
 
         static method get takes nothing returns thistype
@@ -986,9 +1113,9 @@ library Components requires Table
             set table[GetHandleId(frame)] = this
 
             if parent == CONSOLE or parent == WORLD then
-                call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, x, y)
+                call BlzFrameSetAbsPoint(frame, point, x, y)
             else
-                call BlzFrameSetPoint(frame, FRAMEPOINT_TOPLEFT, parent, FRAMEPOINT_TOPLEFT, x, y)
+                call BlzFrameSetPoint(frame, point, parent, relative, x, y)
             endif
 
             call BlzFrameSetSize(frame, width, height)
@@ -1033,6 +1160,246 @@ library Components requires Table
 
             call TriggerAddAction(enter, function thistype.onEntered)
             call TriggerAddAction(typing, function thistype.onTyping)
+        endmethod
+    endstruct
+
+    struct CheckBox extends Events
+        private static trigger event = CreateTrigger()
+        private static Table table
+
+        private trigger check
+        private trigger uncheck
+        private boolean array isChecked[28]
+
+        implement Operators
+
+        method operator checked takes nothing returns boolean
+            return isChecked[GetPlayerId(GetLocalPlayer())]
+        endmethod
+
+        method operator onCheck= takes code c returns nothing
+            call DestroyTrigger(check)
+            set check = null
+
+            if c != null then
+                set check = CreateTrigger()
+                call TriggerAddCondition(check, Condition(c))
+            endif
+        endmethod
+
+        method operator onUncheck= takes code c returns nothing
+            call DestroyTrigger(uncheck)
+            set uncheck = null
+
+            if c != null then
+                set uncheck = CreateTrigger()
+                call TriggerAddCondition(uncheck, Condition(c))
+            endif
+        endmethod
+
+        method destroy takes nothing returns nothing
+            call BlzDestroyFrame(frame)
+            call DestroyTrigger(check)
+            call DestroyTrigger(uncheck)
+
+            set frame = null
+            set parent = null
+            set check = null
+            set uncheck = null
+        endmethod
+
+        static method get takes nothing returns thistype
+            return table[GetHandleId(BlzGetTriggerFrame())]
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent, string template returns thistype
+            local thistype this = thistype.allocate()
+
+            if parent == null then
+                set parent = CONSOLE
+            endif
+
+            if template == "" or template == null then
+                set template = "QuestCheckBox"
+            endif
+
+            set .x = x
+            set .y = y
+            set .width = width
+            set .height = height
+            set .parent = parent
+            set frame = BlzCreateFrame(template, parent, 0, 0)
+            set table[GetHandleId(frame)] = this
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, point, x, y)
+            else
+                call BlzFrameSetPoint(frame, point, parent, relative, x, y)
+            endif
+
+            call BlzFrameSetSize(frame, width, height)
+            call BlzTriggerRegisterFrameEvent(event, frame, FRAMEEVENT_CHECKBOX_CHECKED)
+            call BlzTriggerRegisterFrameEvent(event, frame, FRAMEEVENT_CHECKBOX_UNCHECKED)
+
+            return this
+        endmethod
+
+        private static method onChecked takes nothing returns nothing
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
+
+            if this != 0 then
+                set isChecked[GetPlayerId(GetTriggerPlayer())] = BlzGetTriggerFrameEvent() == FRAMEEVENT_CHECKBOX_CHECKED
+
+                if BlzGetTriggerFrameEvent() == FRAMEEVENT_CHECKBOX_CHECKED then
+                    if onCheck.exists then
+                        call onCheck()
+                    endif
+
+                    if check != null then
+                        call TriggerEvaluate(check)
+                    endif
+                else
+                    if onUncheck.exists then
+                        call onUncheck()
+                    endif
+
+                    if uncheck != null then
+                        call TriggerEvaluate(uncheck)
+                    endif
+                endif
+            endif
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            set table = Table.create()
+
+            call TriggerAddAction(event, function thistype.onChecked)
+        endmethod
+    endstruct
+
+    struct Slider extends Events
+        private static trigger event = CreateTrigger()
+        private static Table table
+
+        private real minimum = 0
+        private real maximum = 100
+        private real stepping = 1
+        private trigger slided
+
+        implement Operators
+
+        method operator min= takes real value returns nothing
+            set minimum = value
+
+            call BlzFrameSetMinMaxValue(frame, minimum, maximum)
+        endmethod
+
+        method operator min takes nothing returns real
+            return minimum
+        endmethod
+
+        method operator max= takes real value returns nothing
+            set maximum = value
+
+            call BlzFrameSetMinMaxValue(frame, minimum, maximum)
+        endmethod
+
+        method operator max takes nothing returns real
+            return maximum
+        endmethod
+
+        method operator step= takes real value returns nothing
+            set stepping = value
+
+            call BlzFrameSetStepSize(frame, stepping)
+        endmethod
+
+        method operator step takes nothing returns real
+            return stepping
+        endmethod
+
+        method operator value= takes real val returns nothing
+            call BlzFrameSetValue(frame, val)
+        endmethod
+
+        method operator value takes nothing returns real
+            return BlzFrameGetValue(frame)
+        endmethod
+
+        method operator onSlide= takes code c returns nothing
+            call DestroyTrigger(slided)
+            set slided = null
+
+            if c != null then
+                set slided = CreateTrigger()
+                call TriggerAddCondition(slided, Condition(c))
+            endif
+        endmethod
+
+        method destroy takes nothing returns nothing
+            call BlzDestroyFrame(frame)
+            call DestroyTrigger(slided)
+
+            set frame = null
+            set parent = null
+            set slided = null
+        endmethod
+
+        static method get takes nothing returns thistype
+            return table[GetHandleId(BlzGetTriggerFrame())]
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent, string template returns thistype
+            local thistype this = thistype.allocate()
+
+            if parent == null then
+                set parent = CONSOLE
+            endif
+
+            if template == "" or template == null then
+                set template = "EscMenuSliderTemplate"
+            endif
+
+            set .x = x
+            set .y = y
+            set .width = width
+            set .height = height
+            set .parent = parent
+            set frame = BlzCreateFrame(template, parent, 0, 0)
+            set table[GetHandleId(frame)] = this
+
+            if parent == CONSOLE or parent == WORLD then
+                call BlzFrameSetAbsPoint(frame, point, x, y)
+            else
+                call BlzFrameSetPoint(frame, point, parent, relative, x, y)
+            endif
+
+            call BlzFrameSetSize(frame, width, height)
+            call BlzFrameSetStepSize(frame, stepping)
+            call BlzFrameSetMinMaxValue(frame, minimum, maximum)
+            call BlzTriggerRegisterFrameEvent(event, frame, FRAMEEVENT_SLIDER_VALUE_CHANGED)
+
+            return this
+        endmethod
+
+        private static method onSlided takes nothing returns nothing
+            local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
+
+            if this != 0 then
+                if onSlide.exists then
+                    call onSlide()
+                endif
+
+                if slided != null then
+                    call TriggerEvaluate(slided)
+                endif
+            endif
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            set table = Table.create()
+
+            call TriggerAddAction(event, function thistype.onSlided)
         endmethod
     endstruct
 
@@ -1082,6 +1449,8 @@ library Components requires Table
             call player.destroy()
             call tooltip.destroy()
             call BlzDestroyFrame(highlight)
+
+            call super.destroy()
 
             set highlight = null
         endmethod
@@ -1140,12 +1509,20 @@ library Components requires Table
     endstruct
 
     struct Panel extends Component
+        method destroy takes nothing returns nothing
+            call super.destroy()
+        endmethod
+
         static method create takes real x, real y, real width, real height, framehandle parent, string template returns thistype
             return thistype.allocate(x, y, width, height, parent, "PanelFrame", template)
         endmethod
     endstruct
 
     struct Line extends Backdrop
+        method destroy takes nothing returns nothing
+            call super.destroy()
+        endmethod
+            
         static method create takes real x, real y, real width, real height, framehandle parent, string texture returns thistype
             return thistype.allocate(x, y, width, height, parent, texture)
         endmethod

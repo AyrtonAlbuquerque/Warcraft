@@ -1,13 +1,14 @@
-library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Components
-    /* --------------------------------------- Interface v1.6 --------------------------------------- */
+library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, Components
+    /* ------------------------------------- Interface v2.0 ------------------------------------ */
     // Credits
+    //      - Bribe          - Table
     //      - Tasyen         - GetMainSelectedUnit
     //      - Magtheridon96  - RegisterPlayerUnitEvent
-    /* ---------------------------------------- By Chopinski ---------------------------------------- */
+    /* -------------------------------------- By Chopinski ------------------------------------- */
 
-    /* ---------------------------------------------------------------------------------------------- */
-    /*                                          Configuration                                         */
-    /* ---------------------------------------------------------------------------------------------- */
+    /* ----------------------------------------------------------------------------------------- */
+    /*                                       Configuration                                       */
+    /* ----------------------------------------------------------------------------------------- */
     globals
         /* --------------------------------------- Info Panel -------------------------------------- */
         // The initial position of the info panel
@@ -37,7 +38,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
         // The size of the health text
         private constant real HEALTH_TEXT_SCALE = 0.65
         // The transparency of the health bar (0 -> 100%, 255 -> 0%)
-        private constant integer HEALTH_TRANSPARENCY = 64
+        private constant integer HEALTH_TRANSPARENCY = 128
         /* ---------------------------------------- Mana Bar --------------------------------------- */
         // The initial position of the mana bar (relative to the info panel)
         private constant real MANA_X = 0.017
@@ -50,7 +51,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
         // The size of the mana text
         private constant real MANA_TEXT_SCALE = 0.65
         // The transparency of the mana bar (0 -> 100%, 255 -> 0%)
-        private constant integer MANA_TRANSPARENCY = 64
+        private constant integer MANA_TRANSPARENCY = 128
         /* -------------------------------------- Progress Bar ------------------------------------- */
         // The initial position of the xp/timed life/progess bar (relative to the info panel)
         private constant real PROGRESS_X = 0.017
@@ -65,94 +66,43 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
         // Size of the buffs bar
         private constant real BUFF_WIDTH = 0.1235
         private constant real BUFF_HEIGHT = 0.015
+        /* --------------------------------------- Attributes -------------------------------------- */
+        // The Initial position of the attributes buttons (relative to the info panel)
+        private constant real ATTRIBUTES_X = 0.02
+        private constant real ATTRIBUTES_Y = -0.0235
+        // The gap between each button
+        private constant real ATTRIBUTES_GAP = 0.014
+        // The size of the attributes buttons
+        private constant real ATTRIBUTES_WIDTH = 0.0125
+        private constant real ATTRIBUTES_HEIGHT = 0.0125
+        // The position of the attributes text (relative to the attributes buttons)
+        private constant real ATTRIBUTES_TEXT_X = 0.02
+        private constant real ATTRIBUTES_TEXT_Y = -0.0025
+        // The size of the attributes text
+        private constant real ATTRIBUTES_TEXT_WIDTH = 0.15
+        private constant real ATTRIBUTES_TEXT_HEIGHT = 0.0125
+        private constant real ATTRIBUTES_TEXT_SCALE = 0.65
         /* ----------------------------------------- Damage ---------------------------------------- */
-        // The Initial position of the damage button (relative to the info panel)
-        private constant real DAMAGE_X = 0.02
-        private constant real DAMAGE_Y = -0.0235
-        // The size of the damage button
-        private constant real DAMAGE_WIDTH = 0.0125
-        private constant real DAMAGE_HEIGHT = 0.0125
         // The damage button texture
         private constant string DAMAGE_TEXTURE = "ReplaceableTextures\\CommandButtons\\BTNAttack.blp"
-        // The Initial position of the damage text (relative to the damage button)
-        private constant real DAMAGE_TEXT_X = 0.013
-        private constant real DAMAGE_TEXT_Y = 0.0
-        // The size of the damage text
-        private constant real DAMAGE_TEXT_WIDTH = 0.08
-        private constant real DAMAGE_TEXT_HEIGHT = 0.0125
-        private constant real DAMAGE_TEXT_SCALE = 0.65
         /* ----------------------------------------- Armor ----------------------------------------- */
-        // The Initial position of the armor button (relative to the info panel)
-        private constant real ARMOR_X = 0.02
-        private constant real ARMOR_Y = -0.0375
-        // The size of the armor button
-        private constant real ARMOR_WIDTH = 0.0125
-        private constant real ARMOR_HEIGHT = 0.0125
         // The armor button texture
         private constant string ARMOR_TEXTURE = "ReplaceableTextures\\CommandButtons\\BTNHumanArmorUpOne.blp"
-        // The Initial position of the armor text (relative to the armor button)
-        private constant real ARMOR_TEXT_X = 0.013
-        private constant real ARMOR_TEXT_Y = 0.0
-        // The size of the armor text
-        private constant real ARMOR_TEXT_WIDTH = 0.08
-        private constant real ARMOR_TEXT_HEIGHT = 0.0125
-        private constant real ARMOR_TEXT_SCALE = 0.65
         /* ---------------------------------------- Strenght --------------------------------------- */
-        // The Initial position of the strength button (relative to the info panel)
-        private constant real STRENGTH_X = 0.02
-        private constant real STRENGTH_Y = -0.0515
-        // The size of the strength button
-        private constant real STRENGTH_WIDTH = 0.0125
-        private constant real STRENGTH_HEIGHT = 0.0125
         // The strength button texture
         private constant string STRENGTH_TEXTURE = "UI\\Widgets\\Console\\Human\\infocard-heroattributes-str.blp"
-        // The Initial position of the armor text (relative to the strength button)
-        private constant real STRENGTH_TEXT_X = 0.013
-        private constant real STRENGTH_TEXT_Y = 0.0
-        // The size of the strength text
-        private constant real STRENGTH_TEXT_WIDTH = 0.08
-        private constant real STRENGTH_TEXT_HEIGHT = 0.0125
-        private constant real STRENGTH_TEXT_SCALE = 0.65
         /* ---------------------------------------- Agility ---------------------------------------- */
-        // The Initial position of the agility button (relative to the info panel)
-        private constant real AGILITY_X = 0.02
-        private constant real AGILITY_Y = -0.0655
-        // The size of the agility button
-        private constant real AGILITY_WIDTH = 0.0125
-        private constant real AGILITY_HEIGHT = 0.0125
         // The agility button texture
         private constant string AGILITY_TEXTURE = "UI\\Widgets\\Console\\Human\\infocard-heroattributes-agi.blp"
-        // The Initial position of the armor text (relative to the agility button)
-        private constant real AGILITY_TEXT_X = 0.013
-        private constant real AGILITY_TEXT_Y = 0.0
-        // The size of the agility text
-        private constant real AGILITY_TEXT_WIDTH = 0.08
-        private constant real AGILITY_TEXT_HEIGHT = 0.0125
-        private constant real AGILITY_TEXT_SCALE = 0.65
         /* -------------------------------------- Intelligence ------------------------------------- */
-        // The Initial position of the intelligence button (relative to the info panel)
-        private constant real INTELLIGENCE_X = 0.02
-        private constant real INTELLIGENCE_Y = -0.0795
-        // The size of the intelligence button
-        private constant real INTELLIGENCE_WIDTH = 0.0125
-        private constant real INTELLIGENCE_HEIGHT = 0.0125
         // The intelligence button texture
         private constant string INTELLIGENCE_TEXTURE = "UI\\Widgets\\Console\\Human\\infocard-heroattributes-int.blp"
-        // The Initial position of the armor text (relative to the intelligence button)
-        private constant real INTELLIGENCE_TEXT_X = 0.013
-        private constant real INTELLIGENCE_TEXT_Y = 0.0
-        // The size of the intelligence text
-        private constant real INTELLIGENCE_TEXT_WIDTH = 0.08
-        private constant real INTELLIGENCE_TEXT_HEIGHT = 0.0125
-        private constant real INTELLIGENCE_TEXT_SCALE = 0.65
         /* ---------------------------------- Attribute Highlight ---------------------------------- */
         // Main attribute highlight
         private constant string ATTRIBUTE_HIGHLIGHT = "goldenbrown.mdx"
         private constant real HIGHLIGHT_SCALE = 0.125
-        private constant real HIGHLIGHT_XOFFSET = 0
-        private constant real HIGHLIGHT_YOFFSET = 0
-        private constant framepointtype HIGHLIGHT_POINT = FRAMEPOINT_BOTTOMLEFT
-        private constant framepointtype HIGHLIGHT_RELATIVE_POINT = FRAMEPOINT_CENTER
+        private constant real HIGHLIGHT_XOFFSET = 0.052
+        private constant real HIGHLIGHT_YOFFSET = 0.048
         /* ------------------------------------- Ability Panel ------------------------------------- */
         // The initial position of the abilities panel
         private constant real ABILITY_PANEL_X = 0.105
@@ -175,16 +125,6 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
         private constant integer ABILITY_SLOT_COUNT = 6
         // Set this to a texture to replace the default gold icon
         private constant string ABILITY_SLOT_TEXTURE = "SpellSlot.blp"
-        // If true, the + icon will be displayed in a special position
-        private constant boolean SEPARATE_MENU = true
-        // If true and SEPARATE_MENU is true, the + icon will auto hide when not skill points are available
-        private constant boolean AUTO_HIDE = true
-        // The initial position of the + icon (relative to the INFO panel)
-        private constant real SEPARATE_MENU_X = 0.085
-        private constant real SEPARATE_MENU_Y = -0.077
-        // The size of the + icon
-        private constant real SEPARATE_MENU_WIDTH = 0.015
-        private constant real SEPARATE_MENU_HEIGHT = 0.015
         /* --------------------------------------- Item Panel -------------------------------------- */
         // The initial position of the item panel
         private constant real ITEM_PANEL_X = 0.435
@@ -247,7 +187,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
         private constant real MENU_FRAME_Y = -0.02
         // The size of the menu frame
         private constant real MENU_FRAME_WIDTH = 0.40
-        private constant real MENU_FRAME_HEIGHT = 0.20
+        private constant real MENU_FRAME_HEIGHT = 0.22
         /* -------------------------------------- Menu Options ------------------------------------- */
         // The initial position of the move minimap to the right check box (relative to the menu frame)
         private constant real MINIMAP_CHECK_RIGHT_X = 0.04
@@ -321,6 +261,18 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
         // The size of the minimap transparency text
         private constant real MINIMAP_SLIDER_TEXT_WIDTH = 0.15
         private constant real MINIMAP_SLIDER_TEXT_HEIGHT = 0.015
+        // The initial position of the portrait shader slider (relative to the menu frame)
+        private constant real SHADER_SLIDER_X = 0.05
+        private constant real SHADER_SLIDER_Y = -0.185
+        // The size of the shader slider
+        private constant real SHADER_SLIDER_WIDTH = 0.30
+        private constant real SHADER_SLIDER_HEIGHT = 0.015
+        // The initial position of the shader text (relative to the shader slider)
+        private constant real SHADER_SLIDER_TEXT_X = 0.075
+        private constant real SHADER_SLIDER_TEXT_Y = 0.02
+        // The size of the minimap transparency text
+        private constant real SHADER_SLIDER_TEXT_WIDTH = 0.15
+        private constant real SHADER_SLIDER_TEXT_HEIGHT = 0.015
         /* ------------------------------------------ Gold ----------------------------------------- */
         // The initial position of the gold background (relative to the menu button)
         private constant real GOLD_BACKGROUND_X = 0.0165
@@ -337,7 +289,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
         // The gold icon texture
         private constant string GOLD_ICON_TEXTURE = "UI\\Feedback\\Resources\\ResourceGold.blp"
         // The initial position of the gold text (relative to the gold icon)
-        private constant real GOLD_TEXT_X = 0.0125
+        private constant real GOLD_TEXT_X = 0.013
         private constant real GOLD_TEXT_Y = 0.0
         // The size of the gold text
         private constant real GOLD_TEXT_WIDTH = 0.0575
@@ -345,7 +297,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
         private constant real GOLD_TEXT_SCALE = 1.0
         /* ----------------------------------------- Lumber ---------------------------------------- */
         // The initial position of the lumber background (relative to the menu button)
-        private constant real LUMBER_BACKGROUND_X = -0.0675
+        private constant real LUMBER_BACKGROUND_X = -0.067
         private constant real LUMBER_BACKGROUND_Y = 0.0025
         // The size of the lumber background
         private constant real LUMBER_BACKGROUND_WIDTH = 0.07
@@ -401,116 +353,764 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
         private constant integer SHOP_COLUMNS = 4
         // Number of rows
         private constant integer SHOP_ROWS = 3
+        // Total count
+        private constant integer SHOP_COUNT = SHOP_ROWS * SHOP_COLUMNS
         // Gap between each slot
         private constant real SHOP_SLOT_GAP = 0.0375
         // When true and a unit that has "Select Unit" or "Select Hero" or "Shop Purchase Item" 
         // abilities is selected a panel above the portrait is created to show the items/units
         private constant boolean DISPLAY_SHOP = true
+        /* ----------------------------------- Hero skill button ----------------------------------- */
+        // If true, the + icon will be displayed on top of all abilities when the hero has a skill point
+        private constant boolean SEPARATE_LEVELUP = true
+        // The size of the + icon
+        private constant real SEPARATE_LEVELUP_WIDTH = 0.0125
+        private constant real SEPARATE_LEVELUP_HEIGHT = 0.0125
+        // The + icon texture
+        private constant string SEPARATE_LEVELUP_TEXTURE = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
     endglobals
 
-    /* ---------------------------------------------------------------------------------------------- */
-    /*                                             System                                             */
-    /* ---------------------------------------------------------------------------------------------- */
-    private struct UI
-        private static trigger sliderTrigger = CreateTrigger()
-        private static trigger checkTrigger = CreateTrigger()
-        private static trigger keyPress = CreateTrigger()
-        private static timer timer = CreateTimer()
-        private static integer array currentAttribute
-        private static boolean array openedMenu
-        private static boolean array shopVisible
-        private static boolean array abilitiesVisible
-        private static boolean array minimapRight
-        private static boolean array minimapLeft
-        private static boolean array minimapToggle
-        private static framehandle array ability
-        private static framehandle array button
-        private static framehandle array group
-        private static framehandle array item
-        private static framehandle array hero
-        private static framehandle array heroIndicator
-        private static framehandle array commandButton
+    /* ----------------------------------------------------------------------------------------- */
+    /*                                          JASS API                                         */
+    /* ----------------------------------------------------------------------------------------- */
+    function IsUnitShop takes unit u, player p returns boolean
+        return (GetUnitAbilityLevel(u, 'Aneu') > 0 or GetUnitAbilityLevel(u, 'Ane2') > 0 or GetUnitAbilityLevel(u, 'Apit') > 0) and not IsUnitEnemy(u, p)
+    endfunction
 
+    /* ----------------------------------------------------------------------------------------- */
+    /*                                           System                                          */
+    /* ----------------------------------------------------------------------------------------- */
+    private struct Resource extends Panel
+        private Text value
+        private Backdrop image
+
+        method operator text= takes string value returns nothing
+            set this.value.text = value
+        endmethod
+
+        method operator text takes nothing returns string
+            return value.text
+        endmethod
+
+        method operator icon= takes string texture returns nothing
+            set image.texture = texture
+        endmethod
+
+        method operator icon takes nothing returns string
+            return image.texture
+        endmethod
+
+        method destroy takes nothing returns nothing
+            call value.destroy()
+            call image.destroy()
+            call deallocate()
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent, boolean gold returns thistype
+            local thistype this = thistype.allocate(x, y, width, height, parent, "Leaderboard")
+
+            if gold then
+                set image = Backdrop.create(GOLD_ICON_X, GOLD_ICON_Y, GOLD_ICON_WIDTH, GOLD_ICON_HEIGHT, frame, GOLD_ICON_TEXTURE)
+                set value = Text.create(GOLD_TEXT_X, GOLD_TEXT_Y, GOLD_TEXT_WIDTH, GOLD_TEXT_HEIGHT, GOLD_TEXT_SCALE, false, image.frame, null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            else
+                set image = Backdrop.create(LUMBER_ICON_X, LUMBER_ICON_Y, LUMBER_ICON_WIDTH, LUMBER_ICON_HEIGHT, frame, LUMBER_ICON_TEXTURE)
+                set value = Text.create(LUMBER_TEXT_X, LUMBER_TEXT_Y, LUMBER_TEXT_WIDTH, LUMBER_TEXT_HEIGHT, LUMBER_TEXT_SCALE, false, image.frame, null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_RIGHT)
+            endif
+
+            return this
+        endmethod
+    endstruct
+
+    private struct Options extends Panel
+        private static trigger key = CreateTrigger()
+        private static Table table
+
+        CheckBox left
+        Text leftText
+        CheckBox right
+        Text rightText
+        CheckBox toggle
+        Text toggleText
+        CheckBox heroes
+        Text heroesText
+        CheckBox default
+        Text defaultText
+        Slider slider
+        Text sliderText
+        Slider shader
+        Text shaderText
+
+        method destroy takes nothing returns nothing
+            call left.destroy()
+            call right.destroy()
+            call toggle.destroy()
+            call heroes.destroy()
+            call slider.destroy()
+            call shader.destroy()
+            call default.destroy()
+            call leftText.destroy()
+            call rightText.destroy()
+            call toggleText.destroy()
+            call heroesText.destroy()
+            call defaultText.destroy()
+            call sliderText.destroy()
+            call shaderText.destroy()
+            call deallocate()
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent returns thistype
+            local integer i = 0
+            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop")
+
+            set left = CheckBox.create(MINIMAP_CHECK_LEFT_X, MINIMAP_CHECK_LEFT_Y, MINIMAP_CHECK_LEFT_WIDTH, MINIMAP_CHECK_LEFT_HEIGHT, frame, "QuestCheckBox")
+            set left.onCheck = function thistype.onChecked
+            set left.onUncheck = function thistype.onUnchecked
+            set leftText = Text.create(MINIMAP_CHECK_LEFT_TEXT_X, MINIMAP_CHECK_LEFT_TEXT_Y, MINIMAP_CHECK_LEFT_TEXT_WIDTH, MINIMAP_CHECK_LEFT_TEXT_HEIGHT, 1.00, false, left.frame, "|cffffffffShow Minimap on the Left|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            set right = CheckBox.create(MINIMAP_CHECK_RIGHT_X, MINIMAP_CHECK_RIGHT_Y, MINIMAP_CHECK_RIGHT_WIDTH, MINIMAP_CHECK_RIGHT_HEIGHT, frame, "QuestCheckBox")
+            set right.onCheck = function thistype.onChecked
+            set right.onUncheck = function thistype.onUnchecked
+            set rightText = Text.create(MINIMAP_CHECK_RIGHT_TEXT_X, MINIMAP_CHECK_RIGHT_TEXT_Y, MINIMAP_CHECK_RIGHT_TEXT_WIDTH, MINIMAP_CHECK_RIGHT_TEXT_HEIGHT, 1.00, false, right.frame, "|cffffffffShow Minimap on the Right|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            set toggle = CheckBox.create(MINIMAP_CHECK_TOGGLE_X, MINIMAP_CHECK_TOGGLE_Y, MINIMAP_CHECK_TOGGLE_WIDTH, MINIMAP_CHECK_TOGGLE_HEIGHT, frame, "QuestCheckBox")
+            set toggle.onCheck = function thistype.onChecked
+            set toggle.onUncheck = function thistype.onUnchecked
+            set toggleText = Text.create(MINIMAP_CHECK_TOGGLE_TEXT_X, MINIMAP_CHECK_TOGGLE_TEXT_Y, MINIMAP_CHECK_TOGGLE_TEXT_WIDTH, MINIMAP_CHECK_TOGGLE_TEXT_HEIGHT, 1.00, false, toggle.frame, "|cffffffffEnable Minimap Toggle (Hold Tab)|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            set heroes = CheckBox.create(HEROES_BAR_CHECK_X, HEROES_BAR_CHECK_Y, HEROES_BAR_CHECK_WIDTH, HEROES_BAR_CHECK_HEIGHT, frame, "QuestCheckBox")
+            set heroes.onCheck = function thistype.onChecked
+            set heroes.onUncheck = function thistype.onUnchecked
+            set heroesText = Text.create(HEROES_BAR_CHECK_TEXT_X, HEROES_BAR_CHECK_TEXT_Y, HEROES_BAR_CHECK_TEXT_WIDTH, HEROES_BAR_CHECK_TEXT_HEIGHT, 1.00, false, heroes.frame, "|cffffffffShow Heroes Bar|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            set default = CheckBox.create(DEFAULT_MENU_CHECK_X, DEFAULT_MENU_CHECK_Y, DEFAULT_MENU_CHECK_WIDTH, DEFAULT_MENU_CHECK_HEIGHT, frame, "QuestCheckBox")
+            set default.onCheck = function thistype.onChecked
+            set default.onUncheck = function thistype.onUnchecked
+            set defaultText = Text.create(DEFAULT_MENU_CHECK_TEXT_X, DEFAULT_MENU_CHECK_TEXT_Y, DEFAULT_MENU_CHECK_TEXT_WIDTH, DEFAULT_MENU_CHECK_TEXT_HEIGHT, 1.00, false, default.frame, "|cffffffffShow Default Menu|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            set slider = Slider.create(MINIMAP_SLIDER_X, MINIMAP_SLIDER_Y, MINIMAP_SLIDER_WIDTH, MINIMAP_SLIDER_HEIGHT, frame, "EscMenuSliderTemplate")
+            set slider.max = 255
+            set slider.value = MAP_TRANSPARENCY
+            set slider.onSlide = function thistype.onSlider
+            set sliderText = Text.create(MINIMAP_SLIDER_TEXT_X, MINIMAP_SLIDER_TEXT_Y, MINIMAP_SLIDER_TEXT_WIDTH, MINIMAP_SLIDER_TEXT_HEIGHT, 1.00, false, slider.frame, "|cffffffffMinimap Opacity: " + I2S(R2I((MAP_TRANSPARENCY*100)/255)) + "%|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            set shader = Slider.create(SHADER_SLIDER_X, SHADER_SLIDER_Y, SHADER_SLIDER_WIDTH, SHADER_SLIDER_HEIGHT, frame, "EscMenuSliderTemplate")
+            set shader.max = 5
+            set shader.value = PORTRAIT_DARKNESS
+            set shader.onSlide = function thistype.onSlider
+            set shaderText = Text.create(SHADER_SLIDER_TEXT_X, SHADER_SLIDER_TEXT_Y, SHADER_SLIDER_TEXT_WIDTH, SHADER_SLIDER_TEXT_HEIGHT, 1.00, false, shader.frame, "|cffffffffPortrait Opacity: " + I2S(PORTRAIT_DARKNESS) + "|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            set table[left] = this
+            set table[right] = this
+            set table[toggle] = this
+            set table[heroes] = this
+            set table[shader] = this
+            set table[slider] = this
+            set table[default] = this
+
+            loop
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    set table[GetHandleId(Player(i))] = this
+                set i = i + 1
+            endloop
+
+            return this
+        endmethod
+
+        private static method onKey takes nothing returns nothing
+            local thistype this = table[GetHandleId(GetTriggerPlayer())]
+
+            if GetLocalPlayer() == GetTriggerPlayer() then
+                if toggle.checked then
+                    if BlzGetTriggerPlayerIsKeyDown() then
+                        if right.checked then
+                            call UI.showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
+                        elseif left.checked then
+                            call UI.showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
+                        endif
+                    else
+                        call BlzFrameSetVisible(UI.minimap, false)
+                    endif
+                endif
+            endif
+        endmethod
+
+        private static method onSlider takes nothing returns nothing
+            local Slider slide = GetTriggerSlider()
+            local thistype this = table[slide]
+
+            if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
+                if slide == slider then
+                    set sliderText.text = "|cffffffffMinimap Opacity: " + I2S(R2I((slider.value*100)/255)) + "%|r"
+                    call BlzFrameSetAlpha(UI.minimap, R2I(slider.value))
+                elseif slide == shader then
+                    set shaderText.text = "|cffffffffPortrait Opacity: " + I2S(R2I(shader.value)) + "|r"
+                    set UI.portrait.opacity = R2I(shader.value)
+                endif
+            endif
+        endmethod
+
+        private static method onChecked takes nothing returns nothing
+            local CheckBox check = GetTriggerCheckBox()
+            local thistype this = table[check]
+
+            if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
+                if check == left and not toggle.checked then
+                    call UI.showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
+                elseif check == right and not toggle.checked then
+                    call UI.showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
+                elseif check == toggle then
+                    call BlzFrameSetVisible(UI.minimap, false)
+                elseif check == heroes then
+                    call UI.showHeroes(true)
+                elseif check == default then
+                    call BlzFrameSetVisible(UI.default, true)
+                endif
+            endif
+        endmethod
+
+        private static method onUnchecked takes nothing returns nothing
+            local CheckBox check = GetTriggerCheckBox()
+            local thistype this = table[check]
+
+            if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
+                if check == left then
+                    if not toggle.checked and right.checked then
+                        call UI.showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
+                    else
+                        call BlzFrameSetVisible(UI.minimap, false)
+                    endif
+                elseif check == right then
+                    if not toggle.checked and left.checked then
+                        call UI.showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
+                    else
+                        call BlzFrameSetVisible(UI.minimap, false)
+                    endif
+                elseif check == toggle then
+                    if right.checked then
+                        call UI.showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
+                    elseif left.checked then
+                        call UI.showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
+                    endif
+                elseif check == heroes then
+                    call UI.showHeroes(false)
+                elseif check == default then
+                    call BlzFrameSetVisible(UI.default, false)
+                endif
+            endif
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            local integer i = 0
+
+            set table = Table.create()
+
+            loop
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    call BlzTriggerRegisterPlayerKeyEvent(key, Player(i), MINIMAP_TOGGLE_KEY, 0, true)
+                    call BlzTriggerRegisterPlayerKeyEvent(key, Player(i), MINIMAP_TOGGLE_KEY, 0, false)
+                set i = i + 1
+            endloop
+
+            call TriggerAddAction(key, function thistype.onKey)
+        endmethod
+    endstruct
+    
+    private struct Menu extends Button
+        Options panel
+
+        method destroy takes nothing returns nothing
+            call panel.destroy()
+            call deallocate()
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent returns thistype
+            local thistype this = thistype.allocate(x, y, width, height, parent, true)
+
+            set texture = OPEN_MENU_TEXTURE
+            set tooltip.text = "Open Menu"
+            set panel = Options.create(MENU_FRAME_X, MENU_FRAME_Y, MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT, frame)
+            set panel.visible = false
+
+            return this
+        endmethod
+
+        method onClick takes nothing returns nothing
+            if GetLocalPlayer() == GetTriggerPlayer() then
+                set panel.visible = not panel.visible
+
+                if panel.visible then
+                    set texture = CLOSE_MENU_TEXTURE
+                else
+                    set texture = OPEN_MENU_TEXTURE
+                endif
+            endif
+        endmethod
+    endstruct
+    
+    private struct Grid extends Panel
+        private static framehandle array button
+
+        private boolean isVisible
+        private Backdrop array slot[SHOP_COUNT]
+
+        method operator visible= takes boolean flag returns nothing
+            local integer i = 0
+            local integer j = 0
+            local integer k = 0
+
+            set isVisible = flag
+
+            if isVisible then
+                loop
+                    exitwhen i == SHOP_ROWS
+                        set j = 0
+
+                        loop
+                            exitwhen j == SHOP_COLUMNS
+                                if k < 12 then
+                                    call BlzFrameSetAbsPoint(button[k], FRAMEPOINT_TOPLEFT, x + (SHOP_ICON_X + (j*SHOP_SLOT_GAP)), y + SHOP_ICON_Y - (i*SHOP_SLOT_GAP))
+                                    call BlzFrameSetScale(button[k], SHOP_ICON_WIDTH/0.04)
+                                endif
+
+                                set k = k + 1
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            call BlzFrameSetVisible(frame, isVisible)
+        endmethod
+
+        method operator visible takes nothing returns boolean
+            return isVisible
+        endmethod
+
+        method destroy takes nothing returns nothing
+            local integer i = 0
+            local integer j = 0
+            local integer k = 0
+
+            loop
+                exitwhen i == SHOP_ROWS
+                    set j = 0
+
+                    loop
+                        exitwhen j == SHOP_COLUMNS
+                            call slot[k].destroy() 
+                            set k = k + 1
+                        set j = j + 1
+                    endloop
+                set i = i + 1
+            endloop
+
+            call deallocate()
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent returns thistype
+            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop")
+            local integer i = 0
+            local integer j = 0
+            local integer k = 0
+
+            loop
+                exitwhen i == SHOP_ROWS
+                    set j = 0
+
+                    loop
+                        exitwhen j == SHOP_COLUMNS
+                            set slot[k] = Backdrop.create(SHOP_SLOT_X + (j*SHOP_SLOT_GAP), SHOP_SLOT_Y - (i*SHOP_SLOT_GAP), SHOP_SLOT_WIDTH, SHOP_SLOT_HEIGHT, frame, SHOP_SLOT_TEXTURE)
+                            set k = k + 1
+                        set j = j + 1
+                    endloop
+                set i = i + 1
+            endloop
+
+            set visible = false
+
+            return this
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i == 12
+                    set button[i] = BlzGetFrameByName("CommandButton_" + I2S(i), 0)
+                set i = i + 1
+            endloop
+        endmethod
+    endstruct
+
+    private struct Portrait extends Panel
+        private static integer array attribute
+
+        readonly static framehandle agi
+        readonly static framehandle str
+        readonly static framehandle int
+        readonly static framehandle attack
+        readonly static framehandle defense
+        readonly static framehandle portrait
+
+        StatusBar mana
+        Text manaText
+        StatusBar health
+        Text healthText
+        Attribute damage
+        Attribute armor
+        Attribute strength
+        Attribute agility
+        Attribute intelligence
+
+        framehandle array shades[5]
+
+        method destroy takes nothing returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i == 5
+                    call BlzDestroyFrame(shades[i])
+                set i = i - 1
+            endloop
+
+            call mana.destroy()
+            call health.destroy()
+            call manaText.destroy()
+            call healthText.destroy()
+            call damage.destroy()
+            call armor.destroy()
+            call strength.destroy()
+            call agility.destroy()
+            call intelligence.destroy()
+            call deallocate()
+        endmethod
+
+        method operator opacity= takes integer value returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i == 5
+                    call BlzFrameSetVisible(shades[i], i < value)
+                set i = i + 1
+            endloop
+        endmethod
+
+        method update takes unit u, player p returns nothing
+            local group g = CreateGroup()
+            local boolean visible = IsUnitVisible(u, p)
+            local boolean hero = IsUnitType(u, UNIT_TYPE_HERO)
+            local integer id = GetPlayerId(GetLocalPlayer())
+            local integer primary = BlzGetUnitIntegerField(u, UNIT_IF_PRIMARY_ATTRIBUTE)
+            local integer count
+
+            call GroupEnumUnitsSelected(g, p, null)
+
+            set count = CountUnitsInGroup(g)
+            set mana.value = GetUnitManaPercent(u)
+            set health.value = GetUnitLifePercent(u)
+            set manaText.visible = BlzGetUnitMaxMana(u) > 0 
+            set healthText.visible = BlzGetUnitMaxHP(u) > 0 
+            set manaText.text = "|cffFFFFFF" + I2S(R2I(GetUnitState(u,  UNIT_STATE_MANA))) + " / " + I2S(BlzGetUnitMaxMana(u)) + "|r"
+            set healthText.text = "|cffFFFFFF" + I2S(R2I(GetWidgetLife(u))) + " / " + I2S(BlzGetUnitMaxHP(u)) + "|r"
+            set damage.value.text = BlzFrameGetText(attack)
+            set damage.tooltip.text = "Damage: " + damage.value.text
+            set damage.visible = BlzGetUnitWeaponBooleanField(u, UNIT_WEAPON_BF_ATTACKS_ENABLED, 0) and visible and count == 1
+            set armor.value.text = BlzFrameGetText(defense)
+            set armor.tooltip.text = "Armor: " + armor.value.text
+            set armor.visible = armor.value.text != null and visible and count == 1
+            set strength.value.text = BlzFrameGetText(str)
+            set strength.tooltip.text = "Strength: " + strength.value.text
+            set strength.visible = hero and visible and count == 1
+            set agility.value.text = BlzFrameGetText(agi)
+            set agility.tooltip.text = "Agility: " + agility.value.text
+            set agility.visible = hero and visible and count == 1
+            set intelligence.value.text = BlzFrameGetText(int)
+            set intelligence.tooltip.text = "Intelligence: " + intelligence.value.text
+            set intelligence.visible = hero and visible and count == 1
+
+            if hero then
+                if primary == 3 and attribute[id] != primary then
+                    set attribute[id] = primary
+                    call agility.display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
+                    call intelligence.display(null, 0, 0, 0)
+                    call strength.display(null, 0, 0, 0)
+                elseif primary == 2 and attribute[id] != primary then
+                    set attribute[id] = primary
+                    call agility.display(null, 0, 0, 0)
+                    call intelligence.display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
+                    call strength.display(null, 0, 0, 0)
+                elseif primary == 1 and attribute[id] != primary then
+                    set attribute[id] = primary
+                    call agility.display(null, 0, 0, 0)
+                    call intelligence.display(null, 0, 0, 0)
+                    call strength.display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
+                endif
+            endif
+            
+            if BlzGetUnitMaxMana(u) <= 0 then
+                call BlzFrameSetAllPoints(health.frame, mana.frame)
+                call BlzFrameSetAllPoints(healthText.frame, health.frame)
+            else
+                call BlzFrameSetAbsPoint(health.frame, FRAMEPOINT_TOPLEFT, x + HEALTH_X, y + HEALTH_Y)
+                call BlzFrameSetAbsPoint(health.frame, FRAMEPOINT_BOTTOMRIGHT, x + HEALTH_X + HEALTH_WIDTH, y + HEALTH_Y - HEALTH_HEIGHT)
+                call BlzFrameSetAllPoints(healthText.frame, health.frame)
+            endif
+
+            call DestroyGroup(g)
+
+            set g = null
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent returns thistype
+            local integer i = 0
+            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop")
+
+            set mana = StatusBar.create(MANA_X, MANA_Y, MANA_WIDTH, MANA_HEIGHT, frame, MANA_TEXTURE)
+            set mana.alpha = MANA_TRANSPARENCY
+            set manaText = Text.create(0, 0, mana.width, mana.height, MANA_TEXT_SCALE, false, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            set health = StatusBar.create(HEALTH_X, HEALTH_Y, HEALTH_WIDTH, HEALTH_HEIGHT, frame, HEALTH_TEXTURE)
+            set health.alpha = HEALTH_TRANSPARENCY
+            set healthText = Text.create(0, 0, health.width, health.height, HEALTH_TEXT_SCALE, false, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            set damage = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (0*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), DAMAGE_TEXTURE, "Damage", false)
+            set armor = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (1*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), ARMOR_TEXTURE, "Armor", false)
+            set strength = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (2*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), STRENGTH_TEXTURE, "Strength", false)
+            set agility = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (3*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), AGILITY_TEXTURE, "Agility", false)
+            set intelligence = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (4*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), INTELLIGENCE_TEXTURE, "Intelligence", false)
+
+            call BlzFrameSetVisible(portrait, true)
+            call BlzFrameClearAllPoints(portrait)
+            call BlzFrameSetAbsPoint(portrait, FRAMEPOINT_TOPLEFT, x + PORTRAIT_X + 0.01, y + PORTRAIT_Y)
+            call BlzFrameSetAbsPoint(portrait, FRAMEPOINT_BOTTOMRIGHT, x + PORTRAIT_X + PORTRAIT_WIDTH - 0.01, y + PORTRAIT_Y - PORTRAIT_HEIGHT)
+            call BlzFrameSetAllPoints(manaText.frame, mana.frame)
+            call BlzFrameSetAllPoints(healthText.frame, health.frame)
+
+            loop
+                exitwhen i == 5
+                    set shades[i] = BlzCreateFrame("SemiTransparentBackdrop", portrait, 0, 0)
+                    call BlzFrameSetAllPoints(shades[i], frame)
+                    call BlzFrameSetVisible(shades[i], i < PORTRAIT_DARKNESS)
+                set i = i + 1
+            endloop
+
+            return this
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            set agi = BlzGetFrameByName("InfoPanelIconHeroAgilityValue", 6)
+            set str = BlzGetFrameByName("InfoPanelIconHeroStrengthValue", 6)
+            set int = BlzGetFrameByName("InfoPanelIconHeroIntellectValue", 6)
+            set attack = BlzGetFrameByName("InfoPanelIconValue", 0)
+            set defense = BlzGetFrameByName("InfoPanelIconValue", 2)
+            set portrait = BlzGetOriginFrame(ORIGIN_FRAME_PORTRAIT, 0)
+        endmethod
+    endstruct
+
+    private struct Abilities extends Panel
+        readonly static framehandle level
+        private static framehandle array button
+
+        private boolean isVisible
+
+        Backdrop array slot[ABILITY_SLOT_COUNT]
+        Button array levelup[ABILITY_SLOT_COUNT]
+
+        method operator visible= takes boolean flag returns nothing
+            local integer i = 0
+
+            if not isVisible and flag then
+                loop
+                    exitwhen i == 12
+                        if i < ABILITY_SLOT_COUNT then
+                            call BlzFrameSetAbsPoint(button[i], FRAMEPOINT_TOPLEFT, x + (ABILITY_ICON_X + (i*ABILITY_SLOT_GAP)), y + ABILITY_ICON_Y)
+                            call BlzFrameSetScale(button[i], ABILITY_ICON_WIDTH/0.04)
+                        else
+                            call BlzFrameSetAbsPoint(button[i], FRAMEPOINT_TOPLEFT, 999, 999)
+                            call BlzFrameSetAbsPoint(button[i], FRAMEPOINT_BOTTOMRIGHT, 999, 999)
+                        endif
+                    set i = i + 1
+                endloop
+            endif
+
+            set isVisible = flag
+        endmethod
+
+        method operator visible takes nothing returns boolean
+            return isVisible
+        endmethod
+
+        method destroy takes nothing returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i == ABILITY_SLOT_COUNT
+                    call slot[i].destroy()
+
+                    static if SEPARATE_LEVELUP then
+                        call levelup[i].destroy()
+                    endif
+                set i = i + 1
+            endloop
+
+            call deallocate()
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent returns thistype
+            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop")
+            local integer i = 0
+
+            loop
+                exitwhen i == ABILITY_SLOT_COUNT
+                    set slot[i] = Backdrop.create(ABILITY_SLOT_X + (i*ABILITY_SLOT_GAP), ABILITY_SLOT_Y, ABILITY_SLOT_WIDTH, ABILITY_SLOT_HEIGHT, frame, ABILITY_SLOT_TEXTURE)
+
+                    static if SEPARATE_LEVELUP then
+                        set levelup[i] = Button.create(slot[i].width/2 - SEPARATE_LEVELUP_WIDTH/2, slot[i].y + 2*SEPARATE_LEVELUP_HEIGHT, SEPARATE_LEVELUP_WIDTH, SEPARATE_LEVELUP_HEIGHT, slot[i].frame, true)
+                        set levelup[i].texture = SEPARATE_LEVELUP_TEXTURE
+                        set levelup[i].tooltip.visible = false
+                        set levelup[i].onEnter = function thistype.onHover
+                        set levelup[i].visible = false
+                        call levelup[i].setPoint(FRAMEPOINT_BOTTOM, FRAMEPOINT_TOP, 0, 0)
+                    endif
+                set i = i + 1
+            endloop
+
+            set visible = true
+
+            return this
+        endmethod
+
+        private static method onHover takes nothing returns nothing
+            local unit u = GetMainSelectedUnitEx()
+            local Button b = GetTriggerComponent()
+            
+            if GetLocalPlayer() == GetTriggerPlayer() then
+                if GetHeroSkillPoints(u) > 0 then
+                    call BlzFrameSetAllPoints(level, b.frame)
+                    call BlzFrameSetScale(level, b.width/0.04)
+                else
+                    call BlzFrameSetAbsPoint(level, FRAMEPOINT_TOPLEFT, 999, 999)
+                    call BlzFrameSetAbsPoint(level, FRAMEPOINT_BOTTOMRIGHT, 999, 999)
+                endif
+            endif
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            set level = BlzGetFrameByName("CommandButton_7", 0)
+            set button[0] = BlzGetFrameByName("CommandButton_8", 0)
+            set button[1] = BlzGetFrameByName("CommandButton_9", 0)
+            set button[2] = BlzGetFrameByName("CommandButton_10", 0)
+            set button[3] = BlzGetFrameByName("CommandButton_11", 0)
+            set button[4] = BlzGetFrameByName("CommandButton_5", 0)
+            set button[5] = BlzGetFrameByName("CommandButton_6", 0)
+            set button[6] = BlzGetFrameByName("CommandButton_7", 0)
+            set button[7] = BlzGetFrameByName("CommandButton_0", 0)
+            set button[8] = BlzGetFrameByName("CommandButton_1", 0)
+            set button[9] = BlzGetFrameByName("CommandButton_2", 0)
+            set button[10] = BlzGetFrameByName("CommandButton_3", 0)
+            set button[11] = BlzGetFrameByName("CommandButton_4", 0)
+        endmethod
+    endstruct
+
+    private struct Inventory extends Panel
+        private Backdrop array slot[ITEM_SLOT_COUNT]
+
+        method destroy takes nothing returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i == ITEM_SLOT_COUNT
+                    call slot[i].destroy()
+                set i = i + 1
+            endloop
+
+            call deallocate()
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent returns thistype
+            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop")
+            local integer i = 0
+
+            loop
+                exitwhen i == ITEM_SLOT_COUNT
+                    set slot[i] = Backdrop.create(ITEM_SLOT_X + (i*ITEM_SLOT_GAP), ITEM_SLOT_Y, ITEM_SLOT_WIDTH, ITEM_SLOT_HEIGHT, frame, ITEM_SLOT_TEXTURE)
+
+                    call BlzFrameSetAbsPoint(BlzGetFrameByName("InventoryButton_" + I2S(i), 0), FRAMEPOINT_TOPLEFT, x + (ITEM_ICON_X + (i*ITEM_SLOT_GAP)), y + ITEM_ICON_Y)
+                    call BlzFrameSetScale(BlzGetFrameByName("InventoryButton_" + I2S(i), 0), ITEM_ICON_WIDTH/0.032)
+                set i = i + 1
+            endloop
+
+            return this
+        endmethod
+    endstruct
+
+    struct Attribute extends Button
+        private static timer timer = CreateTimer()
         private static integer key = -1
         private static thistype array array
-        private static thistype array struct
 
-        private static framehandle handle
-        private static framehandle infopanel
-        private static framehandle abilities
-        private static framehandle inventory
-        private static framehandle portrait
-        private static framehandle minimap
-        private static framehandle buff
-        private static framehandle level
-        private static framehandle shop
-        private static framehandle experience
-        private static framehandle training
-        private static framehandle resourceBar
-        private static framehandle buttonBar
-        private static framehandle timedlife
-        private static framehandle healthBar
-        private static framehandle healthText
-        private static framehandle manaBar
-        private static framehandle manaText
-        private static framehandle menuFrame
-        private static framehandle minimapRightCheck
-        private static framehandle minimapRightCheckText
-        private static framehandle minimapLeftCheck
-        private static framehandle minimapLeftCheckText
-        private static framehandle minimapToggleCheck
-        private static framehandle minimapToggleCheckText
-        private static framehandle heroesBarCheck
-        private static framehandle heroesBarCheckText
-        private static framehandle defaultMenuCheck
-        private static framehandle defaultMenuCheckText
-        private static framehandle minimapSlider
-        private static framehandle minimapSliderText
-        private static Button menu
-        private static Button damage
-        private static framehandle damageValue
-        private static Button armor
-        private static framehandle armorValue
-        private static Button strength
-        private static framehandle strengthValue
-        private static Button agility
-        private static framehandle agilityValue
-        private static Button intelligence
-        private static framehandle intelligenceValue
-        private static framehandle gold
-        private static framehandle lumber
-        private static framehandle goldBackground
-        private static framehandle goldIcon
-        private static framehandle goldText
-        private static framehandle lumberBackground
-        private static framehandle lumberIcon
-        private static framehandle lumberText
+        private integer id
 
-        unit unit
-        player player
-        integer id
-        real health
-        real mana
-        string hp
-        string mp
+        Text value
 
-        method remove takes integer i returns integer
-            set array[i] = array[key]
+        method destroy takes nothing returns nothing
+            call value.destroy()
+            set array[id] = array[key]
             set key = key - 1
-            set struct[id] = 0
-            set unit = null
-            set player = null
 
             if key == -1 then
                 call PauseTimer(timer)
             endif
 
             call deallocate()
-
-            return i - 1
         endmethod
 
-        private static method showHeroBar takes boolean show returns nothing
+        stub method update takes unit u returns nothing
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent, string texture, string tooltip, boolean inverted returns thistype
+            local thistype this = thistype.allocate(x, y, width, height, parent, true)
+
+            set key = key + 1
+            set array[key] = this
+            set this.id = key
+            set this.texture = texture
+            set this.tooltip.text = tooltip
+            set value = Text.create(ATTRIBUTES_TEXT_X, ATTRIBUTES_TEXT_Y, ATTRIBUTES_TEXT_WIDTH, ATTRIBUTES_TEXT_HEIGHT, ATTRIBUTES_TEXT_SCALE, false, frame, null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            
+            if inverted then
+                set value.horizontal = TEXT_JUSTIFY_RIGHT
+                call value.setPoint(FRAMEPOINT_TOPRIGHT, FRAMEPOINT_TOPLEFT, -ATTRIBUTES_TEXT_X + ATTRIBUTES_WIDTH, ATTRIBUTES_TEXT_Y)
+            endif
+
+            if key == 0 then
+                call TimerStart(timer, 0.2, true, function thistype.onUpdate)
+            endif
+
+            return this
+        endmethod
+
+        private static method onUpdate takes nothing returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i > key
+                    call array[i].update(GetMainSelectedUnitEx())
+                set i = i + 1
+            endloop
+        endmethod
+    endstruct
+
+    struct UI
+        private static framehandle array hero
+        private static framehandle array highlight
+
+        readonly static Menu menu
+        readonly static Grid grid
+        readonly static Resource gold
+        readonly static Resource lumber
+        readonly static Portrait portrait
+        readonly static Inventory inventory
+        readonly static Abilities abilities
+
+        readonly static framehandle coin
+        readonly static framehandle wood
+        readonly static framehandle tooltip
+        readonly static framehandle minimap
+        readonly static framehandle default
+
+        static method showHeroes takes boolean show returns nothing
             local integer i = 0
 
             if show then
@@ -518,7 +1118,7 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
                     exitwhen i >= 7
                         call BlzFrameSetAbsPoint(hero[i], FRAMEPOINT_TOPLEFT, HERO_LIST_X, HERO_LIST_Y - (i*HERO_LIST_GAP))
                         call BlzFrameSetScale(hero[i], HERO_LIST_WIDTH/0.038)
-                        call BlzFrameSetScale(heroIndicator[i], HERO_LIST_WIDTH/0.038)
+                        call BlzFrameSetScale(highlight[i], HERO_LIST_WIDTH/0.038)
                     set i = i + 1
                 endloop
             else
@@ -530,188 +1130,101 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
             endif
         endmethod
 
-        private static method showMinimap takes real x, real y returns nothing
+        static method showMinimap takes real x, real y returns nothing
             call BlzFrameSetAbsPoint(minimap, FRAMEPOINT_TOPLEFT, x, y)
             call BlzFrameSetAbsPoint(minimap, FRAMEPOINT_BOTTOMRIGHT, x + MINIMAP_WIDTH, y - MINIMAP_HEIGHT)
             call BlzFrameSetVisible(minimap, true)
         endmethod
 
-        private static method showShop takes nothing returns nothing
+        private static method onPeriod takes nothing returns nothing
             local integer i = 0
-            local integer j = 0
-            local integer k = 0
-            local integer id = GetPlayerId(GetLocalPlayer())
+            local player p = GetLocalPlayer()
+            local unit u = GetMainSelectedUnitEx()
+            local boolean shop = IsUnitShop(u, p)
+            local integer points = GetHeroSkillPoints(u)
 
-            if not shopVisible[id] then
-                loop
-                    exitwhen i == SHOP_ROWS
-                        set j = 0
-
-                        loop
-                            exitwhen j == SHOP_COLUMNS
-                                if k < 12 then
-                                    call BlzFrameSetAbsPoint(commandButton[k], FRAMEPOINT_TOPLEFT, SHOP_PANEL_X + (SHOP_ICON_X + (j*SHOP_SLOT_GAP)), SHOP_PANEL_Y + SHOP_ICON_Y - (i*SHOP_SLOT_GAP))
-                                    call BlzFrameSetScale(commandButton[k], SHOP_ICON_WIDTH/0.04)
-                                endif
-
-                                set k = k + 1
-                            set j = j + 1
-                        endloop
-                    set i = i + 1
-                endloop
-
-                call BlzFrameSetVisible(shop, true)
-
-                set shopVisible[id] = true
-                set abilitiesVisible[id] = false
+            if not IsUnitVisible(u, p) then
+                set u = null
             endif
-        endmethod
 
-        private static method showAbilities takes nothing returns nothing
-            local integer i = 0
-            local integer id = GetPlayerId(GetLocalPlayer())
+            call portrait.update(u, p)
 
-            if not abilitiesVisible[id] then
-                loop
-                    exitwhen i == 12
-                        if i < ABILITY_SLOT_COUNT then
-                            call BlzFrameSetAbsPoint(button[i], FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X + (ABILITY_ICON_X + (i*ABILITY_SLOT_GAP)), ABILITY_PANEL_Y + ABILITY_ICON_Y)
-                            call BlzFrameSetScale(button[i], ABILITY_ICON_WIDTH/0.04)
-                            // call BlzFrameSetAbsPoint(button[i], FRAMEPOINT_BOTTOMRIGHT, ABILITY_PANEL_X + (ABILITY_ICON_X + (i*ABILITY_SLOT_GAP)) + ABILITY_ICON_WIDTH, ABILITY_PANEL_Y + ABILITY_ICON_Y - ABILITY_ICON_HEIGHT)
-                        else
-                            call BlzFrameSetAbsPoint(button[i], FRAMEPOINT_TOPLEFT, 999, 999)
-                            call BlzFrameSetAbsPoint(button[i], FRAMEPOINT_BOTTOMRIGHT, 999, 999)
-                        endif
-                    set i = i + 1
-                endloop
+            set gold.text = BlzFrameGetText(coin)
+            set lumber.text = BlzFrameGetText(wood)
 
-                static if SEPARATE_MENU then
-                    call BlzFrameSetAbsPoint(level, FRAMEPOINT_TOPLEFT, INFO_X + SEPARATE_MENU_X, INFO_Y + SEPARATE_MENU_Y)
-                    call BlzFrameSetScale(level, SEPARATE_MENU_WIDTH/0.04)
+            static if DISPLAY_SHOP then
+                set grid.visible = shop
+                set abilities.visible = not grid.visible
+
+                if grid.visible then
+                    call BlzFrameSetPoint(tooltip, FRAMEPOINT_BOTTOM, grid.frame, FRAMEPOINT_TOP, 0, 0)
+                else
+                    call BlzFrameSetPoint(tooltip, FRAMEPOINT_BOTTOM, portrait.frame, FRAMEPOINT_TOP, 0, BUFF_Y)
                 endif
-
-                call BlzFrameSetVisible(shop, false)
-
-                set shopVisible[id] = false
-                set abilitiesVisible[id] = true
-            endif
-        endmethod
-        
-        private static method onShop takes nothing returns nothing
-            local integer i = 0
-            local integer j = 0
-            local framehandle slot
-
-            call BlzFrameSetAbsPoint(shop, FRAMEPOINT_TOPLEFT, SHOP_PANEL_X, SHOP_PANEL_Y)
-            call BlzFrameSetSize(shop, SHOP_COLUMNS*SHOP_SLOT_WIDTH + 0.032, SHOP_SLOT_HEIGHT*SHOP_ROWS + 0.034)
-
-            loop
-                exitwhen i == 12
-                    set commandButton[i] = BlzGetFrameByName("CommandButton_" + I2S(i), 0)
-                set i = i + 1
-            endloop
-
-            set i = 0
-
-            loop
-                exitwhen i == SHOP_ROWS
-                    set j = 0
-
-                    loop
-                        exitwhen j == SHOP_COLUMNS
-                            set slot = BlzCreateFrameByType("BACKDROP", "", shop, "", 1)
-
-                            call BlzFrameSetPoint(slot, FRAMEPOINT_TOPLEFT, shop, FRAMEPOINT_TOPLEFT, SHOP_SLOT_X + (j*SHOP_SLOT_GAP), SHOP_SLOT_Y - (i*SHOP_SLOT_GAP))
-                            call BlzFrameSetSize(slot, SHOP_SLOT_WIDTH, SHOP_SLOT_HEIGHT)
-                            call BlzFrameSetTexture(slot, SHOP_SLOT_TEXTURE, 0, true)
-                        set j = j + 1
-                    endloop
-                set i = i + 1
-            endloop
-
-            call BlzFrameSetVisible(shop, false)
-        endmethod
-
-        private static method onAbilties takes nothing returns nothing
-            local integer i = 0
-
-            set button[0] = BlzGetFrameByName("CommandButton_8", 0)
-            set button[1] = BlzGetFrameByName("CommandButton_9", 0)
-            set button[2] = BlzGetFrameByName("CommandButton_10", 0)
-            set button[3] = BlzGetFrameByName("CommandButton_11", 0)
-            set button[4] = BlzGetFrameByName("CommandButton_5", 0)
-            set button[5] = BlzGetFrameByName("CommandButton_6", 0)
-
-            static if not SEPARATE_MENU then
-                set button[6] = BlzGetFrameByName("CommandButton_7", 0)
-                set button[7] = BlzGetFrameByName("CommandButton_0", 0)
-                set button[8] = BlzGetFrameByName("CommandButton_1", 0)
-                set button[9] = BlzGetFrameByName("CommandButton_2", 0)
-                set button[10] = BlzGetFrameByName("CommandButton_3", 0)
-                set button[11] = BlzGetFrameByName("CommandButton_4", 0)
-            else
-                set level = BlzGetFrameByName("CommandButton_7", 0)
-                set button[6] = BlzGetFrameByName("CommandButton_0", 0)
-                set button[7] = BlzGetFrameByName("CommandButton_1", 0)
-                set button[8] = BlzGetFrameByName("CommandButton_2", 0)
-                set button[9] = BlzGetFrameByName("CommandButton_3", 0)
-                set button[10] = BlzGetFrameByName("CommandButton_4", 0)
             endif
 
-            set abilities = BlzCreateFrame("EscMenuBackdrop", BlzGetFrameByName("ConsoleUIBackdrop", 0), 0, 0)
+            static if SEPARATE_LEVELUP then
+                loop
+                    exitwhen i == ABILITY_SLOT_COUNT
+                        set abilities.levelup[i].visible = points > 0 and not grid.visible and GetOwningPlayer(u) == p
+                    set i = i + 1
+                endloop
 
-            call BlzFrameSetAbsPoint(abilities, FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X, ABILITY_PANEL_Y)
-            call BlzFrameSetSize(abilities, ABILITY_SLOT_COUNT*ABILITY_SLOT_WIDTH + 0.032, ABILITY_SLOT_HEIGHT + 0.034)
+                if (not shop and points <= 0) or (shop and not DISPLAY_SHOP) then
+                    call BlzFrameSetAbsPoint(abilities.level, FRAMEPOINT_TOPLEFT, 999, 999)
+                    call BlzFrameSetAbsPoint(abilities.level, FRAMEPOINT_BOTTOMRIGHT, 999, 999)
+                endif
+            endif
+
+            set u = null
+            set p = null
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            local framehandle frame
+            local integer i = 0
+
+            set coin = BlzGetFrameByName("ResourceBarGoldText" , 0) 
+            set wood = BlzGetFrameByName("ResourceBarLumberText" , 0)
+            set minimap = BlzGetFrameByName("MiniMapFrame", 0)
+            set default = BlzGetFrameByName("UpperButtonBarFrame", 0)
+            set tooltip = BlzGetOriginFrame(ORIGIN_FRAME_UBERTOOLTIP , 0)
+            set menu = Menu.create(MENU_X, MENU_Y, MENU_WIDTH, MENU_HEIGHT, null)
+            set portrait = Portrait.create(INFO_X, INFO_Y, INFO_WIDTH, INFO_HEIGHT, null)
+            set grid = Grid.create(SHOP_PANEL_X, SHOP_PANEL_Y, SHOP_COLUMNS*SHOP_SLOT_WIDTH + 0.032, SHOP_SLOT_HEIGHT*SHOP_ROWS + 0.034, null)
+            set gold = Resource.create(GOLD_BACKGROUND_X, GOLD_BACKGROUND_Y, GOLD_BACKGROUND_WIDTH, GOLD_BACKGROUND_HEIGHT, menu.frame, true)
+            set lumber = Resource.create(LUMBER_BACKGROUND_X, LUMBER_BACKGROUND_Y, LUMBER_BACKGROUND_WIDTH, LUMBER_BACKGROUND_HEIGHT, menu.frame, false)
+            set abilities = Abilities.create(ABILITY_PANEL_X, ABILITY_PANEL_Y, ABILITY_SLOT_COUNT*ABILITY_SLOT_WIDTH + 0.032, ABILITY_SLOT_HEIGHT + 0.034, null)
+            set inventory = Inventory.create(ITEM_PANEL_X, ITEM_PANEL_Y, ITEM_SLOT_COUNT*ITEM_SLOT_WIDTH + 0.032, ITEM_SLOT_HEIGHT + 0.034, null)
 
             loop
-                exitwhen i == 12
-                    if i < ABILITY_SLOT_COUNT then
-                        set ability[i] = BlzCreateFrameByType("BACKDROP", "", abilities, "", 1)
+                exitwhen i >= 12
+                    set frame = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), i), 1)
 
-                        call BlzFrameSetPoint(ability[i], FRAMEPOINT_TOPLEFT, abilities, FRAMEPOINT_TOPLEFT, ABILITY_SLOT_X + (i*ABILITY_SLOT_GAP), ABILITY_SLOT_Y)
-                        call BlzFrameSetSize(ability[i], ABILITY_SLOT_WIDTH, ABILITY_SLOT_HEIGHT)
-                        call BlzFrameSetTexture(ability[i], ABILITY_SLOT_TEXTURE, 0, true)
+                    if i < 7 then
+                        set hero[i] = BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON, i)
+                        set highlight[i] = BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON_INDICATOR, i)
+                    endif
+
+                    if i >= 6 then
+                        call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)), ITEM_PANEL_Y + GROUP_Y)
+                        call BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)) + GROUP_WIDTH, ITEM_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
+                    else
+                        call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)), ABILITY_PANEL_Y + GROUP_Y)
+                        call BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)) + GROUP_WIDTH, ABILITY_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
                     endif
                 set i = i + 1
             endloop
 
-            call showAbilities()
-        endmethod
+            call BlzEnableUIAutoPosition(false)
 
-        private static method onInventory takes nothing returns nothing
-            local integer i = 0
+            call BlzFrameSetParent(tooltip, BlzGetFrameByName("ConsoleUI", 0))
+            call BlzFrameSetParent(minimap, BlzGetFrameByName("ConsoleUIBackdrop", 0))
 
-            set inventory = BlzCreateFrame("EscMenuBackdrop", BlzGetFrameByName("ConsoleUIBackdrop", 0), 0, 0)
+            call BlzFrameSetAlpha(minimap, R2I(MAP_TRANSPARENCY))
+            call BlzFrameSetAlpha(BlzGetFrameByName("SimpleInventoryCover", 0), 0)
 
-            call BlzFrameSetAbsPoint(inventory, FRAMEPOINT_TOPLEFT, ITEM_PANEL_X, ITEM_PANEL_Y)
-            call BlzFrameSetSize(inventory, ITEM_SLOT_COUNT*ITEM_SLOT_WIDTH + 0.032, 2*ITEM_SLOT_HEIGHT)
-
-            loop
-                exitwhen i == ITEM_SLOT_COUNT
-                    set item[i] = BlzCreateFrameByType("BACKDROP", "", inventory, "", 1)
-
-                    call BlzFrameSetPoint(item[i], FRAMEPOINT_TOPLEFT, inventory, FRAMEPOINT_TOPLEFT, ITEM_SLOT_X + (i*ITEM_SLOT_GAP), ITEM_SLOT_Y)
-                    call BlzFrameSetSize(item[i], ITEM_SLOT_WIDTH, ITEM_SLOT_HEIGHT)
-                    call BlzFrameSetTexture(item[i], ITEM_SLOT_TEXTURE, 0, true)
-
-                    call BlzFrameSetAbsPoint(BlzGetFrameByName("InventoryButton_" + I2S(i), 0), FRAMEPOINT_TOPLEFT, ITEM_PANEL_X + (ITEM_ICON_X + (i*ITEM_SLOT_GAP)), ITEM_PANEL_Y + ITEM_ICON_Y)
-                    call BlzFrameSetScale(BlzGetFrameByName("InventoryButton_" + I2S(i), 0), ITEM_ICON_WIDTH/0.032)
-                    // call BlzFrameSetAbsPoint(BlzGetFrameByName("InventoryButton_" + I2S(i), 0), FRAMEPOINT_BOTTOMRIGHT, ITEM_PANEL_X + (ITEM_ICON_X + (i*ITEM_SLOT_GAP)) + ITEM_ICON_WIDTH, ITEM_PANEL_Y + ITEM_ICON_Y - ITEM_ICON_HEIGHT)
-                set i = i + 1
-            endloop
-        endmethod
-
-        private static method onInfoPanel takes nothing returns nothing
-            set infopanel = BlzCreateFrame("EscMenuBackdrop", BlzGetFrameByName("ConsoleUIBackdrop", 0), 0, 0)
-            set healthBar = BlzCreateFrameByType("SIMPLESTATUSBAR", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
-            set healthText = BlzCreateFrameByType("TEXT", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
-            set manaBar = BlzCreateFrameByType("SIMPLESTATUSBAR", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0) 
-            set manaText = BlzCreateFrameByType("TEXT", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
-            
-            call BlzFrameSetAbsPoint(infopanel, FRAMEPOINT_TOPLEFT, INFO_X, INFO_Y)
-            call BlzFrameSetAbsPoint(infopanel, FRAMEPOINT_BOTTOMRIGHT, INFO_X + INFO_WIDTH, INFO_Y - INFO_HEIGHT)
-            
-            // Remove Names and Descriptions
+            call BlzFrameSetScale(BlzGetFrameByName("InventoryText", 0), 0.0001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleNameValue", 0), 0.00001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleClassValue", 0), 0.00001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleBuildingNameValue", 1), 0.00001)
@@ -722,659 +1235,32 @@ library Interface requires RegisterPlayerUnitEvent, GetMainSelectedUnit, Compone
             call BlzFrameSetScale(BlzGetFrameByName("SimpleItemDescriptionValue", 3), 0.00001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleDestructableNameValue", 4), 0.00001)
             call BlzFrameSetScale(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR_LABEL, 0), 0.00001)
-
-            // Reposition the Attack 1 block
-            set damage = Button.create(null, DAMAGE_WIDTH, DAMAGE_HEIGHT, INFO_X + DAMAGE_X, INFO_Y + DAMAGE_Y, true, false)
-            set damage.icon = DAMAGE_TEXTURE
-            set damage.tooltip.text = "Damage"
-            set damage.visible = false
-            set damageValue = BlzCreateFrameByType("TEXT", "", damage.frame, "", 0)
-
-            call BlzFrameSetAbsPoint(damageValue, FRAMEPOINT_TOPLEFT, INFO_X + DAMAGE_X + DAMAGE_TEXT_X, INFO_Y + DAMAGE_Y + DAMAGE_TEXT_Y)
-            call BlzFrameSetAbsPoint(damageValue, FRAMEPOINT_BOTTOMRIGHT, INFO_X + DAMAGE_X + DAMAGE_TEXT_X + DAMAGE_TEXT_WIDTH, INFO_Y + DAMAGE_Y + DAMAGE_TEXT_Y - DAMAGE_TEXT_HEIGHT)
-            call BlzFrameSetTextAlignment(damageValue, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetScale(damageValue, DAMAGE_TEXT_SCALE)
-            call BlzFrameSetEnable(damageValue, false)
-            // call BlzFrameSetScale(BlzGetFrameByName("InfoPanelIconLabel", 0), 0.0001)
-            // call BlzFrameSetAllPoints(BlzGetFrameByName("InfoPanelIconBackdrop", 0), damage.frame)
-            // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconValue", 0), FRAMEPOINT_TOPLEFT, INFO_X + DAMAGE_X + DAMAGE_TEXT_X, INFO_Y + DAMAGE_Y + DAMAGE_TEXT_Y)
-            // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconValue", 0), FRAMEPOINT_BOTTOMRIGHT, INFO_X + DAMAGE_X + DAMAGE_TEXT_X + DAMAGE_TEXT_WIDTH, INFO_Y + DAMAGE_Y + DAMAGE_TEXT_Y - DAMAGE_TEXT_HEIGHT)
             
-            // Reposition the Armor block
-            set armor = Button.create(null, ARMOR_WIDTH, ARMOR_HEIGHT, INFO_X + ARMOR_X, INFO_Y + ARMOR_Y, true, false)
-            set armor.icon = ARMOR_TEXTURE
-            set armor.tooltip.text = "Armor"
-            set armor.visible = false
-            set armorValue = BlzCreateFrameByType("TEXT", "", armor.frame, "", 0)
+            call BlzFrameSetVisible(default, false)
+            call BlzFrameSetVisible(minimap, false)
+            call BlzFrameSetVisible(BlzFrameGetChild(BlzGetFrameByName("ConsoleBottomBar", 0), 3), false)
+            call BlzFrameSetVisible(BlzFrameGetChild(BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 5),0), false)
 
-            call BlzFrameSetAbsPoint(armorValue, FRAMEPOINT_TOPLEFT, INFO_X + ARMOR_X + ARMOR_TEXT_X, INFO_Y + ARMOR_Y + ARMOR_TEXT_Y)
-            call BlzFrameSetAbsPoint(armorValue, FRAMEPOINT_BOTTOMRIGHT, INFO_X + ARMOR_X + ARMOR_TEXT_X + ARMOR_TEXT_WIDTH, INFO_Y + ARMOR_Y + ARMOR_TEXT_Y - ARMOR_TEXT_HEIGHT)
-            call BlzFrameSetTextAlignment(armorValue, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetScale(armorValue, ARMOR_TEXT_SCALE)
-            call BlzFrameSetEnable(armorValue, false)
-            // call BlzFrameSetScale(BlzGetFrameByName("InfoPanelIconLabel", 2), 0.0001)
-            // call BlzFrameSetAllPoints(BlzGetFrameByName("InfoPanelIconBackdrop", 2), armor.frame)
-            // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconValue", 2), FRAMEPOINT_TOPLEFT, INFO_X + ARMOR_X + ARMOR_TEXT_X, INFO_Y + ARMOR_Y + ARMOR_TEXT_Y)
-            // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconValue", 2), FRAMEPOINT_BOTTOMRIGHT, INFO_X + ARMOR_X + ARMOR_TEXT_X + ARMOR_TEXT_WIDTH, INFO_Y + ARMOR_Y + ARMOR_TEXT_Y - ARMOR_TEXT_HEIGHT)
-
-            // Reposition the Strength label and value
-            set strength = Button.create(null, STRENGTH_WIDTH, STRENGTH_HEIGHT, INFO_X + STRENGTH_X, INFO_Y + STRENGTH_Y, true, false)
-            set strength.icon = STRENGTH_TEXTURE
-            set strength.tooltip.text = "Strength"
-            set strength.visible = false
-            set strengthValue = BlzCreateFrameByType("TEXT", "", strength.frame, "", 0)
-
-            call BlzFrameSetAbsPoint(strengthValue, FRAMEPOINT_TOPLEFT, INFO_X + STRENGTH_X + STRENGTH_TEXT_X, INFO_Y + STRENGTH_Y + STRENGTH_TEXT_Y)
-            call BlzFrameSetAbsPoint(strengthValue, FRAMEPOINT_BOTTOMRIGHT, INFO_X + STRENGTH_X + STRENGTH_TEXT_X + STRENGTH_TEXT_WIDTH, INFO_Y + STRENGTH_Y + STRENGTH_TEXT_Y - STRENGTH_TEXT_HEIGHT)
-            call BlzFrameSetTextAlignment(strengthValue, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetScale(strengthValue, STRENGTH_TEXT_SCALE)
-            call BlzFrameSetEnable(strengthValue, false)
-            // call BlzFrameSetScale(BlzGetFrameByName("InfoPanelIconHeroStrengthLabel", 6), 0.0001)
-            // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconHeroStrengthValue", 6), FRAMEPOINT_TOPLEFT, INFO_X + STRENGTH_X + STRENGTH_TEXT_X, INFO_Y + STRENGTH_Y + STRENGTH_TEXT_Y)
-            // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconHeroStrengthValue", 6), FRAMEPOINT_BOTTOMRIGHT, INFO_X + STRENGTH_X + STRENGTH_TEXT_X + STRENGTH_TEXT_WIDTH, INFO_Y + STRENGTH_Y + STRENGTH_TEXT_Y - STRENGTH_TEXT_HEIGHT)
-
-            // Reposition the Agility label and value
-            set agility = Button.create(null, AGILITY_WIDTH, AGILITY_HEIGHT, INFO_X + AGILITY_X, INFO_Y + AGILITY_Y, true, false)
-            set agility.icon = AGILITY_TEXTURE
-            set agility.tooltip.text = "Agility"
-            set agility.visible = false
-            set agilityValue = BlzCreateFrameByType("TEXT", "", agility.frame, "", 0)
-
-            call BlzFrameSetAbsPoint(agilityValue, FRAMEPOINT_TOPLEFT, INFO_X + AGILITY_X + AGILITY_TEXT_X, INFO_Y + AGILITY_Y + AGILITY_TEXT_Y)
-            call BlzFrameSetAbsPoint(agilityValue, FRAMEPOINT_BOTTOMRIGHT, INFO_X + AGILITY_X + AGILITY_TEXT_X + AGILITY_TEXT_WIDTH, INFO_Y + AGILITY_Y + AGILITY_TEXT_Y - AGILITY_TEXT_HEIGHT)
-            call BlzFrameSetTextAlignment(agilityValue, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetScale(agilityValue, AGILITY_TEXT_SCALE)
-            call BlzFrameSetEnable(agilityValue, false)
-            // call BlzFrameSetScale(BlzGetFrameByName("InfoPanelIconHeroAgilityLabel", 6), 0.0001)
-            // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconHeroAgilityValue", 6), FRAMEPOINT_TOPLEFT, INFO_X + AGILITY_X + AGILITY_TEXT_X, INFO_Y + AGILITY_Y + AGILITY_TEXT_Y)
-            // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconHeroAgilityValue", 6), FRAMEPOINT_BOTTOMRIGHT, INFO_X + AGILITY_X + AGILITY_TEXT_X + AGILITY_TEXT_WIDTH, INFO_Y + AGILITY_Y + AGILITY_TEXT_Y - AGILITY_TEXT_HEIGHT)
-
-            // Reposition the Intelligence label and value
-            set intelligence = Button.create(null, INTELLIGENCE_WIDTH, INTELLIGENCE_HEIGHT, INFO_X + INTELLIGENCE_X, INFO_Y + INTELLIGENCE_Y, true, false)
-            set intelligence.icon = INTELLIGENCE_TEXTURE
-            set intelligence.tooltip.text = "Intelligence"
-            set intelligence.visible = false
-            set intelligenceValue = BlzCreateFrameByType("TEXT", "", intelligence.frame, "", 0)
-
-            call BlzFrameSetAbsPoint(intelligenceValue, FRAMEPOINT_TOPLEFT, INFO_X + INTELLIGENCE_X + INTELLIGENCE_TEXT_X, INFO_Y + INTELLIGENCE_Y + INTELLIGENCE_TEXT_Y)
-            call BlzFrameSetAbsPoint(intelligenceValue, FRAMEPOINT_BOTTOMRIGHT, INFO_X + INTELLIGENCE_X + INTELLIGENCE_TEXT_X + INTELLIGENCE_TEXT_WIDTH, INFO_Y + INTELLIGENCE_Y + INTELLIGENCE_TEXT_Y - INTELLIGENCE_TEXT_HEIGHT)
-            call BlzFrameSetTextAlignment(intelligenceValue, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetScale(intelligenceValue, INTELLIGENCE_TEXT_SCALE)
-            call BlzFrameSetEnable(intelligenceValue, false)
-            // call BlzFrameSetScale(BlzGetFrameByName("InfoPanelIconHeroIntellectLabel", 6), 0.0001)
-            // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconHeroIntellectValue", 6), FRAMEPOINT_TOPLEFT, INFO_X + INTELLIGENCE_X + INTELLIGENCE_TEXT_X, INFO_Y + INTELLIGENCE_Y + INTELLIGENCE_TEXT_Y)
-            // call BlzFrameSetAbsPoint(BlzGetFrameByName("InfoPanelIconHeroIntellectValue", 6), FRAMEPOINT_BOTTOMRIGHT, INFO_X + INTELLIGENCE_X + INTELLIGENCE_TEXT_X + INTELLIGENCE_TEXT_WIDTH, INFO_Y + INTELLIGENCE_Y + INTELLIGENCE_TEXT_Y - INTELLIGENCE_TEXT_HEIGHT)
-
-            // Reposition the Buff bar
-            call BlzFrameSetAbsPoint(buff, FRAMEPOINT_TOPLEFT, INFO_X + BUFF_X, INFO_Y + BUFF_Y)
-            call BlzFrameSetAbsPoint(buff, FRAMEPOINT_BOTTOMRIGHT, INFO_X + BUFF_X + BUFF_WIDTH, INFO_Y + BUFF_Y - BUFF_HEIGHT)
-
-            // Reposition the Health bar/text
-            call BlzFrameSetValue(healthBar, 0)
-            call BlzFrameSetAlpha(healthBar, HEALTH_TRANSPARENCY)
-            call BlzFrameSetTexture(healthBar, HEALTH_TEXTURE, 0, true)
-            call BlzFrameSetAbsPoint(healthBar, FRAMEPOINT_TOPLEFT, INFO_X + HEALTH_X, INFO_Y + HEALTH_Y)
-            call BlzFrameSetAbsPoint(healthBar, FRAMEPOINT_BOTTOMRIGHT, INFO_X + HEALTH_X + HEALTH_WIDTH, INFO_Y + HEALTH_Y - HEALTH_HEIGHT)
-            call BlzFrameSetAllPoints(healthText, healthBar)
-            call BlzFrameSetEnable(healthText, false)
-            call BlzFrameSetScale(healthText, HEALTH_TEXT_SCALE)
-            call BlzFrameSetTextAlignment(healthText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
-
-            // Reosition the Mana bar
-            call BlzFrameSetValue(manaBar, 0)
-            call BlzFrameSetAlpha(manaBar, MANA_TRANSPARENCY)
-            call BlzFrameSetTexture(manaBar, MANA_TEXTURE, 0, true)
-            call BlzFrameSetAbsPoint(manaBar, FRAMEPOINT_TOPLEFT, INFO_X + MANA_X, INFO_Y + MANA_Y)
-            call BlzFrameSetAbsPoint(manaBar, FRAMEPOINT_BOTTOMRIGHT, INFO_X + MANA_X + MANA_WIDTH, INFO_Y + MANA_Y - MANA_HEIGHT)
-            call BlzFrameSetAllPoints(manaText, manaBar)
-            call BlzFrameSetEnable(manaText, false)
-            call BlzFrameSetScale(manaText, MANA_TEXT_SCALE)
-            call BlzFrameSetTextAlignment(manaText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
-
-            // Reposition the Timed Life bar
-            call BlzFrameSetAbsPoint(timedlife, FRAMEPOINT_TOPLEFT, INFO_X + PROGRESS_X, INFO_Y + PROGRESS_Y)
-            call BlzFrameSetAbsPoint(timedlife, FRAMEPOINT_BOTTOMRIGHT, INFO_X + PROGRESS_X + PROGRESS_WIDTH, INFO_Y + PROGRESS_Y - PROGRESS_HEIGHT)
-            
-            // Reposition the XP bar
-            call BlzFrameSetAbsPoint(experience, FRAMEPOINT_TOPLEFT, INFO_X + PROGRESS_X, INFO_Y + PROGRESS_Y)
-            call BlzFrameSetAbsPoint(experience, FRAMEPOINT_BOTTOMRIGHT, INFO_X + PROGRESS_X + PROGRESS_WIDTH, INFO_Y + PROGRESS_Y - PROGRESS_HEIGHT)
-
-            // Reposition the Training bar
-            call BlzFrameSetAbsPoint(training, FRAMEPOINT_TOPLEFT, INFO_X + PROGRESS_X, INFO_Y + PROGRESS_Y)
-            call BlzFrameSetAbsPoint(training, FRAMEPOINT_BOTTOMRIGHT, INFO_X + PROGRESS_X + PROGRESS_WIDTH, INFO_Y + PROGRESS_Y - PROGRESS_HEIGHT)
-        endmethod
-
-        private static method onPortrait takes nothing returns nothing
-            local integer i = PORTRAIT_DARKNESS
-
-            call BlzFrameSetVisible(portrait, true)
-            call BlzFrameClearAllPoints(portrait)
-            call BlzFrameSetAbsPoint(portrait, FRAMEPOINT_TOPLEFT, INFO_X + PORTRAIT_X + 0.01, INFO_Y + PORTRAIT_Y)
-            call BlzFrameSetAbsPoint(portrait, FRAMEPOINT_BOTTOMRIGHT, INFO_X + PORTRAIT_X + PORTRAIT_WIDTH - 0.01, INFO_Y + PORTRAIT_Y - PORTRAIT_HEIGHT)
-
-            loop
-                exitwhen i <= 0
-                    call BlzFrameSetAllPoints(BlzCreateFrame("Leaderboard", portrait, 0, 0), infopanel)
-                set i = i - 1
-            endloop
-
-            // call BlzFrameSetAbsPoint(portrait, FRAMEPOINT_TOPLEFT, 0.399, 0.001)
-            // call BlzFrameSetAbsPoint(portrait, FRAMEPOINT_BOTTOMRIGHT, 0.4, 0.0)
-        endmethod
-
-        private static method onHeroes takes nothing returns nothing
-            local integer i = 0
-
-            loop
-                exitwhen i >= 7
-                    set hero[i] = BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON, i)
-                    set heroIndicator[i] = BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON_INDICATOR, i)
-                set i = i + 1
-            endloop
-        endmethod
-
-        private static method onCheck takes nothing returns nothing
-            local integer id = GetPlayerId(GetTriggerPlayer())
-            local framehandle frame = BlzGetTriggerFrame()
-
-            if BlzGetTriggerFrameEvent() == FRAMEEVENT_CHECKBOX_CHECKED then
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    if frame == minimapRightCheck then
-                        set minimapRight[id] = true
-
-                        if not minimapToggle[id] then
-                            call showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
-                        endif
-                    elseif frame == minimapLeftCheck then
-                        set minimapLeft[id] = true
-
-                        if not minimapToggle[id] then
-                            call showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
-                        endif
-                    elseif frame == minimapToggleCheck then
-                        set minimapToggle[id] = true
-                        call BlzFrameSetVisible(minimap, false)
-                    elseif frame == heroesBarCheck then
-                        call showHeroBar(true)
-                    elseif frame == defaultMenuCheck then
-                        call BlzFrameSetVisible(buttonBar, true)
-                    endif
-                endif
-            else
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    if frame == minimapRightCheck then
-                        set minimapRight[id] = false
-
-                        if not minimapToggle[id] and minimapLeft[id] then
-                            call showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
-                        else
-                            call BlzFrameSetVisible(minimap, false)
-                        endif
-                    elseif frame == minimapLeftCheck then
-                        set minimapLeft[id] = false
-
-                        if not minimapToggle[id] and minimapRight[id] then
-                            call showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
-                        else
-                            call BlzFrameSetVisible(minimap, false)
-                        endif
-                    elseif frame == minimapToggleCheck then
-                        set minimapToggle[id] = false
-
-                        if minimapRight[id] then
-                            call showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
-                        elseif minimapLeft[id] then
-                            call showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
-                        endif
-                    elseif frame == heroesBarCheck then
-                        call showHeroBar(false)
-                    elseif frame == defaultMenuCheck then
-                        call BlzFrameSetVisible(buttonBar, false)
-                    endif
-                endif
-            endif
-        endmethod
-
-        private static method onSlider takes nothing returns nothing
-            local integer value = R2I(BlzGetTriggerFrameValue())
-            local string text = I2S(R2I((value*100)/255))
-
-            if GetLocalPlayer() == GetTriggerPlayer() then
-                call BlzFrameSetAlpha(minimap, value)
-                call BlzFrameSetText(minimapSliderText, "|cffffffffMinimap Opacity: " + text + "%|r")
-            endif
-        endmethod
-
-        private static method onGroup takes nothing returns nothing
-            local integer i = 0
-            
-            loop
-                exitwhen i >= 12
-                    set group[i] = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), i), 1)
-
-                    if i >= 6 then
-                        call BlzFrameSetAbsPoint(group[i], FRAMEPOINT_TOPLEFT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)), ITEM_PANEL_Y + GROUP_Y)
-                        call BlzFrameSetAbsPoint(group[i], FRAMEPOINT_BOTTOMRIGHT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)) + GROUP_WIDTH, ITEM_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
-                    else
-                        call BlzFrameSetAbsPoint(group[i], FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)), ABILITY_PANEL_Y + GROUP_Y)
-                        call BlzFrameSetAbsPoint(group[i], FRAMEPOINT_BOTTOMRIGHT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)) + GROUP_WIDTH, ABILITY_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
-                    endif
-                set i = i + 1
-            endloop
-        endmethod
-
-        private static method onResources takes nothing returns nothing
-            set goldBackground = BlzCreateFrame("Leaderboard", BlzGetFrameByName("ConsoleUIBackdrop", 0), 0, 0)
-            call BlzFrameSetAbsPoint(goldBackground, FRAMEPOINT_TOPLEFT, MENU_X + GOLD_BACKGROUND_X, MENU_Y + GOLD_BACKGROUND_Y)
-            call BlzFrameSetSize(goldBackground, GOLD_BACKGROUND_WIDTH, GOLD_BACKGROUND_HEIGHT)
-        
-            set goldIcon = BlzCreateFrameByType("BACKDROP", "", goldBackground, "", 1)
-            call BlzFrameSetPoint(goldIcon, FRAMEPOINT_TOPLEFT, goldBackground, FRAMEPOINT_TOPLEFT, GOLD_ICON_X, GOLD_ICON_Y)
-            call BlzFrameSetSize(goldIcon, GOLD_ICON_WIDTH, GOLD_ICON_HEIGHT)
-            call BlzFrameSetTexture(goldIcon, GOLD_ICON_TEXTURE, 0, true)
-
-            set goldText = BlzCreateFrameByType("TEXT", "", goldIcon, "", 0) 
-            call BlzFrameSetPoint(goldText, FRAMEPOINT_TOPLEFT, goldIcon, FRAMEPOINT_TOPLEFT, GOLD_TEXT_X, GOLD_TEXT_Y)
-            call BlzFrameSetSize(goldText, GOLD_TEXT_WIDTH, GOLD_TEXT_HEIGHT) 
-            call BlzFrameSetEnable(goldText, false) 
-            call BlzFrameSetScale(goldText, GOLD_TEXT_SCALE) 
-            call BlzFrameSetTextAlignment(goldText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT) 
-
-            set lumberBackground = BlzCreateFrame("Leaderboard", BlzGetFrameByName("ConsoleUIBackdrop", 0), 0, 0)
-            call BlzFrameSetAbsPoint(lumberBackground, FRAMEPOINT_TOPLEFT, MENU_X + LUMBER_BACKGROUND_X, MENU_Y + LUMBER_BACKGROUND_Y)
-            call BlzFrameSetSize(lumberBackground, LUMBER_BACKGROUND_WIDTH, LUMBER_BACKGROUND_HEIGHT)
-        
-            set lumberIcon = BlzCreateFrameByType("BACKDROP", "", lumberBackground, "", 1) 
-            call BlzFrameSetPoint(lumberIcon, FRAMEPOINT_TOPLEFT, lumberBackground, FRAMEPOINT_TOPLEFT, LUMBER_ICON_X, LUMBER_ICON_Y)
-            call BlzFrameSetSize(lumberIcon, LUMBER_ICON_WIDTH, LUMBER_ICON_HEIGHT)
-            call BlzFrameSetTexture(lumberIcon, LUMBER_ICON_TEXTURE, 0, true) 
-        
-            set lumberText = BlzCreateFrameByType("TEXT", "", lumberIcon, "", 0) 
-            call BlzFrameSetPoint(lumberText, FRAMEPOINT_TOPLEFT, lumberIcon, FRAMEPOINT_TOPLEFT, LUMBER_TEXT_X, LUMBER_TEXT_Y)
-            call BlzFrameSetSize(lumberText, LUMBER_TEXT_WIDTH, LUMBER_TEXT_HEIGHT)
-            call BlzFrameSetEnable(lumberText, false) 
-            call BlzFrameSetScale(lumberText, LUMBER_TEXT_SCALE) 
-            call BlzFrameSetTextAlignment(lumberText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_RIGHT) 
-        endmethod
-
-        private static method onUpdate takes nothing returns nothing
-            local integer count
-            local integer id = GetPlayerId(GetLocalPlayer())
-            local unit u = GetMainSelectedUnitEx()
-            local group g = CreateGroup()
-            local integer points = GetHeroSkillPoints(u)
-            local boolean visible = IsUnitVisible(u, GetLocalPlayer())
-            local boolean hero = IsUnitType(u, UNIT_TYPE_HERO)
-            local boolean attackEnabled = BlzGetUnitWeaponBooleanField(u, UNIT_WEAPON_BF_ATTACKS_ENABLED, 0)
-            local integer mainAttribute = BlzGetUnitIntegerField(u, UNIT_IF_PRIMARY_ATTRIBUTE)
-            local string damageText = BlzFrameGetText(BlzGetFrameByName("InfoPanelIconValue", 0))
-            local string armorText = BlzFrameGetText(BlzGetFrameByName("InfoPanelIconValue", 2))
-            local string strengthText = BlzFrameGetText(BlzGetFrameByName("InfoPanelIconHeroStrengthValue", 6))
-            local string agilityText = BlzFrameGetText(BlzGetFrameByName("InfoPanelIconHeroAgilityValue", 6))
-            local string intelligenceText = BlzFrameGetText(BlzGetFrameByName("InfoPanelIconHeroIntellectValue", 6))
-
-            // Gold and Lumber text
-            call BlzFrameSetText(goldText, BlzFrameGetText(gold))
-            call BlzFrameSetText(lumberText, BlzFrameGetText(lumber))
-
-            call GroupEnumUnitsSelected(g, GetLocalPlayer(), null)
-            set count = CountUnitsInGroup(g)
-
-            if u != null and count == 1 and visible then
-                if attackEnabled then
-                    set damage.visible = true
-                    set damage.tooltip.text = "Damage: " + damageText
-                    call BlzFrameSetText(damageValue, damageText)
-                else
-                    set damage.visible = false
-                endif
-
-                if armorText != null and armorText != "" then
-                    set armor.visible = true
-                    set armor.tooltip.text = "Armor: " + armorText
-                    call BlzFrameSetText(armorValue, armorText)
-                else
-                    set armor.visible = false
-                endif
-
-                if hero then
-                    set strength.visible = true
-                    set strength.tooltip.text = "Strength: " + strengthText
-                    call BlzFrameSetText(strengthValue, strengthText)
-    
-                    set agility.visible = true
-                    set agility.tooltip.text = "Agility: " + agilityText
-                    call BlzFrameSetText(agilityValue, agilityText)
-    
-                    set intelligence.visible = true
-                    set intelligence.tooltip.text = "Intelligence: " + intelligenceText
-                    call BlzFrameSetText(intelligenceValue, intelligenceText)
-
-                    if mainAttribute == 3 and currentAttribute[id] != mainAttribute then
-                        set currentAttribute[id] = mainAttribute
-                        call agility.display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_POINT, HIGHLIGHT_RELATIVE_POINT, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
-                        call intelligence.display(null, 0, null, null, 0, 0)
-                        call strength.display(null, 0, null, null, 0, 0)
-                    elseif mainAttribute == 2 and currentAttribute[id] != mainAttribute then
-                        set currentAttribute[id] = mainAttribute
-                        call agility.display(null, 0, null, null, 0, 0)
-                        call intelligence.display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_POINT, HIGHLIGHT_RELATIVE_POINT, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
-                        call strength.display(null, 0, null, null, 0, 0)
-                    elseif mainAttribute == 1 and currentAttribute[id] != mainAttribute then
-                        set currentAttribute[id] = mainAttribute
-                        call agility.display(null, 0, null, null, 0, 0)
-                        call intelligence.display(null, 0, null, null, 0, 0)
-                        call strength.display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_POINT, HIGHLIGHT_RELATIVE_POINT, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
-                    endif
-                else
-                    set strength.visible = false
-                    set agility.visible = false
-                    set intelligence.visible = false
-                endif
-
-                static if SEPARATE_MENU and AUTO_HIDE then
-                    if not shopVisible[id] then
-                        if points > 0 then
-                            call BlzFrameSetAbsPoint(level, FRAMEPOINT_TOPLEFT, INFO_X + SEPARATE_MENU_X, INFO_Y + SEPARATE_MENU_Y)
-                            call BlzFrameSetScale(level, SEPARATE_MENU_WIDTH/0.04)
-                        else
-                            call BlzFrameSetAbsPoint(level, FRAMEPOINT_TOPLEFT, 999, 999)
-                            call BlzFrameSetAbsPoint(level, FRAMEPOINT_BOTTOMRIGHT, 999, 999)
-                        endif
-                    endif
-                endif
-            else
-                set damage.visible = false
-                set armor.visible = false
-                set strength.visible = false
-                set agility.visible = false
-                set intelligence.visible = false
-            endif
-
-            call DestroyGroup(g)
-
-            set g = null
-            set u = null
-        endmethod
-
-        private static method onChat takes nothing returns nothing
+            call BlzFrameSetPoint(tooltip, FRAMEPOINT_BOTTOM, portrait.frame, FRAMEPOINT_TOP, 0, BUFF_Y)
+            call BlzFrameSetAbsPoint(BlzGetFrameByName("ConsoleUI", 0), FRAMEPOINT_TOPLEFT, 0.0, 0.633)
+            call BlzFrameSetAbsPoint(BlzGetFrameByName("ResourceBarFrame", 0), FRAMEPOINT_TOPLEFT, 999, 999)
+            call BlzFrameSetAbsPoint(BlzGetFrameByName("ResourceBarFrame", 0), FRAMEPOINT_BOTTOMRIGHT, 999, 999)
+            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleProgressIndicator", 0), FRAMEPOINT_TOPLEFT, INFO_X + PROGRESS_X, INFO_Y + PROGRESS_Y)
+            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleProgressIndicator", 0), FRAMEPOINT_BOTTOMRIGHT, INFO_X + PROGRESS_X + PROGRESS_WIDTH, INFO_Y + PROGRESS_Y - PROGRESS_HEIGHT)
+            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleHeroLevelBar", 0), FRAMEPOINT_TOPLEFT, INFO_X + PROGRESS_X, INFO_Y + PROGRESS_Y)
+            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleHeroLevelBar", 0), FRAMEPOINT_BOTTOMRIGHT, INFO_X + PROGRESS_X + PROGRESS_WIDTH, INFO_Y + PROGRESS_Y - PROGRESS_HEIGHT)
+            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleBuildTimeIndicator", 1), FRAMEPOINT_TOPLEFT, INFO_X + PROGRESS_X, INFO_Y + PROGRESS_Y)
+            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleBuildTimeIndicator", 1), FRAMEPOINT_BOTTOMRIGHT, INFO_X + PROGRESS_X + PROGRESS_WIDTH, INFO_Y + PROGRESS_Y - PROGRESS_HEIGHT)
             call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_CHAT_MSG, 0), FRAMEPOINT_TOPLEFT, CHAT_X, CHAT_Y)
             call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_CHAT_MSG, 0), FRAMEPOINT_BOTTOMRIGHT, CHAT_X + CHAT_WIDTH, CHAT_Y - CHAT_HEIGHT)
             call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_MSG, 0), FRAMEPOINT_TOPLEFT, CHAT_X, CHAT_Y)
             call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_MSG, 0), FRAMEPOINT_BOTTOMRIGHT, CHAT_X + CHAT_WIDTH, CHAT_Y - CHAT_HEIGHT)
-        endmethod
+            call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR, 0), FRAMEPOINT_TOPLEFT, INFO_X + BUFF_X, INFO_Y + BUFF_Y)
+            call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR, 0), FRAMEPOINT_BOTTOMRIGHT, INFO_X + BUFF_X + BUFF_WIDTH, INFO_Y + BUFF_Y - BUFF_HEIGHT)
 
-        private static method onKey takes nothing returns nothing
-            local integer id = GetPlayerId(GetTriggerPlayer())
-            local boolean pressed = BlzGetTriggerPlayerIsKeyDown()
+            call TimerStart(CreateTimer(), 0.1, true, function thistype.onPeriod)
 
-            if GetLocalPlayer() == GetTriggerPlayer() then
-                if minimapToggle[id] then
-                    if pressed then
-                        if minimapRight[id] then
-                            call showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
-                        elseif minimapLeft[id] then
-                            call showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
-                        endif
-                    else
-                        call BlzFrameSetVisible(minimap, false)
-                    endif
-                endif
-            endif
-        endmethod
-
-        private static method onMenuClick takes nothing returns nothing
-            local integer id = GetPlayerId(GetTriggerPlayer())
-
-            if GetLocalPlayer() == GetTriggerPlayer() then
-                if not openedMenu[id] then
-                    set openedMenu[id] = true
-                    set menu.icon = CLOSE_MENU_TEXTURE
-                    call BlzFrameSetVisible(menuFrame, true)
-                else
-                    set openedMenu[id] = false
-                    set menu.icon = OPEN_MENU_TEXTURE
-                    call BlzFrameSetVisible(menuFrame, false)
-                endif
-            endif
-        endmethod
-
-        private static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local integer maxMana
-            local real newHP
-            local real newMP
-            local string newHptext
-            local string newMptext
-            local boolean isShop
-            local thistype this
-
-            loop
-                exitwhen i > key
-                    set this = array[i]
-
-                    if GetPlayerSlotState(player) != PLAYER_SLOT_STATE_LEFT then
-                        set unit = GetMainSelectedUnitEx()
-
-                        static if DISPLAY_SHOP then
-                            set isShop = (GetUnitAbilityLevel(unit, 'Aneu') > 0 or GetUnitAbilityLevel(unit, 'Ane2') > 0 or GetUnitAbilityLevel(unit, 'Apit') > 0) and not IsUnitEnemy(unit, player)
-
-                            if GetLocalPlayer() == player then
-                                if isShop then
-                                    call showShop()
-                                else
-                                    call showAbilities()
-                                endif
-                            endif
-                        endif
-
-                        if not IsUnitVisible(unit, player) then
-                            set unit = null
-                        endif
-
-                        set health = BlzFrameGetValue(healthBar) 
-                        set mana = BlzFrameGetValue(manaBar)
-                        set newHP = GetUnitLifePercent(unit)
-                        set newMP = GetUnitManaPercent(unit)
-                        set maxMana = BlzGetUnitMaxMana(unit)
-                        set hp = BlzFrameGetText(healthText)
-                        set mp = BlzFrameGetText(manaText)
-                        set newHptext = I2S(R2I(GetWidgetLife(unit))) + " / " + I2S(BlzGetUnitMaxHP(unit))
-                        set newMptext = I2S(R2I(GetUnitState(unit,  UNIT_STATE_MANA))) + " / " + I2S(BlzGetUnitMaxMana(unit))
-
-                        if GetLocalPlayer() == player then
-                            set health = newHP
-                            set mana = newMP
-
-                            if newHptext == "0 / 0" then
-                                set newHptext = ""
-                            endif
-
-                            if newMptext == "0 / 0" then
-                                set newMptext = ""
-                            endif
-
-                            if maxMana <= 0 then
-                                call BlzFrameSetAllPoints(healthBar, manaBar)
-                                call BlzFrameSetAllPoints(healthText, healthBar)
-                            else
-                                call BlzFrameSetAbsPoint(healthBar, FRAMEPOINT_TOPLEFT, INFO_X + HEALTH_X, INFO_Y + HEALTH_Y)
-                                call BlzFrameSetAbsPoint(healthBar, FRAMEPOINT_BOTTOMRIGHT, INFO_X + HEALTH_X + HEALTH_WIDTH, INFO_Y + HEALTH_Y - HEALTH_HEIGHT)
-                                call BlzFrameSetAllPoints(healthText, healthBar)
-                            endif
-
-                            set hp = newHptext
-                            set mp = newMptext
-                        endif
-
-                        call BlzFrameSetValue(healthBar, health)
-                        call BlzFrameSetValue(manaBar, mana)
-                        call BlzFrameSetText(healthText, "|cffFFFFFF" + hp + "|r")
-                        call BlzFrameSetText(manaText, "|cffFFFFFF" + mp + "|r")
-                    else
-                        set i = remove(i)
-                    endif
-                set i = i + 1
-            endloop
-        endmethod
-
-        private static method onSelect takes nothing returns nothing
-            local integer id = GetPlayerId(GetTriggerPlayer())
-            local thistype this
-
-            if struct[id] != 0 then
-                set this = struct[id]
-            else
-                set this = thistype.allocate()
-                set .id = id
-                set player = GetTriggerPlayer()
-                set health = 0
-                set mana = 0
-                set hp = ""
-                set mp = ""
-                set key = key + 1
-                set array[key] = this
-                set struct[id] = this
-                
-                if key == 0 then
-                    call TimerStart(timer, 0.05, true, function thistype.onPeriod)
-                endif
-            endif
-        endmethod
-
-        private static method onInit takes nothing returns nothing
-            local integer i = 0
-
-            set menu = Button.create(null, MENU_WIDTH, MENU_HEIGHT, MENU_X, MENU_Y, true, false)
-            set menu.icon = OPEN_MENU_TEXTURE
-            set menu.tooltip.text = "Open Menu"
-            set menu.visible = true
-            set menu.onClick = function thistype.onMenuClick
-            set menuFrame = BlzCreateFrame("EscMenuBackdrop", menu.frame, 0, 0)
-            set minimapRightCheck = BlzCreateFrame("QuestCheckBox", menuFrame, 0, 0)
-            set minimapRightCheckText = BlzCreateFrameByType("TEXT", "", minimapRightCheck, "", 0)
-            set minimapLeftCheck = BlzCreateFrame("QuestCheckBox", menuFrame, 0, 0)
-            set minimapLeftCheckText = BlzCreateFrameByType("TEXT", "", minimapLeftCheck, "", 0)
-            set minimapToggleCheck = BlzCreateFrame("QuestCheckBox", menuFrame, 0, 0)
-            set minimapToggleCheckText = BlzCreateFrameByType("TEXT", "", minimapToggleCheck, "", 0)
-            set heroesBarCheck = BlzCreateFrame("QuestCheckBox", menuFrame, 0, 0)
-            set heroesBarCheckText = BlzCreateFrameByType("TEXT", "", heroesBarCheck, "", 0)
-            set defaultMenuCheck = BlzCreateFrame("QuestCheckBox", menuFrame, 0, 0)
-            set defaultMenuCheckText = BlzCreateFrameByType("TEXT", "", defaultMenuCheck, "", 0)
-            set minimapSlider = BlzCreateFrame("EscMenuSliderTemplate", menuFrame, 0, 0)
-            set minimapSliderText = BlzCreateFrameByType("TEXT", "", minimapSlider, "", 0)
-            set shop = BlzCreateFrame("EscMenuBackdrop", BlzGetFrameByName("ConsoleUIBackdrop", 0), 0, 0) 
-            set portrait = BlzGetOriginFrame(ORIGIN_FRAME_PORTRAIT, 0)
-            set buff = BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR, 0)
-            set minimap = BlzGetFrameByName("MiniMapFrame", 0)
-            set gold = BlzGetFrameByName("ResourceBarGoldText" , 0) 
-            set lumber = BlzGetFrameByName("ResourceBarLumberText" , 0) 
-            set experience = BlzGetFrameByName("SimpleHeroLevelBar", 0)
-            set training = BlzGetFrameByName("SimpleBuildTimeIndicator", 1)
-            set timedlife = BlzGetFrameByName("SimpleProgressIndicator", 0)
-            set resourceBar = BlzGetFrameByName("ResourceBarFrame", 0)
-            set buttonBar = BlzGetFrameByName("UpperButtonBarFrame", 0)
-
-            call BlzEnableUIAutoPosition(false)
-            call BlzFrameSetAlpha(BlzGetFrameByName("SimpleInventoryCover", 0), 0)
-            call BlzFrameSetScale(BlzGetFrameByName("InventoryText", 0), 0.0001)
-            call BlzFrameSetAbsPoint(BlzGetFrameByName("ConsoleUI", 0), FRAMEPOINT_TOPLEFT, 0.0, 0.633)
-            call BlzFrameSetAbsPoint(resourceBar, FRAMEPOINT_TOPLEFT, 999, 999)
-            call BlzFrameSetAbsPoint(resourceBar, FRAMEPOINT_BOTTOMRIGHT, 999, 999)
-            call BlzFrameSetVisible(buttonBar, false)
-            call BlzFrameSetVisible(BlzFrameGetChild(BlzGetFrameByName("ConsoleUI", 0), 7), false)
-            call BlzFrameSetVisible(BlzFrameGetChild(BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 5),0), false)
-            call BlzFrameSetParent(minimap, BlzGetFrameByName("ConsoleUIBackdrop", 0))
-            call BlzFrameSetAlpha(minimap, R2I(MAP_TRANSPARENCY))
-            call BlzFrameSetVisible(minimap, false)
-            call BlzFrameSetPoint(menuFrame, FRAMEPOINT_TOPLEFT, menu.frame, FRAMEPOINT_TOPLEFT, MENU_FRAME_X, MENU_FRAME_Y)
-            call BlzFrameSetSize(menuFrame, MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT)
-            call BlzFrameSetVisible(menuFrame, false)
-            call BlzFrameSetPoint(minimapRightCheck, FRAMEPOINT_TOPLEFT, menuFrame, FRAMEPOINT_TOPLEFT, MINIMAP_CHECK_RIGHT_X, MINIMAP_CHECK_RIGHT_Y)
-            call BlzFrameSetSize(minimapRightCheck, MINIMAP_CHECK_RIGHT_WIDTH, MINIMAP_CHECK_RIGHT_HEIGHT)
-            call BlzFrameSetPoint(minimapRightCheckText, FRAMEPOINT_TOPLEFT, minimapRightCheck, FRAMEPOINT_TOPLEFT, MINIMAP_CHECK_RIGHT_TEXT_X, MINIMAP_CHECK_RIGHT_TEXT_Y)
-            call BlzFrameSetSize(minimapRightCheckText, MINIMAP_CHECK_RIGHT_TEXT_WIDTH, MINIMAP_CHECK_RIGHT_TEXT_HEIGHT)
-            call BlzFrameSetText(minimapRightCheckText, "|cffffffffShow Minimap on the Right|r")
-            call BlzFrameSetEnable(minimapRightCheckText, false)
-            call BlzFrameSetScale(minimapRightCheckText, 1.00)
-            call BlzFrameSetTextAlignment(minimapRightCheckText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetPoint(minimapLeftCheck, FRAMEPOINT_TOPLEFT, menuFrame, FRAMEPOINT_TOPLEFT, MINIMAP_CHECK_LEFT_X, MINIMAP_CHECK_LEFT_Y)
-            call BlzFrameSetSize(minimapLeftCheck, MINIMAP_CHECK_LEFT_WIDTH, MINIMAP_CHECK_LEFT_HEIGHT)
-            call BlzFrameSetPoint(minimapLeftCheckText, FRAMEPOINT_TOPLEFT, minimapLeftCheck, FRAMEPOINT_TOPLEFT, MINIMAP_CHECK_LEFT_TEXT_X, MINIMAP_CHECK_LEFT_TEXT_Y)
-            call BlzFrameSetSize(minimapLeftCheckText, MINIMAP_CHECK_LEFT_TEXT_WIDTH, MINIMAP_CHECK_LEFT_TEXT_HEIGHT)
-            call BlzFrameSetText(minimapLeftCheckText, "|cffffffffShow Minimap on the Left|r")
-            call BlzFrameSetEnable(minimapLeftCheckText, false)
-            call BlzFrameSetScale(minimapLeftCheckText, 1.00)
-            call BlzFrameSetTextAlignment(minimapLeftCheckText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetPoint(minimapToggleCheck, FRAMEPOINT_TOPLEFT, menuFrame, FRAMEPOINT_TOPLEFT, MINIMAP_CHECK_TOGGLE_X, MINIMAP_CHECK_TOGGLE_Y)
-            call BlzFrameSetSize(minimapToggleCheck, MINIMAP_CHECK_TOGGLE_WIDTH, MINIMAP_CHECK_TOGGLE_HEIGHT)
-            call BlzFrameSetPoint(minimapToggleCheckText, FRAMEPOINT_TOPLEFT, minimapToggleCheck, FRAMEPOINT_TOPLEFT, MINIMAP_CHECK_TOGGLE_TEXT_X, MINIMAP_CHECK_TOGGLE_TEXT_Y)
-            call BlzFrameSetSize(minimapToggleCheckText, MINIMAP_CHECK_TOGGLE_TEXT_WIDTH, MINIMAP_CHECK_TOGGLE_TEXT_HEIGHT)
-            call BlzFrameSetText(minimapToggleCheckText, "|cffffffffEnable Minimap Toggle (Hold Tab)|r")
-            call BlzFrameSetEnable(minimapToggleCheckText, false)
-            call BlzFrameSetScale(minimapToggleCheckText, 1.00)
-            call BlzFrameSetTextAlignment(minimapToggleCheckText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetPoint(heroesBarCheck, FRAMEPOINT_TOPLEFT, menuFrame, FRAMEPOINT_TOPLEFT, HEROES_BAR_CHECK_X, HEROES_BAR_CHECK_Y)
-            call BlzFrameSetSize(heroesBarCheck, HEROES_BAR_CHECK_WIDTH, HEROES_BAR_CHECK_HEIGHT)
-            call BlzFrameSetPoint(heroesBarCheckText, FRAMEPOINT_TOPLEFT, heroesBarCheck, FRAMEPOINT_TOPLEFT, HEROES_BAR_CHECK_TEXT_X, HEROES_BAR_CHECK_TEXT_Y)
-            call BlzFrameSetSize(heroesBarCheckText, HEROES_BAR_CHECK_TEXT_WIDTH, HEROES_BAR_CHECK_TEXT_HEIGHT)
-            call BlzFrameSetText(heroesBarCheckText, "|cffffffffShow Heroes Bar|r")
-            call BlzFrameSetEnable(heroesBarCheckText, false)
-            call BlzFrameSetScale(heroesBarCheckText, 1.00)
-            call BlzFrameSetTextAlignment(heroesBarCheckText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetPoint(defaultMenuCheck, FRAMEPOINT_TOPLEFT, menuFrame, FRAMEPOINT_TOPLEFT, DEFAULT_MENU_CHECK_X, DEFAULT_MENU_CHECK_Y)
-            call BlzFrameSetSize(defaultMenuCheck, DEFAULT_MENU_CHECK_WIDTH, DEFAULT_MENU_CHECK_HEIGHT)
-            call BlzFrameSetPoint(defaultMenuCheckText, FRAMEPOINT_TOPLEFT, defaultMenuCheck, FRAMEPOINT_TOPLEFT, DEFAULT_MENU_CHECK_TEXT_X, DEFAULT_MENU_CHECK_TEXT_Y)
-            call BlzFrameSetSize(defaultMenuCheckText, DEFAULT_MENU_CHECK_TEXT_WIDTH, DEFAULT_MENU_CHECK_TEXT_HEIGHT)
-            call BlzFrameSetText(defaultMenuCheckText, "|cffffffffShow Default Menu|r")
-            call BlzFrameSetEnable(defaultMenuCheckText, false)
-            call BlzFrameSetScale(defaultMenuCheckText, 1.00)
-            call BlzFrameSetTextAlignment(defaultMenuCheckText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            call BlzFrameSetPoint(minimapSlider, FRAMEPOINT_TOPLEFT, menuFrame, FRAMEPOINT_TOPLEFT, MINIMAP_SLIDER_X, MINIMAP_SLIDER_Y)
-            call BlzFrameSetSize(minimapSlider, MINIMAP_SLIDER_WIDTH, MINIMAP_SLIDER_HEIGHT)
-            call BlzFrameSetMinMaxValue(minimapSlider, 0, 255)
-            call BlzFrameSetValue(minimapSlider, MAP_TRANSPARENCY)
-            call BlzFrameSetStepSize(minimapSlider, 1)
-            call BlzFrameSetPoint(minimapSliderText, FRAMEPOINT_TOPLEFT, minimapSlider, FRAMEPOINT_TOPLEFT, MINIMAP_SLIDER_TEXT_X, MINIMAP_SLIDER_TEXT_Y)
-            call BlzFrameSetSize(minimapSliderText, MINIMAP_SLIDER_TEXT_WIDTH, MINIMAP_SLIDER_TEXT_HEIGHT)
-            call BlzFrameSetText(minimapSliderText, "|cffffffffMinimap Opacity: " + I2S(R2I((MAP_TRANSPARENCY*100)/255)) + "%|r")
-            call BlzFrameSetEnable(minimapSliderText, false)
-            call BlzFrameSetScale(minimapSliderText, 1.00)
-            call BlzFrameSetTextAlignment(minimapSliderText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
-
-            loop
-                exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    call BlzTriggerRegisterPlayerKeyEvent(keyPress, Player(i), MINIMAP_TOGGLE_KEY, 0, true)
-                    call BlzTriggerRegisterPlayerKeyEvent(keyPress, Player(i), MINIMAP_TOGGLE_KEY, 0, false)
-                set i = i + 1
-            endloop
-
-            call BlzTriggerRegisterFrameEvent(checkTrigger, minimapRightCheck, FRAMEEVENT_CHECKBOX_CHECKED)
-            call BlzTriggerRegisterFrameEvent(checkTrigger, minimapRightCheck, FRAMEEVENT_CHECKBOX_UNCHECKED)
-            call BlzTriggerRegisterFrameEvent(checkTrigger, minimapLeftCheck, FRAMEEVENT_CHECKBOX_CHECKED)
-            call BlzTriggerRegisterFrameEvent(checkTrigger, minimapLeftCheck, FRAMEEVENT_CHECKBOX_UNCHECKED)
-            call BlzTriggerRegisterFrameEvent(checkTrigger, minimapToggleCheck, FRAMEEVENT_CHECKBOX_CHECKED)
-            call BlzTriggerRegisterFrameEvent(checkTrigger, minimapToggleCheck, FRAMEEVENT_CHECKBOX_UNCHECKED)
-            call BlzTriggerRegisterFrameEvent(checkTrigger, heroesBarCheck, FRAMEEVENT_CHECKBOX_CHECKED)
-            call BlzTriggerRegisterFrameEvent(checkTrigger, heroesBarCheck, FRAMEEVENT_CHECKBOX_UNCHECKED)
-            call BlzTriggerRegisterFrameEvent(checkTrigger, defaultMenuCheck, FRAMEEVENT_CHECKBOX_CHECKED)
-            call BlzTriggerRegisterFrameEvent(checkTrigger, defaultMenuCheck, FRAMEEVENT_CHECKBOX_UNCHECKED)
-            call BlzTriggerRegisterFrameEvent(sliderTrigger, minimapSlider, FRAMEEVENT_SLIDER_VALUE_CHANGED)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SELECTED, function thistype.onSelect)
-            call TriggerAddAction(keyPress, function thistype.onKey)
-            call TriggerAddAction(checkTrigger, function thistype.onCheck)
-            call TriggerAddAction(sliderTrigger, function thistype.onSlider)
-            call TimerStart(CreateTimer(), 0.2, true, function thistype.onUpdate)
-
-            call onInfoPanel()
-            call onAbilties()
-            call onInventory()
-            call onPortrait()
-            call onResources()
-            call onHeroes()
-            call onChat()
-            call onShop()
-            call onGroup()
+            set frame = null
         endmethod
     endstruct
 endlibrary
