@@ -24,8 +24,8 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         // Size of the portrait
         private constant real PORTRAIT_WIDTH = 0.085
         private constant real PORTRAIT_HEIGHT = 0.09
-        // Portrait darkness level (<= 0 -> None, > 0 -> Darker)
-        private constant integer PORTRAIT_DARKNESS = 1
+        // Portrait darkness level (0 -> Normal, > 0 -> Darker)
+        private constant integer PORTRAIT_DARKNESS = 104
         /* --------------------------------------- Health Bar -------------------------------------- */
         // The initial position of the health bar (relative to the info panel)
         private constant real HEALTH_X = 0.017
@@ -368,6 +368,9 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real SEPARATE_LEVELUP_HEIGHT = 0.0125
         // The + icon texture
         private constant string SEPARATE_LEVELUP_TEXTURE = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
+        /* -------------------------------------- Damage Value ------------------------------------- */
+        // If true the damage value will be trimmed to show only the last value (xx - xx + yy) => (xx + yy)
+        private constant boolean TRIM_DAMAGE = true
     endglobals
 
     /* ----------------------------------------------------------------------------------------- */
@@ -488,10 +491,10 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             set slider.onSlide = function thistype.onSlider
             set sliderText = Text.create(MINIMAP_SLIDER_TEXT_X, MINIMAP_SLIDER_TEXT_Y, MINIMAP_SLIDER_TEXT_WIDTH, MINIMAP_SLIDER_TEXT_HEIGHT, 1.00, false, slider.frame, "|cffffffffMinimap Opacity: " + I2S(R2I((MAP_TRANSPARENCY*100)/255)) + "%|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
             set shader = Slider.create(SHADER_SLIDER_X, SHADER_SLIDER_Y, SHADER_SLIDER_WIDTH, SHADER_SLIDER_HEIGHT, frame, "EscMenuSliderTemplate")
-            set shader.max = 5
+            set shader.max = 255
             set shader.value = PORTRAIT_DARKNESS
             set shader.onSlide = function thistype.onSlider
-            set shaderText = Text.create(SHADER_SLIDER_TEXT_X, SHADER_SLIDER_TEXT_Y, SHADER_SLIDER_TEXT_WIDTH, SHADER_SLIDER_TEXT_HEIGHT, 1.00, false, shader.frame, "|cffffffffPortrait Opacity: " + I2S(PORTRAIT_DARKNESS) + "|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            set shaderText = Text.create(SHADER_SLIDER_TEXT_X, SHADER_SLIDER_TEXT_Y, SHADER_SLIDER_TEXT_WIDTH, SHADER_SLIDER_TEXT_HEIGHT, 1.00, false, shader.frame, "|cffffffffPortrait Opacity: " + I2S(R2I((PORTRAIT_DARKNESS*100)/255)) + "%|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
             set table[left] = this
             set table[right] = this
             set table[toggle] = this
@@ -536,7 +539,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                     set sliderText.text = "|cffffffffMinimap Opacity: " + I2S(R2I((slider.value*100)/255)) + "%|r"
                     call BlzFrameSetAlpha(UI.minimap, R2I(slider.value))
                 elseif slide == shader then
-                    set shaderText.text = "|cffffffffPortrait Opacity: " + I2S(R2I(shader.value)) + "|r"
+                    set shaderText.text = "|cffffffffPortrait Opacity: " + I2S(R2I((shader.value*100)/255)) + "%|r"
                     set UI.portrait.opacity = R2I(shader.value)
                 endif
             endif
@@ -624,6 +627,8 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             set panel = Options.create(MENU_FRAME_X, MENU_FRAME_Y, MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT, frame)
             set panel.visible = false
 
+            call tooltip.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, -0.008)
+
             return this
         endmethod
 
@@ -633,8 +638,10 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
 
                 if panel.visible then
                     set texture = CLOSE_MENU_TEXTURE
+                    set tooltip.text = "Close Menu"
                 else
                     set texture = OPEN_MENU_TEXTURE
+                    set tooltip.text = "Open Menu"
                 endif
             endif
         endmethod
@@ -783,9 +790,28 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
 
             loop
                 exitwhen i == 5
-                    call BlzFrameSetVisible(shades[i], i < value)
+                    call BlzFrameSetAlpha(shades[i], value)
                 set i = i + 1
             endloop
+        endmethod
+
+        method trim takes string text, boolean flag returns string
+            local integer i = 0
+            local integer length
+
+            if flag and text != null then
+                set length = StringLength(text)
+
+                loop
+                    exitwhen i == length - 1
+                        if SubString(text, i, i + 1) == "-" then
+                            return SubString(text, i + 2, length)
+                        endif
+                    set i = i + 1
+                endloop
+            endif
+
+            return text
         endmethod
 
         method update takes unit u, player p returns nothing
@@ -805,7 +831,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             set healthText.visible = BlzGetUnitMaxHP(u) > 0 
             set manaText.text = "|cffFFFFFF" + I2S(R2I(GetUnitState(u,  UNIT_STATE_MANA))) + " / " + I2S(BlzGetUnitMaxMana(u)) + "|r"
             set healthText.text = "|cffFFFFFF" + I2S(R2I(GetWidgetLife(u))) + " / " + I2S(BlzGetUnitMaxHP(u)) + "|r"
-            set damage.value.text = BlzFrameGetText(attack)
+            set damage.value.text = trim(BlzFrameGetText(attack), TRIM_DAMAGE)
             set damage.tooltip.text = "Damage: " + damage.value.text
             set damage.visible = BlzGetUnitWeaponBooleanField(u, UNIT_WEAPON_BF_ATTACKS_ENABLED, 0) and visible and count == 1
             set armor.value.text = BlzFrameGetText(defense)
@@ -881,7 +907,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                 exitwhen i == 5
                     set shades[i] = BlzCreateFrame("SemiTransparentBackdrop", portrait, 0, 0)
                     call BlzFrameSetAllPoints(shades[i], frame)
-                    call BlzFrameSetVisible(shades[i], i < PORTRAIT_DARKNESS)
+                    call BlzFrameSetAlpha(shades[i], PORTRAIT_DARKNESS)
                 set i = i + 1
             endloop
 

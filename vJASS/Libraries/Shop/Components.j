@@ -284,22 +284,20 @@ library Components requires Table
         method operator point= takes framepointtype newPoint returns nothing
             set pointType = newPoint
 
-            if not simple then
-                call BlzFrameClearAllPoints(tooltip)
+            call BlzFrameClearAllPoints(tooltip)
                 
-                if newPoint == FRAMEPOINT_TOPLEFT then
-                    call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_TOPRIGHT, 0.005, -0.05)
-                elseif newPoint == FRAMEPOINT_TOPRIGHT then
-                    call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_TOPLEFT, -0.005, -0.05)
-                elseif newPoint == FRAMEPOINT_BOTTOMLEFT then
-                    call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_BOTTOMRIGHT, 0.005, 0.0)
-                elseif newPoint == FRAMEPOINT_BOTTOM then
-                    call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_TOP, 0.0, 0.005)
-                elseif newPoint == FRAMEPOINT_TOP then
-                    call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_BOTTOM, 0.0, -0.05)
-                else
-                    call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_BOTTOMLEFT, -0.005, 0.0)
-                endif
+            if newPoint == FRAMEPOINT_TOPLEFT then
+                call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_TOPRIGHT, 0.005, -0.05)
+            elseif newPoint == FRAMEPOINT_TOPRIGHT then
+                call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_TOPLEFT, -0.005, -0.05)
+            elseif newPoint == FRAMEPOINT_BOTTOMLEFT then
+                call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_BOTTOMRIGHT, 0.005, 0.0)
+            elseif newPoint == FRAMEPOINT_BOTTOM then
+                call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_TOP, 0.0, 0.005)
+            elseif newPoint == FRAMEPOINT_TOP then
+                call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_BOTTOM, 0.0, -0.05)
+            else
+                call BlzFrameSetPoint(tooltip, newPoint, parent, FRAMEPOINT_BOTTOMLEFT, -0.005, 0.0)
             endif
         endmethod
 
@@ -314,6 +312,11 @@ library Components requires Table
 
         method operator visible takes nothing returns boolean
             return isVisible
+        endmethod
+
+        method setPoint takes framepointtype point, framepointtype relative, real x, real y returns nothing
+            call BlzFrameClearAllPoints(tooltip)
+            call BlzFrameSetPoint(tooltip, point, parent, relative, x, y)
         endmethod
 
         method destroy takes nothing returns nothing
