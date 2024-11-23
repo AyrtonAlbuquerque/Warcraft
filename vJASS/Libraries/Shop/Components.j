@@ -63,8 +63,8 @@ library Components requires Table
         private real _width
         private real _height
         private integer _alpha
-        private boolean _enabled
-        private boolean _visible
+        private boolean _enabled = true
+        private boolean _visible = true
         private framehandle _frame
         private framepointtype _point = FRAMEPOINT_TOPLEFT
         private framepointtype _relative = FRAMEPOINT_TOPLEFT
@@ -721,7 +721,7 @@ library Components requires Table
         private static thistype array array
 
         private Backdrop image
-        private boolean isActive
+        private boolean isActive = true
         private trigger exited
         private trigger entered
         private trigger clicked
@@ -1423,7 +1423,7 @@ library Components requires Table
         endmethod
 
         method operator available takes nothing returns boolean
-            return block.visible
+            return not block.visible
         endmethod
 
         method operator checked= takes boolean flag returns nothing

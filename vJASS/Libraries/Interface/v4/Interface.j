@@ -68,8 +68,8 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real BUFF_HEIGHT = 0.015
         /* --------------------------------------- Attributes -------------------------------------- */
         // The Initial position of the attributes buttons (relative to the info panel)
-        private constant real ATTRIBUTES_X = 0.02
-        private constant real ATTRIBUTES_Y = -0.0235
+        private constant real ATTRIBUTES_X = 0.017
+        private constant real ATTRIBUTES_Y = -0.02
         // The gap between each button
         private constant real ATTRIBUTES_GAP = 0.014
         // The size of the attributes buttons
@@ -82,6 +82,23 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real ATTRIBUTES_TEXT_WIDTH = 0.15
         private constant real ATTRIBUTES_TEXT_HEIGHT = 0.0125
         private constant real ATTRIBUTES_TEXT_SCALE = 0.65
+        /* ------------------------------------ Attributes Panel ----------------------------------- */
+        // The size of the attributes toggle button
+        private constant real ATTRIBUTES_TOGGLE_WIDTH = 0.0125
+        private constant real ATTRIBUTES_TOGGLE_HEIGHT = 0.0125
+        // The attributes toggle button textures
+        private constant string ATTRIBUTES_TOGGLE_OPEN = "UI\\Minimap\\minimap-gold.blp"
+        private constant string ATTRIBUTES_TOGGLE_CLOSE = "UI\\Widgets\\EscMenu\\Human\\radiobutton-button.blp"
+        // The initial offsets of the buttons (relative to the panel)
+        private constant real ATTRIBUTES_BUTTON_X = 0.005
+        private constant real ATTRIBUTES_BUTTON_Y = 0.005
+        // The width and height of the attributes buttons
+        private constant real ATTRIBUTES_BUTTON_WIDTH = 0.02
+        private constant real ATTRIBUTES_BUTTON_HEIGHT = 0.02
+        // The gap between each button
+        private constant real ATTRIBUTES_BUTTON_GAP = 0.001
+        // The panel maximum columns
+        private constant integer ATTRIBUTES_COLUMNS = 5
         /* ----------------------------------------- Damage ---------------------------------------- */
         // The damage button texture
         private constant string DAMAGE_TEXTURE = "ReplaceableTextures\\CommandButtons\\BTNAttack.blp"
@@ -187,7 +204,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real MENU_FRAME_Y = -0.02
         // The size of the menu frame
         private constant real MENU_FRAME_WIDTH = 0.40
-        private constant real MENU_FRAME_HEIGHT = 0.22
+        private constant real MENU_FRAME_HEIGHT = 0.23
         /* -------------------------------------- Menu Options ------------------------------------- */
         // The initial position of the move minimap to the right check box (relative to the menu frame)
         private constant real MINIMAP_CHECK_RIGHT_X = 0.04
@@ -328,7 +345,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real MINIMAP_WIDTH = 0.15
         private constant real MINIMAP_HEIGHT = 0.15
         // Minimap initial transparency (0 -> 100%, 255 -> 0%)
-        private constant real MAP_TRANSPARENCY = 255
+        private constant real MAP_TRANSPARENCY = 57
         // The minimap toggle key
         private constant oskeytype MINIMAP_TOGGLE_KEY = OSKEY_TAB
         /* ------------------------------------------ Shop ----------------------------------------- */
@@ -890,11 +907,11 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             set health = StatusBar.create(HEALTH_X, HEALTH_Y, HEALTH_WIDTH, HEALTH_HEIGHT, frame, HEALTH_TEXTURE)
             set health.alpha = HEALTH_TRANSPARENCY
             set healthText = Text.create(0, 0, health.width, health.height, HEALTH_TEXT_SCALE, false, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
-            set damage = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (0*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), DAMAGE_TEXTURE, "Damage", false)
-            set armor = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (1*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), ARMOR_TEXTURE, "Armor", false)
-            set strength = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (2*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), STRENGTH_TEXTURE, "Strength", false)
-            set agility = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (3*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), AGILITY_TEXTURE, "Agility", false)
-            set intelligence = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (4*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), INTELLIGENCE_TEXTURE, "Intelligence", false)
+            set damage = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (0*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), DAMAGE_TEXTURE, "Damage", null)
+            set armor = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (1*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), ARMOR_TEXTURE, "Armor", null)
+            set strength = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (2*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), STRENGTH_TEXTURE, "Strength", null)
+            set agility = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (3*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), AGILITY_TEXTURE, "Agility", null)
+            set intelligence = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (4*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), INTELLIGENCE_TEXTURE, "Intelligence", null)
 
             call BlzFrameSetVisible(portrait, true)
             call BlzFrameClearAllPoints(portrait)
@@ -1064,14 +1081,30 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
     struct Attribute extends Button
         private static timer timer = CreateTimer()
         private static integer key = -1
+        private static Button menu
+        private static Panel panel
+        private static Table table
         private static thistype array array
 
         private integer id
+        private Button button
+        private boolean isVisible = true
 
         Text value
 
+        method operator visible= takes boolean flag returns nothing
+            set isVisible = flag
+            call BlzFrameSetVisible(frame, flag and button.available)
+        endmethod
+
+        method operator visible takes nothing returns boolean
+            return isVisible
+        endmethod
+
         method destroy takes nothing returns nothing
             call value.destroy()
+            call button.destroy()
+            
             set array[id] = array[key]
             set key = key - 1
 
@@ -1085,19 +1118,41 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         stub method update takes unit u returns nothing
         endmethod
 
-        static method create takes real x, real y, real width, real height, framehandle parent, string texture, string tooltip, boolean inverted returns thistype
-            local thistype this = thistype.allocate(x, y, width, height, parent, true)
+        static method create takes real x, real y, real width, real height, framehandle parent, string texture, string tooltip, framepointtype point returns thistype
+            local thistype this
 
+            if parent == null then
+                set parent = BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0)
+            endif
+
+            if point == null then
+                set point = FRAMEPOINT_TOPRIGHT
+            endif
+            
+            set this = thistype.allocate(x, y, width, height, parent, true)
             set key = key + 1
             set array[key] = this
             set this.id = key
             set this.texture = texture
             set this.tooltip.text = tooltip
             set value = Text.create(ATTRIBUTES_TEXT_X, ATTRIBUTES_TEXT_Y, ATTRIBUTES_TEXT_WIDTH, ATTRIBUTES_TEXT_HEIGHT, ATTRIBUTES_TEXT_SCALE, false, frame, null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            
-            if inverted then
+            set button = Button.create(ATTRIBUTES_BUTTON_X + ((ATTRIBUTES_BUTTON_WIDTH + ATTRIBUTES_BUTTON_GAP) * ModuloInteger(key, ATTRIBUTES_COLUMNS)), - (ATTRIBUTES_BUTTON_Y + ((ATTRIBUTES_BUTTON_HEIGHT + ATTRIBUTES_BUTTON_GAP) * R2I(key/ATTRIBUTES_COLUMNS))), ATTRIBUTES_BUTTON_WIDTH, ATTRIBUTES_BUTTON_HEIGHT, panel.frame, true)
+            set button.texture = texture
+            set button.tooltip.text = tooltip
+            set button.onClick = function thistype.onClicked
+            set table[button] = this
+            set panel.width = RMaxBJ(panel.width, (ATTRIBUTES_BUTTON_WIDTH * (ModuloInteger(key, ATTRIBUTES_COLUMNS) + 1)) + (2 * ATTRIBUTES_BUTTON_X) + (ATTRIBUTES_BUTTON_GAP * ModuloInteger(key, ATTRIBUTES_COLUMNS)))
+            set panel.height = RMaxBJ(panel.height, (ATTRIBUTES_BUTTON_HEIGHT * (R2I(key/ATTRIBUTES_COLUMNS) + 1)) + (2 * ATTRIBUTES_BUTTON_Y) + (ATTRIBUTES_BUTTON_GAP * R2I(key/ATTRIBUTES_COLUMNS)))
+
+            if point == FRAMEPOINT_LEFT or point == FRAMEPOINT_TOPLEFT or point == FRAMEPOINT_BOTTOMLEFT then
                 set value.horizontal = TEXT_JUSTIFY_RIGHT
-                call value.setPoint(FRAMEPOINT_TOPRIGHT, FRAMEPOINT_TOPLEFT, -ATTRIBUTES_TEXT_X + ATTRIBUTES_WIDTH, ATTRIBUTES_TEXT_Y)
+                call value.setPoint(FRAMEPOINT_TOPRIGHT, FRAMEPOINT_TOPLEFT, -ATTRIBUTES_TEXT_X + ATTRIBUTES_WIDTH + 0.005, ATTRIBUTES_TEXT_Y)
+            elseif point == FRAMEPOINT_TOP then
+                set value.horizontal = TEXT_JUSTIFY_CENTER
+                call value.setPoint(FRAMEPOINT_BOTTOM, FRAMEPOINT_TOP, 0, ATTRIBUTES_TEXT_Y + 0.005)
+            elseif point == FRAMEPOINT_BOTTOM then
+                set value.horizontal = TEXT_JUSTIFY_CENTER
+                call value.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, -ATTRIBUTES_TEXT_Y - 0.005)
             endif
 
             if key == 0 then
@@ -1105,6 +1160,28 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             endif
 
             return this
+        endmethod
+
+        private static method onClicked takes nothing returns nothing
+            local Button b = GetTriggerComponent()
+            local thistype this = table[b]
+
+            if GetLocalPlayer() == GetTriggerPlayer() then
+                if b == menu then
+                    set panel.visible = not panel.visible
+
+                    if panel.visible then
+                        set b.texture = ATTRIBUTES_TOGGLE_CLOSE
+                        set b.tooltip.text = "Close Attribute Menu"
+                    else
+                        set b.texture = ATTRIBUTES_TOGGLE_OPEN
+                        set b.tooltip.text = "Open Attribute Menu"
+                    endif
+                else
+                    set button.available = not button.available
+                    set visible = visible
+                endif
+            endif
         endmethod
 
         private static method onUpdate takes nothing returns nothing
@@ -1115,6 +1192,18 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                     call array[i].update(GetMainSelectedUnitEx())
                 set i = i + 1
             endloop
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            set table = Table.create()
+            set menu = Button.create(INFO_X + INFO_WIDTH/2 - ATTRIBUTES_TOGGLE_WIDTH/2, INFO_Y - 0.004, ATTRIBUTES_TOGGLE_WIDTH, ATTRIBUTES_TOGGLE_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), true)
+            set menu.texture = ATTRIBUTES_TOGGLE_OPEN
+            set menu.tooltip.text = "Open Attribute Menu"
+            set menu.onClick = function thistype.onClicked
+            set panel = Panel.create(0, 0, 0.03, 0.03, menu.frame, "Leaderboard")
+            set panel.visible = false
+
+            call panel.setPoint(FRAMEPOINT_BOTTOM, FRAMEPOINT_TOP, 0, BUFF_Y)
         endmethod
     endstruct
 
