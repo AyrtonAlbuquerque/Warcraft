@@ -1,21 +1,11 @@
 scope HeavyHammer
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I01Q'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct HeavyHammer extends Item
-        implement Configuration
+        static constant integer code = 'I01Q'
 
         real damage = 5
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, 0, 0, 0, 0, 0)
         endmethod
     endstruct
 endscope

@@ -2,11 +2,6 @@ scope SphereOfNature
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I04N'
-        static constant real period  = 1.
-    endmodule
-
     private constant function GetReturnFactor takes nothing returns real
         return 25.
     endfunction
@@ -39,10 +34,8 @@ scope SphereOfNature
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct SphereOfNature extends Item
-        implement Configuration
-
-        real spellPowerFlat = 50
-
+        static constant integer code = 'I04N'
+        static constant real period = 1.
         private static boolean array entangled
         private static thistype array array
         private static integer key = -1
@@ -54,7 +47,10 @@ scope SphereOfNature
         private integer index
         private real duration
 
-        method onTooltip takes unit u, item i, integer id returns nothing
+        // Attributes
+        real spellPowerFlat = 50
+
+        private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0050|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Thorned Armor|r: When receiving physical damage, returns 25% of the damage taken.\n\n|cff00ff00Passive|r: |cffffcc00Overgrowth|r: Every attack has |cffffcc0020%|r chance to entangle the target, dealing |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) + "|r |cff0080ffMagic|r damage per second for |cffffcc006|r seconds (|cffffcc003 for Heroes|r). If the entangled unit dies, the entanglement will spread to the |cffffcc002|r nearest targets.")    
         endmethod
 
@@ -76,7 +72,7 @@ scope SphereOfNature
                 call PauseTimer(timer)
             endif
 
-            call deallocate()
+            call super.destroy()
 
             return i - 1
         endmethod
@@ -109,7 +105,7 @@ scope SphereOfNature
             local thistype this
 
             if not entangled[id] then
-                set this = thistype.allocate(item)
+                set this = thistype.new()
                 set source = s
                 set target = t
                 set effect = AddSpecialEffectTarget("Abilities\\Spells\\NightElf\\EntanglingRoots\\EntanglingRootsTarget.mdl", t, "origin")
@@ -178,13 +174,13 @@ scope SphereOfNature
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            if UnitHasItemOfType(Damage.target.unit, item) and not (Damage.source.unit == Damage.target.unit) then
+            if UnitHasItemOfType(Damage.target.unit, code) and not (Damage.source.unit == Damage.target.unit) then
                 call UnitDamageTarget(Damage.target.unit, Damage.source.unit, GetEventDamage()*GetReturnFactor(), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
             endif
         endmethod
 
         private static method onAttackDamage takes nothing returns nothing
-            if UnitHasItemOfType(Damage.source.unit, item) and Damage.isEnemy and not Damage.target.isStructure and not entangled[Damage.target.id] and GetRandomReal(1, 100) <= GetChance() then
+            if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure and not entangled[Damage.target.id] and GetRandomReal(1, 100) <= GetChance() then
                 if Damage.target.isHero then
                     call overgrowth(Damage.source.unit, Damage.target.unit, GetHeroDuration())
                 else
@@ -194,10 +190,10 @@ scope SphereOfNature
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterAttackDamageEvent(function thistype.onAttackDamage)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
+            call thistype.allocate(code, OrbOfThorns.code, SphereOfPower.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

@@ -2,10 +2,6 @@ scope SteelArmor
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-		static constant integer item = 'I031'
-	endmodule
-
     private constant function GetReductionFactor takes nothing returns real
         return 0.9
     endfunction
@@ -14,19 +10,19 @@ scope SteelArmor
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct SteelArmor extends Item
-        implement Configuration
+        static constant integer code = 'I031'
     
-        real health = 500
         real armor = 4
+        real health = 500
 
-        static method onDamage takes nothing returns nothing
-            if UnitHasItemOfType(Damage.target.unit, item) then
+        private static method onDamage takes nothing returns nothing
+            if UnitHasItemOfType(Damage.target.unit, code) then
                 call BlzSetEventDamage(GetEventDamage()*GetReductionFactor())
             endif
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, FusedLifeCrystals.code, GoldenPlatemail.code, 0, 0, 0)
             call RegisterAnyDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

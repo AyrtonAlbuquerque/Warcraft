@@ -1,27 +1,18 @@
 scope TriedgeSword
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I076'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                           System                                          */
-    /* ----------------------------------------------------------------------------------------- */
     struct TriedgeSword extends Item
-        implement Configuration
-
-        real damage = 100
-        real criticalChance = 10
-        real criticalDamage = 1
+        static constant integer code = 'I076'
 
         private static integer array stacks
         private static integer array damageBonus
         private static integer array bonusChance
         private static integer array bonusDamage
 
-        method onTooltip takes unit u, item i, integer id returns nothing
+        // Attributes
+        real damage = 100
+        real criticalDamage = 1
+        real criticalChance = 10
+
+        private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00100|r Damage\n+ |cffffcc0010%|r Critical Strike Chance\n+ |cffffcc00100%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Critical Mass|r: After hitting a critical strike |cffffcc00Triedge|r gains |cffffcc003|r stacks, increasing damage by |cffffcc00250|r, Criticial Strike Chance by |cffffcc002%|r and Critical Strike Damage by |cffffcc0010%|r per stack. Attacking an enemy unit consumes 1 stack. Max |cffffcc0010|r stacks.\n\nStacks: |cffffcc00" + I2S(TriedgeSword.stacks[id]) + "|r\nBonus Damage: |cffffcc00" + I2S(TriedgeSword.damageBonus[id]) + "|r\nBonus Critical Strike Chance: |cffffcc00" + I2S(TriedgeSword.bonusChance[id]) + "%|r\nBonus Critical Strike Damage: |cffffcc00" + I2S(TriedgeSword.bonusDamage[id]) + "%|r")
         endmethod
 
@@ -43,7 +34,7 @@ scope TriedgeSword
             local integer index = GetUnitUserData(source)
             local integer current = 3
 
-            if UnitHasItemOfType(source, item) and IsUnitEnemy(target, GetOwningPlayer(source)) and stacks[index] < 11 then
+            if UnitHasItemOfType(source, code) and IsUnitEnemy(target, GetOwningPlayer(source)) and stacks[index] < 11 then
                 if stacks[index] + current > 11 then
                     set current = 11 - stacks[index]
                 endif
@@ -62,9 +53,9 @@ scope TriedgeSword
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterCriticalStrikeEvent(function thistype.onCritical)
+            call thistype.allocate(code, OrcishAxe.code, KnightBlade.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

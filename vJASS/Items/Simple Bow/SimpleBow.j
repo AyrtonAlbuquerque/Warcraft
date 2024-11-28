@@ -1,21 +1,11 @@
 scope SimpleBow
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I01T'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct SimpleBow extends Item
-        implement Configuration
+        static constant integer code = 'I01T'
 
         real agility = 5
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, 0, 0, 0, 0, 0)
         endmethod
     endstruct
 endscope

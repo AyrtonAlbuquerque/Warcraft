@@ -2,12 +2,6 @@ scope SphereOfDivinity
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item    = 'I04Q'
-		static constant integer ability = 'A03P'
-		static constant integer buff    = 'B00L'
-	endmodule
-
     private constant function GetAoE takes nothing returns real
         return 400.
     endfunction
@@ -36,14 +30,15 @@ scope SphereOfDivinity
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct SphereOfDivinity extends Item
-        implement Configuration
-
-        real spellPowerFlat = 50
-
+        static constant integer code = 'I04Q'
+        static constant integer ability = 'A03P'
+		static constant integer buff = 'B00L'
         private static integer array touch
 
         private timer timer
         private integer index
+
+        real spellPowerFlat = 50
 
         private static method onExpire takes nothing returns nothing
             local thistype this = GetTimerData(GetExpiredTimer())
@@ -52,18 +47,18 @@ scope SphereOfDivinity
             set touch[index] = touch[index] - 1
             set timer = null
 
-            call deallocate()
+            call super.destroy()
         endmethod
 
         private static method onDamage takes nothing returns nothing
             local real damage     
             local thistype this
 
-            if UnitHasItemOfType(Damage.source.unit, item) then
+            if UnitHasItemOfType(Damage.source.unit, code) then
                 call BlzSetEventDamage(GetEventDamage()*GetAmplification())
 
                 if Damage.isEnemy and GetRandomReal(1, 100) <= GetChance() then
-                    set this = thistype.allocate(item)
+                    set this = thistype.new()
                     set timer = NewTimerEx(this)
                     set index = Damage.target.id
                     set touch[index] = touch[index] + 1
@@ -92,9 +87,9 @@ scope SphereOfDivinity
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
+            call thistype.allocate(code, OrbOfLight.code, SphereOfPower.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

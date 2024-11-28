@@ -1,22 +1,12 @@
 scope HardenedShield
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I017'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct HardenedShield extends Item
-        implement Configuration
+        static constant integer code = 'I017'
 
         real armor = 2
         real health = 200
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, CommomShield.code, LifeCrystal.code, Platemail.code, 0, 0)
         endmethod
     endstruct
 endscope

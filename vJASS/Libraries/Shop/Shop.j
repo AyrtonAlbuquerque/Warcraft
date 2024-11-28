@@ -112,6 +112,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
     function CreateShop takes integer id, real aoe, real returnRate returns nothing
+        call TriggerSleepAction(0) // This is here to ensure that any Item inheritance is initialized before the Shop is created
         call Shop.create(id, aoe, returnRate)
     endfunction
     
@@ -2276,8 +2277,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
 
             if this != 0 then
                 if not table[this].has(itemId) then
-                    set i = Item.create(itemId)
-                    
+                    set i = Item.get(itemId)
+
                     if i != 0 then
                         set size = size + 1
                         set index = index + 1

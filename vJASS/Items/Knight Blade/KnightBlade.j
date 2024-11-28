@@ -2,11 +2,6 @@ scope KnightBlade
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I05K'
-        static constant real period  = 1.
-    endmodule
-
     private constant function GetMaxDamage takes nothing returns integer
         return 60
     endfunction
@@ -27,8 +22,10 @@ scope KnightBlade
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct KnightBlade extends Item
-        implement Configuration
+        static constant integer code = 'I05K'
+        static constant real period = 1
 
+        // Attributes
         real damage = 40
         real attackSpeed = 0.25
         real criticalChance = 20
@@ -45,7 +42,7 @@ scope KnightBlade
         private integer damageBonus
         private real duration
 
-        method onTooltip takes unit u, item i, integer id returns nothing
+        private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0040|r Damage\n+ |cffffcc0025%|r Attack Speed\n+ |cffffcc0020%|r Critical Strike Chance\n+ |cffffcc0050%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Critical Frenzy|r: After hitting a critical strike your Hero damage is increased by |cffffcc005% (10% against Heroes)|r of the damage dealt by the critical strike for |cffffcc005|r seconds. Max |cffffcc0060|r bonus damage.\n\nDamage Bonus: |cffffcc00" + I2S(KnightBlade.bonus[id]) + "|r")
         endmethod
 
@@ -66,7 +63,7 @@ scope KnightBlade
                 call PauseTimer(timer)
             endif
 
-            call deallocate()
+            call super.destroy()
 
             return i - 1
         endmethod
@@ -95,7 +92,7 @@ scope KnightBlade
             local integer damage
             local thistype this
 
-            if UnitHasItemOfType(source, item) and IsUnitEnemy(target, GetOwningPlayer(source)) and bonus[id] < GetMaxDamage() then
+            if UnitHasItemOfType(source, code) and IsUnitEnemy(target, GetOwningPlayer(source)) and bonus[id] < GetMaxDamage() then
                 set damage = R2I(GetCriticalDamage())
 
                 if IsUnitType(target, UNIT_TYPE_HERO) then
@@ -109,7 +106,7 @@ scope KnightBlade
                 endif
 
                 if damage > 0 then
-                    set this = thistype.allocate(item)
+                    set this = thistype.new()
                     set unit = source
                     set index = id
                     set .damageBonus = damage
@@ -137,8 +134,8 @@ scope KnightBlade
         private static method onInit takes nothing returns nothing
             set table = HashTable.create()
 
-            call thistype.allocate(item)
             call RegisterCriticalStrikeEvent(function thistype.onCritical)
+            call thistype.allocate(code, WarriorBlade.code, OrcishAxe.code, 0, 0, 0)
         endmethod
-    endstruct
+    endstruct    
 endscope

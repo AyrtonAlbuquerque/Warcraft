@@ -1,21 +1,11 @@
 scope MaskOfMadness
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I024'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct MaskOfMadness extends Item
-        implement Configuration
+        static constant integer code = 'I024'
 
         real lifeSteal = 0.1
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, MaskOfDeath.code, 0, 0, 0, 0)
         endmethod
     endstruct
 endscope

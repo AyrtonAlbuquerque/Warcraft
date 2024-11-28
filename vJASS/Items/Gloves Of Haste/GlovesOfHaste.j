@@ -1,21 +1,11 @@
 scope GlovesOfHaste
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I00C'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct GlovesOfHaste extends Item
-        implement Configuration
+        static constant integer code = 'I00C'
 
         real attackSpeed = 0.1
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, 0, 0, 0, 0, 0)
         endmethod
     endstruct
 endscope

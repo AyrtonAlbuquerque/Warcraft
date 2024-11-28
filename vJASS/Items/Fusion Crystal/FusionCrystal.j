@@ -2,11 +2,6 @@ scope FusionCrystal
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-		static constant integer item    = 'I057'
-        static constant integer ability = 'A03S'
-	endmodule
-
     private constant function GetMultiplier takes nothing returns real
         return 0.5
     endfunction
@@ -23,42 +18,42 @@ scope FusionCrystal
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct FusionCrystal extends Item
-        implement Configuration
+        static constant integer code = 'I057'
+        static constant integer ability = 'A03S'
+        private static integer array charge
 
-        real health = 500
         real mana = 500
+        real health = 500
 
-        private static integer array charges
-
-        method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00500|r Mana\n+ |cffffcc00500|r Health\n\n|cff00ff00Passive|r: |cffffcc00Charge|r: When killing a unit the number of charges of Fusion Crystal are increased by |cffffcc001|r.\n\n|cff00ff00Active|r: |cffffcc00Energy Release|r: When activated, all charges are consumed and for |cffffcc0010|r seconds, |cffff0000Health|r and |cff80ffffMana|r Regeneration are increased by |cffffcc00" + R2SW(GetMultiplier() * FusionCrystal.charges[id], 1, 1) + "|r.\n\n90 seconds Cooldown\n\nCharges: |cffffcc00" + I2S(FusionCrystal.charges[id]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns nothing
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00500|r Mana\n+ |cffffcc00500|r Health\n\n|cff00ff00Passive|r: |cffffcc00Charge|r: When killing a unit the number of charges of Fusion Crystal are increased by |cffffcc001|r.\n\n|cff00ff00Active|r: |cffffcc00Energy Release|r: When activated, all charges are consumed and for |cffffcc0010|r seconds, |cffff0000Health|r and |cff80ffffMana|r Regeneration are increased by |cffffcc00" + R2SW(GetMultiplier() * FusionCrystal.charge[id], 1, 1) + "|r.\n\n90 seconds Cooldown\n\nCharges: |cffffcc00" + I2S(FusionCrystal.charge[id]) + "|r")
         endmethod
 
-        static method onDeath takes nothing returns nothing
+        private static method onDeath takes nothing returns nothing
             local unit killer = GetKillingUnit()
             local integer index = GetUnitUserData(killer) 
     
-            if UnitHasItemOfType(killer, item) then
-                set charges[index] = charges[index] + GetChargesCount()
+            if UnitHasItemOfType(killer, code) then
+                set charge[index] = charge[index] + GetChargesCount()
             endif
         
             set killer = null
         endmethod
         
-        static method onCast takes nothing returns nothing
-            if charges[Spell.source.id] > 0 then
-                call AddUnitBonusTimed(Spell.source.unit, BONUS_HEALTH_REGEN, GetMultiplier()*charges[Spell.source.id], GetDuration())
-                call AddUnitBonusTimed(Spell.source.unit, BONUS_MANA_REGEN, GetMultiplier()*charges[Spell.source.id], GetDuration())
-                set charges[Spell.source.id] = 0
+        private static method onCast takes nothing returns nothing
+            if charge[Spell.source.id] > 0 then
+                call AddUnitBonusTimed(Spell.source.unit, BONUS_HEALTH_REGEN, GetMultiplier()*charge[Spell.source.id], GetDuration())
+                call AddUnitBonusTimed(Spell.source.unit, BONUS_MANA_REGEN, GetMultiplier()*charge[Spell.source.id], GetDuration())
+                set charge[Spell.source.id] = 0
             else
                 call ArcingTextTag.create(("|cff6495ed" + "No Charges"), Spell.source.unit)
             endif
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
             call RegisterSpellEffectEvent(ability, function thistype.onCast)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
+            call thistype.allocate(code, FusedLifeCrystals.code, InfusedManaCrystal.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

@@ -1,21 +1,11 @@
 scope GoldenSword
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I01A'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct GoldenSword extends Item
-        implement Configuration
+        static constant integer code = 'I01A'
 
         real damage = 24
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
-        endmethod
-    endstruct
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, RustySword.code, RustySword.code, RustySword.code, 0,  0)
+        endmethod 
+    endstruct 
 endscope

@@ -2,12 +2,6 @@ scope NatureStaff
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item    = 'I044'
-        static constant integer buff    = 'B00H'
-        static constant integer ability = 'A03G'
-    endmodule
-
     private constant function GetReturnFactor takes nothing returns real
         return 0.15
     endfunction
@@ -20,11 +14,13 @@ scope NatureStaff
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct NatureStaff extends Item
-        implement Configuration
+        static constant integer code = 'I044'
+        static constant integer buff = 'B00H'
+        static constant integer ability = 'A03G'
 
-        real spellPowerPercent = 0.1
         real health = 300
         real intelligence = 10
+        real spellPowerPercent = 0.1
 
         private static method onDamage takes nothing returns nothing
             local real damage = GetEventDamage()
@@ -35,7 +31,7 @@ scope NatureStaff
         endmethod
 
         private static method onAttackDamage takes nothing returns nothing
-            if UnitHasItemOfType(Damage.source.unit, item) and Damage.isEnemy then
+            if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy then
                 if UnitDamageTarget(Damage.source.unit, Damage.target.unit, GetDamage(), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                     call CastAbilityTarget(Damage.target.unit, ability, "faeriefire", 1)
                 endif
@@ -43,9 +39,9 @@ scope NatureStaff
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterAttackDamageEvent(function thistype.onAttackDamage)
+            call thistype.allocate(code, OrbOfThorns.code, MageStaff.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

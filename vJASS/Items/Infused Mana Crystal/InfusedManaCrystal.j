@@ -1,21 +1,11 @@
 scope InfusedManaCrystal
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I027'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct InfusedManaCrystal extends Item
-        implement Configuration
+        static constant integer code = 'I027'
 
         real mana = 350
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, ManaCrystal.code, ManaCrystal.code, ManaCrystal.code, 0, 0)
         endmethod
     endstruct
 endscope

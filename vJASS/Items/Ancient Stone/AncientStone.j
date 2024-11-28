@@ -1,25 +1,15 @@
 scope AncientStone
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I05D'
-	endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct AncientStone extends Item
-        implement Configuration
+        static constant integer code = 'I05D'
 
-        real health = 500
         real mana = 500
-        real healthRegen = 10
+        real health = 500
         real manaRegen = 10
+        real healthRegen = 10
         real spellPowerFlat = 50
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, WizardStone.code, 0, 0, 0, 0)
         endmethod
     endstruct
 endscope

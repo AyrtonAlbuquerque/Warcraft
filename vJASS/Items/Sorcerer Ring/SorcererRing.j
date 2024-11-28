@@ -1,23 +1,13 @@
 scope SorcererRing
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I02J'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct SorcererRing extends Item
-        implement Configuration
+        static constant integer code = 'I02J'
 
-        real spellPowerFlat = 20
         real mana = 175
-        real bonus.manaRegen = 3
+        real manaRegen = 3
+        real spellPowerFlat = 20
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, ManaCrystal.code, CrystalRing.code, CrystalRing.code, 0, 0)
         endmethod
     endstruct
 endscope

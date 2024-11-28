@@ -76,36 +76,102 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
         private static integer key = -1
         private static unit shop
         private static rect rect
-        private static Table itempool
         private static HashTable table
+        private static HashTable itempool
+        private static HashTable itemtype
+        private static HashTable counters
+        private static HashTable relations
         private static thistype array array
 
         private unit unit
         private item item
         private integer index
         private thistype type
-        private integer componentCount
 
-        readonly string name
-        readonly string icon
-        readonly string tooltip
         readonly integer id
-        readonly integer gold
-        readonly integer charges
-        readonly integer category
-        readonly Table component
-        readonly Table counter
-        readonly Table relation
         
         method destroy takes nothing returns nothing
-            call component.destroy()
-            call relation.destroy()
-            call counter.destroy()
+            if this == itempool[id][0] then
+                call component.flush()
+                call relation.flush()
+                call counter.flush()
+                call itempool[id].flush()
+                call itempool.remove(id)
+            endif
+
             call deallocate()
         endmethod
 
+        private method operator gold= takes integer value returns nothing
+            set itempool[id][1] = value
+        endmethod
+
+        method operator gold takes nothing returns integer
+            return itempool[id][1]
+        endmethod
+
+        private method operator charges= takes integer value returns nothing
+            if value <= 0 then
+                set itempool[id][2] = 1
+            else
+                set itempool[id][2] = value
+            endif
+        endmethod
+
+        method operator charges takes nothing returns integer
+            return itempool[id][2]
+        endmethod
+
+        private method operator name= takes string value returns nothing
+            set itempool[id].string[3] = value
+        endmethod
+
+        method operator name takes nothing returns string
+            return itempool[id].string[3]
+        endmethod
+
+        private method operator icon= takes string value returns nothing
+            set itempool[id].string[4] = value
+        endmethod
+
+        method operator icon takes nothing returns string
+            return itempool[id].string[4]
+        endmethod
+
+        private method operator tooltip= takes string value returns nothing
+            set itempool[id].string[5] = value
+        endmethod
+
+        method operator tooltip takes nothing returns string
+            return itempool[id].string[5]
+        endmethod
+
+        private method operator components= takes integer value returns nothing
+            set itempool[id][7] = value
+        endmethod
+
         method operator components takes nothing returns integer
-            return componentCount
+            return itempool[id][7]
+        endmethod
+
+        method operator categories= takes integer category returns nothing
+            set itempool[id][6] = category
+        endmethod 
+
+        method operator categories takes nothing returns integer
+            return itempool[id][6]
+        endmethod
+
+        method operator component takes nothing returns Table
+            return itemtype[id]
+        endmethod
+
+        method operator counter takes nothing returns Table
+            return counters[id]
+        endmethod
+
+        method operator relation takes nothing returns Table
+            return relations[id]
         endmethod
 
         method operator recipe takes nothing returns integer
@@ -123,14 +189,6 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
             endif
 
             return 0
-        endmethod
-
-        method operator categories= takes integer category returns nothing
-            set .category = category
-        endmethod 
-
-        method operator categories takes nothing returns integer
-            return category
         endmethod
 
         method cost takes unit u returns integer
@@ -168,7 +226,7 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
             if key == -1 then
                 call PauseTimer(timer)
             endif
-
+            
             call deallocate()
 
             return i - 1
@@ -201,15 +259,23 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
         endmethod
 
         static method get takes integer id returns thistype
-            return itempool[id]
+            if id > 0 then
+                if itempool[id].has(0) then
+                    return Item(itempool[id][0])
+                else
+                    return create(id, 0, 0, 0, 0, 0)
+                endif
+            endif
+
+            return 0
         endmethod
 
         static method addComponents takes integer id, integer a, integer b, integer c, integer d, integer e returns nothing
             local thistype this
 
             if id > 0 then
-                set this = create(id)
-                set componentCount = 0
+                set this = get(id)
+                set components = 0
 
                 call component.flush()
                 call counter.flush()
@@ -245,51 +311,47 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
         static method countComponent takes integer id, integer component returns integer
             local thistype this
 
-            if itempool.has(id) then
-                set this = itempool[id]
-                return this.count(component)
+            if itempool[id].has(0) then
+                set this = itempool[id][0]
+                return count(component)
             endif
 
             return 0
         endmethod
 
-        static method create takes integer id returns thistype
-            local item i
-            local thistype this
+        static method new takes nothing returns thistype
+            return thistype.allocate()
+        endmethod
 
-            if itempool.has(id) then
-                return itempool[id]
-            else
+        static method create takes integer id, integer a, integer b, integer c, integer d, integer e returns thistype
+            local thistype this = thistype.allocate()
+            local item i
+
+            if id > 0 and not itempool[id].has(0) then
                 set i = CreateItem(id, 0, 0)
 
                 if i != null then
-                    set this = thistype.allocate()
-                    set .id = id
+                    set this.id = id
+                    set components = 0
                     set name = GetItemName(i)
                     set icon = BlzGetItemIconPath(i)
                     set tooltip = BlzGetItemExtendedTooltip(i)
                     set charges = GetItemCharges(i)
-
-                    if charges == 0 then
-                        set charges = 1
-                    endif
-
                     set gold = totalCost(id)
-                    set componentCount = 0
-                    set component = Table.create()
-                    set counter = Table.create()
-                    set relation = Table.create()
-                    set itempool[id] = this
+                    set itempool[id][0] = this
 
+                    call save(id, a)
+                    call save(id, b)
+                    call save(id, c)
+                    call save(id, d)
+                    call save(id, e)
                     call RemoveItem(i)
 
                     set i = null
-
-                    return this
-                else
-                    return 0
                 endif
             endif
+
+            return this
         endmethod
 
         private static method save takes integer id, integer comp returns nothing
@@ -298,10 +360,10 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
             local integer i = 0
 
             if comp > 0 and comp != id then
-                set this = create(id)
-                set part = create(comp)
-                set component[componentCount] = comp
-                set componentCount = componentCount + 1
+                set this = get(id)
+                set part = get(comp)
+                set component[components] = comp
+                set components = components + 1
                 set counter[comp] = counter[comp] + 1
 
                 loop
@@ -339,7 +401,7 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
         private static method onPickupItem takes nothing returns nothing
             local unit u = GetManipulatingUnit()
             local item i = GetManipulatedItem()
-            local thistype this = itempool[GetItemTypeId(i)]
+            local thistype this = itempool[GetItemTypeId(i)][0]
             local thistype self
 
             set table[GetHandleId(u)][GetItemTypeId(i)] = table[GetHandleId(u)][GetItemTypeId(i)] + 1
@@ -400,7 +462,7 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
         private static method onDropItem takes nothing returns nothing
             local integer u = GetHandleId(GetManipulatingUnit())
             local integer i = GetItemTypeId(GetManipulatedItem())
-            local thistype this = itempool[GetItemTypeId(GetManipulatedItem())]
+            local thistype this = itempool[GetItemTypeId(GetManipulatedItem())][0]
 
             set table[u][i] = table[u][i] - 1
 
@@ -413,8 +475,11 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
 
         private static method onInit takes nothing returns nothing
             set rect = Rect(0, 0, 0, 0)
-            set itempool = Table.create()
             set table = HashTable.create()
+            set itempool = HashTable.create()
+            set counters = HashTable.create()
+            set itemtype = HashTable.create()
+            set relations = HashTable.create()
             set shop = CreateUnit(player, 'nmrk', 0, 0, 0)
 
             call SetRect(rect, GetUnitX(shop) - 1000, GetUnitY(shop) - 1000, GetUnitX(shop) + 1000, GetUnitY(shop) + 1000)

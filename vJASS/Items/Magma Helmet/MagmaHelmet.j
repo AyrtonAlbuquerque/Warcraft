@@ -2,12 +2,6 @@ scope MagmaHelmet
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-		static constant integer item = 'I03M'
-        static constant string burn = "Abilities\\Spells\\Other\\ImmolationRed\\ImmolationRedDamage.mdl"
-		static constant real period  = 1.
-	endmodule
-
     private constant function GetCooldown takes nothing returns real
         return 90.
     endfunction
@@ -36,11 +30,9 @@ scope MagmaHelmet
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct MagmaHelmet extends Item
-        implement Configuration
-    
-        real strength = 10
-        real healthRegen = 7
-
+        static constant integer code = 'I03M'
+        static constant string burn = "Abilities\\Spells\\Other\\ImmolationRed\\ImmolationRedDamage.mdl"
+		static constant real period  = 1.
         private static real array cooldown
         private static thistype array array
         private static integer key = -1
@@ -50,8 +42,12 @@ scope MagmaHelmet
         private effect effect
         private group group
         private player player
-        private integer id
+        private integer index
         private real duration
+    
+        // Attributes
+        real strength = 10
+        real healthRegen = 7
 
         method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0010|r Strength\n+ |cffffcc007|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Purifying Flames:|r When your Hero's life drops below |cffffcc0025%|r, |cff00ff00health regeneration|r is increased by |cffffcc0030 hp/s|r and all enemy units within |cffffcc00300|r AoE takes |cff00ffff" + AbilitySpellDamageEx(GetDamage(), u) +" Magic|r damage per second. Lasts |cffffcc0020|r seconds.\n\nCooldown: |cffffcc00" + R2I2S(MagmaHelmet.cooldown[id]) + "|r")
@@ -61,7 +57,7 @@ scope MagmaHelmet
             call DestroyEffect(effect)
             call DestroyGroup(group)
 
-            set cooldown[id] = 0
+            set cooldown[index] = 0
             set duration = 0
             set unit = null
             set effect = null
@@ -74,7 +70,7 @@ scope MagmaHelmet
                 call PauseTimer(timer)
             endif
 
-            call deallocate()
+            call super.destroy()
 
             return i - 1
         endmethod
@@ -87,7 +83,7 @@ scope MagmaHelmet
             loop
                 exitwhen i > key
                     set this = array[i]
-                    set cooldown[id] = cooldown[id] - period
+                    set cooldown[index] = cooldown[index] - period
                     set duration = duration - period
 
                     if duration >= 0 then
@@ -110,7 +106,7 @@ scope MagmaHelmet
                             call DestroyEffect(effect)
                         endif
                     else
-                        if cooldown[id] <= 0 then
+                        if cooldown[index] <= 0 then
                             set i = remove(i)
                         endif
                     endif
@@ -121,16 +117,16 @@ scope MagmaHelmet
         private static method onDamage takes nothing returns nothing
             local thistype this
         
-            if UnitHasItemOfType(Damage.target.unit, item) and GetWidgetLife(Damage.target.unit) < (BlzGetUnitMaxHP(Damage.target.unit)*GetHealthFactor()) and cooldown[Damage.target.id] == 0 then
-                set this = thistype.allocate(item)
+            if UnitHasItemOfType(Damage.target.unit, code) and GetWidgetLife(Damage.target.unit) < (BlzGetUnitMaxHP(Damage.target.unit)*GetHealthFactor()) and cooldown[Damage.target.id] == 0 then
+                set this = thistype.new()
                 set unit = Damage.target.unit
                 set effect = AddSpecialEffectTarget("Flame Shield.mdx", Damage.target.unit, "origin")
                 set player = Damage.target.player
-                set id = Damage.target.id
+                set index = Damage.target.id
                 set duration = GetDuration()
                 set key = key + 1
                 set array[key] = this
-                set cooldown[id] = GetCooldown()
+                set cooldown[index] = GetCooldown()
 
                 call AddUnitBonusTimed(Damage.target.unit, BONUS_HEALTH_REGEN, GetBonusRegen(), GetDuration())
 
@@ -141,7 +137,7 @@ scope MagmaHelmet
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+            call thistype.allocate(code, OrbOfFire.code, WarriorHelmet.code, 0, 0, 0)
             call RegisterAnyDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

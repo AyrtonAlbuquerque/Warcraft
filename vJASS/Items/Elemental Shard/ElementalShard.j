@@ -1,24 +1,14 @@
 scope ElementalShard
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I00T'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct ElementalShard extends Item
-        implement Configuration
+        static constant integer code = 'I00T'
 
-        real health = 175
         real mana = 175
-        real healthRegen = 3
+        real health = 175
         real manaRegen = 3
+        real healthRegen = 3
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, LifeCrystal.code, ManaCrystal.code, LifeEssenceCrystal.code, CrystalRing.code, 0)
         endmethod
     endstruct
 endscope

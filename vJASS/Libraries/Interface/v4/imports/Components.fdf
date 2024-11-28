@@ -22,11 +22,28 @@ Frame "POPUPMENU" "ComponentFrame" {
     }
 }
 
+Frame "POPUPMENU" "PanelFrame" {
+    Frame "GLUETEXTBUTTON" "PanelButton" {
+    }
+}
+
+Frame "BACKDROP" "TransparentBackdrop" {
+    DecorateFileNames,
+    BackdropBackground  "EscMenuBlankBackground",
+    BackdropBlendAll,
+}
+
+Frame "BACKDROP" "SemiTransparentBackdrop" {
+    DecorateFileNames,
+    BackdropBackground  "EscMenuBackground",
+    BackdropBlendAll,
+}
+
 Frame "FRAME" "TooltipBoxFrame" {
     Frame "BACKDROP" "TooltipBox" {
         DecorateFileNames,
         BackdropTileBackground,
-        BackdropBackground  "EscMenuBackground",
+        BackdropBackground  "MultiboardBackground",
         BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
         BackdropCornerSize  0.01,
         BackdropBackgroundSize  0.256,

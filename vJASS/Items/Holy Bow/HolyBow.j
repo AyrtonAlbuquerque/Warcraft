@@ -2,13 +2,6 @@ scope HolyBow
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item    = 'I03S'
-        static constant integer buff    = 'B00E'
-        static constant integer ability = 'A039'
-        static constant string order    = "faeriefire"
-    endmodule
-
     private constant function GetChance takes nothing returns real
         return 20.
     endfunction
@@ -25,16 +18,19 @@ scope HolyBow
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct HolyBow extends Item
-        implement Configuration
+        static constant integer code = 'I03S'
+        static constant integer buff = 'B00E'
+        static constant integer ability = 'A039'
+        static constant string order = "faeriefire"
     
         real agility = 7
         real damage = 10
 
-        method onPickup takes unit u, item i returns nothing
+        private method onPickup takes unit u, item i returns nothing
             call LinkEffectToItem(u, i, "Abilities\\Spells\\Items\\OrbSlow\\OrbSlow.mdl", "weapon")
         endmethod
 
-        static method onDamage takes nothing returns nothing
+        private static method onDamage takes nothing returns nothing
             local real damage = GetEventDamage()
 
             if damage > 0 and GetUnitAbilityLevel(Damage.source.unit, buff) > 0 then
@@ -48,10 +44,10 @@ scope HolyBow
             endif
         endmethod
 
-        static method onAttackDamage takes nothing returns nothing
+        private static method onAttackDamage takes nothing returns nothing
             local real damage = GetEventDamage()
 
-            if damage > 0 and UnitHasItemOfType(Damage.source.unit, item) then
+            if damage > 0 and UnitHasItemOfType(Damage.source.unit, code) then
                 if Damage.isAlly then
                     call BlzSetEventDamage(-damage*GetAllyHealFactor())
                     call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage*GetAllyHealFactor())), Damage.target.unit)
@@ -63,10 +59,10 @@ scope HolyBow
             endif
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterAttackDamageEvent(function thistype.onAttackDamage)
+            call thistype.allocate(code, OrbOfLight.code, SimpleBow.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

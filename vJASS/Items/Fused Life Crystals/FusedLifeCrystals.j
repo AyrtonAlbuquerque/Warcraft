@@ -1,21 +1,11 @@
 scope FusedLifeCrystals
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I01G'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct FusedLifeCrystals extends Item
-        implement Configuration
+        static constant integer code = 'I01G'
 
         real health = 350
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, LifeCrystal.code, LifeCrystal.code, LifeCrystal.code, 0, 0)
         endmethod
     endstruct
 endscope

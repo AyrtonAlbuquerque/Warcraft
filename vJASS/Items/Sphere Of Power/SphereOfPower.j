@@ -2,10 +2,6 @@ scope SphereOfPower
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I04G'
-    endmodule
-
     private constant function GetDamageFactor takes nothing returns real
         return 1.15
     endfunction
@@ -14,20 +10,20 @@ scope SphereOfPower
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct SphereOfPower extends Item
-        implement Configuration
+        static constant integer code = 'I04G'
     
         real spellPowerFlat = 30
 
-        static method onDamage takes nothing returns nothing
+        private static method onDamage takes nothing returns nothing
             local real damage = GetEventDamage()
 
-            if UnitHasItemOfType(Damage.source.unit, item) and damage > 0 then
+            if UnitHasItemOfType(Damage.source.unit, code) and damage > 0 then
                 call BlzSetEventDamage(damage * GetDamageFactor())
             endif
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, 0, 0, 0, 0, 0)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

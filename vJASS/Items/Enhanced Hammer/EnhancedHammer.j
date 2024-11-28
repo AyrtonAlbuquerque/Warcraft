@@ -2,11 +2,6 @@ scope EnhancedHammer
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I02V'
-        static constant string effect = "Abilities\\Spells\\Other\\Cleave\\CleaveDamageTarget.mdl"
-    endmodule
-
     private constant function GetAoE takes nothing returns real
         return 150.
     endfunction
@@ -23,16 +18,17 @@ scope EnhancedHammer
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct EnhancedHammer extends Item
-        implement Configuration
+        static constant integer code = 'I02V'
+        static constant string effect = "Abilities\\Spells\\Other\\Cleave\\CleaveDamageTarget.mdl"
     
         real damage = 12
 
-        static method onDamage takes nothing returns nothing
+        private static method onDamage takes nothing returns nothing
             local real damage = GetEventDamage()
-            local unit v
             local group g
+            local unit v
 
-            if UnitHasItemOfType(Damage.source.unit, item) and Damage.source.isMelee and damage > 0 and GetRandomReal(1, 100) <= GetChance() then
+            if UnitHasItemOfType(Damage.source.unit, code) and Damage.source.isMelee and damage > 0 and GetRandomReal(1, 100) <= GetChance() then
                 set g = CreateGroup()
 
                 call GroupEnumUnitsInRange(g, Damage.target.x, Damage.target.y, GetAoE(), null)
@@ -53,8 +49,8 @@ scope EnhancedHammer
             set v = null
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, RustySword.code, HeavyHammer.code, HeavyHammer.code, 0, 0)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

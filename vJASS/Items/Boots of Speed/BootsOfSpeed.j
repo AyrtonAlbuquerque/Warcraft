@@ -1,21 +1,11 @@
 scope BootsOfSpeed
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I00A'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct BootsOfSpeed extends Item
-        implement Configuration
+        static constant integer code= 'I00A'
 
         real movementSpeed = 25
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+            call thistype.allocate(code, 0, 0, 0, 0, 0)
         endmethod
     endstruct
 endscope

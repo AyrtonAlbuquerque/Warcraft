@@ -2,13 +2,6 @@ scope SphereOfWater
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item    = 'I04K'
-        static constant integer buff    = 'B00J'
-        static constant integer ability = 'A03O'
-		static constant integer bolt    = 'A03L'
-	endmodule
-
     private constant function GetDamageFactor takes nothing returns real
         return 1.18
     endfunction
@@ -33,13 +26,15 @@ scope SphereOfWater
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct SphereOfWater extends Item
-        implement Configuration
+        static constant integer code = 'I04K'
+        static constant integer buff = 'B00J'
+        static constant integer ability = 'A03O'
+		static constant integer bolt = 'A03L'
+        private static constant real cone = 60
 
         real spellPowerFlat = 50
 
-        private static constant real cone = 60
-
-        method onTooltip takes unit u, item i, integer id returns nothing
+        private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0050|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Damage Amplification|r: All |cffff0000physical damage|r is amplified by |cffffcc0018%.|r\n\n|cff00ff00Passive|r: |cffffcc00Water Bubble|r: Every attack has |cffffcc0025%|r chance to surronds the target in a water bubble. Attacking units affected by Water Bubble causes the bubble to splash bolts of water to enemy units behind the target, dealing |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) + "|r |cff0080fffMagic|r damage.\n\nLasts for 5 seconds.")
         endmethod
 
@@ -49,7 +44,7 @@ scope SphereOfWater
             local unit u
             local group g
 
-            if UnitHasItemOfType(Damage.source.unit, item) then
+            if UnitHasItemOfType(Damage.source.unit, code) then
                 call BlzSetEventDamage(damage * GetDamageFactor())
 
                 if Damage.isEnemy and GetRandomInt(1, 100) <= GetChance() then
@@ -63,6 +58,7 @@ scope SphereOfWater
 
                 call UnitAddAbility(dummy, bolt)
                 call GroupEnumUnitsInRange(g, Damage.target.x, Damage.target.y, GetAoE(), null)
+
                 loop
                     set u = FirstOfGroup(g)
                     exitwhen u == null
@@ -74,6 +70,7 @@ scope SphereOfWater
                         endif
                     call GroupRemoveUnit(g, u)
                 endloop
+                
                 call DestroyGroup(g)
                 call DummyRecycle(dummy)
             endif
@@ -83,8 +80,8 @@ scope SphereOfWater
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
             call RegisterAttackDamageEvent(function thistype.onDamage)
+            call thistype.allocate(code, OrbOfWater.code, SphereOfPower.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

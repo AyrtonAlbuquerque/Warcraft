@@ -1,23 +1,13 @@
 scope MageStick
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                       Configuration                                       */
-    /* ----------------------------------------------------------------------------------------- */
-    private module Configuration
-        static constant integer item = 'I02G'
-    endmodule
-
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                            Item                                           */
-    /* ----------------------------------------------------------------------------------------- */
     struct MageStick extends Item
-        implement Configuration
+        static constant integer code = 'I02G'
 
-        real spellPowerFlat = 20
         real mana = 150
         real manaRegen = 1.5
+        real spellPowerFlat = 20
 
-        static method onInit takes nothing returns nothing
-            call thistype.allocate(item)
+        private static method onInit takes nothing returns nothing
+            call thistype.allocate(code, ManaCrystal.code, ManaCrystal.code, CrystalRing.code, 0, 0)
         endmethod
     endstruct
 endscope
