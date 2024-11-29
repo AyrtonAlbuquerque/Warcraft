@@ -66,9 +66,9 @@ scope ElementalStone
 	
 			if GetItemTypeId(i) == code and not check[id] then
 				set self = thistype.new()
-				set unit = u
-				set index = id
-				set player = GetOwningPlayer(u)
+				set self.unit = u
+				set self.index = id
+				set self.player = GetOwningPlayer(u)
 				set key = key + 1
 				set array[key] = self
                 set check[id] = true

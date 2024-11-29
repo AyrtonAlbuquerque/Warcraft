@@ -89,10 +89,10 @@ scope HelmetOfEternity
 	
 			if not check[id] then
 				set self = thistype.new()
-				set unit = u
-				set index = id
-				set type = 0
-				set effect = AddSpecialEffectTarget("Radiance_Royal.mdx", u, "chest")
+				set self.unit = u
+				set self.index = id
+				set self.type = 0
+				set self.effect = AddSpecialEffectTarget("Radiance_Royal.mdx", u, "chest")
 				set key = key + 1
 				set array[key] = self
 				set check[id] = true

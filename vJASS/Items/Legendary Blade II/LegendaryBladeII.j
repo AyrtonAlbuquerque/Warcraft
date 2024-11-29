@@ -127,18 +127,18 @@ scope LegendaryBladeII
 				set y = GetUnitY(u)
 				set z = GetUnitZ(u) + 60
 				set self = thistype.new()
-				set table = Table.create()
-				set unit = u
-				set angle = 0.
-				set index = id
+				set self.table = Table.create()
+				set self.unit = u
+				set self.angle = 0.
+				set self.index = id
 				set key = key + 1
 				set array[key] = self
 				set struct[id] = self
-				set table.effect[0] = AddSpecialEffect("Sweep_Fire_Small.mdl", x, y)
-				set table.effect[1] = AddSpecialEffect("Sweep_Holy_Small.mdl", x, y)
+				set self.table.effect[0] = AddSpecialEffect("Sweep_Fire_Small.mdl", x, y)
+				set self.table.effect[1] = AddSpecialEffect("Sweep_Holy_Small.mdl", x, y)
 
-				call BlzSetSpecialEffectPosition(table.effect[0], x, y, z)
-				call BlzSetSpecialEffectPosition(table.effect[1], x, y, z)
+				call BlzSetSpecialEffectPosition(self.table.effect[0], x, y, z)
+				call BlzSetSpecialEffectPosition(self.table.effect[1], x, y, z)
 
 				if key == 0 then
 					call TimerStart(timer, 0.05, true, function thistype.orbit)

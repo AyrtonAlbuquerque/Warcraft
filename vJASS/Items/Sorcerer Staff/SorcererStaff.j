@@ -42,7 +42,7 @@ scope SorcererStaff
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc00500|r Spell Power\n+ |cffffcc00150|r Intelligence\n+ |cffffcc005000|r Health\n\n|cff00ff00Passive|r: |cffffcc00Spell Vamp|r: Dealing |cff0000ffMagical|r damage, heals for |cffffcc002.5%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Sorcerer Trait|r: After casting an ability, |cff0000ffSpell Power|r is increased by |cffffcc00250|r for |cffffcc0015|r seconds.\n\nCurrent Spell Power Bonus: |cff0080ff" + R2I2S(bonus[id]) + "|r")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc00500|r Spell Power\n+ |cffffcc00150|r Intelligence\n+ |cffffcc005000|r Health\n\n|cff00ff00Passive|r: |cffffcc00Spell Vamp|r: Dealing |cff0000ffMagical|r damage, heals for |cffffcc002.5%%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Sorcerer Trait|r: After casting an ability, |cff0000ffSpell Power|r is increased by |cffffcc00250|r for |cffffcc0015|r seconds.\n\nCurrent Spell Power Bonus: |cff0080ff" + R2I2S(bonus[id]) + "|r")
         endmethod
 
         private static method onPeriod takes nothing returns nothing

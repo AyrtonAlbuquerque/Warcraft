@@ -9,7 +9,7 @@ scope WizardStaff
         real spellPowerFlat = 750
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc00750|r Spell Power\n+ |cffffcc00250|r Intelligence\n+ |cffffcc0010000|r Health\n+ |cffffcc00300|r Mana Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Spell Vamp|r: Dealing |cff00ffffMagical|r damage, heals for |cffffcc005%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Sorcery Mastery|r: After casting an ability, |cff00ffffSpell Power|r is increased by |cffffcc0025|r permanently.\n\nSpell Power Bonus: |cffffcc00" + I2S(bonus[id]) + "|r")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc00750|r Spell Power\n+ |cffffcc00250|r Intelligence\n+ |cffffcc0010000|r Health\n+ |cffffcc00300|r Mana Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Spell Vamp|r: Dealing |cff00ffffMagical|r damage, heals for |cffffcc005%%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Sorcery Mastery|r: After casting an ability, |cff00ffffSpell Power|r is increased by |cffffcc0025|r permanently.\n\nSpell Power Bonus: |cffffcc00" + I2S(bonus[id]) + "|r")
         endmethod
 
         private static method onCast takes nothing returns nothing

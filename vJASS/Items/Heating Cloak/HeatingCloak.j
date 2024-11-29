@@ -113,18 +113,18 @@ scope HeatingCloak
 
             if not check[id] then
                 set self = thistype.new()
-                set unit = u
-                set item = i
-                set effect = AddSpecialEffectTarget("EmberSnow.mdx", u, "chest")
-                set string = "Abilities\\Spells\\Undead\\FrostArmor\\FrostArmorDamage.mdl"
-                set player = GetOwningPlayer(u)
-                set index = id
-                set cooldown = 90
+                set self.unit = u
+                set self.item = i
+                set self.effect = AddSpecialEffectTarget("EmberSnow.mdx", u, "chest")
+                set self.string = "Abilities\\Spells\\Undead\\FrostArmor\\FrostArmorDamage.mdl"
+                set self.player = GetOwningPlayer(u)
+                set self.index = id
+                set self.cooldown = 90
                 set key = key + 1
                 set array[key] = self
                 set check[id] = true
                 set state[id] = "Burst Cooldown: "
-                set cd[id] = I2S(cooldown - 30)
+                set cd[id] = I2S(self.cooldown - 30)
                 set amount[id]   = 500
 
                 if key == 0 then

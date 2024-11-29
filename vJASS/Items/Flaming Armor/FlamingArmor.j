@@ -39,7 +39,7 @@ scope FlamingArmor
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0018000|r Health\n+ |cffffcc0010|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Damage Reduction|r: All damage taken are reduced by |cffffcc0015%|r.\n\n|cff00ff00Passive|r: |cffffcc00Guarding Flames|r: Every second, all enemy units within |cffffcc00400 AoE|r take |cff0080ff" + AbilitySpellDamageEx(250, u) + "|r |cff0080ffMagic|r damage.")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0018000|r Health\n+ |cffffcc0010|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Damage Reduction|r: All damage taken are reduced by |cffffcc0015%%|r.\n\n|cff00ff00Passive|r: |cffffcc00Guarding Flames|r: Every second, all enemy units within |cffffcc00400 AoE|r take |cff0080ff" + AbilitySpellDamageEx(250, u) + "|r |cff0080ffMagic|r damage.")
         endmethod
 
         private static method onPeriod takes nothing returns nothing
@@ -81,11 +81,11 @@ scope FlamingArmor
 
             if not check[idx] then
                 set self = thistype.new()
-                set unit = u
-                set effect = AddSpecialEffectTarget("EmberOrange.mdx", u, "chest")
-                set player = GetOwningPlayer(u)
-                set group = CreateGroup()
-                set index = idx
+                set self.unit = u
+                set self.effect = AddSpecialEffectTarget("EmberOrange.mdx", u, "chest")
+                set self.player = GetOwningPlayer(u)
+                set self.group = CreateGroup()
+                set self.index = idx
                 set key = key + 1
                 set array[key] = self
                 set check[idx] = true

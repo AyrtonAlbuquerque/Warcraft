@@ -41,7 +41,7 @@ scope GreedyAxe
         private real duration
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0045|r Damage\n+ |cffffcc0025%|r Critical Strike Chance\n+ |cffffcc00100%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Pillage|r: After hitting a critical strike, for the next |cffffcc003 |rseconds, the Hero gains |cffffcc0050% |rAttack Speed bonus and every attack grants |cffffcc00Gold |requal to |cffffcc002.5% (25% against Heroes)|r of the damage dealt.\n\nGold Granted: |cffffcc00" + I2S(GreedyAxe.bonus[id]) + "|r")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0045|r Damage\n+ |cffffcc0025%%|r Critical Strike Chance\n+ |cffffcc00100%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Pillage|r: After hitting a critical strike, for the next |cffffcc003 |rseconds, the Hero gains |cffffcc0050%% |rAttack Speed bonus and every attack grants |cffffcc00Gold|r equal to |cffffcc002.5%% (25%% against Heroes)|r of the damage dealt.\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r")
         endmethod
 
         private method remove takes integer i returns integer

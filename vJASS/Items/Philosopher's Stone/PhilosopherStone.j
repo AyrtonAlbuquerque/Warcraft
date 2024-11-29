@@ -72,10 +72,10 @@ scope PhilosopherStone
 
             if not check[id] then
                 set self = thistype.new()
-                set unit = u
-                set player = GetOwningPlayer(u)
-                set index = id
-                set cooldown = 120
+                set self.unit = u
+                set self.player = GetOwningPlayer(u)
+                set self.index = id
+                set self.cooldown = 120
                 set key = key + 1
                 set array[key] = self
                 set check[id] = true

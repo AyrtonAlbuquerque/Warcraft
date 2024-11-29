@@ -6,7 +6,7 @@ scope GlovesOfGold
         real attackSpeed = 2
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:\n+ |cffffcc00200%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Hand of Midas|r: Every attack has|cffffcc00 1%|r chance to turn|cffff0000 non-Hero|r targets into a pile of |cffffcc00Gold|r equivalent to their|cffff0000 Maximum Health|r.|r\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:\n+ |cffffcc00200%%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Hand of Midas|r: Every attack has|cffffcc00 1%%|r chance to turn|cffff0000 non-Hero|r targets into a pile of |cffffcc00Gold|r equivalent to their|cffff0000 Maximum Health|r.|r\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r")
         endmethod
 
         private static method onDamage takes nothing returns nothing

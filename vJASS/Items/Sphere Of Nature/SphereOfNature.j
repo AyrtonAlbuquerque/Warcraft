@@ -51,7 +51,7 @@ scope SphereOfNature
         real spellPowerFlat = 50
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0050|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Thorned Armor|r: When receiving physical damage, returns 25% of the damage taken.\n\n|cff00ff00Passive|r: |cffffcc00Overgrowth|r: Every attack has |cffffcc0020%|r chance to entangle the target, dealing |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) + "|r |cff0080ffMagic|r damage per second for |cffffcc006|r seconds (|cffffcc003 for Heroes|r). If the entangled unit dies, the entanglement will spread to the |cffffcc002|r nearest targets.")    
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0050|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Thorned Armor|r: When receiving physical damage, returns 25%% of the damage taken.\n\n|cff00ff00Passive|r: |cffffcc00Overgrowth|r: Every attack has |cffffcc0020%%|r chance to entangle the target, dealing |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) + "|r |cff0080ffMagic|r damage per second for |cffffcc006|r seconds (|cffffcc003 for Heroes|r). If the entangled unit dies, the entanglement will spread to the |cffffcc002|r nearest targets.")    
         endmethod
 
         private method remove takes integer i returns integer

@@ -36,7 +36,7 @@ scope EmeraldShoulderPlate
         real strength = 8
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00375|r Health\n+ |cffffcc008|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Strong Arm:|r Every attack taken has |cffffcc0010%|r chance to increase Hero |cffff0000Strength|r by |cffffcc001|r for 15 seconds.\n\nCurrent Strength Bonus: |cffff0000" + R2I2S(EmeraldShoulderPlate.amount[id]) + "|r")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00375|r Health\n+ |cffffcc008|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Strong Arm:|r Every attack taken has |cffffcc0010%%|r chance to increase Hero |cffff0000Strength|r by |cffffcc001|r for 15 seconds.\n\nCurrent Strength Bonus: |cffff0000" + R2I2S(EmeraldShoulderPlate.amount[id]) + "|r")
         endmethod
 
         private method remove takes integer i returns integer

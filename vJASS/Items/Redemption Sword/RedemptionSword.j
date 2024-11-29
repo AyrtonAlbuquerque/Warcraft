@@ -39,7 +39,7 @@ scope RedemptionSword
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc001500|r Damage\n+ |cffffcc0030%|r Critical Strike Chance\n+ |cffffcc00300%|r Critical Strike Damage\n+ |cffffcc00300|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Redemption Strike|r: Every |cffffcc00fourth|r attack or |cffffcc00Critical Strike|r a light wave will travel from attacked unit postion damaging enemy units in its path for |cffffcc00" + I2S(bonus[id]) + "|r damage and will heal your Hero for the same amount for every unit damaged.")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc001500|r Damage\n+ |cffffcc0030%%|r Critical Strike Chance\n+ |cffffcc00300%%|r Critical Strike Damage\n+ |cffffcc00300|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Redemption Strike|r: Every |cffffcc00fourth|r attack or |cffffcc00Critical Strike|r a light wave will travel from attacked unit postion damaging enemy units in its path for |cffffcc00" + I2S(bonus[id]) + "|r damage and will heal your Hero for the same amount for every unit damaged.")
         endmethod
 
         private static method onCritical takes nothing returns nothing

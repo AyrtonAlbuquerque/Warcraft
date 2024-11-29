@@ -43,7 +43,7 @@ scope KnightBlade
         private real duration
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0040|r Damage\n+ |cffffcc0025%|r Attack Speed\n+ |cffffcc0020%|r Critical Strike Chance\n+ |cffffcc0050%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Critical Frenzy|r: After hitting a critical strike your Hero damage is increased by |cffffcc005% (10% against Heroes)|r of the damage dealt by the critical strike for |cffffcc005|r seconds. Max |cffffcc0060|r bonus damage.\n\nDamage Bonus: |cffffcc00" + I2S(KnightBlade.bonus[id]) + "|r")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0040|r Damage\n+ |cffffcc0025%%|r Attack Speed\n+ |cffffcc0020%%|r Critical Strike Chance\n+ |cffffcc0050%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Critical Frenzy|r: After hitting a critical strike your Hero damage is increased by |cffffcc005%% (10%% against Heroes)|r of the damage dealt by the critical strike for |cffffcc005|r seconds. Max |cffffcc0060|r bonus damage.\n\nDamage Bonus: |cffffcc00" + I2S(KnightBlade.bonus[id]) + "|r")
         endmethod
 
         private method remove takes integer i returns integer

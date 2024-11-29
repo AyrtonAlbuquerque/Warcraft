@@ -38,7 +38,7 @@ scope RadiantHelmet
 		endmethod
 	
 		private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0010000|r Mana\n+ |cffffcc0020000|r Health\n+ |cffffcc00500|r Health Regeneration\n+ |cffffcc00250|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Radiant Strength|r: |cff00ff00Health Regeneration|r is increased by |cffffcc00" + R2I2S(regen[id]) + "|r.\n\n|cff00ff00Passive|r: |cffffcc00Resilient Attempt|r: When your Hero life drops below |cffffcc0050%|r, |cffffcc00Radiant Strength|r effect is amplified to |cffffcc00100%|r for |cffffcc0020|r seconds. |cffffcc0090|r seconds cooldown.\n\nCooldown: |cffffcc00" + R2I2S(R2I(cooldown[id]/10)) + "|r")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0010000|r Mana\n+ |cffffcc0020000|r Health\n+ |cffffcc00500|r Health Regeneration\n+ |cffffcc00250|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Radiant Strength|r: |cff00ff00Health Regeneration|r is increased by |cffffcc00" + R2I2S(regen[id]) + "|r.\n\n|cff00ff00Passive|r: |cffffcc00Resilient Attempt|r: When your Hero life drops below |cffffcc0050%%|r, |cffffcc00Radiant Strength|r effect is amplified to |cffffcc00100%%|r for |cffffcc0020|r seconds. |cffffcc0090|r seconds cooldown.\n\nCooldown: |cffffcc00" + R2I2S(R2I(cooldown[id]/10)) + "|r")
         endmethod
 
 		private static method onPeriod takes nothing returns nothing
@@ -85,8 +85,8 @@ scope RadiantHelmet
 	
 			if not check[id] then
 				set self = thistype.new()
-				set unit = u
-				set index = id
+				set self.unit = u
+				set self.index = id
 				set key = key + 1
 				set array[key] = self
 				set check[id] = true

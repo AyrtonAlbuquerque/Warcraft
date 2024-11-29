@@ -36,7 +36,7 @@ scope SphereOfAir
         real spellPowerFlat = 50
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0050 |rSpell Power\n\n|cff00ff00Passive|r: |cffffcc00Godspeed|r: Attacking grants |cffffcc00200% |rAttack Speed and |cffffcc0040% |rMovement Speed bonus.\n\n|cff00ff00Passive|r: |cffffcc00Gale|r: Attacks have |cffffcc0020%|r chance to knockback the target and all enemy units behind it within |cffffcc00400 |rAoE for |cffffcc00200 |runits over |cffffcc000.5|r seconds and dealing |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) + "|r bonus |cff0080ffMagic|r damage.")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0050 |rSpell Power\n\n|cff00ff00Passive|r: |cffffcc00Godspeed|r: Attacking grants |cffffcc00200%% |rAttack Speed and |cffffcc0040%% |rMovement Speed bonus.\n\n|cff00ff00Passive|r: |cffffcc00Gale|r: Attacks have |cffffcc0020%%|r chance to knockback the target and all enemy units behind it within |cffffcc00400 |rAoE for |cffffcc00200 |runits over |cffffcc000.5|r seconds and dealing |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) + "|r bonus |cff0080ffMagic|r damage.")
         endmethod
 
         private static method onDamage takes nothing returns nothing

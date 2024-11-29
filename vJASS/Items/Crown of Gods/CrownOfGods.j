@@ -45,7 +45,7 @@ scope CrownOfGods
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0025000|r Mana\n+ |cffffcc0025000|r Health\n+ |cffffcc00750|r Mana Regeneration\n+ |cffffcc00750|r Intelligence\n+ |cffffcc00750|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Arcane Power|r: All |cff00ffffMagic|r damage dealt is amplified by |cff00ffff" + R2I2S((GetHeroInt(u, true) * multiplier[id])) + "|r.\n\n|cff00ff00Passive|r: |cffffcc00Divine Protection|r: |cffffcc00Crown of Gods|r provides a divine shield that grows by |cffffcc00100%|r of your Hero total |cff00ffffIntelligence|r every second, blocking all damage taken. When depleted, |cffffcc00Divine Protection|r needs |cffffcc0020|r seconds to recharge, and while recharging, |cffffcc00Arcane Power|r effect is increased to |cffffcc00100%|r of total |cff00ffffIntelligence|r amplification.")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0025000|r Mana\n+ |cffffcc0025000|r Health\n+ |cffffcc00750|r Mana Regeneration\n+ |cffffcc00750|r Intelligence\n+ |cffffcc00750|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Arcane Power|r: All |cff00ffffMagic|r damage dealt is amplified by |cff00ffff" + R2I2S((GetHeroInt(u, true) * multiplier[id])) + "|r.\n\n|cff00ff00Passive|r: |cffffcc00Divine Protection|r: |cffffcc00Crown of Gods|r provides a divine shield that grows by |cffffcc00100%%|r of your Hero total |cff00ffffIntelligence|r every second, blocking all damage taken. When depleted, |cffffcc00Divine Protection|r needs |cffffcc0020|r seconds to recharge, and while recharging, |cffffcc00Arcane Power|r effect is increased to |cffffcc00100%%|r of total |cff00ffffIntelligence|r amplification.")
         endmethod
 
         private static method onPeriod takes nothing returns nothing
@@ -126,22 +126,22 @@ scope CrownOfGods
 
             if not UnitHasItemOfType(u, code) then
                 set self = thistype.new()
-                set unit = u
-                set effect = AddSpecialEffectTarget("SacredShield.mdl", u, "origin")
-                set texttag = CreateTextTag()
-                set index = GetUnitUserData(u)
-                set amplify = false
-                set shield = 0
-                set recharging = false
+                set self.unit = u
+                set self.effect = AddSpecialEffectTarget("SacredShield.mdl", u, "origin")
+                set self.texttag = CreateTextTag()
+                set self.index = GetUnitUserData(u)
+                set self.amplify = false
+                set self.shield = 0
+                set self.recharging = false
                 set key = key + 1
                 set array[key] = self
                 set struct[index] = self
                 set multiplier[index] = 0.5
 
-                call SetTextTagText(texttag, "0", 0.014)
-                call SetTextTagPos(texttag, (GetUnitX(u) - 40), GetUnitY(u), 200)
-                call SetTextTagColor(texttag, 255, 0, 0, 255)
-                call SetTextTagPermanent(texttag, true)
+                call SetTextTagText(self.texttag, "0", 0.014)
+                call SetTextTagPos(self.texttag, (GetUnitX(u) - 40), GetUnitY(u), 200)
+                call SetTextTagColor(self.texttag, 255, 0, 0, 255)
+                call SetTextTagPermanent(self.texttag, true)
 
                 if key == 0 then
                     call TimerStart(timer, 0.03125, true, function thistype.onPeriod)

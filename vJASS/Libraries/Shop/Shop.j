@@ -890,7 +890,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             local Table counter = Table.create()
             local integer id = GetPlayerId(p)
             local integer j = 0
-            local integer k = 0
             local integer cost
             local Item component
             local Slot slot
@@ -924,17 +923,12 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                     set description[1].visible = uses.visible and i.components == 0
                     set description[2].visible = not uses.visible and i.components > 0
                     set description[3].visible = not uses.visible and i.components == 0
-                    set Slot(components[id][0]).visible = false
-                    set Slot(components[id][1]).visible = false
-                    set Slot(components[id][2]).visible = false
-                    set Slot(components[id][3]).visible = false
-                    set Slot(components[id][4]).visible = false
                     set Slot(main[id]).cost.text = "|cffFFCC00" + I2S(i.cost(shop.buyer[id])) + "|r"
                 endif
 
                 if i.components > 0 then
                     loop
-                        exitwhen j == i.components or k == 5
+                        exitwhen j == 5
                             set component = Item.get(i.component[j])
 
                             if component != 0 then
@@ -982,10 +976,12 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                                 if slot.checked then
                                     set cost = cost - component.gold
                                 endif
-
-                                set j = j + 1
+                            else
+                                if GetLocalPlayer() == p then
+                                    set Slot(components[id][j]).visible = false
+                                endif
                             endif
-                        set k = k + 1
+                        set j = j + 1
                     endloop
 
                     if GetLocalPlayer() == p then
@@ -998,6 +994,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                             set horizontal.width = 0.19575
                         endif
                     endif
+                else
+                    loop
+                        exitwhen j == 5
+                            if GetLocalPlayer() == p then
+                                set Slot(components[id][j]).visible = false
+                            endif
+                        set j = j + 1
+                    endloop
                 endif
             endif
 

@@ -58,14 +58,14 @@ scope AncientSphere
             local integer id = GetUnitUserData(u)
             local thistype self
 
-            if GetItemTypeId(i) == code and not check[id] then
+            if not check[id] then
                 set self = thistype.new()
-                set timer = NewTimerEx(self)
-                set unit = u
-                set index = id
+                set self.timer = NewTimerEx(self)
+                set self.unit = u
+                set self.index = id
                 set check[id] = true
 
-                call TimerStart(timer, 45, true, function thistype.onPeriod)
+                call TimerStart(self.timer, 45, true, function thistype.onPeriod)
             endif
         endmethod
 

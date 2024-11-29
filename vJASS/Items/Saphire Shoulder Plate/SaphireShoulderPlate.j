@@ -17,7 +17,7 @@ scope SaphireShoulderPlate
         real health = 15000
 
         private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0015000|r Health\n+ |cffffcc00150|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Strong Will|r: Every attack taken has |cffffcc0010%|r chance to increase Hero |cffff0000Strength|r and |cff00ff00Agility|r by |cffffcc0010|r for 30 seconds.\n\nCurrent Strength Bonus: |cffff0000" + I2S(str[id]) + "|r\nCurrent Agility Bonus: |cff00ff00" + I2S(agi[id]) + "|r")
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0015000|r Health\n+ |cffffcc00150|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Strong Will|r: Every attack taken has |cffffcc0010%%|r chance to increase Hero |cffff0000Strength|r and |cff00ff00Agility|r by |cffffcc0010|r for 30 seconds.\n\nCurrent Strength Bonus: |cffff0000" + I2S(str[id]) + "|r\nCurrent Agility Bonus: |cff00ff00" + I2S(agi[id]) + "|r")
         endmethod
 
         private method remove takes integer i returns integer

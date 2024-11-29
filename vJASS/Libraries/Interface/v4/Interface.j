@@ -1186,12 +1186,15 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
 
         private static method onUpdate takes nothing returns nothing
             local integer i = 0
+            local unit u = GetMainSelectedUnitEx()
 
             loop
                 exitwhen i > key
-                    call array[i].update(GetMainSelectedUnitEx())
+                    call array[i].update(u)
                 set i = i + 1
             endloop
+
+            set u = null
         endmethod
 
         private static method onInit takes nothing returns nothing
