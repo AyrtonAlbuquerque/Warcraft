@@ -2,106 +2,83 @@ scope HelmetOfEternity
 	struct HelmetOfEternity extends Item
 		static constant integer code = 'I0AI'
 
-		private static integer key = -1
-		private static thistype array array
-		private static boolean array check
-		private static timer timer = CreateTimer()
-	
-		private unit unit
-		private integer index
-		private integer type
-		private effect effect
-
 		// Attributes
 		real mana = 15000
         real health = 30000
         real strength = 500
         real healthRegen = 1000
+
+		private unit unit
+		private integer type
+		private effect effect
 	
-		private method remove takes integer i returns integer
+		method destroy takes nothing returns nothing
 			call DestroyEffect(effect)
-
-			set array[i] = array[key]
-			set key = key - 1
-			set check[index] = false
-			set unit = null
-			set effect = null
-
-			if key == -1 then
-				call PauseTimer(timer)
-			endif
-
 			call super.destroy()
 
-			return i - 1
+			set unit = null
+			set effect = null
 		endmethod
 	
-		private static method onPeriod takes nothing returns nothing
-			local integer i = 0
+		private method onPeriod takes nothing returns boolean
 			local real percentage
-			local thistype this
 			
-			loop
-				exitwhen i > key
-					set this = array[i]
-	
-					if UnitHasItemOfType(unit, code) then
-						set percentage = GetUnitLifePercent(unit)
-	
-						if percentage > 75 then
-							if type != 0 then
-								call DestroyEffect(effect)
-								set effect = AddSpecialEffectTarget("Radiance_Royal.mdx", unit, "chest")
-								set type   = 0
-							endif
-						elseif percentage > 50 and percentage <= 75 then
-							call SetWidgetLife(unit, GetWidgetLife(unit) + 50)
-							if type != 1 then
-								call DestroyEffect(effect)
-								set effect = AddSpecialEffectTarget("Radiance_Crimson.mdx", unit, "chest")
-								set type   = 1
-							endif
-						elseif percentage > 25 and percentage <= 50 then
-							call SetWidgetLife(unit, GetWidgetLife(unit) + 100)
-							if type != 2 then
-								call DestroyEffect(effect)
-								set effect = AddSpecialEffectTarget("Radiance_Nature.mdx", unit, "chest")
-								set type   = 2
-							endif
-						elseif percentage <= 25 then
-							call SetWidgetLife(unit, GetWidgetLife(unit) + 150)
-							if type != 3 then
-								call DestroyEffect(effect)
-								set effect = AddSpecialEffectTarget("Radiance_Holy.mdx", unit, "chest")
-								set type   = 3
-							endif
-						endif
-					else
-						set i = remove(i)
+			if UnitHasItemOfType(unit, code) then
+				set percentage = GetUnitLifePercent(unit)
+
+				if percentage > 75 then
+					if type != 0 then
+						call DestroyEffect(effect)
+						set effect = AddSpecialEffectTarget("Radiance_Royal.mdx", unit, "chest")
+						set type = 0
 					endif
-				set i = i + 1
-			endloop
+				elseif percentage > 50 and percentage <= 75 then
+					call SetWidgetLife(unit, GetWidgetLife(unit) + 50)
+
+					if type != 1 then
+						call DestroyEffect(effect)
+						set effect = AddSpecialEffectTarget("Radiance_Crimson.mdx", unit, "chest")
+						set type = 1
+					endif
+				elseif percentage > 25 and percentage <= 50 then
+					call SetWidgetLife(unit, GetWidgetLife(unit) + 100)
+
+					if type != 2 then
+						call DestroyEffect(effect)
+						set effect = AddSpecialEffectTarget("Radiance_Nature.mdx", unit, "chest")
+						set type = 2
+					endif
+				elseif percentage <= 25 then
+					call SetWidgetLife(unit, GetWidgetLife(unit) + 150)
+
+					if type != 3 then
+						call DestroyEffect(effect)
+						set effect = AddSpecialEffectTarget("Radiance_Holy.mdx", unit, "chest")
+						set type = 3
+					endif
+				endif
+
+				return true
+			endif
+			
+			return false
 		endmethod
 	
 		private method onPickup takes unit u, item i returns nothing
 			local integer id = GetUnitUserData(u)
 			local thistype self
 	
-			if not check[id] then
+			if not HasStartedTimer(id) then
 				set self = thistype.new()
 				set self.unit = u
-				set self.index = id
 				set self.type = 0
 				set self.effect = AddSpecialEffectTarget("Radiance_Royal.mdx", u, "chest")
-				set key = key + 1
-				set array[key] = self
-				set check[id] = true
 
-				if key == 0 then
-					call TimerStart(timer, 0.1, true, function thistype.onPeriod)
-				endif
+				call StartTimer(0.1, true, self, id)
 			endif
 		endmethod
+
+		implement Periodic
 
 		private static method onInit takes nothing returns nothing
             call thistype.allocate(code, EternityStone.code, RadiantHelmet.code, 0, 0, 0)

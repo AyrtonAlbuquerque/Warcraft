@@ -1,12 +1,13 @@
 scope LegendaryBladeIV
 	struct LegendaryBladeIV extends Item
 		static constant integer code = 'I09U'
-		static constant real  step = 2.5*0.017453
+		static constant real step = 2.5*0.017453
 
-		private static timer timer = CreateTimer()
-		private static integer key = -1
-		private static thistype array array
-		private static integer array struct
+		// Attributes
+		real damage = 1750
+        real attackSpeed = 2
+        real spellPowerFlat = 1250
+
 		private static integer array attack
 		private static real array amount
 		
@@ -14,11 +15,6 @@ scope LegendaryBladeIV
 		private real angle
 		private integer index
 		private Table table
-
-		// Attributes
-		real damage = 1750
-        real attackSpeed = 2
-        real spellPowerFlat = 1250
 	
 		private method remove takes integer i returns integer
 			call DestroyEffect(table.effect[0])
@@ -162,6 +158,8 @@ scope LegendaryBladeIV
 			
 			set e = null
 		endmethod	
+
+		implement Periodic
 
 		private static method onInit takes nothing returns nothing
 			call RegisterAttackDamageEvent(function thistype.onDamage)

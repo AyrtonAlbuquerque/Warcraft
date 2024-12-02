@@ -36,10 +36,7 @@ scope ElementalSphere
 		static constant string DARK = "Sweep_Astral_Small.mdl"
 
 		private static string array essence
-		private static thistype array array
-		private static integer key = -1
 		private static group group = CreateGroup()
-		private static timer timer = CreateTimer()
 
 		static integer array fire
 		static integer array water
@@ -50,27 +47,18 @@ scope ElementalSphere
 		private effect effect
 		private boolean launched
 		private integer type
-		private real time
+		private real duration
 		private real x
 		private real y
 
 		// Attributes
 		real spellPowerFlat = 2000
 
-		private method remove takes integer i returns integer
+		method destroy takes nothing returns nothing
             call DestroyEffect(effect)
+			call super.destroy()
 
-            set array[i] = array[key]
-            set key = key - 1
             set effect = null
-
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
-
-            call super.destroy()
-
-            return i - 1
         endmethod
 
 		private method launch takes real x, real y, unit target, integer essenceType returns boolean
@@ -96,14 +84,10 @@ scope ElementalSphere
 			set .x = x
 			set .y = y
 			set effect = AddSpecialEffect(essence[i], x, y)
-			set time = 20
+			set duration = 20
 			set launched = false
-			set key = key + 1
-			set array[key] = this
-			
-			if key == 0 then
-				call TimerStart(timer, 0.5, true, function thistype.onPeriod)
-			endif
+
+			call StartTimer(0.5, true, this, -1)
 
 			return this
 		endmethod
@@ -112,64 +96,34 @@ scope ElementalSphere
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc002000|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Elemental Essence|r: When a enemy unit dies, it will spawn in its location one |cffffcc00Elemental Essence|r. Any Hero carrying |cffffcc00Elemental Sphere|r will collect all essences within |cffffcc00800 AoE|r, gaining its effects permanently depending on the essence collected. Dying Heroes spawns all 5 essences. Essences lasts for |cffffcc0020|r seconds.\n\n|cffff0000Fire Essence|r: |cffff0000Health|r is increased by |cffffcc0050|r and |cff00ff00Health Regeneration|r is increased by |cffffcc005|r.\n\n|cff00ffffWater Essence|r: |cff00ffffMana|r is increased by |cffffcc0050|r and |cff00ffffMana Regeneration|r is increased by |cffffcc005|r.\n\n|cff808080Air Essence|r: |cffff00ffEvasion|r is increased by |cffffcc000.1%%|r and |cffffcc00Movement Speed|r is increased by |cffffcc001|r.\n\n|cff00ff00Life Essence|r: |cff00ffffSpell Power|r is increased by |cffffcc0010|r.\n\ncff6f2583Dark Essence|r: |cffff0000Damage|r is increased by |cffffcc0010|r.\n\n|cffff0000Fire|r: " + I2S(fire[id]) + "\n|cff00ffffWater|r: " + I2S(water[id]) + "\n|cff808080Air|r: " + I2S(air[id]) + "\n|cff00ff00Life|r: " + I2S(life[id]) + "\n|cff6f2583Dark|r: " + I2S(dark[id]))
         endmethod
 
-		private static method onPeriod takes nothing returns nothing
-			local integer i = 0
-			local integer j
+		private method onPeriod takes nothing returns boolean
 			local unit u
-			local integer size = BlzGroupGetSize(group)
-			local thistype this
-			
-			loop
-				exitwhen i > key
-					set this = array[i]
-
-					if time > 0 then
-						if size > 0 then
-							set j = 0
-
-							loop
-								exitwhen j == size or launched
-									set u = BlzGroupUnitAt(group, j)
-
-									if IsUnitInRangeXY(u, x, y, 800) then
-										set launched = launch(x, y, u, type)
-									endif
-								set j = j + 1
-							endloop
-
-							if launched then
-								set i = remove(i)
-							endif
-						endif
-
-						set time = time - 0.5
-					else	
-						set i = remove(i)
-					endif
-				set i = i + 1
-			endloop
-
-			set u = null
-		endmethod
-
-		private static method onDeath takes nothing returns nothing
-			local unit u = GetDyingUnit()
 			local integer i = 0
-			local thistype this
-
-			if BlzGroupGetSize(group) > 0 and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitIllusionEx(u) then
-				if IsUnitType(u, UNIT_TYPE_HERO) then
-					loop
-						exitwhen i == 5
-							call create(i, GetUnitX(u) + GetRandomReal(0, 75), GetUnitY(u) + GetRandomReal(0, 75))
-						set i = i + 1						
-					endloop
-				else
-					call create(GetRandomInt(0, 4), GetUnitX(u), GetUnitY(u))
-				endif
-			endif
+			local integer size = BlzGroupGetSize(group)
 			
-			set u = null
+			if duration > 0 then
+				if size > 0 then
+					loop
+						exitwhen i == size or launched
+							set u = BlzGroupUnitAt(group, i)
+
+							if IsUnitInRangeXY(u, x, y, 800) then
+								set launched = launch(x, y, u, type)
+							endif
+						set i = i + 1
+					endloop
+
+					set u = null
+
+					return not launched
+				endif
+
+				set duration = duration - 0.5
+
+				return true
+			endif
+
+			return false
 		endmethod
 		
 		private method onPickup takes unit u, item i returns nothing
@@ -187,6 +141,27 @@ scope ElementalSphere
 				endif
 			endif
 		endmethod
+
+		private static method onDeath takes nothing returns nothing
+			local unit u = GetDyingUnit()
+			local integer i = 0
+
+			if BlzGroupGetSize(group) > 0 and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitIllusionEx(u) then
+				if IsUnitType(u, UNIT_TYPE_HERO) then
+					loop
+						exitwhen i == 5
+							call create(i, GetUnitX(u) + GetRandomReal(0, 75), GetUnitY(u) + GetRandomReal(0, 75))
+						set i = i + 1						
+					endloop
+				else
+					call create(GetRandomInt(0, 4), GetUnitX(u), GetUnitY(u))
+				endif
+			endif
+			
+			set u = null
+		endmethod
+
+		implement Periodic
 
 		private static method onInit takes nothing returns nothing
 			set essence[0] = FIRE

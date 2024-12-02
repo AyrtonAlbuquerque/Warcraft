@@ -1,14 +1,10 @@
 scope LegendaryBladeV
 	struct LegendaryBladeV extends Item
 		static constant integer code = 'I0AR'
-		static constant real  step = 2.5*0.017453
+		static constant real step = 2.5*0.017453
 
-		private static thistype array array
-		private static integer key = -1
-		private static integer array struct
 		private static integer array attack
 		private static real array amount
-		private static timer timer = CreateTimer()
 	
 		private unit unit
 		private real angle
@@ -20,7 +16,7 @@ scope LegendaryBladeV
         real attackSpeed = 2.5
         real spellPowerFlat = 1500
 	
-		private method remove takes integer i returns integer
+		method destroy takes nothing returns nothing
 			call DestroyEffect(table.effect[0])
 			call DestroyEffect(table.effect[1])
 			call DestroyEffect(table.effect[2])
@@ -28,54 +24,39 @@ scope LegendaryBladeV
 			call DestroyEffect(table.effect[4])
 			call table.destroy()
 
-			set array[i] = array[key]
-			set key = key - 1
 			set attack[index] = 0
 			set amount[index] = 0
-			set struct[index] = 0
 			set unit = null
 
-			if key == -1 then
-				call PauseTimer(timer)
-			endif
-
 			call super.destroy()
-
-			return i - 1
 		endmethod	
-	
-		private static method orbit takes nothing returns nothing
-			local real x
-			local real y
-			local real z
-			local integer i = 0
-			local thistype this
-	
-			loop
-				exitwhen i > key
-					set this = array[i]
-	
-					if UnitHasItemOfType(unit, code) then
-						set angle = angle + step
-						set x = GetUnitX(unit)
-						set y = GetUnitY(unit)
-						set z = GetUnitZ(unit)
 
-						call BlzSetSpecialEffectPosition(table.effect[0], x + 150*Cos(angle), y + 150*Sin(angle), z + 60)
-						call BlzSetSpecialEffectPosition(table.effect[1], x + 150*Cos(angle + 72*0.017453), y + 150*Sin(angle + 72*0.017453), z + 60)
-						call BlzSetSpecialEffectPosition(table.effect[2], x + 150*Cos(angle + 144*0.017453), y + 150*Sin(angle + 144*0.017453), z + 60)
-						call BlzSetSpecialEffectPosition(table.effect[3], x + 150*Cos(angle + 216*0.017453), y + 150*Sin(angle + 216*0.017453), z + 60)
-						call BlzSetSpecialEffectPosition(table.effect[4], x + 150*Cos(angle + 288*0.017453), y + 150*Sin(angle + 288*0.017453), z + 60)
-					else
-						set i = remove(i)
-					endif
-				set i = i + 1
-			endloop
-		endmethod
-	
 		private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc002000|r Damage\n+ |cffffcc001500|r Spell Power\n+ |cffffcc00250%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Flaming Blade|r: Every |cffffcc005|r attacks a fireball will strike the target dealing |cffffcc003x your last damage dealt over 2 seconds|r.\n\n|cff00ff00Passive|r: |cffffcc00Holy Blade|r: Every |cffffcc005|r attacks a lightball will strike the target dealing the same amount of damage of your last damage dealt by a basic attack and will heal the carrier by |cffffcc003x|r that amount.\n\n|cff00ff00Passive|r: |cffffcc00Water Blade|r: Every |cffffcc005|r attacks a water bolt will strike the target dealing |cff00ffff" + AbilitySpellDamageEx(1000, u) + " Magic|r damage and will slow the target by |cffffcc0030%|r for |cffffcc001,5|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Dark Blade|r: Every |cffffcc005|r attacks a dark bolt will strike the target reducing its armor by |cffffcc0050|r for |cffffcc005|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Air Blade|r: Every |cffffcc005|r attacks a wind bolt will strike the target and grant maximum movement speed for |cffffcc003|r seconds.")
         endmethod
+
+		private method onPeriod takes nothing returns boolean
+			local real x
+			local real y
+			local real z
+	
+			if UnitHasItemOfType(unit, code) then
+				set angle = angle + step
+				set x = GetUnitX(unit)
+				set y = GetUnitY(unit)
+				set z = GetUnitZ(unit)
+
+				call BlzSetSpecialEffectPosition(table.effect[0], x + 150*Cos(angle), y + 150*Sin(angle), z + 60)
+				call BlzSetSpecialEffectPosition(table.effect[1], x + 150*Cos(angle + 72*0.017453), y + 150*Sin(angle + 72*0.017453), z + 60)
+				call BlzSetSpecialEffectPosition(table.effect[2], x + 150*Cos(angle + 144*0.017453), y + 150*Sin(angle + 144*0.017453), z + 60)
+				call BlzSetSpecialEffectPosition(table.effect[3], x + 150*Cos(angle + 216*0.017453), y + 150*Sin(angle + 216*0.017453), z + 60)
+				call BlzSetSpecialEffectPosition(table.effect[4], x + 150*Cos(angle + 288*0.017453), y + 150*Sin(angle + 288*0.017453), z + 60)
+
+				return true
+			endif
+
+			return false
+		endmethod
 
 		private static method onDamage takes nothing returns nothing
 			local real x
@@ -93,40 +74,42 @@ scope LegendaryBladeV
 				if attack[Damage.source.id] == 5 then
 					set i = 0
 					set attack[Damage.source.id] = 0
-					set this = struct[Damage.source.id]
+					set this = GetTimerInstance(Damage.source.id)
 
-					loop
-						exitwhen i > 4
-							set e = table.effect[i]
-							set x = BlzGetLocalSpecialEffectX(e)
-							set y = BlzGetLocalSpecialEffectY(e)
-							set z = BlzGetLocalSpecialEffectZ(e)
-							set missile = BladeMissile.create(x, y, z, Damage.target.x, Damage.target.y, 40)
-							set missile.source = Damage.source.unit
-							set missile.target = Damage.target.unit
-							set missile.speed = 1000.
-							set missile.arc = 5.
-							set missile.damage = amount[Damage.source.id] * 3
-							set missile.type = i
+					if this != 0 then
+						loop
+							exitwhen i > 4
+								set e = table.effect[i]
+								set x = BlzGetLocalSpecialEffectX(e)
+								set y = BlzGetLocalSpecialEffectY(e)
+								set z = BlzGetLocalSpecialEffectZ(e)
+								set missile = BladeMissile.create(x, y, z, Damage.target.x, Damage.target.y, 40)
+								set missile.source = Damage.source.unit
+								set missile.target = Damage.target.unit
+								set missile.speed = 1000.
+								set missile.arc = 5.
+								set missile.damage = amount[Damage.source.id] * 3
+								set missile.type = i
 
-							if i == 0 then
-								set missile.model  = "Abilities\\Weapons\\FireBallMissile\\FireBallMissile.mdl"
-							elseif i == 1 then
-								set missile.model  = "Abilities\\Spells\\Other\\HealingSpray\\HealBottleMissile.mdl"
-							elseif i == 2 then
-								set missile.model  = "Abilities\\Weapons\\WaterElementalMissile\\WaterElementalMissile.mdl"
-								set missile.damage = 1000
-							elseif i == 3 then
-								set missile.model  = "Abilities\\Spells\\Other\\BlackArrow\\BlackArrowMissile.mdl"
-								set missile.damage = 0
-							else
-								set missile.model  = "Sweep_Wind_Small.mdl"
-								set missile.damage = 0
-							endif
-		
-							call missile.launch()
-						set i = i + 1
-					endloop
+								if i == 0 then
+									set missile.model  = "Abilities\\Weapons\\FireBallMissile\\FireBallMissile.mdl"
+								elseif i == 1 then
+									set missile.model  = "Abilities\\Spells\\Other\\HealingSpray\\HealBottleMissile.mdl"
+								elseif i == 2 then
+									set missile.model  = "Abilities\\Weapons\\WaterElementalMissile\\WaterElementalMissile.mdl"
+									set missile.damage = 1000
+								elseif i == 3 then
+									set missile.model  = "Abilities\\Spells\\Other\\BlackArrow\\BlackArrowMissile.mdl"
+									set missile.damage = 0
+								else
+									set missile.model  = "Sweep_Wind_Small.mdl"
+									set missile.damage = 0
+								endif
+			
+								call missile.launch()
+							set i = i + 1
+						endloop
+					endif
 				endif
 			endif
 			
@@ -140,18 +123,15 @@ scope LegendaryBladeV
 			local thistype self
 			local integer id = GetUnitUserData(u)
 
-			if struct[id] == 0 then
+			if not HasStartedTimer(id) then
 				set x = GetUnitX(u)
 				set y = GetUnitY(u)
 				set z = GetUnitZ(u) + 60
 				set self = thistype.new()
 				set self.table = Table.create()
 				set self.unit = u
-				set self.angle = 0.
+				set self.angle = 0
 				set self.index = id
-				set key = key + 1
-				set array[key] = self
-				set struct[id] = self
 				set self.table.effect[0] = AddSpecialEffect("Sweep_Fire_Small.mdl", x, y)
 				set self.table.effect[1] = AddSpecialEffect("Sweep_Holy_Small.mdl", x, y)
 				set self.table.effect[2] = AddSpecialEffect("Sweep_Black_Frost_Small.mdl", x, y)
@@ -163,12 +143,11 @@ scope LegendaryBladeV
 				call BlzSetSpecialEffectPosition(self.table.effect[2], x, y, z)
 				call BlzSetSpecialEffectPosition(self.table.effect[3], x, y, z)
 				call BlzSetSpecialEffectPosition(self.table.effect[4], x, y, z)
-
-				if key == 0 then
-					call TimerStart(timer, 0.05, true, function thistype.orbit)
-				endif
+				call StartTimer(0.05, true, self, id)
 			endif
 		endmethod
+
+		implement Periodic
 
 		private static method onInit takes nothing returns nothing
 			call RegisterAttackDamageEvent(function thistype.onDamage)
