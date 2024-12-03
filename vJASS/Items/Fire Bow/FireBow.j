@@ -2,10 +2,12 @@ scope FireBow
 	struct FireBow extends Item
 		static constant integer code = 'I099'
 	
-		private static timer timer = CreateTimer()
-		private static integer key = -1
+		// Attributes
+        real damage = 750
+        real agility = 500
+        real spellPowerFlat = 500
+
 		private static HashTable table
-		private static thistype array array
 		private static integer array struct
 	
 		private unit source
@@ -13,13 +15,8 @@ scope FireBow
 		private integer index
 		private integer sourceId
 		private integer targetId
-
-		// Attributes
-        real damage = 750
-        real agility = 500
-        real spellPowerFlat = 500
 	
-		private method remove takes integer i returns integer
+		method destroy takes nothing returns nothing
 			set struct[index] = struct[index] - 1
 	
 			call DestroyEffect(table[targetId].effect[0])
@@ -32,43 +29,28 @@ scope FireBow
 				call table.remove(sourceId)
 			endif
 	
-			set array[i] = array[key]
-			set key = key - 1
 			set source = null
 			set target = null
 
-			if key == -1 then
-				call PauseTimer(timer)
-			endif
-
 			call super.destroy()
-
-			return i - 1
 		endmethod
 	
-		private static method onPeriod takes nothing returns nothing
-			local integer i = 0
-			local thistype this
-			
-			loop
-				exitwhen i > key
-					set this = array[i]
-	
-					if table[targetId][sourceId] > 0 then
-						if UnitAlive(target) then
-							set table[targetId][sourceId] = table[targetId][sourceId] - 1
-	
-							if UnitDamageTarget(source, target, 250, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, null) then
-								call SetWidgetLife(source, GetWidgetLife(source) + 125)
-							endif
-						else
-							set table[targetId][sourceId] = 0
-						endif
-					else
-						set i = remove(i)
+		private method onPeriod takes nothing returns boolean
+			if table[targetId][sourceId] > 0 then
+				if UnitAlive(target) then
+					set table[targetId][sourceId] = table[targetId][sourceId] - 1
+
+					if UnitDamageTarget(source, target, 250, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, null) then
+						call SetWidgetLife(source, GetWidgetLife(source) + 125)
 					endif
-				set i = i + 1
-			endloop
+				else
+					set table[targetId][sourceId] = 0
+				endif
+			
+				return true
+			endif
+
+			return false
 		endmethod
 	
 		private static method onDamage takes nothing returns nothing
@@ -82,8 +64,6 @@ scope FireBow
 					set index = Damage.source.id
 					set sourceId = Damage.source.handle
 					set targetId = Damage.target.handle
-					set key = key + 1
-					set array[key] = this
 					set struct[index] = struct[index] + 1
 	
 					if table[Damage.target.handle].effect[0] == null then
@@ -94,9 +74,7 @@ scope FireBow
 						set table[Damage.source.handle].effect[0] = AddSpecialEffectTarget("Ember Yellow.mdx", Damage.source.unit, "chest")
 					endif
 
-					if key == 0 then
-						call TimerStart(timer, 0.25, true, function thistype.onPeriod)
-					endif
+					call StartTimer(0.25, true, this, -1)
 				endif
 	
 				set table[Damage.target.handle][Damage.source.handle] = 16
@@ -124,6 +102,8 @@ scope FireBow
 			set killed = null
 			set killer = null
 		endmethod
+
+		implement Periodic
 
 		private static method onInit takes nothing returns nothing
 			set table = HashTable.create()

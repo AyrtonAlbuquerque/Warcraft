@@ -2,58 +2,24 @@ scope Doombringer
     struct Doombringer extends Item
         static constant integer code = 'I083'
 
-        private static timer timer = CreateTimer()
-        private static integer key = -1
-        private static HashTable table
-        private static integer array bonus
-        private static integer array attack
-        private static thistype array array
-
-        private unit unit
-        private integer index
-        private integer duration
-
         // Attributes    
         real damage = 1250
         real criticalDamage = 2
         real criticalChance = 20
+
+        private static HashTable table
+        private static integer array bonus
+        private static integer array attack
+
+        private integer index
         
-        method remove takes integer i returns integer
-            call AddUnitBonus(unit, BONUS_DAMAGE, -1250)
-
-            set array[i] = array[key]
-            set key = key - 1
-            set unit = null
+        method destroy takes nothing returns nothing
             set bonus[index] = bonus[index] - 1250
-
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
-
             call super.destroy()
-
-            return i - 1
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc001250|r Damage\n+ |cffffcc0020%%|r Critical Strike Chance\n+ |cffffcc00200%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Death's Blow|r: Every |cffffcc00fifth|r attack is a guaranteed Critical Strike with |cffffcc00200%%|r Critical Damage Bonus within |cffffcc00400 AoE|r. If |cffffcc00Death's Blow|r kills the attacked enemy unit, damage is increased by |cffffcc001250|r for |cffffcc0010|r seconds.\n\nBonus Damage: |cffffcc00" + I2S(bonus[id]) + "|r")
-        endmethod
-
-        static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local thistype this
-
-            loop
-                exitwhen i > key
-                    set this = array[i]
-
-                    if duration <= 0 then
-                        set i = remove(i)
-                    endif
-
-                    set duration = duration - 1
-                set i = i + 1
-            endloop
         endmethod
 
         private static method onCritical takes nothing returns nothing
@@ -94,18 +60,11 @@ scope Doombringer
 
                 if damage > GetWidgetLife(target) then
                     set this = thistype.new()
-                    set unit = source
                     set index = idx
-                    set duration = 10
-                    set key = key + 1
-                    set array[key] = this
                     set bonus[idx] = bonus[idx] + 1250
 
-                    call AddUnitBonus(source, BONUS_DAMAGE, 1250)
-
-                    if key == 0 then
-                        call TimerStart(timer, 1, true, function thistype.onPeriod)
-                    endif
+                    call StartTimer(10, false, this, -1)
+                    call AddUnitBonusTimed(source, BONUS_DAMAGE, 1250, 10)
                 endif
             endif
 
@@ -127,6 +86,8 @@ scope Doombringer
                 endif
             endif
         endmethod
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
             set table = HashTable.create()

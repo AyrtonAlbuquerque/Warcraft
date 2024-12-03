@@ -4,81 +4,45 @@ scope SapphireHammer
 		static constant string model = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
         static constant string point = "overhead"
 	
-		private static timer timer = CreateTimer() 
-		private static integer key = -1
-        private static thistype array array
-		private static integer array bonus
-	
-		private unit unit
-		private integer index
-		private integer duration
-
 		// Attributes
         real damage = 750
         real strength = 500
         real spellPowerFlat = 400
+
+		private static integer array bonus
 	
-		private method remove takes integer i returns integer
-            set array[i] = array[key]
-			set key = key - 1
+		private unit unit
+		private integer index
+	
+		method destroy takes nothing returns nothing
             set unit = null
-            
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
+            set bonus[index] = bonus[index] - 10
 
             call super.destroy()
-
-            return i - 1
 		endmethod
 	
 		private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00750|r Damage\n+ |cffffcc00400|r Spell Power\n+ |cffffcc00500|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Cleave|r: Melee attacks cleave within |cffffcc00350 AoE|r, dealing |cffffcc0045%%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Unstopable Momentum|r: Every attack increases |cffff0000Strength|r by |cffffcc0010|r for |cffffcc0060|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Shattering Blow|r: Every attack has |cffffcc0020%%|r chance to shatter the earth around the target, dealing |cff00ffff" + AbilitySpellDamageEx((GetHeroStr(u, true)/2), u) + " Magic|r damage and stunning all enemy units within |cffffcc00400 AoE|r for |cffffcc003|r seconds |cffffcc00(1 for Heroes)|r and Healing the Hero for the same amount.\n\nStrength Bonus: |cffffcc00" + I2S(bonus[id]) + "|r")
         endmethod
-
-		private static method onPeriod takes nothing returns nothing
-			local integer i = 0
-			local thistype this
-	
-			loop
-				exitwhen i > key
-                    set this = array[i]
-                    
-					if duration >= 120 then
-                        call AddUnitBonus(unit, BONUS_STRENGTH, -10)
-                        set bonus[index] = bonus[index] - 10
-						set i = remove(i)
-					endif
-
-					set duration = duration + 1
-				set i = i + 1
-			endloop
-		endmethod
 	
 		private static method onDamage takes nothing returns nothing
 			local real damage
 			local real heal
 			local real x
             local real y
+			local unit u
             local group g
-            local unit u
 			local thistype this
 	
 			if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure and Damage.source.isMelee then
 				set this = thistype.new()
 				set unit = Damage.source.unit
 				set index = Damage.source.id
-                set duration = 0
-				set key = key + 1
-				set array[key] = this
 				set bonus[Damage.source.id] = bonus[Damage.source.id] + 10
 	
-				call AddUnitBonus(Damage.source.unit, BONUS_STRENGTH, 10)
+				call StartTimer(60, false, this, -1)
+				call AddUnitBonusTimed(Damage.source.unit, BONUS_STRENGTH, 10, 60)
                 call DestroyEffect(AddSpecialEffectTarget("HealRed.mdx", Damage.source.unit, "origin"))
-                
-                if key == 0 then
-                    call TimerStart(timer, 0.5, true, function thistype.onPeriod)
-                endif
 	
 				if GetRandomReal(1, 100) <= 20 then
 					set damage = GetHeroStr(Damage.source.unit, true)*0.5
@@ -106,6 +70,8 @@ scope SapphireHammer
             
             set g = null
 		endmethod
+
+		implement Periodic
 
 		private static method onInit takes nothing returns nothing
 			call RegisterAttackDamageEvent(function thistype.onDamage)
