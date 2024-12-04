@@ -33,20 +33,16 @@ scope SphereOfDivinity
         static constant integer code = 'I04Q'
         static constant integer ability = 'A03P'
 		static constant integer buff = 'B00L'
-        private static integer array touch
 
-        private timer timer
-        private integer index
-
+        // Attributes
         real spellPowerFlat = 50
 
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
+        private static integer array touch
 
-            call ReleaseTimer(timer)
+        private integer index
+
+        method destroy takes nothing returns nothing
             set touch[index] = touch[index] - 1
-            set timer = null
-
             call super.destroy()
         endmethod
 
@@ -59,12 +55,11 @@ scope SphereOfDivinity
 
                 if Damage.isEnemy and GetRandomReal(1, 100) <= GetChance() then
                     set this = thistype.new()
-                    set timer = NewTimerEx(this)
                     set index = Damage.target.id
                     set touch[index] = touch[index] + 1
 
+                    call StartTimer(GetDuration(), false, this, -1)
                     call CastAbilityTarget(Damage.target.unit, ability, "faeriefire", 1)
-                    call TimerStart(timer, GetDuration(), true, function thistype.onExpire)
                 endif
             endif
 
@@ -85,6 +80,8 @@ scope SphereOfDivinity
 
             set killed = null
         endmethod
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)

@@ -36,33 +36,25 @@ scope BerserkerBoots
         real evasionChance = 15
         real movementSpeed = 35
 
-        private timer timer
         private unit unit
 
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
+        method destroy takes nothing returns nothing
             call SetUnitPathing(unit, true)
-            call AddUnitBonus(unit, BONUS_ATTACK_SPEED, -GetBonusAttackSpeed())
-            call ReleaseTimer(timer)
-
-            set timer = null
-            set unit = null
-
             call super.destroy()
+
+            set unit = null
         endmethod
 
         private static method onCast takes nothing returns nothing
             local thistype this = thistype.new()
             
-            set timer = NewTimerEx(this)
             set unit = Spell.source.unit
 
             call SetUnitPathing(unit, false)
+            call StartTimer(GetDuration(), false, this, -1)
             call UnitAddAbilityTimed(unit, buff, GetDuration(), 1, true)
-            call AddUnitBonus(unit, BONUS_ATTACK_SPEED, GetBonusAttackSpeed())
+            call AddUnitBonusTimed(unit, BONUS_ATTACK_SPEED, GetBonusAttackSpeed(), GetDuration())
             call UnitAddMoveSpeedBonus(unit, GetBonusMovementSpeed(), 0, GetDuration())
-            call TimerStart(timer, GetDuration(), false, function thistype.onPeriod)
         endmethod
 
         private static method onLevel takes nothing returns nothing
@@ -74,6 +66,8 @@ scope BerserkerBoots
             
             set source = null
         endmethod
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
             call thistype.allocate(code, BootsOfSpeed.code, GlovesOfHaste.code, GlovesOfHaste.code, AssassinsDagger.code, 0)

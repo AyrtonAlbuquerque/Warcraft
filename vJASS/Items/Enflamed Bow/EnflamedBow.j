@@ -2,10 +2,11 @@ scope EnflamedBow
     struct EnflamedBow extends Item
         static constant integer code = 'I06U'
 
-        private static timer timer = CreateTimer()
+        // Attributes
+        real damage = 500
+        real agility = 250
+
         private static HashTable table
-        private static integer key = -1
-        private static thistype array array
         private static integer array counting
         
         private unit source
@@ -16,12 +17,9 @@ scope EnflamedBow
         private integer targetId
         private integer duration
 
-        // Attributes
-        real damage = 500
-        real agility = 250
-
-        private method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             set counting[index] = counting[index] - 1
+
             call DestroyEffect(effect)
 			
 			if counting[index] <= 0 then
@@ -30,45 +28,28 @@ scope EnflamedBow
                 set counting[index] = 0
 			endif
 
-            set array[i] = array[key]
-            set key = key - 1
             set source = null
             set target = null
             set effect = null
             set table[sourceId][targetId] = 0
 
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
-
             call super.destroy()
-
-            return i - 1
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer  i = 0
-			local thistype this
-			
-			loop
-				exitwhen i > key
-                    set this = array[i]
-	
-					if duration > 0 then
-						if UnitAlive(target) then
-							if UnitDamageTarget(source, target, 62.5, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, null) then
-								call SetWidgetLife(source, GetWidgetLife(source) + 62.5)
-							endif
-						else
-							set duration = 1
-						endif
-					else
-						set i = remove(i)
-                    endif
+        private method onPeriod takes nothing returns boolean
+            set duration = duration - 1
 
-                    set duration = duration - 1
-				set i = i + 1
-			endloop
+            if duration > 0 then
+                if UnitAlive(target) then
+                    if UnitDamageTarget(source, target, 62.5, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, null) then
+                        call SetWidgetLife(source, GetWidgetLife(source) + 62.5)
+                    endif
+                else
+                    return false
+                endif
+            endif
+
+            return duration > 0
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -83,9 +64,6 @@ scope EnflamedBow
                     set sourceId = Damage.source.handle
                     set targetId = Damage.target.handle
                     set index = Damage.source.id
-                    set duration = 16
-					set key = key + 1
-                    set array[key] = this
                     set counting[index] = counting[index] + 1
                     set table[sourceId][targetId] = this
 
@@ -93,9 +71,7 @@ scope EnflamedBow
                         set table[sourceId].effect[0] = AddSpecialEffectTarget("Ember Yellow.mdx", Damage.source.unit, "chest")
                     endif
 
-                    if key == 0 then
-                        call TimerStart(timer, 0.25, true, function thistype.onPeriod)
-                    endif
+                    call StartTimer(0.25, true, this, -1)
                 else
                     set this = table[Damage.source.handle][Damage.target.handle]
 				endif
@@ -103,6 +79,8 @@ scope EnflamedBow
                 set duration = 16
             endif
         endmethod
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
             set table = HashTable.create()

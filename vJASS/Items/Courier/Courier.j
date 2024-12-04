@@ -1,10 +1,6 @@
 scope Courier
     struct Deliver
         readonly static integer ability = 'A027'
-        readonly static timer timer = CreateTimer()
-        readonly static integer key = -1
-        readonly static thistype array array
-        readonly static thistype array struct
         readonly static boolean array active
 
         readonly unit unit
@@ -14,7 +10,7 @@ scope Courier
         readonly real x
         readonly real y
 
-        private method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             if active[id] then
                 call IssuePointOrder(unit, "move", x, y)
             endif
@@ -22,53 +18,35 @@ scope Courier
             set unit = null
             set hero = null
             set item = null
-            set array[i] = array[key]
-            set key = key - 1
             set active[id] = false
-            set struct[id] = 0
-
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
 
             call deallocate()
-
-            return i - 1
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
+        private method onPeriod takes nothing returns boolean
             local integer  i = 0
-            local integer  j
-            local thistype this
 
-            loop
-                exitwhen i > key
-                    set this = array[i]
+            if active[id] then
+                loop
+                    exitwhen UnitInventoryCount(hero) == 6 or UnitInventoryCount(unit) == 0 or i == 6 or UnitHasItem(unit, item)
+                        set item = UnitItemInSlot(unit, i)
+                    set i = i + 1
+                endloop
 
-                    if active[id] then
-                        set j = 0
-                        loop
-                            exitwhen UnitInventoryCount(hero) == 6 or UnitInventoryCount(unit) == 0 or j == 6 or UnitHasItem(unit, item)
-                                set item = UnitItemInSlot(unit, j)
-                            set j = j + 1
-                        endloop
+                if item != null and UnitInventoryCount(hero) < 6 and UnitInventoryCount(unit) > 0 then
+                    call UnitDropItemTarget(unit, item, hero)
+                else
+                    return false
+                endif
+            endif
 
-                        if item != null and UnitInventoryCount(hero) < 6 and UnitInventoryCount(unit) > 0 then
-                            call UnitDropItemTarget(unit, item, hero)
-                        else
-                            set i = remove(i)
-                        endif
-                    else
-                        set i = remove(i)
-                    endif
-                set i = i + 1
-            endloop
+            return active[id]
         endmethod
 
         private static method onCast takes nothing returns nothing
             local thistype this
 
-            if struct[Spell.source.id] == 0 then
+            if not HasStartedTimer(Spell.source.id) then
                 set this = thistype.allocate()
                 set hero = Hero.player[GetPlayerId(Spell.source.player)]
                 set unit = Spell.source.unit
@@ -76,14 +54,9 @@ scope Courier
                 set id = Spell.source.id
                 set x = Spell.source.x
                 set y = Spell.source.y
-                set struct[id] = this
-                set key = key + 1
-                set array[key] = this
                 set active[id] = true
 
-                if key == 0 then
-                    call TimerStart(timer, 0.1, true, function thistype.onPeriod)
-                endif
+                call StartTimer(0.1, true, this, Spell.source.id)
             endif
         endmethod
 
@@ -103,6 +76,8 @@ scope Courier
 
             set source = null
         endmethod
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
             call RegisterSpellEffectEvent(ability, function thistype.onCast)

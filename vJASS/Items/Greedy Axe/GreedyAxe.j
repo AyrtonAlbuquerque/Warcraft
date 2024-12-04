@@ -23,7 +23,6 @@ scope GreedyAxe
     /* ----------------------------------------------------------------------------------------- */
     struct GreedyAxe extends Item
         static constant integer code = 'I05H'
-        static constant real period = 0.25
 
         // Attributes
         real damage = 45
@@ -31,77 +30,40 @@ scope GreedyAxe
         real criticalChance = 25
 
         private static integer array bonus
-        private static thistype array struct
-        private static thistype array array
-        private static integer key = -1
-        private static timer timer = CreateTimer()
 
         private unit unit
-        private integer index
         private real duration
+
+        method destroy takes nothing returns nothing
+            call AddUnitBonus(unit, BONUS_ATTACK_SPEED, -GetAttackSpeedBonus())
+            call super.destroy()
+
+            set unit = null
+        endmethod
 
         private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0045|r Damage\n+ |cffffcc0025%%|r Critical Strike Chance\n+ |cffffcc00100%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Pillage|r: After hitting a critical strike, for the next |cffffcc003 |rseconds, the Hero gains |cffffcc0050%% |rAttack Speed bonus and every attack grants |cffffcc00Gold|r equal to |cffffcc002.5%% (25%% against Heroes)|r of the damage dealt.\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r")
         endmethod
 
-        private method remove takes integer i returns integer
-            call AddUnitBonus(unit, BONUS_ATTACK_SPEED, -GetAttackSpeedBonus())
+        private method onPeriod takes nothing returns boolean
+            set duration = duration - 0.25
 
-            set array[i] = array[key]
-            set key = key - 1
-            set struct[index] = 0
-            set unit = null
-
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
-
-            call super.destroy()
-
-            return i - 1
-        endmethod
-
-        private static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local thistype this
-
-            loop
-                exitwhen i > key
-                    set this = array[i]
-
-                    if duration <= 0 then
-                        set i = remove(i)
-                    endif
-
-                    set duration = duration - period
-                set i = i + 1
-            endloop
+            return duration > 0
         endmethod
 
         private static method onCritical takes nothing returns nothing
             local unit source = GetCriticalSource()
             local unit target = GetCriticalTarget()
-            local integer id    
-            local thistype this
+            local integer id = GetUnitUserData(source) 
+            local thistype this = GetTimerInstance(id)
 
             if UnitHasItemOfType(source, code) and IsUnitEnemy(target, GetOwningPlayer(source)) then
-                set id = GetUnitUserData(source)
-
-                if struct[id] != 0 then
-                    set this = struct[id]
-                else
+                if this == 0 then
                     set this = thistype.new()
                     set unit = source
-                    set index = id
-                    set key = key + 1
-                    set array[key] = this
-                    set struct[id] = this
 
+                    call StartTimer(0.25, true, this, id)
                     call AddUnitBonus(source, BONUS_ATTACK_SPEED, GetAttackSpeedBonus())
-
-                    if key == 0 then
-                        call TimerStart(timer, period, true, function thistype.onPeriod)
-                    endif
                 endif
 
                 set duration = GetDuration()
@@ -114,7 +76,7 @@ scope GreedyAxe
         private static method onDamage takes nothing returns nothing
             local integer pillage
 
-            if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and struct[Damage.source.id] != 0 then
+            if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and HasStartedTimer(Damage.source.id) then
                 call DestroyEffect(AddSpecialEffectTarget("UI\\Feedback\\GoldCredit\\GoldCredit.mdl", Damage.target.unit, "origin"))
 
                 if IsUnitType(Damage.target.unit, UNIT_TYPE_HERO) then
@@ -130,6 +92,8 @@ scope GreedyAxe
                 endif
             endif
         endmethod
+
+        implement Periodic
 
         private static  method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)

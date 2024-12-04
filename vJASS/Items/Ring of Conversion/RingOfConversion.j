@@ -4,49 +4,36 @@ scope RingOfConversion
         static constant integer spell = 'A00K'
         static constant integer ability = 'A00L'
 
-        private static thistype array array
-        private static integer key = -1
-        private static timer timer = CreateTimer()
-
-        private unit unit
-
         // Attributes
         real mana = 10000
         real manaRegen = 250
 
-        private method remove takes integer i returns integer
+        private unit unit
+
+        method destroy takes nothing returns nothing
             set unit = null
-            set array[i] = array[key]
-            set key = key - 1
-
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
-
             call super.destroy()
-
-            return i - 1
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local real heal
-            local thistype this
+        private method onPeriod takes nothing returns boolean
+            local real amount
 
-            loop
-                exitwhen i > key
-                    set this = array[i]
+            if GetUnitAbilityLevel(unit, ability) > 0 then
+                set amount = GetUnitState(unit, UNIT_STATE_MANA)
+                call SetUnitState(unit, UNIT_STATE_MANA, amount - (BlzGetUnitMaxMana(unit) * 0.02))
+                set amount = amount - GetUnitState(unit, UNIT_STATE_MANA)
+                call SetWidgetLife(unit, (GetWidgetLife(unit) + (amount/2)))
+            
+                return true
+            endif
 
-                    if GetUnitAbilityLevel(unit, ability) > 0 then
-                        set heal = GetUnitState(unit, UNIT_STATE_MANA)
-                        call SetUnitState(unit, UNIT_STATE_MANA, GetUnitState(unit, UNIT_STATE_MANA) - (BlzGetUnitMaxMana(unit) * 0.002))
-                        set heal = heal - GetUnitState(unit, UNIT_STATE_MANA)
-                        call SetWidgetLife(unit, (GetWidgetLife(unit) + (heal/2)))
-                    else
-                        set i = remove(i)
-                    endif
-                set i = i + 1
-            endloop
+            return false
+        endmethod
+        
+        private method onDrop takes unit u, item i returns nothing
+            if not UnitHasItemOfType(u, code) then
+                call UnitRemoveAbility(u, ability)
+            endif
         endmethod
 
         private static method onCast takes nothing returns nothing
@@ -60,18 +47,8 @@ scope RingOfConversion
 
                 set this = thistype.new()
                 set unit = Spell.source.unit
-                set key = key + 1
-                set array[key] = this
                 
-                if key == 0 then
-                    call TimerStart(timer, 1, true, function thistype.onPeriod)
-                endif
-            endif
-        endmethod
-        
-        private method onDrop takes unit u, item i returns nothing
-            if not UnitHasItemOfType(u, code) then
-                call UnitRemoveAbility(u, ability)
+                call StartTimer(1, true, this, -1)
             endif
         endmethod
 
@@ -90,6 +67,8 @@ scope RingOfConversion
             set killed = null
             set killer = null
         endmethod
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
             call RegisterSpellEffectEvent(spell, function thistype.onCast)

@@ -32,11 +32,12 @@ scope MagmaHelmet
     struct MagmaHelmet extends Item
         static constant integer code = 'I03M'
         static constant string burn = "Abilities\\Spells\\Other\\ImmolationRed\\ImmolationRedDamage.mdl"
-		static constant real period  = 1.
+
+        // Attributes
+        real strength = 10
+        real healthRegen = 7
+
         private static real array cooldown
-        private static thistype array array
-        private static integer key = -1
-        private static timer timer = CreateTimer()
 
         private unit unit
         private effect effect
@@ -44,18 +45,11 @@ scope MagmaHelmet
         private player player
         private integer index
         private real duration
-    
-        // Attributes
-        real strength = 10
-        real healthRegen = 7
 
-        method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0010|r Strength\n+ |cffffcc007|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Purifying Flames:|r When your Hero's life drops below |cffffcc0025%|r, |cff00ff00health regeneration|r is increased by |cffffcc0030 hp/s|r and all enemy units within |cffffcc00300|r AoE takes |cff00ffff" + AbilitySpellDamageEx(GetDamage(), u) +" Magic|r damage per second. Lasts |cffffcc0020|r seconds.\n\nCooldown: |cffffcc00" + R2I2S(MagmaHelmet.cooldown[id]) + "|r")
-        endmethod
-
-        private method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             call DestroyEffect(effect)
             call DestroyGroup(group)
+            call super.destroy()
 
             set cooldown[index] = 0
             set duration = 0
@@ -63,55 +57,44 @@ scope MagmaHelmet
             set effect = null
             set group = null
             set player = null
-            set array[i] = array[key]
-            set key = key - 1
-
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
-
-            call super.destroy()
-
-            return i - 1
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local unit v
-            local integer i = 0
-            local thistype this
+        method onTooltip takes unit u, item i, integer id returns nothing
+            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0010|r Strength\n+ |cffffcc007|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Purifying Flames:|r When your Hero's life drops below |cffffcc0025%%|r, |cff00ff00health regeneration|r is increased by |cffffcc0030 hp/s|r and all enemy units within |cffffcc00300|r AoE takes |cff00ffff" + AbilitySpellDamageEx(GetDamage(), u) +" Magic|r damage per second. Lasts |cffffcc0020|r seconds.\n\nCooldown: |cffffcc00" + R2I2S(MagmaHelmet.cooldown[id]) + "|r")
+        endmethod
 
-            loop
-                exitwhen i > key
-                    set this = array[i]
-                    set cooldown[index] = cooldown[index] - period
-                    set duration = duration - period
+        private method onPeriod takes nothing returns boolean
+            local unit u
 
-                    if duration >= 0 then
-                        set group = CreateGroup()
+            set duration = duration - 1
+            set cooldown[index] = cooldown[index] - 1
 
-                        call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), GetAoE(), null)
-                        loop
-                            set v = FirstOfGroup(group)
-                            exitwhen v == null
-                                if IsUnitEnemy(v, player) and UnitAlive(v) and not IsUnitType(v, UNIT_TYPE_STRUCTURE) then
-                                    if UnitDamageTarget(unit, v, GetDamage(), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                                        call DestroyEffect(AddSpecialEffectTarget(burn, v, "origin"))
-                                    endif
-                                endif
-                            call GroupRemoveUnit(group, v)
-                        endloop
-                        call DestroyGroup(group)
+            if duration >= 0 then
+                set group = CreateGroup()
 
-                        if duration == 0 then
-                            call DestroyEffect(effect)
+                call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), GetAoE(), null)
+
+                loop
+                    set u = FirstOfGroup(group)
+                    exitwhen u == null
+                        if IsUnitEnemy(u, player) and UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
+                            if UnitDamageTarget(unit, u, GetDamage(), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                                call DestroyEffect(AddSpecialEffectTarget(burn, u, "origin"))
+                            endif
                         endif
-                    else
-                        if cooldown[index] <= 0 then
-                            set i = remove(i)
-                        endif
-                    endif
-                set i = i + 1
-            endloop
+                    call GroupRemoveUnit(group, u)
+                endloop
+
+                call DestroyGroup(group)
+
+                if duration == 0 then
+                    call DestroyEffect(effect)
+                endif
+            else
+                return cooldown[index] > 0
+            endif
+
+            return true
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -124,17 +107,14 @@ scope MagmaHelmet
                 set player = Damage.target.player
                 set index = Damage.target.id
                 set duration = GetDuration()
-                set key = key + 1
-                set array[key] = this
                 set cooldown[index] = GetCooldown()
 
+                call StartTimer(1, true, this, Damage.target.id)
                 call AddUnitBonusTimed(Damage.target.unit, BONUS_HEALTH_REGEN, GetBonusRegen(), GetDuration())
-
-                if key == 0 then
-                    call TimerStart(timer, period, true, function thistype.onPeriod)
-                endif
             endif
         endmethod
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
             call thistype.allocate(code, OrbOfFire.code, WarriorHelmet.code, 0, 0, 0)
