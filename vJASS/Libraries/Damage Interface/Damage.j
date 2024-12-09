@@ -1,0 +1,724 @@
+library DamageInterface requires Table, Indexer
+    /* --------------------------- DamageInterface v3.0 by Chopinski --------------------------- */
+    // Allows for easy registration of specific damage type events like on attack
+    // damage or on spell damage, etc...
+    /* ------------------------------------------ END ------------------------------------------ */
+    /* ----------------------------------------------------------------------------------------- */
+    /*                                       Configuration                                       */
+    /* ----------------------------------------------------------------------------------------- */
+    globals
+        // Set to true to enable evasion system
+        private constant boolean USE_EVASION = true
+        // Heroes base magic resistance, which with the current formula equates to aproximately 24% magic resistance
+        private constant real BASE_HERO_MAGIC_RESISTANCE = 8
+    endglobals
+
+    /* ----------------------------------------------------------------------------------------- */
+    /*                                          JASS API                                         */
+    /* ----------------------------------------------------------------------------------------- */
+    /* ----------------------------------------- Damage ---------------------------------------- */
+    function RegisterAttackDamageEvent takes code c returns nothing
+        call Damage.register(null, DAMAGE_TYPE_NORMAL, c, true)
+    endfunction
+    
+    function RegisterSpellDamageEvent takes code c returns nothing
+        call Damage.register(ATTACK_TYPE_NORMAL, null, c, true)
+    endfunction
+
+    function RegisterDamageEvent takes attacktype attack, damagetype damage, code c returns nothing
+        call Damage.register(attack, damage, c, true)
+    endfunction
+
+    function RegisterAnyDamageEvent takes code c returns nothing
+        call TriggerAddCondition(Damage.anyAfter, Filter(c))
+    endfunction
+
+    function RegisterAttackDamagingEvent takes code c returns nothing
+        call Damage.register(null, DAMAGE_TYPE_NORMAL, c, false)
+    endfunction
+    
+    function RegisterSpellDamagingEvent takes code c returns nothing
+        call Damage.register(ATTACK_TYPE_NORMAL, null, c, false)
+    endfunction
+
+    function RegisterDamagingEvent takes attacktype attack, damagetype damage, code c returns nothing
+        call Damage.register(attack, damage, c, false)
+    endfunction 
+
+    function RegisterAnyDamagingEvent takes code c returns nothing
+        call TriggerAddCondition(Damage.anyBefore, Filter(c))
+    endfunction
+
+    /* ---------------------------------------- Evasion ---------------------------------------- */
+    function RegisterEvasionEvent takes code c returns nothing
+        call Evasion.register(c)
+    endfunction
+
+    function GetMissingUnit takes nothing returns unit
+        return Evasion.source.unit
+    endfunction
+
+    function GetEvadingUnit takes nothing returns unit
+        return Evasion.target.unit
+    endfunction
+
+    function GetEvadedDamage takes nothing returns real
+        return Evasion.damage
+    endfunction
+
+    function GetUnitEvasionChance takes unit u returns real
+        return Evasion.getEvasionChance(u)
+    endfunction
+
+    function GetUnitMissChance takes unit u returns real
+        return Evasion.getMissChance(u)
+    endfunction
+
+    function SetUnitEvasionChance takes unit u, real chance returns real
+        return Evasion.setEvasionChance(u, chance)
+    endfunction
+
+    function SetUnitMissChance takes unit u, real chance returns real
+        return Evasion.setMissChance(u, chance)
+    endfunction
+
+    function UnitAddEvasionChance takes unit u, real chance returns real
+        return Evasion.setEvasionChance(u, Evasion.getEvasionChance(u) + chance)
+    endfunction
+
+    function UnitAddMissChance takes unit u, real chance returns real
+        return Evasion.setMissChance(u, Evasion.getMissChance(u) + chance)
+    endfunction
+
+    function MakeUnitNeverMiss takes unit u, boolean flag returns nothing
+        if flag then
+            set Evasion.pierce[GetUnitUserData(u)] = Evasion.pierce[GetUnitUserData(u)] + 1
+        else
+            set Evasion.pierce[GetUnitUserData(u)] = Evasion.pierce[GetUnitUserData(u)] - 1
+        endif
+    endfunction
+
+    function DoUnitNeverMiss takes unit u returns boolean
+        return Evasion.pierce[GetUnitUserData(u)] > 0
+    endfunction
+    
+    /* ---------------------------------------- Critical --------------------------------------- */
+    function RegisterCriticalStrikeEvent takes code c returns nothing
+        call Critical.register(c)
+    endfunction
+
+    function GetCriticalSource takes nothing returns unit
+        return Critical.source.unit
+    endfunction
+
+    function GetCriticalTarget takes nothing returns unit
+        return Critical.target.unit
+    endfunction
+
+    function GetCriticalDamage takes nothing returns real
+        return Critical.damage
+    endfunction
+
+    function GetUnitCriticalChance takes unit u returns real
+        return Critical.getChance(u)
+    endfunction
+
+    function GetUnitCriticalMultiplier takes unit u returns real
+        return Critical.getMultiplier(u)
+    endfunction
+
+    function SetUnitCriticalChance takes unit u, real value returns real
+        return Critical.setChance(u, value)
+    endfunction
+
+    function SetUnitCriticalMultiplier takes unit u, real value returns real
+        return Critical.setMultiplier(u, value)
+    endfunction
+
+    function SetCriticalEventDamage takes real newValue returns nothing
+        set Critical.damage = newValue
+    endfunction
+
+    function UnitAddCriticalStrike takes unit u, real chance, real multiplier returns nothing
+        call Critical.add(u, chance, multiplier)
+    endfunction
+
+    /* ----------------------------------- Armor Penetration ----------------------------------- */
+    function GetUnitArmorPenetration takes unit u returns real
+        return ArmorPenetration.get(u)
+    endfunction
+
+    function SetUnitArmorPenetration takes unit u, real value returns real
+        return ArmorPenetration.Set(u, value)
+    endfunction
+
+    function UnitAddArmorPenetration takes unit u, real value returns real
+        return ArmorPenetration.Set(u, ArmorPenetration.get(u) + value)
+    endfunction
+
+    function GetUnitArmorPenetrationFlat takes unit u returns real
+        return ArmorPenetration.getFlat(u)
+    endfunction
+
+    function SetUnitArmorPenetrationFlat takes unit u, real value returns real
+        return ArmorPenetration.setFlat(u, value)
+    endfunction
+
+    function UnitAddArmorPenetrationFlat takes unit u, real value returns real
+        return ArmorPenetration.setFlat(u, ArmorPenetration.getFlat(u) + value)
+    endfunction
+    
+    function ArmorReduction takes unit source, unit target returns real
+        local real armor = (BlzGetUnitArmor(target) - GetUnitArmorPenetrationFlat(source)) * (1 - GetUnitArmorPenetration(source))
+
+        return (armor * 0.04) / (1 + (armor * 0.04))
+    endfunction
+
+    /* ----------------------------------- Magic Penetration ----------------------------------- */
+    function GetUnitMagicResistance takes unit u returns real
+        return MagicPenetration.getResistance(u)
+    endfunction
+
+    function SetUnitMagicResistance takes unit u, real value returns real
+        return MagicPenetration.setResistance(u, value)
+    endfunction
+
+    function UnitAddMagicResistance takes unit u, real value returns real
+        return MagicPenetration.setResistance(u, MagicPenetration.getResistance(u) + value)
+    endfunction
+    
+    function GetUnitMagicPenetration takes unit u returns real
+        return MagicPenetration.get(u)
+    endfunction
+
+    function SetUnitMagicPenetration takes unit u, real value returns real
+        return MagicPenetration.Set(u, value)
+    endfunction
+
+    function UnitAddMagicPenetration takes unit u, real value returns real
+        return MagicPenetration.Set(u, MagicPenetration.get(u) + value)
+    endfunction
+
+    function GetUnitMagicPenetrationFlat takes unit u returns real
+        return MagicPenetration.getFlat(u)
+    endfunction
+
+    function SetUnitMagicPenetrationFlat takes unit u, real value returns real
+        return MagicPenetration.setFlat(u, value)
+    endfunction
+
+    function UnitAddMagicPenetrationFlat takes unit u, real value returns real
+        return MagicPenetration.setFlat(u, MagicPenetration.getFlat(u) + value)
+    endfunction
+
+    function MagicReduction takes unit source, unit target returns real
+        local real magic = (GetUnitMagicResistance(target) - GetUnitMagicPenetrationFlat(source)) * (1 - GetUnitMagicPenetration(source))
+
+        return (magic * 0.04) / (1 + (magic * 0.04))
+    endfunction
+
+    /* ----------------------------------------------------------------------------------------- */
+    /*                                           System                                          */
+    /* ----------------------------------------------------------------------------------------- */
+    private function R2SW4 takes real value returns string
+        local string output = ""
+        local integer four_off = ModuloInteger(R2I(RAbsBJ(value / 0.0001)), 10)
+        local integer three_off = ModuloInteger(R2I(RAbsBJ(value / 0.001)), 10)
+        local integer two_off = ModuloInteger(R2I(RAbsBJ(value / 0.01)), 10)
+        local integer on_off = ModuloInteger(R2I(RAbsBJ(value / 0.1)), 10)
+        return I2S(R2I(value)) + "." + I2S(on_off) + I2S(two_off) + I2S(three_off) + I2S(four_off)
+    endfunction
+    
+    private struct Unit
+        private static location location = Location(0, 0)
+
+        unit unit
+        
+        method destroy takes nothing returns nothing
+            set unit = null
+            call deallocate()
+        endmethod
+
+        method operator x takes nothing returns real
+            return GetUnitX(unit)
+        endmethod
+
+        method operator y takes nothing returns real
+            return GetUnitY(unit)
+        endmethod
+
+        method operator z takes nothing returns real
+            call MoveLocation(location, GetUnitX(unit), GetUnitY(unit))
+            return GetUnitFlyHeight(unit) + GetLocationZ(location)
+        endmethod
+
+        method operator id takes nothing returns integer
+            return GetUnitUserData(unit)
+        endmethod
+
+        method operator handle takes nothing returns integer
+            return GetHandleId(unit)
+        endmethod
+
+        method operator player takes nothing returns player
+            return GetOwningPlayer(unit)
+        endmethod
+
+        method operator isHero takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_HERO)
+        endmethod
+
+        method operator isMelee takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_MELEE_ATTACKER)
+        endmethod
+
+        method operator isRanged takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_RANGED_ATTACKER)
+        endmethod
+
+        method operator isStructure takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_STRUCTURE)
+        endmethod
+
+        method operator isMagicImmune takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE)
+        endmethod
+
+        static method create takes unit u returns thistype
+            local thistype this = thistype.allocate()
+
+            set unit = u
+
+            return this
+        endmethod
+    endstruct
+
+    struct Damage extends array
+        private static trigger damaged = CreateTrigger()
+        private static trigger damaging = CreateTrigger()
+        readonly static trigger anyAfter = CreateTrigger()
+        readonly static trigger anyBefore = CreateTrigger()
+
+        private static HashTable after
+        private static HashTable before
+        private static thistype key = 0
+
+        private Unit sources
+        private Unit targets
+        private real damage
+        private boolean evade
+        private attacktype attackType
+        private damagetype damageType
+        private weapontype weaponType
+
+        method destroy takes nothing returns nothing
+            call sources.destroy()
+            call targets.destroy()
+
+            set damage = 0
+            set evade = false
+            set attackType = null
+            set damageType = null
+            set weaponType = null
+            set key = key - 1
+        endmethod
+
+        static method operator source takes nothing returns Unit
+            return Damage.key.sources
+        endmethod
+
+        static method operator target takes nothing returns Unit
+            return Damage.key.targets
+        endmethod
+
+        static method operator amount takes nothing returns real
+            return Damage.key.damage
+        endmethod
+
+        static method operator amount= takes real value returns nothing
+            set Damage.key.damage = value
+            call BlzSetEventDamage(value)
+        endmethod
+
+        static method operator damagetype takes nothing returns damagetype
+            return Damage.key.damageType
+        endmethod
+
+        static method operator damagetype= takes damagetype value returns nothing
+            set Damage.key.damageType = value
+            call BlzSetEventDamageType(value)
+        endmethod
+
+        static method operator attacktype takes nothing returns attacktype
+            return Damage.key.attackType
+        endmethod
+
+        static method operator attacktype= takes attacktype value returns nothing
+            set Damage.key.attackType = value
+            call BlzSetEventAttackType(value)
+        endmethod
+
+        static method operator weapontype takes nothing returns weapontype
+            return Damage.key.weaponType
+        endmethod
+
+        static method operator weapontype= takes weapontype value returns nothing
+            set Damage.key.weaponType = value
+            call BlzSetEventWeaponType(value)
+        endmethod
+
+        static method operator isAlly takes nothing returns boolean
+            return IsUnitAlly(Damage.key.target.unit, Damage.key.source.player)
+        endmethod
+
+        static method operator isEnemy takes nothing returns boolean
+            return IsUnitEnemy(Damage.key.target.unit, Damage.key.source.player)
+        endmethod
+
+        static method operator isSpell takes nothing returns boolean
+            return attacktype == ATTACK_TYPE_NORMAL
+        endmethod
+
+        static method operator isAttack takes nothing returns boolean
+            return damagetype == DAMAGE_TYPE_NORMAL
+        endmethod
+
+        static method register takes attacktype attack, damagetype damage, code c, boolean posmitigation returns nothing
+            local integer i = GetHandleId(attack)
+            local integer j = GetHandleId(damage)
+
+            if posmitigation then
+                if not after[i].trigger.has(j) then
+                    set after[i].trigger[j] = CreateTrigger()
+                endif
+                
+                call TriggerAddCondition(after[i].trigger[j], Filter(c))
+            else
+                if not before[i].trigger.has(j) then
+                    set before[i].trigger[j] = CreateTrigger()
+                endif
+
+                call TriggerAddCondition(before[i].trigger[j], Filter(c))
+            endif
+        endmethod
+
+        static method create takes nothing returns thistype
+            local thistype this = key + 1
+
+            set key = this
+            set evade = false
+            set damage = GetEventDamage()
+            set sources = Unit.create(GetEventDamageSource())
+            set targets = Unit.create(BlzGetEventDamageTarget())
+            set attackType = BlzGetEventAttackType()
+            set damageType = BlzGetEventDamageType()
+            set weaponType = BlzGetEventWeaponType()
+
+            static if USE_EVASION then
+                if isAttack then
+                    set evade = Evasion.evade
+                endif
+            endif
+
+            return this
+        endmethod
+
+        private static method onDamaging takes nothing returns nothing
+            local integer i
+            local integer j
+            local thistype this = create()
+
+            if damagetype != DAMAGE_TYPE_UNKNOWN then
+                set i = GetHandleId(attacktype)
+                set j = GetHandleId(damagetype)
+
+                if before[i].trigger.has(0) then
+                    call TriggerEvaluate(before[i].trigger[0])
+                endif
+
+                if not evade then
+                    if before[0].trigger.has(j) then
+                        call TriggerEvaluate(before[0].trigger[j])
+                    endif
+                endif
+                
+                if before[i].trigger.has(j) then
+                    call TriggerEvaluate(before[i].trigger[j])
+                endif
+            endif
+
+            call TriggerEvaluate(anyBefore)
+
+            // call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "onDamaging: " + I2S(R2I(amount)) + " Key = " + I2S(key))
+        endmethod
+
+        private static method onDamage takes nothing returns nothing
+            local integer i
+            local integer j
+            local thistype this = key
+
+            if damagetype != DAMAGE_TYPE_UNKNOWN then
+                set i = GetHandleId(attacktype)
+                set j = GetHandleId(damagetype)
+
+                if isSpell then
+                    call ClearTextMessages()
+                    call BJDebugMsg("Pre Mitigation Magic: \n" + "Magic Resistance: " + R2SW4(GetUnitMagicResistance(target.unit)) + "\nMagic Penatration: " + R2SW4(GetUnitMagicPenetration(source.unit)) + "\nMagic Penetration Flat: " + R2SW4(GetUnitMagicPenetrationFlat(source.unit)) + "\nMagic Reduction: " + R2SW4(MagicReduction(source.unit, target.unit)) + "\nDamage: " + R2SW4(amount))
+                    set amount = damage * (1 - MagicReduction(source.unit, target.unit))
+                    call BJDebugMsg("Pos Mitigation Magic: " + R2SW4(amount))
+
+                    if after[i].trigger.has(0) then
+                        call TriggerEvaluate(after[i].trigger[0])
+                    endif
+                endif
+
+                if isAttack and not evade then
+                    call ClearTextMessages()
+                    call BJDebugMsg("Pre Mitigation Physical: \n" + "Armor: " + R2SW4(BlzGetUnitArmor(target.unit)) + "\nArmor Penatration: " + R2SW4(GetUnitArmorPenetration(source.unit)) + "\nArmor Penetration Flat: " + R2SW4(GetUnitArmorPenetrationFlat(source.unit)) + "\nArmor Reduction: " + R2SW4(ArmorReduction(source.unit, target.unit)) + "\nDamage: " + R2SW4(amount))
+                    set amount = damage * (1 - ArmorReduction(source.unit, target.unit))
+                    call BJDebugMsg("Pos Mitigation Physical: " + R2SW4(amount))
+
+                    if after[0].trigger.has(j) then
+                        call TriggerEvaluate(after[0].trigger[j])
+                    endif
+                endif
+                
+                if after[i].trigger.has(j) then
+                    call TriggerEvaluate(after[i].trigger[j])
+                endif
+            endif
+
+            call TriggerEvaluate(anyAfter)
+
+            // call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "onDamage: " + I2S(R2I(amount)) + " Key = " + I2S(key))
+
+            call destroy()
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            set after = HashTable.create()
+            set before = HashTable.create()
+
+            call TriggerRegisterAnyUnitEventBJ(damaged, EVENT_PLAYER_UNIT_DAMAGED)
+            call TriggerAddCondition(damaged, Condition(function thistype.onDamage))
+
+            call TriggerRegisterAnyUnitEventBJ(damaging, EVENT_PLAYER_UNIT_DAMAGING)
+            call TriggerAddCondition(damaging, Condition(function thistype.onDamaging))
+        endmethod
+    endstruct
+
+    struct Evasion
+        readonly static Unit source
+        readonly static Unit target
+        readonly static real damage
+        readonly static real array miss
+        readonly static real array evasion
+        readonly static integer array pierce
+        readonly static trigger trigger = CreateTrigger()
+
+        static method getEvasionChance takes unit u returns real
+            return evasion[GetUnitUserData(u)]
+        endmethod
+
+        static method getMissChance takes unit u returns real
+            return miss[GetUnitUserData(u)]
+        endmethod
+
+        static method setEvasionChance takes unit u, real value returns real
+            set evasion[GetUnitUserData(u)] = value
+
+            return value
+        endmethod
+
+        static method setMissChance takes unit u, real value returns real
+            set miss[GetUnitUserData(u)] = value
+
+            return value
+        endmethod
+
+        static method register takes code c returns nothing
+            call TriggerAddCondition(trigger, Filter(c))
+        endmethod
+
+        static method operator evade takes nothing returns boolean
+            local texttag text
+            local boolean should = false
+
+            if Damage.amount > 0 and not (pierce[Damage.source.id] > 0) then
+                set text = CreateTextTag()
+                set should = GetRandomReal(0, 1) <= evasion[Damage.target.id] or GetRandomReal(0, 1) <= miss[Damage.source.id]
+
+                if should then
+                    set source = Damage.source
+                    set target = Damage.target
+                    set damage = Damage.amount
+                    set Damage.amount = 0
+                    set Damage.weapontype = WEAPON_TYPE_WHOKNOWS
+
+                    call TriggerEvaluate(trigger)
+                    call SetTextTagText(text, "miss", 0.016)
+                    call SetTextTagPosUnit(text, source.unit, 0)
+                    call SetTextTagColor(text, 255, 0, 0, 255)
+                    call SetTextTagLifespan(text, 1.5)
+                    call SetTextTagVelocity(text, 0.0, 0.0355)
+                    call SetTextTagPermanent(text, false)
+
+                    set damage = 0
+                    set source = 0
+                    set target = 0
+                endif
+            endif
+
+            set text = null
+
+            return should
+        endmethod
+    endstruct
+
+    struct Critical
+        readonly static Unit source
+        readonly static Unit target
+        readonly static real array chance
+        readonly static real array multiplier
+        readonly static trigger trigger = CreateTrigger()
+
+        static real damage
+
+        static method getChance takes unit u returns real
+            return chance[GetUnitUserData(u)]
+        endmethod
+
+        static method getMultiplier takes unit u returns real
+            return multiplier[GetUnitUserData(u)]
+        endmethod
+
+        static method setChance takes unit u, real value returns real
+            set chance[GetUnitUserData(u)] = value
+
+            return value
+        endmethod
+
+        static method setMultiplier takes unit u, real value returns real
+            set multiplier[GetUnitUserData(u)] = value
+
+            return value
+        endmethod
+
+        static method add takes unit u, real chance, real multuplier returns nothing
+            call setChance(u, getChance(u) + chance)
+            call setMultiplier(u, getMultiplier(u) + multuplier)
+        endmethod
+
+        static method register takes code c returns nothing
+            call TriggerAddCondition(trigger, Filter(c))
+        endmethod
+
+        private static method onDamage takes nothing returns nothing
+            local texttag text
+
+            if Damage.amount > 0 and GetRandomReal(0, 1) <= chance[Damage.source.id] and Damage.isEnemy and not Damage.target.isStructure and multiplier[Damage.source.id] > 0 then                
+                set source = Damage.source
+                set target = Damage.target
+                set damage = Damage.amount * (1 + multiplier[Damage.source.id])
+                set Damage.amount = damage
+
+                call TriggerEvaluate(trigger)
+
+                if damage > 0 then
+                    set text = CreateTextTag()
+
+                    call SetTextTagText(text, (I2S(R2I(damage)) + "!"), 0.016)
+                    call SetTextTagPosUnit(text, target.unit, 0)
+                    call SetTextTagColor(text, 255, 0, 0, 255)
+                    call SetTextTagLifespan(text, 1.5)
+                    call SetTextTagVelocity(text, 0.0, 0.0355)
+                    call SetTextTagPermanent(text, false)
+                endif
+
+                set damage = 0
+                set source = 0
+                set target = 0
+            endif
+
+            set text = null
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            call RegisterAttackDamagingEvent(function thistype.onDamage)
+        endmethod
+    endstruct
+
+    struct ArmorPenetration
+        readonly static real array flat
+        readonly static real array percent
+
+        static method get takes unit u returns real
+            return percent[GetUnitUserData(u)]
+        endmethod
+
+        static method Set takes unit u, real value returns real
+            set percent[GetUnitUserData(u)] = value
+
+            return value
+        endmethod
+
+        static method getFlat takes unit u returns real
+            return flat[GetUnitUserData(u)]
+        endmethod
+
+        static method setFlat takes unit u, real value returns real
+            set flat[GetUnitUserData(u)] = value
+
+            return value
+        endmethod
+    endstruct
+
+    struct MagicPenetration
+        private static boolean array check
+
+        readonly static real array flat
+        readonly static real array percent
+        readonly static real array resistance
+
+        static method get takes unit u returns real
+            return percent[GetUnitUserData(u)]
+        endmethod
+
+        static method Set takes unit u, real value returns real
+            set percent[GetUnitUserData(u)] = value
+
+            return value
+        endmethod
+
+        static method getFlat takes unit u returns real
+            return flat[GetUnitUserData(u)]
+        endmethod
+
+        static method setFlat takes unit u, real value returns real
+            set flat[GetUnitUserData(u)] = value
+
+            return value
+        endmethod
+
+        static method getResistance takes unit u returns real
+            local integer id = GetUnitUserData(u)
+
+            if IsUnitType(u, UNIT_TYPE_HERO) and not check[id] then
+                set check[id] = true
+                set resistance[id] = resistance[id] + BASE_HERO_MAGIC_RESISTANCE
+            endif
+
+            return resistance[GetUnitUserData(u)]
+        endmethod
+
+        static method setResistance takes unit u, real value returns real
+            set resistance[GetUnitUserData(u)] = value
+
+            return value
+        endmethod
+    endstruct
+
+    // struct Block
+
+    // endstruct
+endlibrary
