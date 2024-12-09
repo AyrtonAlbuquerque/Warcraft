@@ -1,4 +1,4 @@
-library DamageInterface requires Table, Indexer
+library DamageInterface requires Table, Indexer, Utilities
     /* --------------------------- DamageInterface v3.0 by Chopinski --------------------------- */
     // Allows for easy registration of specific damage type events like on attack
     // damage or on spell damage, etc...
@@ -143,76 +143,61 @@ library DamageInterface requires Table, Indexer
         call Critical.add(u, chance, multiplier)
     endfunction
 
+    /* ------------------------------------ Magic Resistance ----------------------------------- */
+    function GetUnitMagicResistance takes unit u returns real
+        return MagicResistance.get(u)
+    endfunction
+
+    function SetUnitMagicResistance takes unit u, real value returns real
+        return MagicResistance.Set(u, value)
+    endfunction
+
+    function UnitAddMagicResistance takes unit u, real value returns real
+        return MagicResistance.Set(u, MagicResistance.get(u) + value)
+    endfunction
+
     /* ----------------------------------- Armor Penetration ----------------------------------- */
-    function GetUnitArmorPenetration takes unit u returns real
-        return ArmorPenetration.get(u)
+    function GetUnitArmorPenetration takes unit u, boolean flat returns real
+        return ArmorPenetration.get(u, flat)
     endfunction
 
-    function SetUnitArmorPenetration takes unit u, real value returns real
-        return ArmorPenetration.Set(u, value)
+    function SetUnitArmorPenetration takes unit u, real value, boolean flat returns real
+        return ArmorPenetration.Set(u, value, flat)
     endfunction
 
-    function UnitAddArmorPenetration takes unit u, real value returns real
-        return ArmorPenetration.Set(u, ArmorPenetration.get(u) + value)
-    endfunction
-
-    function GetUnitArmorPenetrationFlat takes unit u returns real
-        return ArmorPenetration.getFlat(u)
-    endfunction
-
-    function SetUnitArmorPenetrationFlat takes unit u, real value returns real
-        return ArmorPenetration.setFlat(u, value)
-    endfunction
-
-    function UnitAddArmorPenetrationFlat takes unit u, real value returns real
-        return ArmorPenetration.setFlat(u, ArmorPenetration.getFlat(u) + value)
+    function UnitAddArmorPenetration takes unit u, real value, boolean flat returns real
+        return ArmorPenetration.Set(u, ArmorPenetration.get(u, flat) + value, flat)
     endfunction
     
-    function ArmorReduction takes unit source, unit target returns real
-        local real armor = (BlzGetUnitArmor(target) - GetUnitArmorPenetrationFlat(source)) * (1 - GetUnitArmorPenetration(source))
+    function GetArmorReduction takes unit source, unit target returns real
+        local real armor = BlzGetUnitArmor(target) - GetUnitArmorPenetration(source, true)
+
+        if armor > 0 then
+            set armor = armor * (1 - GetUnitArmorPenetration(source, false))
+        endif
 
         return (armor * 0.04) / (1 + (armor * 0.04))
     endfunction
 
     /* ----------------------------------- Magic Penetration ----------------------------------- */
-    function GetUnitMagicResistance takes unit u returns real
-        return MagicPenetration.getResistance(u)
+    function GetUnitMagicPenetration takes unit u, boolean flat returns real
+        return MagicPenetration.get(u, flat)
     endfunction
 
-    function SetUnitMagicResistance takes unit u, real value returns real
-        return MagicPenetration.setResistance(u, value)
+    function SetUnitMagicPenetration takes unit u, real value, boolean flat returns real
+        return MagicPenetration.Set(u, value, flat)
     endfunction
 
-    function UnitAddMagicResistance takes unit u, real value returns real
-        return MagicPenetration.setResistance(u, MagicPenetration.getResistance(u) + value)
-    endfunction
-    
-    function GetUnitMagicPenetration takes unit u returns real
-        return MagicPenetration.get(u)
+    function UnitAddMagicPenetration takes unit u, real value, boolean flat returns real
+        return MagicPenetration.Set(u, MagicPenetration.get(u, flat) + value, flat)
     endfunction
 
-    function SetUnitMagicPenetration takes unit u, real value returns real
-        return MagicPenetration.Set(u, value)
-    endfunction
+    function GetMagicReduction takes unit source, unit target returns real
+        local real magic = GetUnitMagicResistance(target) - GetUnitMagicPenetration(source, true)
 
-    function UnitAddMagicPenetration takes unit u, real value returns real
-        return MagicPenetration.Set(u, MagicPenetration.get(u) + value)
-    endfunction
-
-    function GetUnitMagicPenetrationFlat takes unit u returns real
-        return MagicPenetration.getFlat(u)
-    endfunction
-
-    function SetUnitMagicPenetrationFlat takes unit u, real value returns real
-        return MagicPenetration.setFlat(u, value)
-    endfunction
-
-    function UnitAddMagicPenetrationFlat takes unit u, real value returns real
-        return MagicPenetration.setFlat(u, MagicPenetration.getFlat(u) + value)
-    endfunction
-
-    function MagicReduction takes unit source, unit target returns real
-        local real magic = (GetUnitMagicResistance(target) - GetUnitMagicPenetrationFlat(source)) * (1 - GetUnitMagicPenetration(source))
+        if magic > 0 then
+            set magic = magic * (1 - GetUnitMagicPenetration(source, false))
+        endif
 
         return (magic * 0.04) / (1 + (magic * 0.04))
     endfunction
@@ -220,15 +205,6 @@ library DamageInterface requires Table, Indexer
     /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
-    private function R2SW4 takes real value returns string
-        local string output = ""
-        local integer four_off = ModuloInteger(R2I(RAbsBJ(value / 0.0001)), 10)
-        local integer three_off = ModuloInteger(R2I(RAbsBJ(value / 0.001)), 10)
-        local integer two_off = ModuloInteger(R2I(RAbsBJ(value / 0.01)), 10)
-        local integer on_off = ModuloInteger(R2I(RAbsBJ(value / 0.1)), 10)
-        return I2S(R2I(value)) + "." + I2S(on_off) + I2S(two_off) + I2S(three_off) + I2S(four_off)
-    endfunction
-    
     private struct Unit
         private static location location = Location(0, 0)
 
@@ -449,23 +425,23 @@ library DamageInterface requires Table, Indexer
 
             call TriggerEvaluate(anyBefore)
 
-            // call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "onDamaging: " + I2S(R2I(amount)) + " Key = " + I2S(key))
+            // call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "onDamaging: " + R2SF(amount, 4) + " Key = " + I2S(key))
         endmethod
 
         private static method onDamage takes nothing returns nothing
             local integer i
             local integer j
             local thistype this = key
+            local real premitigation = damage
+
+            set damage = GetEventDamage()
 
             if damagetype != DAMAGE_TYPE_UNKNOWN then
                 set i = GetHandleId(attacktype)
                 set j = GetHandleId(damagetype)
 
                 if isSpell then
-                    call ClearTextMessages()
-                    call BJDebugMsg("Pre Mitigation Magic: \n" + "Magic Resistance: " + R2SW4(GetUnitMagicResistance(target.unit)) + "\nMagic Penatration: " + R2SW4(GetUnitMagicPenetration(source.unit)) + "\nMagic Penetration Flat: " + R2SW4(GetUnitMagicPenetrationFlat(source.unit)) + "\nMagic Reduction: " + R2SW4(MagicReduction(source.unit, target.unit)) + "\nDamage: " + R2SW4(amount))
-                    set amount = damage * (1 - MagicReduction(source.unit, target.unit))
-                    call BJDebugMsg("Pos Mitigation Magic: " + R2SW4(amount))
+                    set amount = premitigation * (1 - GetMagicReduction(source.unit, target.unit))
 
                     if after[i].trigger.has(0) then
                         call TriggerEvaluate(after[i].trigger[0])
@@ -473,10 +449,7 @@ library DamageInterface requires Table, Indexer
                 endif
 
                 if isAttack and not evade then
-                    call ClearTextMessages()
-                    call BJDebugMsg("Pre Mitigation Physical: \n" + "Armor: " + R2SW4(BlzGetUnitArmor(target.unit)) + "\nArmor Penatration: " + R2SW4(GetUnitArmorPenetration(source.unit)) + "\nArmor Penetration Flat: " + R2SW4(GetUnitArmorPenetrationFlat(source.unit)) + "\nArmor Reduction: " + R2SW4(ArmorReduction(source.unit, target.unit)) + "\nDamage: " + R2SW4(amount))
-                    set amount = damage * (1 - ArmorReduction(source.unit, target.unit))
-                    call BJDebugMsg("Pos Mitigation Physical: " + R2SW4(amount))
+                    set amount = premitigation * (1 - GetArmorReduction(source.unit, target.unit))
 
                     if after[0].trigger.has(j) then
                         call TriggerEvaluate(after[0].trigger[j])
@@ -489,8 +462,9 @@ library DamageInterface requires Table, Indexer
             endif
 
             call TriggerEvaluate(anyAfter)
+            call BlzSetEventDamage(damage)
 
-            // call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "onDamage: " + I2S(R2I(amount)) + " Key = " + I2S(key))
+            // call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "onDamage: " + R2SF(amount, 4) + " Key = " + I2S(key))
 
             call destroy()
         endmethod
@@ -652,55 +626,53 @@ library DamageInterface requires Table, Indexer
         readonly static real array flat
         readonly static real array percent
 
-        static method get takes unit u returns real
-            return percent[GetUnitUserData(u)]
+        static method get takes unit u, boolean isFlat returns real
+            if isFlat then
+                return flat[GetUnitUserData(u)]
+            else
+                return percent[GetUnitUserData(u)]
+            endif
         endmethod
 
-        static method Set takes unit u, real value returns real
-            set percent[GetUnitUserData(u)] = value
-
-            return value
-        endmethod
-
-        static method getFlat takes unit u returns real
-            return flat[GetUnitUserData(u)]
-        endmethod
-
-        static method setFlat takes unit u, real value returns real
-            set flat[GetUnitUserData(u)] = value
+        static method Set takes unit u, real value, boolean isFlat returns real
+            if isFlat then
+                set flat[GetUnitUserData(u)] = value
+            else
+                set percent[GetUnitUserData(u)] = value
+            endif
 
             return value
         endmethod
     endstruct
 
     struct MagicPenetration
-        private static boolean array check
-
         readonly static real array flat
         readonly static real array percent
+
+        static method get takes unit u, boolean isFlat returns real
+            if isFlat then
+                return flat[GetUnitUserData(u)]
+            else
+                return percent[GetUnitUserData(u)]
+            endif
+        endmethod
+
+        static method Set takes unit u, real value, boolean isFlat returns real
+            if isFlat then
+                set flat[GetUnitUserData(u)] = value
+            else
+                set percent[GetUnitUserData(u)] = value
+            endif
+
+            return value
+        endmethod
+    endstruct
+
+    struct MagicResistance
+        private static boolean array check
         readonly static real array resistance
 
         static method get takes unit u returns real
-            return percent[GetUnitUserData(u)]
-        endmethod
-
-        static method Set takes unit u, real value returns real
-            set percent[GetUnitUserData(u)] = value
-
-            return value
-        endmethod
-
-        static method getFlat takes unit u returns real
-            return flat[GetUnitUserData(u)]
-        endmethod
-
-        static method setFlat takes unit u, real value returns real
-            set flat[GetUnitUserData(u)] = value
-
-            return value
-        endmethod
-
-        static method getResistance takes unit u returns real
             local integer id = GetUnitUserData(u)
 
             if IsUnitType(u, UNIT_TYPE_HERO) and not check[id] then
@@ -711,7 +683,7 @@ library DamageInterface requires Table, Indexer
             return resistance[GetUnitUserData(u)]
         endmethod
 
-        static method setResistance takes unit u, real value returns real
+        static method Set takes unit u, real value returns real
             set resistance[GetUnitUserData(u)] = value
 
             return value

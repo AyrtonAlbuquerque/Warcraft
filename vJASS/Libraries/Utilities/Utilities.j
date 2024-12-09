@@ -133,6 +133,39 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
         return I2S(R2I(r))
     endfunction
 
+    // Workaround for patch 2.0 R2S bug
+    function R2SF takes real value, integer precision returns string
+        local integer i
+        local integer digit
+        local string result
+        local string sign = ""
+    
+        if value < 0 then
+            set sign = "-"
+            set value = RAbsBJ(value)
+        endif
+    
+        set result = sign + I2S(R2I(value))
+    
+        if precision <= 0 then
+            return result
+        endif
+    
+        set result = result + "."
+        set value = value - R2I(value) 
+
+        loop
+            exitwhen precision <= 0
+                set value = value * 10
+                set digit = R2I(value)
+                set result = result + I2S(digit)
+                set value = value - digit
+            set precision = precision - 1
+        endloop
+    
+        return result
+    endfunction
+
     // Spams the specified effect model at a location with the given interval for the number of times count
     function SpamEffect takes string model, real x, real y, real z, real scale, real interval, integer count returns nothing
         call EffectSpam.spam(null, model, "", x, y, z, scale, interval, count)
