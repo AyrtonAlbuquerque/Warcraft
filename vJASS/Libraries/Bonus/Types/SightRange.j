@@ -8,6 +8,11 @@ scope SightRange
         private static constant abilityintegerlevelfield field = ABILITY_ILF_SIGHT_RANGE_BONUS
     
         method get takes unit u returns real
+            if GetUnitAbilityLevel(u, ability) == 0 then
+                call UnitAddAbility(u, ability)
+                call UnitMakeAbilityPermanent(u, true, ability)
+            endif
+
             return I2R(BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(u, ability), field, 0))
         endmethod
 
@@ -29,13 +34,18 @@ scope SightRange
         endmethod
 
         method add takes unit u, real value returns real
-            local real current = get(u)
+            set value = overflow(get(u), value)
+            
+            call BlzSetUnitRealField(u, UNIT_RF_SIGHT_RADIUS, (BlzGetUnitRealField(u, UNIT_RF_SIGHT_RADIUS) + value))
 
-            set value = overflow(current, R2I(value))
+            if BlzSetAbilityIntegerLevelField(BlzGetUnitAbility(u, ability), field, 0, BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(u, ability), field, 0) + R2I(value)) then
+                call IncUnitAbilityLevel(u, ability)
+                call DecUnitAbilityLevel(u, ability)
 
-            call Set(u, current + value)
-
-            return value
+                return value
+            else
+                return 0.
+            endif
         endmethod
     
         private static method onInit takes nothing returns nothing

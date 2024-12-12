@@ -8,6 +8,11 @@ scope Health
         private static constant abilityintegerlevelfield field = ABILITY_ILF_MAX_LIFE_GAINED
     
         method get takes unit u returns real
+            if GetUnitAbilityLevel(u, ability) == 0 then
+                call UnitAddAbility(u, ability)
+                call UnitMakeAbilityPermanent(u, true, ability)
+            endif
+
             return I2R(BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(u, ability), field, 0))
         endmethod
 
@@ -32,13 +37,21 @@ scope Health
         endmethod
 
         method add takes unit u, real value returns real
-            local real current = get(u)
+            local real percentage = GetUnitLifePercent(u)
 
-            set value = overflow(current, R2I(value))
+            set value = overflow(get(u), value)
+            
+            call BlzSetUnitMaxHP(u, R2I(BlzGetUnitMaxHP(u) + value))
+            call SetUnitLifePercentBJ(u, percentage)
 
-            call Set(u, current + value)
+            if BlzSetAbilityIntegerLevelField(BlzGetUnitAbility(u, ability), field, 0, BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(u, ability), field, 0) + R2I(value)) then
+                call IncUnitAbilityLevel(u, ability)
+                call DecUnitAbilityLevel(u, ability)
 
-            return value
+                return value
+            else
+                return 0.
+            endif
         endmethod
     
         private static method onInit takes nothing returns nothing
