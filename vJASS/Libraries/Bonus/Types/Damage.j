@@ -24,11 +24,11 @@ scope DamageBonus
         
             return I2R(BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(u, ability), field, 0))
         endmethod
-
+        
         method add takes unit u, real value returns real
             local real current = get(u)
 
-            set value = overflow(current, R2I(value))
+            set value = overflow(current, value)
 
             call Set(u, current + value)
 

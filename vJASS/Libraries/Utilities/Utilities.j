@@ -1,5 +1,5 @@
 library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnitEvent
-    /* --------------------------------------- Utilities v1.9 --------------------------------------- */
+    /* --------------------------------------- Utilities v2.0 --------------------------------------- */
     // How to Import:
     // 1 - Copy this library into your map
     // 2 - Copy the dummy unit in object editor and match its raw code below
@@ -134,7 +134,7 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
     endfunction
 
     // Workaround for patch 2.0 R2S bug
-    function R2SF takes real value, integer precision returns string
+    function N2S takes real value, integer precision returns string
         local integer i
         local integer digit
         local string result

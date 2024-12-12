@@ -1,16 +1,6 @@
 library NewBonus requires Table, Periodic
     /* ---------------------------------------- NewBonus v3.0 --------------------------------------- */
-    // Since ObjectMerger is broken and we still have no means to edit
-    // bonus values (green values) i decided to create a light weight
-    // Bonus library that works in the same way that the original Bonus Mod
-    // by Earth Fury did. NewBonus requires patch 1.30+.
     // Credits to Earth Fury for the original Bonus idea
-
-    // How to Import?
-    // Importing bonus mod is really simple. Just copy the 9 abilities with the
-    // prefix "NewBonus" from the Object Editor into your map and match their new raw
-    // code to the bonus types in the global block below. Then create a trigger called
-    // NewBonus, convert it to custom text and paste this code there. You done!
     /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
     /* ---------------------------------------------------------------------------------------------- */
@@ -33,8 +23,8 @@ library NewBonus requires Table, Periodic
     endinterface
 
     struct Bonus extends BonusType
-        private static Table table
-        private static integer key = 0
+        private static HashTable table
+        readonly static integer key = 0
         private static integer index = -1
         private static integer array array
         private static trigger array event
@@ -47,9 +37,9 @@ library NewBonus requires Table, Periodic
         private integer buff
         private integer bonus
 
-        static unit unit
-        static real amount
-        static integer type
+        static unit array unit
+        static real array amount
+        static integer array type
 
         method destroy takes nothing returns nothing
             call adder(source, bonus, -value)
@@ -92,19 +82,17 @@ library NewBonus requires Table, Periodic
             
             if this != 0 then
                 if Set.exists then
-                    set type = bonus
-                    set unit = source
-                    set amount = value
+                    set type[key] = bonus
+                    set unit[key] = source
+                    set amount[key] = value
                     
-                    call onEvent()
-                    
-                    if type != bonus then
-                        return setter(unit, type, amount)
+                    call onEvent(key)
+
+                    if type[key] != bonus then
+                        return setter(unit[key], type[key], amount[key])
                     endif
 
-                    set key = 0
-
-                    return Set(unit, amount)
+                    return Set(unit[key], amount[key])
                 endif
             else
                 call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Invalid Bonus Type")
@@ -118,19 +106,17 @@ library NewBonus requires Table, Periodic
 
             if this != 0 and value != 0 then
                 if add.exists then
-                    set type = bonus
-                    set unit = source
-                    set amount = value
+                    set type[key] = bonus
+                    set unit[key] = source
+                    set amount[key] = value
                     
-                    call onEvent()
-                    
-                    if type != bonus then
-                        return adder(unit, type, amount)
+                    call onEvent(key)
+
+                    if type[key] != bonus then
+                        return adder(unit[key], type[key], amount[key])
                     endif
-
-                    set key = 0
-
-                    return add(unit, amount)
+                    
+                    return add(unit[key], amount[key])
                 endif
             else
                 call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Invalid Bonus Type")
@@ -167,8 +153,8 @@ library NewBonus requires Table, Periodic
             if amount != 0 then
                 set this = thistype.allocate()
                 set this.value = adder(source, bonus, amount)
-                set this.source = source
-                set this.bonus = type
+                set this.source = unit[key]
+                set this.bonus = type[key]
             
                 call StartTimer(duration, false, this, -1)
             endif
@@ -180,8 +166,8 @@ library NewBonus requires Table, Periodic
             if amount != 0 then
                 set this = thistype.allocate()
                 set this.value = adder(source, bonus, amount)
-                set this.source = source
-                set this.bonus = type
+                set this.source = unit[key]
+                set this.bonus = type[key]
                 set this.buff = id
             
                 call StartTimer(0.03125, true, this, -1)
@@ -190,14 +176,24 @@ library NewBonus requires Table, Periodic
 
         static method linkItem takes unit source, integer bonus, real amount, item i returns nothing
             local thistype this
+            local integer j = 0
+            local integer id = GetHandleId(i)
             
             if amount != 0 then
                 set this = thistype.allocate()
                 set this.value = adder(source, bonus, amount)
-                set this.source = source
-                set this.bonus = type
+                set this.source = unit[key]
+                set this.bonus = type[key]
                 set this.item = i
-                set table[GetHandleId(i)] = this
+
+                loop
+                    if not table[id].has(j) then
+                        set table[id][j] = this
+                        exitwhen true
+                    endif
+                    
+                    set j = j + 1
+                endloop
             endif
         endmethod
 
@@ -225,32 +221,39 @@ library NewBonus requires Table, Periodic
             return GetUnitAbilityLevel(source, buff) > 0
         endmethod
 
-        private static method onEvent takes nothing returns nothing
-            set key = key + 1
-            
+        private static method onEvent takes integer key returns nothing
+            set .key = .key + 1
+
             if key <= RECURSION_LIMIT then
-                if event[type] != null then
-                    call TriggerEvaluate(event[type])
+                if event[type[key]] != null then
+                    call TriggerEvaluate(event[type[key]])
                 endif
 
                 call TriggerEvaluate(trigger)
             endif
+
+            set .key = .key - 1
         endmethod
 
         private static method onDrop takes nothing returns nothing
+            local thistype this
+            local integer i = 0
             local integer id = GetHandleId(GetManipulatedItem())
-            local thistype this = table[id]
 
-            if this != 0 then
-                call table.remove(id)
-                call destroy()
-            endif
+            loop
+                exitwhen not table[id].has(i)
+                    set this = table[id][i]
+
+                    call destroy()
+                    call table[id].remove(i)
+                set i = i + 1
+            endloop
         endmethod
 
         implement Periodic
 
         private static method onInit takes nothing returns nothing
-            set table = Table.create()
+            set table = HashTable.create()
 
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function thistype.onDrop)
         endmethod
@@ -272,23 +275,23 @@ library NewBonus requires Table, Periodic
     endfunction
     
     function GetBonusUnit takes nothing returns unit
-        return Bonus.unit
+        return Bonus.unit[Bonus.key - 1]
     endfunction
     
     function GetBonusType takes nothing returns integer
-        return Bonus.type
+        return Bonus.type[Bonus.key - 1]
     endfunction
     
     function SetBonusType takes integer bonus returns nothing
-        set Bonus.type = bonus
+        set Bonus.type[Bonus.key - 1] = bonus
     endfunction
     
     function GetBonusAmount takes nothing returns real
-        return Bonus.amount
+        return Bonus.amount[Bonus.key - 1]
     endfunction
     
     function SetBonusAmount takes real amount returns nothing
-        set Bonus.amount = amount
+        set Bonus.amount[Bonus.key - 1] = amount
     endfunction
 
     function GetUnitBonus takes unit source, integer bonus returns real

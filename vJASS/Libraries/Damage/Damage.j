@@ -1,4 +1,4 @@
-library DamageInterface requires Table, Indexer, Utilities
+library DamageInterface requires Table
     /* --------------------------- DamageInterface v3.0 by Chopinski --------------------------- */
     // Allows for easy registration of specific damage type events like on attack
     // damage or on spell damage, etc...
@@ -10,7 +10,7 @@ library DamageInterface requires Table, Indexer, Utilities
         // Set to true to enable evasion system
         private constant boolean USE_EVASION = true
         // Heroes base magic resistance, which with the current formula equates to aproximately 24% magic resistance
-        private constant real BASE_HERO_MAGIC_RESISTANCE = 8
+        private constant real BASE_HERO_MAGIC_RESISTANCE = 5
     endglobals
 
     /* ----------------------------------------------------------------------------------------- */
@@ -176,7 +176,7 @@ library DamageInterface requires Table, Indexer, Utilities
             set armor = armor * (1 - GetUnitArmorPenetration(source, false))
         endif
 
-        return (armor * 0.04) / (1 + (armor * 0.04))
+        return (armor * 0.06) / (1 + (armor * 0.06))
     endfunction
 
     /* ----------------------------------- Magic Penetration ----------------------------------- */
@@ -199,7 +199,7 @@ library DamageInterface requires Table, Indexer, Utilities
             set magic = magic * (1 - GetUnitMagicPenetration(source, false))
         endif
 
-        return (magic * 0.04) / (1 + (magic * 0.04))
+        return (magic * 0.06) / (1 + (magic * 0.06))
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */
@@ -424,8 +424,6 @@ library DamageInterface requires Table, Indexer, Utilities
             endif
 
             call TriggerEvaluate(anyBefore)
-
-            // call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "onDamaging: " + R2SF(amount, 4) + " Key = " + I2S(key))
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -463,9 +461,6 @@ library DamageInterface requires Table, Indexer, Utilities
 
             call TriggerEvaluate(anyAfter)
             call BlzSetEventDamage(damage)
-
-            // call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "onDamage: " + R2SF(amount, 4) + " Key = " + I2S(key))
-
             call destroy()
         endmethod
 
@@ -689,8 +684,4 @@ library DamageInterface requires Table, Indexer, Utilities
             return value
         endmethod
     endstruct
-
-    // struct Block
-
-    // endstruct
 endlibrary
