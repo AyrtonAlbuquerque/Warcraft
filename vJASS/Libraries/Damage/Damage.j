@@ -232,12 +232,48 @@ library DamageInterface requires Table
             return GetUnitUserData(unit)
         endmethod
 
+        method operator type takes nothing returns integer
+            return GetUnitTypeId(unit)
+        endmethod
+
         method operator handle takes nothing returns integer
             return GetHandleId(unit)
         endmethod
 
         method operator player takes nothing returns player
             return GetOwningPlayer(unit)
+        endmethod
+
+        method operator armor takes nothing returns real
+            return BlzGetUnitArmor(unit)
+        endmethod
+
+        method operator mana takes nothing returns real
+            return GetUnitState(unit, UNIT_STATE_MANA)
+        endmethod
+
+        method operator health takes nothing returns real
+            return GetWidgetLife(unit)
+        endmethod
+
+        method operator agility takes nothing returns integer
+            return GetHeroAgi(unit, true)
+        endmethod
+
+        method operator strength takes nothing returns integer
+            return GetHeroStr(unit, true)
+        endmethod
+
+        method operator intelligence takes nothing returns integer
+            return GetHeroInt(unit, true)
+        endmethod
+
+        method operator armortype takes nothing returns armortype
+            return ConvertArmorType(BlzGetUnitIntegerField(unit, UNIT_IF_ARMOR_TYPE))
+        endmethod
+
+        method operator defensetype takes nothing returns defensetype
+            return ConvertDefenseType(BlzGetUnitIntegerField(unit, UNIT_IF_DEFENSE_TYPE))
         endmethod
 
         method operator isHero takes nothing returns boolean
@@ -250,6 +286,10 @@ library DamageInterface requires Table
 
         method operator isRanged takes nothing returns boolean
             return IsUnitType(unit, UNIT_TYPE_RANGED_ATTACKER)
+        endmethod
+
+        method operator isSummoned takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_SUMMONED)
         endmethod
 
         method operator isStructure takes nothing returns boolean
@@ -356,7 +396,7 @@ library DamageInterface requires Table
         endmethod
 
         static method operator isAttack takes nothing returns boolean
-            return damagetype == DAMAGE_TYPE_NORMAL
+            return damagetype == DAMAGE_TYPE_NORMAL or BlzGetEventIsAttack()
         endmethod
 
         static method register takes attacktype attack, damagetype damage, code c, boolean posmitigation returns nothing
