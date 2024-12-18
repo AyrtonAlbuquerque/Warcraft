@@ -5,7 +5,7 @@ scope ArcTrinity
         // Attributes
         real damage = 2000
         real criticalDamage = 3
-        real criticalChance = -30
+        real criticalChance = -0.3
 
         private unit unit
         private integer duration

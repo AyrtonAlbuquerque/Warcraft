@@ -16,7 +16,7 @@ scope EntityScythe
         real agility = 375
         real strength = 375
         real intelligence = 375
-        real spellPowerFlat = 500
+        real spellPower = 500
         real movementSpeed = 50
         
         static method add takes unit target, boolean hero returns nothing
@@ -29,7 +29,7 @@ scope EntityScythe
     
             set bonus[index] = bonus[index] + amount
 
-            call UnitAddSpellPowerFlat(target, amount)
+            call AddUnitBonus(target, BONUS_SPELL_POWER, amount)
             call UnitAddStat(target, amount, amount, amount)
         endmethod
 

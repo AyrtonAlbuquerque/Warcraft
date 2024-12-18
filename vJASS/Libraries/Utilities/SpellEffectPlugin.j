@@ -1,22 +1,105 @@
 library PluginSpellEffect requires RegisterPlayerUnitEvent
-    /* ------------------- SpellEffectPlugin v1.2 by Chopinski ------------------ */
-    // Simple plugin for the SpellEffectEvent library by Bribe to cache some usefull
+    /* ------------------- SpellEffectPlugin v1.3 by Chopinski ------------------ */
+    // Simple plugin for the SpellEffectEvent library by Bribe to access some usefull
     // values.
 
     // Credits to Bribe and Magtheridon96
     /* ----------------------------------- END ---------------------------------- */
+    private struct Unit
+        private static location location = Location(0, 0)
 
-    private struct SUnit
-        unit    unit
-        player  player
-        integer handle
-        boolean isHero
-        boolean isStructure
-        integer id
-        real    x
-        real    y
-        real    z
+        unit unit
         
+        method destroy takes nothing returns nothing
+            set unit = null
+            call deallocate()
+        endmethod
+
+        method operator x takes nothing returns real
+            return GetUnitX(unit)
+        endmethod
+
+        method operator y takes nothing returns real
+            return GetUnitY(unit)
+        endmethod
+
+        method operator z takes nothing returns real
+            call MoveLocation(location, GetUnitX(unit), GetUnitY(unit))
+            return GetUnitFlyHeight(unit) + GetLocationZ(location)
+        endmethod
+
+        method operator id takes nothing returns integer
+            return GetUnitUserData(unit)
+        endmethod
+
+        method operator type takes nothing returns integer
+            return GetUnitTypeId(unit)
+        endmethod
+
+        method operator handle takes nothing returns integer
+            return GetHandleId(unit)
+        endmethod
+
+        method operator player takes nothing returns player
+            return GetOwningPlayer(unit)
+        endmethod
+
+        method operator armor takes nothing returns real
+            return BlzGetUnitArmor(unit)
+        endmethod
+
+        method operator mana takes nothing returns real
+            return GetUnitState(unit, UNIT_STATE_MANA)
+        endmethod
+
+        method operator health takes nothing returns real
+            return GetWidgetLife(unit)
+        endmethod
+
+        method operator agility takes nothing returns integer
+            return GetHeroAgi(unit, true)
+        endmethod
+
+        method operator strength takes nothing returns integer
+            return GetHeroStr(unit, true)
+        endmethod
+
+        method operator intelligence takes nothing returns integer
+            return GetHeroInt(unit, true)
+        endmethod
+
+        method operator armortype takes nothing returns armortype
+            return ConvertArmorType(BlzGetUnitIntegerField(unit, UNIT_IF_ARMOR_TYPE))
+        endmethod
+
+        method operator defensetype takes nothing returns defensetype
+            return ConvertDefenseType(BlzGetUnitIntegerField(unit, UNIT_IF_DEFENSE_TYPE))
+        endmethod
+
+        method operator isHero takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_HERO)
+        endmethod
+
+        method operator isMelee takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_MELEE_ATTACKER)
+        endmethod
+
+        method operator isRanged takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_RANGED_ATTACKER)
+        endmethod
+
+        method operator isSummoned takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_SUMMONED)
+        endmethod
+
+        method operator isStructure takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_STRUCTURE)
+        endmethod
+
+        method operator isMagicImmune takes nothing returns boolean
+            return IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE)
+        endmethod
+
         static method create takes nothing returns thistype
             return thistype.allocate()
         endmethod
@@ -24,63 +107,49 @@ library PluginSpellEffect requires RegisterPlayerUnitEvent
     
     private module Event
         readonly static location location = Location(0, 0)
-        readonly static SUnit    source
-        readonly static SUnit    target
-        readonly static ability  ability
-        readonly static integer  level
-        readonly static integer  id
-        readonly static real     x
-        readonly static real     y
-        readonly static real     z
+        readonly static Unit source
+        readonly static Unit target
 
-        private static method GetUnitZ takes unit u returns real
-            call MoveLocation(location, GetUnitX(u), GetUnitY(u))
-            return GetUnitFlyHeight(u) + GetLocationZ(location)
+        static method operator x takes nothing returns real
+            return GetSpellTargetX()
         endmethod
 
-        private static method GetSpellTargetZ takes nothing returns real
+        static method operator y takes nothing returns real
+            return GetSpellTargetY()
+        endmethod
+
+        static method operator z takes nothing returns real
             call MoveLocation(location, x, y)
+
             if target.unit != null then
-                return GetUnitZ(target.unit)
+                return target.z
             else
                 return GetLocationZ(location)
             endif
         endmethod
 
+        static method operator id takes nothing returns integer
+            return GetSpellAbilityId()
+        endmethod
+
+        static method operator level takes nothing returns integer
+            return GetUnitAbilityLevel(source.unit, id)
+        endmethod
+
+        static method operator ability takes nothing returns ability
+            return BlzGetUnitAbility(source.unit, id)
+        endmethod
+
         private static method onCast takes nothing returns nothing
             if GetUnitAbilityLevel(GetTriggerUnit(), 'Aloc') == 0 then
-                set source.unit   = GetTriggerUnit()
-                set source.player = GetOwningPlayer(source.unit)
-                set source.handle = GetHandleId(source.unit)
-                set source.id     = GetUnitUserData(source.unit)
-                set source.x      = GetUnitX(source.unit)
-                set source.y      = GetUnitY(source.unit)
-                set source.z      = GetUnitZ(source.unit)
-                set source.isHero = IsUnitType(source.unit, UNIT_TYPE_HERO)
-                set source.isStructure = IsUnitType(source.unit, UNIT_TYPE_STRUCTURE)
-                
-                set target.unit   = GetSpellTargetUnit()
-                set target.player = GetOwningPlayer(target.unit)
-                set target.handle = GetHandleId(target.unit)
-                set target.id     = GetUnitUserData(target.unit)
-                set target.x      = GetUnitX(target.unit)
-                set target.y      = GetUnitY(target.unit)
-                set target.z      = GetUnitZ(target.unit)
-                set target.isHero = IsUnitType(target.unit, UNIT_TYPE_HERO)
-                set target.isStructure = IsUnitType(target.unit, UNIT_TYPE_STRUCTURE)
-                
-                set x             = GetSpellTargetX()
-                set y             = GetSpellTargetY()
-                set z             = GetSpellTargetZ()
-                set id            = GetSpellAbilityId()
-                set level         = GetUnitAbilityLevel(source.unit, id)
-                set ability       = BlzGetUnitAbility(source.unit, id)
+                set source.unit = GetTriggerUnit()
+                set target.unit = GetSpellTargetUnit()
             endif
         endmethod
 
         private static method onInit takes nothing returns nothing
-            set source = SUnit.create()
-            set target = SUnit.create()
+            set source = Unit.create()
+            set target = Unit.create()
         
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCast)
         endmethod

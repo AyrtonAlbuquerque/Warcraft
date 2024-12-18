@@ -1,0 +1,963 @@
+﻿STRING 1
+{
+Player 1
+}
+
+STRING 2
+{
+Force 1
+}
+
+STRING 3
+{
+Ragnaros Hero Concept
+}
+
+STRING 4
+{
+Any
+}
+
+STRING 6
+{
+Chopinski
+}
+
+STRING 7
+// Abilities: Z001 (NewBonus - Damage), Name (Name)
+{
+NewBonus - Damage
+}
+
+STRING 8
+// Abilities: Z002 (NewBonus - Armor), Name (Name)
+{
+NewBonus - Armor
+}
+
+STRING 9
+// Abilities: Z003 (NewBonus - Stats), Name (Name)
+{
+NewBonus - Stats
+}
+
+STRING 10
+// Abilities: Z004 (NewBonus - Health), Name (Name)
+{
+NewBonus - Health
+}
+
+STRING 11
+// Abilities: Z005 (NewBonus - Mana), Name (Name)
+{
+NewBonus - Mana
+}
+
+STRING 12
+// Abilities: Z006 (NewBonus - HealthRegen), Name (Name)
+{
+NewBonus - HealthRegen
+}
+
+STRING 13
+// Abilities: Z007 (NewBonus - Mana Regen), Name (Name)
+{
+NewBonus - Mana Regen
+}
+
+STRING 14
+// Abilities: Z008 (NewBonus - Attack Speed), Name (Name)
+{
+NewBonus - Attack Speed
+}
+
+STRING 15
+// Abilities: Z009 (NewBonus - MovementSpeed), Name (Name)
+{
+NewBonus - MovementSpeed
+}
+
+STRING 18
+// Units: H001 (Ragnaros), Name (Name)
+{
+Ragnaros
+}
+
+STRING 19
+// Units: H001 (Ragnaros), Propernames (Proper Names)
+{
+Ragnaros
+}
+
+STRING 20
+// Units: H001 (Ragnaros), Awakentip (Tooltip - Awaken)
+{
+Revive Ragnaros
+}
+
+STRING 21
+// Units: H001 (Ragnaros), Tip (Tooltip - Basic)
+{
+Summon Ragnaros
+}
+
+STRING 22
+// Units: H001 (Ragnaros), Ubertip (Tooltip - Extended)
+{
+Warrior/Spell Caster Hero, exceptional at holding fortress and fire spells
+}
+
+STRING 23
+// Units: H001 (Ragnaros), Revivetip (Tooltip - Revive)
+{
+Revive Ragnaros
+}
+
+STRING 25
+// Abilities: A000 (Sulfuras), Name (Name)
+{
+Sulfuras
+}
+
+STRING 26
+// Abilities: A000 (Sulfuras), Researchtip (Tooltip - Learn)
+{
+Learn Sulfuras
+}
+
+STRING 29
+// Abilities: A000 (Sulfuras), Tip (Tooltip - Normal)
+{
+Sulfuras
+}
+
+STRING 35
+// Abilities: A003 (Afterburner), Name (Name)
+{
+Afterburner
+}
+
+STRING 36
+// Abilities: A003 (Afterburner), Researchtip (Tooltip - Learn)
+{
+Afterburner
+}
+
+STRING 38
+// Abilities: A003 (Afterburner), Tip (Tooltip - Normal)
+{
+Afterburner
+}
+
+STRING 40
+// Abilities: A003 (Afterburner), Tip (Tooltip - Normal)
+{
+Afterburner
+}
+
+STRING 41
+// Abilities: A003 (Afterburner), Tip (Tooltip - Normal)
+{
+Afterburner
+}
+
+STRING 42
+// Abilities: A003 (Afterburner), Tip (Tooltip - Normal)
+{
+Afterburner
+}
+
+STRING 48
+// Abilities: A007 (Afterburner Proxy), Name (Name)
+{
+Afterburner Proxy
+}
+
+STRING 49
+// Abilities: A001 (Explosion Rune), Tip (Tooltip - Normal)
+{
+Explosion Rune
+}
+
+STRING 50
+// Abilities: A001 (Explosion Rune), Name (Name)
+{
+Explosion Rune
+}
+
+STRING 51
+// Abilities: A001 (Explosion Rune), Hotkey (Hotkey - Normal)
+{
+Q
+}
+
+STRING 53
+// Abilities: A001 (Explosion Rune), Tip (Tooltip - Normal)
+{
+Explosion Rune
+}
+
+STRING 54
+// Abilities: A001 (Explosion Rune), Tip (Tooltip - Normal)
+{
+Explosion Rune
+}
+
+STRING 55
+// Abilities: A001 (Explosion Rune), Tip (Tooltip - Normal)
+{
+Explosion Rune
+}
+
+STRING 56
+// Abilities: A001 (Explosion Rune), Researchtip (Tooltip - Learn)
+{
+Explosion Rune - [|cffffcc00Level %d|r]
+}
+
+STRING 61
+// Abilities: A001 (Explosion Rune), Researchhotkey (Hotkey - Learn)
+{
+Q
+}
+
+STRING 74
+// Abilities: A002 (Living Meteor), Tip (Tooltip - Normal)
+{
+Living Meteor [|cffffcc00Drag and Drop|r]
+}
+
+STRING 75
+// Abilities: A002 (Living Meteor), Name (Name)
+{
+Living Meteor
+}
+
+STRING 76
+// Abilities: A002 (Living Meteor), Hotkey (Hotkey - Normal)
+{
+W
+}
+
+STRING 78
+// Abilities: A002 (Living Meteor), Tip (Tooltip - Normal)
+{
+Living Meteor [|cffffcc00Drag and Drop|r]
+}
+
+STRING 79
+// Abilities: A002 (Living Meteor), Tip (Tooltip - Normal)
+{
+Living Meteor [|cffffcc00Drag and Drop|r]
+}
+
+STRING 80
+// Abilities: A002 (Living Meteor), Tip (Tooltip - Normal)
+{
+Living Meteor [|cffffcc00Drag and Drop|r]
+}
+
+STRING 86
+// Abilities: A002 (Living Meteor), Researchhotkey (Hotkey - Learn)
+{
+W
+}
+
+STRING 87
+// Units: o000 (Lava Elemental), Name (Name)
+{
+Lava Elemental
+}
+
+STRING 88
+// Abilities: A008 (Burning Oil), Ubertip (Tooltip - Normal - Extended)
+{
+Drenches the Lava Elemental attack in burning oil, causing them to light the ground on fire and burn enemy units.
+}
+
+STRING 89
+// Abilities: A000 (Sulfuras), Researchhotkey (Hotkey - Learn)
+{
+F
+}
+
+STRING 90
+// Abilities: A004 (Lava Elemental), Name (Name)
+{
+Lava Elemental
+}
+
+STRING 91
+// Abilities: A004 (Lava Elemental), Researchtip (Tooltip - Learn)
+{
+Learn Lava Elemental
+}
+
+STRING 92
+// Abilities: A004 (Lava Elemental), Researchubertip (Tooltip - Learn - Extended)
+{
+|cffffcc00Ragnaros|r summons a |cffffcc00Lava Elemental|r. This abiliy can be targeted in the |cffffcc00ground|r or |cffffcc00allied structure|r. When summoned in the ground, the |cffffcc00Lava Elemental|r has a life time of |cffffcc0060 seconds|r and this ability cooldown is set to |cffffcc0030 seconds|r. When targeted at an allied building, the |cffffcc00Lava Elemental|r takes that building place and lasts forever or until it dies and this ability cooldown is set to |cffffcc00120 seconds|r. All the damage that would be given to the structure is instead taken by the |cffffcc00Lava Elemental|r.
+
+|cffffcc00Lava Elemental|r damage is calculated based on Ragnaros |cffffcc00Sulfuras|r stacks and it's attacks burn the ground around the impact for |cff00ffff50 Magic|r damage per second for |cffffcc002 seconds|r.
+
+|cffffcc00Level 1|r - |cffffcc0050|r + |cffffcc0025%|r of |cffffcc00Sulfuras|r stacks.
+
+|cffffcc00Level 2|r - |cffffcc0050|r + |cffffcc0050%|r of |cffffcc00Sulfuras|r stacks.
+
+|cffffcc00Level 3|r - |cffffcc0050|r + |cffffcc0075%|r of |cffffcc00Sulfuras|r stacks.
+
+|cffffcc00Level 4|r - |cffffcc0050|r + |cffffcc00100%|r of |cffffcc00Sulfuras|r stacks.
+}
+
+STRING 93
+// Abilities: A004 (Lava Elemental), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r summons a |cffffcc00Lava Elemental|r. This abiliy can be targeted in the |cffffcc00ground|r or |cffffcc00allied structure|r. When summoned in the ground, the |cffffcc00Lava Elemental|r has a life time of |cffffcc0060 seconds|r and this ability cooldown is set to |cffffcc0030 seconds|r. When targeted at an allied building, the |cffffcc00Lava Elemental|r takes that building place and lasts forever or until it dies and this ability cooldown is set to |cffffcc00120 seconds|r. All the damage that would be given to the structure is instead taken by the |cffffcc00Lava Elemental|r.
+
+|cffffcc00Lava Elemental|r damage is (|cffffcc0050|r + |cffffcc0025%|r of |cffffcc00Sulfuras|r stacks) and it's attacks burn the ground around the impact for |cff00ffff50 Magic|r damage per second for |cffffcc002 seconds|r.
+}
+
+STRING 94
+// Abilities: A004 (Lava Elemental), Tip (Tooltip - Normal)
+{
+Lava Elemental - [|cffffcc00Level 1|r]
+}
+
+STRING 95
+// Abilities: A004 (Lava Elemental), Tip (Tooltip - Normal)
+{
+Lava Elemental - [|cffffcc00Level 2|r]
+}
+
+STRING 96
+// Abilities: A004 (Lava Elemental), Tip (Tooltip - Normal)
+{
+Lava Elemental - [|cffffcc00Level 3|r]
+}
+
+STRING 97
+// Abilities: A004 (Lava Elemental), Tip (Tooltip - Normal)
+{
+Lava Elemental - [|cffffcc00Level 4|r]
+}
+
+STRING 98
+// Abilities: A004 (Lava Elemental), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r summons a |cffffcc00Lava Elemental|r. This abiliy can be targeted in the |cffffcc00ground|r or |cffffcc00allied structure|r. When summoned in the ground, the |cffffcc00Lava Elemental|r has a life time of |cffffcc0060 seconds|r and this ability cooldown is set to |cffffcc0030 seconds|r. When targeted at an allied building, the |cffffcc00Lava Elemental|r takes that building place and lasts forever or until it dies and this ability cooldown is set to |cffffcc00120 seconds|r. All the damage that would be given to the structure is instead taken by the |cffffcc00Lava Elemental|r.
+
+|cffffcc00Lava Elemental|r damage is (|cffffcc0050|r + |cffffcc0050%|r of |cffffcc00Sulfuras|r stacks) and it's attacks burn the ground around the impact for |cff00ffff50 Magic|r damage per second for |cffffcc002 seconds|r.
+}
+
+STRING 99
+// Abilities: A004 (Lava Elemental), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r summons a |cffffcc00Lava Elemental|r. This abiliy can be targeted in the |cffffcc00ground|r or |cffffcc00allied structure|r. When summoned in the ground, the |cffffcc00Lava Elemental|r has a life time of |cffffcc0060 seconds|r and this ability cooldown is set to |cffffcc0030 seconds|r. When targeted at an allied building, the |cffffcc00Lava Elemental|r takes that building place and lasts forever or until it dies and this ability cooldown is set to |cffffcc00120 seconds|r. All the damage that would be given to the structure is instead taken by the |cffffcc00Lava Elemental|r.
+
+|cffffcc00Lava Elemental|r damage is (|cffffcc0050|r + |cffffcc0075%|r of |cffffcc00Sulfuras|r stacks) and it's attacks burn the ground around the impact for |cff00ffff50 Magic|r damage per second for |cffffcc002 seconds|r.
+}
+
+STRING 100
+// Abilities: A004 (Lava Elemental), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r summons a |cffffcc00Lava Elemental|r. This abiliy can be targeted in the |cffffcc00ground|r or |cffffcc00allied structure|r. When summoned in the ground, the |cffffcc00Lava Elemental|r has a life time of |cffffcc0060 seconds|r and this ability cooldown is set to |cffffcc0030 seconds|r. When targeted at an allied building, the |cffffcc00Lava Elemental|r takes that building place and lasts forever or until it dies and this ability cooldown is set to |cffffcc00120 seconds|r. All the damage that would be given to the structure is instead taken by the |cffffcc00Lava Elemental|r.
+
+|cffffcc00Lava Elemental|r damage is (|cffffcc0050|r + |cffffcc00100%|r of |cffffcc00Sulfuras|r stacks) and it's attacks burn the ground around the impact for |cff00ffff50 Magic|r damage per second for |cffffcc002 seconds|r.
+}
+
+STRING 102
+// Abilities: A005 (Sulfuras Smash), Tip (Tooltip - Normal)
+{
+Sulfuras Smash
+}
+
+STRING 103
+// Abilities: A005 (Sulfuras Smash), Name (Name)
+{
+Sulfuras Smash
+}
+
+STRING 104
+// Abilities: A005 (Sulfuras Smash), Hotkey (Hotkey - Normal)
+{
+R
+}
+
+STRING 106
+// Abilities: A005 (Sulfuras Smash), Tip (Tooltip - Normal)
+{
+Sulfuras Smash
+}
+
+STRING 107
+// Abilities: A005 (Sulfuras Smash), Tip (Tooltip - Normal)
+{
+Living Meteor [|cffffcc00Drag and Drop|r]
+}
+
+STRING 108
+// Abilities: A005 (Sulfuras Smash), Tip (Tooltip - Normal)
+{
+Living Meteor [|cffffcc00Drag and Drop|r]
+}
+
+STRING 109
+// Abilities: A005 (Sulfuras Smash), Researchtip (Tooltip - Learn)
+{
+Sulfuras Smash - [|cffffcc00Level %d|r]
+}
+
+STRING 112
+// Abilities: A005 (Sulfuras Smash), Ubertip (Tooltip - Normal - Extended)
+{
+Ragnaros summon a meteor at the target area that deals |cff00ffff1250 Magic|r damage on impact, then rolls in that target direction dealing |cff00ffff1250 Magic|r damage per second to enemy units within |cffffcc00250 AoE|r until it reaches it's maximum range of |cffffcc00900 AoE|r from the initial impact point.
+}
+
+STRING 113
+// Abilities: A005 (Sulfuras Smash), Ubertip (Tooltip - Normal - Extended)
+{
+Ragnaros summon a meteor at the target area that deals |cff00ffff2500 Magic|r damage on impact, then rolls in that target direction dealing |cff00ffff2500 Magic|r damage per second to enemy units within |cffffcc00250 AoE|r until it reaches it's maximum range of |cffffcc001000 AoE|r from the initial impact point.
+}
+
+STRING 114
+// Abilities: A005 (Sulfuras Smash), Researchhotkey (Hotkey - Learn)
+{
+R
+}
+
+STRING 115
+// Abilities: A005 (Sulfuras Smash), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc001.25 seconds|r and damaging enemy units for |cff00ffff250 Magic|r damage. Enemy units in the center are stunned for (|cffffcc001|r + |cffffcc000.25 seconds|r per |cffffcc00100 Sulfuras|r stacks) and take twice as much damage.
+}
+
+STRING 116
+// Abilities: A005 (Sulfuras Smash), Researchubertip (Tooltip - Learn - Extended)
+{
+|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc001.25 seconds|r and damaging enemy units. Enemy units in the center are stunned for a (|cffffcc001 + 0.25 seconds|r for every |cffffcc00100 Sulfuras stacks|r) |cffffcc00Ragnaros|r has and take twice as much damage.
+
+|cffffcc00Level 1|r - |cff00ffff250 Magic|r damage on impact.
+
+|cffffcc00Level 2|r - |cff00ffff500 Magic|r damage on impact.
+}
+
+STRING 117
+// Abilities: A005 (Sulfuras Smash), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc001.25 seconds|r and damaging enemy units for |cff00ffff500 Magic|r damage. Enemy units in the center are stunned for (|cffffcc001|r + |cffffcc000.25 seconds|r per |cffffcc00100 Sulfuras|r stacks) and take twice as much damage.
+}
+
+STRING 119
+// Abilities: A006 (Molten Shield), Hotkey (Hotkey - Normal)
+{
+T
+}
+
+STRING 120
+// Abilities: A006 (Molten Shield), Name (Name)
+{
+Molten Shield
+}
+
+STRING 121
+// Abilities: A006 (Molten Shield), Tip (Tooltip - Normal)
+{
+Molten Shield
+}
+
+STRING 122
+// Abilities: A006 (Molten Shield), Ubertip (Tooltip - Normal - Extended)
+{
+Upon cast engulfs the target in a |cffffcc00Molten shield|r that reduces all damage taken by |cffffcc0050%|r and increases |cffffcc00Movement Speed|r by |cffffcc00100|r for |cffffcc0010|r seconds. All damage reduced by |cffffcc00Molten Shield|r is stored and when depleated all damage stored is dealt as |cff00ffffMagic|r damage to all enemy units within |cffffcc00400 AoE|r.
+}
+
+STRING 123
+// Abilities: A006 (Molten Shield), Researchubertip (Tooltip - Learn - Extended)
+{
+Upon cast engulfs the target in a |cffffcc00Molten shield|r that reduces all damage taken by |cffffcc0050%|r and increases |cffffcc00Movement Speed|r by |cffffcc00100|r for |cffffcc0010|r seconds. All damage reduced by |cffffcc00Molten Shield|r is stored and when depleated all damage stored is dealt as |cff00ffffMagic|r damage to all enemy units within |cffffcc00400 AoE|r.
+}
+
+STRING 124
+// Abilities: A006 (Molten Shield), Researchtip (Tooltip - Learn)
+{
+Molten Shield
+}
+
+STRING 125
+// Buffs/Effects: B001 (), Bufftip (Tooltip)
+{
+Molten Shield
+}
+
+STRING 126
+// Buffs/Effects: B001 (), Buffubertip (Tooltip - Extended)
+{
+This unit is affected by Molten Shield. It will take reduced damage.
+}
+
+STRING 160
+{
+Chopinski
+}
+
+STRING 161
+{
+Ragnaros Hero Concept
+}
+
+STRING 162
+{
+BY FIRE, BE PURGED!
+
+Credits and Thanks to: 
+Murlocologist - Ragnarosl model
+Ether - Heart of the mountain model
+Magtheridon - RegisterPlayerUnitEvent Library
+Bribe - UnitIndex, MissileRecycler
+MyPad - MouseUtils Library
+Maker - ArcFloatingText Library
+AZ - Meteor, Smash Crack models
+Empyeal - Fire Base model
+Systemfre1 - Sulfuras model
+Mythic - Conflagrate e Damnation models
+BPower - Missile Library
+Power - InfernoArmor model
+Verxorian - Timerutils and dummy model
+PrinceYaser - Afterburner icon
+TriggerHappy - TimedHandles Library.
+Blizzard - icons, image and... the game
+
+|cffffcc00https://gamepedia.cursecdn.com/allstars_gamepedia/2/21/Ragnaros_home_screen.jpg|r
+}
+
+STRING 164
+// Abilities: A002 (Living Meteor), Researchtip (Tooltip - Learn)
+{
+Living Meteor [|cffffcc00Drag & Drop|r] - [|cffffcc00Level %d|r]
+}
+
+STRING 165
+// Abilities: Z00A (NewBonus - Sight Range), Name (Name)
+{
+NewBonus - Sight Range
+}
+
+STRING 166
+// Abilities: Z00B (NewBonus - Magic Resistance), Name (Name)
+{
+NewBonus - Magic Resistance
+}
+
+STRING 168
+// Abilities: U000 (CC - Silence), Tip (Tooltip - Normal)
+{
+Silence
+}
+
+STRING 174
+{
+Press the |cffffcc00ESC|r key to Level Up, Heal Health and Mana and reset his cooldowns.
+
+Use the |cff00ff00HOME key|r and |cffff0000END key|r to control camera distance.
+}
+
+STRING 175
+// Units: dumi (dummy), Name (Name)
+{
+dummy
+}
+
+STRING 176
+// Abilities: Z00C (NewBonus - Critical Strike), Name (Name)
+{
+NewBonus - Critical Strike
+}
+
+STRING 177
+// Abilities: Z00D (NewBonus - Evasion), Name (Name)
+{
+NewBonus - Evasion
+}
+
+STRING 178
+// Abilities: Z00E (NewBonus - Life Steal), Name (Name)
+{
+NewBonus - Life Steal
+}
+
+STRING 188
+// Abilities: A000 (Sulfuras), Researchubertip (Tooltip - Learn - Extended)
+{
+|cffffcc00Ragnaros|r gains |cffffcc001|r damage for every |cffffcc003|r enemy unit killed by him. Hero kills grants |cffffcc005|r bonus damage.
+}
+
+STRING 189
+// Abilities: A000 (Sulfuras), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r gains |cffffcc001|r damage for every |cffffcc003|r enemy unit killed by him. Hero kills grants |cffffcc005|r bonus damage.
+}
+
+STRING 190
+// Abilities: U004 (CC - Banish), Name (Name)
+{
+CC - Banish
+}
+
+STRING 191
+// Abilities: U010 (CC - Entangle), Name (Name)
+{
+CC - Entangle
+}
+
+STRING 192
+// Abilities: U007 (CC - Hex), Name (Name)
+{
+CC - Hex
+}
+
+STRING 193
+// Abilities: U008 (CC - Sleep), Name (Name)
+{
+CC - Sleep
+}
+
+STRING 194
+// Abilities: U002 (CC - Attack Slow), Name (Name)
+{
+CC - Attack Slow
+}
+
+STRING 195
+// Abilities: U009 (CC - Cyclone), Name (Name)
+{
+CC - Cyclone
+}
+
+STRING 196
+// Abilities: U011 (CC - Disarm), Name (Name)
+{
+CC - Disarm
+}
+
+STRING 197
+// Abilities: U011 (CC - Disarm), Tip (Tooltip - Normal)
+{
+Disarm
+}
+
+STRING 198
+// Abilities: U005 (CC - Ensnare), Name (Name)
+{
+CC - Ensnare
+}
+
+STRING 199
+// Abilities: U012 (CC - Fear), Name (Name)
+{
+CC - Fear
+}
+
+STRING 200
+// Abilities: U012 (CC - Fear), Tip (Tooltip - Normal)
+{
+Fear
+}
+
+STRING 201
+// Abilities: U003 (CC - Movement Slow), Name (Name)
+{
+CC - Movement Slow
+}
+
+STRING 202
+// Abilities: U006 (CC - Purge), Name (Name)
+{
+CC - Purge
+}
+
+STRING 203
+// Abilities: U000 (CC - Silence), Name (Name)
+{
+CC - Silence
+}
+
+STRING 204
+// Abilities: U001 (CC - Stun), Name (Name)
+{
+CC - Stun
+}
+
+STRING 205
+// Buffs/Effects: BU04 (), Bufftip (Tooltip)
+{
+CC - Banish
+}
+
+STRING 206
+// Buffs/Effects: BU10 (), Bufftip (Tooltip)
+{
+CC - Entangle
+}
+
+STRING 207
+// Buffs/Effects: BU07 (), Bufftip (Tooltip)
+{
+CC - Hex
+}
+
+STRING 208
+// Buffs/Effects: BU08 (), Bufftip (Tooltip)
+{
+CC - Sleep
+}
+
+STRING 209
+// Buffs/Effects: BU02 (), Bufftip (Tooltip)
+{
+CC - Attack Slow
+}
+
+STRING 210
+// Buffs/Effects: BU02 (), Buffubertip (Tooltip - Extended)
+{
+This unit is attack is slowed; its attack rate have been reduced.
+}
+
+STRING 211
+// Buffs/Effects: BU09 (), Bufftip (Tooltip)
+{
+CC - Cyclone
+}
+
+STRING 212
+// Buffs/Effects: BU11 (), Bufftip (Tooltip)
+{
+CC - Disarm
+}
+
+STRING 213
+// Buffs/Effects: BU11 (), Buffubertip (Tooltip - Extended)
+{
+This unit is Disarmed; it cannot attack.
+}
+
+STRING 214
+// Buffs/Effects: BU05 (CC - Ensnare), EditorName (Name (Editor Only))
+{
+CC - Ensnare
+}
+
+STRING 215
+// Buffs/Effects: BU12 (), Bufftip (Tooltip)
+{
+CC - Fear
+}
+
+STRING 216
+// Buffs/Effects: BU12 (), Buffubertip (Tooltip - Extended)
+{
+This unit is Feared; it cannot be controlled.
+}
+
+STRING 217
+// Buffs/Effects: BU03 (), Bufftip (Tooltip)
+{
+CC - Movement Slow
+}
+
+STRING 218
+// Buffs/Effects: BU03 (), Buffubertip (Tooltip - Extended)
+{
+This unit is slowed; its movement speed is reduced.
+}
+
+STRING 219
+// Buffs/Effects: BU06 (), Bufftip (Tooltip)
+{
+CC - Purge
+}
+
+STRING 220
+// Buffs/Effects: BU06 (), Buffubertip (Tooltip - Extended)
+{
+This unit is Purged; it has had all buffs removed
+}
+
+STRING 221
+// Buffs/Effects: BU00 (), Bufftip (Tooltip)
+{
+CC - Silence
+}
+
+STRING 222
+// Buffs/Effects: BU01 (), Bufftip (Tooltip)
+{
+CC - Stun
+}
+
+STRING 223
+// Abilities: U013 (CC - Taunt), Name (Name)
+{
+CC - Taunt
+}
+
+STRING 224
+// Abilities: U013 (CC - Taunt), Tip (Tooltip - Normal)
+{
+Taunt
+}
+
+STRING 225
+// Abilities: U014 (CC - True Sight), Name (Name)
+{
+CC - True Sight
+}
+
+STRING 226
+// Buffs/Effects: BU13 (), Bufftip (Tooltip)
+{
+CC - Taunt
+}
+
+STRING 227
+// Buffs/Effects: BU13 (), Buffubertip (Tooltip - Extended)
+{
+This unit is Taunted; it is compelled to attack its target.
+}
+
+STRING 228
+// Abilities: A001 (Explosion Rune), Ubertip (Tooltip - Normal - Extended)
+{
+Ragnaros creates an |cffffcc00Explosive Rune|r in the target location that explodes after |cffffcc001.5|r seconds, dealing |cff00ffff100|r + (|cffffcc0075%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage to enemy units within |cffffcc00250 AoE|r. Holds up to |cffffcc004|r charges. Gains |cffffcc001|r charge every |cffffcc0015|r seconds.
+}
+
+STRING 229
+// Abilities: A001 (Explosion Rune), Researchubertip (Tooltip - Learn - Extended)
+{
+Ragnaros creates an |cffffcc00Explosive Rune|r in the target location that explodes after |cffffcc001.5|r seconds, dealing |cff00ffffMagic|r damage to enemy units within |cffffcc00250 AoE|r. Holds up to |cffffcc004|r charges. Gains |cffffcc001|r charge every |cffffcc0015|r seconds.
+
+|cffffcc00Level 1|r - |cff00ffff100|r + (|cffffcc0075%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage.
+
+|cffffcc00Level 2|r - |cff00ffff150|r + (|cffffcc0075%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage.
+
+|cffffcc00Level 3|r - |cff00ffff200|r + (|cffffcc0075%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage.
+
+|cffffcc00Level 4|r - |cff00ffff250|r + (|cffffcc0075%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage.
+}
+
+STRING 230
+// Abilities: A001 (Explosion Rune), Ubertip (Tooltip - Normal - Extended)
+{
+Ragnaros creates an |cffffcc00Explosive Rune|r in the target location that explodes after |cffffcc001.5|r seconds, dealing |cff00ffff150|r + (|cffffcc0075%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage to enemy units within |cffffcc00250 AoE|r. Holds up to |cffffcc004|r charges. Gains |cffffcc001|r charge every |cffffcc0015|r seconds.
+}
+
+STRING 231
+// Abilities: A001 (Explosion Rune), Ubertip (Tooltip - Normal - Extended)
+{
+Ragnaros creates an |cffffcc00Explosive Rune|r in the target location that explodes after |cffffcc001.5|r seconds, dealing |cff00ffff200|r + (|cffffcc0075%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage to enemy units within |cffffcc00250 AoE|r. Holds up to |cffffcc004|r charges. Gains |cffffcc001|r charge every |cffffcc0015|r seconds.
+}
+
+STRING 232
+// Abilities: A001 (Explosion Rune), Ubertip (Tooltip - Normal - Extended)
+{
+Ragnaros creates an |cffffcc00Explosive Rune|r in the target location that explodes after |cffffcc001.5|r seconds, dealing |cff00ffff250|r + (|cffffcc0075%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage to enemy units within |cffffcc00250 AoE|r. Holds up to |cffffcc004|r charges. Gains |cffffcc001|r charge every |cffffcc0015|r seconds.
+}
+
+STRING 233
+// Abilities: A004 (Lava Elemental), Hotkey (Hotkey - Normal)
+{
+D
+}
+
+STRING 234
+// Abilities: A004 (Lava Elemental), Researchhotkey (Hotkey - Learn)
+{
+D
+}
+
+STRING 235
+// Abilities: A002 (Living Meteor), Ubertip (Tooltip - Normal - Extended)
+{
+Ragnaros summon a meteor at the target area that deals |cff00ffff100|r + (|cffffcc00100%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage on impact, then rolls in that target direction dealing |cff00ffff25|r + (|cffffcc0050%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second to enemy units within |cffffcc00250 AoE|r until it reaches it's maximum range of |cffffcc00700 AoE|r from the initial impact point.
+}
+
+STRING 237
+// Abilities: A002 (Living Meteor), Ubertip (Tooltip - Normal - Extended)
+{
+Ragnaros summon a meteor at the target area that deals |cff00ffff150|r + (|cffffcc00100%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage on impact, then rolls in that target direction dealing |cff00ffff50|r + (|cffffcc0050%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second to enemy units within |cffffcc00250 AoE|r until it reaches it's maximum range of |cffffcc00800 AoE|r from the initial impact point.
+}
+
+STRING 238
+// Abilities: A002 (Living Meteor), Ubertip (Tooltip - Normal - Extended)
+{
+Ragnaros summon a meteor at the target area that deals |cff00ffff200|r + (|cffffcc00100%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage on impact, then rolls in that target direction dealing |cff00ffff125|r + (|cffffcc0050%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second to enemy units within |cffffcc00250 AoE|r until it reaches it's maximum range of |cffffcc00900 AoE|r from the initial impact point.
+}
+
+STRING 239
+// Abilities: A002 (Living Meteor), Ubertip (Tooltip - Normal - Extended)
+{
+Ragnaros summon a meteor at the target area that deals |cff00ffff250|r + (|cffffcc00100%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage on impact, then rolls in that target direction dealing |cff00ffff250|r + (|cffffcc0050%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second to enemy units within |cffffcc00250 AoE|r until it reaches it's maximum range of |cffffcc001000 AoE|r from the initial impact point.
+}
+
+STRING 240
+// Abilities: A002 (Living Meteor), Researchubertip (Tooltip - Learn - Extended)
+{
+Ragnaros summon a meteor at the target area that deals |cff00ffffMagic|r damage on impact, then rolls in that target direction dealing |cff00ffffMagic|r damage to enemy units within |cffffcc00250 AoE|r until it reaches it's maximum range.
+
+|cffffcc00Level 1|r - |cff00ffff100|r + (|cffffcc00100%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage on impact, |cff00ffff25|r + (|cffffcc0050%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second, |cffffcc00700|r rolling range.
+
+|cffffcc00Level 2|r - |cff00ffff150|r + (|cffffcc00100%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage on impact, |cff00ffff50|r + (|cffffcc0050%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second, |cffffcc00800|r rolling range.
+
+|cffffcc00Level 3|r - |cff00ffff200|r + (|cffffcc00100%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage on impact, |cff00ffff125|r + (|cffffcc0050%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second, |cffffcc00900|r rolling range.
+
+|cffffcc00Level 4|r - |cff00ffff250|r + (|cffffcc00100%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage on impact, |cff00ffff250|r + (|cffffcc0050%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second, |cffffcc001000|r rolling range.
+}
+
+STRING 241
+// Abilities: A003 (Afterburner), Researchubertip (Tooltip - Learn - Extended)
+{
+|cffffcc00Ragnaros|r spells leave a trail of fire after cast that burns enemy units within range.
+
+|cffffcc00Level 1|r - |cff00ffff25|r + (|cffffcc0060%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second.
+
+|cffffcc00Level 2|r - |cff00ffff50|r + (|cffffcc0060%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second.
+
+|cffffcc00Level 3|r - |cff00ffff75|r + (|cffffcc0060%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second.
+
+|cffffcc00Level 4|r - |cff00ffff100|r + (|cffffcc0060%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second.
+
+Lasts |cffffcc0010|r seconds.
+}
+
+STRING 242
+// Abilities: A003 (Afterburner), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r spells leave a trail of fire after cast that burns enemy units within range for |cff00ffff25|r + (|cffffcc0060%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second.
+
+Lasts |cffffcc0010|r seconds.
+}
+
+STRING 243
+// Abilities: A003 (Afterburner), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r spells leave a trail of fire after cast that burns enemy units within range for |cff00ffff50|r + (|cffffcc0060%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second.
+
+Lasts |cffffcc0010|r seconds.
+}
+
+STRING 244
+// Abilities: A003 (Afterburner), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r spells leave a trail of fire after cast that burns enemy units within range for |cff00ffff75|r + (|cffffcc0060%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second.
+
+Lasts |cffffcc0010|r seconds.
+}
+
+STRING 245
+// Abilities: A003 (Afterburner), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r spells leave a trail of fire after cast that burns enemy units within range for |cff00ffff100|r + (|cffffcc0060%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second.
+
+Lasts |cffffcc0010|r seconds.
+}
+

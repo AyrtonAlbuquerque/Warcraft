@@ -23,7 +23,7 @@ scope BlackNavaja
 
         // Attributes
         real damage = 25
-        real evasionChance = 12
+        real evasion = 0.12
 
         private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0025|r Damage\n+ |cffffcc0010%%|r Evasion\n\n|cff00ff00Passive|r: |cffffcc00Assassination:|r Every attack has |cffffcc0010%%|r chance to instantly kill |cffffcc00non-Hero|r targets and increase bounty of killed enemy by |cffffcc0025 gold|r.\n\nGold Granted: |cffffcc00" + I2S(BlackNavaja.gold[id]) + "|r")

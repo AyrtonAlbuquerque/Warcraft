@@ -17,8 +17,8 @@ scope ReapersEdge
 
         real agility = 200
         real strength = 200
+        real spellPower = 400
         real intelligence = 200
-        real spellPowerFlat = 400
 
         private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc00200|r All Stats\n+ |cffffcc00400|r Spell Power\n\n|cff00ff00Passive|r|cffffcc00: Soul Reaper|r: Every |cffffcc002|r enemy units killed, |cffff0000Strength|r,|cff00ff00 Agility |rand |cff00ffffIntelligence|r are increased by |cffffcc001|r and|cff008080 Spell Power|r is incresed by |cffffcc000.5|r permanently. Killing a enemy Hero increases all stats by |cffffcc0020|r and|cff008080 Spell Power|r by|cffffcc00 5|r.\n\nSpell Power Bonus: |cff008080" + R2SW(spell[id], 1, 1) + "|r\nStats Bonus: |cffffcc00" + I2S(stats[id]) + "|r")

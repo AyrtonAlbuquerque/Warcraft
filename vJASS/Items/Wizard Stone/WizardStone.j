@@ -50,7 +50,7 @@ scope WizardStone
                             set table[id].integer[0] = table[id].integer[0] + GetStackIncrease()
                             set table[id].integer[1] = table[id].integer[1] + GetBonus()
         
-                            call UnitAddSpellPowerFlat(caster, GetBonus())
+                            call AddUnitBonus(caster, BONUS_SPELL_POWER, GetBonus())
         
                             if table[id].integer[0] >= GetMaxStacks() then
                                 call table.remove(id)

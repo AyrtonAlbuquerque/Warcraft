@@ -5,7 +5,7 @@ scope Doombringer
         // Attributes    
         real damage = 1250
         real criticalDamage = 2
-        real criticalChance = 20
+        real criticalChance = 0.2
 
         private static HashTable table
         private static integer array bonus
@@ -82,7 +82,8 @@ scope Doombringer
                     set table[Damage.source.handle].effect[0] = AddSpecialEffectTarget("Sweep_Fire_Small.mdx", Damage.source.unit, "hand left")
                     set table[Damage.source.handle].effect[1] = AddSpecialEffectTarget("Sweep_Fire_Small.mdx", Damage.source.unit, "hand right")
 
-                    call UnitAddCriticalStrike(Damage.source.unit, 100, 2)
+                    call AddUnitBonus(Damage.source.unit, BONUS_CRITICAL_CHANCE, 1)
+                    call AddUnitBonus(Damage.source.unit, BONUS_CRITICAL_DAMAGE, 2)
                 endif
             endif
         endmethod

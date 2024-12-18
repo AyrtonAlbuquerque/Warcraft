@@ -1,5 +1,5 @@
-library ExplosiveRune requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, Utilities, DamageInterfaceUtils optional Afterburner, CooldownReduction
-    /* -------------------- Explosive Rune v1.5 by Chopinski -------------------- */
+library ExplosiveRune requires PluginSpellEffect, Ability, Utilities optional Afterburner, CooldownReduction, NewBonus
+    /* -------------------- Explosive Rune v1.6 by Chopinski -------------------- */
     // Credits:
     //     Mythic           - Conflagrate model
     //     JetFangInferno   - FireRune model
@@ -33,134 +33,110 @@ library ExplosiveRune requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
         // If true will damage magic immune unit if the
         // ATTACK_TYPE is not spell damage
         private constant boolean    DAMAGE_MAGIC_IMMUNE = false
-        // If true, the ability tooltip will change accordingly
-        private constant boolean    CHANGE_TOOLTIP      = true
     endglobals
 
     //The damage amount of the explosion
-    private function GetDamage takes integer level returns real
-        return 50. + 50.*level
+    private function GetDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return (50. + 50.*level) + 0.75*GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return (50. + 50.*level)
+        endif
     endfunction
     
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct ExplosiveRune
-        static integer array charges
-        static integer array n
+    private struct ExplosiveRune extends Ability
+        private static integer array charges
 
-        timer   timer
-        unit 	unit
-        real    damage
-        real    aoe
-        integer id
-        real    x
-        real    y
+        private real x
+        private real y
+        private real aoe
+        private unit unit
+        private integer id
+        private real damage
 
-        private static method toolTip takes unit u returns nothing
-            local integer id = GetUnitUserData(u) 
-            local integer lvl = GetUnitAbilityLevel(u, ABILITY)
-            local string array s
-            
-            set s[1] = R2SW(BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, lvl - 1), 0, 0)
-            set s[0] = ("Ragnaros creates an |cffffcc00Explosive Rune|r in the target location that explodes after" + /* 
-                        */" |cffffcc00" + R2SW(EXPLOSION_DELAY, 1, 1) + "|r seconds, dealing |cff00ffff" + /*
-                        */AbilitySpellDamageEx(GetDamage(lvl), u) + " Magic|r damage to enemy units within |cffffcc00" + /*
-                        */s[1] + " AoE|r. Holds up to |cffffcc00" + I2S(CHARGES_COUNT) + "|r charges. " + /*
-                        */"Gains |cffffcc001|r charge every |cffffcc00" + R2SW(CHARGES_COOLDOWN, 1, 1) + "|r seconds.\n\n" + /*
-
-                        */"Charges: |cffffcc00" + I2S(charges[id]) + "|r")
-            call BlzSetAbilityExtendedTooltip(ABILITY, s[0], lvl - 1)
-        endmethod
-
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            if GetUnitAbilityLevel(unit, ABILITY) > 0 then
-                if charges[id] < CHARGES_COUNT and charges[id] >= 0 then
-                    set charges[id] = charges[id] + 1
-                    call BlzEndUnitAbilityCooldown(unit, ABILITY)
-                    static if CHANGE_TOOLTIP then
-                        call toolTip(unit)
-                    endif
-                endif
-            else
-                call ReleaseTimer(timer)
-                
-                set charges[id] = 0
-                set n[id] = 0
-                set timer = null
-                set unit  = null
-
-                call deallocate()
-            endif
-        endmethod
-
-        private static method onExplodeRune takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            static if LIBRARY_Afterburner then
-                call Afterburn(x, y, unit)
-            endif
-            call UnitDamageArea(unit, x, y, aoe, damage, ATTACK_TYPE, DAMAGE_TYPE, DAMAGE_STRUCTURES, DAMAGE_MAGIC_IMMUNE, DAMAGE_ALLIES)
-            call DestroyEffect(AddSpecialEffect(EXPLOSION_EFFECT, x, y))
-            call ReleaseTimer(timer)
-
-            set timer = null
-            set unit  = null
-
+        method destroy takes nothing returns nothing
+            set unit = null
             call deallocate()
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local thistype this
-            local thistype rune
+        private method onTooltip takes unit source, integer level returns string
+            return "Ragnaros creates an |cffffcc00Explosive Rune|r in the target location that explodes after |cffffcc00" + N2S(EXPLOSION_DELAY, 1) + "|r seconds, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage to enemy units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + " AoE|r. Holds up to |cffffcc00" + I2S(CHARGES_COUNT) + "|r charges. Gains |cffffcc001|r charge every |cffffcc00" + N2S(CHARGES_COOLDOWN, 1) + "|r seconds.\n\nCharges: |cffffcc00" + I2S(charges[GetUnitUserData(source)]) + "|r"
+        endmethod
 
-            if n[Spell.source.id] == 0 then
-                set this = thistype.allocate()
-                set timer = NewTimerEx(this)
-                set unit = Spell.source.unit
-                set id = Spell.source.id
-                set charges[id] = CHARGES_COUNT
-                set n[id] = this
+        private method onPeriod takes nothing returns boolean
+            local integer level = GetUnitAbilityLevel(unit, ABILITY)
 
-                call TimerStart(timer, CHARGES_COOLDOWN, true, function thistype.onPeriod)
+            if level > 0 then
+                if charges[id] < CHARGES_COUNT and charges[id] >= 0 then
+                    set charges[id] = charges[id] + 1
+
+                    call BlzEndUnitAbilityCooldown(unit, ABILITY)
+                endif
             else
-                set this = n[Spell.source.id]
+                set charges[id] = 0
             endif
+
+            return level > 0
+        endmethod
+
+        private method onExpire takes nothing returns nothing
+            static if LIBRARY_Afterburner then
+                call Afterburn(x, y, unit)
+            endif
+
+            call UnitDamageArea(unit, x, y, aoe, damage, ATTACK_TYPE, DAMAGE_TYPE, DAMAGE_STRUCTURES, DAMAGE_MAGIC_IMMUNE, DAMAGE_ALLIES)
+            call DestroyEffect(AddSpecialEffect(EXPLOSION_EFFECT, x, y))
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
             
-            set rune = thistype.allocate()
-            set rune.timer = NewTimerEx(rune)
-            set rune.unit = Spell.source.unit
-            set rune.damage = GetDamage(Spell.level)
-            set rune.aoe = BlzGetAbilityRealLevelField(Spell.ability, ABILITY_RLF_AREA_OF_EFFECT, Spell.level - 1)
-            set rune.x = Spell.x
-            set rune.y = Spell.y
+            set x = Spell.x
+            set y = Spell.y
+            set id = Spell.source.id
+            set unit = Spell.source.unit
+            set damage = GetDamage(Spell.source.unit, Spell.level)
+            set aoe = BlzGetAbilityRealLevelField(Spell.ability, ABILITY_RLF_AREA_OF_EFFECT, Spell.level - 1)
 
             if charges[id] > 0 then
                 set charges[id] = charges[id] - 1
+
                 if charges[id] >= 1 then
                     call ResetUnitAbilityCooldown(unit, ABILITY)
                 else
                     static if LIBRARY_CooldownReduction then
-                        call CalculateAbilityCooldown(Spell.source.unit, ABILITY, Spell.level, TimerGetRemaining(timer))
+                        call CalculateAbilityCooldown(unit, ABILITY, Spell.level, GetRemainingTime(GetTimerInstance(id)))
                     else
-                        call BlzSetAbilityRealLevelField(Spell.ability, ABILITY_RLF_COOLDOWN, Spell.level - 1, TimerGetRemaining(timer))
+                        call BlzSetAbilityRealLevelField(Spell.ability, ABILITY_RLF_COOLDOWN, Spell.level - 1, GetRemainingTime(GetTimerInstance(id)))
                         call IncUnitAbilityLevel(unit, ABILITY)
                         call DecUnitAbilityLevel(unit, ABILITY)
                     endif
                 endif
             endif
 
-            call TimerStart(rune.timer, EXPLOSION_DELAY, false, function thistype.onExplodeRune)
+            call StartTimer(EXPLOSION_DELAY, false, this, -1)
+        endmethod
 
-            static if CHANGE_TOOLTIP then
-                call toolTip(unit)
+        private method onLearn takes unit source, integer skill, integer level returns nothing
+            local integer id = GetUnitUserData(source)
+
+            if not HasStartedTimer(id) then
+                set this = thistype.allocate()
+                set this.id = id
+                set this.unit = source
+                set charges[id] = CHARGES_COUNT
+
+                call StartTimer(CHARGES_COOLDOWN, true, this, id)
             endif
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+        implement Periodic
+
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

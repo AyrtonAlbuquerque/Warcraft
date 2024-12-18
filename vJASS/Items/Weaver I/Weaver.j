@@ -7,7 +7,7 @@ scope Weaver
         real manaRegen = 250
         real healthRegen = 250
         real intelligence = 500
-        real spellPowerFlat = 750
+        real spellPower = 750
 
         private static method onCast takes nothing returns nothing
             local unit caster = GetTriggerUnit()

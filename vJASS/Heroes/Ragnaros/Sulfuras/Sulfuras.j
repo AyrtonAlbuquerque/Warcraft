@@ -10,10 +10,7 @@ library Sulfuras requires RegisterPlayerUnitEvent, NewBonus
     /* ---------------------------------------------------------------------------------------------- */
     globals
         //The raw code of the Sufuras Ability
-        private constant integer ABILITY        = 'A000'
-        //If true when Ragnaros kills a unit, the ability tooltip will change
-        //to show the amount of bonus damage acumulated
-        private constant boolean CHANGE_TOOLTIP = true
+        private constant integer ABILITY = 'A000'
     endglobals
 
     //Modify this function to change the amount of damage Ragnaros gains per kill
@@ -38,14 +35,12 @@ library Sulfuras requires RegisterPlayerUnitEvent, NewBonus
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    struct Sulfuras extends array
+    struct Sulfuras
         private static integer array count
         readonly static integer array stacks
 
-        private static method toolTip takes integer bonus, integer level returns nothing
-            local string s = ("|cffffcc00Ragnaros|r gains |cffffcc001|r damage for every |cffffcc003|r enemy unit killed by him. Hero kills grants |cffffcc005|r bonus damage." + /*
-                              */"\n\nDamage Bonus: |cffffcc00" + I2S(bonus) + "|r")
-            call BlzSetAbilityExtendedTooltip(ABILITY, s, level - 1)
+        private static method onTooltip takes unit source, integer level returns nothing
+            call BlzSetAbilityStringLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_SLF_TOOLTIP_NORMAL_EXTENDED, level - 1, "|cffffcc00Ragnaros|r gains |cffffcc001|r damage for every |cffffcc003|r enemy unit killed by him. Hero kills grants |cffffcc005|r bonus damage.\n\nDamage Bonus: |cffffcc00" + I2S(stacks[GetUnitUserData(source)]) + "|r")
         endmethod
 
         private static method onDeath takes nothing returns nothing
@@ -79,9 +74,7 @@ library Sulfuras requires RegisterPlayerUnitEvent, NewBonus
                         endif
                     endif
 
-                    static if CHANGE_TOOLTIP then
-                        call toolTip(stacks[key], level)
-                    endif
+                    call onTooltip(source, level)
                 endif
             endif
 
@@ -89,7 +82,7 @@ library Sulfuras requires RegisterPlayerUnitEvent, NewBonus
             set target = null
         endmethod
 
-        static method onInit takes nothing returns nothing
+        private static method onInit takes nothing returns nothing
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
         endmethod
     endstruct

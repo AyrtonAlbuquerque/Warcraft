@@ -8,7 +8,6 @@ scope NatureGoddessStaff
         // Attributes
         real health = 10000
         real intelligence = 500
-        real spellPowerPercent = 0.2
 
         private unit unit
         private unit tornado
@@ -53,10 +52,8 @@ scope NatureGoddessStaff
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
-
-            if GetUnitAbilityLevel(Damage.target.unit, buff) > 0 and damage > 0 then
-                call UnitDamageTarget(Damage.target.unit, Damage.source.unit, damage*0.35, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, null)
+            if GetUnitAbilityLevel(Damage.target.unit, buff) > 0 and Damage.amount > 0 then
+                call UnitDamageTarget(Damage.target.unit, Damage.source.unit, Damage.amount*0.35, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, null)
             endif
         endmethod
 

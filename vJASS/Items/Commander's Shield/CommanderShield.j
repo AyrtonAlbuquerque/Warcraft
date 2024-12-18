@@ -4,6 +4,7 @@ scope CommanderShield
         
         // Attributes
         real armor = 8
+        real block = 100
         real health = 12000
 
         private real x
@@ -39,10 +40,9 @@ scope CommanderShield
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
             local thistype this
         
-            if UnitHasItemOfType(Damage.target.unit, code) and damage > 0 and GetRandomInt(1, 100) <= 33 then
+            if UnitHasItemOfType(Damage.target.unit, code) and Damage.amount > 0 and GetRandomInt(1, 100) <= 33 then
                 set this = thistype.new()
                 set duration = 16
                 set source = Damage.source.unit
@@ -51,8 +51,8 @@ scope CommanderShield
                 set x = Damage.target.x + 60*Cos(angle)
                 set y = Damage.target.y + 60*Sin(angle)
                 set effect = AddSpecialEffect("Abilities\\Spells\\Human\\Defend\\DefendCaster.mdl", x, y)
+                set Damage.amount = 0
         
-                call BlzSetEventDamage(0)
                 call StartTimer(0.03125, true, this, -1)
                 call BlzSetSpecialEffectScale(effect, 1.5)
                 call BlzSetSpecialEffectYaw(effect, angle)

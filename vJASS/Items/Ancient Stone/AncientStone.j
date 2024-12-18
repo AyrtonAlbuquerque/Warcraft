@@ -5,8 +5,8 @@ scope AncientStone
         real mana = 500
         real health = 500
         real manaRegen = 10
+        real spellPower = 50
         real healthRegen = 10
-        real spellPowerFlat = 50
 
         private static method onInit takes nothing returns nothing
             call thistype.allocate(code, WizardStone.code, 0, 0, 0, 0)

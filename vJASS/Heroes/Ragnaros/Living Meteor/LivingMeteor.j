@@ -1,12 +1,9 @@
-library LivingMeteor requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, Missiles, MouseUtils, TimerUtils, Utilities optional Afterburner
-    /* --------------------- Living Meteor v1.5 by Chopinski -------------------- */
+library LivingMeteor requires Ability, PluginSpellEffect, Missiles, MouseUtils, Utilities, Periodic optional Afterburner, NewBonus
+    /* --------------------- Living Meteor v1.6 by Chopinski -------------------- */
     // Credits:
     //     Blizzard         - icon (Edited by me)
     //     AZ               - Meteor model
-    //     Magtheridon96    - RegisterPlayerUnitEvent 
-    //     Bribe            - SpellEffectEvent
     //     MyPad            - MouseUtils
-    //     Verxorian        - TimerUtils
     /* ----------------------------------- END ---------------------------------- */
     
     /* -------------------------------------------------------------------------- */
@@ -52,14 +49,22 @@ library LivingMeteor requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginS
     endfunction
 
     // The landing damage distance of the meteor
-    private function LandingDamage takes integer level returns real
-        return 50. + 50.*level
+    private function LandingDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 50. + 50.*level + 1*GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 50. + 50.*level
+        endif
     endfunction
 
     // The roll damage distance of the meteor.
     //will do this damage every DAMAGE_INTERVAL
-    private function RollDamage takes integer level returns real
-        return (25.*(level*level -2*level + 2))*DAMAGE_INTERVAL
+    private function RollDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return (25.*(level*level -2*level + 2))*DAMAGE_INTERVAL + 0.5*GetUnitBonus(source, BONUS_SPELL_POWER)*DAMAGE_INTERVAL
+        else
+            return (25.*(level*level -2*level + 2))*DAMAGE_INTERVAL
+        endif
     endfunction
 
     // The size of the area around the impact point where units will be damaged
@@ -78,23 +83,24 @@ library LivingMeteor requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginS
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Meteor extends Missiles
-        static integer ticks = R2I(DAMAGE_INTERVAL/Missiles_PERIOD)
+        private static integer ticks = R2I(DAMAGE_INTERVAL/Missiles_PERIOD)
 
+        real aoe
+        real angle
+        real distance
         integer i = 0
         integer j = 0
-        real    aoe
-        real    distance
-        real    angle
         integer level
         boolean rolling
 
-        method onPeriod takes nothing returns boolean
+        private method onPeriod takes nothing returns boolean
             if rolling then
                 set i = i + 1
                 set j = j + 1
 
                 if j == 25 then
                     set j = 0
+
                     static if LIBRARY_Afterburner then
                         call Afterburn(x, y, source)
                     endif
@@ -109,76 +115,79 @@ library LivingMeteor requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginS
             return false
         endmethod
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             if not rolling then
                 call DestroyEffect(AddSpecialEffect(IMPACT_MODEL, x, y))
                 call UnitDamageArea(source, x, y, GetImpactAoE(source, level), damage, ATTACK_TYPE, DAMAGE_TYPE, DAMAGE_STRUCTURES, DAMAGE_ALLIES, DAMAGE_MAGIC_IMMUNE)
                 call deflect(x + distance*Cos(angle), y + distance*Sin(angle), 0)
+                
                 static if LIBRARY_Afterburner then
                     call Afterburn(x, y, source)
                 endif
 
-                set rolling  = true
-                set damage   = RollDamage(level)
+                set rolling = true
+                set damage = RollDamage(source, level)
                 set duration = ROLLING_TIME
             endif
 
             return false
         endmethod
     endstruct
-    //=====================================================================================================================================================================================================================
-    private struct LivingMeteor
-        timer   timer
-        unit    unit
-        player  player
+    
+    private struct LivingMeteor extends Ability
+        real x
+        real y
+        unit unit
+        player player
         integer level
-        real    x
-        real    y
+        ability ability
 
         method destroy takes nothing returns nothing
-            set timer  = null
-            set unit   = null
+            set unit = null
             set player = null 
+            set ability = null
+
             call deallocate()
         endmethod
 
-        private static method onLivingMeteor takes nothing returns nothing
-            local thistype this   = GetTimerData(GetExpiredTimer())
-            local real     a      = AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))
-            local Meteor   meteor = Meteor.create(x + LAUNCH_OFFSET*Cos(a + bj_PI), y + LAUNCH_OFFSET*Sin(a + bj_PI), START_HEIGHT, x, y, 0)
+        private method onTooltip takes unit source, integer level returns string
+            return "Ragnaros summon a meteor at the target area that deals |cff00ffff" + N2S(LandingDamage(source, level), 0) + " Magic|r damage on impact, then rolls in that target direction dealing |cff00ffff" + N2S(RollDamage(source, level), 0) + " Magic|r every |cffffcc00" + N2S(DAMAGE_INTERVAL, 2) + "|r seconds to enemy units within |cffffcc00250 AoE|r until it reaches it's maximum range of |cffffcc00700 AoE|r from the initial impact point."
+        endmethod
+
+        private method onExpire takes nothing returns nothing
+            local real angle = AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))
+            local Meteor meteor = Meteor.create(x + LAUNCH_OFFSET*Cos(angle + bj_PI), y + LAUNCH_OFFSET*Sin(angle + bj_PI), START_HEIGHT, x, y, 0)
             
-            set meteor.source   = unit
-            set meteor.owner    = player
-            set meteor.model    = METEOR_MODEL
-            set meteor.scale    = METEOR_SCALE
+            set meteor.source = unit
+            set meteor.owner = player
+            set meteor.model = METEOR_MODEL
+            set meteor.scale = METEOR_SCALE
             set meteor.duration = LANDING_TIME
-            set meteor.angle    = a
-            set meteor.level    = level
+            set meteor.angle = angle
+            set meteor.level = level
             set meteor.rolling  = false
-            set meteor.aoe      = GetRollAoE(unit, level)
-            set meteor.damage   = LandingDamage(level)
+            set meteor.aoe = GetRollAoE(unit, level)
+            set meteor.damage = LandingDamage(unit, level)
             set meteor.distance = RollDistance(level)
 
             call meteor.launch()
-            call ReleaseTimer(timer)
-            call destroy()
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
-            
-            set timer  = NewTimerEx(this)
-            set unit   = Spell.source.unit
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
+            set x = Spell.x
+            set y = Spell.y
+            set level = Spell.level
+            set unit = Spell.source.unit
             set player = Spell.source.player
-            set level  = Spell.level
-            set x      = Spell.x
-            set y      = Spell.y
 
-            call TimerStart(timer, DRAG_AND_DROP_TIME, false, function thistype.onLivingMeteor)
+            call StartTimer(DRAG_AND_DROP_TIME, false, this, -1)
         endmethod
+
+        implement Periodic
 
         static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

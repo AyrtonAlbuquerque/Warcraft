@@ -1,5 +1,5 @@
 library CooldownReductionUtils requires CooldownReduction
-    /* --------------- Cooldown Reduction Utils v1.9 by Chopinski --------------- */
+    /* --------------- Cooldown Reduction Utils v2.0 by Chopinski --------------- */
     // Intro
     //     Utility Library that include a few extra functions to deal with 
     //     Cooldown Reduction

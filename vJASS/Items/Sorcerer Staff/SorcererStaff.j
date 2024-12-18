@@ -4,8 +4,8 @@ scope SorcererStaff
 
         // Attributes
         real health = 5000
+        real spellPower = 500
         real intelligence = 150
-        real spellPowerFlat = 500
 
         private static HashTable table
         private static integer array bonus

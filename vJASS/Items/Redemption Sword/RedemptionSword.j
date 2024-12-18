@@ -17,7 +17,7 @@ scope RedemptionSword
         static integer array attack
 
         real damage = 1500
-        real criticalChance = 30
+        real criticalChance = 0.3
         real criticalDamage = 3
         real spellPowerFlat = 300
 

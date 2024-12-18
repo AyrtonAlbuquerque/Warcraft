@@ -52,7 +52,7 @@ scope ElementalSphere
 		private real y
 
 		// Attributes
-		real spellPowerFlat = 2000
+		real spellPower = 2000
 
 		method destroy takes nothing returns nothing
             call DestroyEffect(effect)

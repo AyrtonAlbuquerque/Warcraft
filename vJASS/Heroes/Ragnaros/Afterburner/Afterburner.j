@@ -1,8 +1,7 @@
-library Afterburner requires DamageInterface, RegisterPlayerUnitEvent, Utilities
-    /* ---------------------- Afterburner v1.5 by Chopinski --------------------- */
+library Afterburner requires Ability, Periodic, DamageInterface, Utilities, optional NewBonus
+    /* ---------------------- Afterburner v1.6 by Chopinski --------------------- */
     // Credits:
-    //     PrinceYaser      - icon.
-    //     Magtheridon96    - RegisterPlayerUnitEvent
+    //     PrinceYaser - icon.
     /* ----------------------------------- END ---------------------------------- */
     
     /* -------------------------------------------------------------------------- */
@@ -21,70 +20,58 @@ library Afterburner requires DamageInterface, RegisterPlayerUnitEvent, Utilities
 
     //function responsible to determine the duration of the Afterburn
     //By default, it uses the Cooldown value in the Object Editor
-    private function GetDuration takes unit u returns real
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, ABILITY), ABILITY_RLF_DURATION_NORMAL, GetUnitAbilityLevel(u, ABILITY) - 1)
+    private function GetDuration takes unit u, integer level returns real
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, ABILITY), ABILITY_RLF_DURATION_NORMAL, level - 1)
     endfunction
 
     //function responsible to determine the AoE of the Afterburn
     //By default, it uses the AoE value in the Object Editor
-    private function GetAoE takes unit u returns real
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, GetUnitAbilityLevel(u, ABILITY) - 1)
+    private function GetAoE takes unit u, integer level returns real
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
     endfunction
 
     //The damage per interval of the Afterburn
-    private function GetDamage takes unit u returns real
-        return 25.*GetUnitAbilityLevel(u, ABILITY)
+    private function GetDamage takes unit u, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 25. * level + 0.6 * GetUnitBonus(u, BONUS_DAMAGE)
+        else
+            return 25. * level
+        endif
     endfunction
 
     //The damage interval of the Afterburn
-    private function GetDamageInterval takes unit u returns real
+    private function GetDamageInterval takes unit u, integer level returns real
         return 1.0
     endfunction
     
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Afterburner
-        static integer array proxy
+    private struct Afterburner extends Ability
+        private static integer array proxy
 
-        timer   timer
-        unit    unit
-        unit    dummy
-        real    damage
-        integer index
+        private unit unit
+        private unit dummy
+        private integer id
+        private real damage
 
-        private static method onDamage takes nothing returns nothing
-            local thistype this
-
-            if proxy[Damage.source.id] != 0 and GetEventDamage() > 0 then
-                set this = proxy[Damage.source.id]
-                call BlzSetEventDamage(0)
-                call UnitDamageTarget(unit, Damage.target.unit, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
-            endif
-        endmethod
-
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            
+        method destroy takes nothing returns nothing
             call DummyRecycle(dummy)
-            call ReleaseTimer(timer)
-            set unit = null
-            set timer = null
-            set proxy[index] = 0
             call deallocate()
+
+            set unit = null
+            set dummy = null
+            set proxy[id] = 0
         endmethod
 
         static method create takes real x, real y, real dmg, real duration, real aoe, real interval, unit source returns thistype
-            local thistype this  = thistype.allocate()
-            local unit     dummy = DummyRetrieve(GetOwningPlayer(source), x, y, 0, 0)
-            local integer  id    = GetUnitUserData(dummy)
-            local ability  skill
+            local thistype this = thistype.allocate()
+            local ability skill
     
-            set timer     = NewTimerEx(this)
-            set unit      = source
-            set .dummy    = dummy
-            set damage    = dmg
-            set index     = id
+            set unit = source
+            set damage = dmg
+            set dummy = DummyRetrieve(GetOwningPlayer(source), x, y, 0, 0)
+            set id = GetUnitUserData(dummy)
             set proxy[id] = this
 
             call UnitAddAbility(dummy, AFTERBURN_PROXY)
@@ -97,22 +84,41 @@ library Afterburner requires DamageInterface, RegisterPlayerUnitEvent, Utilities
             call IncUnitAbilityLevel(dummy, AFTERBURN_PROXY)
             call DecUnitAbilityLevel(dummy, AFTERBURN_PROXY)
             call IssuePointOrder(dummy, "flamestrike", x, y)
-            call TimerStart(timer, duration + 0.05, false, function thistype.onExpire)
+            call StartTimer(duration + 0.05, false, this, -1)
             
-            set dummy = null
             set skill = null
 
             return this
         endmethod
 
-        static method onInit takes nothing returns nothing
+        private method onTooltip takes unit source, integer level returns string
+            return "|cffffcc00Ragnaros|r spells leave a trail of fire after cast that burns enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + "|r range for |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage every |cffffcc00" + N2S(GetDamageInterval(source, level), 1) + "|r seconds.\n\nLasts |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds."
+        endmethod 
+
+        private static method onDamage takes nothing returns nothing
+            local thistype this
+
+            if proxy[Damage.source.id] != 0 and Damage.amount > 0 then
+                set this = proxy[Damage.source.id]
+                set Damage.amount = 0
+
+                call UnitDamageTarget(unit, Damage.target.unit, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
+            endif
+        endmethod
+
+        implement Periodic
+
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterSpellDamageEvent(function thistype.onDamage)
         endmethod
     endstruct
 
     function Afterburn takes real x, real y, unit source returns nothing
-        if GetUnitAbilityLevel(source, ABILITY) > 0 then
-            call Afterburner.create(x, y, GetDamage(source), GetDuration(source), GetAoE(source), GetDamageInterval(source), source)
+        local integer level = GetUnitAbilityLevel(source, ABILITY)
+
+        if level > 0 then
+            call Afterburner.create(x, y, GetDamage(source, level), GetDuration(source, level), GetAoE(source, level), GetDamageInterval(source, level), source)
         endif
     endfunction
 endlibrary

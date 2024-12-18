@@ -6,7 +6,7 @@ scope BookOfLight
         // Attributes
         real manaRegen = 200
         real intelligence = 250
-        real spellPowerFlat = 600
+        real spellPower = 600
 
         private static integer array burst
 
@@ -38,10 +38,11 @@ scope BookOfLight
         endmethod
         
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
+            local real damage = Damage.amount
 
-            if GetUnitTypeId(Damage.source.unit) == unit and Damage.isAlly and damage > 0 then
-                call BlzSetEventDamage(0)
+            if GetUnitTypeId(Damage.source.unit) == unit and Damage.isAlly and Damage.amount > 0 then
+                set Damage.amount = 0
+
                 call SetWidgetLife(Damage.target.unit, GetWidgetLife(Damage.target.unit) + damage)
                 call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage)), Damage.target.unit)
                 call DestroyEffect(AddSpecialEffectTarget("HolyLight.mdx", Damage.target.unit, "origin"))

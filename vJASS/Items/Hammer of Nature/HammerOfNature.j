@@ -5,7 +5,7 @@ scope HammerOfNature
         // Attributes
         real damage = 500
         real strength = 250
-        real spellPowerFlat = 250
+        real spellPower = 250
 
         private static integer array attack
         private static integer array remaining

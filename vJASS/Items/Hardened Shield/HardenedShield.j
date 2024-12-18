@@ -3,6 +3,7 @@ scope HardenedShield
         static constant integer code = 'I017'
 
         real armor = 2
+        real block = 15
         real health = 200
 
         private static method onInit takes nothing returns nothing

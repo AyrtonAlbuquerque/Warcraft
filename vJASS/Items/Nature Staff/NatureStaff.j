@@ -20,13 +20,10 @@ scope NatureStaff
 
         real health = 300
         real intelligence = 10
-        real spellPowerPercent = 0.1
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
-
-            if GetUnitAbilityLevel(Damage.source.unit, buff) > 0 and damage > 0 and not (Damage.source.unit == Damage.target.unit) then
-                call UnitDamageTarget(Damage.target.unit, Damage.source.unit, damage*GetReturnFactor(), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
+            if GetUnitAbilityLevel(Damage.source.unit, buff) > 0 and Damage.amount > 0 and not (Damage.source.unit == Damage.target.unit) then
+                call UnitDamageTarget(Damage.target.unit, Damage.source.unit, Damage.amount*GetReturnFactor(), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
             endif
         endmethod
 

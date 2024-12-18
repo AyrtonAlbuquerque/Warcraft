@@ -5,7 +5,7 @@ scope HolyScepter
         // Attributes
         real manaRegen = 500
         real intelligence = 500
-        real spellPowerFlat = 1250
+        real spellPower = 1250
 
         private static real array barrier
         
@@ -38,10 +38,9 @@ scope HolyScepter
         endmethod
 
         private static method onSpellDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
             local thistype this = GetTimerInstance(Damage.source.id)
 
-            if damage > 0 then
+            if Damage.amount > 0 then
                 if UnitHasItemOfType(Damage.source.unit, code) then
                     if this == 0 then
                         set this = thistype.new()
@@ -53,7 +52,7 @@ scope HolyScepter
                         call StartTimer(0.03125, true, this, Damage.source.id)
                     endif
 
-                    set barrier[index] = barrier[index] + damage*0.2
+                    set barrier[index] = barrier[index] + Damage.amount*0.2
                 endif
             endif
         endmethod  
@@ -61,17 +60,14 @@ scope HolyScepter
         private static method onAttackDamage takes nothing returns nothing
             local real damage = GetEventDamage()
 
-            if damage > 0 then
+            if Damage.amount > 0 then
                 if Damage.isEnemy and barrier[Damage.target.id] > 0 then
-                    if damage > barrier[Damage.target.id] then
-                        set damage = damage - barrier[Damage.target.id]
+                    if Damage.amount > barrier[Damage.target.id] then
+                        set Damage.amount = Damage.amount - barrier[Damage.target.id]
                         set barrier[Damage.target.id] = 0
-
-                        call BlzSetEventDamage(damage)
                     else
-                        set barrier[Damage.target.id] = barrier[Damage.target.id] - damage
-
-                        call BlzSetEventDamage(0)
+                        set barrier[Damage.target.id] = barrier[Damage.target.id] - Damage.amount
+                        set Damage.amount = 0
                     endif
                 endif
             endif

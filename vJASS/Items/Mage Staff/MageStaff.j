@@ -5,7 +5,7 @@ scope MageStaff
         real health = 275
         real intelligence = 8
         real spellVamp = 0.05
-        real spellPowerFlat = 25
+        real spellPower = 25
 
         private static method onInit takes nothing returns nothing
             call thistype.allocate(code, BraceletOfIntelligence.code, FusedLifeCrystals.code, MageStick.code, 0, 0)

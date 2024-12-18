@@ -5,9 +5,9 @@ scope DualDagger
 
         // Attributes
         real damage = 500
-        real evasionChance = 25
+        real evasion = 0.25
         real lifeSteal = 0.25
-        real spellPowerFlat = 250
+        real spellPower = 250
 
         private static integer array amount
         private static boolean array state
@@ -85,7 +85,7 @@ scope DualDagger
         
                         call StartTimer(1, true, this, -1)
                         call UnitAddMoveSpeedBonus(Damage.target.unit, -0.5, 0, 0)
-                        call AddUnitBonus(Damage.target.unit, BONUS_ATTACK_SPEED, -0.50)
+                        call AddUnitBonus(Damage.target.unit, BONUS_ATTACK_SPEED, -0.5)
                     endif
         
                     set duration = 6

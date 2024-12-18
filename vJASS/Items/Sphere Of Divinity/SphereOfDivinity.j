@@ -35,7 +35,7 @@ scope SphereOfDivinity
 		static constant integer buff = 'B00L'
 
         // Attributes
-        real spellPowerFlat = 50
+        real spellPower = 50
 
         private static integer array touch
 
@@ -51,7 +51,7 @@ scope SphereOfDivinity
             local thistype this
 
             if UnitHasItemOfType(Damage.source.unit, code) then
-                call BlzSetEventDamage(GetEventDamage()*GetAmplification())
+                set Damage.amount = Damage.amount * GetAmplification()
 
                 if Damage.isEnemy and GetRandomReal(1, 100) <= GetChance() then
                     set this = thistype.new()
@@ -64,9 +64,10 @@ scope SphereOfDivinity
             endif
 
             if GetUnitAbilityLevel(Damage.target.unit, buff) > 0 and Damage.isEnemy then
-                set damage = GetEventDamage()*GetHealFactor()
-                call SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + damage))
-                call ArcingTextTag.create(("|cff32cd32" + "+" + I2S(R2I(damage))), Damage.source.unit)
+                set Damage.amount = Damage.amount * GetHealFactor()
+
+                call SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + Damage.amount))
+                call ArcingTextTag.create(("|cff32cd32" + "+" + I2S(R2I(Damage.amount))), Damage.source.unit)
             endif
         endmethod
 

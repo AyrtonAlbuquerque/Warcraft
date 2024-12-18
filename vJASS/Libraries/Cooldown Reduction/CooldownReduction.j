@@ -1,5 +1,5 @@
 library CooldownReduction requires RegisterPlayerUnitEvent, Table, Alloc, Indexer
-    /* ------------------ Cooldown Reduction v1.9 by Chopinski ------------------ */
+    /* ------------------ Cooldown Reduction v2.0 by Chopinski ------------------ */
         // Intro
         //     This library intension in to introduce to warcraft an easy way to 
         //     manipulate abilities cooldowns based on a cooldown reduction value that
@@ -250,14 +250,15 @@ library CooldownReduction requires RegisterPlayerUnitEvent, Table, Alloc, Indexe
                 endif
             endmethod
             
-            static method remove takes unit u, real amount returns nothing
+            static method remove takes unit u, real amount returns boolean
                 local integer idx = GetUnitUserData(u)
                 local integer id = GetHandleId(u)
+                local boolean removed = false
                 local integer i = 0
                 local real aux
     
                 if amount == 0 then
-                    return
+                    return false
                 endif
     
                 loop
@@ -265,20 +266,27 @@ library CooldownReduction requires RegisterPlayerUnitEvent, Table, Alloc, Indexe
                         set aux = LoadReal(hashtable, id, i)
                         
                         if aux == amount then
+                            set removed = true
+
                             call RemoveSavedReal(hashtable, id, i)
+
                             if i != count[idx] - 1 then
                                 set aux = LoadReal(hashtable, id, count[idx] - 1)
                                 call SaveReal(hashtable, id, i, aux)
                                 call RemoveSavedReal(hashtable, id, count[idx] - 1)
                             endif
+
                             set count[idx] = count[idx] - 1
                             set normal[idx] = calculate(u)
                             set i = count[idx] + 1
+
                             call update(u)
                         else
                             set i = i + 1
                         endif
                 endloop
+
+                return removed
             endmethod
         
             static method calculateCooldown takes unit u, integer id, integer level, real cooldown returns nothing
@@ -386,8 +394,8 @@ library CooldownReduction requires RegisterPlayerUnitEvent, Table, Alloc, Indexe
             call CDR.Set(u, CDR.get(u, 2) + value, 2)
         endfunction
     
-        function UnitRemoveCooldownReduction takes unit u, real value returns nothing
-            call CDR.remove(u, value)
+        function UnitRemoveCooldownReduction takes unit u, real value returns boolean
+            return CDR.remove(u, value)
         endfunction
     
         function CalculateAbilityCooldown takes unit u, integer id, integer level, real cooldown returns nothing

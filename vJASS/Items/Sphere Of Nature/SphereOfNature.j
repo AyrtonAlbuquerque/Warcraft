@@ -37,7 +37,7 @@ scope SphereOfNature
         static constant integer code = 'I04N'
 
         // Attributes
-        real spellPowerFlat = 50
+        real spellPower = 50
 
         private static boolean array entangled
 
@@ -152,7 +152,7 @@ scope SphereOfNature
 
         private static method onDamage takes nothing returns nothing
             if UnitHasItemOfType(Damage.target.unit, code) and not (Damage.source.unit == Damage.target.unit) then
-                call UnitDamageTarget(Damage.target.unit, Damage.source.unit, GetEventDamage()*GetReturnFactor(), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
+                call UnitDamageTarget(Damage.target.unit, Damage.source.unit, Damage.amount*GetReturnFactor(), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
             endif
         endmethod
 

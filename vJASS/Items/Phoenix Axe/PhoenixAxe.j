@@ -20,9 +20,9 @@ scope PhoenixAxe
         private static integer array attack
 
         real damage = 1250
-        real criticalChance = 25
+        real criticalChance = 0.25
         real criticalDamage = 2.5
-        real spellPowerFlat = 500
+        real spellPower = 500
 
         private static method launch takes unit source, unit target, real damage returns nothing
             local real x = GetUnitX(target)

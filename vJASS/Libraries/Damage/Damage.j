@@ -9,6 +9,12 @@ library DamageInterface requires Table
     globals
         // Set to true to enable evasion system
         private constant boolean USE_EVASION = true
+        // If true will use armor and magic penetration. This makes armor type differentiation irrelevant
+        private constant boolean USE_PENETRATION = true
+        // Armor effectiveness. overwrites the default when USE_PENETRATION is true
+        private constant real ARMOR_MULTIPLIER = 0.06
+        // Magic resistance effectiveness. overwrites the default when USE_PENETRATION is true
+        private constant real MAGIC_MULTIPLIER = 0.06
         // Heroes base magic resistance, which with the current formula equates to aproximately 24% magic resistance
         private constant real BASE_HERO_MAGIC_RESISTANCE = 5
     endglobals
@@ -176,7 +182,7 @@ library DamageInterface requires Table
             set armor = armor * (1 - GetUnitArmorPenetration(source, false))
         endif
 
-        return (armor * 0.06) / (1 + (armor * 0.06))
+        return (armor * ARMOR_MULTIPLIER) / (1 + (armor * ARMOR_MULTIPLIER))
     endfunction
 
     /* ----------------------------------- Magic Penetration ----------------------------------- */
@@ -199,7 +205,7 @@ library DamageInterface requires Table
             set magic = magic * (1 - GetUnitMagicPenetration(source, false))
         endif
 
-        return (magic * 0.06) / (1 + (magic * 0.06))
+        return (magic * MAGIC_MULTIPLIER) / (1 + (magic * MAGIC_MULTIPLIER))
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */
@@ -479,7 +485,9 @@ library DamageInterface requires Table
                 set j = GetHandleId(damagetype)
 
                 if isSpell then
-                    set amount = premitigation * (1 - GetMagicReduction(source.unit, target.unit))
+                    static if USE_PENETRATION then
+                        set amount = premitigation * (1 - GetMagicReduction(source.unit, target.unit))
+                    endif
 
                     if after[i].trigger.has(0) then
                         call TriggerEvaluate(after[i].trigger[0])
@@ -487,7 +495,9 @@ library DamageInterface requires Table
                 endif
 
                 if isAttack and not evade then
-                    set amount = premitigation * (1 - GetArmorReduction(source.unit, target.unit))
+                    static if USE_PENETRATION then
+                        set amount = premitigation * (1 - GetArmorReduction(source.unit, target.unit))
+                    endif
 
                     if after[0].trigger.has(j) then
                         call TriggerEvaluate(after[0].trigger[j])

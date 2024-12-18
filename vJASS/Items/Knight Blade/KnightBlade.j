@@ -27,7 +27,7 @@ scope KnightBlade
         // Attributes
         real damage = 40
         real attackSpeed = 0.25
-        real criticalChance = 20
+        real criticalChance = 0.2
         real criticalDamage = 0.5
 
         private static integer array bonus

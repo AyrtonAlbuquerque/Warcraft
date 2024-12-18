@@ -5,7 +5,7 @@ scope HolyHammer
         // Attributes
         real damage = 1000
         real strength = 750
-        real spellPowerFlat = 750
+        real spellPower = 750
 
         private static integer array bonus
 
@@ -46,10 +46,9 @@ scope HolyHammer
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
             local thistype this = GetTimerInstance(Damage.source.id)
         
-            if damage > 0 and UnitHasItemOfType(Damage.source.unit, code) then
+            if Damage.amount > 0 and UnitHasItemOfType(Damage.source.unit, code) then
                 if Damage.isEnemy and Damage.source.isMelee and not Damage.target.isStructure and (Damage.isAttack or Damage.damagetype == DAMAGE_TYPE_ENHANCED) then  
                     if this == 0 then
                         set this = thistype.new()
@@ -68,15 +67,15 @@ scope HolyHammer
                     endif
 
                     if Damage.target.isHero then
-                        set damage = 2*damage
+                        set Damage.amount = 2*Damage.amount
                     endif
 
                     if Damage.isAttack then
                         set bonus[index] = bonus[index] + 1
-                        set stored = stored + damage
+                        set stored = stored + Damage.amount
                         call UnitAddStat(unit, 1, 0, 0)
                     else
-                        set stored = stored + 0.25*damage
+                        set stored = stored + 0.25*Damage.amount
                     endif
             
                     set regen = stored/320

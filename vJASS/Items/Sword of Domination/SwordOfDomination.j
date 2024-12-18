@@ -4,28 +4,26 @@ scope SwordOfDomination
         static integer array attack
 
         real damage = 2000
-        real criticalChance = 35
+        real criticalChance = 0.35
         real criticalDamage = 3.5
-        real spellPowerFlat = 500
+        real spellPower = 500
 
         private static method onDamage takes nothing returns nothing
-            local real damage
             local group g
 
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure then
                 set attack[Damage.source.id] = attack[Damage.source.id] + 1
 
                 if attack[Damage.source.id] >= 5 then
-                    set damage = GetEventDamage()
                     set attack[Damage.source.id] = 0
                     set g = GetEnemyUnitsInRange(Damage.source.player, Damage.target.x, Damage.target.y, 300, false, true)
 
                     if BlzGroupGetSize(g) > 1 then
                         call DestroyEffect(AddSpecialEffect("Thunder Slam.mdl", Damage.target.x, Damage.target.y))
-                        call UnitDamageGroup(Damage.source.unit, g, 2*damage, ATTACK_TYPE_HERO, DAMAGE_TYPE_ENHANCED, "", "", true)
+                        call UnitDamageGroup(Damage.source.unit, g, 2*Damage.amount, ATTACK_TYPE_HERO, DAMAGE_TYPE_ENHANCED, "", "", true)
                     elseif BlzGroupGetSize(g) == 1 then
-                        call BlzSetEventDamage(4*damage)
-                        call SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + 4*damage)
+                        set Damage.amount = 4*Damage.amount
+                        call SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + Damage.amount)
                         call DestroyGroup(g)
                         call DestroyEffect(AddSpecialEffect("Thunder Slam.mdl", Damage.target.x, Damage.target.y))
                     else

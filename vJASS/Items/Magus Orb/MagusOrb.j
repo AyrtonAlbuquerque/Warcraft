@@ -8,7 +8,7 @@ scope MagusOrb
         real intelligence = 500
         real manaRegen = 500
         real healthRegen = 500
-        real spellPowerFlat = 500
+        real spellPower = 500
 
         private static HashTable table
 
@@ -32,7 +32,7 @@ scope MagusOrb
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = 2*GetEventDamage()
+            local real damage = 2*Damage.amount
             local integer bonus
             local thistype this
         
@@ -40,8 +40,8 @@ scope MagusOrb
                 set this = thistype.new()
                 set unit = Damage.source.unit
                 set handle = Damage.source.handle
+                set Damage.amount = damage
 
-                call BlzSetEventDamage(damage)
                 call DestroyEffect(table[handle].effect[0])
                 call DestroyEffect(table[handle].effect[1])
                 call DestroyEffect(AddSpecialEffect("Blink Purple Caster.mdx", Damage.target.x, Damage.target.y))

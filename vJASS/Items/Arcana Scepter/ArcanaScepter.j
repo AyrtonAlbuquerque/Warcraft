@@ -5,18 +5,15 @@ scope ArcanaScepter
         real mana = 15000
         real health = 15000
         real manaRegen = 750
+        real spellPower = 1500
         real intelligence = 750
-        real spellPowerFlat = 1500
 
         static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
-
-            if UnitHasItemOfType(Damage.source.unit, code) and not Damage.target.isStructure and GetRandomReal(1, 100) <= 20 and damage > 0 then
-                set damage = 4*damage   
+            if UnitHasItemOfType(Damage.source.unit, code) and not Damage.target.isStructure and GetRandomReal(1, 100) <= 20 and Damage.amount > 0 then
+                set Damage.amount = 4 * Damage.amount   
                 
-                call BlzSetEventDamage(damage)
-                call AddUnitBonusTimed(Damage.source.unit, BONUS_SPELL_POWER_FLAT, 200, 20)
-                call CreateTextOnUnit(Damage.target.unit, (R2I2S(damage) + "!"), 1.5, 0, 255, 255, 255)
+                call AddUnitBonusTimed(Damage.source.unit, BONUS_SPELL_POWER, 200, 20)
+                call CreateTextOnUnit(Damage.target.unit, (R2I2S(Damage.amount) + "!"), 1.5, 0, 255, 255, 255)
             endif
         endmethod
 

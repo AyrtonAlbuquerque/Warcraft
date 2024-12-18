@@ -32,20 +32,19 @@ scope SphereOfWater
 		static constant integer bolt = 'A03L'
         private static constant real cone = 60
 
-        real spellPowerFlat = 50
+        real spellPower = 50
 
         private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0050|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Damage Amplification|r: All |cffff0000physical damage|r is amplified by |cffffcc0018%%.|r\n\n|cff00ff00Passive|r: |cffffcc00Water Bubble|r: Every attack has |cffffcc0025%%|r chance to surronds the target in a water bubble. Attacking units affected by Water Bubble causes the bubble to splash bolts of water to enemy units behind the target, dealing |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) + "|r |cff0080fffMagic|r damage.\n\nLasts for 5 seconds.")
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
             local unit dummy
             local unit u
             local group g
 
             if UnitHasItemOfType(Damage.source.unit, code) then
-                call BlzSetEventDamage(damage * GetDamageFactor())
+                set Damage.amount = Damage.amount * GetDamageFactor()
 
                 if Damage.isEnemy and GetRandomInt(1, 100) <= GetChance() then
                     call CastAbilityTarget(Damage.target.unit, ability, "faeriefire", 1)

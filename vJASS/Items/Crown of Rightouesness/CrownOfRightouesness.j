@@ -7,7 +7,7 @@ scope CrownOfRightouesness
         // Attributes
         real mana = 10000
         real manaRegen = 250
-        real spellPowerFlat = 600
+        real spellPower = 600
 
         private static real array shield
 
@@ -42,19 +42,15 @@ scope CrownOfRightouesness
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
-
-            if shield[Damage.target.id] > 0 and damage > 0 then
-                if damage > shield[Damage.target.id] then
-                    set damage = damage - shield[Damage.target.id]
+            if shield[Damage.target.id] > 0 and Damage.amount > 0 then
+                if Damage.amount > shield[Damage.target.id] then
+                    set Damage.amount = Damage.amount - shield[Damage.target.id]
                     set shield[Damage.target.id] = 0
 
-                    call BlzSetEventDamage(damage)
                     call UnitRemoveAbility(Damage.target.unit, buff)
                 else
-                    set shield[Damage.target.id] = shield[Damage.target.id] - damage
-
-                    call BlzSetEventDamage(0)
+                    set shield[Damage.target.id] = shield[Damage.target.id] - Damage.amount
+                    set Damage.amount = 0
                 endif
             endif
         endmethod   

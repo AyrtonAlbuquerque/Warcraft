@@ -7,7 +7,7 @@ scope SapphireHammer
 		// Attributes
         real damage = 750
         real strength = 500
-        real spellPowerFlat = 400
+        real spellPower = 400
 
 		private static integer array bonus
 	

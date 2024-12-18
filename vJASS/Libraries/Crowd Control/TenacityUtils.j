@@ -1,5 +1,5 @@
 library TenacityUtils requires Tenacity
-    /* ------------------------------------- Tenacity Utils v1.0 ------------------------------------ */
+    /* ------------------------------------- Tenacity Utils v1.1 ------------------------------------ */
     // Utility Library that include a few extra functions to deal with Tenacity
     /* ---------------------------------------- By Chopinski ---------------------------------------- */
 

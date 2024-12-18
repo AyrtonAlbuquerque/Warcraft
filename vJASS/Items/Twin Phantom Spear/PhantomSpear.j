@@ -6,7 +6,7 @@ scope PhantomSpear
         real damage = 750
         real attackSpeed = 2.5
         real movementSpeed = 75
-        real spellPowerFlat = 750
+        real spellPower = 750
 
         private static boolean array thunder
 

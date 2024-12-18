@@ -14,7 +14,7 @@ scope LegendaryBladeV
 		// Attributes
         real damage = 2000
         real attackSpeed = 2.5
-        real spellPowerFlat = 1500
+        real spellPower = 1500
 	
 		method destroy takes nothing returns nothing
 			call DestroyEffect(table.effect[0])
@@ -68,7 +68,7 @@ scope LegendaryBladeV
 			local thistype this
 	
 			if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure then
-				set amount[Damage.source.id] = GetEventDamage()
+				set amount[Damage.source.id] = Damage.amount
 				set attack[Damage.source.id]  = attack[Damage.source.id] + 1
 	
 				if attack[Damage.source.id] == 5 then

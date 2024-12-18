@@ -5,7 +5,7 @@ scope FireBow
 		// Attributes
         real damage = 750
         real agility = 500
-        real spellPowerFlat = 500
+        real spellPower = 500
 
 		private static HashTable table
 		private static integer array struct
@@ -56,7 +56,7 @@ scope FireBow
 		private static method onDamage takes nothing returns nothing
 			local thistype this
 	
-			if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure and GetEventDamage() < GetWidgetLife(Damage.target.unit) then
+			if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure and Damage.amount < GetWidgetLife(Damage.target.unit) then
 				if table[Damage.target.handle][Damage.source.handle] == 0 then
 					set this = thistype.new()
 					set source = Damage.source.unit

@@ -21,7 +21,7 @@ scope SphereOfDarkness
         static constant integer code = 'I04W'
         static constant integer ability = 'A03R'
 
-        real spellPowerFlat = 50
+        real spellPower = 50
 
         private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0050|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Dark Curse|r: Every attack has |cffffcc0030%%|r chance to Deal |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) + "|r |cff0080ffMagic|r damage and cast |cffffcc00Dark Curse|r in the target, reducing its armor and all aliied units within |cffffcc00600|r AoE by |cffffcc0010|r.\n\nLasts for 10 seconds.")

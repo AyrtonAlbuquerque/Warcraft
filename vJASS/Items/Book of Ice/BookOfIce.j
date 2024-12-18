@@ -8,7 +8,7 @@ scope BookOfIce
 
         real armor = 10
         real intelligence = 250
-        real spellPowerFlat = 600
+        real spellPower = 600
         
         private static method onDamage takes nothing returns nothing
             local unit v

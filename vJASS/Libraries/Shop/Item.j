@@ -1,4 +1,4 @@
-library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, optional Indexer
+library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optional Indexer
     /* --------------------------------------- Item v1.0 --------------------------------------- */
     // Credits:
     //      Bribe: Table library
@@ -36,33 +36,37 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
     private interface Events
-        real damage = 0
+        real mana = 0
         real armor = 0
+        real block = 0
+        real damage = 0
+        real health = 0
+        real evasion = 0
         real agility = 0
         real strength = 0
-        real intelligence = 0
-        real health = 0
-        real mana = 0
-        real movementSpeed = 0
-        real sightRange = 0
-        real healthRegen = 0
+        real tenacity = 0
+        real lifeSteal = 0
+        real spellVamp = 0
         real manaRegen = 0
+        real sightRange = 0
+        real missChance = 0
+        real spellPower = 0
+        real healthRegen = 0
         real attackSpeed = 0
-        real magicResistance = 0
-        real evasionChance = 0
+        real intelligence = 0
+        real tenacityFlat = 0
+        real movementSpeed = 0
         real criticalDamage = 0
         real criticalChance = 0
-        real lifeSteal = 0
-        real missChance = 0
-        real spellPowerFlat = 0
-        real spellPowerPercent = 0
-        real spellVamp = 0
-        real cooldownReduction = 0
-        real cooldownReductionFlat = 0
         real cooldownOffset = 0
-        real tenacity = 0
-        real tenacityFlat = 0
         real tenacityOffset = 0
+        real magicResistance = 0
+        real armorPenetration = 0
+        real magicPenetration = 0
+        real cooldownReduction = 0
+        real armorPenetrationFlat = 0
+        real magicPenetrationFlat = 0
+        real cooldownReductionFlat = 0
 
         method onTooltip takes unit u, item i, integer id returns nothing defaults nothing
         method onPickup takes unit u, item i returns nothing defaults nothing
@@ -89,18 +93,6 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
         private thistype type
 
         readonly integer id
-        
-        method destroy takes nothing returns nothing
-            if this == itempool[id][0] then
-                call component.flush()
-                call relation.flush()
-                call counter.flush()
-                call itempool[id].flush()
-                call itempool.remove(id)
-            endif
-
-            call deallocate()
-        endmethod
 
         private method operator gold= takes integer value returns nothing
             set itempool[id][1] = value
@@ -407,9 +399,10 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
             set table[GetHandleId(u)][GetItemTypeId(i)] = table[GetHandleId(u)][GetItemTypeId(i)] + 1
 
             if this != 0 then
-                static if LIBRARY_NewBonusUtils and LIBRARY_Indexer then
+                static if LIBRARY_NewBonus then
                     call LinkBonusToItem(u, BONUS_DAMAGE, damage, i)
                     call LinkBonusToItem(u, BONUS_ARMOR, armor, i)
+                    call LinkBonusToItem(u, BONUS_DAMAGE_BLOCK, block, i)
                     call LinkBonusToItem(u, BONUS_AGILITY, agility, i)
                     call LinkBonusToItem(u, BONUS_STRENGTH, strength, i)
                     call LinkBonusToItem(u, BONUS_INTELLIGENCE, intelligence, i)
@@ -421,13 +414,12 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
                     call LinkBonusToItem(u, BONUS_MANA_REGEN, manaRegen, i)
                     call LinkBonusToItem(u, BONUS_ATTACK_SPEED, attackSpeed, i)
                     call LinkBonusToItem(u, BONUS_MAGIC_RESISTANCE, magicResistance, i)
-                    call LinkBonusToItem(u, BONUS_EVASION_CHANCE, evasionChance, i)
+                    call LinkBonusToItem(u, BONUS_EVASION_CHANCE, evasion, i)
                     call LinkBonusToItem(u, BONUS_CRITICAL_DAMAGE, criticalDamage, i)
                     call LinkBonusToItem(u, BONUS_CRITICAL_CHANCE, criticalChance, i)
                     call LinkBonusToItem(u, BONUS_LIFE_STEAL, lifeSteal, i)
                     call LinkBonusToItem(u, BONUS_MISS_CHANCE, missChance, i)
-                    call LinkBonusToItem(u, BONUS_SPELL_POWER_FLAT, spellPowerFlat, i)
-                    call LinkBonusToItem(u, BONUS_SPELL_POWER_PERCENT, spellPowerPercent, i)
+                    call LinkBonusToItem(u, BONUS_SPELL_POWER, spellPower, i)
                     call LinkBonusToItem(u, BONUS_SPELL_VAMP, spellVamp, i)
                     call LinkBonusToItem(u, BONUS_COOLDOWN_REDUCTION, cooldownReduction, i)
                     call LinkBonusToItem(u, BONUS_COOLDOWN_REDUCTION_FLAT, cooldownReductionFlat, i)
@@ -435,6 +427,10 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonusUtils, op
                     call LinkBonusToItem(u, BONUS_TENACITY, tenacity, i)
                     call LinkBonusToItem(u, BONUS_TENACITY_FLAT, tenacityFlat, i)
                     call LinkBonusToItem(u, BONUS_TENACITY_OFFSET, tenacityOffset, i)
+                    call LinkBonusToItem(u, BONUS_ARMOR_PENETRATION, armorPenetration, i)
+                    call LinkBonusToItem(u, BONUS_ARMOR_PENETRATION_FLAT, armorPenetrationFlat, i)
+                    call LinkBonusToItem(u, BONUS_MAGIC_PENETRATION, magicPenetration, i)
+                    call LinkBonusToItem(u, BONUS_MAGIC_PENETRATION_FLAT, magicPenetrationFlat, i)
                 endif
 
                 static if LIBRARY_Indexer then

@@ -24,7 +24,7 @@ scope BookOfChaos
 
         real health = 5000
         real intelligence = 250
-        real spellPowerFlat = 600
+        real spellPower = 600
         
         private static method onDamage takes nothing returns nothing
             local real i = 0
@@ -46,7 +46,7 @@ scope BookOfChaos
                             set missile.scale = 2
                             set missile.speed = 400
                             set missile.collision = 100
-                            set missile.damage = GetEventDamage()
+                            set missile.damage = Damage.amount
                             set missile.owner = Damage.source.player
 
                             call missile.launch()
@@ -54,7 +54,7 @@ scope BookOfChaos
                     endloop
                 elseif attack[Damage.source.id] == 2 then
                     call DestroyEffect(AddSpecialEffect("ShaSmash.mdx", Damage.target.x, Damage.target.y))
-                    call UnitDamageArea(Damage.source.unit, Damage.target.x, Damage.target.y, 300, GetEventDamage(), ATTACK_TYPE_CHAOS, DAMAGE_TYPE_MAGIC, false, true, false)
+                    call UnitDamageArea(Damage.source.unit, Damage.target.x, Damage.target.y, 300, Damage.amount, ATTACK_TYPE_CHAOS, DAMAGE_TYPE_MAGIC, false, true, false)
                 endif
             endif
         endmethod

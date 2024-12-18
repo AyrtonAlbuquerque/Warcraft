@@ -7,7 +7,7 @@ scope CrownOfGods
         real health = 25000
         real manaRegen = 750
         real intelligence = 750
-        real spellPowerFlat = 750
+        real spellPower = 750
 
         private static real array multiplier
 
@@ -89,28 +89,27 @@ scope CrownOfGods
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
             local thistype this
 
-            if damage > 0 then
+            if Damage.amount > 0 then
                 if UnitHasItemOfType(Damage.target.unit, code) and HasStartedTimer(Damage.target.id) then
                     set this = GetTimerInstance(Damage.target.id)
 
                     if this != 0 then
                         if shield > 0 and not recharging then
-                            if damage > shield then
+                            if Damage.amount > shield then
                                 set shield = 0
                                 set duration = 640
                                 set recharging = true
                                 set amplify = true
                                 set multiplier[Damage.target.id] = 1.
+                                set Damage.amount = Damage.amount - shield
 
                                 call DestroyEffect(effect)
                                 set effect = AddSpecialEffectTarget("Abilities\\Spells\\Human\\InnerFire\\InnerFireTarget.mdl", unit, "overhead")
-                                call BlzSetEventDamage(damage - shield)
                             else
-                                set shield = shield - damage
-                                call BlzSetEventDamage(0)
+                                set shield = shield - Damage.amount
+                                set Damage.amount = 0
                             endif
                         endif
                     endif
@@ -119,10 +118,8 @@ scope CrownOfGods
         endmethod
 
         private static method onSpellDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
-
-            if UnitHasItemOfType(Damage.source.unit, code) and damage > 0 then
-                call BlzSetEventDamage(damage + GetHeroInt(Damage.source.unit, true)*multiplier[Damage.source.id]) 
+            if UnitHasItemOfType(Damage.source.unit, code) and Damage.amount > 0 then
+                set Damage.amount = damage + GetHeroInt(Damage.source.unit, true)*multiplier[Damage.source.id]
             endif
         endmethod
 

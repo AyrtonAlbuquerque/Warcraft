@@ -3,7 +3,7 @@ scope IronAxe
         static constant integer code = 'I01S'
 
         real damage = 5
-        real criticalChance = 10
+        real criticalChance = 0.1
         real criticalDamage = 0.2
 
         private static method onInit takes nothing returns nothing

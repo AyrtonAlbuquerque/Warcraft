@@ -29,7 +29,7 @@ scope DesertRing
 
         real mana = 250
         real manaRegen = 4
-        real spellPowerFlat = 25
+        real spellPower = 25
 
         private static method onDamage takes nothing returns nothing
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and GetRandomReal(1, 100) <= GetChance() then
@@ -45,7 +45,7 @@ scope DesertRing
 
         private static method onDebuff takes nothing returns nothing
             if GetUnitAbilityLevel(Damage.source.unit, buff) > 0 then
-                call BlzSetEventDamage(GetEventDamage()*GetDamageReduction())
+                set Damage.amount = Damage.amount * GetDamageReduction()
             endif
         endmethod
 

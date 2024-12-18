@@ -27,7 +27,7 @@ scope RitualDagger
 
         real damage = 30
         real lifeSteal = 0.15
-        real evasionChance = 15
+        real evasion = 0.15
 
         private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0030|r Damage\n+ |cffffcc0015%%|r Evasion\n+ |cffffcc0015%%|r Life Steal\n\n|cff00ff00Passive|r: |cffffcc00Assassination|r: Every attack has |cffffcc0010%%|r chance to instantly kill|cffffcc00 non-Hero|r targets and increase bounty of killed enemy by |cffffcc00100 gold|r.\n\n|cff00ff00Passive|r: |cffffcc00Sacrifice|r: When an enemy unit is assassinated by this item effect, your Hero health is recovered by |cffffcc0015%%|r of the target |cffffcc00max health|r.\n\nGold Granted: |cffffcc00" + I2S(RitualDagger.bounty[id]) + "|r")

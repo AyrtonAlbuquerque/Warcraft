@@ -17,7 +17,7 @@ scope ChillingAxe
         static constant integer code = 'I03P'
     
         real damage = 35
-        real criticalChance = 15
+        real criticalChance = 0.15
         real criticalDamage = 0.35
 
         private method onPickup takes unit u, item i returns nothing

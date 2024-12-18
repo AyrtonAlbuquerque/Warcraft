@@ -27,7 +27,7 @@ scope GreedyAxe
         // Attributes
         real damage = 45
         real criticalDamage = 1
-        real criticalChance = 25
+        real criticalChance = 0.25
 
         private static integer array bonus
 
@@ -80,12 +80,12 @@ scope GreedyAxe
                 call DestroyEffect(AddSpecialEffectTarget("UI\\Feedback\\GoldCredit\\GoldCredit.mdl", Damage.target.unit, "origin"))
 
                 if IsUnitType(Damage.target.unit, UNIT_TYPE_HERO) then
-                    set pillage = R2I(GetEventDamage()*GetHeroFactor())
+                    set pillage = R2I(Damage.amount*GetHeroFactor())
                     set bonus[Damage.source.id] = bonus[Damage.source.id] + pillage
                     call AddPlayerGold(Damage.source.player, pillage)
                     call CreateTextOnUnit(Damage.target.unit, ("+" + I2S(pillage)), 0.75, 255, 215, 0, 255)
                 else
-                    set pillage = R2I(GetEventDamage()*GetFactor())
+                    set pillage = R2I(Damage.amount*GetFactor())
                     set bonus[Damage.source.id] = bonus[Damage.source.id] + pillage
                     call AddPlayerGold(Damage.source.player, pillage)
                     call CreateTextOnUnit(Damage.target.unit, ("+" + I2S(pillage)), 0.75, 255, 215, 0, 255)

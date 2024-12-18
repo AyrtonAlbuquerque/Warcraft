@@ -32,8 +32,8 @@ scope BerserkerBoots
 
         // Attributes
         real damage = 10
+        real evasion = 0.15
         real attackSpeed = 0.1
-        real evasionChance = 15
         real movementSpeed = 35
 
         private unit unit

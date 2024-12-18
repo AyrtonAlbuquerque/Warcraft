@@ -6,8 +6,8 @@ scope AncientSphere
         real mana = 10000 
         real health = 10000 
         real manaRegen = 100 
+        real spellPower = 100 
         real healthRegen = 100 
-        real spellPowerFlat = 100 
 
         private static integer array hp
         private static integer array mp

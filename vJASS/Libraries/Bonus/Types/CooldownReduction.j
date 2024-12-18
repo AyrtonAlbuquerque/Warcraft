@@ -15,10 +15,8 @@ scope CooldownReductionBonus
         endmethod
 
         method add takes unit u, real value returns real
-            if value >= 0 then
+            if not UnitRemoveCooldownReduction(u, -value) then
                 call UnitAddCooldownReduction(u, value)
-            else
-                call UnitRemoveCooldownReduction(u, -value)
             endif
 
             return value

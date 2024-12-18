@@ -23,7 +23,7 @@ scope BookOfOceans
         
         real mana = 5000
         real intelligence = 250
-        real spellPowerFlat = 600
+        real spellPower = 600
 
         private static method onDamage takes nothing returns nothing
             local real i = 0
@@ -45,7 +45,7 @@ scope BookOfOceans
                         set missile.scale = 0.75
                         set missile.speed = 900
                         set missile.collision = 100
-                        set missile.damage = 1.2*GetEventDamage()
+                        set missile.damage = 1.2*Damage.amount
 
                         call missile.launch()
                     set i = i + 22.5

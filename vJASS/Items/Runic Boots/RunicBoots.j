@@ -27,8 +27,8 @@ scope RunicBoots
 
         real mana = 150
         real health = 150
+        real spellPower = 20
         real movementSpeed = 75
-        real spellPowerFlat = 20
 
         private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r \n+ |cffffcc00150|r Health \n+ |cffffcc00150|r Mana \n+ |cffffcc0020|r Spell Power \n+ |cffffcc0075|r Movement Speed \n\n|cff80ff00Active:|r|cffffcc00 Restoration: |rHeals Health and Mana for |cffffcc00" + R2I2S(GetHealth() * GetHeroLevel(u)) + "|r. \n\nReaching level |cff80ff0015 |rgrants |cffff800025 All Stats|r. \n\n10 seconds cooldown.")

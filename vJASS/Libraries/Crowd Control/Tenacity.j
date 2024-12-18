@@ -1,5 +1,5 @@
 library Tenacity requires Indexer, Alloc
-    /* ---------------------------------------- Tenacity v1.0 --------------------------------------- */
+    /* ---------------------------------------- Tenacity v1.1 --------------------------------------- */
     // Intro
     //      This library intension in to introduce to warcraft an easy way to 
     //      manipulate the duration of crowd control on units.
@@ -61,8 +61,8 @@ library Tenacity requires Indexer, Alloc
         call Tenacity.add(u, value, 2)
     endfunction
 
-    function UnitRemoveTenacity takes unit u, real value returns nothing
-        call Tenacity.remove(u, value)
+    function UnitRemoveTenacity takes unit u, real value returns boolean
+        return Tenacity.remove(u, value)
     endfunction
 
     function GetTenacityDuration takes unit u, real duration returns real
@@ -138,21 +138,27 @@ library Tenacity requires Indexer, Alloc
             return node
         endmethod
 
-        method remove takes real value returns nothing
+        method remove takes real value returns boolean
             local thistype node = this.next
+            local boolean removed = false
         
             loop
                 exitwhen node == this
                     if node.value == value then
                         set size = size - 1
+                        set removed = true
+
                         call node.pop()
                         call node.deallocate()
+
                         exitwhen true
                     endif
                 set node = node.next
             endloop
 
             call update()
+
+            return removed
         endmethod
 
         method update takes nothing returns nothing
@@ -253,14 +259,16 @@ library Tenacity requires Indexer, Alloc
             endif
         endmethod
 
-        static method remove takes unit source, real value returns nothing
+        static method remove takes unit source, real value returns boolean
             local integer id = GetUnitUserData(source)
             local thistype this
 
             if value != 0 and struct[id] != 0 then
                 set this = struct[id]
-                call list.remove(value)
+                return list.remove(value)
             endif
+
+            return false
         endmethod
 
         static method calculate takes unit source, real duration returns real

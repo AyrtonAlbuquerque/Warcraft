@@ -33,7 +33,7 @@ scope SphereOfLightning
         static constant integer code = 'I04T'
 
         // Attributes
-        real spellPowerFlat = 50
+        real spellPower = 50
 
         private unit unit
         private group group

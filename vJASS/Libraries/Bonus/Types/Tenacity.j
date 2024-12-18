@@ -15,10 +15,8 @@ scope TenacityBonus
         endmethod
 
         method add takes unit u, real value returns real
-            if value >= 0 then
+            if not UnitRemoveTenacity(u, -value) then
                 call UnitAddTenacity(u, value)
-            else
-                call UnitRemoveTenacity(u, -value)
             endif
 
             return value

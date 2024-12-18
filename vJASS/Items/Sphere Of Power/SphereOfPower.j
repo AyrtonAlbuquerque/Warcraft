@@ -12,13 +12,13 @@ scope SphereOfPower
     struct SphereOfPower extends Item
         static constant integer code = 'I04G'
     
-        real spellPowerFlat = 30
+        real spellPower = 30
 
         private static method onDamage takes nothing returns nothing
             local real damage = GetEventDamage()
 
-            if UnitHasItemOfType(Damage.source.unit, code) and damage > 0 then
-                call BlzSetEventDamage(damage * GetDamageFactor())
+            if UnitHasItemOfType(Damage.source.unit, code) and Damage.amount > 0 then
+                set Damage.amount = Damage.amount * GetDamageFactor()
             endif
         endmethod
 

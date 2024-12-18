@@ -6,7 +6,7 @@ scope LegendaryBladeII
 		// Attributes
         real damage = 1250
         real attackSpeed = 1
-        real spellPowerFlat = 750
+        real spellPower = 750
 
 		private static real array amount
 		private static integer array attack
@@ -82,7 +82,7 @@ scope LegendaryBladeII
 			local BladeMissile missile
 	
 			if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure then
-				set amount[Damage.source.id] = GetEventDamage()
+				set amount[Damage.source.id] = Damage.amount
 				set attack[Damage.source.id]  = attack[Damage.source.id] + 1
 	
 				if attack[Damage.source.id] == 3 then

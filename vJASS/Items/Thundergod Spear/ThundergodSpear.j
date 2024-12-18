@@ -6,7 +6,7 @@ scope ThundergodSpear
 
         real damage = 500
         real attackSpeed = 1.5
-        real spellPowerFlat = 500
+        real spellPower = 500
 
         private method onTooltip takes unit u, item i, integer id returns nothing
             call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00150%%|r Attack Speed\n+ |cffffcc00500|r Damage\n+ |cffffcc00500|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Chain Lightning|r: Every attack has |cffffcc0020%%|r chance to release chain lightning, dealing |cff00ffff" + AbilitySpellDamageEx(500, u) + " Magical|r damage up to |cffffcc005|r nearby enemies.\n\n|cff00ff00Active|r: |cffffcc00Lightning Fury|r: When activated |cffffcc00Thundergod Spear|r has |cffffcc00100%%|r chance of creating a |cffffcc00Chain Lightning|r dealing |cff00ffff" + AbilitySpellDamageEx(2000, u) + " Magical|r damage up to |cffffcc005|r nearby enemies and drainning |cff8080ff500 Mana|r per proc.")

@@ -3,7 +3,7 @@ scope OrcishAxe
         static constant integer code = 'I02S'
 
         real damage = 28
-        real criticalChance = 12
+        real criticalChance = 0.12
         real criticalDamage = 0.3
 
         private static method onInit takes nothing returns nothing

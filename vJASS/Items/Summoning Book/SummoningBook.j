@@ -2,7 +2,7 @@ scope SummoningBook
     struct SummoningBook extends Item
         static constant integer code = 'I01U'
 
-        real spellPowerFlat = 15
+        real spellPower = 15
         real cooldownReduction = 0.1
 
         private static method onInit takes nothing returns nothing
