@@ -16,19 +16,19 @@ library NewBonus requires Table, Periodic
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private interface BonusType
+    private interface IBonus
         method get takes unit u returns real defaults 0
         method Set takes unit u, real value returns real defaults 0
         method add takes unit u, real value returns real defaults 0
     endinterface
 
-    struct Bonus extends BonusType
+    struct Bonus extends IBonus
         private static HashTable table
         readonly static integer key = 0
         private static integer index = -1
         private static integer array array
         private static trigger array event
-        private static BonusType array struct
+        private static IBonus array struct
         private static trigger trigger = CreateTrigger()
 
         private item item
@@ -197,7 +197,7 @@ library NewBonus requires Table, Periodic
             endif
         endmethod
 
-        static method register takes BonusType bonus returns integer
+        static method register takes IBonus bonus returns integer
             set index = index + 1
             set array[index] = bonus.getType()
             set struct[bonus.getType()] = bonus
@@ -262,7 +262,7 @@ library NewBonus requires Table, Periodic
     /* ---------------------------------------------------------------------------------------------- */
     /*                                            JASS API                                            */
     /* ---------------------------------------------------------------------------------------------- */
-    function RegisterBonus takes BonusType bonus returns integer
+    function RegisterBonus takes IBonus bonus returns integer
         return Bonus.register(bonus)
     endfunction
 

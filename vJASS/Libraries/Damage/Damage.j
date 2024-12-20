@@ -329,6 +329,8 @@ library DamageInterface requires Table
         private Unit targets
         private real damage
         private boolean evade
+        private unit newSource
+        private unit newTarget
         private attacktype attackType
         private damagetype damageType
         private weapontype weaponType
@@ -339,6 +341,8 @@ library DamageInterface requires Table
 
             set damage = 0
             set evade = false
+            set newSource = null
+            set newTarget = null
             set attackType = null
             set damageType = null
             set weaponType = null
@@ -349,8 +353,16 @@ library DamageInterface requires Table
             return Damage.key.sources
         endmethod
 
+        static method operator source= takes unit value returns nothing
+            set Damage.key.newSource = value
+        endmethod
+
         static method operator target takes nothing returns Unit
             return Damage.key.targets
+        endmethod
+
+        static method operator target= takes unit value returns nothing
+            set Damage.key.newTarget = value
         endmethod
 
         static method operator amount takes nothing returns real
@@ -429,6 +441,8 @@ library DamageInterface requires Table
 
             set key = this
             set evade = false
+            set newSource = null
+            set newTarget = null
             set damage = GetEventDamage()
             set sources = Unit.create(GetEventDamageSource())
             set targets = Unit.create(BlzGetEventDamageTarget())
@@ -511,6 +525,20 @@ library DamageInterface requires Table
 
             call TriggerEvaluate(anyAfter)
             call BlzSetEventDamage(damage)
+
+            if newSource != null or newTarget != null then
+                if newSource != null then
+                    set source.unit = newSource
+                endif
+
+                if newTarget != null then
+                    set target.unit = newTarget
+                endif
+
+                call BlzSetEventDamage(0)
+                call UnitDamageTarget(source.unit, target.unit, amount, false, false, attacktype, damagetype, weapontype)
+            endif
+
             call destroy()
         endmethod
 

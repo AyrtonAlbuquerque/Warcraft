@@ -60,8 +60,8 @@ integer Table___more= 8190
     //Configure it if you use more than 8190 "key" variables in your map (this will never happen though).
     
 hashtable Table___ht= InitHashtable()
-constant integer Table___sizeK=8
-constant integer Table___listK=9
+constant integer Table___sizeK=3
+constant integer Table___listK=4
 //endglobals from Table
 //globals from TimerUtils:
 constant boolean LIBRARY_TimerUtils=true
@@ -173,387 +173,6 @@ constant real ArcingFloatingText___VELOCITY= 2
 //globals from CooldownReductionUtils:
 constant boolean LIBRARY_CooldownReductionUtils=true
 //endglobals from CooldownReductionUtils
-//globals from Interface:
-constant boolean LIBRARY_Interface=true
-        
-        // The initial position of the info panel
-constant real Interface___INFO_X= 0.34
-constant real Interface___INFO_Y= 0.11
-        // The size of the info panel
-constant real Interface___INFO_WIDTH= 0.12
-constant real Interface___INFO_HEIGHT= 0.15
-        
-        // The initial position of the portrait (relative to the info panel)
-constant real Interface___PORTRAIT_X= 0.017
-constant real Interface___PORTRAIT_Y= - 0.017
-        // Size of the portrait
-constant real Interface___PORTRAIT_WIDTH= 0.085
-constant real Interface___PORTRAIT_HEIGHT= 0.09
-        // Portrait darkness level (0 -> Normal, > 0 -> Darker)
-constant integer Interface___PORTRAIT_DARKNESS= 104
-        
-        // The initial position of the health bar (relative to the info panel)
-constant real Interface___HEALTH_X= 0.017
-constant real Interface___HEALTH_Y= - 0.092
-        // Size of the health bar
-constant real Interface___HEALTH_WIDTH= 0.085
-constant real Interface___HEALTH_HEIGHT= 0.0075
-        // The health bar texture
-constant string Interface___HEALTH_TEXTURE= "replaceabletextures\\teamcolor\\teamcolor00"
-        // The size of the health text
-constant real Interface___HEALTH_TEXT_SCALE= 0.65
-        // The transparency of the health bar (0 -> 100%, 255 -> 0%)
-constant integer Interface___HEALTH_TRANSPARENCY= 128
-        
-        // The initial position of the mana bar (relative to the info panel)
-constant real Interface___MANA_X= 0.017
-constant real Interface___MANA_Y= - 0.0995
-        // Size of the mana bar
-constant real Interface___MANA_WIDTH= 0.085
-constant real Interface___MANA_HEIGHT= 0.0075
-        // The mana bar texture
-constant string Interface___MANA_TEXTURE= "replaceabletextures\\teamcolor\\teamcolor01"
-        // The size of the mana text
-constant real Interface___MANA_TEXT_SCALE= 0.65
-        // The transparency of the mana bar (0 -> 100%, 255 -> 0%)
-constant integer Interface___MANA_TRANSPARENCY= 128
-        
-        // The initial position of the xp/timed life/progess bar (relative to the info panel)
-constant real Interface___PROGRESS_X= 0.017
-constant real Interface___PROGRESS_Y= - 0.107
-        // Size of the progress bar
-constant real Interface___PROGRESS_WIDTH= 0.085
-constant real Interface___PROGRESS_HEIGHT= 0.003
-        // The initial position of the buffs bar (relative to the info panel)
-        
-constant real Interface___BUFF_X= 0.006
-constant real Interface___BUFF_Y= 0.012
-        // Size of the buffs bar
-constant real Interface___BUFF_WIDTH= 0.1235
-constant real Interface___BUFF_HEIGHT= 0.015
-        
-        // The Initial position of the attributes buttons (relative to the info panel)
-constant real Interface___ATTRIBUTES_X= 0.017
-constant real Interface___ATTRIBUTES_Y= - 0.02
-        // The gap between each button
-constant real Interface___ATTRIBUTES_GAP= 0.014
-        // The size of the attributes buttons
-constant real Interface___ATTRIBUTES_WIDTH= 0.0125
-constant real Interface___ATTRIBUTES_HEIGHT= 0.0125
-        // The position of the attributes text (relative to the attributes buttons)
-constant real Interface___ATTRIBUTES_TEXT_X= 0.02
-constant real Interface___ATTRIBUTES_TEXT_Y= - 0.0025
-        // The size of the attributes text
-constant real Interface___ATTRIBUTES_TEXT_WIDTH= 0.15
-constant real Interface___ATTRIBUTES_TEXT_HEIGHT= 0.0125
-constant real Interface___ATTRIBUTES_TEXT_SCALE= 0.65
-        
-        // The size of the attributes toggle button
-constant real Interface___ATTRIBUTES_TOGGLE_WIDTH= 0.0125
-constant real Interface___ATTRIBUTES_TOGGLE_HEIGHT= 0.0125
-        // The attributes toggle button textures
-constant string Interface___ATTRIBUTES_TOGGLE_OPEN= "UI\\Minimap\\minimap-gold.blp"
-constant string Interface___ATTRIBUTES_TOGGLE_CLOSE= "UI\\Widgets\\EscMenu\\Human\\radiobutton-button.blp"
-        // The initial offsets of the buttons (relative to the panel)
-constant real Interface___ATTRIBUTES_BUTTON_X= 0.005
-constant real Interface___ATTRIBUTES_BUTTON_Y= 0.005
-        // The width and height of the attributes buttons
-constant real Interface___ATTRIBUTES_BUTTON_WIDTH= 0.02
-constant real Interface___ATTRIBUTES_BUTTON_HEIGHT= 0.02
-        // The gap between each button
-constant real Interface___ATTRIBUTES_BUTTON_GAP= 0.001
-        // The panel maximum columns
-constant integer Interface___ATTRIBUTES_COLUMNS= 5
-        
-        // The damage button texture
-constant string Interface___DAMAGE_TEXTURE= "ReplaceableTextures\\CommandButtons\\BTNAttack.blp"
-        
-        // The armor button texture
-constant string Interface___ARMOR_TEXTURE= "ReplaceableTextures\\CommandButtons\\BTNHumanArmorUpOne.blp"
-        
-        // The strength button texture
-constant string Interface___STRENGTH_TEXTURE= "UI\\Widgets\\Console\\Human\\infocard-heroattributes-str.blp"
-        
-        // The agility button texture
-constant string Interface___AGILITY_TEXTURE= "UI\\Widgets\\Console\\Human\\infocard-heroattributes-agi.blp"
-        
-        // The intelligence button texture
-constant string Interface___INTELLIGENCE_TEXTURE= "UI\\Widgets\\Console\\Human\\infocard-heroattributes-int.blp"
-        
-        // Main attribute highlight
-constant string Interface___ATTRIBUTE_HIGHLIGHT= "goldenbrown.mdx"
-constant real Interface___HIGHLIGHT_SCALE= 0.125
-constant real Interface___HIGHLIGHT_XOFFSET= 0.052
-constant real Interface___HIGHLIGHT_YOFFSET= 0.048
-        
-        // The initial position of the abilities panel
-constant real Interface___ABILITY_PANEL_X= 0.105
-constant real Interface___ABILITY_PANEL_Y= 0.055
-        // Size of the ability slots
-constant real Interface___ABILITY_SLOT_WIDTH= 0.038
-constant real Interface___ABILITY_SLOT_HEIGHT= 0.038
-        // The initial position of the abilities slot inside the panel (relative to the panel)
-constant real Interface___ABILITY_SLOT_X= 0.017
-constant real Interface___ABILITY_SLOT_Y= - 0.017
-        // The initial position of the ability icon inside the slot (relative to the slot)
-constant real Interface___ABILITY_ICON_X= 0.02
-constant real Interface___ABILITY_ICON_Y= - 0.02
-        // Size of the ability icons
-constant real Interface___ABILITY_ICON_WIDTH= 0.032
-constant real Interface___ABILITY_ICON_HEIGHT= 0.032
-        // Gap between each slot
-constant real Interface___ABILITY_SLOT_GAP= 0.0375
-        // Numbers of slots
-constant integer Interface___ABILITY_SLOT_COUNT= 6
-        // Set this to a texture to replace the default gold icon
-constant string Interface___ABILITY_SLOT_TEXTURE= "SpellSlot.blp"
-        
-        // The initial position of the item panel
-constant real Interface___ITEM_PANEL_X= 0.435
-constant real Interface___ITEM_PANEL_Y= 0.055
-        // Size of the item slots
-constant real Interface___ITEM_SLOT_WIDTH= 0.038
-constant real Interface___ITEM_SLOT_HEIGHT= 0.038
-        // The initial position of the item slot inside the panel (relative to the panel)
-constant real Interface___ITEM_SLOT_X= 0.017
-constant real Interface___ITEM_SLOT_Y= - 0.017
-        // The initial position of the item icon inside the slot (relative to the slot)
-constant real Interface___ITEM_ICON_X= 0.02
-constant real Interface___ITEM_ICON_Y= - 0.02
-        // Size of the item icons
-constant real Interface___ITEM_ICON_WIDTH= 0.032
-constant real Interface___ITEM_ICON_HEIGHT= 0.032
-        // Gap between each slot
-constant real Interface___ITEM_SLOT_GAP= 0.0375
-        // Numbers of slots
-constant integer Interface___ITEM_SLOT_COUNT= 6
-        // Set this to a texture to replace the default gold icon
-constant string Interface___ITEM_SLOT_TEXTURE= "ItemSlot.blp"
-        
-        // The initial position of the first hero icon
-constant real Interface___HERO_LIST_X= - 0.128
-constant real Interface___HERO_LIST_Y= 0.573
-        // Size of the hero icon
-constant real Interface___HERO_LIST_WIDTH= 0.038
-constant real Interface___HERO_LIST_HEIGHT= 0.038
-        // The gap between each icon
-constant real Interface___HERO_LIST_GAP= 0.0505
-        
-        // The initial position of the chat
-constant real Interface___CHAT_X= 0.00
-constant real Interface___CHAT_Y= 0.35
-        // The size of the chat
-constant real Interface___CHAT_WIDTH= 0.35
-constant real Interface___CHAT_HEIGHT= 0.2
-        
-        // The initial position of the first group buttons (relative to the abilities and item panels)
-constant real Interface___GROUP_X= 0.0235
-constant real Interface___GROUP_Y= 0.04
-        // Size of the group buttons
-constant real Interface___GROUP_WIDTH= 0.025
-constant real Interface___GROUP_HEIGHT= 0.025
-        // Gap between each button
-constant real Interface___GROUP_GAP= 0.0375
-        
-        // The initial position of the menu button
-constant real Interface___MENU_X= 0.39
-constant real Interface___MENU_Y= 0.60
-        // The size of the menu button
-constant real Interface___MENU_WIDTH= 0.02
-constant real Interface___MENU_HEIGHT= 0.02
-        // The menu button texture
-constant string Interface___OPEN_MENU_TEXTURE= "UI\\Widgets\\Glues\\Gluescreen-Scrollbar-DownArrow.blp"
-constant string Interface___CLOSE_MENU_TEXTURE= "UI\\Widgets\\Glues\\Gluescreen-Scrollbar-UpArrow.blp"
-        // The initial position of the menu frame
-constant real Interface___MENU_FRAME_X= - 0.19
-constant real Interface___MENU_FRAME_Y= - 0.02
-        // The size of the menu frame
-constant real Interface___MENU_FRAME_WIDTH= 0.40
-constant real Interface___MENU_FRAME_HEIGHT= 0.23
-        
-        // The initial position of the move minimap to the right check box (relative to the menu frame)
-constant real Interface___MINIMAP_CHECK_RIGHT_X= 0.04
-constant real Interface___MINIMAP_CHECK_RIGHT_Y= - 0.025
-        // The size of the move minimap to the right check box
-constant real Interface___MINIMAP_CHECK_RIGHT_WIDTH= 0.015
-constant real Interface___MINIMAP_CHECK_RIGHT_HEIGHT= 0.015
-        // The initial position of the move minimap to the right text (relative to the move minimap to the right check box)
-constant real Interface___MINIMAP_CHECK_RIGHT_TEXT_X= 0.02
-constant real Interface___MINIMAP_CHECK_RIGHT_TEXT_Y= 0.0
-        // The size of the move minimap to the right text
-constant real Interface___MINIMAP_CHECK_RIGHT_TEXT_WIDTH= 0.15
-constant real Interface___MINIMAP_CHECK_RIGHT_TEXT_HEIGHT= 0.015
-        // The initial position of the move minimap to the left check box (relative to the menu frame)
-constant real Interface___MINIMAP_CHECK_LEFT_X= 0.04
-constant real Interface___MINIMAP_CHECK_LEFT_Y= - 0.045
-        // The size of the move minimap to the left check box
-constant real Interface___MINIMAP_CHECK_LEFT_WIDTH= 0.015
-constant real Interface___MINIMAP_CHECK_LEFT_HEIGHT= 0.015
-        // The initial position of the move minimap to the left text (relative to the move minimap to the left check box)
-constant real Interface___MINIMAP_CHECK_LEFT_TEXT_X= 0.02
-constant real Interface___MINIMAP_CHECK_LEFT_TEXT_Y= 0.0
-        // The size of the move minimap to the left text
-constant real Interface___MINIMAP_CHECK_LEFT_TEXT_WIDTH= 0.15
-constant real Interface___MINIMAP_CHECK_LEFT_TEXT_HEIGHT= 0.015
-        // The initial position of the minimap toggle enable check box (relative to the menu frame)
-constant real Interface___MINIMAP_CHECK_TOGGLE_X= 0.04
-constant real Interface___MINIMAP_CHECK_TOGGLE_Y= - 0.065
-        // The size of the minimap toggle enable check box
-constant real Interface___MINIMAP_CHECK_TOGGLE_WIDTH= 0.015
-constant real Interface___MINIMAP_CHECK_TOGGLE_HEIGHT= 0.015
-        // The initial position of the minimap toggle enable text (relative to the minimap toggle enable check box)
-constant real Interface___MINIMAP_CHECK_TOGGLE_TEXT_X= 0.02
-constant real Interface___MINIMAP_CHECK_TOGGLE_TEXT_Y= 0.0
-        // The size of the minimap toggle enable text
-constant real Interface___MINIMAP_CHECK_TOGGLE_TEXT_WIDTH= 0.175
-constant real Interface___MINIMAP_CHECK_TOGGLE_TEXT_HEIGHT= 0.015
-        // The initial position of the show heroes bar check box (relative to the menu frame)
-constant real Interface___HEROES_BAR_CHECK_X= 0.04
-constant real Interface___HEROES_BAR_CHECK_Y= - 0.085
-        // The size of the show heroes bar check box
-constant real Interface___HEROES_BAR_CHECK_WIDTH= 0.015
-constant real Interface___HEROES_BAR_CHECK_HEIGHT= 0.015
-        // The initial position of the show heroes bar text (relative to the show heroes bar check box)
-constant real Interface___HEROES_BAR_CHECK_TEXT_X= 0.02
-constant real Interface___HEROES_BAR_CHECK_TEXT_Y= 0.0
-        // The size of the show heroes bar text
-constant real Interface___HEROES_BAR_CHECK_TEXT_WIDTH= 0.15
-constant real Interface___HEROES_BAR_CHECK_TEXT_HEIGHT= 0.015
-        // The initial position of the show default menu check box (relative to the menu frame)
-constant real Interface___DEFAULT_MENU_CHECK_X= 0.04
-constant real Interface___DEFAULT_MENU_CHECK_Y= - 0.105
-        // The size of the show default menu check box
-constant real Interface___DEFAULT_MENU_CHECK_WIDTH= 0.015
-constant real Interface___DEFAULT_MENU_CHECK_HEIGHT= 0.015
-        // The initial position of the show default menu text (relative to the show default menu check box)
-constant real Interface___DEFAULT_MENU_CHECK_TEXT_X= 0.02
-constant real Interface___DEFAULT_MENU_CHECK_TEXT_Y= 0.0
-        // The size of the show default menu text
-constant real Interface___DEFAULT_MENU_CHECK_TEXT_WIDTH= 0.15
-constant real Interface___DEFAULT_MENU_CHECK_TEXT_HEIGHT= 0.015
-        // The initial position of the minimap transparency slider (relative to the menu frame)
-constant real Interface___MINIMAP_SLIDER_X= 0.05
-constant real Interface___MINIMAP_SLIDER_Y= - 0.145
-        // The size of the minimap transparency slider
-constant real Interface___MINIMAP_SLIDER_WIDTH= 0.30
-constant real Interface___MINIMAP_SLIDER_HEIGHT= 0.015
-        // The initial position of the minimap transparency text (relative to the minimap transparency slider)
-constant real Interface___MINIMAP_SLIDER_TEXT_X= 0.075
-constant real Interface___MINIMAP_SLIDER_TEXT_Y= 0.02
-        // The size of the minimap transparency text
-constant real Interface___MINIMAP_SLIDER_TEXT_WIDTH= 0.15
-constant real Interface___MINIMAP_SLIDER_TEXT_HEIGHT= 0.015
-        // The initial position of the portrait shader slider (relative to the menu frame)
-constant real Interface___SHADER_SLIDER_X= 0.05
-constant real Interface___SHADER_SLIDER_Y= - 0.185
-        // The size of the shader slider
-constant real Interface___SHADER_SLIDER_WIDTH= 0.30
-constant real Interface___SHADER_SLIDER_HEIGHT= 0.015
-        // The initial position of the shader text (relative to the shader slider)
-constant real Interface___SHADER_SLIDER_TEXT_X= 0.075
-constant real Interface___SHADER_SLIDER_TEXT_Y= 0.02
-        // The size of the minimap transparency text
-constant real Interface___SHADER_SLIDER_TEXT_WIDTH= 0.15
-constant real Interface___SHADER_SLIDER_TEXT_HEIGHT= 0.015
-        
-        // The initial position of the gold background (relative to the menu button)
-constant real Interface___GOLD_BACKGROUND_X= 0.0165
-constant real Interface___GOLD_BACKGROUND_Y= 0.0025
-        // The size of the gold background
-constant real Interface___GOLD_BACKGROUND_WIDTH= 0.07
-constant real Interface___GOLD_BACKGROUND_HEIGHT= 0.0225
-        // The initial position of the gold icon (relative to the gold background)
-constant real Interface___GOLD_ICON_X= 0.005
-constant real Interface___GOLD_ICON_Y= - 0.005
-        // The size of the gold icon
-constant real Interface___GOLD_ICON_WIDTH= 0.0125
-constant real Interface___GOLD_ICON_HEIGHT= 0.0125
-        // The gold icon texture
-constant string Interface___GOLD_ICON_TEXTURE= "UI\\Feedback\\Resources\\ResourceGold.blp"
-        // The initial position of the gold text (relative to the gold icon)
-constant real Interface___GOLD_TEXT_X= 0.013
-constant real Interface___GOLD_TEXT_Y= 0.0
-        // The size of the gold text
-constant real Interface___GOLD_TEXT_WIDTH= 0.0575
-constant real Interface___GOLD_TEXT_HEIGHT= 0.0125
-constant real Interface___GOLD_TEXT_SCALE= 1.0
-        
-        // The initial position of the lumber background (relative to the menu button)
-constant real Interface___LUMBER_BACKGROUND_X= - 0.067
-constant real Interface___LUMBER_BACKGROUND_Y= 0.0025
-        // The size of the lumber background
-constant real Interface___LUMBER_BACKGROUND_WIDTH= 0.07
-constant real Interface___LUMBER_BACKGROUND_HEIGHT= 0.0225
-        // The initial position of the lumber icon (relative to the lumber background)
-constant real Interface___LUMBER_ICON_X= 0.0525
-constant real Interface___LUMBER_ICON_Y= - 0.005
-        // The size of the lumber icon
-constant real Interface___LUMBER_ICON_WIDTH= 0.0125
-constant real Interface___LUMBER_ICON_HEIGHT= 0.0125
-        // The lumber icon texture
-constant string Interface___LUMBER_ICON_TEXTURE= "UI\\Feedback\\Resources\\ResourceLumber.blp"
-        // The initial position of the lumber text (relative to the lumber icon)
-constant real Interface___LUMBER_TEXT_X= - 0.06
-constant real Interface___LUMBER_TEXT_Y= 0.0
-        // The size of the lumber text
-constant real Interface___LUMBER_TEXT_WIDTH= 0.0575
-constant real Interface___LUMBER_TEXT_HEIGHT= 0.0125
-constant real Interface___LUMBER_TEXT_SCALE= 1.0
-        
-        // The initial position of the minimap on the right side of the screen
-constant real Interface___MINIMAP_RIGHT_X= 0.785
-constant real Interface___MINIMAP_RIGHT_Y= 0.15
-        // The initial position of the minimap on the left side of the screen
-constant real Interface___MINIMAP_LEFT_X= - 0.13365
-constant real Interface___MINIMAP_LEFT_Y= 0.15
-        // The size of the minimap
-constant real Interface___MINIMAP_WIDTH= 0.15
-constant real Interface___MINIMAP_HEIGHT= 0.15
-        // Minimap initial transparency (0 -> 100%, 255 -> 0%)
-constant real Interface___MAP_TRANSPARENCY= 57
-        // The minimap toggle key
-constant oskeytype Interface___MINIMAP_TOGGLE_KEY= OSKEY_TAB
-        
-        // The initial position of the shop panel
-constant real Interface___SHOP_PANEL_X= 0.308
-constant real Interface___SHOP_PANEL_Y= 0.25
-        // The initial position of the first shop slot inside the panel (relative to the panel)
-constant real Interface___SHOP_SLOT_X= 0.017
-constant real Interface___SHOP_SLOT_Y= - 0.017
-        // Size of the shop slots
-constant real Interface___SHOP_SLOT_WIDTH= 0.038
-constant real Interface___SHOP_SLOT_HEIGHT= 0.038
-        // The shop slot texture
-constant string Interface___SHOP_SLOT_TEXTURE= "SpellSlot.blp"
-        // The initial position of the shop icon inside the slot (relative to the slot)
-constant real Interface___SHOP_ICON_X= 0.02
-constant real Interface___SHOP_ICON_Y= - 0.02
-        // Size of the shop icons
-constant real Interface___SHOP_ICON_WIDTH= 0.032
-constant real Interface___SHOP_ICON_HEIGHT= 0.032
-        // Number of columns
-constant integer Interface___SHOP_COLUMNS= 4
-        // Number of rows
-constant integer Interface___SHOP_ROWS= 3
-        // Total count
-constant integer Interface___SHOP_COUNT= Interface___SHOP_ROWS * Interface___SHOP_COLUMNS
-        // Gap between each slot
-constant real Interface___SHOP_SLOT_GAP= 0.0375
-        // When true and a unit that has "Select Unit" or "Select Hero" or "Shop Purchase Item" 
-        // abilities is selected a panel above the portrait is created to show the items/units
-constant boolean Interface___DISPLAY_SHOP= false
-        
-        // If true, the + icon will be displayed on top of all abilities when the hero has a skill point
-constant boolean Interface___SEPARATE_LEVELUP= true
-        // The size of the + icon
-constant real Interface___SEPARATE_LEVELUP_WIDTH= 0.0125
-constant real Interface___SEPARATE_LEVELUP_HEIGHT= 0.0125
-        // The + icon texture
-constant string Interface___SEPARATE_LEVELUP_TEXTURE= "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
-        
-        // If true the damage value will be trimmed to show only the last value (xx - xx + yy) => (xx + yy)
-constant boolean Interface___TRIM_DAMAGE= true
-//endglobals from Interface
 //globals from Missiles:
 constant boolean LIBRARY_Missiles=true
         // The update period of the system
@@ -598,13 +217,13 @@ unit Utilities___bj_closestUnitGroup
 //globals from Afterburner:
 constant boolean LIBRARY_Afterburner=true
         //The raw code of the Afternurner Ability
-constant integer Afterburner__ABILITY= 'A003'
+constant integer Afterburner___ABILITY= 'A003'
         //The raw code of the Afternurner Prox Ability
-constant integer Afterburner__AFTERBURN_PROXY= 'A007'
+constant integer Afterburner___AFTERBURN_PROXY= 'A007'
         // The Attack type of the damage dealt (Spell)
-constant attacktype Afterburner__ATTACK_TYPE= ATTACK_TYPE_NORMAL
+constant attacktype Afterburner___ATTACK_TYPE= ATTACK_TYPE_NORMAL
         // The Damage type of the damage dealt
-constant damagetype Afterburner__DAMAGE_TYPE= DAMAGE_TYPE_MAGIC
+constant damagetype Afterburner___DAMAGE_TYPE= DAMAGE_TYPE_MAGIC
 //endglobals from Afterburner
 //globals from CrowdControl:
 constant boolean LIBRARY_CrowdControl=true
@@ -698,68 +317,109 @@ constant real Item___PERIOD= 1.
 //globals from MissileUtils:
 constant boolean LIBRARY_MissileUtils=true
 //endglobals from MissileUtils
+//globals from MoltenShield:
+constant boolean LIBRARY_MoltenShield=true
+        // The raw code of the Molten Shield Ability
+constant integer MoltenShield___ABILITY= 'A006'
+        // The raw code of the Ragnaros unit in the editor
+constant integer MoltenShield___RAGNAROS_ID= 'H001'
+        // The raw code of the buff used to link bonus
+constant integer MoltenShield___BUFF_ID= 'B001'
+        // The GAIN_AT_LEVEL is greater than 0
+        // ragnaros will gain molten shield at this level 
+constant integer MoltenShield___GAIN_AT_LEVEL= 20
+        // The Explosion effect path
+constant string MoltenShield___EXPLOSION_EFFECT= "Damnation Orange.mdl"
+        // The Explosion effect attachment point
+constant string MoltenShield___ATTACH_POINT= "origin"
+        // The Attack type of the damage dealt (Spell)
+constant attacktype MoltenShield___ATTACK_TYPE= ATTACK_TYPE_NORMAL
+        // The Damage type of the damage dealt
+constant damagetype MoltenShield___DAMAGE_TYPE= DAMAGE_TYPE_FIRE
+//endglobals from MoltenShield
 //globals from Sulfuras:
 constant boolean LIBRARY_Sulfuras=true
         //The raw code of the Sufuras Ability
-constant integer Sulfuras__ABILITY= 'A000'
+constant integer Sulfuras___ABILITY= 'A000'
 //endglobals from Sulfuras
 //globals from ExplosiveRune:
 constant boolean LIBRARY_ExplosiveRune=true
         // The raw code of the Explosive Rune Ability
-constant integer ExplosiveRune__ABILITY= 'A001'
+constant integer ExplosiveRune___ABILITY= 'A001'
         // The number of charges of the ability
-constant integer ExplosiveRune__CHARGES_COUNT= 4
+constant integer ExplosiveRune___CHARGES_COUNT= 4
         // The number of charges of the ability
-constant real ExplosiveRune__CHARGES_COOLDOWN= 15.0
+constant real ExplosiveRune___CHARGES_COOLDOWN= 15.0
         // The Explosion delay
-constant real ExplosiveRune__EXPLOSION_DELAY= 1.5
+constant real ExplosiveRune___EXPLOSION_DELAY= 1.5
         // The Explosion effect path
-constant string ExplosiveRune__EXPLOSION_EFFECT= "Conflagrate.mdl"
+constant string ExplosiveRune___EXPLOSION_EFFECT= "Conflagrate.mdl"
         // The Attack type of the damage dealt (Spell)
-constant attacktype ExplosiveRune__ATTACK_TYPE= ATTACK_TYPE_NORMAL
+constant attacktype ExplosiveRune___ATTACK_TYPE= ATTACK_TYPE_NORMAL
         // The Damage type of the damage dealt
-constant damagetype ExplosiveRune__DAMAGE_TYPE= DAMAGE_TYPE_MAGIC
+constant damagetype ExplosiveRune___DAMAGE_TYPE= DAMAGE_TYPE_MAGIC
         // If true will damage structures
-constant boolean ExplosiveRune__DAMAGE_STRUCTURES= false
+constant boolean ExplosiveRune___DAMAGE_STRUCTURES= false
         // If true will damage allies
-constant boolean ExplosiveRune__DAMAGE_ALLIES= false
+constant boolean ExplosiveRune___DAMAGE_ALLIES= false
         // If true will damage magic immune unit if the
         // ATTACK_TYPE is not spell damage
-constant boolean ExplosiveRune__DAMAGE_MAGIC_IMMUNE= false
+constant boolean ExplosiveRune___DAMAGE_MAGIC_IMMUNE= false
 //endglobals from ExplosiveRune
+//globals from LavaElemental:
+constant boolean LIBRARY_LavaElemental=true
+        // The raw code of the Lava Elemental ability
+constant integer LavaElemental___ABILITY= 'A004'
+        // The raw code of the Lava Elemental unit
+constant integer LavaElemental___LAVA_ELEMENTAL= 'o000'
+        // This ability cooldown if targeted at a 
+        // structure
+constant real LavaElemental___STRUCTURE_COOLDOWN= 120.
+        // This ability cooldown if targeted at the 
+        // ground
+constant real LavaElemental___NORMAL_COOLDOWN= 30.
+        // The elemaental duration when targeted at 
+        // the ground
+constant real LavaElemental___ELEMENTAL_DURATION= 60.
+        // The path for the effect that will be
+        // added to the base of the Lava Elemental
+constant string LavaElemental___FIRA_BASE= "fire_5.mdl"
+        // Effect when spawning a lava elemental
+constant string LavaElemental___SPAWN_EFFECT= "Pillar of Flame Orange.mdl"
+//endglobals from LavaElemental
 //globals from LivingMeteor:
 constant boolean LIBRARY_LivingMeteor=true
         // The raw code of the Living Meteor ability
-constant integer LivingMeteor__ABILITY= 'A002'
+constant integer LivingMeteor___ABILITY= 'A002'
         // The landing time of the falling meteor
-constant real LivingMeteor__LANDING_TIME= 2.5
+constant real LivingMeteor___LANDING_TIME= 2.5
         // The roll time of the rolling meteor
-constant real LivingMeteor__ROLLING_TIME= 2.5
+constant real LivingMeteor___ROLLING_TIME= 2.5
         // The damage interval of the rolling interval
-constant real LivingMeteor__DAMAGE_INTERVAL= 0.25
+constant real LivingMeteor___DAMAGE_INTERVAL= 0.25
         // The time the player has to move the mouse before the spell starts
-constant real LivingMeteor__DRAG_AND_DROP_TIME= 0.05
+constant real LivingMeteor___DRAG_AND_DROP_TIME= 0.05
         // The distance from the casting point from where the meteor spawns
-constant real LivingMeteor__LAUNCH_OFFSET= 4500
+constant real LivingMeteor___LAUNCH_OFFSET= 4500
         // The starting height fo the meteor
-constant real LivingMeteor__START_HEIGHT= 3000
+constant real LivingMeteor___START_HEIGHT= 3000
         // Meteor Model
-constant string LivingMeteor__METEOR_MODEL= "LivingMeteor.mdl"
+constant string LivingMeteor___METEOR_MODEL= "LivingMeteor.mdl"
         // Meteor Impact effect model
-constant string LivingMeteor__IMPACT_MODEL= "LivingMeteor.mdl"
+constant string LivingMeteor___IMPACT_MODEL= "LivingMeteor.mdl"
         // Meteor size
-constant real LivingMeteor__METEOR_SCALE= 0.75
+constant real LivingMeteor___METEOR_SCALE= 0.75
         // The Attack type of the damage dealt (Spell)
-constant attacktype LivingMeteor__ATTACK_TYPE= ATTACK_TYPE_NORMAL
+constant attacktype LivingMeteor___ATTACK_TYPE= ATTACK_TYPE_NORMAL
         // The Damage type of the damage dealt
-constant damagetype LivingMeteor__DAMAGE_TYPE= DAMAGE_TYPE_MAGIC
+constant damagetype LivingMeteor___DAMAGE_TYPE= DAMAGE_TYPE_MAGIC
         // If true will damage structures
-constant boolean LivingMeteor__DAMAGE_STRUCTURES= true
+constant boolean LivingMeteor___DAMAGE_STRUCTURES= true
         // If true will damage allies
-constant boolean LivingMeteor__DAMAGE_ALLIES= false
+constant boolean LivingMeteor___DAMAGE_ALLIES= false
         // If true will damage magic immune unit if the
         // ATTACK_TYPE is not spell damage
-constant boolean LivingMeteor__DAMAGE_MAGIC_IMMUNE= false
+constant boolean LivingMeteor___DAMAGE_MAGIC_IMMUNE= false
 //endglobals from LivingMeteor
 //globals from Shop:
 constant boolean LIBRARY_Shop=true
@@ -859,12 +519,68 @@ constant string Shop___ERROR_SOUND= "Sound\\Interface\\Error.wav"
         // Dont touch
 integer Shop___table
 //endglobals from Shop
+//globals from SulfurasSmash:
+constant boolean LIBRARY_SulfurasSmash=true
+        // The raw code of the Sulfuras Smash ability
+constant integer SulfurasSmash___ABILITY= 'A005'
+        // The landing time of the falling sulfuras
+constant real SulfurasSmash___LANDING_TIME= 1.25
+        // The distance from the casting point from 
+        // where the sulfuras spawns
+constant real SulfurasSmash___LAUNCH_OFFSET= 4500
+        // The starting height of sufuras
+constant real SulfurasSmash___START_HEIGHT= 3000
+        // Sufuras Model
+constant string SulfurasSmash___SULFURAS_MODEL= "Sulfuras.mdl"
+        // Sulfuras Impact effect model
+constant string SulfurasSmash___IMPACT_MODEL= "Smash.mdl"
+        // The stun model
+constant string SulfurasSmash___STUN_MODEL= "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
+        // the stun model attachment point
+constant string SulfurasSmash___STUN_POINT= "overhead"
+        // Sufuras size
+constant real SulfurasSmash___SULFURAS_SCALE= 3.
+        // Size of the impact model
+constant real SulfurasSmash___IMPACT_SCALE= 2.
+        // How long will the impact model lasts
+constant real SulfurasSmash___IMPACT_DURATION= 10.
+        // The Attack type of the damage dealt (Spell)
+constant attacktype SulfurasSmash___ATTACK_TYPE= ATTACK_TYPE_NORMAL
+        // The Damage type of the damage dealt
+constant damagetype SulfurasSmash___DAMAGE_TYPE= DAMAGE_TYPE_MAGIC
+//endglobals from SulfurasSmash
     // Generated
 rect gg_rct_Human= null
 rect gg_rct_Undead= null
 rect gg_rct_NightElf= null
 rect gg_rct_Orc= null
 rect gg_rct_Attack= null
+trigger gg_trg_Shop= null
+trigger gg_trg_Components= null
+trigger gg_trg_Alloc= null
+trigger gg_trg_Table= null
+trigger gg_trg_Utilities= null
+trigger gg_trg_Indexer= null
+trigger gg_trg_TimerUtils= null
+trigger gg_trg_MouseUtils= null
+trigger gg_trg_WorldBounds= null
+trigger gg_trg_LineSegment= null
+trigger gg_trg_TimedHandles= null
+trigger gg_trg_SpellEffectPlugin= null
+trigger gg_trg_SpellEffectEvent= null
+trigger gg_trg_DestructableHider= null
+trigger gg_trg_ArcingFloatingText= null
+trigger gg_trg_GetMainSelectedUnit= null
+trigger gg_trg_RegisterPlayerUnitEvent= null
+trigger gg_trg_MissileEffect= null
+trigger gg_trg_MissileUtils= null
+trigger gg_trg_Missiles= null
+trigger gg_trg_Tenacity= null
+trigger gg_trg_TenacityUtils= null
+trigger gg_trg_Interface= null
+trigger gg_trg_CrowdControl= null
+trigger gg_trg_CooldownReduction= null
+trigger gg_trg_CooldownReductionUtils= null
 trigger gg_trg_Sulfuras= null
 trigger gg_trg_Explosive_Rune= null
 trigger gg_trg_LivingMeteor= null
@@ -876,35 +592,7 @@ trigger gg_trg_Initialization= null
 trigger gg_trg_Revive= null
 trigger gg_trg_Refresh= null
 trigger gg_trg_Spawn= null
-trigger gg_trg_Camera= null
 trigger gg_trg_OnDamage= null
-trigger gg_trg_CooldownReductionUtils= null
-trigger gg_trg_CooldownReduction= null
-trigger gg_trg_CrowdControl= null
-trigger gg_trg_Interface= null
-trigger gg_trg_GetMainSelectedUnit= null
-trigger gg_trg_TenacityUtils= null
-trigger gg_trg_Tenacity= null
-trigger gg_trg_Damage= null
-trigger gg_trg_Missiles= null
-trigger gg_trg_MissileUtils= null
-trigger gg_trg_MissileEffect= null
-trigger gg_trg_RegisterPlayerUnitEvent= null
-trigger gg_trg_ArcingFloatingText= null
-trigger gg_trg_DestructableHider= null
-trigger gg_trg_SpellEffectEvent= null
-trigger gg_trg_SpellEffectPlugin= null
-trigger gg_trg_TimedHandles= null
-trigger gg_trg_LineSegment= null
-trigger gg_trg_WorldBounds= null
-trigger gg_trg_MouseUtils= null
-trigger gg_trg_TimerUtils= null
-trigger gg_trg_Indexer= null
-trigger gg_trg_Utilities= null
-trigger gg_trg_Table= null
-trigger gg_trg_Alloc= null
-trigger gg_trg_Components= null
-trigger gg_trg_Shop= null
 integer BONUS_MISS_CHANCE
 integer BONUS_ARMOR
 integer BONUS_DAMAGE_BLOCK
@@ -1058,23 +746,23 @@ real s__WorldBounds_playMaxX
 real s__WorldBounds_playMaxY
 real s__WorldBounds_playMinX
 real s__WorldBounds_playMinY
-constant integer si__Components___Events=53
-integer si__Components___Events_F=0
-integer si__Components___Events_I=0
-integer array si__Components___Events_V
-integer array si__Components___Events_type
-trigger array st__Components___Events_onDestroy
-trigger array st__Components___Events_onText
-trigger array st__Components___Events_onCheck
-trigger array st__Components___Events_onEnter
-trigger array st__Components___Events_onLeave
-trigger array st__Components___Events_onClick
-trigger array st__Components___Events_onSlide
-trigger array st__Components___Events_onScroll
-trigger array st__Components___Events_onUncheck
-trigger array st__Components___Events_onRightClick
-trigger array st__Components___Events_onMiddleClick
-trigger array st__Components___Events_onDoubleClick
+constant integer si__Components___IComponent=53
+integer si__Components___IComponent_F=0
+integer si__Components___IComponent_I=0
+integer array si__Components___IComponent_V
+integer array si__Components___IComponent_type
+trigger array st__Components___IComponent_onDestroy
+trigger array st__Components___IComponent_onText
+trigger array st__Components___IComponent_onCheck
+trigger array st__Components___IComponent_onEnter
+trigger array st__Components___IComponent_onLeave
+trigger array st__Components___IComponent_onClick
+trigger array st__Components___IComponent_onSlide
+trigger array st__Components___IComponent_onScroll
+trigger array st__Components___IComponent_onUncheck
+trigger array st__Components___IComponent_onRightClick
+trigger array st__Components___IComponent_onMiddleClick
+trigger array st__Components___IComponent_onDoubleClick
 constant integer si__Tooltip=54
 integer si__Tooltip_F=0
 integer si__Tooltip_I=0
@@ -1287,16 +975,16 @@ framehandle array s__Button_chargesFrame
 integer array s__Button_tooltip
 constant integer si__Panel=66
 constant integer si__Line=67
-constant integer si__CooldownReduction__AbilityList=68
-integer s__CooldownReduction__AbilityList_Alloc___instanceCount= 0
-integer array s__CooldownReduction__AbilityList_Alloc___recycle
-integer array s__CooldownReduction__AbilityList_next
-integer array s__CooldownReduction__AbilityList_prev
-unit array s__CooldownReduction__AbilityList_unit
-ability array s__CooldownReduction__AbilityList_ability
-integer array s__CooldownReduction__AbilityList_defaults
-integer array s__CooldownReduction__AbilityList_id
-integer array s__CooldownReduction__AbilityList_levels
+constant integer si__CooldownReduction___AbilityList=68
+integer s__CooldownReduction___AbilityList_Alloc___instanceCount= 0
+integer array s__CooldownReduction___AbilityList_Alloc___recycle
+integer array s__CooldownReduction___AbilityList_next
+integer array s__CooldownReduction___AbilityList_prev
+unit array s__CooldownReduction___AbilityList_unit
+ability array s__CooldownReduction___AbilityList_ability
+integer array s__CooldownReduction___AbilityList_defaults
+integer array s__CooldownReduction___AbilityList_id
+integer array s__CooldownReduction___AbilityList_levels
 constant integer si__CDR=69
 integer si__CDR_F=0
 integer si__CDR_I=0
@@ -1325,6 +1013,8 @@ integer array s__Damage_sources
 integer array s__Damage_targets
 real array s__Damage_damage
 boolean array s__Damage_evade
+unit array s__Damage_newSource
+unit array s__Damage_newTarget
 attacktype array s__Damage_attackType
 damagetype array s__Damage_damageType
 weapontype array s__Damage_weaponType
@@ -1501,6 +1191,7 @@ trigger array st__Ability___IAbility_onLearn
 trigger array st__Ability___IAbility_onTooltip
 constant integer si__Ability=91
 integer s__Ability_struct
+integer s__Ability_learned
 integer s__Ability_key= - 1
 integer array s__Ability_array
 timer s__Ability_timer= CreateTimer()
@@ -1529,122 +1220,15 @@ integer s__ArcingTextTag_Periodic___timers
 timer array s__ArcingTextTag_Periodic____timer
 integer array s__ArcingTextTag_Periodic____unique
 boolean array s__ArcingTextTag_Periodic____allocated
-constant integer si__CooldownReductionUtils__CDRUtils=93
-timer s__CooldownReductionUtils__CDRUtils_t= CreateTimer()
-integer s__CooldownReductionUtils__CDRUtils_didx= - 1
-integer array s__CooldownReductionUtils__CDRUtils_data
-unit array s__CooldownReductionUtils__CDRUtils_u
-real array s__CooldownReductionUtils__CDRUtils_ticks
-real array s__CooldownReductionUtils__CDRUtils_amount
-integer array s__CooldownReductionUtils__CDRUtils_tipo
-constant integer si__Interface___Resource=94
-integer array s__Interface___Resource_value
-integer array s__Interface___Resource_image
-constant integer si__Interface___Options=95
-trigger s__Interface___Options_key= CreateTrigger()
-integer s__Interface___Options_table
-integer array s__Interface___Options_left
-integer array s__Interface___Options_leftText
-integer array s__Interface___Options_right
-integer array s__Interface___Options_rightText
-integer array s__Interface___Options_toggle
-integer array s__Interface___Options_toggleText
-integer array s__Interface___Options_heroes
-integer array s__Interface___Options_heroesText
-integer array s__Interface___Options_default
-integer array s__Interface___Options_defaultText
-integer array s__Interface___Options_slider
-integer array s__Interface___Options_sliderText
-integer array s__Interface___Options_shader
-integer array s__Interface___Options_shaderText
-constant integer si__Interface___Menu=96
-integer array s__Interface___Menu_panel
-constant integer si__Interface___Grid=97
-framehandle array s__Interface___Grid_button
-boolean array s__Interface___Grid_isVisible
-integer array s___Interface___Grid_slot
-constant integer s___Interface___Grid_slot_size=3
-integer array s__Interface___Grid_slot
-integer si__Interface___Grid_arrI=0
-integer si__Interface___Grid_arrN=0
-integer array si__Interface___Grid_arr
-integer array si__Interface___Grid_arrV
-constant integer si__Interface___Portrait=99
-integer array s__Interface___Portrait_attribute
-framehandle s__Interface___Portrait_agi
-framehandle s__Interface___Portrait_str
-framehandle s__Interface___Portrait_int
-framehandle s__Interface___Portrait_attack
-framehandle s__Interface___Portrait_defense
-framehandle s__Interface___Portrait_portrait
-integer array s__Interface___Portrait_mana
-integer array s__Interface___Portrait_manaText
-integer array s__Interface___Portrait_health
-integer array s__Interface___Portrait_healthText
-integer array s__Interface___Portrait_damage
-integer array s__Interface___Portrait_armor
-integer array s__Interface___Portrait_strength
-integer array s__Interface___Portrait_agility
-integer array s__Interface___Portrait_intelligence
-framehandle array s___Interface___Portrait_shades
-constant integer s___Interface___Portrait_shades_size=5
-integer array s__Interface___Portrait_shades
-integer si__Interface___Portrait_arrI=0
-integer si__Interface___Portrait_arrN=0
-integer array si__Interface___Portrait_arr
-integer array si__Interface___Portrait_arrV
-constant integer si__Interface___Abilities=101
-framehandle s__Interface___Abilities_level
-framehandle array s__Interface___Abilities_button
-boolean array s__Interface___Abilities_isVisible
-integer array s___Interface___Abilities_slot
-constant integer s___Interface___Abilities_slot_size=6
-integer array s__Interface___Abilities_slot
-integer si__Interface___Abilities_arrI=0
-integer si__Interface___Abilities_arrN=0
-integer array si__Interface___Abilities_arr
-integer array si__Interface___Abilities_arrV
-integer array s___Interface___Abilities_levelup
-constant integer s___Interface___Abilities_levelup_size=6
-integer array s__Interface___Abilities_levelup
-constant integer si__Interface___Inventory=104
-integer array s___Interface___Inventory_slot
-constant integer s___Interface___Inventory_slot_size=6
-integer array s__Interface___Inventory_slot
-integer si__Interface___Inventory_arrI=0
-integer si__Interface___Inventory_arrN=0
-integer array si__Interface___Inventory_arr
-integer array si__Interface___Inventory_arrV
-constant integer si__Attribute=106
-timer s__Attribute_timer= CreateTimer()
-integer s__Attribute_key= - 1
-integer s__Attribute_menu
-integer s__Attribute_panel
-integer s__Attribute_table
-integer array s__Attribute_array
-integer array s__Attribute_id
-integer array s__Attribute_button
-boolean array s__Attribute_isVisible
-integer array s__Attribute_value
-constant integer si__UI=107
-integer si__UI_F=0
-integer si__UI_I=0
-integer array si__UI_V
-framehandle array s__UI_hero
-framehandle array s__UI_highlight
-integer s__UI_menu
-integer s__UI_grid
-integer s__UI_gold
-integer s__UI_lumber
-integer s__UI_portrait
-integer s__UI_inventory
-integer s__UI_abilities
-framehandle s__UI_coin
-framehandle s__UI_wood
-framehandle s__UI_tooltip
-framehandle s__UI_minimap
-framehandle s__UI_default
-constant integer si__Missiles___MissileEvents=108
+constant integer si__CooldownReductionUtils___CDRUtils=93
+timer s__CooldownReductionUtils___CDRUtils_t= CreateTimer()
+integer s__CooldownReductionUtils___CDRUtils_didx= - 1
+integer array s__CooldownReductionUtils___CDRUtils_data
+unit array s__CooldownReductionUtils___CDRUtils_u
+real array s__CooldownReductionUtils___CDRUtils_ticks
+real array s__CooldownReductionUtils___CDRUtils_amount
+integer array s__CooldownReductionUtils___CDRUtils_tipo
+constant integer si__Missiles___MissileEvents=94
 integer si__Missiles___MissileEvents_F=0
 integer si__Missiles___MissileEvents_I=0
 integer array si__Missiles___MissileEvents_V
@@ -1663,7 +1247,7 @@ trigger array st__Missiles___MissileEvents_onBoundaries
 trigger array st__Missiles___MissileEvents_onPause
 trigger array st__Missiles___MissileEvents_onResume
 trigger array st__Missiles___MissileEvents_onRemove
-constant integer si__Missiles___Pool=109
+constant integer si__Missiles___Pool=95
 integer si__Missiles___Pool_F=0
 integer si__Missiles___Pool_I=0
 integer array si__Missiles___Pool_V
@@ -1671,7 +1255,7 @@ player s__Missiles___Pool_player= Player(PLAYER_NEUTRAL_PASSIVE)
 group s__Missiles___Pool_group= CreateGroup()
 timer array s__Missiles___Pool_timer
 unit array s__Missiles___Pool_unit
-constant integer si__Missiles___Coordinates=110
+constant integer si__Missiles___Coordinates=96
 integer si__Missiles___Coordinates_F=0
 integer si__Missiles___Coordinates_I=0
 integer array si__Missiles___Coordinates_V
@@ -1684,7 +1268,7 @@ real array s__Missiles___Coordinates_square
 real array s__Missiles___Coordinates_slope
 real array s__Missiles___Coordinates_alpha
 integer array s__Missiles___Coordinates_ref
-constant integer si__Missiles=111
+constant integer si__Missiles=97
 timer s__Missiles_timer= CreateTimer()
 group s__Missiles_group= CreateGroup()
 rect s__Missiles_rect= Rect(0., 0., 0., 0.)
@@ -1737,16 +1321,16 @@ real array s__Missiles_acceleration
 integer array s__Missiles_data
 integer array s__Missiles_type
 boolean array s__Missiles_roll
-constant integer si__NewBonus___BonusType=112
-integer si__NewBonus___BonusType_F=0
-integer si__NewBonus___BonusType_I=0
-integer array si__NewBonus___BonusType_V
-integer array si__NewBonus___BonusType_type
-trigger array st__NewBonus___BonusType_onDestroy
-trigger array st__NewBonus___BonusType_get
-trigger array st__NewBonus___BonusType_Set
-trigger array st__NewBonus___BonusType_add
-constant integer si__Bonus=113
+constant integer si__NewBonus___IBonus=98
+integer si__NewBonus___IBonus_F=0
+integer si__NewBonus___IBonus_I=0
+integer array si__NewBonus___IBonus_V
+integer array si__NewBonus___IBonus_type
+trigger array st__NewBonus___IBonus_onDestroy
+trigger array st__NewBonus___IBonus_get
+trigger array st__NewBonus___IBonus_Set
+trigger array st__NewBonus___IBonus_add
+constant integer si__Bonus=99
 integer s__Bonus_table
 integer s__Bonus_key= 0
 integer s__Bonus_index= - 1
@@ -1770,7 +1354,7 @@ integer s__Bonus_Periodic___timers
 timer array s__Bonus_Periodic____timer
 integer array s__Bonus_Periodic____unique
 boolean array s__Bonus_Periodic____allocated
-constant integer si__TenacityUtils=114
+constant integer si__TenacityUtils=100
 timer s__TenacityUtils_timer= CreateTimer()
 integer array s__TenacityUtils_array
 integer s__TenacityUtils_key= - 1
@@ -1779,14 +1363,14 @@ unit array s__TenacityUtils_unit
 real array s__TenacityUtils_value
 integer array s__TenacityUtils_type
 real array s__TenacityUtils_duration
-constant integer si__ResetCooldown=115
+constant integer si__ResetCooldown=101
 integer si__ResetCooldown_F=0
 integer si__ResetCooldown_I=0
 integer array si__ResetCooldown_V
 timer array s__ResetCooldown_timer
 unit array s__ResetCooldown_unit
 integer array s__ResetCooldown_ability
-constant integer si__TimedAbility=116
+constant integer si__TimedAbility=102
 integer si__TimedAbility_F=0
 integer si__TimedAbility_I=0
 integer array si__TimedAbility_V
@@ -1796,7 +1380,7 @@ integer array s__TimedAbility_array
 unit array s__TimedAbility_unit
 integer array s__TimedAbility_ability
 real array s__TimedAbility_duration
-constant integer si__EffectSpam=117
+constant integer si__EffectSpam=103
 integer si__EffectSpam_F=0
 integer si__EffectSpam_I=0
 integer array si__EffectSpam_V
@@ -1809,7 +1393,7 @@ real array s__EffectSpam_scale
 real array s__EffectSpam_x
 real array s__EffectSpam_y
 real array s__EffectSpam_z
-constant integer si__ChainLightning=118
+constant integer si__ChainLightning=104
 integer si__ChainLightning_F=0
 integer si__ChainLightning_I=0
 integer array si__ChainLightning_V
@@ -1831,7 +1415,7 @@ string array s__ChainLightning_lightning
 string array s__ChainLightning_effect
 string array s__ChainLightning_attach
 boolean array s__ChainLightning_rebounce
-constant integer si__DummyPool=119
+constant integer si__DummyPool=105
 integer si__DummyPool_F=0
 integer si__DummyPool_I=0
 integer array si__DummyPool_V
@@ -1839,7 +1423,7 @@ player s__DummyPool_player= Player(PLAYER_NEUTRAL_PASSIVE)
 group s__DummyPool_group= CreateGroup()
 timer array s__DummyPool_timer
 unit array s__DummyPool_unit
-constant integer si__EffectLink=120
+constant integer si__EffectLink=106
 integer si__EffectLink_F=0
 integer si__EffectLink_I=0
 integer array si__EffectLink_V
@@ -1852,7 +1436,7 @@ unit array s__EffectLink_unit
 effect array s__EffectLink_effect
 item array s__EffectLink_item
 integer array s__EffectLink_buff
-constant integer si__AbilityCooldown=121
+constant integer si__AbilityCooldown=107
 integer si__AbilityCooldown_F=0
 integer si__AbilityCooldown_I=0
 integer array si__AbilityCooldown_V
@@ -1860,7 +1444,7 @@ timer array s__AbilityCooldown_timer
 unit array s__AbilityCooldown_unit
 integer array s__AbilityCooldown_ability
 real array s__AbilityCooldown_newCd
-constant integer si__TimedDestructable=122
+constant integer si__TimedDestructable=108
 integer si__TimedDestructable_F=0
 integer si__TimedDestructable_I=0
 integer array si__TimedDestructable_V
@@ -1870,7 +1454,7 @@ integer s__TimedDestructable_id= - 1
 integer array s__TimedDestructable_array
 destructable array s__TimedDestructable_destructable
 real array s__TimedDestructable_duration
-constant integer si__TimedPause=123
+constant integer si__TimedPause=109
 integer si__TimedPause_F=0
 integer si__TimedPause_I=0
 integer array si__TimedPause_V
@@ -1879,21 +1463,20 @@ timer array s__TimedPause_timer
 unit array s__TimedPause_unit
 integer array s__TimedPause_key
 boolean array s__TimedPause_flag
-constant integer si__Afterburner__Afterburner=124
-integer array s__Afterburner__Afterburner_proxy
-unit array s__Afterburner__Afterburner_unit
-unit array s__Afterburner__Afterburner_dummy
-integer array s__Afterburner__Afterburner_id
-real array s__Afterburner__Afterburner_damage
-constant real s__Afterburner__Afterburner_Periodic___PERIODIC_THRESHOLD= 5
-integer s__Afterburner__Afterburner_Periodic___key
-integer s__Afterburner__Afterburner_Periodic___table
-integer s__Afterburner__Afterburner_Periodic___struct
-integer s__Afterburner__Afterburner_Periodic___timers
-timer array s__Afterburner__Afterburner_Periodic____timer
-integer array s__Afterburner__Afterburner_Periodic____unique
-boolean array s__Afterburner__Afterburner_Periodic____allocated
-constant integer si__Knockback=125
+constant integer si__Afterburner___Afterburner=110
+integer array s__Afterburner___Afterburner_array
+unit array s__Afterburner___Afterburner_unit
+unit array s__Afterburner___Afterburner_dummy
+integer array s__Afterburner___Afterburner_id
+constant real s__Afterburner___Afterburner_Periodic___PERIODIC_THRESHOLD= 5
+integer s__Afterburner___Afterburner_Periodic___key
+integer s__Afterburner___Afterburner_Periodic___table
+integer s__Afterburner___Afterburner_Periodic___struct
+integer s__Afterburner___Afterburner_Periodic___timers
+timer array s__Afterburner___Afterburner_Periodic____timer
+integer array s__Afterburner___Afterburner_Periodic____unique
+boolean array s__Afterburner___Afterburner_Periodic____allocated
+constant integer si__Knockback=111
 integer si__Knockback_F=0
 integer si__Knockback_I=0
 integer array si__Knockback_V
@@ -1916,7 +1499,7 @@ effect array s__Knockback_effect
 boolean array s__Knockback_onCliff
 boolean array s__Knockback_onDest
 boolean array s__Knockback_onUnit
-constant integer si__Knockup=126
+constant integer si__Knockup=112
 integer si__Knockup_F=0
 integer si__Knockup_I=0
 integer array si__Knockup_V
@@ -1928,7 +1511,7 @@ integer array s__Knockup_key
 boolean array s__Knockup_up
 real array s__Knockup_rate
 real array s__Knockup_airTime
-constant integer si__Fear=127
+constant integer si__Fear=113
 integer si__Fear_F=0
 integer si__Fear_I=0
 integer array si__Fear_V
@@ -1948,7 +1531,7 @@ unit array s__Fear_unit
 effect array s__Fear_effect
 integer array s__Fear_id
 integer array s__Fear_change
-constant integer si__Taunt=128
+constant integer si__Taunt=114
 integer si__Taunt_F=0
 integer si__Taunt_I=0
 integer array si__Taunt_V
@@ -1964,7 +1547,7 @@ unit array s__Taunt_unit
 effect array s__Taunt_effect
 integer array s__Taunt_id
 boolean array s__Taunt_selected
-constant integer si__CrowdControl=129
+constant integer si__CrowdControl=115
 trigger s__CrowdControl_trigger= CreateTrigger()
 hashtable s__CrowdControl_timer= InitHashtable()
 trigger array s__CrowdControl_event
@@ -1988,130 +1571,148 @@ boolean array s__CrowdControl_cliff
 boolean array s__CrowdControl_destructable
 boolean array s__CrowdControl_agent
 integer array s__CrowdControl_type
-constant integer si__Item___Events=130
-integer si__Item___Events_F=0
-integer si__Item___Events_I=0
-integer array si__Item___Events_V
-integer array si__Item___Events_type
-trigger array st__Item___Events_onDestroy
-real array s__Item___Events_mana
-real array s__Item___Events_armor
-real array s__Item___Events_block
-real array s__Item___Events_damage
-real array s__Item___Events_health
-real array s__Item___Events_evasion
-real array s__Item___Events_agility
-real array s__Item___Events_strength
-real array s__Item___Events_tenacity
-real array s__Item___Events_lifeSteal
-real array s__Item___Events_spellVamp
-real array s__Item___Events_manaRegen
-real array s__Item___Events_sightRange
-real array s__Item___Events_missChance
-real array s__Item___Events_spellPower
-real array s__Item___Events_healthRegen
-real array s__Item___Events_attackSpeed
-real array s__Item___Events_intelligence
-real array s__Item___Events_tenacityFlat
-real array s__Item___Events_movementSpeed
-real array s__Item___Events_criticalDamage
-real array s__Item___Events_criticalChance
-real array s__Item___Events_cooldownOffset
-real array s__Item___Events_tenacityOffset
-real array s__Item___Events_magicResistance
-real array s__Item___Events_armorPenetration
-real array s__Item___Events_magicPenetration
-real array s__Item___Events_cooldownReduction
-real array s__Item___Events_armorPenetrationFlat
-real array s__Item___Events_magicPenetrationFlat
-real array s__Item___Events_cooldownReductionFlat
-trigger array st__Item___Events_onTooltip
-trigger array st__Item___Events_onPickup
-trigger array st__Item___Events_onDrop
-constant integer si__Item=131
-timer s__Item_timer= CreateTimer()
-trigger s__Item_trigger= CreateTrigger()
-player s__Item_player= Player(bj_PLAYER_NEUTRAL_EXTRA)
-integer s__Item_key= - 1
+constant integer si__Item___IItem=116
+integer si__Item___IItem_F=0
+integer si__Item___IItem_I=0
+integer array si__Item___IItem_V
+integer array si__Item___IItem_type
+trigger array st__Item___IItem_onDestroy
+real array s__Item___IItem_mana
+real array s__Item___IItem_armor
+real array s__Item___IItem_block
+real array s__Item___IItem_damage
+real array s__Item___IItem_health
+real array s__Item___IItem_evasion
+real array s__Item___IItem_agility
+real array s__Item___IItem_strength
+real array s__Item___IItem_tenacity
+real array s__Item___IItem_lifeSteal
+real array s__Item___IItem_spellVamp
+real array s__Item___IItem_manaRegen
+real array s__Item___IItem_sightRange
+real array s__Item___IItem_missChance
+real array s__Item___IItem_spellPower
+real array s__Item___IItem_healthRegen
+real array s__Item___IItem_attackSpeed
+real array s__Item___IItem_intelligence
+real array s__Item___IItem_tenacityFlat
+real array s__Item___IItem_movementSpeed
+real array s__Item___IItem_criticalDamage
+real array s__Item___IItem_criticalChance
+real array s__Item___IItem_cooldownOffset
+real array s__Item___IItem_tenacityOffset
+real array s__Item___IItem_magicResistance
+real array s__Item___IItem_armorPenetration
+real array s__Item___IItem_magicPenetration
+real array s__Item___IItem_cooldownReduction
+real array s__Item___IItem_armorPenetrationFlat
+real array s__Item___IItem_magicPenetrationFlat
+real array s__Item___IItem_cooldownReductionFlat
+trigger array st__Item___IItem_onTooltip
+trigger array st__Item___IItem_onPickup
+trigger array st__Item___IItem_onDrop
+constant integer si__Item=117
 unit s__Item_shop
 rect s__Item_rect
+integer s__Item_key= - 1
 integer s__Item_table
 integer s__Item_itempool
 integer s__Item_itemtype
 integer s__Item_counters
 integer s__Item_relations
 integer array s__Item_array
+timer s__Item_timer= CreateTimer()
+trigger s__Item_trigger= CreateTrigger()
+player s__Item_player= Player(bj_PLAYER_NEUTRAL_EXTRA)
 unit array s__Item_unit
 item array s__Item_item
 integer array s__Item_index
 integer array s__Item_type
 integer array s__Item_id
-constant integer si__MissileUtils___MGroup=132
+constant integer si__MissileUtils___MGroup=118
 integer array s__MissileUtils___MGroup_next
 integer array s__MissileUtils___MGroup_prev
 integer s__MissileUtils___MGroup_Alloc___instanceCount= 0
 integer array s__MissileUtils___MGroup_Alloc___recycle
 integer array s__MissileUtils___MGroup_missile
-constant integer si__MissileGroup=133
+constant integer si__MissileGroup=119
 integer si__MissileGroup_F=0
 integer si__MissileGroup_I=0
 integer array si__MissileGroup_V
 integer array s__MissileGroup_group
 integer array s__MissileGroup_size
-constant integer si__Sulfuras=134
+constant integer si__MoltenShield___MoltenShield=120
+real array s__MoltenShield___MoltenShield_stored
+unit array s__MoltenShield___MoltenShield_unit
+integer array s__MoltenShield___MoltenShield_id
+integer array s__MoltenShield___MoltenShield_level
+constant real s__MoltenShield___MoltenShield_Periodic___PERIODIC_THRESHOLD= 5
+integer s__MoltenShield___MoltenShield_Periodic___key
+integer s__MoltenShield___MoltenShield_Periodic___table
+integer s__MoltenShield___MoltenShield_Periodic___struct
+integer s__MoltenShield___MoltenShield_Periodic___timers
+timer array s__MoltenShield___MoltenShield_Periodic____timer
+integer array s__MoltenShield___MoltenShield_Periodic____unique
+boolean array s__MoltenShield___MoltenShield_Periodic____allocated
+constant integer si__Sulfuras=121
 integer si__Sulfuras_F=0
 integer si__Sulfuras_I=0
 integer array si__Sulfuras_V
 integer array s__Sulfuras_count
 integer array s__Sulfuras_stacks
-constant integer si__ExplosiveRune__ExplosiveRune=135
-integer array s__ExplosiveRune__ExplosiveRune_charges
-real array s__ExplosiveRune__ExplosiveRune_x
-real array s__ExplosiveRune__ExplosiveRune_y
-real array s__ExplosiveRune__ExplosiveRune_aoe
-unit array s__ExplosiveRune__ExplosiveRune_unit
-integer array s__ExplosiveRune__ExplosiveRune_id
-real array s__ExplosiveRune__ExplosiveRune_damage
-constant real s__ExplosiveRune__ExplosiveRune_Periodic___PERIODIC_THRESHOLD= 5
-integer s__ExplosiveRune__ExplosiveRune_Periodic___key
-integer s__ExplosiveRune__ExplosiveRune_Periodic___table
-integer s__ExplosiveRune__ExplosiveRune_Periodic___struct
-integer s__ExplosiveRune__ExplosiveRune_Periodic___timers
-timer array s__ExplosiveRune__ExplosiveRune_Periodic____timer
-integer array s__ExplosiveRune__ExplosiveRune_Periodic____unique
-boolean array s__ExplosiveRune__ExplosiveRune_Periodic____allocated
-constant integer si__LivingMeteor__Meteor=136
-integer s__LivingMeteor__Meteor_ticks= R2I(LivingMeteor__DAMAGE_INTERVAL / Missiles_PERIOD)
-real array s__LivingMeteor__Meteor_aoe
-real array s__LivingMeteor__Meteor_angle
-real array s__LivingMeteor__Meteor_distance
-integer array s__LivingMeteor__Meteor_i
-integer array s__LivingMeteor__Meteor_j
-integer array s__LivingMeteor__Meteor_level
-boolean array s__LivingMeteor__Meteor_rolling
-constant integer si__LivingMeteor__LivingMeteor=137
-real array s__LivingMeteor__LivingMeteor_x
-real array s__LivingMeteor__LivingMeteor_y
-unit array s__LivingMeteor__LivingMeteor_unit
-player array s__LivingMeteor__LivingMeteor_player
-integer array s__LivingMeteor__LivingMeteor_level
-ability array s__LivingMeteor__LivingMeteor_ability
-constant real s__LivingMeteor__LivingMeteor_Periodic___PERIODIC_THRESHOLD= 5
-integer s__LivingMeteor__LivingMeteor_Periodic___key
-integer s__LivingMeteor__LivingMeteor_Periodic___table
-integer s__LivingMeteor__LivingMeteor_Periodic___struct
-integer s__LivingMeteor__LivingMeteor_Periodic___timers
-timer array s__LivingMeteor__LivingMeteor_Periodic____timer
-integer array s__LivingMeteor__LivingMeteor_Periodic____unique
-boolean array s__LivingMeteor__LivingMeteor_Periodic____allocated
-constant integer si__Shop___Sound=138
+constant integer si__ExplosiveRune___ExplosiveRune=122
+integer array s__ExplosiveRune___ExplosiveRune_charges
+real array s__ExplosiveRune___ExplosiveRune_x
+real array s__ExplosiveRune___ExplosiveRune_y
+real array s__ExplosiveRune___ExplosiveRune_aoe
+unit array s__ExplosiveRune___ExplosiveRune_unit
+integer array s__ExplosiveRune___ExplosiveRune_id
+real array s__ExplosiveRune___ExplosiveRune_damage
+constant real s__ExplosiveRune___ExplosiveRune_Periodic___PERIODIC_THRESHOLD= 5
+integer s__ExplosiveRune___ExplosiveRune_Periodic___key
+integer s__ExplosiveRune___ExplosiveRune_Periodic___table
+integer s__ExplosiveRune___ExplosiveRune_Periodic___struct
+integer s__ExplosiveRune___ExplosiveRune_Periodic___timers
+timer array s__ExplosiveRune___ExplosiveRune_Periodic____timer
+integer array s__ExplosiveRune___ExplosiveRune_Periodic____unique
+boolean array s__ExplosiveRune___ExplosiveRune_Periodic____allocated
+constant integer si__LavaElemental___LavaElemental=123
+integer array s__LavaElemental___LavaElemental_array
+unit array s__LavaElemental___LavaElemental_unit
+integer array s__LavaElemental___LavaElemental_id
+effect array s__LavaElemental___LavaElemental_effect
+constant integer si__LivingMeteor___Meteor=124
+integer s__LivingMeteor___Meteor_ticks= R2I(LivingMeteor___DAMAGE_INTERVAL / Missiles_PERIOD)
+real array s__LivingMeteor___Meteor_aoe
+real array s__LivingMeteor___Meteor_angle
+real array s__LivingMeteor___Meteor_distance
+integer array s__LivingMeteor___Meteor_i
+integer array s__LivingMeteor___Meteor_j
+integer array s__LivingMeteor___Meteor_level
+boolean array s__LivingMeteor___Meteor_rolling
+constant integer si__LivingMeteor___LivingMeteor=125
+real array s__LivingMeteor___LivingMeteor_x
+real array s__LivingMeteor___LivingMeteor_y
+unit array s__LivingMeteor___LivingMeteor_unit
+player array s__LivingMeteor___LivingMeteor_player
+integer array s__LivingMeteor___LivingMeteor_level
+ability array s__LivingMeteor___LivingMeteor_ability
+constant real s__LivingMeteor___LivingMeteor_Periodic___PERIODIC_THRESHOLD= 5
+integer s__LivingMeteor___LivingMeteor_Periodic___key
+integer s__LivingMeteor___LivingMeteor_Periodic___table
+integer s__LivingMeteor___LivingMeteor_Periodic___struct
+integer s__LivingMeteor___LivingMeteor_Periodic___timers
+timer array s__LivingMeteor___LivingMeteor_Periodic____timer
+integer array s__LivingMeteor___LivingMeteor_Periodic____unique
+boolean array s__LivingMeteor___LivingMeteor_Periodic____allocated
+constant integer si__Shop___Sound=126
 integer si__Shop___Sound_F=0
 integer si__Shop___Sound_I=0
 integer array si__Shop___Sound_V
 sound s__Shop___Sound_success_sound
 sound s__Shop___Sound_error_sound
 sound array s__Shop___Sound_noGold
-constant integer si__Shop___Transaction=139
+constant integer si__Shop___Transaction=127
 integer si__Shop___Transaction_F=0
 integer si__Shop___Transaction_I=0
 integer array si__Shop___Transaction_V
@@ -2126,7 +1727,7 @@ integer array s__Shop___Transaction_id
 integer array s__Shop___Transaction_gold
 player array s__Shop___Transaction_player
 integer array s__Shop___Transaction_component
-constant integer si__Shop___Inventory=140
+constant integer si__Shop___Inventory=128
 integer si__Shop___Inventory_F=0
 integer si__Shop___Inventory_I=0
 integer array si__Shop___Inventory_V
@@ -2136,7 +1737,7 @@ integer array s__Shop___Inventory_selected
 integer array s__Shop___Inventory_item
 integer array s__Shop___Inventory_button
 framehandle array s__Shop___Inventory_frame
-constant integer si__Shop___Slot=141
+constant integer si__Shop___Slot=129
 integer array s__Shop___Slot_shop
 integer array s__Shop___Slot_item
 integer array s__Shop___Slot_cost
@@ -2147,7 +1748,7 @@ integer array s__Shop___Slot_left
 integer array s__Shop___Slot_right
 integer array s__Shop___Slot_current_row
 integer array s__Shop___Slot_current_column
-constant integer si__Shop___Detail=142
+constant integer si__Shop___Detail=130
 integer array s__Shop___Detail_shop
 integer array s__Shop___Detail_uses
 integer array s__Shop___Detail_left
@@ -2171,7 +1772,7 @@ integer si__Shop___Detail_arrI=0
 integer si__Shop___Detail_arrN=0
 integer array si__Shop___Detail_arr
 integer array si__Shop___Detail_arrV
-constant integer si__Shop___Buyer=144
+constant integer si__Shop___Buyer=132
 integer s__Shop___Buyer_current
 boolean array s__Shop___Buyer_isVisible
 integer array s__Shop___Buyer_shop
@@ -2184,13 +1785,13 @@ integer array s__Shop___Buyer_size
 integer array s__Shop___Buyer_selected
 integer array s__Shop___Buyer_unit
 integer array s__Shop___Buyer_button
-constant integer si__Shop___Favorites=145
+constant integer si__Shop___Favorites=133
 integer array s__Shop___Favorites_shop
 integer array s__Shop___Favorites_clear
 integer array s__Shop___Favorites_count
 integer array s__Shop___Favorites_item
 integer array s__Shop___Favorites_button
-constant integer si__Shop___Category=146
+constant integer si__Shop___Category=134
 integer array s__Shop___Category_shop
 integer array s__Shop___Category_clear
 integer array s__Shop___Category_logic
@@ -2207,7 +1808,7 @@ integer array si__Shop___Category_arrV
 integer array s___Shop___Category_button
 constant integer s___Shop___Category_button_size=13
 integer array s__Shop___Category_button
-constant integer si__Shop=149
+constant integer si__Shop=137
 integer s__Shop_count= - 1
 integer s__Shop_itempool
 unit array s__Shop_unit
@@ -2234,100 +1835,99 @@ integer array s__Shop_details
 integer array s__Shop_category
 integer array s__Shop_favorites
 integer array s__Shop_scrolls
-constant integer si__MissChance___Miss=150
-constant integer si__Armor___Armor=151
+constant integer si__SulfurasSmash___Hammer=138
+real array s__SulfurasSmash___Hammer_aoe
+real array s__SulfurasSmash___Hammer_stun
+integer array s__SulfurasSmash___Hammer_level
+constant integer si__SulfurasSmash___SulfurasSmash=139
+constant integer si__MissChance___Miss=140
+constant integer si__Armor___Armor=141
 constant integer s__Armor___Armor_ability= 'Z002'
 constant abilityintegerlevelfield s__Armor___Armor_field= ABILITY_ILF_DEFENSE_BONUS_IDEF
-constant integer si__Block___Block=152
+constant integer si__Block___Block=142
 real array s__Block___Block_block
-constant integer si__Mana___Mana=153
+constant integer si__Mana___Mana=143
 constant integer s__Mana___Mana_ability= 'Z005'
 constant abilityintegerlevelfield s__Mana___Mana_field= ABILITY_ILF_MAX_MANA_GAINED
-constant integer si__Agility___Agility=154
+constant integer si__Agility___Agility=144
 constant integer s__Agility___Agility_ability= 'Z003'
 constant abilityintegerlevelfield s__Agility___Agility_field= ABILITY_ILF_AGILITY_BONUS
-constant integer si__Health___Health=155
+constant integer si__Health___Health=145
 constant integer s__Health___Health_ability= 'Z004'
 constant abilityintegerlevelfield s__Health___Health_field= ABILITY_ILF_MAX_LIFE_GAINED
-constant integer si__EvasionChance___Evasion=156
+constant integer si__EvasionChance___Evasion=146
 constant integer s__EvasionChance___Evasion_ability= 'Z00D'
 constant abilityreallevelfield s__EvasionChance___Evasion_field= ABILITY_RLF_CHANCE_TO_EVADE_EEV1
-constant integer si__DamageBonus___Damage=157
+constant integer si__DamageBonus___Damage=147
 constant integer s__DamageBonus___Damage_ability= 'Z001'
 constant abilityintegerlevelfield s__DamageBonus___Damage_field= ABILITY_ILF_ATTACK_BONUS
-constant integer si__Strength___Strength=158
+constant integer si__Strength___Strength=148
 constant integer s__Strength___Strength_ability= 'Z003'
 constant abilityintegerlevelfield s__Strength___Strength_field= ABILITY_ILF_STRENGTH_BONUS_ISTR
-constant integer si__TenacityBonus___Tenacity=159
-constant integer si__LifeSteal___LifeSteal=160
+constant integer si__TenacityBonus___Tenacity=149
+constant integer si__LifeSteal___LifeSteal=150
 real array s__LifeSteal___LifeSteal_steal
 string s__LifeSteal___LifeSteal_effect= "Abilities\\Spells\\Undead\\VampiricAura\\VampiricAuraTarget.mdl"
-constant integer si__SpellVamp___SpellVamp=161
+constant integer si__SpellVamp___SpellVamp=151
 real array s__SpellVamp___SpellVamp_vamp
-constant integer si__SpellPower___SpellPower=162
+constant integer si__SpellPower___SpellPower=152
 real array s__SpellPower___SpellPower_power
-constant integer si__Intelligence___Intelligence=163
+constant integer si__Intelligence___Intelligence=153
 constant integer s__Intelligence___Intelligence_ability= 'Z003'
 constant abilityintegerlevelfield s__Intelligence___Intelligence_field= ABILITY_ILF_INTELLIGENCE_BONUS
-constant integer si__SightRange___SightRange=164
+constant integer si__SightRange___SightRange=154
 constant integer s__SightRange___SightRange_ability= 'Z00A'
 constant abilityintegerlevelfield s__SightRange___SightRange_field= ABILITY_ILF_SIGHT_RANGE_BONUS
-constant integer si__TenacityFlat___TenacityFlat=165
-constant integer si__AttackSpeed___AttackSpeed=166
+constant integer si__TenacityFlat___TenacityFlat=155
+constant integer si__AttackSpeed___AttackSpeed=156
 constant integer s__AttackSpeed___AttackSpeed_ability= 'Z008'
 constant abilityreallevelfield s__AttackSpeed___AttackSpeed_field= ABILITY_RLF_ATTACK_SPEED_INCREASE_ISX1
-constant integer si__CriticalChance___CriticalChance=167
+constant integer si__CriticalChance___CriticalChance=157
 constant integer s__CriticalChance___CriticalChance_ability= 'Z00C'
 constant abilityreallevelfield s__CriticalChance___CriticalChance_field= ABILITY_RLF_CHANCE_TO_CRITICAL_STRIKE
-constant integer si__CriticalDamage___CriticalDamage=168
+constant integer si__CriticalDamage___CriticalDamage=158
 constant integer s__CriticalDamage___CriticalDamage_ability= 'Z00C'
 constant abilityreallevelfield s__CriticalDamage___CriticalDamage_field= ABILITY_RLF_DAMAGE_MULTIPLIER_OCR2
-constant integer si__TenacityOffset___TenacityOffset=169
-constant integer si__CooldownOffset___CooldownOffset=170
-constant integer si__ArmorPenetration___ArmorPenetration=171
-constant integer si__MovementSpeed___MovementSpeed=172
+constant integer si__TenacityOffset___TenacityOffset=159
+constant integer si__CooldownOffset___CooldownOffset=160
+constant integer si__ArmorPenetration___ArmorPenetration=161
+constant integer si__MovementSpeed___MovementSpeed=162
 constant integer s__MovementSpeed___MovementSpeed_ability= 'Z009'
 constant abilityintegerlevelfield s__MovementSpeed___MovementSpeed_field= ABILITY_ILF_MOVEMENT_SPEED_BONUS
-constant integer si__MagicResistence___MagicResistence=173
+constant integer si__MagicResistence___MagicResistence=163
 constant integer s__MagicResistence___MagicResistence_ability= 'Z00B'
 constant abilityreallevelfield s__MagicResistence___MagicResistence_field= ABILITY_RLF_DAMAGE_REDUCTION_ISR2
-constant integer si__MagicPenetration___MagicPenetration=174
-constant integer si__ManaRegeneration___ManaRegeneration=175
+constant integer si__MagicPenetration___MagicPenetration=164
+constant integer si__ManaRegeneration___ManaRegeneration=165
 constant integer s__ManaRegeneration___ManaRegeneration_ability= 'Z007'
 constant abilityreallevelfield s__ManaRegeneration___ManaRegeneration_field= ABILITY_RLF_AMOUNT_REGENERATED
-constant integer si__HealthRegeneration___HealthRegeneration=176
+constant integer si__HealthRegeneration___HealthRegeneration=166
 constant integer s__HealthRegeneration___HealthRegeneration_ability= 'Z006'
 constant abilityreallevelfield s__HealthRegeneration___HealthRegeneration_field= ABILITY_RLF_AMOUNT_OF_HIT_POINTS_REGENERATED
-constant integer si__CooldownReductionBonus___CooldownReduction=177
-constant integer si__ArmorPenetrationFlat___ArmorPenetrationFlat=178
-constant integer si__MagicPenetrationFlat___MagicPenetrationFlat=179
-constant integer si__CooldownReductionFlat___CooldownReductionFlat=180
-constant integer si__Attributes___SpellPower=181
-constant integer si__Attributes___CriticalStrike=182
-constant integer si__Attributes___Evasion=183
-constant integer si__Attributes___LifeSteal=184
-constant integer si__Attributes___MovementSpeed=185
-constant integer si__Revive__Revive=186
-integer si__Revive__Revive_F=0
-integer si__Revive__Revive_I=0
-integer array si__Revive__Revive_V
-constant integer si__Spawn__Revive=187
-integer si__Spawn__Revive_F=0
-integer si__Spawn__Revive_I=0
-integer array si__Spawn__Revive_V
-constant real s__Spawn__Revive_centerX= GetRectCenterX(gg_rct_Attack)
-constant real s__Spawn__Revive_centerY= GetRectCenterY(gg_rct_Attack)
-constant integer si__OnDamage__OnDamage=188
-integer si__OnDamage__OnDamage_F=0
-integer si__OnDamage__OnDamage_I=0
-integer array si__OnDamage__OnDamage_V
+constant integer si__CooldownReductionBonus___CooldownReduction=167
+constant integer si__ArmorPenetrationFlat___ArmorPenetrationFlat=168
+constant integer si__MagicPenetrationFlat___MagicPenetrationFlat=169
+constant integer si__CooldownReductionFlat___CooldownReductionFlat=170
+constant integer si__Revive___Revive=171
+integer si__Revive___Revive_F=0
+integer si__Revive___Revive_I=0
+integer array si__Revive___Revive_V
+constant integer si__Spawn___Revive=172
+integer si__Spawn___Revive_F=0
+integer si__Spawn___Revive_I=0
+integer array si__Spawn___Revive_V
+constant real s__Spawn___Revive_centerX= GetRectCenterX(gg_rct_Attack)
+constant real s__Spawn___Revive_centerY= GetRectCenterY(gg_rct_Attack)
+constant integer si__OnDamage___OnDamage=173
+integer si__OnDamage___OnDamage_F=0
+integer si__OnDamage___OnDamage_I=0
+integer array si__OnDamage___OnDamage_V
 integer array s__TimerUtils___data
 timer array s__TimerUtils___tT
 trigger array st__Backdrop__set_visible
 trigger array st__Backdrop__get_visible
 trigger array st__Component__set_visible
 trigger array st__Component__get_visible
-trigger array st__Attribute_update
 integer array si__Backdrop_type
 trigger array st__Backdrop_onDestroy
 integer array si__CDR_type
@@ -2394,17 +1994,6 @@ trigger st__Tenacity_register
 trigger st__Tenacity_print
 trigger st__Ability_onCasting
 trigger st__ArcingTextTag_StartTimer
-trigger st__Interface___Options_onSlider
-trigger st__Interface___Options_onChecked
-trigger st__Interface___Options_onUnchecked
-trigger st__Interface___Portrait__set_opacity
-trigger st__Interface___Abilities_onHover
-trigger st__Attribute_destroy
-trigger st__Attribute_create
-trigger st__Attribute_onClicked
-trigger st__Attribute_onUpdate
-trigger st__UI_showHeroes
-trigger st__UI_showMinimap
 trigger st__Missiles_terminate
 trigger st__Missiles_reset
 trigger st__Missiles_move
@@ -2425,7 +2014,7 @@ trigger st__EffectLink_ItemLink
 trigger st__AbilityCooldown_start
 trigger st__TimedDestructable_create
 trigger st__TimedPause_create
-trigger st__Afterburner__Afterburner_StartTimer
+trigger st__Afterburner___Afterburner_StartTimer
 trigger st__CrowdControl_silence
 trigger st__CrowdControl_silenced
 trigger st__CrowdControl_stun
@@ -2464,10 +2053,6 @@ trigger st__CrowdControl_remaining
 trigger st__CrowdControl_register
 trigger st__Item_calculate
 trigger st__Item_get
-trigger st__Item_addComponents
-trigger st__Item_hasType
-trigger st__Item_countType
-trigger st__Item_countComponent
 trigger st__Item_create
 trigger st__Item_save
 trigger st__Item_clear
@@ -2480,11 +2065,12 @@ trigger st__MissileGroup_contains
 trigger st__MissileGroup_addGroup
 trigger st__MissileGroup_removeGroup
 trigger st__MissileGroup_create
-trigger st__ExplosiveRune__ExplosiveRune_HasStartedTimer
-trigger st__ExplosiveRune__ExplosiveRune_GetTimerInstance
-trigger st__ExplosiveRune__ExplosiveRune_GetRemainingTime
-trigger st__ExplosiveRune__ExplosiveRune_StartTimer
-trigger st__LivingMeteor__LivingMeteor_StartTimer
+trigger st__MoltenShield___MoltenShield_StartTimer
+trigger st__ExplosiveRune___ExplosiveRune_HasStartedTimer
+trigger st__ExplosiveRune___ExplosiveRune_GetTimerInstance
+trigger st__ExplosiveRune___ExplosiveRune_GetRemainingTime
+trigger st__ExplosiveRune___ExplosiveRune_StartTimer
+trigger st__LivingMeteor___LivingMeteor_StartTimer
 trigger st__Shop___Transaction_count
 trigger st__Shop___Inventory_onClick
 trigger st__Shop___Inventory_onDoubleClick
@@ -2545,10 +2131,6 @@ unit f__arg_unit2
 integer f__arg_integer1
 integer f__arg_integer2
 integer f__arg_integer3
-integer f__arg_integer4
-integer f__arg_integer5
-integer f__arg_integer6
-framepointtype f__arg_framepointtype1
 destructable f__arg_destructable1
 item f__arg_item1
 player f__arg_player1
@@ -2592,88 +2174,88 @@ function s__Indexer_deallocate takes integer this returns nothing
     set si__Indexer_F=this
 endfunction
 
-//Generated allocator of OnDamage__OnDamage
-function s__OnDamage__OnDamage__allocate takes nothing returns integer
- local integer this=si__OnDamage__OnDamage_F
+//Generated allocator of OnDamage___OnDamage
+function s__OnDamage___OnDamage__allocate takes nothing returns integer
+ local integer this=si__OnDamage___OnDamage_F
     if (this!=0) then
-        set si__OnDamage__OnDamage_F=si__OnDamage__OnDamage_V[this]
+        set si__OnDamage___OnDamage_F=si__OnDamage___OnDamage_V[this]
     else
-        set si__OnDamage__OnDamage_I=si__OnDamage__OnDamage_I+1
-        set this=si__OnDamage__OnDamage_I
+        set si__OnDamage___OnDamage_I=si__OnDamage___OnDamage_I+1
+        set this=si__OnDamage___OnDamage_I
     endif
     if (this>8190) then
         return 0
     endif
 
-    set si__OnDamage__OnDamage_V[this]=-1
+    set si__OnDamage___OnDamage_V[this]=-1
  return this
 endfunction
 
-//Generated destructor of OnDamage__OnDamage
-function s__OnDamage__OnDamage_deallocate takes integer this returns nothing
+//Generated destructor of OnDamage___OnDamage
+function s__OnDamage___OnDamage_deallocate takes integer this returns nothing
     if this==null then
         return
-    elseif (si__OnDamage__OnDamage_V[this]!=-1) then
+    elseif (si__OnDamage___OnDamage_V[this]!=-1) then
         return
     endif
-    set si__OnDamage__OnDamage_V[this]=si__OnDamage__OnDamage_F
-    set si__OnDamage__OnDamage_F=this
+    set si__OnDamage___OnDamage_V[this]=si__OnDamage___OnDamage_F
+    set si__OnDamage___OnDamage_F=this
 endfunction
 
-//Generated allocator of Spawn__Revive
-function s__Spawn__Revive__allocate takes nothing returns integer
- local integer this=si__Spawn__Revive_F
+//Generated allocator of Spawn___Revive
+function s__Spawn___Revive__allocate takes nothing returns integer
+ local integer this=si__Spawn___Revive_F
     if (this!=0) then
-        set si__Spawn__Revive_F=si__Spawn__Revive_V[this]
+        set si__Spawn___Revive_F=si__Spawn___Revive_V[this]
     else
-        set si__Spawn__Revive_I=si__Spawn__Revive_I+1
-        set this=si__Spawn__Revive_I
+        set si__Spawn___Revive_I=si__Spawn___Revive_I+1
+        set this=si__Spawn___Revive_I
     endif
     if (this>8190) then
         return 0
     endif
 
-    set si__Spawn__Revive_V[this]=-1
+    set si__Spawn___Revive_V[this]=-1
  return this
 endfunction
 
-//Generated destructor of Spawn__Revive
-function s__Spawn__Revive_deallocate takes integer this returns nothing
+//Generated destructor of Spawn___Revive
+function s__Spawn___Revive_deallocate takes integer this returns nothing
     if this==null then
         return
-    elseif (si__Spawn__Revive_V[this]!=-1) then
+    elseif (si__Spawn___Revive_V[this]!=-1) then
         return
     endif
-    set si__Spawn__Revive_V[this]=si__Spawn__Revive_F
-    set si__Spawn__Revive_F=this
+    set si__Spawn___Revive_V[this]=si__Spawn___Revive_F
+    set si__Spawn___Revive_F=this
 endfunction
 
-//Generated allocator of Revive__Revive
-function s__Revive__Revive__allocate takes nothing returns integer
- local integer this=si__Revive__Revive_F
+//Generated allocator of Revive___Revive
+function s__Revive___Revive__allocate takes nothing returns integer
+ local integer this=si__Revive___Revive_F
     if (this!=0) then
-        set si__Revive__Revive_F=si__Revive__Revive_V[this]
+        set si__Revive___Revive_F=si__Revive___Revive_V[this]
     else
-        set si__Revive__Revive_I=si__Revive__Revive_I+1
-        set this=si__Revive__Revive_I
+        set si__Revive___Revive_I=si__Revive___Revive_I+1
+        set this=si__Revive___Revive_I
     endif
     if (this>8190) then
         return 0
     endif
 
-    set si__Revive__Revive_V[this]=-1
+    set si__Revive___Revive_V[this]=-1
  return this
 endfunction
 
-//Generated destructor of Revive__Revive
-function s__Revive__Revive_deallocate takes integer this returns nothing
+//Generated destructor of Revive___Revive
+function s__Revive___Revive_deallocate takes integer this returns nothing
     if this==null then
         return
-    elseif (si__Revive__Revive_V[this]!=-1) then
+    elseif (si__Revive___Revive_V[this]!=-1) then
         return
     endif
-    set si__Revive__Revive_V[this]=si__Revive__Revive_F
-    set si__Revive__Revive_F=this
+    set si__Revive___Revive_V[this]=si__Revive___Revive_F
+    set si__Revive___Revive_F=this
 endfunction
 
 //Generated method caller for Shop___Inventory.onClick
@@ -2920,66 +2502,69 @@ function s__MissileGroup_deallocate takes integer this returns nothing
     set si__MissileGroup_F=this
 endfunction
 
-//Generated method caller for Item___Events.onTooltip
-function sc__Item___Events_onTooltip takes integer this,unit u,item i,integer id returns nothing
+//Generated method caller for Item___IItem.onTooltip
+function sc__Item___IItem_onTooltip takes integer this,unit u,item i,integer id returns string
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_item1=i
     set f__arg_integer1=id
-    call TriggerEvaluate(st__Item___Events_onTooltip[si__Item___Events_type[this]])
+    //An error in the next line would mean declaration for Item___IItem.onTooltip had a wrong default (null)
+    set f__result_string=null
+    call TriggerEvaluate(st__Item___IItem_onTooltip[si__Item___IItem_type[this]])
+ return f__result_string
 endfunction
 
-//Generated method executor for Item___Events.onTooltip
-function sx__Item___Events_onTooltip takes integer this,unit u,item i,integer id returns nothing
+//Generated method executor for Item___IItem.onTooltip
+function sx__Item___IItem_onTooltip takes integer this,unit u,item i,integer id returns nothing
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_item1=i
     set f__arg_integer1=id
-    call TriggerExecute(st__Item___Events_onTooltip[si__Item___Events_type[this]])
+    call TriggerExecute(st__Item___IItem_onTooltip[si__Item___IItem_type[this]])
 endfunction
 
-//Generated method caller for Item___Events.onPickup
-function sc__Item___Events_onPickup takes integer this,unit u,item i returns nothing
+//Generated method caller for Item___IItem.onPickup
+function sc__Item___IItem_onPickup takes integer this,unit u,item i returns nothing
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_item1=i
-    call TriggerEvaluate(st__Item___Events_onPickup[si__Item___Events_type[this]])
+    call TriggerEvaluate(st__Item___IItem_onPickup[si__Item___IItem_type[this]])
 endfunction
 
-//Generated method executor for Item___Events.onPickup
-function sx__Item___Events_onPickup takes integer this,unit u,item i returns nothing
+//Generated method executor for Item___IItem.onPickup
+function sx__Item___IItem_onPickup takes integer this,unit u,item i returns nothing
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_item1=i
-    call TriggerExecute(st__Item___Events_onPickup[si__Item___Events_type[this]])
+    call TriggerExecute(st__Item___IItem_onPickup[si__Item___IItem_type[this]])
 endfunction
 
-//Generated method caller for Item___Events.onDrop
-function sc__Item___Events_onDrop takes integer this,unit u,item i returns nothing
+//Generated method caller for Item___IItem.onDrop
+function sc__Item___IItem_onDrop takes integer this,unit u,item i returns nothing
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_item1=i
-    call TriggerEvaluate(st__Item___Events_onDrop[si__Item___Events_type[this]])
+    call TriggerEvaluate(st__Item___IItem_onDrop[si__Item___IItem_type[this]])
 endfunction
 
-//Generated method executor for Item___Events.onDrop
-function sx__Item___Events_onDrop takes integer this,unit u,item i returns nothing
+//Generated method executor for Item___IItem.onDrop
+function sx__Item___IItem_onDrop takes integer this,unit u,item i returns nothing
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_item1=i
-    call TriggerExecute(st__Item___Events_onDrop[si__Item___Events_type[this]])
+    call TriggerExecute(st__Item___IItem_onDrop[si__Item___IItem_type[this]])
 endfunction
-//Generated destructor of Item___Events
-function sc__Item___Events_deallocate takes integer this returns nothing
+//Generated destructor of Item___IItem
+function sc__Item___IItem_deallocate takes integer this returns nothing
     if this==null then
         return
-    elseif (si__Item___Events_V[this]!=-1) then
+    elseif (si__Item___IItem_V[this]!=-1) then
         return
     endif
     set f__arg_this=this
-    call TriggerEvaluate(st__Item___Events_onDestroy[si__Item___Events_type[this]])
-    set si__Item___Events_V[this]=si__Item___Events_F
-    set si__Item___Events_F=this
+    call TriggerEvaluate(st__Item___IItem_onDestroy[si__Item___IItem_type[this]])
+    set si__Item___IItem_V[this]=si__Item___IItem_F
+    set si__Item___IItem_F=this
 endfunction
 
 //Generated method caller for CrowdControl.silence
@@ -3757,71 +3342,71 @@ function s__ResetCooldown_deallocate takes integer this returns nothing
     set si__ResetCooldown_F=this
 endfunction
 
-//Generated method caller for NewBonus___BonusType.get
-function sc__NewBonus___BonusType_get takes integer this,unit u returns real
+//Generated method caller for NewBonus___IBonus.get
+function sc__NewBonus___IBonus_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    //An error in the next line would mean declaration for NewBonus___BonusType.get had a wrong default (0)
+    //An error in the next line would mean declaration for NewBonus___IBonus.get had a wrong default (0)
     set f__result_real=0
-    call TriggerEvaluate(st__NewBonus___BonusType_get[si__NewBonus___BonusType_type[this]])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[si__NewBonus___IBonus_type[this]])
  return f__result_real
 endfunction
 
-//Generated method executor for NewBonus___BonusType.get
-function sx__NewBonus___BonusType_get takes integer this,unit u returns nothing
+//Generated method executor for NewBonus___IBonus.get
+function sx__NewBonus___IBonus_get takes integer this,unit u returns nothing
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerExecute(st__NewBonus___BonusType_get[si__NewBonus___BonusType_type[this]])
+    call TriggerExecute(st__NewBonus___IBonus_get[si__NewBonus___IBonus_type[this]])
 endfunction
 
-//Generated method caller for NewBonus___BonusType.Set
-function sc__NewBonus___BonusType_Set takes integer this,unit u,real value returns real
+//Generated method caller for NewBonus___IBonus.Set
+function sc__NewBonus___IBonus_Set takes integer this,unit u,real value returns real
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    //An error in the next line would mean declaration for NewBonus___BonusType.Set had a wrong default (0)
+    //An error in the next line would mean declaration for NewBonus___IBonus.Set had a wrong default (0)
     set f__result_real=0
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[si__NewBonus___BonusType_type[this]])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[si__NewBonus___IBonus_type[this]])
  return f__result_real
 endfunction
 
-//Generated method executor for NewBonus___BonusType.Set
-function sx__NewBonus___BonusType_Set takes integer this,unit u,real value returns nothing
+//Generated method executor for NewBonus___IBonus.Set
+function sx__NewBonus___IBonus_Set takes integer this,unit u,real value returns nothing
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerExecute(st__NewBonus___BonusType_Set[si__NewBonus___BonusType_type[this]])
+    call TriggerExecute(st__NewBonus___IBonus_Set[si__NewBonus___IBonus_type[this]])
 endfunction
 
-//Generated method caller for NewBonus___BonusType.add
-function sc__NewBonus___BonusType_add takes integer this,unit u,real value returns real
+//Generated method caller for NewBonus___IBonus.add
+function sc__NewBonus___IBonus_add takes integer this,unit u,real value returns real
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    //An error in the next line would mean declaration for NewBonus___BonusType.add had a wrong default (0)
+    //An error in the next line would mean declaration for NewBonus___IBonus.add had a wrong default (0)
     set f__result_real=0
-    call TriggerEvaluate(st__NewBonus___BonusType_add[si__NewBonus___BonusType_type[this]])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[si__NewBonus___IBonus_type[this]])
  return f__result_real
 endfunction
 
-//Generated method executor for NewBonus___BonusType.add
-function sx__NewBonus___BonusType_add takes integer this,unit u,real value returns nothing
+//Generated method executor for NewBonus___IBonus.add
+function sx__NewBonus___IBonus_add takes integer this,unit u,real value returns nothing
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerExecute(st__NewBonus___BonusType_add[si__NewBonus___BonusType_type[this]])
+    call TriggerExecute(st__NewBonus___IBonus_add[si__NewBonus___IBonus_type[this]])
 endfunction
-//Generated destructor of NewBonus___BonusType
-function sc__NewBonus___BonusType_deallocate takes integer this returns nothing
+//Generated destructor of NewBonus___IBonus
+function sc__NewBonus___IBonus_deallocate takes integer this returns nothing
     if this==null then
         return
-    elseif (si__NewBonus___BonusType_V[this]!=-1) then
+    elseif (si__NewBonus___IBonus_V[this]!=-1) then
         return
     endif
     set f__arg_this=this
-    call TriggerEvaluate(st__NewBonus___BonusType_onDestroy[si__NewBonus___BonusType_type[this]])
-    set si__NewBonus___BonusType_V[this]=si__NewBonus___BonusType_F
-    set si__NewBonus___BonusType_F=this
+    call TriggerEvaluate(st__NewBonus___IBonus_onDestroy[si__NewBonus___IBonus_type[this]])
+    set si__NewBonus___IBonus_V[this]=si__NewBonus___IBonus_F
+    set si__NewBonus___IBonus_F=this
 endfunction
 
 //Generated allocator of Missiles___Coordinates
@@ -4094,545 +3679,6 @@ function sc__Missiles___MissileEvents_deallocate takes integer this returns noth
     set si__Missiles___MissileEvents_F=this
 endfunction
 
-//Generated method caller for UI.showHeroes
-function sc__UI_showHeroes takes boolean show returns nothing
-    set f__arg_boolean1=show
-    call TriggerEvaluate(st__UI_showHeroes)
-endfunction
-
-//Generated method caller for UI.showMinimap
-function sc__UI_showMinimap takes real x,real y returns nothing
-            call BlzFrameSetAbsPoint(s__UI_minimap, FRAMEPOINT_TOPLEFT, x, y)
-            call BlzFrameSetAbsPoint(s__UI_minimap, FRAMEPOINT_BOTTOMRIGHT, x + Interface___MINIMAP_WIDTH, y - Interface___MINIMAP_HEIGHT)
-            call BlzFrameSetVisible(s__UI_minimap, true)
-endfunction
-
-//Generated allocator of UI
-function s__UI__allocate takes nothing returns integer
- local integer this=si__UI_F
-    if (this!=0) then
-        set si__UI_F=si__UI_V[this]
-    else
-        set si__UI_I=si__UI_I+1
-        set this=si__UI_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-    set si__UI_V[this]=-1
- return this
-endfunction
-
-//Generated destructor of UI
-function s__UI_deallocate takes integer this returns nothing
-    if this==null then
-        return
-    elseif (si__UI_V[this]!=-1) then
-        return
-    endif
-    set si__UI_V[this]=si__UI_F
-    set si__UI_F=this
-endfunction
-
-//Generated method caller for Components___Events.onText
-function sc__Components___Events_onText takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onText[si__Components___Events_type[this]])
-endfunction
-
-//Generated method executor for Components___Events.onText
-function sx__Components___Events_onText takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerExecute(st__Components___Events_onText[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Components___Events.onCheck
-function sc__Components___Events_onCheck takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onCheck[si__Components___Events_type[this]])
-endfunction
-
-//Generated method executor for Components___Events.onCheck
-function sx__Components___Events_onCheck takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerExecute(st__Components___Events_onCheck[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Components___Events.onEnter
-function sc__Components___Events_onEnter takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onEnter[si__Components___Events_type[this]])
-endfunction
-
-//Generated method executor for Components___Events.onEnter
-function sx__Components___Events_onEnter takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerExecute(st__Components___Events_onEnter[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Components___Events.onLeave
-function sc__Components___Events_onLeave takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onLeave[si__Components___Events_type[this]])
-endfunction
-
-//Generated method executor for Components___Events.onLeave
-function sx__Components___Events_onLeave takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerExecute(st__Components___Events_onLeave[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Components___Events.onClick
-function sc__Components___Events_onClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onClick[si__Components___Events_type[this]])
-endfunction
-
-//Generated method executor for Components___Events.onClick
-function sx__Components___Events_onClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerExecute(st__Components___Events_onClick[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Components___Events.onSlide
-function sc__Components___Events_onSlide takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onSlide[si__Components___Events_type[this]])
-endfunction
-
-//Generated method executor for Components___Events.onSlide
-function sx__Components___Events_onSlide takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerExecute(st__Components___Events_onSlide[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Components___Events.onScroll
-function sc__Components___Events_onScroll takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onScroll[si__Components___Events_type[this]])
-endfunction
-
-//Generated method executor for Components___Events.onScroll
-function sx__Components___Events_onScroll takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerExecute(st__Components___Events_onScroll[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Components___Events.onUncheck
-function sc__Components___Events_onUncheck takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onUncheck[si__Components___Events_type[this]])
-endfunction
-
-//Generated method executor for Components___Events.onUncheck
-function sx__Components___Events_onUncheck takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerExecute(st__Components___Events_onUncheck[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Components___Events.onRightClick
-function sc__Components___Events_onRightClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onRightClick[si__Components___Events_type[this]])
-endfunction
-
-//Generated method executor for Components___Events.onRightClick
-function sx__Components___Events_onRightClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerExecute(st__Components___Events_onRightClick[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Components___Events.onMiddleClick
-function sc__Components___Events_onMiddleClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onMiddleClick[si__Components___Events_type[this]])
-endfunction
-
-//Generated method executor for Components___Events.onMiddleClick
-function sx__Components___Events_onMiddleClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerExecute(st__Components___Events_onMiddleClick[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Components___Events.onDoubleClick
-function sc__Components___Events_onDoubleClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onDoubleClick[si__Components___Events_type[this]])
-endfunction
-
-//Generated method executor for Components___Events.onDoubleClick
-function sx__Components___Events_onDoubleClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerExecute(st__Components___Events_onDoubleClick[si__Components___Events_type[this]])
-endfunction
-//Generated destructor of Components___Events
-function sc__Components___Events_deallocate takes integer this returns nothing
-    if this==null then
-        return
-    elseif (si__Components___Events_V[this]!=-1) then
-        return
-    endif
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onDestroy[si__Components___Events_type[this]])
-    set si__Components___Events_V[this]=si__Components___Events_F
-    set si__Components___Events_F=this
-endfunction
-
-//Generated allocator of Tooltip
-function s__Tooltip__allocate takes nothing returns integer
- local integer this=si__Tooltip_F
-    if (this!=0) then
-        set si__Tooltip_F=si__Tooltip_V[this]
-    else
-        set si__Tooltip_I=si__Tooltip_I+1
-        set this=si__Tooltip_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-    set si__Tooltip_V[this]=-1
- return this
-endfunction
-
-//Generated destructor of Tooltip
-function s__Tooltip_deallocate takes integer this returns nothing
-    if this==null then
-        return
-    elseif (si__Tooltip_V[this]!=-1) then
-        return
-    endif
-    set si__Tooltip_V[this]=si__Tooltip_F
-    set si__Tooltip_F=this
-endfunction
-
-//Generated method caller for Backdrop._set_visible
-function sc__Backdrop__set_visible takes integer this,boolean visibility returns nothing
-    set f__arg_this=this
-    set f__arg_boolean1=visibility
-    call TriggerEvaluate(st__Backdrop__set_visible[si__Backdrop_type[this]])
-endfunction
-
-//Generated method caller for Backdrop._get_visible
-function sc__Backdrop__get_visible takes integer this returns boolean
-    set f__arg_this=this
-    call TriggerEvaluate(st__Backdrop__get_visible[si__Backdrop_type[this]])
- return f__result_boolean
-endfunction
-
-//Generated method caller for Backdrop._get_frame
-function sc__Backdrop__get_frame takes integer this returns framehandle
-            return s__Backdrop_Components___Operators____frame[this]
-endfunction
-
-//Generated method caller for Backdrop.create
-function sc__Backdrop_create takes real x,real y,real width,real height,framehandle parent,string texture returns integer
-    set f__arg_real1=x
-    set f__arg_real2=y
-    set f__arg_real3=width
-    set f__arg_real4=height
-    set f__arg_framehandle1=parent
-    set f__arg_string1=texture
-    call TriggerEvaluate(st__Backdrop_create)
- return f__result_integer
-endfunction
-
-//Generated allocator of Backdrop
-function s__Backdrop__allocate takes nothing returns integer
- local integer this=si__Backdrop_F
-    if (this!=0) then
-        set si__Backdrop_F=si__Backdrop_V[this]
-    else
-        set si__Backdrop_I=si__Backdrop_I+1
-        set this=si__Backdrop_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-   set s__Backdrop_Components___Operators____enabled[this]= true
-   set s__Backdrop_Components___Operators____visible[this]= true
-   set s__Backdrop_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
-   set s__Backdrop_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
-    set si__Backdrop_type[this]=55
-    set si__Backdrop_V[this]=-1
- return this
-endfunction
-
-//Generated destructor of Backdrop
-function sc__Backdrop_deallocate takes integer this returns nothing
-    if this==null then
-        return
-    elseif (si__Backdrop_V[this]!=-1) then
-        return
-    endif
-    set f__arg_this=this
-    call TriggerEvaluate(st__Backdrop_onDestroy[si__Backdrop_type[this]])
-    set si__Backdrop_V[this]=si__Backdrop_F
-    set si__Backdrop_F=this
-endfunction
-
-//Generated method caller for Sprite._set_visible
-function sc__Sprite__set_visible takes integer this,boolean visibility returns nothing
-    set f__arg_this=this
-    set f__arg_boolean1=visibility
-    call TriggerEvaluate(st__Sprite__set_visible)
-endfunction
-
-//Generated method caller for Sprite._get_visible
-function sc__Sprite__get_visible takes integer this returns boolean
-            return s__Sprite_Components___Operators____visible[this]
-endfunction
-
-//Generated method caller for Sprite._get_frame
-function sc__Sprite__get_frame takes integer this returns framehandle
-            return s__Sprite_Components___Operators____frame[this]
-endfunction
-
-//Generated allocator of Sprite
-function s__Sprite__allocate takes nothing returns integer
- local integer this=si__Sprite_F
-    if (this!=0) then
-        set si__Sprite_F=si__Sprite_V[this]
-    else
-        set si__Sprite_I=si__Sprite_I+1
-        set this=si__Sprite_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-   set s__Sprite_Components___Operators____enabled[this]= true
-   set s__Sprite_Components___Operators____visible[this]= true
-   set s__Sprite_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
-   set s__Sprite_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
-    set si__Sprite_V[this]=-1
- return this
-endfunction
-
-//Generated destructor of Sprite
-function s__Sprite_deallocate takes integer this returns nothing
-    if this==null then
-        return
-    elseif (si__Sprite_V[this]!=-1) then
-        return
-    endif
-    set si__Sprite_V[this]=si__Sprite_F
-    set si__Sprite_F=this
-endfunction
-
-//Generated method caller for Text._set_visible
-function sc__Text__set_visible takes integer this,boolean visibility returns nothing
-    set f__arg_this=this
-    set f__arg_boolean1=visibility
-    call TriggerEvaluate(st__Text__set_visible)
-endfunction
-
-//Generated method caller for Text._get_visible
-function sc__Text__get_visible takes integer this returns boolean
-            return s__Text_Components___Operators____visible[this]
-endfunction
-
-//Generated method caller for Text._get_frame
-function sc__Text__get_frame takes integer this returns framehandle
-            return s__Text_Components___Operators____frame[this]
-endfunction
-
-//Generated allocator of Text
-function s__Text__allocate takes nothing returns integer
- local integer this=si__Text_F
-    if (this!=0) then
-        set si__Text_F=si__Text_V[this]
-    else
-        set si__Text_I=si__Text_I+1
-        set this=si__Text_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-   set s__Text_Components___Operators____enabled[this]= true
-   set s__Text_Components___Operators____visible[this]= true
-   set s__Text_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
-   set s__Text_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
-    set si__Text_V[this]=-1
- return this
-endfunction
-
-//Generated destructor of Text
-function s__Text_deallocate takes integer this returns nothing
-    if this==null then
-        return
-    elseif (si__Text_V[this]!=-1) then
-        return
-    endif
-    set si__Text_V[this]=si__Text_F
-    set si__Text_F=this
-endfunction
-
-//Generated method caller for TextArea._set_visible
-function sc__TextArea__set_visible takes integer this,boolean visibility returns nothing
-    set f__arg_this=this
-    set f__arg_boolean1=visibility
-    call TriggerEvaluate(st__TextArea__set_visible)
-endfunction
-
-//Generated method caller for TextArea._get_visible
-function sc__TextArea__get_visible takes integer this returns boolean
-            return s__TextArea_Components___Operators____visible[this]
-endfunction
-
-//Generated method caller for TextArea._get_frame
-function sc__TextArea__get_frame takes integer this returns framehandle
-            return s__TextArea_Components___Operators____frame[this]
-endfunction
-
-//Generated allocator of TextArea
-function s__TextArea__allocate takes nothing returns integer
- local integer this=si__TextArea_F
-    if (this!=0) then
-        set si__TextArea_F=si__TextArea_V[this]
-    else
-        set si__TextArea_I=si__TextArea_I+1
-        set this=si__TextArea_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-   set s__TextArea_Components___Operators____enabled[this]= true
-   set s__TextArea_Components___Operators____visible[this]= true
-   set s__TextArea_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
-   set s__TextArea_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
-    set si__TextArea_V[this]=-1
- return this
-endfunction
-
-//Generated destructor of TextArea
-function s__TextArea_deallocate takes integer this returns nothing
-    if this==null then
-        return
-    elseif (si__TextArea_V[this]!=-1) then
-        return
-    endif
-    set si__TextArea_V[this]=si__TextArea_F
-    set si__TextArea_F=this
-endfunction
-
-//Generated method caller for StatusBar._set_visible
-function sc__StatusBar__set_visible takes integer this,boolean visibility returns nothing
-    set f__arg_this=this
-    set f__arg_boolean1=visibility
-    call TriggerEvaluate(st__StatusBar__set_visible)
-endfunction
-
-//Generated method caller for StatusBar._get_visible
-function sc__StatusBar__get_visible takes integer this returns boolean
-            return s__StatusBar_Components___Operators____visible[this]
-endfunction
-
-//Generated method caller for StatusBar._get_frame
-function sc__StatusBar__get_frame takes integer this returns framehandle
-            return s__StatusBar_Components___Operators____frame[this]
-endfunction
-
-//Generated allocator of StatusBar
-function s__StatusBar__allocate takes nothing returns integer
- local integer this=si__StatusBar_F
-    if (this!=0) then
-        set si__StatusBar_F=si__StatusBar_V[this]
-    else
-        set si__StatusBar_I=si__StatusBar_I+1
-        set this=si__StatusBar_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-   set s__StatusBar_Components___Operators____enabled[this]= true
-   set s__StatusBar_Components___Operators____visible[this]= true
-   set s__StatusBar_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
-   set s__StatusBar_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
-    set si__StatusBar_V[this]=-1
- return this
-endfunction
-
-//Generated destructor of StatusBar
-function s__StatusBar_deallocate takes integer this returns nothing
-    if this==null then
-        return
-    elseif (si__StatusBar_V[this]!=-1) then
-        return
-    endif
-    set si__StatusBar_V[this]=si__StatusBar_F
-    set si__StatusBar_F=this
-endfunction
-
-//Generated method caller for Component._set_visible
-function sc__Component__set_visible takes integer this,boolean visibility returns nothing
-    set f__arg_this=this
-    set f__arg_boolean1=visibility
-    call TriggerEvaluate(st__Component__set_visible[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Component._get_visible
-function sc__Component__get_visible takes integer this returns boolean
-    set f__arg_this=this
-    call TriggerEvaluate(st__Component__get_visible[si__Components___Events_type[this]])
- return f__result_boolean
-endfunction
-
-//Generated method caller for Component._get_frame
-function sc__Component__get_frame takes integer this returns framehandle
-            return s__Component_Components___Operators____frame[this]
-endfunction
-
-//Generated method caller for Component.get
-function sc__Component_get takes nothing returns integer
-            return s__Component_array[GetPlayerId(GetTriggerPlayer())]
-endfunction
-
-//Generated method caller for Component.create
-function sc__Component_create takes real x,real y,real width,real height,framehandle parent,string frameType,string template returns integer
-    set f__arg_real1=x
-    set f__arg_real2=y
-    set f__arg_real3=width
-    set f__arg_real4=height
-    set f__arg_framehandle1=parent
-    set f__arg_string1=frameType
-    set f__arg_string2=template
-    call TriggerEvaluate(st__Component_create)
- return f__result_integer
-endfunction
-
-//Generated allocator of Component
-function s__Component__allocate takes nothing returns integer
- local integer kthis
- local integer this=si__Components___Events_F
-    if (this!=0) then
-        set si__Components___Events_F=si__Components___Events_V[this]
-    else
-        set si__Components___Events_I=si__Components___Events_I+1
-        set this=si__Components___Events_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-    set si__Components___Events_type[this]=60
-    set kthis=this
-
-   set s__Component_isActive[this]= true
-   set s__Component_Components___Operators____enabled[this]= true
-   set s__Component_Components___Operators____visible[this]= true
-   set s__Component_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
-   set s__Component_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
-    set si__Components___Events_V[this]=-1
- return this
-endfunction
-
-
 //Generated method caller for ArcingTextTag.StartTimer
 function sc__ArcingTextTag_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
     set f__arg_real1=timeout
@@ -4670,55 +3716,6 @@ function s__ArcingTextTag_deallocate takes integer this returns nothing
     set si__ArcingTextTag_F=this
 endfunction
 
-//Generated method caller for EditBox._set_visible
-function sc__EditBox__set_visible takes integer this,boolean visibility returns nothing
-    set f__arg_this=this
-    set f__arg_boolean1=visibility
-    call TriggerEvaluate(st__EditBox__set_visible)
-endfunction
-
-//Generated method caller for EditBox._get_visible
-function sc__EditBox__get_visible takes integer this returns boolean
-            return s__EditBox_Components___Operators____visible[this]
-endfunction
-
-//Generated method caller for EditBox._get_frame
-function sc__EditBox__get_frame takes integer this returns framehandle
-            return s__EditBox_Components___Operators____frame[this]
-endfunction
-
-//Generated method caller for EditBox.get
-function sc__EditBox_get takes nothing returns integer
-    call TriggerEvaluate(st__EditBox_get)
- return f__result_integer
-endfunction
-
-//Generated allocator of EditBox
-function s__EditBox__allocate takes nothing returns integer
- local integer kthis
- local integer this=si__Components___Events_F
-    if (this!=0) then
-        set si__Components___Events_F=si__Components___Events_V[this]
-    else
-        set si__Components___Events_I=si__Components___Events_I+1
-        set this=si__Components___Events_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-    set si__Components___Events_type[this]=61
-    set kthis=this
-
-   set s__EditBox_Components___Operators____enabled[this]= true
-   set s__EditBox_Components___Operators____visible[this]= true
-   set s__EditBox_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
-   set s__EditBox_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
-    set si__Components___Events_V[this]=-1
- return this
-endfunction
-
-
 //Generated method caller for Ability___IAbility.onCast
 function sc__Ability___IAbility_onCast takes integer this returns nothing
     set f__arg_this=this
@@ -4754,8 +3751,8 @@ function sc__Ability___IAbility_onTooltip takes integer this,unit source,integer
     set f__arg_this=this
     set f__arg_unit1=source
     set f__arg_integer1=level
-    //An error in the next line would mean declaration for Ability___IAbility.onTooltip had a wrong default ("")
-    set f__result_string=""
+    //An error in the next line would mean declaration for Ability___IAbility.onTooltip had a wrong default (null)
+    set f__result_string=null
     call TriggerEvaluate(st__Ability___IAbility_onTooltip[si__Ability___IAbility_type[this]])
  return f__result_string
 endfunction
@@ -5435,71 +4432,243 @@ function sc__CDR_deallocate takes integer this returns nothing
     set si__CDR_F=this
 endfunction
 
-//Generated allocator of Line
-function s__Line__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string texture returns integer
- local integer this=sc__Backdrop_create(x,y,width,height,parent,texture)
- local integer kthis
-    if(this==0) then
+//Generated method caller for Components___IComponent.onText
+function sc__Components___IComponent_onText takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onText[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method executor for Components___IComponent.onText
+function sx__Components___IComponent_onText takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerExecute(st__Components___IComponent_onText[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method caller for Components___IComponent.onCheck
+function sc__Components___IComponent_onCheck takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onCheck[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method executor for Components___IComponent.onCheck
+function sx__Components___IComponent_onCheck takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerExecute(st__Components___IComponent_onCheck[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method caller for Components___IComponent.onEnter
+function sc__Components___IComponent_onEnter takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onEnter[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method executor for Components___IComponent.onEnter
+function sx__Components___IComponent_onEnter takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerExecute(st__Components___IComponent_onEnter[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method caller for Components___IComponent.onLeave
+function sc__Components___IComponent_onLeave takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onLeave[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method executor for Components___IComponent.onLeave
+function sx__Components___IComponent_onLeave takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerExecute(st__Components___IComponent_onLeave[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method caller for Components___IComponent.onClick
+function sc__Components___IComponent_onClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onClick[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method executor for Components___IComponent.onClick
+function sx__Components___IComponent_onClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerExecute(st__Components___IComponent_onClick[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method caller for Components___IComponent.onSlide
+function sc__Components___IComponent_onSlide takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onSlide[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method executor for Components___IComponent.onSlide
+function sx__Components___IComponent_onSlide takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerExecute(st__Components___IComponent_onSlide[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method caller for Components___IComponent.onScroll
+function sc__Components___IComponent_onScroll takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onScroll[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method executor for Components___IComponent.onScroll
+function sx__Components___IComponent_onScroll takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerExecute(st__Components___IComponent_onScroll[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method caller for Components___IComponent.onUncheck
+function sc__Components___IComponent_onUncheck takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onUncheck[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method executor for Components___IComponent.onUncheck
+function sx__Components___IComponent_onUncheck takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerExecute(st__Components___IComponent_onUncheck[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method caller for Components___IComponent.onRightClick
+function sc__Components___IComponent_onRightClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onRightClick[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method executor for Components___IComponent.onRightClick
+function sx__Components___IComponent_onRightClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerExecute(st__Components___IComponent_onRightClick[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method caller for Components___IComponent.onMiddleClick
+function sc__Components___IComponent_onMiddleClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onMiddleClick[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method executor for Components___IComponent.onMiddleClick
+function sx__Components___IComponent_onMiddleClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerExecute(st__Components___IComponent_onMiddleClick[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method caller for Components___IComponent.onDoubleClick
+function sc__Components___IComponent_onDoubleClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onDoubleClick[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method executor for Components___IComponent.onDoubleClick
+function sx__Components___IComponent_onDoubleClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerExecute(st__Components___IComponent_onDoubleClick[si__Components___IComponent_type[this]])
+endfunction
+//Generated destructor of Components___IComponent
+function sc__Components___IComponent_deallocate takes integer this returns nothing
+    if this==null then
+        return
+    elseif (si__Components___IComponent_V[this]!=-1) then
+        return
+    endif
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onDestroy[si__Components___IComponent_type[this]])
+    set si__Components___IComponent_V[this]=si__Components___IComponent_F
+    set si__Components___IComponent_F=this
+endfunction
+
+//Generated allocator of Tooltip
+function s__Tooltip__allocate takes nothing returns integer
+ local integer this=si__Tooltip_F
+    if (this!=0) then
+        set si__Tooltip_F=si__Tooltip_V[this]
+    else
+        set si__Tooltip_I=si__Tooltip_I+1
+        set this=si__Tooltip_I
+    endif
+    if (this>8190) then
         return 0
     endif
-    set si__Backdrop_type[this]=67
-    set kthis=this
 
+    set si__Tooltip_V[this]=-1
  return this
 endfunction
 
+//Generated destructor of Tooltip
+function s__Tooltip_deallocate takes integer this returns nothing
+    if this==null then
+        return
+    elseif (si__Tooltip_V[this]!=-1) then
+        return
+    endif
+    set si__Tooltip_V[this]=si__Tooltip_F
+    set si__Tooltip_F=this
+endfunction
 
-//Generated method caller for Panel.create
-function sc__Panel_create takes real x,real y,real width,real height,framehandle parent,string template returns integer
+//Generated method caller for Backdrop._set_visible
+function sc__Backdrop__set_visible takes integer this,boolean visibility returns nothing
+    set f__arg_this=this
+    set f__arg_boolean1=visibility
+    call TriggerEvaluate(st__Backdrop__set_visible[si__Backdrop_type[this]])
+endfunction
+
+//Generated method caller for Backdrop._get_visible
+function sc__Backdrop__get_visible takes integer this returns boolean
+    set f__arg_this=this
+    call TriggerEvaluate(st__Backdrop__get_visible[si__Backdrop_type[this]])
+ return f__result_boolean
+endfunction
+
+//Generated method caller for Backdrop._get_frame
+function sc__Backdrop__get_frame takes integer this returns framehandle
+            return s__Backdrop_Components___Operators____frame[this]
+endfunction
+
+//Generated method caller for Backdrop.create
+function sc__Backdrop_create takes real x,real y,real width,real height,framehandle parent,string texture returns integer
     set f__arg_real1=x
     set f__arg_real2=y
     set f__arg_real3=width
     set f__arg_real4=height
     set f__arg_framehandle1=parent
-    set f__arg_string1=template
-    call TriggerEvaluate(st__Panel_create)
+    set f__arg_string1=texture
+    call TriggerEvaluate(st__Backdrop_create)
  return f__result_integer
 endfunction
 
-//Generated allocator of Panel
-function s__Panel__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string frameType ,string template returns integer
- local integer this=sc__Component_create(x,y,width,height,parent,frameType,template)
- local integer kthis
-    if(this==0) then
+//Generated allocator of Backdrop
+function s__Backdrop__allocate takes nothing returns integer
+ local integer this=si__Backdrop_F
+    if (this!=0) then
+        set si__Backdrop_F=si__Backdrop_V[this]
+    else
+        set si__Backdrop_I=si__Backdrop_I+1
+        set this=si__Backdrop_I
+    endif
+    if (this>8190) then
         return 0
     endif
-    set si__Components___Events_type[this]=66
-    set kthis=this
 
+   set s__Backdrop_Components___Operators____enabled[this]= true
+   set s__Backdrop_Components___Operators____visible[this]= true
+   set s__Backdrop_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
+   set s__Backdrop_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
+    set si__Backdrop_type[this]=55
+    set si__Backdrop_V[this]=-1
  return this
 endfunction
 
-
-//Generated method caller for Button.create
-function sc__Button_create takes real x,real y,real width,real height,framehandle parent,boolean simpleTooltip returns integer
-    set f__arg_real1=x
-    set f__arg_real2=y
-    set f__arg_real3=width
-    set f__arg_real4=height
-    set f__arg_framehandle1=parent
-    set f__arg_boolean1=simpleTooltip
-    call TriggerEvaluate(st__Button_create)
- return f__result_integer
-endfunction
-
-//Generated allocator of Button
-function s__Button__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string frameType ,string template returns integer
- local integer this=sc__Component_create(x,y,width,height,parent,frameType,template)
- local integer kthis
-    if(this==0) then
-        return 0
+//Generated destructor of Backdrop
+function sc__Backdrop_deallocate takes integer this returns nothing
+    if this==null then
+        return
+    elseif (si__Backdrop_V[this]!=-1) then
+        return
     endif
-    set si__Components___Events_type[this]=65
-    set kthis=this
-
- return this
+    set f__arg_this=this
+    call TriggerEvaluate(st__Backdrop_onDestroy[si__Backdrop_type[this]])
+    set si__Backdrop_V[this]=si__Backdrop_F
+    set si__Backdrop_F=this
 endfunction
-
 
 //Generated method caller for Slider._set_visible
 function sc__Slider__set_visible takes integer this,boolean visibility returns nothing
@@ -5527,18 +4696,18 @@ endfunction
 //Generated allocator of Slider
 function s__Slider__allocate takes nothing returns integer
  local integer kthis
- local integer this=si__Components___Events_F
+ local integer this=si__Components___IComponent_F
     if (this!=0) then
-        set si__Components___Events_F=si__Components___Events_V[this]
+        set si__Components___IComponent_F=si__Components___IComponent_V[this]
     else
-        set si__Components___Events_I=si__Components___Events_I+1
-        set this=si__Components___Events_I
+        set si__Components___IComponent_I=si__Components___IComponent_I+1
+        set this=si__Components___IComponent_I
     endif
     if (this>8190) then
         return 0
     endif
 
-    set si__Components___Events_type[this]=64
+    set si__Components___IComponent_type[this]=64
     set kthis=this
 
    set s__Slider_minimum[this]= 0
@@ -5548,7 +4717,7 @@ function s__Slider__allocate takes nothing returns integer
    set s__Slider_Components___Operators____visible[this]= true
    set s__Slider_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
    set s__Slider_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
-    set si__Components___Events_V[this]=-1
+    set si__Components___IComponent_V[this]=-1
  return this
 endfunction
 
@@ -5579,24 +4748,24 @@ endfunction
 //Generated allocator of CheckBox
 function s__CheckBox__allocate takes nothing returns integer
  local integer kthis
- local integer this=si__Components___Events_F
+ local integer this=si__Components___IComponent_F
     if (this!=0) then
-        set si__Components___Events_F=si__Components___Events_V[this]
+        set si__Components___IComponent_F=si__Components___IComponent_V[this]
     else
-        set si__Components___Events_I=si__Components___Events_I+1
-        set this=si__Components___Events_I
+        set si__Components___IComponent_I=si__Components___IComponent_I+1
+        set this=si__Components___IComponent_I
     endif
     if (this>8190) then
         return 0
     endif
 
-    set si__Components___Events_type[this]=62
+    set si__Components___IComponent_type[this]=62
     if (si__CheckBox_arrN==0) then
         set si__CheckBox_arrI=si__CheckBox_arrI+1
         set kthis=si__CheckBox_arrI
         if (kthis>291) then
-            set si__Components___Events_V[this]=si__Components___Events_F
-            set si__Components___Events_F=this
+            set si__Components___IComponent_V[this]=si__Components___IComponent_F
+            set si__Components___IComponent_F=this
             return 0
         endif
     else
@@ -5609,7 +4778,1182 @@ function s__CheckBox__allocate takes nothing returns integer
    set s__CheckBox_Components___Operators____visible[this]= true
    set s__CheckBox_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
    set s__CheckBox_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
-    set si__Components___Events_V[this]=-1
+    set si__Components___IComponent_V[this]=-1
+ return this
+endfunction
+
+
+//Generated method caller for EditBox._set_visible
+function sc__EditBox__set_visible takes integer this,boolean visibility returns nothing
+    set f__arg_this=this
+    set f__arg_boolean1=visibility
+    call TriggerEvaluate(st__EditBox__set_visible)
+endfunction
+
+//Generated method caller for EditBox._get_visible
+function sc__EditBox__get_visible takes integer this returns boolean
+            return s__EditBox_Components___Operators____visible[this]
+endfunction
+
+//Generated method caller for EditBox._get_frame
+function sc__EditBox__get_frame takes integer this returns framehandle
+            return s__EditBox_Components___Operators____frame[this]
+endfunction
+
+//Generated method caller for EditBox.get
+function sc__EditBox_get takes nothing returns integer
+    call TriggerEvaluate(st__EditBox_get)
+ return f__result_integer
+endfunction
+
+//Generated allocator of EditBox
+function s__EditBox__allocate takes nothing returns integer
+ local integer kthis
+ local integer this=si__Components___IComponent_F
+    if (this!=0) then
+        set si__Components___IComponent_F=si__Components___IComponent_V[this]
+    else
+        set si__Components___IComponent_I=si__Components___IComponent_I+1
+        set this=si__Components___IComponent_I
+    endif
+    if (this>8190) then
+        return 0
+    endif
+
+    set si__Components___IComponent_type[this]=61
+    set kthis=this
+
+   set s__EditBox_Components___Operators____enabled[this]= true
+   set s__EditBox_Components___Operators____visible[this]= true
+   set s__EditBox_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
+   set s__EditBox_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
+    set si__Components___IComponent_V[this]=-1
+ return this
+endfunction
+
+
+//Generated method caller for Component._set_visible
+function sc__Component__set_visible takes integer this,boolean visibility returns nothing
+    set f__arg_this=this
+    set f__arg_boolean1=visibility
+    call TriggerEvaluate(st__Component__set_visible[si__Components___IComponent_type[this]])
+endfunction
+
+//Generated method caller for Component._get_visible
+function sc__Component__get_visible takes integer this returns boolean
+    set f__arg_this=this
+    call TriggerEvaluate(st__Component__get_visible[si__Components___IComponent_type[this]])
+ return f__result_boolean
+endfunction
+
+//Generated method caller for Component._get_frame
+function sc__Component__get_frame takes integer this returns framehandle
+            return s__Component_Components___Operators____frame[this]
+endfunction
+
+//Generated method caller for Component.get
+function sc__Component_get takes nothing returns integer
+            return s__Component_array[GetPlayerId(GetTriggerPlayer())]
+endfunction
+
+//Generated method caller for Component.create
+function sc__Component_create takes real x,real y,real width,real height,framehandle parent,string frameType,string template returns integer
+    set f__arg_real1=x
+    set f__arg_real2=y
+    set f__arg_real3=width
+    set f__arg_real4=height
+    set f__arg_framehandle1=parent
+    set f__arg_string1=frameType
+    set f__arg_string2=template
+    call TriggerEvaluate(st__Component_create)
+ return f__result_integer
+endfunction
+
+//Generated allocator of Component
+function s__Component__allocate takes nothing returns integer
+ local integer kthis
+ local integer this=si__Components___IComponent_F
+    if (this!=0) then
+        set si__Components___IComponent_F=si__Components___IComponent_V[this]
+    else
+        set si__Components___IComponent_I=si__Components___IComponent_I+1
+        set this=si__Components___IComponent_I
+    endif
+    if (this>8190) then
+        return 0
+    endif
+
+    set si__Components___IComponent_type[this]=60
+    set kthis=this
+
+   set s__Component_isActive[this]= true
+   set s__Component_Components___Operators____enabled[this]= true
+   set s__Component_Components___Operators____visible[this]= true
+   set s__Component_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
+   set s__Component_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
+    set si__Components___IComponent_V[this]=-1
+ return this
+endfunction
+
+
+//Generated method caller for StatusBar._set_visible
+function sc__StatusBar__set_visible takes integer this,boolean visibility returns nothing
+    set f__arg_this=this
+    set f__arg_boolean1=visibility
+    call TriggerEvaluate(st__StatusBar__set_visible)
+endfunction
+
+//Generated method caller for StatusBar._get_visible
+function sc__StatusBar__get_visible takes integer this returns boolean
+            return s__StatusBar_Components___Operators____visible[this]
+endfunction
+
+//Generated method caller for StatusBar._get_frame
+function sc__StatusBar__get_frame takes integer this returns framehandle
+            return s__StatusBar_Components___Operators____frame[this]
+endfunction
+
+//Generated allocator of StatusBar
+function s__StatusBar__allocate takes nothing returns integer
+ local integer this=si__StatusBar_F
+    if (this!=0) then
+        set si__StatusBar_F=si__StatusBar_V[this]
+    else
+        set si__StatusBar_I=si__StatusBar_I+1
+        set this=si__StatusBar_I
+    endif
+    if (this>8190) then
+        return 0
+    endif
+
+   set s__StatusBar_Components___Operators____enabled[this]= true
+   set s__StatusBar_Components___Operators____visible[this]= true
+   set s__StatusBar_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
+   set s__StatusBar_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
+    set si__StatusBar_V[this]=-1
+ return this
+endfunction
+
+//Generated destructor of StatusBar
+function s__StatusBar_deallocate takes integer this returns nothing
+    if this==null then
+        return
+    elseif (si__StatusBar_V[this]!=-1) then
+        return
+    endif
+    set si__StatusBar_V[this]=si__StatusBar_F
+    set si__StatusBar_F=this
+endfunction
+
+//Generated method caller for TextArea._set_visible
+function sc__TextArea__set_visible takes integer this,boolean visibility returns nothing
+    set f__arg_this=this
+    set f__arg_boolean1=visibility
+    call TriggerEvaluate(st__TextArea__set_visible)
+endfunction
+
+//Generated method caller for TextArea._get_visible
+function sc__TextArea__get_visible takes integer this returns boolean
+            return s__TextArea_Components___Operators____visible[this]
+endfunction
+
+//Generated method caller for TextArea._get_frame
+function sc__TextArea__get_frame takes integer this returns framehandle
+            return s__TextArea_Components___Operators____frame[this]
+endfunction
+
+//Generated allocator of TextArea
+function s__TextArea__allocate takes nothing returns integer
+ local integer this=si__TextArea_F
+    if (this!=0) then
+        set si__TextArea_F=si__TextArea_V[this]
+    else
+        set si__TextArea_I=si__TextArea_I+1
+        set this=si__TextArea_I
+    endif
+    if (this>8190) then
+        return 0
+    endif
+
+   set s__TextArea_Components___Operators____enabled[this]= true
+   set s__TextArea_Components___Operators____visible[this]= true
+   set s__TextArea_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
+   set s__TextArea_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
+    set si__TextArea_V[this]=-1
+ return this
+endfunction
+
+//Generated destructor of TextArea
+function s__TextArea_deallocate takes integer this returns nothing
+    if this==null then
+        return
+    elseif (si__TextArea_V[this]!=-1) then
+        return
+    endif
+    set si__TextArea_V[this]=si__TextArea_F
+    set si__TextArea_F=this
+endfunction
+
+//Generated method caller for Text._set_visible
+function sc__Text__set_visible takes integer this,boolean visibility returns nothing
+    set f__arg_this=this
+    set f__arg_boolean1=visibility
+    call TriggerEvaluate(st__Text__set_visible)
+endfunction
+
+//Generated method caller for Text._get_visible
+function sc__Text__get_visible takes integer this returns boolean
+            return s__Text_Components___Operators____visible[this]
+endfunction
+
+//Generated method caller for Text._get_frame
+function sc__Text__get_frame takes integer this returns framehandle
+            return s__Text_Components___Operators____frame[this]
+endfunction
+
+//Generated allocator of Text
+function s__Text__allocate takes nothing returns integer
+ local integer this=si__Text_F
+    if (this!=0) then
+        set si__Text_F=si__Text_V[this]
+    else
+        set si__Text_I=si__Text_I+1
+        set this=si__Text_I
+    endif
+    if (this>8190) then
+        return 0
+    endif
+
+   set s__Text_Components___Operators____enabled[this]= true
+   set s__Text_Components___Operators____visible[this]= true
+   set s__Text_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
+   set s__Text_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
+    set si__Text_V[this]=-1
+ return this
+endfunction
+
+//Generated destructor of Text
+function s__Text_deallocate takes integer this returns nothing
+    if this==null then
+        return
+    elseif (si__Text_V[this]!=-1) then
+        return
+    endif
+    set si__Text_V[this]=si__Text_F
+    set si__Text_F=this
+endfunction
+
+//Generated method caller for Sprite._set_visible
+function sc__Sprite__set_visible takes integer this,boolean visibility returns nothing
+    set f__arg_this=this
+    set f__arg_boolean1=visibility
+    call TriggerEvaluate(st__Sprite__set_visible)
+endfunction
+
+//Generated method caller for Sprite._get_visible
+function sc__Sprite__get_visible takes integer this returns boolean
+            return s__Sprite_Components___Operators____visible[this]
+endfunction
+
+//Generated method caller for Sprite._get_frame
+function sc__Sprite__get_frame takes integer this returns framehandle
+            return s__Sprite_Components___Operators____frame[this]
+endfunction
+
+//Generated allocator of Sprite
+function s__Sprite__allocate takes nothing returns integer
+ local integer this=si__Sprite_F
+    if (this!=0) then
+        set si__Sprite_F=si__Sprite_V[this]
+    else
+        set si__Sprite_I=si__Sprite_I+1
+        set this=si__Sprite_I
+    endif
+    if (this>8190) then
+        return 0
+    endif
+
+   set s__Sprite_Components___Operators____enabled[this]= true
+   set s__Sprite_Components___Operators____visible[this]= true
+   set s__Sprite_Components___Operators____point[this]= FRAMEPOINT_TOPLEFT
+   set s__Sprite_Components___Operators____relative[this]= FRAMEPOINT_TOPLEFT
+    set si__Sprite_V[this]=-1
+ return this
+endfunction
+
+//Generated destructor of Sprite
+function s__Sprite_deallocate takes integer this returns nothing
+    if this==null then
+        return
+    elseif (si__Sprite_V[this]!=-1) then
+        return
+    endif
+    set si__Sprite_V[this]=si__Sprite_F
+    set si__Sprite_F=this
+endfunction
+
+//Generated method caller for Item.calculate
+function sc__Item_calculate takes integer this,integer owned returns integer
+    set f__arg_this=this
+    set f__arg_integer1=owned
+    call TriggerEvaluate(st__Item_calculate)
+ return f__result_integer
+endfunction
+
+//Generated method caller for Item.get
+function sc__Item_get takes integer id returns integer
+    set f__arg_integer1=id
+    call TriggerEvaluate(st__Item_get)
+ return f__result_integer
+endfunction
+
+//Generated method caller for Item.create
+function sc__Item_create takes integer id returns integer
+    set f__arg_integer1=id
+    call TriggerEvaluate(st__Item_create)
+ return f__result_integer
+endfunction
+
+//Generated method caller for Item.save
+function sc__Item_save takes integer id,integer comp returns nothing
+    set f__arg_integer1=id
+    set f__arg_integer2=comp
+    call TriggerEvaluate(st__Item_save)
+endfunction
+
+//Generated method caller for Item.clear
+function sc__Item_clear takes nothing returns nothing
+            call RemoveItem(GetEnumItem())
+endfunction
+
+//Generated allocator of Item
+function s__Item__allocate takes nothing returns integer
+ local integer kthis
+ local integer this=si__Item___IItem_F
+    if (this!=0) then
+        set si__Item___IItem_F=si__Item___IItem_V[this]
+    else
+        set si__Item___IItem_I=si__Item___IItem_I+1
+        set this=si__Item___IItem_I
+    endif
+    if (this>8190) then
+        return 0
+    endif
+
+   set s__Item___IItem_mana[this]= 0
+   set s__Item___IItem_armor[this]= 0
+   set s__Item___IItem_block[this]= 0
+   set s__Item___IItem_damage[this]= 0
+   set s__Item___IItem_health[this]= 0
+   set s__Item___IItem_evasion[this]= 0
+   set s__Item___IItem_agility[this]= 0
+   set s__Item___IItem_strength[this]= 0
+   set s__Item___IItem_tenacity[this]= 0
+   set s__Item___IItem_lifeSteal[this]= 0
+   set s__Item___IItem_spellVamp[this]= 0
+   set s__Item___IItem_manaRegen[this]= 0
+   set s__Item___IItem_sightRange[this]= 0
+   set s__Item___IItem_missChance[this]= 0
+   set s__Item___IItem_spellPower[this]= 0
+   set s__Item___IItem_healthRegen[this]= 0
+   set s__Item___IItem_attackSpeed[this]= 0
+   set s__Item___IItem_intelligence[this]= 0
+   set s__Item___IItem_tenacityFlat[this]= 0
+   set s__Item___IItem_movementSpeed[this]= 0
+   set s__Item___IItem_criticalDamage[this]= 0
+   set s__Item___IItem_criticalChance[this]= 0
+   set s__Item___IItem_cooldownOffset[this]= 0
+   set s__Item___IItem_tenacityOffset[this]= 0
+   set s__Item___IItem_magicResistance[this]= 0
+   set s__Item___IItem_armorPenetration[this]= 0
+   set s__Item___IItem_magicPenetration[this]= 0
+   set s__Item___IItem_cooldownReduction[this]= 0
+   set s__Item___IItem_armorPenetrationFlat[this]= 0
+   set s__Item___IItem_magicPenetrationFlat[this]= 0
+   set s__Item___IItem_cooldownReductionFlat[this]= 0
+    set si__Item___IItem_type[this]=117
+    set kthis=this
+
+    set si__Item___IItem_V[this]=-1
+ return this
+endfunction
+
+
+//Generated method caller for Button.create
+function sc__Button_create takes real x,real y,real width,real height,framehandle parent,boolean simpleTooltip returns integer
+    set f__arg_real1=x
+    set f__arg_real2=y
+    set f__arg_real3=width
+    set f__arg_real4=height
+    set f__arg_framehandle1=parent
+    set f__arg_boolean1=simpleTooltip
+    call TriggerEvaluate(st__Button_create)
+ return f__result_integer
+endfunction
+
+//Generated allocator of Button
+function s__Button__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string frameType ,string template returns integer
+ local integer this=sc__Component_create(x,y,width,height,parent,frameType,template)
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Components___IComponent_type[this]=65
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for Panel.create
+function sc__Panel_create takes real x,real y,real width,real height,framehandle parent,string template returns integer
+    set f__arg_real1=x
+    set f__arg_real2=y
+    set f__arg_real3=width
+    set f__arg_real4=height
+    set f__arg_framehandle1=parent
+    set f__arg_string1=template
+    call TriggerEvaluate(st__Panel_create)
+ return f__result_integer
+endfunction
+
+//Generated allocator of Panel
+function s__Panel__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string frameType ,string template returns integer
+ local integer this=sc__Component_create(x,y,width,height,parent,frameType,template)
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Components___IComponent_type[this]=66
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated allocator of Line
+function s__Line__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string texture returns integer
+ local integer this=sc__Backdrop_create(x,y,width,height,parent,texture)
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Backdrop_type[this]=67
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for Ability.onCasting
+function sc__Ability_onCasting takes nothing returns nothing
+    call TriggerEvaluate(st__Ability_onCasting)
+endfunction
+
+//Generated allocator of Ability
+function s__Ability__allocate takes nothing returns integer
+ local integer kthis
+ local integer this=si__Ability___IAbility_F
+    if (this!=0) then
+        set si__Ability___IAbility_F=si__Ability___IAbility_V[this]
+    else
+        set si__Ability___IAbility_I=si__Ability___IAbility_I+1
+        set this=si__Ability___IAbility_I
+    endif
+    if (this>8190) then
+        return 0
+    endif
+
+    set si__Ability___IAbility_type[this]=91
+    set kthis=this
+
+    set si__Ability___IAbility_V[this]=-1
+ return this
+endfunction
+
+
+//Generated allocator of CooldownReductionUtils___CDRUtils
+function s__CooldownReductionUtils___CDRUtils__allocate takes nothing returns integer
+ local integer this=s__CDR__allocate()
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__CDR_type[this]=93
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for Missiles.terminate
+function sc__Missiles_terminate takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Missiles_terminate)
+endfunction
+
+//Generated method caller for Missiles.reset
+function sc__Missiles_reset takes integer this returns nothing
+            set s__Missiles_launched[this]=false
+            set s__Missiles_finished[this]=false
+            set s__Missiles_collideZ[this]=false
+            set s__Missiles_paused[this]=false
+            set s__Missiles_roll[this]=false
+            set s__Missiles_source[this]=null
+            set s__Missiles_target[this]=null
+            set s__Missiles_owner[this]=null
+            set s__Missiles_dummy[this]=null
+            set s__Missiles_open[this]=0.
+            set s__Missiles_height[this]=0.
+            set s__Missiles_veloc[this]=0.
+            set s__Missiles_acceleration[this]=0.
+            set s__Missiles_collision[this]=0.
+            set s__Missiles_damage[this]=0.
+            set s__Missiles_travel[this]=0.
+            set s__Missiles_turn[this]=0.
+            set s__Missiles_time[this]=0.
+            set s__Missiles_sight[this]=0.
+            set s__Missiles_data[this]=0
+            set s__Missiles_type[this]=0
+            set s__Missiles_tileset[this]=0
+            set s__Missiles_pkey[this]=- 1
+            set s__Missiles_index[this]=- 1
+endfunction
+
+//Generated method caller for Missiles.move
+function sc__Missiles_move takes nothing returns nothing
+    call TriggerEvaluate(st__Missiles_move)
+endfunction
+
+//Generated method caller for Missiles.create
+function sc__Missiles_create takes real x,real y,real z,real toX,real toY,real toZ returns integer
+    set f__arg_real1=x
+    set f__arg_real2=y
+    set f__arg_real3=z
+    set f__arg_real4=toX
+    set f__arg_real5=toY
+    set f__arg_real6=toZ
+    call TriggerEvaluate(st__Missiles_create)
+ return f__result_integer
+endfunction
+
+//Generated allocator of Missiles
+function s__Missiles__allocate takes nothing returns integer
+ local integer kthis
+ local integer this=si__Missiles___MissileEvents_F
+    if (this!=0) then
+        set si__Missiles___MissileEvents_F=si__Missiles___MissileEvents_V[this]
+    else
+        set si__Missiles___MissileEvents_I=si__Missiles___MissileEvents_I+1
+        set this=si__Missiles___MissileEvents_I
+    endif
+    if (this>8190) then
+        return 0
+    endif
+
+    set si__Missiles___MissileEvents_type[this]=97
+    set kthis=this
+
+    set si__Missiles___MissileEvents_V[this]=-1
+ return this
+endfunction
+
+
+//Generated method caller for Bonus.adder
+function sc__Bonus_adder takes unit source,integer bonus,real value returns real
+    set f__arg_unit1=source
+    set f__arg_integer1=bonus
+    set f__arg_real1=value
+    call TriggerEvaluate(st__Bonus_adder)
+ return f__result_real
+endfunction
+
+//Generated method caller for Bonus.onEvent
+function sc__Bonus_onEvent takes integer key returns nothing
+    set f__arg_integer1=key
+    call TriggerEvaluate(st__Bonus_onEvent)
+endfunction
+
+//Generated method caller for Bonus.StartTimer
+function sc__Bonus_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
+    set f__arg_real1=timeout
+    set f__arg_boolean1=periodic
+    set f__arg_integer1=this
+    set f__arg_integer2=uniqueId
+    call TriggerEvaluate(st__Bonus_StartTimer)
+endfunction
+
+//Generated allocator of Bonus
+function s__Bonus__allocate takes nothing returns integer
+ local integer kthis
+ local integer this=si__NewBonus___IBonus_F
+    if (this!=0) then
+        set si__NewBonus___IBonus_F=si__NewBonus___IBonus_V[this]
+    else
+        set si__NewBonus___IBonus_I=si__NewBonus___IBonus_I+1
+        set this=si__NewBonus___IBonus_I
+    endif
+    if (this>8190) then
+        return 0
+    endif
+
+    set si__NewBonus___IBonus_type[this]=99
+    set kthis=this
+
+    set si__NewBonus___IBonus_V[this]=-1
+ return this
+endfunction
+
+
+//Generated method caller for TenacityUtils.addTimed
+function sc__TenacityUtils_addTimed takes unit u,real amount,real duration,integer types returns nothing
+    set f__arg_unit1=u
+    set f__arg_real1=amount
+    set f__arg_real2=duration
+    set f__arg_integer1=types
+    call TriggerEvaluate(st__TenacityUtils_addTimed)
+endfunction
+
+//Generated allocator of TenacityUtils
+function s__TenacityUtils__allocate takes nothing returns integer
+ local integer this=s__Tenacity__allocate()
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Tenacity_type[this]=100
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for Afterburner___Afterburner.onTooltip
+function sc__Afterburner___Afterburner_onTooltip takes integer this,unit source,integer level returns string
+    set f__arg_this=this
+    set f__arg_unit1=source
+    set f__arg_integer1=level
+    call TriggerEvaluate(st__Ability___IAbility_onTooltip[110])
+ return f__result_string
+endfunction
+
+//Generated method caller for Afterburner___Afterburner.StartTimer
+function sc__Afterburner___Afterburner_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
+    set f__arg_real1=timeout
+    set f__arg_boolean1=periodic
+    set f__arg_integer1=this
+    set f__arg_integer2=uniqueId
+    call TriggerEvaluate(st__Afterburner___Afterburner_StartTimer)
+endfunction
+
+//Generated allocator of Afterburner___Afterburner
+function s__Afterburner___Afterburner__allocate takes nothing returns integer
+ local integer this=s__Ability__allocate()
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Ability___IAbility_type[this]=110
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for CooldownReductionFlat___CooldownReductionFlat.get
+function sc__CooldownReductionFlat___CooldownReductionFlat_get takes integer this,unit u returns real
+    set f__arg_this=this
+    set f__arg_unit1=u
+    call TriggerEvaluate(st__NewBonus___IBonus_get[170])
+ return f__result_real
+endfunction
+
+//Generated method caller for CooldownReductionFlat___CooldownReductionFlat.Set
+function sc__CooldownReductionFlat___CooldownReductionFlat_Set takes integer this,unit u,real value returns real
+    set f__arg_this=this
+    set f__arg_unit1=u
+    set f__arg_real1=value
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[170])
+ return f__result_real
+endfunction
+
+//Generated method caller for CooldownReductionFlat___CooldownReductionFlat.add
+function sc__CooldownReductionFlat___CooldownReductionFlat_add takes integer this,unit u,real value returns real
+    set f__arg_this=this
+    set f__arg_unit1=u
+    set f__arg_real1=value
+    call TriggerEvaluate(st__NewBonus___IBonus_add[170])
+ return f__result_real
+endfunction
+
+//Generated allocator of CooldownReductionFlat___CooldownReductionFlat
+function s__CooldownReductionFlat___CooldownReductionFlat__allocate takes nothing returns integer
+ local integer this=s__Bonus__allocate()
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__NewBonus___IBonus_type[this]=170
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for MoltenShield___MoltenShield.onTooltip
+function sc__MoltenShield___MoltenShield_onTooltip takes integer this,unit source,integer level returns string
+    set f__arg_this=this
+    set f__arg_unit1=source
+    set f__arg_integer1=level
+    call TriggerEvaluate(st__Ability___IAbility_onTooltip[120])
+ return f__result_string
+endfunction
+
+//Generated method caller for MoltenShield___MoltenShield.onCast
+function sc__MoltenShield___MoltenShield_onCast takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Ability___IAbility_onCast[120])
+endfunction
+
+//Generated method caller for MoltenShield___MoltenShield.StartTimer
+function sc__MoltenShield___MoltenShield_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
+    set f__arg_real1=timeout
+    set f__arg_boolean1=periodic
+    set f__arg_integer1=this
+    set f__arg_integer2=uniqueId
+    call TriggerEvaluate(st__MoltenShield___MoltenShield_StartTimer)
+endfunction
+
+//Generated allocator of MoltenShield___MoltenShield
+function s__MoltenShield___MoltenShield__allocate takes nothing returns integer
+ local integer this=s__Ability__allocate()
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Ability___IAbility_type[this]=120
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for ExplosiveRune___ExplosiveRune.onTooltip
+function sc__ExplosiveRune___ExplosiveRune_onTooltip takes integer this,unit source,integer level returns string
+    set f__arg_this=this
+    set f__arg_unit1=source
+    set f__arg_integer1=level
+    call TriggerEvaluate(st__Ability___IAbility_onTooltip[122])
+ return f__result_string
+endfunction
+
+//Generated method caller for ExplosiveRune___ExplosiveRune.onCast
+function sc__ExplosiveRune___ExplosiveRune_onCast takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Ability___IAbility_onCast[122])
+endfunction
+
+//Generated method caller for ExplosiveRune___ExplosiveRune.onLearn
+function sc__ExplosiveRune___ExplosiveRune_onLearn takes integer this,unit source,integer skill,integer level returns nothing
+    set f__arg_this=this
+    set f__arg_unit1=source
+    set f__arg_integer1=skill
+    set f__arg_integer2=level
+    call TriggerEvaluate(st__Ability___IAbility_onLearn[122])
+endfunction
+
+//Generated method caller for ExplosiveRune___ExplosiveRune.HasStartedTimer
+function sc__ExplosiveRune___ExplosiveRune_HasStartedTimer takes integer id returns boolean
+    set f__arg_integer1=id
+    call TriggerEvaluate(st__ExplosiveRune___ExplosiveRune_HasStartedTimer)
+ return f__result_boolean
+endfunction
+
+//Generated method caller for ExplosiveRune___ExplosiveRune.GetTimerInstance
+function sc__ExplosiveRune___ExplosiveRune_GetTimerInstance takes integer id returns integer
+    set f__arg_integer1=id
+    call TriggerEvaluate(st__ExplosiveRune___ExplosiveRune_GetTimerInstance)
+ return f__result_integer
+endfunction
+
+//Generated method caller for ExplosiveRune___ExplosiveRune.GetRemainingTime
+function sc__ExplosiveRune___ExplosiveRune_GetRemainingTime takes integer this returns real
+            return TimerGetRemaining(s__ExplosiveRune___ExplosiveRune_Periodic____timer[this])
+endfunction
+
+//Generated method caller for ExplosiveRune___ExplosiveRune.StartTimer
+function sc__ExplosiveRune___ExplosiveRune_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
+    set f__arg_real1=timeout
+    set f__arg_boolean1=periodic
+    set f__arg_integer1=this
+    set f__arg_integer2=uniqueId
+    call TriggerEvaluate(st__ExplosiveRune___ExplosiveRune_StartTimer)
+endfunction
+
+//Generated allocator of ExplosiveRune___ExplosiveRune
+function s__ExplosiveRune___ExplosiveRune__allocate takes nothing returns integer
+ local integer this=s__Ability__allocate()
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Ability___IAbility_type[this]=122
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for LavaElemental___LavaElemental.onCast
+function sc__LavaElemental___LavaElemental_onCast takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Ability___IAbility_onCast[123])
+endfunction
+
+//Generated allocator of LavaElemental___LavaElemental
+function s__LavaElemental___LavaElemental__allocate takes nothing returns integer
+ local integer this=s__Ability__allocate()
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Ability___IAbility_type[this]=123
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for LivingMeteor___Meteor.onPeriod
+function sc__LivingMeteor___Meteor_onPeriod takes integer this returns boolean
+    set f__arg_this=this
+    call TriggerEvaluate(st__Missiles___MissileEvents_onPeriod[124])
+ return f__result_boolean
+endfunction
+
+//Generated method caller for LivingMeteor___Meteor.onFinish
+function sc__LivingMeteor___Meteor_onFinish takes integer this returns boolean
+    set f__arg_this=this
+    call TriggerEvaluate(st__Missiles___MissileEvents_onFinish[124])
+ return f__result_boolean
+endfunction
+
+//Generated allocator of LivingMeteor___Meteor
+function s__LivingMeteor___Meteor__allocate takes real x ,real y ,real z ,real toX ,real toY ,real toZ returns integer
+ local integer this=sc__Missiles_create(x,y,z,toX,toY,toZ)
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Missiles___MissileEvents_type[this]=124
+    set kthis=this
+
+   set s__LivingMeteor___Meteor_i[this]= 0
+   set s__LivingMeteor___Meteor_j[this]= 0
+ return this
+endfunction
+
+
+//Generated method caller for LivingMeteor___LivingMeteor.onTooltip
+function sc__LivingMeteor___LivingMeteor_onTooltip takes integer this,unit source,integer level returns string
+    set f__arg_this=this
+    set f__arg_unit1=source
+    set f__arg_integer1=level
+    call TriggerEvaluate(st__Ability___IAbility_onTooltip[125])
+ return f__result_string
+endfunction
+
+//Generated method caller for LivingMeteor___LivingMeteor.onCast
+function sc__LivingMeteor___LivingMeteor_onCast takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Ability___IAbility_onCast[125])
+endfunction
+
+//Generated method caller for LivingMeteor___LivingMeteor.StartTimer
+function sc__LivingMeteor___LivingMeteor_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
+    set f__arg_real1=timeout
+    set f__arg_boolean1=periodic
+    set f__arg_integer1=this
+    set f__arg_integer2=uniqueId
+    call TriggerEvaluate(st__LivingMeteor___LivingMeteor_StartTimer)
+endfunction
+
+//Generated allocator of LivingMeteor___LivingMeteor
+function s__LivingMeteor___LivingMeteor__allocate takes nothing returns integer
+ local integer this=s__Ability__allocate()
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Ability___IAbility_type[this]=125
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for Shop___Slot.update
+function sc__Shop___Slot_update takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Shop___Slot_update)
+endfunction
+
+//Generated method caller for Shop___Slot.onScroll
+function sc__Shop___Slot_onScroll takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onScroll[129])
+endfunction
+
+//Generated method caller for Shop___Slot.onClick
+function sc__Shop___Slot_onClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onClick[129])
+endfunction
+
+//Generated method caller for Shop___Slot.onMiddleClick
+function sc__Shop___Slot_onMiddleClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onMiddleClick[129])
+endfunction
+
+//Generated method caller for Shop___Slot.onDoubleClick
+function sc__Shop___Slot_onDoubleClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onDoubleClick[129])
+endfunction
+
+//Generated method caller for Shop___Slot.onRightClick
+function sc__Shop___Slot_onRightClick takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onRightClick[129])
+endfunction
+
+//Generated allocator of Shop___Slot
+function s__Shop___Slot__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,boolean simpleTooltip returns integer
+ local integer this=sc__Button_create(x,y,width,height,parent,simpleTooltip)
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Components___IComponent_type[this]=129
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for Shop___Detail.show
+function sc__Shop___Detail_show takes integer this,integer i,player p returns nothing
+    set f__arg_this=this
+    set f__arg_integer1=i
+    set f__arg_player1=p
+    call TriggerEvaluate(st__Shop___Detail_show)
+endfunction
+
+//Generated method caller for Shop___Detail.onScroll
+function sc__Shop___Detail_onScroll takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onScroll[130])
+endfunction
+
+//Generated method caller for Shop___Detail.onClicked
+function sc__Shop___Detail_onClicked takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Detail_onClicked)
+endfunction
+
+//Generated method caller for Shop___Detail.onScrolled
+function sc__Shop___Detail_onScrolled takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Detail_onScrolled)
+endfunction
+
+//Generated method caller for Shop___Detail.onMiddleClicked
+function sc__Shop___Detail_onMiddleClicked takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Detail_onMiddleClicked)
+endfunction
+
+//Generated method caller for Shop___Detail.onRightClicked
+function sc__Shop___Detail_onRightClicked takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Detail_onRightClicked)
+endfunction
+
+//Generated allocator of Shop___Detail
+function s__Shop___Detail__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
+ local integer this=sc__Panel_create(x,y,width,height,parent,template)
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Components___IComponent_type[this]=130
+    if (si__Shop___Detail_arrN==0) then
+        set si__Shop___Detail_arrI=si__Shop___Detail_arrI+1
+        set kthis=si__Shop___Detail_arrI
+        if (kthis>2046) then
+            set si__Components___IComponent_type[this]=66
+            call sc__Components___IComponent_deallocate(this)
+            return 0
+        endif
+    else
+        set kthis=si__Shop___Detail_arrV[si__Shop___Detail_arrN]
+        set si__Shop___Detail_arrN=si__Shop___Detail_arrN-1
+    endif
+    set si__Shop___Detail_arr[this]=kthis
+    set s__Shop___Detail_description[this]=(kthis-1)*4
+ return this
+endfunction
+
+
+//Generated method caller for Shop___Buyer._set_visible
+function sc__Shop___Buyer__set_visible takes integer this,boolean visibility returns nothing
+    set f__arg_this=this
+    set f__arg_boolean1=visibility
+    call TriggerEvaluate(st__Component__set_visible[132])
+endfunction
+
+//Generated method caller for Shop___Buyer._get_visible
+function sc__Shop___Buyer__get_visible takes integer this returns boolean
+            return s__Shop___Buyer_isVisible[this]
+endfunction
+
+//Generated method caller for Shop___Buyer._getindex
+function sc__Shop___Buyer__getindex takes integer this,integer id returns unit
+    set f__arg_this=this
+    set f__arg_integer1=id
+    call TriggerEvaluate(st__Shop___Buyer__getindex)
+ return f__result_unit
+endfunction
+
+//Generated method caller for Shop___Buyer.onScroll
+function sc__Shop___Buyer_onScroll takes integer this returns nothing
+    set f__arg_this=this
+    call TriggerEvaluate(st__Components___IComponent_onScroll[132])
+endfunction
+
+//Generated method caller for Shop___Buyer.onScrolled
+function sc__Shop___Buyer_onScrolled takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Buyer_onScrolled)
+endfunction
+
+//Generated method caller for Shop___Buyer.onClicked
+function sc__Shop___Buyer_onClicked takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Buyer_onClicked)
+endfunction
+
+//Generated allocator of Shop___Buyer
+function s__Shop___Buyer__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
+ local integer this=sc__Panel_create(x,y,width,height,parent,template)
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Components___IComponent_type[this]=132
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for Shop___Favorites.has
+function sc__Shop___Favorites_has takes integer this,integer id,player p returns boolean
+    set f__arg_this=this
+    set f__arg_integer1=id
+    set f__arg_player1=p
+    call TriggerEvaluate(st__Shop___Favorites_has)
+ return f__result_boolean
+endfunction
+
+//Generated method caller for Shop___Favorites.remove
+function sc__Shop___Favorites_remove takes integer this,integer i,player p returns nothing
+    set f__arg_this=this
+    set f__arg_integer1=i
+    set f__arg_player1=p
+    call TriggerEvaluate(st__Shop___Favorites_remove)
+endfunction
+
+//Generated method caller for Shop___Favorites.add
+function sc__Shop___Favorites_add takes integer this,integer i,player p returns nothing
+    set f__arg_this=this
+    set f__arg_integer1=i
+    set f__arg_player1=p
+    call TriggerEvaluate(st__Shop___Favorites_add)
+endfunction
+
+//Generated method caller for Shop___Favorites.onClear
+function sc__Shop___Favorites_onClear takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Favorites_onClear)
+endfunction
+
+//Generated method caller for Shop___Favorites.onClicked
+function sc__Shop___Favorites_onClicked takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Favorites_onClicked)
+endfunction
+
+//Generated method caller for Shop___Favorites.onMiddleClicked
+function sc__Shop___Favorites_onMiddleClicked takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Favorites_onMiddleClicked)
+endfunction
+
+//Generated method caller for Shop___Favorites.onDoubleClicked
+function sc__Shop___Favorites_onDoubleClicked takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Favorites_onDoubleClicked)
+endfunction
+
+//Generated method caller for Shop___Favorites.onRightClicked
+function sc__Shop___Favorites_onRightClicked takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Favorites_onRightClicked)
+endfunction
+
+//Generated allocator of Shop___Favorites
+function s__Shop___Favorites__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
+ local integer this=sc__Panel_create(x,y,width,height,parent,template)
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Components___IComponent_type[this]=133
+    set kthis=this
+
+ return this
+endfunction
+
+
+//Generated method caller for Shop___Category.onClicked
+function sc__Shop___Category_onClicked takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Category_onClicked)
+endfunction
+
+//Generated method caller for Shop___Category.onClear
+function sc__Shop___Category_onClear takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Category_onClear)
+endfunction
+
+//Generated method caller for Shop___Category.onLogic
+function sc__Shop___Category_onLogic takes nothing returns nothing
+    call TriggerEvaluate(st__Shop___Category_onLogic)
+endfunction
+
+//Generated allocator of Shop___Category
+function s__Shop___Category__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
+ local integer this=sc__Panel_create(x,y,width,height,parent,template)
+ local integer kthis
+    if(this==0) then
+        return 0
+    endif
+    set si__Components___IComponent_type[this]=134
+    if (si__Shop___Category_arrN==0) then
+        set si__Shop___Category_arrI=si__Shop___Category_arrI+1
+        set kthis=si__Shop___Category_arrI
+        if (kthis>629) then
+            set si__Components___IComponent_type[this]=66
+            call sc__Components___IComponent_deallocate(this)
+            return 0
+        endif
+    else
+        set kthis=si__Shop___Category_arrV[si__Shop___Category_arrN]
+        set si__Shop___Category_arrN=si__Shop___Category_arrN-1
+    endif
+    set si__Shop___Category_arr[this]=kthis
+    set s__Shop___Category_value[this]=(kthis-1)*13
+    set s__Shop___Category_button[this]=(kthis-1)*13
  return this
 endfunction
 
@@ -5618,7 +5962,7 @@ endfunction
 function sc__Shop__set_visible takes integer this,boolean visibility returns nothing
     set f__arg_this=this
     set f__arg_boolean1=visibility
-    call TriggerEvaluate(st__Component__set_visible[149])
+    call TriggerEvaluate(st__Component__set_visible[137])
 endfunction
 
 //Generated method caller for Shop._get_visible
@@ -5707,7 +6051,7 @@ endfunction
 //Generated method caller for Shop.onScroll
 function sc__Shop_onScroll takes integer this returns nothing
     set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onScroll[149])
+    call TriggerEvaluate(st__Components___IComponent_onScroll[137])
 endfunction
 
 //Generated method caller for Shop.onSearch
@@ -5737,1038 +6081,57 @@ function s__Shop__allocate takes real x ,real y ,real width ,real height ,frameh
     if(this==0) then
         return 0
     endif
-    set si__Components___Events_type[this]=149
+    set si__Components___IComponent_type[this]=137
     set kthis=this
 
  return this
 endfunction
 
 
-//Generated method caller for Ability.onCasting
-function sc__Ability_onCasting takes nothing returns nothing
-    call TriggerEvaluate(st__Ability_onCasting)
-endfunction
-
-//Generated allocator of Ability
-function s__Ability__allocate takes nothing returns integer
- local integer kthis
- local integer this=si__Ability___IAbility_F
-    if (this!=0) then
-        set si__Ability___IAbility_F=si__Ability___IAbility_V[this]
-    else
-        set si__Ability___IAbility_I=si__Ability___IAbility_I+1
-        set this=si__Ability___IAbility_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-    set si__Ability___IAbility_type[this]=91
-    set kthis=this
-
-    set si__Ability___IAbility_V[this]=-1
- return this
-endfunction
-
-
-//Generated allocator of CooldownReductionUtils__CDRUtils
-function s__CooldownReductionUtils__CDRUtils__allocate takes nothing returns integer
- local integer this=s__CDR__allocate()
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__CDR_type[this]=93
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated allocator of Interface___Resource
-function s__Interface___Resource__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
- local integer this=sc__Panel_create(x,y,width,height,parent,template)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=94
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Interface___Options.onSlider
-function sc__Interface___Options_onSlider takes nothing returns nothing
-    call TriggerEvaluate(st__Interface___Options_onSlider)
-endfunction
-
-//Generated method caller for Interface___Options.onChecked
-function sc__Interface___Options_onChecked takes nothing returns nothing
-    call TriggerEvaluate(st__Interface___Options_onChecked)
-endfunction
-
-//Generated method caller for Interface___Options.onUnchecked
-function sc__Interface___Options_onUnchecked takes nothing returns nothing
-    call TriggerEvaluate(st__Interface___Options_onUnchecked)
-endfunction
-
-//Generated allocator of Interface___Options
-function s__Interface___Options__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
- local integer this=sc__Panel_create(x,y,width,height,parent,template)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=95
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Interface___Menu.onClick
-function sc__Interface___Menu_onClick takes integer this returns nothing
+//Generated method caller for SulfurasSmash___Hammer.onFinish
+function sc__SulfurasSmash___Hammer_onFinish takes integer this returns boolean
     set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onClick[96])
-endfunction
-
-//Generated allocator of Interface___Menu
-function s__Interface___Menu__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,boolean simpleTooltip returns integer
- local integer this=sc__Button_create(x,y,width,height,parent,simpleTooltip)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=96
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Interface___Grid._set_visible
-function sc__Interface___Grid__set_visible takes integer this,boolean flag returns nothing
-    set f__arg_this=this
-    set f__arg_boolean1=flag
-    call TriggerEvaluate(st__Component__set_visible[97])
-endfunction
-
-//Generated method caller for Interface___Grid._get_visible
-function sc__Interface___Grid__get_visible takes integer this returns boolean
-            return s__Interface___Grid_isVisible[this]
-endfunction
-
-//Generated allocator of Interface___Grid
-function s__Interface___Grid__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
- local integer this=sc__Panel_create(x,y,width,height,parent,template)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=97
-    if (si__Interface___Grid_arrN==0) then
-        set si__Interface___Grid_arrI=si__Interface___Grid_arrI+1
-        set kthis=si__Interface___Grid_arrI
-        if (kthis>2729) then
-            set si__Components___Events_type[this]=66
-            call sc__Components___Events_deallocate(this)
-            return 0
-        endif
-    else
-        set kthis=si__Interface___Grid_arrV[si__Interface___Grid_arrN]
-        set si__Interface___Grid_arrN=si__Interface___Grid_arrN-1
-    endif
-    set si__Interface___Grid_arr[this]=kthis
-    set s__Interface___Grid_slot[this]=(kthis-1)*3
- return this
-endfunction
-
-
-//Generated method caller for Interface___Portrait._set_opacity
-function sc__Interface___Portrait__set_opacity takes integer this,integer value returns nothing
-    set f__arg_this=this
-    set f__arg_integer1=value
-    call TriggerEvaluate(st__Interface___Portrait__set_opacity)
-endfunction
-
-//Generated allocator of Interface___Portrait
-function s__Interface___Portrait__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
- local integer this=sc__Panel_create(x,y,width,height,parent,template)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=99
-    if (si__Interface___Portrait_arrN==0) then
-        set si__Interface___Portrait_arrI=si__Interface___Portrait_arrI+1
-        set kthis=si__Interface___Portrait_arrI
-        if (kthis>1637) then
-            set si__Components___Events_type[this]=66
-            call sc__Components___Events_deallocate(this)
-            return 0
-        endif
-    else
-        set kthis=si__Interface___Portrait_arrV[si__Interface___Portrait_arrN]
-        set si__Interface___Portrait_arrN=si__Interface___Portrait_arrN-1
-    endif
-    set si__Interface___Portrait_arr[this]=kthis
-    set s__Interface___Portrait_shades[this]=(kthis-1)*5
- return this
-endfunction
-
-
-//Generated method caller for Interface___Abilities._set_visible
-function sc__Interface___Abilities__set_visible takes integer this,boolean flag returns nothing
-    set f__arg_this=this
-    set f__arg_boolean1=flag
-    call TriggerEvaluate(st__Component__set_visible[101])
-endfunction
-
-//Generated method caller for Interface___Abilities._get_visible
-function sc__Interface___Abilities__get_visible takes integer this returns boolean
-            return s__Interface___Abilities_isVisible[this]
-endfunction
-
-//Generated method caller for Interface___Abilities.onHover
-function sc__Interface___Abilities_onHover takes nothing returns nothing
-    call TriggerEvaluate(st__Interface___Abilities_onHover)
-endfunction
-
-//Generated allocator of Interface___Abilities
-function s__Interface___Abilities__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
- local integer this=sc__Panel_create(x,y,width,height,parent,template)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=101
-    if (si__Interface___Abilities_arrN==0) then
-        set si__Interface___Abilities_arrI=si__Interface___Abilities_arrI+1
-        set kthis=si__Interface___Abilities_arrI
-        if (kthis>1364) then
-            set si__Components___Events_type[this]=66
-            call sc__Components___Events_deallocate(this)
-            return 0
-        endif
-    else
-        set kthis=si__Interface___Abilities_arrV[si__Interface___Abilities_arrN]
-        set si__Interface___Abilities_arrN=si__Interface___Abilities_arrN-1
-    endif
-    set si__Interface___Abilities_arr[this]=kthis
-    set s__Interface___Abilities_slot[this]=(kthis-1)*6
-    set s__Interface___Abilities_levelup[this]=(kthis-1)*6
- return this
-endfunction
-
-
-//Generated allocator of Interface___Inventory
-function s__Interface___Inventory__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
- local integer this=sc__Panel_create(x,y,width,height,parent,template)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=104
-    if (si__Interface___Inventory_arrN==0) then
-        set si__Interface___Inventory_arrI=si__Interface___Inventory_arrI+1
-        set kthis=si__Interface___Inventory_arrI
-        if (kthis>1364) then
-            set si__Components___Events_type[this]=66
-            call sc__Components___Events_deallocate(this)
-            return 0
-        endif
-    else
-        set kthis=si__Interface___Inventory_arrV[si__Interface___Inventory_arrN]
-        set si__Interface___Inventory_arrN=si__Interface___Inventory_arrN-1
-    endif
-    set si__Interface___Inventory_arr[this]=kthis
-    set s__Interface___Inventory_slot[this]=(kthis-1)*6
- return this
-endfunction
-
-
-//Generated method caller for Attribute._set_visible
-function sc__Attribute__set_visible takes integer this,boolean flag returns nothing
-    set f__arg_this=this
-    set f__arg_boolean1=flag
-    call TriggerEvaluate(st__Component__set_visible[106])
-endfunction
-
-//Generated method caller for Attribute._get_visible
-function sc__Attribute__get_visible takes integer this returns boolean
-            return s__Attribute_isVisible[this]
-endfunction
-
-//Generated method caller for Attribute.destroy
-function sc__Attribute_destroy takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Attribute_destroy)
-endfunction
-
-//Generated method caller for Attribute.update
-function sc__Attribute_update takes integer this,unit u returns nothing
-    set f__arg_this=this
-    set f__arg_unit1=u
-    call TriggerEvaluate(st__Attribute_update[si__Components___Events_type[this]])
-endfunction
-
-//Generated method caller for Attribute.create
-function sc__Attribute_create takes real x,real y,real width,real height,framehandle parent,string texture,string tooltip,framepointtype point returns integer
-    set f__arg_real1=x
-    set f__arg_real2=y
-    set f__arg_real3=width
-    set f__arg_real4=height
-    set f__arg_framehandle1=parent
-    set f__arg_string1=texture
-    set f__arg_string2=tooltip
-    set f__arg_framepointtype1=point
-    call TriggerEvaluate(st__Attribute_create)
- return f__result_integer
-endfunction
-
-//Generated method caller for Attribute.onClicked
-function sc__Attribute_onClicked takes nothing returns nothing
-    call TriggerEvaluate(st__Attribute_onClicked)
-endfunction
-
-//Generated method caller for Attribute.onUpdate
-function sc__Attribute_onUpdate takes nothing returns nothing
-    call TriggerEvaluate(st__Attribute_onUpdate)
-endfunction
-
-//Generated allocator of Attribute
-function s__Attribute__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,boolean simpleTooltip returns integer
- local integer this=sc__Button_create(x,y,width,height,parent,simpleTooltip)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=106
-    set kthis=this
-
-   set s__Attribute_isVisible[this]= true
- return this
-endfunction
-
-
-//Generated method caller for Missiles.terminate
-function sc__Missiles_terminate takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Missiles_terminate)
-endfunction
-
-//Generated method caller for Missiles.reset
-function sc__Missiles_reset takes integer this returns nothing
-            set s__Missiles_launched[this]=false
-            set s__Missiles_finished[this]=false
-            set s__Missiles_collideZ[this]=false
-            set s__Missiles_paused[this]=false
-            set s__Missiles_roll[this]=false
-            set s__Missiles_source[this]=null
-            set s__Missiles_target[this]=null
-            set s__Missiles_owner[this]=null
-            set s__Missiles_dummy[this]=null
-            set s__Missiles_open[this]=0.
-            set s__Missiles_height[this]=0.
-            set s__Missiles_veloc[this]=0.
-            set s__Missiles_acceleration[this]=0.
-            set s__Missiles_collision[this]=0.
-            set s__Missiles_damage[this]=0.
-            set s__Missiles_travel[this]=0.
-            set s__Missiles_turn[this]=0.
-            set s__Missiles_time[this]=0.
-            set s__Missiles_sight[this]=0.
-            set s__Missiles_data[this]=0
-            set s__Missiles_type[this]=0
-            set s__Missiles_tileset[this]=0
-            set s__Missiles_pkey[this]=- 1
-            set s__Missiles_index[this]=- 1
-endfunction
-
-//Generated method caller for Missiles.move
-function sc__Missiles_move takes nothing returns nothing
-    call TriggerEvaluate(st__Missiles_move)
-endfunction
-
-//Generated method caller for Missiles.create
-function sc__Missiles_create takes real x,real y,real z,real toX,real toY,real toZ returns integer
-    set f__arg_real1=x
-    set f__arg_real2=y
-    set f__arg_real3=z
-    set f__arg_real4=toX
-    set f__arg_real5=toY
-    set f__arg_real6=toZ
-    call TriggerEvaluate(st__Missiles_create)
- return f__result_integer
-endfunction
-
-//Generated allocator of Missiles
-function s__Missiles__allocate takes nothing returns integer
- local integer kthis
- local integer this=si__Missiles___MissileEvents_F
-    if (this!=0) then
-        set si__Missiles___MissileEvents_F=si__Missiles___MissileEvents_V[this]
-    else
-        set si__Missiles___MissileEvents_I=si__Missiles___MissileEvents_I+1
-        set this=si__Missiles___MissileEvents_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-    set si__Missiles___MissileEvents_type[this]=111
-    set kthis=this
-
-    set si__Missiles___MissileEvents_V[this]=-1
- return this
-endfunction
-
-
-//Generated method caller for Bonus.adder
-function sc__Bonus_adder takes unit source,integer bonus,real value returns real
-    set f__arg_unit1=source
-    set f__arg_integer1=bonus
-    set f__arg_real1=value
-    call TriggerEvaluate(st__Bonus_adder)
- return f__result_real
-endfunction
-
-//Generated method caller for Bonus.onEvent
-function sc__Bonus_onEvent takes integer key returns nothing
-    set f__arg_integer1=key
-    call TriggerEvaluate(st__Bonus_onEvent)
-endfunction
-
-//Generated method caller for Bonus.StartTimer
-function sc__Bonus_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
-    set f__arg_real1=timeout
-    set f__arg_boolean1=periodic
-    set f__arg_integer1=this
-    set f__arg_integer2=uniqueId
-    call TriggerEvaluate(st__Bonus_StartTimer)
-endfunction
-
-//Generated allocator of Bonus
-function s__Bonus__allocate takes nothing returns integer
- local integer kthis
- local integer this=si__NewBonus___BonusType_F
-    if (this!=0) then
-        set si__NewBonus___BonusType_F=si__NewBonus___BonusType_V[this]
-    else
-        set si__NewBonus___BonusType_I=si__NewBonus___BonusType_I+1
-        set this=si__NewBonus___BonusType_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-    set si__NewBonus___BonusType_type[this]=113
-    set kthis=this
-
-    set si__NewBonus___BonusType_V[this]=-1
- return this
-endfunction
-
-
-//Generated method caller for TenacityUtils.addTimed
-function sc__TenacityUtils_addTimed takes unit u,real amount,real duration,integer types returns nothing
-    set f__arg_unit1=u
-    set f__arg_real1=amount
-    set f__arg_real2=duration
-    set f__arg_integer1=types
-    call TriggerEvaluate(st__TenacityUtils_addTimed)
-endfunction
-
-//Generated allocator of TenacityUtils
-function s__TenacityUtils__allocate takes nothing returns integer
- local integer this=s__Tenacity__allocate()
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Tenacity_type[this]=114
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Afterburner__Afterburner.onTooltip
-function sc__Afterburner__Afterburner_onTooltip takes integer this,unit source,integer level returns string
-    set f__arg_this=this
-    set f__arg_unit1=source
-    set f__arg_integer1=level
-    call TriggerEvaluate(st__Ability___IAbility_onTooltip[124])
- return f__result_string
-endfunction
-
-//Generated method caller for Afterburner__Afterburner.StartTimer
-function sc__Afterburner__Afterburner_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
-    set f__arg_real1=timeout
-    set f__arg_boolean1=periodic
-    set f__arg_integer1=this
-    set f__arg_integer2=uniqueId
-    call TriggerEvaluate(st__Afterburner__Afterburner_StartTimer)
-endfunction
-
-//Generated allocator of Afterburner__Afterburner
-function s__Afterburner__Afterburner__allocate takes nothing returns integer
- local integer this=s__Ability__allocate()
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Ability___IAbility_type[this]=124
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Item.calculate
-function sc__Item_calculate takes integer this,integer owned returns integer
-    set f__arg_this=this
-    set f__arg_integer1=owned
-    call TriggerEvaluate(st__Item_calculate)
- return f__result_integer
-endfunction
-
-//Generated method caller for Item.get
-function sc__Item_get takes integer id returns integer
-    set f__arg_integer1=id
-    call TriggerEvaluate(st__Item_get)
- return f__result_integer
-endfunction
-
-//Generated method caller for Item.addComponents
-function sc__Item_addComponents takes integer id,integer a,integer b,integer c,integer d,integer e returns nothing
-    set f__arg_integer1=id
-    set f__arg_integer2=a
-    set f__arg_integer3=b
-    set f__arg_integer4=c
-    set f__arg_integer5=d
-    set f__arg_integer6=e
-    call TriggerEvaluate(st__Item_addComponents)
-endfunction
-
-//Generated method caller for Item.hasType
-function sc__Item_hasType takes unit u,integer id returns boolean
-    set f__arg_unit1=u
-    set f__arg_integer1=id
-    call TriggerEvaluate(st__Item_hasType)
+    call TriggerEvaluate(st__Missiles___MissileEvents_onFinish[138])
  return f__result_boolean
 endfunction
 
-//Generated method caller for Item.countType
-function sc__Item_countType takes unit u,integer id returns integer
-    set f__arg_unit1=u
-    set f__arg_integer1=id
-    call TriggerEvaluate(st__Item_countType)
- return f__result_integer
-endfunction
-
-//Generated method caller for Item.countComponent
-function sc__Item_countComponent takes integer id,integer component returns integer
-    set f__arg_integer1=id
-    set f__arg_integer2=component
-    call TriggerEvaluate(st__Item_countComponent)
- return f__result_integer
-endfunction
-
-//Generated method caller for Item.create
-function sc__Item_create takes integer id,integer a,integer b,integer c,integer d,integer e returns integer
-    set f__arg_integer1=id
-    set f__arg_integer2=a
-    set f__arg_integer3=b
-    set f__arg_integer4=c
-    set f__arg_integer5=d
-    set f__arg_integer6=e
-    call TriggerEvaluate(st__Item_create)
- return f__result_integer
-endfunction
-
-//Generated method caller for Item.save
-function sc__Item_save takes integer id,integer comp returns nothing
-    set f__arg_integer1=id
-    set f__arg_integer2=comp
-    call TriggerEvaluate(st__Item_save)
-endfunction
-
-//Generated method caller for Item.clear
-function sc__Item_clear takes nothing returns nothing
-            call RemoveItem(GetEnumItem())
-endfunction
-
-//Generated allocator of Item
-function s__Item__allocate takes nothing returns integer
- local integer kthis
- local integer this=si__Item___Events_F
-    if (this!=0) then
-        set si__Item___Events_F=si__Item___Events_V[this]
-    else
-        set si__Item___Events_I=si__Item___Events_I+1
-        set this=si__Item___Events_I
-    endif
-    if (this>8190) then
-        return 0
-    endif
-
-   set s__Item___Events_mana[this]= 0
-   set s__Item___Events_armor[this]= 0
-   set s__Item___Events_block[this]= 0
-   set s__Item___Events_damage[this]= 0
-   set s__Item___Events_health[this]= 0
-   set s__Item___Events_evasion[this]= 0
-   set s__Item___Events_agility[this]= 0
-   set s__Item___Events_strength[this]= 0
-   set s__Item___Events_tenacity[this]= 0
-   set s__Item___Events_lifeSteal[this]= 0
-   set s__Item___Events_spellVamp[this]= 0
-   set s__Item___Events_manaRegen[this]= 0
-   set s__Item___Events_sightRange[this]= 0
-   set s__Item___Events_missChance[this]= 0
-   set s__Item___Events_spellPower[this]= 0
-   set s__Item___Events_healthRegen[this]= 0
-   set s__Item___Events_attackSpeed[this]= 0
-   set s__Item___Events_intelligence[this]= 0
-   set s__Item___Events_tenacityFlat[this]= 0
-   set s__Item___Events_movementSpeed[this]= 0
-   set s__Item___Events_criticalDamage[this]= 0
-   set s__Item___Events_criticalChance[this]= 0
-   set s__Item___Events_cooldownOffset[this]= 0
-   set s__Item___Events_tenacityOffset[this]= 0
-   set s__Item___Events_magicResistance[this]= 0
-   set s__Item___Events_armorPenetration[this]= 0
-   set s__Item___Events_magicPenetration[this]= 0
-   set s__Item___Events_cooldownReduction[this]= 0
-   set s__Item___Events_armorPenetrationFlat[this]= 0
-   set s__Item___Events_magicPenetrationFlat[this]= 0
-   set s__Item___Events_cooldownReductionFlat[this]= 0
-    set si__Item___Events_type[this]=131
-    set kthis=this
-
-    set si__Item___Events_V[this]=-1
- return this
-endfunction
-
-
-//Generated method caller for ExplosiveRune__ExplosiveRune.onTooltip
-function sc__ExplosiveRune__ExplosiveRune_onTooltip takes integer this,unit source,integer level returns string
-    set f__arg_this=this
-    set f__arg_unit1=source
-    set f__arg_integer1=level
-    call TriggerEvaluate(st__Ability___IAbility_onTooltip[135])
- return f__result_string
-endfunction
-
-//Generated method caller for ExplosiveRune__ExplosiveRune.onCast
-function sc__ExplosiveRune__ExplosiveRune_onCast takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Ability___IAbility_onCast[135])
-endfunction
-
-//Generated method caller for ExplosiveRune__ExplosiveRune.onLearn
-function sc__ExplosiveRune__ExplosiveRune_onLearn takes integer this,unit source,integer skill,integer level returns nothing
-    set f__arg_this=this
-    set f__arg_unit1=source
-    set f__arg_integer1=skill
-    set f__arg_integer2=level
-    call TriggerEvaluate(st__Ability___IAbility_onLearn[135])
-endfunction
-
-//Generated method caller for ExplosiveRune__ExplosiveRune.HasStartedTimer
-function sc__ExplosiveRune__ExplosiveRune_HasStartedTimer takes integer id returns boolean
-    set f__arg_integer1=id
-    call TriggerEvaluate(st__ExplosiveRune__ExplosiveRune_HasStartedTimer)
- return f__result_boolean
-endfunction
-
-//Generated method caller for ExplosiveRune__ExplosiveRune.GetTimerInstance
-function sc__ExplosiveRune__ExplosiveRune_GetTimerInstance takes integer id returns integer
-    set f__arg_integer1=id
-    call TriggerEvaluate(st__ExplosiveRune__ExplosiveRune_GetTimerInstance)
- return f__result_integer
-endfunction
-
-//Generated method caller for ExplosiveRune__ExplosiveRune.GetRemainingTime
-function sc__ExplosiveRune__ExplosiveRune_GetRemainingTime takes integer this returns real
-            return TimerGetRemaining(s__ExplosiveRune__ExplosiveRune_Periodic____timer[this])
-endfunction
-
-//Generated method caller for ExplosiveRune__ExplosiveRune.StartTimer
-function sc__ExplosiveRune__ExplosiveRune_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
-    set f__arg_real1=timeout
-    set f__arg_boolean1=periodic
-    set f__arg_integer1=this
-    set f__arg_integer2=uniqueId
-    call TriggerEvaluate(st__ExplosiveRune__ExplosiveRune_StartTimer)
-endfunction
-
-//Generated allocator of ExplosiveRune__ExplosiveRune
-function s__ExplosiveRune__ExplosiveRune__allocate takes nothing returns integer
- local integer this=s__Ability__allocate()
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Ability___IAbility_type[this]=135
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for LivingMeteor__Meteor.onPeriod
-function sc__LivingMeteor__Meteor_onPeriod takes integer this returns boolean
-    set f__arg_this=this
-    call TriggerEvaluate(st__Missiles___MissileEvents_onPeriod[136])
- return f__result_boolean
-endfunction
-
-//Generated method caller for LivingMeteor__Meteor.onFinish
-function sc__LivingMeteor__Meteor_onFinish takes integer this returns boolean
-    set f__arg_this=this
-    call TriggerEvaluate(st__Missiles___MissileEvents_onFinish[136])
- return f__result_boolean
-endfunction
-
-//Generated allocator of LivingMeteor__Meteor
-function s__LivingMeteor__Meteor__allocate takes real x ,real y ,real z ,real toX ,real toY ,real toZ returns integer
+//Generated allocator of SulfurasSmash___Hammer
+function s__SulfurasSmash___Hammer__allocate takes real x ,real y ,real z ,real toX ,real toY ,real toZ returns integer
  local integer this=sc__Missiles_create(x,y,z,toX,toY,toZ)
  local integer kthis
     if(this==0) then
         return 0
     endif
-    set si__Missiles___MissileEvents_type[this]=136
+    set si__Missiles___MissileEvents_type[this]=138
     set kthis=this
 
-   set s__LivingMeteor__Meteor_i[this]= 0
-   set s__LivingMeteor__Meteor_j[this]= 0
  return this
 endfunction
 
 
-//Generated method caller for LivingMeteor__LivingMeteor.onTooltip
-function sc__LivingMeteor__LivingMeteor_onTooltip takes integer this,unit source,integer level returns string
+//Generated method caller for SulfurasSmash___SulfurasSmash.onTooltip
+function sc__SulfurasSmash___SulfurasSmash_onTooltip takes integer this,unit source,integer level returns string
     set f__arg_this=this
     set f__arg_unit1=source
     set f__arg_integer1=level
-    call TriggerEvaluate(st__Ability___IAbility_onTooltip[137])
+    call TriggerEvaluate(st__Ability___IAbility_onTooltip[139])
  return f__result_string
 endfunction
 
-//Generated method caller for LivingMeteor__LivingMeteor.onCast
-function sc__LivingMeteor__LivingMeteor_onCast takes integer this returns nothing
+//Generated method caller for SulfurasSmash___SulfurasSmash.onCast
+function sc__SulfurasSmash___SulfurasSmash_onCast takes integer this returns nothing
     set f__arg_this=this
-    call TriggerEvaluate(st__Ability___IAbility_onCast[137])
+    call TriggerEvaluate(st__Ability___IAbility_onCast[139])
 endfunction
 
-//Generated method caller for LivingMeteor__LivingMeteor.StartTimer
-function sc__LivingMeteor__LivingMeteor_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
-    set f__arg_real1=timeout
-    set f__arg_boolean1=periodic
-    set f__arg_integer1=this
-    set f__arg_integer2=uniqueId
-    call TriggerEvaluate(st__LivingMeteor__LivingMeteor_StartTimer)
-endfunction
-
-//Generated allocator of LivingMeteor__LivingMeteor
-function s__LivingMeteor__LivingMeteor__allocate takes nothing returns integer
+//Generated allocator of SulfurasSmash___SulfurasSmash
+function s__SulfurasSmash___SulfurasSmash__allocate takes nothing returns integer
  local integer this=s__Ability__allocate()
  local integer kthis
     if(this==0) then
         return 0
     endif
-    set si__Ability___IAbility_type[this]=137
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Shop___Slot.update
-function sc__Shop___Slot_update takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Shop___Slot_update)
-endfunction
-
-//Generated method caller for Shop___Slot.onScroll
-function sc__Shop___Slot_onScroll takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onScroll[141])
-endfunction
-
-//Generated method caller for Shop___Slot.onClick
-function sc__Shop___Slot_onClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onClick[141])
-endfunction
-
-//Generated method caller for Shop___Slot.onMiddleClick
-function sc__Shop___Slot_onMiddleClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onMiddleClick[141])
-endfunction
-
-//Generated method caller for Shop___Slot.onDoubleClick
-function sc__Shop___Slot_onDoubleClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onDoubleClick[141])
-endfunction
-
-//Generated method caller for Shop___Slot.onRightClick
-function sc__Shop___Slot_onRightClick takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onRightClick[141])
-endfunction
-
-//Generated allocator of Shop___Slot
-function s__Shop___Slot__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,boolean simpleTooltip returns integer
- local integer this=sc__Button_create(x,y,width,height,parent,simpleTooltip)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=141
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Shop___Detail.show
-function sc__Shop___Detail_show takes integer this,integer i,player p returns nothing
-    set f__arg_this=this
-    set f__arg_integer1=i
-    set f__arg_player1=p
-    call TriggerEvaluate(st__Shop___Detail_show)
-endfunction
-
-//Generated method caller for Shop___Detail.onScroll
-function sc__Shop___Detail_onScroll takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onScroll[142])
-endfunction
-
-//Generated method caller for Shop___Detail.onClicked
-function sc__Shop___Detail_onClicked takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Detail_onClicked)
-endfunction
-
-//Generated method caller for Shop___Detail.onScrolled
-function sc__Shop___Detail_onScrolled takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Detail_onScrolled)
-endfunction
-
-//Generated method caller for Shop___Detail.onMiddleClicked
-function sc__Shop___Detail_onMiddleClicked takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Detail_onMiddleClicked)
-endfunction
-
-//Generated method caller for Shop___Detail.onRightClicked
-function sc__Shop___Detail_onRightClicked takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Detail_onRightClicked)
-endfunction
-
-//Generated allocator of Shop___Detail
-function s__Shop___Detail__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
- local integer this=sc__Panel_create(x,y,width,height,parent,template)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=142
-    if (si__Shop___Detail_arrN==0) then
-        set si__Shop___Detail_arrI=si__Shop___Detail_arrI+1
-        set kthis=si__Shop___Detail_arrI
-        if (kthis>2046) then
-            set si__Components___Events_type[this]=66
-            call sc__Components___Events_deallocate(this)
-            return 0
-        endif
-    else
-        set kthis=si__Shop___Detail_arrV[si__Shop___Detail_arrN]
-        set si__Shop___Detail_arrN=si__Shop___Detail_arrN-1
-    endif
-    set si__Shop___Detail_arr[this]=kthis
-    set s__Shop___Detail_description[this]=(kthis-1)*4
- return this
-endfunction
-
-
-//Generated method caller for Shop___Buyer._set_visible
-function sc__Shop___Buyer__set_visible takes integer this,boolean visibility returns nothing
-    set f__arg_this=this
-    set f__arg_boolean1=visibility
-    call TriggerEvaluate(st__Component__set_visible[144])
-endfunction
-
-//Generated method caller for Shop___Buyer._get_visible
-function sc__Shop___Buyer__get_visible takes integer this returns boolean
-            return s__Shop___Buyer_isVisible[this]
-endfunction
-
-//Generated method caller for Shop___Buyer._getindex
-function sc__Shop___Buyer__getindex takes integer this,integer id returns unit
-    set f__arg_this=this
-    set f__arg_integer1=id
-    call TriggerEvaluate(st__Shop___Buyer__getindex)
- return f__result_unit
-endfunction
-
-//Generated method caller for Shop___Buyer.onScroll
-function sc__Shop___Buyer_onScroll takes integer this returns nothing
-    set f__arg_this=this
-    call TriggerEvaluate(st__Components___Events_onScroll[144])
-endfunction
-
-//Generated method caller for Shop___Buyer.onScrolled
-function sc__Shop___Buyer_onScrolled takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Buyer_onScrolled)
-endfunction
-
-//Generated method caller for Shop___Buyer.onClicked
-function sc__Shop___Buyer_onClicked takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Buyer_onClicked)
-endfunction
-
-//Generated allocator of Shop___Buyer
-function s__Shop___Buyer__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
- local integer this=sc__Panel_create(x,y,width,height,parent,template)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=144
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Shop___Favorites.has
-function sc__Shop___Favorites_has takes integer this,integer id,player p returns boolean
-    set f__arg_this=this
-    set f__arg_integer1=id
-    set f__arg_player1=p
-    call TriggerEvaluate(st__Shop___Favorites_has)
- return f__result_boolean
-endfunction
-
-//Generated method caller for Shop___Favorites.remove
-function sc__Shop___Favorites_remove takes integer this,integer i,player p returns nothing
-    set f__arg_this=this
-    set f__arg_integer1=i
-    set f__arg_player1=p
-    call TriggerEvaluate(st__Shop___Favorites_remove)
-endfunction
-
-//Generated method caller for Shop___Favorites.add
-function sc__Shop___Favorites_add takes integer this,integer i,player p returns nothing
-    set f__arg_this=this
-    set f__arg_integer1=i
-    set f__arg_player1=p
-    call TriggerEvaluate(st__Shop___Favorites_add)
-endfunction
-
-//Generated method caller for Shop___Favorites.onClear
-function sc__Shop___Favorites_onClear takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Favorites_onClear)
-endfunction
-
-//Generated method caller for Shop___Favorites.onClicked
-function sc__Shop___Favorites_onClicked takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Favorites_onClicked)
-endfunction
-
-//Generated method caller for Shop___Favorites.onMiddleClicked
-function sc__Shop___Favorites_onMiddleClicked takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Favorites_onMiddleClicked)
-endfunction
-
-//Generated method caller for Shop___Favorites.onDoubleClicked
-function sc__Shop___Favorites_onDoubleClicked takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Favorites_onDoubleClicked)
-endfunction
-
-//Generated method caller for Shop___Favorites.onRightClicked
-function sc__Shop___Favorites_onRightClicked takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Favorites_onRightClicked)
-endfunction
-
-//Generated allocator of Shop___Favorites
-function s__Shop___Favorites__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
- local integer this=sc__Panel_create(x,y,width,height,parent,template)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=145
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Shop___Category.onClicked
-function sc__Shop___Category_onClicked takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Category_onClicked)
-endfunction
-
-//Generated method caller for Shop___Category.onClear
-function sc__Shop___Category_onClear takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Category_onClear)
-endfunction
-
-//Generated method caller for Shop___Category.onLogic
-function sc__Shop___Category_onLogic takes nothing returns nothing
-    call TriggerEvaluate(st__Shop___Category_onLogic)
-endfunction
-
-//Generated allocator of Shop___Category
-function s__Shop___Category__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string template returns integer
- local integer this=sc__Panel_create(x,y,width,height,parent,template)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=146
-    if (si__Shop___Category_arrN==0) then
-        set si__Shop___Category_arrI=si__Shop___Category_arrI+1
-        set kthis=si__Shop___Category_arrI
-        if (kthis>629) then
-            set si__Components___Events_type[this]=66
-            call sc__Components___Events_deallocate(this)
-            return 0
-        endif
-    else
-        set kthis=si__Shop___Category_arrV[si__Shop___Category_arrN]
-        set si__Shop___Category_arrN=si__Shop___Category_arrN-1
-    endif
-    set si__Shop___Category_arr[this]=kthis
-    set s__Shop___Category_value[this]=(kthis-1)*13
-    set s__Shop___Category_button[this]=(kthis-1)*13
- return this
-endfunction
-
-
-//Generated method caller for Attributes___MovementSpeed.update
-function sc__Attributes___MovementSpeed_update takes integer this,unit u returns nothing
-    set f__arg_this=this
-    set f__arg_unit1=u
-    call TriggerEvaluate(st__Attribute_update[185])
-endfunction
-
-//Generated allocator of Attributes___MovementSpeed
-function s__Attributes___MovementSpeed__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string texture ,string tooltip ,framepointtype point returns integer
- local integer this=sc__Attribute_create(x,y,width,height,parent,texture,tooltip,point)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=185
+    set si__Ability___IAbility_type[this]=139
     set kthis=this
 
  return this
@@ -6779,7 +6142,7 @@ endfunction
 function sc__MissChance___Miss_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[150])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[140])
  return f__result_real
 endfunction
 
@@ -6788,7 +6151,7 @@ function sc__MissChance___Miss_Set takes integer this,unit u,real value returns 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[150])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[140])
  return f__result_real
 endfunction
 
@@ -6797,7 +6160,7 @@ function sc__MissChance___Miss_add takes integer this,unit u,real value returns 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[150])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[140])
  return f__result_real
 endfunction
 
@@ -6808,7 +6171,7 @@ function s__MissChance___Miss__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=150
+    set si__NewBonus___IBonus_type[this]=140
     set kthis=this
 
  return this
@@ -6819,7 +6182,7 @@ endfunction
 function sc__Armor___Armor_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[151])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[141])
  return f__result_real
 endfunction
 
@@ -6838,7 +6201,7 @@ function sc__Armor___Armor_add takes integer this,unit u,real value returns real
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[151])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[141])
  return f__result_real
 endfunction
 
@@ -6849,7 +6212,7 @@ function s__Armor___Armor__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=151
+    set si__NewBonus___IBonus_type[this]=141
     set kthis=this
 
  return this
@@ -6860,7 +6223,7 @@ endfunction
 function sc__Block___Block_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[152])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[142])
  return f__result_real
 endfunction
 
@@ -6869,7 +6232,7 @@ function sc__Block___Block_Set takes integer this,unit u,real value returns real
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[152])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[142])
  return f__result_real
 endfunction
 
@@ -6878,7 +6241,7 @@ function sc__Block___Block_add takes integer this,unit u,real value returns real
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[152])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[142])
  return f__result_real
 endfunction
 
@@ -6889,7 +6252,7 @@ function s__Block___Block__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=152
+    set si__NewBonus___IBonus_type[this]=142
     set kthis=this
 
  return this
@@ -6900,7 +6263,7 @@ endfunction
 function sc__Mana___Mana_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[153])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[143])
  return f__result_real
 endfunction
 
@@ -6909,7 +6272,7 @@ function sc__Mana___Mana_Set takes integer this,unit u,real value returns real
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[153])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[143])
  return f__result_real
 endfunction
 
@@ -6918,7 +6281,7 @@ function sc__Mana___Mana_add takes integer this,unit u,real value returns real
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[153])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[143])
  return f__result_real
 endfunction
 
@@ -6929,7 +6292,7 @@ function s__Mana___Mana__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=153
+    set si__NewBonus___IBonus_type[this]=143
     set kthis=this
 
  return this
@@ -6940,7 +6303,7 @@ endfunction
 function sc__Agility___Agility_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[154])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[144])
  return f__result_real
 endfunction
 
@@ -6964,7 +6327,7 @@ function sc__Agility___Agility_add takes integer this,unit u,real value returns 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[154])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[144])
  return f__result_real
 endfunction
 
@@ -6975,7 +6338,7 @@ function s__Agility___Agility__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=154
+    set si__NewBonus___IBonus_type[this]=144
     set kthis=this
 
  return this
@@ -6986,7 +6349,7 @@ endfunction
 function sc__Health___Health_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[155])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[145])
  return f__result_real
 endfunction
 
@@ -6995,7 +6358,7 @@ function sc__Health___Health_Set takes integer this,unit u,real value returns re
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[155])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[145])
  return f__result_real
 endfunction
 
@@ -7004,7 +6367,7 @@ function sc__Health___Health_add takes integer this,unit u,real value returns re
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[155])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[145])
  return f__result_real
 endfunction
 
@@ -7015,7 +6378,7 @@ function s__Health___Health__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=155
+    set si__NewBonus___IBonus_type[this]=145
     set kthis=this
 
  return this
@@ -7026,7 +6389,7 @@ endfunction
 function sc__EvasionChance___Evasion_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[156])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[146])
  return f__result_real
 endfunction
 
@@ -7035,7 +6398,7 @@ function sc__EvasionChance___Evasion_Set takes integer this,unit u,real value re
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[156])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[146])
  return f__result_real
 endfunction
 
@@ -7044,7 +6407,7 @@ function sc__EvasionChance___Evasion_add takes integer this,unit u,real value re
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[156])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[146])
  return f__result_real
 endfunction
 
@@ -7055,7 +6418,7 @@ function s__EvasionChance___Evasion__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=156
+    set si__NewBonus___IBonus_type[this]=146
     set kthis=this
 
  return this
@@ -7066,7 +6429,7 @@ endfunction
 function sc__DamageBonus___Damage_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[157])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[147])
  return f__result_real
 endfunction
 
@@ -7090,7 +6453,7 @@ function sc__DamageBonus___Damage_add takes integer this,unit u,real value retur
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[157])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[147])
  return f__result_real
 endfunction
 
@@ -7101,7 +6464,7 @@ function s__DamageBonus___Damage__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=157
+    set si__NewBonus___IBonus_type[this]=147
     set kthis=this
 
  return this
@@ -7112,7 +6475,7 @@ endfunction
 function sc__Strength___Strength_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[158])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[148])
  return f__result_real
 endfunction
 
@@ -7136,7 +6499,7 @@ function sc__Strength___Strength_add takes integer this,unit u,real value return
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[158])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[148])
  return f__result_real
 endfunction
 
@@ -7147,7 +6510,7 @@ function s__Strength___Strength__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=158
+    set si__NewBonus___IBonus_type[this]=148
     set kthis=this
 
  return this
@@ -7158,7 +6521,7 @@ endfunction
 function sc__TenacityBonus___Tenacity_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[159])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[149])
  return f__result_real
 endfunction
 
@@ -7167,7 +6530,7 @@ function sc__TenacityBonus___Tenacity_Set takes integer this,unit u,real value r
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[159])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[149])
  return f__result_real
 endfunction
 
@@ -7176,7 +6539,7 @@ function sc__TenacityBonus___Tenacity_add takes integer this,unit u,real value r
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[159])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[149])
  return f__result_real
 endfunction
 
@@ -7187,7 +6550,7 @@ function s__TenacityBonus___Tenacity__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=159
+    set si__NewBonus___IBonus_type[this]=149
     set kthis=this
 
  return this
@@ -7198,7 +6561,7 @@ endfunction
 function sc__LifeSteal___LifeSteal_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[160])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[150])
  return f__result_real
 endfunction
 
@@ -7207,7 +6570,7 @@ function sc__LifeSteal___LifeSteal_Set takes integer this,unit u,real value retu
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[160])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[150])
  return f__result_real
 endfunction
 
@@ -7216,7 +6579,7 @@ function sc__LifeSteal___LifeSteal_add takes integer this,unit u,real value retu
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[160])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[150])
  return f__result_real
 endfunction
 
@@ -7227,7 +6590,7 @@ function s__LifeSteal___LifeSteal__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=160
+    set si__NewBonus___IBonus_type[this]=150
     set kthis=this
 
  return this
@@ -7244,7 +6607,7 @@ function sc__SpellVamp___SpellVamp_Set takes integer this,unit u,real value retu
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[161])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[151])
  return f__result_real
 endfunction
 
@@ -7253,7 +6616,7 @@ function sc__SpellVamp___SpellVamp_add takes integer this,unit u,real value retu
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[161])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[151])
  return f__result_real
 endfunction
 
@@ -7264,7 +6627,7 @@ function s__SpellVamp___SpellVamp__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=161
+    set si__NewBonus___IBonus_type[this]=151
     set kthis=this
 
  return this
@@ -7281,7 +6644,7 @@ function sc__SpellPower___SpellPower_Set takes integer this,unit u,real value re
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[162])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[152])
  return f__result_real
 endfunction
 
@@ -7290,7 +6653,7 @@ function sc__SpellPower___SpellPower_add takes integer this,unit u,real value re
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[162])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[152])
  return f__result_real
 endfunction
 
@@ -7301,7 +6664,7 @@ function s__SpellPower___SpellPower__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=162
+    set si__NewBonus___IBonus_type[this]=152
     set kthis=this
 
  return this
@@ -7312,7 +6675,7 @@ endfunction
 function sc__Intelligence___Intelligence_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[163])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[153])
  return f__result_real
 endfunction
 
@@ -7336,7 +6699,7 @@ function sc__Intelligence___Intelligence_add takes integer this,unit u,real valu
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[163])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[153])
  return f__result_real
 endfunction
 
@@ -7347,7 +6710,7 @@ function s__Intelligence___Intelligence__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=163
+    set si__NewBonus___IBonus_type[this]=153
     set kthis=this
 
  return this
@@ -7358,7 +6721,7 @@ endfunction
 function sc__SightRange___SightRange_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[164])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[154])
  return f__result_real
 endfunction
 
@@ -7367,7 +6730,7 @@ function sc__SightRange___SightRange_Set takes integer this,unit u,real value re
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[164])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[154])
  return f__result_real
 endfunction
 
@@ -7376,7 +6739,7 @@ function sc__SightRange___SightRange_add takes integer this,unit u,real value re
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[164])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[154])
  return f__result_real
 endfunction
 
@@ -7387,7 +6750,7 @@ function s__SightRange___SightRange__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=164
+    set si__NewBonus___IBonus_type[this]=154
     set kthis=this
 
  return this
@@ -7398,7 +6761,7 @@ endfunction
 function sc__TenacityFlat___TenacityFlat_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[165])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[155])
  return f__result_real
 endfunction
 
@@ -7407,7 +6770,7 @@ function sc__TenacityFlat___TenacityFlat_Set takes integer this,unit u,real valu
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[165])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[155])
  return f__result_real
 endfunction
 
@@ -7416,7 +6779,7 @@ function sc__TenacityFlat___TenacityFlat_add takes integer this,unit u,real valu
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[165])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[155])
  return f__result_real
 endfunction
 
@@ -7427,7 +6790,7 @@ function s__TenacityFlat___TenacityFlat__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=165
+    set si__NewBonus___IBonus_type[this]=155
     set kthis=this
 
  return this
@@ -7459,7 +6822,7 @@ function sc__AttackSpeed___AttackSpeed_add takes integer this,unit u,real value 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[166])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[156])
  return f__result_real
 endfunction
 
@@ -7470,7 +6833,7 @@ function s__AttackSpeed___AttackSpeed__allocate takes nothing returns integer
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=166
+    set si__NewBonus___IBonus_type[this]=156
     set kthis=this
 
  return this
@@ -7481,7 +6844,7 @@ endfunction
 function sc__CriticalChance___CriticalChance_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[167])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[157])
  return f__result_real
 endfunction
 
@@ -7490,7 +6853,7 @@ function sc__CriticalChance___CriticalChance_Set takes integer this,unit u,real 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[167])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[157])
  return f__result_real
 endfunction
 
@@ -7499,7 +6862,7 @@ function sc__CriticalChance___CriticalChance_add takes integer this,unit u,real 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[167])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[157])
  return f__result_real
 endfunction
 
@@ -7510,7 +6873,7 @@ function s__CriticalChance___CriticalChance__allocate takes nothing returns inte
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=167
+    set si__NewBonus___IBonus_type[this]=157
     set kthis=this
 
  return this
@@ -7521,7 +6884,7 @@ endfunction
 function sc__CriticalDamage___CriticalDamage_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[168])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[158])
  return f__result_real
 endfunction
 
@@ -7530,7 +6893,7 @@ function sc__CriticalDamage___CriticalDamage_Set takes integer this,unit u,real 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[168])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[158])
  return f__result_real
 endfunction
 
@@ -7539,7 +6902,7 @@ function sc__CriticalDamage___CriticalDamage_add takes integer this,unit u,real 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[168])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[158])
  return f__result_real
 endfunction
 
@@ -7550,7 +6913,7 @@ function s__CriticalDamage___CriticalDamage__allocate takes nothing returns inte
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=168
+    set si__NewBonus___IBonus_type[this]=158
     set kthis=this
 
  return this
@@ -7561,7 +6924,7 @@ endfunction
 function sc__TenacityOffset___TenacityOffset_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[169])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[159])
  return f__result_real
 endfunction
 
@@ -7570,7 +6933,7 @@ function sc__TenacityOffset___TenacityOffset_Set takes integer this,unit u,real 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[169])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[159])
  return f__result_real
 endfunction
 
@@ -7579,7 +6942,7 @@ function sc__TenacityOffset___TenacityOffset_add takes integer this,unit u,real 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[169])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[159])
  return f__result_real
 endfunction
 
@@ -7590,7 +6953,7 @@ function s__TenacityOffset___TenacityOffset__allocate takes nothing returns inte
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=169
+    set si__NewBonus___IBonus_type[this]=159
     set kthis=this
 
  return this
@@ -7601,7 +6964,7 @@ endfunction
 function sc__CooldownOffset___CooldownOffset_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[170])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[160])
  return f__result_real
 endfunction
 
@@ -7610,7 +6973,7 @@ function sc__CooldownOffset___CooldownOffset_Set takes integer this,unit u,real 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[170])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[160])
  return f__result_real
 endfunction
 
@@ -7619,7 +6982,7 @@ function sc__CooldownOffset___CooldownOffset_add takes integer this,unit u,real 
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[170])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[160])
  return f__result_real
 endfunction
 
@@ -7630,7 +6993,7 @@ function s__CooldownOffset___CooldownOffset__allocate takes nothing returns inte
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=170
+    set si__NewBonus___IBonus_type[this]=160
     set kthis=this
 
  return this
@@ -7641,7 +7004,7 @@ endfunction
 function sc__ArmorPenetration___ArmorPenetration_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[171])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[161])
  return f__result_real
 endfunction
 
@@ -7650,7 +7013,7 @@ function sc__ArmorPenetration___ArmorPenetration_Set takes integer this,unit u,r
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[171])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[161])
  return f__result_real
 endfunction
 
@@ -7659,7 +7022,7 @@ function sc__ArmorPenetration___ArmorPenetration_add takes integer this,unit u,r
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[171])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[161])
  return f__result_real
 endfunction
 
@@ -7670,7 +7033,7 @@ function s__ArmorPenetration___ArmorPenetration__allocate takes nothing returns 
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=171
+    set si__NewBonus___IBonus_type[this]=161
     set kthis=this
 
  return this
@@ -7681,7 +7044,7 @@ endfunction
 function sc__MovementSpeed___MovementSpeed_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[172])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[162])
  return f__result_real
 endfunction
 
@@ -7705,7 +7068,7 @@ function sc__MovementSpeed___MovementSpeed_add takes integer this,unit u,real va
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[172])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[162])
  return f__result_real
 endfunction
 
@@ -7716,7 +7079,7 @@ function s__MovementSpeed___MovementSpeed__allocate takes nothing returns intege
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=172
+    set si__NewBonus___IBonus_type[this]=162
     set kthis=this
 
  return this
@@ -7727,7 +7090,7 @@ endfunction
 function sc__MagicResistence___MagicResistence_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[173])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[163])
  return f__result_real
 endfunction
 
@@ -7736,7 +7099,7 @@ function sc__MagicResistence___MagicResistence_Set takes integer this,unit u,rea
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[173])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[163])
  return f__result_real
 endfunction
 
@@ -7745,7 +7108,7 @@ function sc__MagicResistence___MagicResistence_add takes integer this,unit u,rea
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[173])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[163])
  return f__result_real
 endfunction
 
@@ -7756,7 +7119,7 @@ function s__MagicResistence___MagicResistence__allocate takes nothing returns in
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=173
+    set si__NewBonus___IBonus_type[this]=163
     set kthis=this
 
  return this
@@ -7767,7 +7130,7 @@ endfunction
 function sc__MagicPenetration___MagicPenetration_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[174])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[164])
  return f__result_real
 endfunction
 
@@ -7776,7 +7139,7 @@ function sc__MagicPenetration___MagicPenetration_Set takes integer this,unit u,r
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[174])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[164])
  return f__result_real
 endfunction
 
@@ -7785,7 +7148,7 @@ function sc__MagicPenetration___MagicPenetration_add takes integer this,unit u,r
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[174])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[164])
  return f__result_real
 endfunction
 
@@ -7796,7 +7159,7 @@ function s__MagicPenetration___MagicPenetration__allocate takes nothing returns 
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=174
+    set si__NewBonus___IBonus_type[this]=164
     set kthis=this
 
  return this
@@ -7828,7 +7191,7 @@ function sc__ManaRegeneration___ManaRegeneration_add takes integer this,unit u,r
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[175])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[165])
  return f__result_real
 endfunction
 
@@ -7839,7 +7202,7 @@ function s__ManaRegeneration___ManaRegeneration__allocate takes nothing returns 
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=175
+    set si__NewBonus___IBonus_type[this]=165
     set kthis=this
 
  return this
@@ -7871,7 +7234,7 @@ function sc__HealthRegeneration___HealthRegeneration_add takes integer this,unit
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[176])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[166])
  return f__result_real
 endfunction
 
@@ -7882,7 +7245,7 @@ function s__HealthRegeneration___HealthRegeneration__allocate takes nothing retu
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=176
+    set si__NewBonus___IBonus_type[this]=166
     set kthis=this
 
  return this
@@ -7893,7 +7256,7 @@ endfunction
 function sc__CooldownReductionBonus___CooldownReduction_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[177])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[167])
  return f__result_real
 endfunction
 
@@ -7902,7 +7265,7 @@ function sc__CooldownReductionBonus___CooldownReduction_Set takes integer this,u
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[177])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[167])
  return f__result_real
 endfunction
 
@@ -7911,7 +7274,7 @@ function sc__CooldownReductionBonus___CooldownReduction_add takes integer this,u
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[177])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[167])
  return f__result_real
 endfunction
 
@@ -7922,7 +7285,7 @@ function s__CooldownReductionBonus___CooldownReduction__allocate takes nothing r
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=177
+    set si__NewBonus___IBonus_type[this]=167
     set kthis=this
 
  return this
@@ -7933,7 +7296,7 @@ endfunction
 function sc__ArmorPenetrationFlat___ArmorPenetrationFlat_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[178])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[168])
  return f__result_real
 endfunction
 
@@ -7942,7 +7305,7 @@ function sc__ArmorPenetrationFlat___ArmorPenetrationFlat_Set takes integer this,
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[178])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[168])
  return f__result_real
 endfunction
 
@@ -7951,7 +7314,7 @@ function sc__ArmorPenetrationFlat___ArmorPenetrationFlat_add takes integer this,
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[178])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[168])
  return f__result_real
 endfunction
 
@@ -7962,7 +7325,7 @@ function s__ArmorPenetrationFlat___ArmorPenetrationFlat__allocate takes nothing 
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=178
+    set si__NewBonus___IBonus_type[this]=168
     set kthis=this
 
  return this
@@ -7973,7 +7336,7 @@ endfunction
 function sc__MagicPenetrationFlat___MagicPenetrationFlat_get takes integer this,unit u returns real
     set f__arg_this=this
     set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[179])
+    call TriggerEvaluate(st__NewBonus___IBonus_get[169])
  return f__result_real
 endfunction
 
@@ -7982,7 +7345,7 @@ function sc__MagicPenetrationFlat___MagicPenetrationFlat_Set takes integer this,
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[179])
+    call TriggerEvaluate(st__NewBonus___IBonus_Set[169])
  return f__result_real
 endfunction
 
@@ -7991,7 +7354,7 @@ function sc__MagicPenetrationFlat___MagicPenetrationFlat_add takes integer this,
     set f__arg_this=this
     set f__arg_unit1=u
     set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[179])
+    call TriggerEvaluate(st__NewBonus___IBonus_add[169])
  return f__result_real
 endfunction
 
@@ -8002,131 +7365,7 @@ function s__MagicPenetrationFlat___MagicPenetrationFlat__allocate takes nothing 
     if(this==0) then
         return 0
     endif
-    set si__NewBonus___BonusType_type[this]=179
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for CooldownReductionFlat___CooldownReductionFlat.get
-function sc__CooldownReductionFlat___CooldownReductionFlat_get takes integer this,unit u returns real
-    set f__arg_this=this
-    set f__arg_unit1=u
-    call TriggerEvaluate(st__NewBonus___BonusType_get[180])
- return f__result_real
-endfunction
-
-//Generated method caller for CooldownReductionFlat___CooldownReductionFlat.Set
-function sc__CooldownReductionFlat___CooldownReductionFlat_Set takes integer this,unit u,real value returns real
-    set f__arg_this=this
-    set f__arg_unit1=u
-    set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_Set[180])
- return f__result_real
-endfunction
-
-//Generated method caller for CooldownReductionFlat___CooldownReductionFlat.add
-function sc__CooldownReductionFlat___CooldownReductionFlat_add takes integer this,unit u,real value returns real
-    set f__arg_this=this
-    set f__arg_unit1=u
-    set f__arg_real1=value
-    call TriggerEvaluate(st__NewBonus___BonusType_add[180])
- return f__result_real
-endfunction
-
-//Generated allocator of CooldownReductionFlat___CooldownReductionFlat
-function s__CooldownReductionFlat___CooldownReductionFlat__allocate takes nothing returns integer
- local integer this=s__Bonus__allocate()
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__NewBonus___BonusType_type[this]=180
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Attributes___SpellPower.update
-function sc__Attributes___SpellPower_update takes integer this,unit u returns nothing
-    set f__arg_this=this
-    set f__arg_unit1=u
-    call TriggerEvaluate(st__Attribute_update[181])
-endfunction
-
-//Generated allocator of Attributes___SpellPower
-function s__Attributes___SpellPower__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string texture ,string tooltip ,framepointtype point returns integer
- local integer this=sc__Attribute_create(x,y,width,height,parent,texture,tooltip,point)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=181
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Attributes___CriticalStrike.update
-function sc__Attributes___CriticalStrike_update takes integer this,unit u returns nothing
-    set f__arg_this=this
-    set f__arg_unit1=u
-    call TriggerEvaluate(st__Attribute_update[182])
-endfunction
-
-//Generated allocator of Attributes___CriticalStrike
-function s__Attributes___CriticalStrike__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string texture ,string tooltip ,framepointtype point returns integer
- local integer this=sc__Attribute_create(x,y,width,height,parent,texture,tooltip,point)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=182
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Attributes___Evasion.update
-function sc__Attributes___Evasion_update takes integer this,unit u returns nothing
-    set f__arg_this=this
-    set f__arg_unit1=u
-    call TriggerEvaluate(st__Attribute_update[183])
-endfunction
-
-//Generated allocator of Attributes___Evasion
-function s__Attributes___Evasion__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string texture ,string tooltip ,framepointtype point returns integer
- local integer this=sc__Attribute_create(x,y,width,height,parent,texture,tooltip,point)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=183
-    set kthis=this
-
- return this
-endfunction
-
-
-//Generated method caller for Attributes___LifeSteal.update
-function sc__Attributes___LifeSteal_update takes integer this,unit u returns nothing
-    set f__arg_this=this
-    set f__arg_unit1=u
-    call TriggerEvaluate(st__Attribute_update[184])
-endfunction
-
-//Generated allocator of Attributes___LifeSteal
-function s__Attributes___LifeSteal__allocate takes real x ,real y ,real width ,real height ,framehandle parent ,string texture ,string tooltip ,framepointtype point returns integer
- local integer this=sc__Attribute_create(x,y,width,height,parent,texture,tooltip,point)
- local integer kthis
-    if(this==0) then
-        return 0
-    endif
-    set si__Components___Events_type[this]=184
+    set si__NewBonus___IBonus_type[this]=169
     set kthis=this
 
  return this
@@ -11798,8 +11037,8 @@ endfunction
             local integer this= (LoadInteger(Table___ht, (s__Component_table), (GetHandleId(BlzGetTriggerFrame())))) // INLINED!!
 
             if this != 0 then
-                if (st__Components___Events_onScroll[si__Components___Events_type[this]]!=null) then
-                    call sc__Components___Events_onScroll(this)
+                if (st__Components___IComponent_onScroll[si__Components___IComponent_type[this]]!=null) then
+                    call sc__Components___IComponent_onScroll(this)
                 endif
 
                 if s__Component_scrolled[this] != null then
@@ -11819,8 +11058,8 @@ endfunction
                     call BlzFrameSetEnable(s__Component_listener[this], false)
                     call BlzFrameSetEnable(s__Component_listener[this], true)
     
-                    if (st__Components___Events_onClick[si__Components___Events_type[this]]!=null) then
-                        call sc__Components___Events_onClick(this)
+                    if (st__Components___IComponent_onClick[si__Components___IComponent_type[this]]!=null) then
+                        call sc__Components___IComponent_onClick(this)
                     endif
 
                     if s__Component_clicked[this] != null then
@@ -11830,8 +11069,8 @@ endfunction
                     if (LoadReal(Table___ht, (((s__HashTable__getindex(s__Component_time,id)))), (this))) - (LoadReal(Table___ht, (((s__HashTable__getindex(s__Component_doubleTime,id)))), (this))) <= Components___DOUBLE_CLICK_DELAY then // INLINED!!
                         call SaveInteger(Table___ht, (s__HashTable__getindex(s__Component_doubleTime,id)), (this), ( 0)) // INLINED!!
     
-                        if (st__Components___Events_onDoubleClick[si__Components___Events_type[this]]!=null) then
-                            call sc__Components___Events_onDoubleClick(this)
+                        if (st__Components___IComponent_onDoubleClick[si__Components___IComponent_type[this]]!=null) then
+                            call sc__Components___IComponent_onDoubleClick(this)
                         endif
 
                         if s__Component_doubleClicked[this] != null then
@@ -11843,8 +11082,8 @@ endfunction
                 endif
 
                 if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_RIGHT then
-                    if (st__Components___Events_onRightClick[si__Components___Events_type[this]]!=null) then
-                        call sc__Components___Events_onRightClick(this)
+                    if (st__Components___IComponent_onRightClick[si__Components___IComponent_type[this]]!=null) then
+                        call sc__Components___IComponent_onRightClick(this)
                     endif
 
                     if s__Component_rightClicked[this] != null then
@@ -11853,8 +11092,8 @@ endfunction
                 endif
 
                 if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_MIDDLE then
-                    if (st__Components___Events_onMiddleClick[si__Components___Events_type[this]]!=null) then
-                        call sc__Components___Events_onMiddleClick(this)
+                    if (st__Components___IComponent_onMiddleClick[si__Components___IComponent_type[this]]!=null) then
+                        call sc__Components___IComponent_onMiddleClick(this)
                     endif
 
                     if s__Component_middleClicked[this] != null then
@@ -11870,8 +11109,8 @@ endfunction
             set s__Component_array[GetPlayerId(GetTriggerPlayer())]=this
 
             if this != 0 then
-                if (st__Components___Events_onEnter[si__Components___Events_type[this]]!=null) then
-                    call sc__Components___Events_onEnter(this)
+                if (st__Components___IComponent_onEnter[si__Components___IComponent_type[this]]!=null) then
+                    call sc__Components___IComponent_onEnter(this)
                 endif
 
                 if s__Component_entered[this] != null then
@@ -11886,8 +11125,8 @@ endfunction
             set s__Component_array[GetPlayerId(GetTriggerPlayer())]=0
 
             if this != 0 then
-                if (st__Components___Events_onLeave[si__Components___Events_type[this]]!=null) then
-                    call sc__Components___Events_onLeave(this)
+                if (st__Components___IComponent_onLeave[si__Components___IComponent_type[this]]!=null) then
+                    call sc__Components___IComponent_onLeave(this)
                 endif
 
                 if s__Component_exited[this] != null then
@@ -12169,8 +11408,8 @@ endfunction
             if this != 0 then
                 set s__EditBox_value[this]=BlzGetTriggerFrameText()
 
-                if (st__Components___Events_onText[si__Components___Events_type[this]]!=null) then
-                    call sc__Components___Events_onText(this)
+                if (st__Components___IComponent_onText[si__Components___IComponent_type[this]]!=null) then
+                    call sc__Components___IComponent_onText(this)
                 endif
 
                 if s__EditBox_typed[this] != null then
@@ -12183,8 +11422,8 @@ endfunction
             local integer this= (LoadInteger(Table___ht, (s__EditBox_table), (GetHandleId(BlzGetTriggerFrame())))) // INLINED!!
 
             if this != 0 then
-                if (st__Components___Events_onEnter[si__Components___Events_type[this]]!=null) then
-                    call sc__Components___Events_onEnter(this)
+                if (st__Components___IComponent_onEnter[si__Components___IComponent_type[this]]!=null) then
+                    call sc__Components___IComponent_onEnter(this)
                 endif
 
                 if s__EditBox_entered[this] != null then
@@ -12436,16 +11675,16 @@ endfunction
                 set s___CheckBox_isChecked[s__CheckBox_isChecked[this]+GetPlayerId(GetTriggerPlayer())]=BlzGetTriggerFrameEvent() == FRAMEEVENT_CHECKBOX_CHECKED
 
                 if BlzGetTriggerFrameEvent() == FRAMEEVENT_CHECKBOX_CHECKED then
-                    if (st__Components___Events_onCheck[si__Components___Events_type[this]]!=null) then
-                        call sc__Components___Events_onCheck(this)
+                    if (st__Components___IComponent_onCheck[si__Components___IComponent_type[this]]!=null) then
+                        call sc__Components___IComponent_onCheck(this)
                     endif
 
                     if s__CheckBox_check[this] != null then
                         call TriggerEvaluate(s__CheckBox_check[this])
                     endif
                 else
-                    if (st__Components___Events_onUncheck[si__Components___Events_type[this]]!=null) then
-                        call sc__Components___Events_onUncheck(this)
+                    if (st__Components___IComponent_onUncheck[si__Components___IComponent_type[this]]!=null) then
+                        call sc__Components___IComponent_onUncheck(this)
                     endif
 
                     if s__CheckBox_uncheck[this] != null then
@@ -12717,8 +11956,8 @@ endfunction
             local integer this= (LoadInteger(Table___ht, (s__Slider_table), (GetHandleId(BlzGetTriggerFrame())))) // INLINED!!
 
             if this != 0 then
-                if (st__Components___Events_onSlide[si__Components___Events_type[this]]!=null) then
-                    call sc__Components___Events_onSlide(this)
+                if (st__Components___IComponent_onSlide[si__Components___IComponent_type[this]]!=null) then
+                    call sc__Components___IComponent_onSlide(this)
                 endif
 
                 if s__Slider_slided[this] != null then
@@ -12884,7 +12123,7 @@ endfunction
         
         // Use this function to filter out units you dont want to have abilities registered.
         // By default dummy units do not trigger the system.
-        function CooldownReduction__UnitFilter takes unit source returns boolean
+        function CooldownReduction___UnitFilter takes unit source returns boolean
             return GetUnitAbilityLevel(source, 'Aloc') == 0
         endfunction
         
@@ -12894,85 +12133,85 @@ endfunction
         
 //Implemented from module Alloc:
    
-        function s__CooldownReduction__AbilityList_allocate takes nothing returns integer
+        function s__CooldownReduction___AbilityList_allocate takes nothing returns integer
             local integer this
    
-            if ( s__CooldownReduction__AbilityList_Alloc___recycle[(0)] == 0 ) then
-                set s__CooldownReduction__AbilityList_Alloc___instanceCount=s__CooldownReduction__AbilityList_Alloc___instanceCount + 1
-                set this=s__CooldownReduction__AbilityList_Alloc___instanceCount
+            if ( s__CooldownReduction___AbilityList_Alloc___recycle[(0)] == 0 ) then
+                set s__CooldownReduction___AbilityList_Alloc___instanceCount=s__CooldownReduction___AbilityList_Alloc___instanceCount + 1
+                set this=s__CooldownReduction___AbilityList_Alloc___instanceCount
             else
-                set this=s__CooldownReduction__AbilityList_Alloc___recycle[(0)]
-                set s__CooldownReduction__AbilityList_Alloc___recycle[(0)]=s__CooldownReduction__AbilityList_Alloc___recycle[s__CooldownReduction__AbilityList_Alloc___recycle[(0)]]
+                set this=s__CooldownReduction___AbilityList_Alloc___recycle[(0)]
+                set s__CooldownReduction___AbilityList_Alloc___recycle[(0)]=s__CooldownReduction___AbilityList_Alloc___recycle[s__CooldownReduction___AbilityList_Alloc___recycle[(0)]]
             endif
 
    
             return this
         endfunction
    
-        function s__CooldownReduction__AbilityList_deallocate takes integer this returns nothing
-            set s__CooldownReduction__AbilityList_Alloc___recycle[this]=s__CooldownReduction__AbilityList_Alloc___recycle[(0)]
-            set s__CooldownReduction__AbilityList_Alloc___recycle[(0)]=this
+        function s__CooldownReduction___AbilityList_deallocate takes integer this returns nothing
+            set s__CooldownReduction___AbilityList_Alloc___recycle[this]=s__CooldownReduction___AbilityList_Alloc___recycle[(0)]
+            set s__CooldownReduction___AbilityList_Alloc___recycle[(0)]=this
         endfunction
-//Implemented from module CooldownReduction__List:
+//Implemented from module CooldownReduction___List:
     
-            function s__CooldownReduction__AbilityList_init takes integer this returns integer
-                set s__CooldownReduction__AbilityList_next[this]=this
-                set s__CooldownReduction__AbilityList_prev[this]=this
+            function s__CooldownReduction___AbilityList_init takes integer this returns integer
+                set s__CooldownReduction___AbilityList_next[this]=this
+                set s__CooldownReduction___AbilityList_prev[this]=this
     
                 return this
             endfunction
     
-            function s__CooldownReduction__AbilityList_push takes integer this,integer node returns integer
-                set s__CooldownReduction__AbilityList_prev[node]=s__CooldownReduction__AbilityList_prev[this]
-                set s__CooldownReduction__AbilityList_next[node]=this
-                set s__CooldownReduction__AbilityList_next[s__CooldownReduction__AbilityList_prev[this]]=node
-                set s__CooldownReduction__AbilityList_prev[this]=node
+            function s__CooldownReduction___AbilityList_push takes integer this,integer node returns integer
+                set s__CooldownReduction___AbilityList_prev[node]=s__CooldownReduction___AbilityList_prev[this]
+                set s__CooldownReduction___AbilityList_next[node]=this
+                set s__CooldownReduction___AbilityList_next[s__CooldownReduction___AbilityList_prev[this]]=node
+                set s__CooldownReduction___AbilityList_prev[this]=node
     
                 return node
             endfunction
     
-            function s__CooldownReduction__AbilityList_pop takes integer this returns nothing
-                set s__CooldownReduction__AbilityList_next[s__CooldownReduction__AbilityList_prev[this]]=s__CooldownReduction__AbilityList_next[this]
-                set s__CooldownReduction__AbilityList_prev[s__CooldownReduction__AbilityList_next[this]]=s__CooldownReduction__AbilityList_prev[this]
+            function s__CooldownReduction___AbilityList_pop takes integer this returns nothing
+                set s__CooldownReduction___AbilityList_next[s__CooldownReduction___AbilityList_prev[this]]=s__CooldownReduction___AbilityList_next[this]
+                set s__CooldownReduction___AbilityList_prev[s__CooldownReduction___AbilityList_next[this]]=s__CooldownReduction___AbilityList_prev[this]
             endfunction
             
             
-            function s__CooldownReduction__AbilityList_destroy takes integer this returns nothing
-                local integer node= s__CooldownReduction__AbilityList_next[this]
+            function s__CooldownReduction___AbilityList_destroy takes integer this returns nothing
+                local integer node= s__CooldownReduction___AbilityList_next[this]
             
                 loop
                     exitwhen node == this
-                        set s__CooldownReduction__AbilityList_ability[node]=null
-                        call s__Table_destroy(s__CooldownReduction__AbilityList_defaults[node])
-                        call s__CooldownReduction__AbilityList_pop(node)
-                        call s__CooldownReduction__AbilityList_deallocate(node)
-                    set node=s__CooldownReduction__AbilityList_next[node]
+                        set s__CooldownReduction___AbilityList_ability[node]=null
+                        call s__Table_destroy(s__CooldownReduction___AbilityList_defaults[node])
+                        call s__CooldownReduction___AbilityList_pop(node)
+                        call s__CooldownReduction___AbilityList_deallocate(node)
+                    set node=s__CooldownReduction___AbilityList_next[node]
                 endloop
-                call s__CooldownReduction__AbilityList_deallocate(this)
+                call s__CooldownReduction___AbilityList_deallocate(this)
     
-                set s__CooldownReduction__AbilityList_unit[this]=null
+                set s__CooldownReduction___AbilityList_unit[this]=null
             endfunction
             
-            function s__CooldownReduction__AbilityList_insert takes integer this,integer id returns integer
-                local integer node= s__CooldownReduction__AbilityList_push(this,s__CooldownReduction__AbilityList_allocate())
+            function s__CooldownReduction___AbilityList_insert takes integer this,integer id returns integer
+                local integer node= s__CooldownReduction___AbilityList_push(this,s__CooldownReduction___AbilityList_allocate())
                 local integer i= 0
     
-                set s__CooldownReduction__AbilityList_id[node]=id
-                set s__CooldownReduction__AbilityList_ability[node]=BlzGetUnitAbility(s__CooldownReduction__AbilityList_unit[this], id)
-                set s__CooldownReduction__AbilityList_levels[node]=BlzGetAbilityIntegerField(s__CooldownReduction__AbilityList_ability[node], ABILITY_IF_LEVELS)
-                set s__CooldownReduction__AbilityList_defaults[node]=s__Table_create()
+                set s__CooldownReduction___AbilityList_id[node]=id
+                set s__CooldownReduction___AbilityList_ability[node]=BlzGetUnitAbility(s__CooldownReduction___AbilityList_unit[this], id)
+                set s__CooldownReduction___AbilityList_levels[node]=BlzGetAbilityIntegerField(s__CooldownReduction___AbilityList_ability[node], ABILITY_IF_LEVELS)
+                set s__CooldownReduction___AbilityList_defaults[node]=s__Table_create()
                 
                 loop
-                    exitwhen i >= s__CooldownReduction__AbilityList_levels[node]
-                        call SaveReal(Table___ht, (((s__CooldownReduction__AbilityList_defaults[node]))), (i), (( BlzGetAbilityRealLevelField(s__CooldownReduction__AbilityList_ability[node], ABILITY_RLF_COOLDOWN, i))*1.0)) // INLINED!!
+                    exitwhen i >= s__CooldownReduction___AbilityList_levels[node]
+                        call SaveReal(Table___ht, (((s__CooldownReduction___AbilityList_defaults[node]))), (i), (( BlzGetAbilityRealLevelField(s__CooldownReduction___AbilityList_ability[node], ABILITY_RLF_COOLDOWN, i))*1.0)) // INLINED!!
                     set i=i + 1
                 endloop
     
                 return node
             endfunction
             
-            function s__CooldownReduction__AbilityList_update takes integer this,integer count,real normal,real flat,real offset returns nothing
-                local integer node= s__CooldownReduction__AbilityList_next[this]
+            function s__CooldownReduction___AbilityList_update takes integer this,integer count,real normal,real flat,real offset returns nothing
+                local integer node= s__CooldownReduction___AbilityList_next[this]
                 local real cooldown
                 local integer i
             
@@ -12980,32 +12219,32 @@ endfunction
                     exitwhen node == this
                         set i=0
                         loop
-                            exitwhen i >= s__CooldownReduction__AbilityList_levels[node]
+                            exitwhen i >= s__CooldownReduction___AbilityList_levels[node]
                                 if count > 0 then
-                                    set cooldown=( ( (LoadReal(Table___ht, (((s__CooldownReduction__AbilityList_defaults[node]))), (i))) - offset ) * normal * ( 1 - flat ) ) // INLINED!!
+                                    set cooldown=( ( (LoadReal(Table___ht, (((s__CooldownReduction___AbilityList_defaults[node]))), (i))) - offset ) * normal * ( 1 - flat ) ) // INLINED!!
                                 else
-                                    set cooldown=( ( (LoadReal(Table___ht, (((s__CooldownReduction__AbilityList_defaults[node]))), (i))) - offset ) * ( 1 - flat ) ) // INLINED!!
+                                    set cooldown=( ( (LoadReal(Table___ht, (((s__CooldownReduction___AbilityList_defaults[node]))), (i))) - offset ) * ( 1 - flat ) ) // INLINED!!
                                 endif
-                                call BlzSetAbilityRealLevelField(s__CooldownReduction__AbilityList_ability[node], ABILITY_RLF_COOLDOWN, i, cooldown)
-                                call IncUnitAbilityLevel(s__CooldownReduction__AbilityList_unit[this], s__CooldownReduction__AbilityList_id[node])
-                                call DecUnitAbilityLevel(s__CooldownReduction__AbilityList_unit[this], s__CooldownReduction__AbilityList_id[node])
+                                call BlzSetAbilityRealLevelField(s__CooldownReduction___AbilityList_ability[node], ABILITY_RLF_COOLDOWN, i, cooldown)
+                                call IncUnitAbilityLevel(s__CooldownReduction___AbilityList_unit[this], s__CooldownReduction___AbilityList_id[node])
+                                call DecUnitAbilityLevel(s__CooldownReduction___AbilityList_unit[this], s__CooldownReduction___AbilityList_id[node])
                             set i=i + 1
                         endloop
-                    set node=s__CooldownReduction__AbilityList_next[node]
+                    set node=s__CooldownReduction___AbilityList_next[node]
                 endloop
             endfunction
             
-            function s__CooldownReduction__AbilityList_calculate takes integer this,integer id,integer level,real cooldown,integer count,real normal,real flat,real offset returns nothing
+            function s__CooldownReduction___AbilityList_calculate takes integer this,integer id,integer level,real cooldown,integer count,real normal,real flat,real offset returns nothing
                 if count > 0 then
-                    call BlzSetAbilityRealLevelField(BlzGetUnitAbility(s__CooldownReduction__AbilityList_unit[this], id), ABILITY_RLF_COOLDOWN, level, ( ( cooldown - offset ) * normal * ( 1 - flat ) ))
+                    call BlzSetAbilityRealLevelField(BlzGetUnitAbility(s__CooldownReduction___AbilityList_unit[this], id), ABILITY_RLF_COOLDOWN, level, ( ( cooldown - offset ) * normal * ( 1 - flat ) ))
                 else
-                    call BlzSetAbilityRealLevelField(BlzGetUnitAbility(s__CooldownReduction__AbilityList_unit[this], id), ABILITY_RLF_COOLDOWN, level, ( ( cooldown - offset ) * ( 1 - flat ) ))
+                    call BlzSetAbilityRealLevelField(BlzGetUnitAbility(s__CooldownReduction___AbilityList_unit[this], id), ABILITY_RLF_COOLDOWN, level, ( ( cooldown - offset ) * ( 1 - flat ) ))
                 endif
-                call IncUnitAbilityLevel(s__CooldownReduction__AbilityList_unit[this], id)
-                call DecUnitAbilityLevel(s__CooldownReduction__AbilityList_unit[this], id)
+                call IncUnitAbilityLevel(s__CooldownReduction___AbilityList_unit[this], id)
+                call DecUnitAbilityLevel(s__CooldownReduction___AbilityList_unit[this], id)
             endfunction
             
-            function s__CooldownReduction__AbilityList_simulate takes integer this,real cooldown,integer count,real normal,real flat,real offset returns real
+            function s__CooldownReduction___AbilityList_simulate takes integer this,real cooldown,integer count,real normal,real flat,real offset returns real
                 local real cd
                 
                 if count > 0 then
@@ -13017,10 +12256,10 @@ endfunction
                 return cd
             endfunction
             
-            function s__CooldownReduction__AbilityList_create takes unit source returns integer
-                local integer this= s__CooldownReduction__AbilityList_init((s__CooldownReduction__AbilityList_allocate()))
+            function s__CooldownReduction___AbilityList_create takes unit source returns integer
+                local integer this= s__CooldownReduction___AbilityList_init((s__CooldownReduction___AbilityList_allocate()))
                 
-                set s__CooldownReduction__AbilityList_unit[this]=source
+                set s__CooldownReduction___AbilityList_unit[this]=source
                 
                 return this
             endfunction
@@ -13030,7 +12269,7 @@ endfunction
                 local integer i= GetUnitUserData(source)
                 
                 if s__CDR_n[i] == 0 then
-                    set s__CDR_n[i]=s__CooldownReduction__AbilityList_create(source)
+                    set s__CDR_n[i]=s__CooldownReduction___AbilityList_create(source)
                 endif
     
                 return s__CDR_n[i]
@@ -13040,7 +12279,7 @@ endfunction
                 local integer id= GetUnitUserData(u)
                 local integer list= s__CDR_getInstance(u)
     
-                call s__CooldownReduction__AbilityList_update(list,s__CDR_count[id] , s__CDR_normal[id] , s__CDR_flat[id] , s__CDR_offset[id])
+                call s__CooldownReduction___AbilityList_update(list,s__CDR_count[id] , s__CDR_normal[id] , s__CDR_flat[id] , s__CDR_offset[id])
             endfunction
             
             function s__CDR_calculate takes unit u returns real
@@ -13141,14 +12380,14 @@ endfunction
                 local integer i= GetUnitUserData(u)
                 local integer list= s__CDR_getInstance(u)
     
-                call s__CooldownReduction__AbilityList_calculate(list,id , level - 1 , cooldown , s__CDR_count[i] , s__CDR_normal[i] , s__CDR_flat[i] , s__CDR_offset[i])
+                call s__CooldownReduction___AbilityList_calculate(list,id , level - 1 , cooldown , s__CDR_count[i] , s__CDR_normal[i] , s__CDR_flat[i] , s__CDR_offset[i])
             endfunction
             
             function s__CDR_simulateCooldown takes unit u,real cooldown returns real
                 local integer i= GetUnitUserData(u)
                 local integer list= s__CDR_getInstance(u)
     
-                return s__CooldownReduction__AbilityList_simulate(list,cooldown , s__CDR_count[i] , s__CDR_normal[i] , s__CDR_flat[i] , s__CDR_offset[i])
+                return s__CooldownReduction___AbilityList_simulate(list,cooldown , s__CDR_count[i] , s__CDR_normal[i] , s__CDR_flat[i] , s__CDR_offset[i])
             endfunction
         
             function s__CDR_register takes unit u,integer id returns nothing
@@ -13160,7 +12399,7 @@ endfunction
                     set i=GetUnitUserData(u)
                     
                     if not LoadBoolean(s__CDR_hashtable, list, id) then
-                        call s__CooldownReduction__AbilityList_insert(list,id)
+                        call s__CooldownReduction___AbilityList_insert(list,id)
                         call SaveBoolean(s__CDR_hashtable, list, id, true)
                         
                         if s__CDR_count[i] > 0 or s__CDR_normal[i] != 0 or s__CDR_flat[i] != 0 or s__CDR_offset[i] != 0 then
@@ -13190,7 +12429,7 @@ endfunction
                 set s__CDR_count[i]=0
     
                 if list != 0 then
-                    call s__CooldownReduction__AbilityList_destroy(list)
+                    call s__CooldownReduction___AbilityList_destroy(list)
                     call FlushChildHashtable(s__CDR_hashtable, list)
                 endif
                 call FlushChildHashtable(s__CDR_hashtable, GetHandleId(source))
@@ -13568,6 +12807,8 @@ endfunction
 
             set s__Damage_damage[this]=0
             set s__Damage_evade[this]=false
+            set s__Damage_newSource[this]=null
+            set s__Damage_newTarget[this]=null
             set s__Damage_attackType[this]=null
             set s__Damage_damageType[this]=null
             set s__Damage_weaponType[this]=null
@@ -13578,8 +12819,16 @@ endfunction
             return s__Damage_sources[s__Damage_key]
         endfunction
 
+        function s__Damage__set_source takes unit value returns nothing
+            set s__Damage_newSource[s__Damage_key]=value
+        endfunction
+
         function s__Damage__get_target takes nothing returns integer
             return s__Damage_targets[s__Damage_key]
+        endfunction
+
+        function s__Damage__set_target takes unit value returns nothing
+            set s__Damage_newTarget[s__Damage_key]=value
         endfunction
 
         function s__Damage__get_amount takes nothing returns real
@@ -13658,6 +12907,8 @@ endfunction
 
             set s__Damage_key=this
             set s__Damage_evade[this]=false
+            set s__Damage_newSource[this]=null
+            set s__Damage_newTarget[this]=null
             set s__Damage_damage[this]=GetEventDamage()
             set s__Damage_sources[this]=s__DamageInterface___Unit_create(GetEventDamageSource())
             set s__Damage_targets[this]=s__DamageInterface___Unit_create(BlzGetEventDamageTarget())
@@ -13740,6 +12991,20 @@ endfunction
 
             call TriggerEvaluate(s__Damage_anyAfter)
             call BlzSetEventDamage(s__Damage_damage[this])
+
+            if s__Damage_newSource[this] != null or s__Damage_newTarget[this] != null then
+                if s__Damage_newSource[this] != null then
+                    set s__DamageInterface___Unit_unit[(s__Damage_sources[s__Damage_key])]=s__Damage_newSource[this] // INLINED!!
+                endif
+
+                if s__Damage_newTarget[this] != null then
+                    set s__DamageInterface___Unit_unit[(s__Damage_targets[s__Damage_key])]=s__Damage_newTarget[this] // INLINED!!
+                endif
+
+                call BlzSetEventDamage(0)
+                call UnitDamageTarget(s__DamageInterface___Unit_unit[(s__Damage_sources[s__Damage_key])], s__DamageInterface___Unit_unit[(s__Damage_targets[s__Damage_key])], (s__Damage_damage[s__Damage_key]), false, false, (s__Damage_attackType[s__Damage_key]), (s__Damage_damageType[s__Damage_key]), (s__Damage_weaponType[s__Damage_key])) // INLINED!!
+            endif
+
             call s__Damage_destroy(this)
         endfunction
 
@@ -15273,23 +14538,6 @@ endfunction
             endif
         endfunction
 
-        function s__Ability_remove takes integer this,integer i returns integer
-            set s__Ability_id[this]=0
-            set s__Ability_type[this]=0
-            set s__Ability_unit[this]=null
-            set s__Ability_ability[this]=null
-            set s__Ability_array[i]=s__Ability_array[s__Ability_key]
-            set s__Ability_key=s__Ability_key - 1
-
-            if s__Ability_key == - 1 then
-                call PauseTimer(s__Ability_timer)
-            endif
-
-            call sc__Ability___IAbility_deallocate(this)
-
-            return i - 1
-        endfunction   
-
         function s__Ability_onPeriod takes nothing returns nothing
             local integer i= 0
             local integer level
@@ -15306,8 +14554,6 @@ endfunction
 
                         call BlzSetAbilityExtendedTooltip(s__Ability_id[this], tooltip, level - 1)
                         call BlzSetAbilityStringLevelField(s__Ability_ability[this], ABILITY_SLF_TOOLTIP_NORMAL_EXTENDED, level - 1, tooltip)
-                    else
-                        set i=s__Ability_remove(this,i)
                     endif
                 set i=i + 1
             endloop
@@ -15328,12 +14574,12 @@ endfunction
                 if (st__Ability___IAbility_onTooltip[si__Ability___IAbility_type[this]]!=null) and level == 1 then
                     set spell=s__Ability__allocate()
                     set s__Ability_type[spell]=this
-                    set s__Ability_timer=NewTimerEx(spell)
                     set s__Ability_id[spell]=skill
                     set s__Ability_unit[spell]=source
                     set s__Ability_ability[spell]=BlzGetUnitAbility(source, skill)
                     set s__Ability_key=s__Ability_key + 1
                     set s__Ability_array[s__Ability_key]=spell
+                    call SaveInteger(Table___ht, (s__HashTable__getindex(s__Ability_learned,skill)), (GetUnitUserData(source)), ( 1)) // INLINED!!
 
                     if s__Ability_key == 0 then
                         call TimerStart(s__Ability_timer, 1, true, function s__Ability_onPeriod)
@@ -15346,6 +14592,7 @@ endfunction
 
         function s__Ability_onCasting takes nothing returns nothing
             local integer this= (LoadInteger(Table___ht, (s__Ability_struct), ((GetSpellAbilityId())))) // INLINED!!
+            local integer spell
             local string tooltip
 
             if this != 0 then
@@ -15358,12 +14605,28 @@ endfunction
 
                     call BlzSetAbilityExtendedTooltip((GetSpellAbilityId()), tooltip, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1) // INLINED!!
                     call BlzSetAbilityStringLevelField((BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))), ABILITY_SLF_TOOLTIP_NORMAL_EXTENDED, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1, tooltip) // INLINED!!
+
+                    if not (HaveSavedInteger(Table___ht, (s__HashTable__getindex(s__Ability_learned,(GetSpellAbilityId()))), ((GetUnitUserData(s__PluginSpellEffect___Unit_unit[(s__Spell_source)]))))) then // INLINED!!
+                        set spell=s__Ability__allocate()
+                        set s__Ability_type[spell]=this
+                        set s__Ability_id[spell]=(GetSpellAbilityId()) // INLINED!!
+                        set s__Ability_unit[spell]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
+                        set s__Ability_ability[spell]=(BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) // INLINED!!
+                        set s__Ability_key=s__Ability_key + 1
+                        set s__Ability_array[s__Ability_key]=spell
+                        call SaveInteger(Table___ht, (s__HashTable__getindex(s__Ability_learned,(GetSpellAbilityId()))), ((GetUnitUserData(s__PluginSpellEffect___Unit_unit[(s__Spell_source)]))), ( 1)) // INLINED!!
+
+                        if s__Ability_key == 0 then
+                            call TimerStart(s__Ability_timer, 1, true, function s__Ability_onPeriod)
+                        endif
+                    endif
                 endif
             endif
         endfunction
 
         function s__Ability_onInit takes nothing returns nothing
             set s__Ability_struct=s__Table_create()
+            set s__Ability_learned=(s__Table_create()) // INLINED!!
 
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL , function s__Ability_onLearning)
         endfunction
@@ -15619,52 +14882,52 @@ endfunction
         //----------------------------------------------
 
 
-        function s__CooldownReductionUtils__CDRUtils_destroy takes integer this returns nothing
-            if s__CooldownReductionUtils__CDRUtils_didx == - 1 then
-                call PauseTimer(s__CooldownReductionUtils__CDRUtils_t)
+        function s__CooldownReductionUtils___CDRUtils_destroy takes integer this returns nothing
+            if s__CooldownReductionUtils___CDRUtils_didx == - 1 then
+                call PauseTimer(s__CooldownReductionUtils___CDRUtils_t)
             endif
 
-            set s__CooldownReductionUtils__CDRUtils_u[this]=null
-            set s__CooldownReductionUtils__CDRUtils_ticks[this]=0
+            set s__CooldownReductionUtils___CDRUtils_u[this]=null
+            set s__CooldownReductionUtils___CDRUtils_ticks[this]=0
             call sc__CDR_deallocate(this)
         endfunction
 
-        function s__CooldownReductionUtils__CDRUtils_onPeriod takes nothing returns nothing
+        function s__CooldownReductionUtils___CDRUtils_onPeriod takes nothing returns nothing
             local integer i= 0
             local integer this
             
             loop
-                exitwhen i > s__CooldownReductionUtils__CDRUtils_didx
-                    set this=s__CooldownReductionUtils__CDRUtils_data[i]
-                    set s__CooldownReductionUtils__CDRUtils_ticks[this]=s__CooldownReductionUtils__CDRUtils_ticks[this] - 1
+                exitwhen i > s__CooldownReductionUtils___CDRUtils_didx
+                    set this=s__CooldownReductionUtils___CDRUtils_data[i]
+                    set s__CooldownReductionUtils___CDRUtils_ticks[this]=s__CooldownReductionUtils___CDRUtils_ticks[this] - 1
 
-                    if s__CooldownReductionUtils__CDRUtils_ticks[this] <= 0 then
-                        if s__CooldownReductionUtils__CDRUtils_tipo[this] == 0 then
-                            call s__CDR_remove(s__CooldownReductionUtils__CDRUtils_u[this] , s__CooldownReductionUtils__CDRUtils_amount[this])
-                        elseif s__CooldownReductionUtils__CDRUtils_tipo[this] == 1 then
-                            call s__CDR_Set(s__CooldownReductionUtils__CDRUtils_u[this] , s__CDR_get(s__CooldownReductionUtils__CDRUtils_u[this] , 1) - s__CooldownReductionUtils__CDRUtils_amount[this] , 1)
+                    if s__CooldownReductionUtils___CDRUtils_ticks[this] <= 0 then
+                        if s__CooldownReductionUtils___CDRUtils_tipo[this] == 0 then
+                            call s__CDR_remove(s__CooldownReductionUtils___CDRUtils_u[this] , s__CooldownReductionUtils___CDRUtils_amount[this])
+                        elseif s__CooldownReductionUtils___CDRUtils_tipo[this] == 1 then
+                            call s__CDR_Set(s__CooldownReductionUtils___CDRUtils_u[this] , s__CDR_get(s__CooldownReductionUtils___CDRUtils_u[this] , 1) - s__CooldownReductionUtils___CDRUtils_amount[this] , 1)
                         else
-                            call s__CDR_Set(s__CooldownReductionUtils__CDRUtils_u[this] , s__CDR_get(s__CooldownReductionUtils__CDRUtils_u[this] , 2) - s__CooldownReductionUtils__CDRUtils_amount[this] , 2)
+                            call s__CDR_Set(s__CooldownReductionUtils___CDRUtils_u[this] , s__CDR_get(s__CooldownReductionUtils___CDRUtils_u[this] , 2) - s__CooldownReductionUtils___CDRUtils_amount[this] , 2)
                         endif
 
-                        set s__CooldownReductionUtils__CDRUtils_data[i]=s__CooldownReductionUtils__CDRUtils_data[s__CooldownReductionUtils__CDRUtils_didx]
-                        set s__CooldownReductionUtils__CDRUtils_didx=s__CooldownReductionUtils__CDRUtils_didx - 1
+                        set s__CooldownReductionUtils___CDRUtils_data[i]=s__CooldownReductionUtils___CDRUtils_data[s__CooldownReductionUtils___CDRUtils_didx]
+                        set s__CooldownReductionUtils___CDRUtils_didx=s__CooldownReductionUtils___CDRUtils_didx - 1
                         set i=i - 1
-                        call s__CooldownReductionUtils__CDRUtils_destroy(this)
+                        call s__CooldownReductionUtils___CDRUtils_destroy(this)
                     endif
                 set i=i + 1
             endloop
         endfunction
 
-        function s__CooldownReductionUtils__CDRUtils_addTimed takes unit u,real amount,real duration,integer tipo returns nothing
-            local integer this= s__CooldownReductionUtils__CDRUtils__allocate()
+        function s__CooldownReductionUtils___CDRUtils_addTimed takes unit u,real amount,real duration,integer tipo returns nothing
+            local integer this= s__CooldownReductionUtils___CDRUtils__allocate()
 
-            set s__CooldownReductionUtils__CDRUtils_u[this]=u
-            set s__CooldownReductionUtils__CDRUtils_amount[this]=amount
-            set s__CooldownReductionUtils__CDRUtils_tipo[this]=tipo
-            set s__CooldownReductionUtils__CDRUtils_ticks[this]=duration / 0.03125000
-            set s__CooldownReductionUtils__CDRUtils_didx=s__CooldownReductionUtils__CDRUtils_didx + 1
-            set s__CooldownReductionUtils__CDRUtils_data[s__CooldownReductionUtils__CDRUtils_didx]=this
+            set s__CooldownReductionUtils___CDRUtils_u[this]=u
+            set s__CooldownReductionUtils___CDRUtils_amount[this]=amount
+            set s__CooldownReductionUtils___CDRUtils_tipo[this]=tipo
+            set s__CooldownReductionUtils___CDRUtils_ticks[this]=duration / 0.03125000
+            set s__CooldownReductionUtils___CDRUtils_didx=s__CooldownReductionUtils___CDRUtils_didx + 1
+            set s__CooldownReductionUtils___CDRUtils_data[s__CooldownReductionUtils___CDRUtils_didx]=this
 
             if tipo == 0 then
                 call s__CDR_add(u , amount)
@@ -15674,8 +14937,8 @@ endfunction
                 call s__CDR_Set(u , s__CDR_get(u , 2) + amount , 2)
             endif
             
-            if s__CooldownReductionUtils__CDRUtils_didx == 0 then
-                call TimerStart(s__CooldownReductionUtils__CDRUtils_t, 0.03125000, true, function s__CooldownReductionUtils__CDRUtils_onPeriod)
+            if s__CooldownReductionUtils___CDRUtils_didx == 0 then
+                call TimerStart(s__CooldownReductionUtils___CDRUtils_t, 0.03125000, true, function s__CooldownReductionUtils___CDRUtils_onPeriod)
             endif
         endfunction
 
@@ -15683,15 +14946,15 @@ endfunction
     
     
     function UnitAddCooldownReductionTimed takes unit u,real value,real duration returns nothing
-        call s__CooldownReductionUtils__CDRUtils_addTimed(u , value , duration , 0)
+        call s__CooldownReductionUtils___CDRUtils_addTimed(u , value , duration , 0)
     endfunction
 
     function UnitAddCooldownReductionFlatTimed takes unit u,real value,real duration returns nothing
-        call s__CooldownReductionUtils__CDRUtils_addTimed(u , value , duration , 1)
+        call s__CooldownReductionUtils___CDRUtils_addTimed(u , value , duration , 1)
     endfunction
 
     function UnitAddCooldownOffsetTimed takes unit u,real value,real duration returns nothing
-        call s__CooldownReductionUtils__CDRUtils_addTimed(u , value , duration , 2)
+        call s__CooldownReductionUtils___CDRUtils_addTimed(u , value , duration , 2)
     endfunction
 
     function GetUnitCooldownReductionEx takes unit u returns string
@@ -15711,924 +14974,6 @@ endfunction
     endfunction
 
 //library CooldownReductionUtils ends
-//library Interface:
-    
-    // Credits
-    //      - Bribe          - Table
-    //      - Tasyen         - GetMainSelectedUnit
-    //      - Magtheridon96  - RegisterPlayerUnitEvent
-    
-
-    
-    
-    
-
-    
-    
-    
-    function IsUnitShop takes unit u,player p returns boolean
-        return ( GetUnitAbilityLevel(u, 'Aneu') > 0 or GetUnitAbilityLevel(u, 'Ane2') > 0 or GetUnitAbilityLevel(u, 'Apit') > 0 ) and not IsUnitEnemy(u, p)
-    endfunction
-
-    
-    
-    
-
-        function s__Interface___Resource__set_text takes integer this,string value returns nothing
-            call s__Text__set_text(s__Interface___Resource_value[this],value)
-        endfunction
-
-        function s__Interface___Resource__get_text takes integer this returns string
-            return (s__Text_value[(s__Interface___Resource_value[this])]) // INLINED!!
-        endfunction
-
-        function s__Interface___Resource__set_icon takes integer this,string texture returns nothing
-            call s__Backdrop__set_texture(s__Interface___Resource_image[this],texture)
-        endfunction
-
-        function s__Interface___Resource__get_icon takes integer this returns string
-            return (s__Backdrop_path[(s__Interface___Resource_image[this])]) // INLINED!!
-        endfunction
-
-        function s__Interface___Resource_destroy takes integer this returns nothing
-            call s__Text_destroy(s__Interface___Resource_value[this])
-            call s__Backdrop_destroy(s__Interface___Resource_image[this])
-            call s__Component_destroy((this)) // INLINED!!
-        endfunction
-
-        function s__Interface___Resource_create takes real x,real y,real width,real height,framehandle parent,boolean gold returns integer
-            local integer this= s__Interface___Resource__allocate(x , y , width , height , parent , "Leaderboard")
-
-            if gold then
-                set s__Interface___Resource_image[this]=s__Backdrop_create(Interface___GOLD_ICON_X , Interface___GOLD_ICON_Y , Interface___GOLD_ICON_WIDTH , Interface___GOLD_ICON_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , Interface___GOLD_ICON_TEXTURE) // INLINED!!
-                set s__Interface___Resource_value[this]=s__Text_create(Interface___GOLD_TEXT_X , Interface___GOLD_TEXT_Y , Interface___GOLD_TEXT_WIDTH , Interface___GOLD_TEXT_HEIGHT , Interface___GOLD_TEXT_SCALE , false , (s__Backdrop_Components___Operators____frame[(s__Interface___Resource_image[this])]) , null , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_LEFT) // INLINED!!
-            else
-                set s__Interface___Resource_image[this]=s__Backdrop_create(Interface___LUMBER_ICON_X , Interface___LUMBER_ICON_Y , Interface___LUMBER_ICON_WIDTH , Interface___LUMBER_ICON_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , Interface___LUMBER_ICON_TEXTURE) // INLINED!!
-                set s__Interface___Resource_value[this]=s__Text_create(Interface___LUMBER_TEXT_X , Interface___LUMBER_TEXT_Y , Interface___LUMBER_TEXT_WIDTH , Interface___LUMBER_TEXT_HEIGHT , Interface___LUMBER_TEXT_SCALE , false , (s__Backdrop_Components___Operators____frame[(s__Interface___Resource_image[this])]) , null , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_RIGHT) // INLINED!!
-            endif
-
-            return this
-        endfunction
-
-
-
-        function s__Interface___Options_destroy takes integer this returns nothing
-            call s__CheckBox_destroy(s__Interface___Options_left[this])
-            call s__CheckBox_destroy(s__Interface___Options_right[this])
-            call s__CheckBox_destroy(s__Interface___Options_toggle[this])
-            call s__CheckBox_destroy(s__Interface___Options_heroes[this])
-            call s__Slider_destroy(s__Interface___Options_slider[this])
-            call s__Slider_destroy(s__Interface___Options_shader[this])
-            call s__CheckBox_destroy(s__Interface___Options_default[this])
-            call s__Text_destroy(s__Interface___Options_leftText[this])
-            call s__Text_destroy(s__Interface___Options_rightText[this])
-            call s__Text_destroy(s__Interface___Options_toggleText[this])
-            call s__Text_destroy(s__Interface___Options_heroesText[this])
-            call s__Text_destroy(s__Interface___Options_defaultText[this])
-            call s__Text_destroy(s__Interface___Options_sliderText[this])
-            call s__Text_destroy(s__Interface___Options_shaderText[this])
-            call s__Component_destroy((this)) // INLINED!!
-        endfunction
-
-        function s__Interface___Options_create takes real x,real y,real width,real height,framehandle parent returns integer
-            local integer i= 0
-            local integer this= s__Interface___Options__allocate(x , y , width , height , parent , "EscMenuBackdrop")
-
-            set s__Interface___Options_left[this]=s__CheckBox_create(Interface___MINIMAP_CHECK_LEFT_X , Interface___MINIMAP_CHECK_LEFT_Y , Interface___MINIMAP_CHECK_LEFT_WIDTH , Interface___MINIMAP_CHECK_LEFT_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , "QuestCheckBox") // INLINED!!
-            call s__CheckBox__set_onCheck(s__Interface___Options_left[this],function sc__Interface___Options_onChecked)
-            call s__CheckBox__set_onUncheck(s__Interface___Options_left[this],function sc__Interface___Options_onUnchecked)
-            set s__Interface___Options_leftText[this]=s__Text_create(Interface___MINIMAP_CHECK_LEFT_TEXT_X , Interface___MINIMAP_CHECK_LEFT_TEXT_Y , Interface___MINIMAP_CHECK_LEFT_TEXT_WIDTH , Interface___MINIMAP_CHECK_LEFT_TEXT_HEIGHT , 1.00 , false , (s__CheckBox_Components___Operators____frame[(s__Interface___Options_left[this])]) , "|cffffffffShow Minimap on the Left|r" , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_LEFT) // INLINED!!
-            set s__Interface___Options_right[this]=s__CheckBox_create(Interface___MINIMAP_CHECK_RIGHT_X , Interface___MINIMAP_CHECK_RIGHT_Y , Interface___MINIMAP_CHECK_RIGHT_WIDTH , Interface___MINIMAP_CHECK_RIGHT_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , "QuestCheckBox") // INLINED!!
-            call s__CheckBox__set_onCheck(s__Interface___Options_right[this],function sc__Interface___Options_onChecked)
-            call s__CheckBox__set_onUncheck(s__Interface___Options_right[this],function sc__Interface___Options_onUnchecked)
-            set s__Interface___Options_rightText[this]=s__Text_create(Interface___MINIMAP_CHECK_RIGHT_TEXT_X , Interface___MINIMAP_CHECK_RIGHT_TEXT_Y , Interface___MINIMAP_CHECK_RIGHT_TEXT_WIDTH , Interface___MINIMAP_CHECK_RIGHT_TEXT_HEIGHT , 1.00 , false , (s__CheckBox_Components___Operators____frame[(s__Interface___Options_right[this])]) , "|cffffffffShow Minimap on the Right|r" , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_LEFT) // INLINED!!
-            set s__Interface___Options_toggle[this]=s__CheckBox_create(Interface___MINIMAP_CHECK_TOGGLE_X , Interface___MINIMAP_CHECK_TOGGLE_Y , Interface___MINIMAP_CHECK_TOGGLE_WIDTH , Interface___MINIMAP_CHECK_TOGGLE_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , "QuestCheckBox") // INLINED!!
-            call s__CheckBox__set_onCheck(s__Interface___Options_toggle[this],function sc__Interface___Options_onChecked)
-            call s__CheckBox__set_onUncheck(s__Interface___Options_toggle[this],function sc__Interface___Options_onUnchecked)
-            set s__Interface___Options_toggleText[this]=s__Text_create(Interface___MINIMAP_CHECK_TOGGLE_TEXT_X , Interface___MINIMAP_CHECK_TOGGLE_TEXT_Y , Interface___MINIMAP_CHECK_TOGGLE_TEXT_WIDTH , Interface___MINIMAP_CHECK_TOGGLE_TEXT_HEIGHT , 1.00 , false , (s__CheckBox_Components___Operators____frame[(s__Interface___Options_toggle[this])]) , "|cffffffffEnable Minimap Toggle (Hold Tab)|r" , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_LEFT) // INLINED!!
-            set s__Interface___Options_heroes[this]=s__CheckBox_create(Interface___HEROES_BAR_CHECK_X , Interface___HEROES_BAR_CHECK_Y , Interface___HEROES_BAR_CHECK_WIDTH , Interface___HEROES_BAR_CHECK_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , "QuestCheckBox") // INLINED!!
-            call s__CheckBox__set_onCheck(s__Interface___Options_heroes[this],function sc__Interface___Options_onChecked)
-            call s__CheckBox__set_onUncheck(s__Interface___Options_heroes[this],function sc__Interface___Options_onUnchecked)
-            set s__Interface___Options_heroesText[this]=s__Text_create(Interface___HEROES_BAR_CHECK_TEXT_X , Interface___HEROES_BAR_CHECK_TEXT_Y , Interface___HEROES_BAR_CHECK_TEXT_WIDTH , Interface___HEROES_BAR_CHECK_TEXT_HEIGHT , 1.00 , false , (s__CheckBox_Components___Operators____frame[(s__Interface___Options_heroes[this])]) , "|cffffffffShow Heroes Bar|r" , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_LEFT) // INLINED!!
-            set s__Interface___Options_default[this]=s__CheckBox_create(Interface___DEFAULT_MENU_CHECK_X , Interface___DEFAULT_MENU_CHECK_Y , Interface___DEFAULT_MENU_CHECK_WIDTH , Interface___DEFAULT_MENU_CHECK_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , "QuestCheckBox") // INLINED!!
-            call s__CheckBox__set_onCheck(s__Interface___Options_default[this],function sc__Interface___Options_onChecked)
-            call s__CheckBox__set_onUncheck(s__Interface___Options_default[this],function sc__Interface___Options_onUnchecked)
-            set s__Interface___Options_defaultText[this]=s__Text_create(Interface___DEFAULT_MENU_CHECK_TEXT_X , Interface___DEFAULT_MENU_CHECK_TEXT_Y , Interface___DEFAULT_MENU_CHECK_TEXT_WIDTH , Interface___DEFAULT_MENU_CHECK_TEXT_HEIGHT , 1.00 , false , (s__CheckBox_Components___Operators____frame[(s__Interface___Options_default[this])]) , "|cffffffffShow Default Menu|r" , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_LEFT) // INLINED!!
-            set s__Interface___Options_slider[this]=s__Slider_create(Interface___MINIMAP_SLIDER_X , Interface___MINIMAP_SLIDER_Y , Interface___MINIMAP_SLIDER_WIDTH , Interface___MINIMAP_SLIDER_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , "EscMenuSliderTemplate") // INLINED!!
-            call s__Slider__set_max(s__Interface___Options_slider[this],255)
-            call BlzFrameSetValue((s__Slider_Components___Operators____frame[((s__Interface___Options_slider[this]))]), ((Interface___MAP_TRANSPARENCY)*1.0)) // INLINED!!
-            call s__Slider__set_onSlide(s__Interface___Options_slider[this],function sc__Interface___Options_onSlider)
-            set s__Interface___Options_sliderText[this]=s__Text_create(Interface___MINIMAP_SLIDER_TEXT_X , Interface___MINIMAP_SLIDER_TEXT_Y , Interface___MINIMAP_SLIDER_TEXT_WIDTH , Interface___MINIMAP_SLIDER_TEXT_HEIGHT , 1.00 , false , (s__Slider_Components___Operators____frame[(s__Interface___Options_slider[this])]) , "|cffffffffMinimap Opacity: " + I2S(R2I(( Interface___MAP_TRANSPARENCY * 100 ) / 255)) + "%|r" , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_MIDDLE) // INLINED!!
-            set s__Interface___Options_shader[this]=s__Slider_create(Interface___SHADER_SLIDER_X , Interface___SHADER_SLIDER_Y , Interface___SHADER_SLIDER_WIDTH , Interface___SHADER_SLIDER_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , "EscMenuSliderTemplate") // INLINED!!
-            call s__Slider__set_max(s__Interface___Options_shader[this],255)
-            call BlzFrameSetValue((s__Slider_Components___Operators____frame[((s__Interface___Options_shader[this]))]), ((Interface___PORTRAIT_DARKNESS)*1.0)) // INLINED!!
-            call s__Slider__set_onSlide(s__Interface___Options_shader[this],function sc__Interface___Options_onSlider)
-            set s__Interface___Options_shaderText[this]=s__Text_create(Interface___SHADER_SLIDER_TEXT_X , Interface___SHADER_SLIDER_TEXT_Y , Interface___SHADER_SLIDER_TEXT_WIDTH , Interface___SHADER_SLIDER_TEXT_HEIGHT , 1.00 , false , (s__Slider_Components___Operators____frame[(s__Interface___Options_shader[this])]) , "|cffffffffPortrait Opacity: " + I2S(R2I(( Interface___PORTRAIT_DARKNESS * 100 ) / 255)) + "%|r" , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_MIDDLE) // INLINED!!
-            call SaveInteger(Table___ht, (s__Interface___Options_table), (s__Interface___Options_left[this]), ( this)) // INLINED!!
-            call SaveInteger(Table___ht, (s__Interface___Options_table), (s__Interface___Options_right[this]), ( this)) // INLINED!!
-            call SaveInteger(Table___ht, (s__Interface___Options_table), (s__Interface___Options_toggle[this]), ( this)) // INLINED!!
-            call SaveInteger(Table___ht, (s__Interface___Options_table), (s__Interface___Options_heroes[this]), ( this)) // INLINED!!
-            call SaveInteger(Table___ht, (s__Interface___Options_table), (s__Interface___Options_shader[this]), ( this)) // INLINED!!
-            call SaveInteger(Table___ht, (s__Interface___Options_table), (s__Interface___Options_slider[this]), ( this)) // INLINED!!
-            call SaveInteger(Table___ht, (s__Interface___Options_table), (s__Interface___Options_default[this]), ( this)) // INLINED!!
-
-            loop
-                exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    call SaveInteger(Table___ht, (s__Interface___Options_table), (GetHandleId(Player(i))), ( this)) // INLINED!!
-                set i=i + 1
-            endloop
-
-            return this
-        endfunction
-
-        function s__Interface___Options_onKey takes nothing returns nothing
-            local integer this= (LoadInteger(Table___ht, (s__Interface___Options_table), (GetHandleId(GetTriggerPlayer())))) // INLINED!!
-
-            if GetLocalPlayer() == GetTriggerPlayer() then
-                if (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_toggle[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                    if BlzGetTriggerPlayerIsKeyDown() then
-                        if (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_right[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                            call sc__UI_showMinimap(Interface___MINIMAP_RIGHT_X , Interface___MINIMAP_RIGHT_Y)
-                        elseif (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_left[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                            call sc__UI_showMinimap(Interface___MINIMAP_LEFT_X , Interface___MINIMAP_LEFT_Y)
-                        endif
-                    else
-                        call BlzFrameSetVisible(s__UI_minimap, false)
-                    endif
-                endif
-            endif
-        endfunction
-
-        function s__Interface___Options_onSlider takes nothing returns nothing
-            local integer slide= (sc__Slider_get()) // INLINED!!
-            local integer this= (LoadInteger(Table___ht, (s__Interface___Options_table), (slide))) // INLINED!!
-
-            if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                if slide == s__Interface___Options_slider[this] then
-                    call s__Text__set_text(s__Interface___Options_sliderText[this],"|cffffffffMinimap Opacity: " + I2S(R2I(( (BlzFrameGetValue((s__Slider_Components___Operators____frame[((s__Interface___Options_slider[this]))]))) * 100 ) / 255)) + "%|r") // INLINED!!
-                    call BlzFrameSetAlpha(s__UI_minimap, R2I((BlzFrameGetValue((s__Slider_Components___Operators____frame[((s__Interface___Options_slider[this]))]))))) // INLINED!!
-                elseif slide == s__Interface___Options_shader[this] then
-                    call s__Text__set_text(s__Interface___Options_shaderText[this],"|cffffffffPortrait Opacity: " + I2S(R2I(( (BlzFrameGetValue((s__Slider_Components___Operators____frame[((s__Interface___Options_shader[this]))]))) * 100 ) / 255)) + "%|r") // INLINED!!
-                    call sc__Interface___Portrait__set_opacity(s__UI_portrait,R2I((BlzFrameGetValue((s__Slider_Components___Operators____frame[((s__Interface___Options_shader[this]))]))))) // INLINED!!
-                endif
-            endif
-        endfunction
-
-        function s__Interface___Options_onChecked takes nothing returns nothing
-            local integer check= (sc__CheckBox_get()) // INLINED!!
-            local integer this= (LoadInteger(Table___ht, (s__Interface___Options_table), (check))) // INLINED!!
-
-            if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == s__Interface___Options_left[this] and not (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_toggle[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                    call sc__UI_showMinimap(Interface___MINIMAP_LEFT_X , Interface___MINIMAP_LEFT_Y)
-                elseif check == s__Interface___Options_right[this] and not (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_toggle[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                    call sc__UI_showMinimap(Interface___MINIMAP_RIGHT_X , Interface___MINIMAP_RIGHT_Y)
-                elseif check == s__Interface___Options_toggle[this] then
-                    call BlzFrameSetVisible(s__UI_minimap, false)
-                elseif check == s__Interface___Options_heroes[this] then
-                    call sc__UI_showHeroes(true)
-                elseif check == s__Interface___Options_default[this] then
-                    call BlzFrameSetVisible(s__UI_default, true)
-                endif
-            endif
-        endfunction
-
-        function s__Interface___Options_onUnchecked takes nothing returns nothing
-            local integer check= (sc__CheckBox_get()) // INLINED!!
-            local integer this= (LoadInteger(Table___ht, (s__Interface___Options_table), (check))) // INLINED!!
-
-            if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == s__Interface___Options_left[this] then
-                    if not (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_toggle[this])]+GetPlayerId(GetLocalPlayer())]) and (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_right[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                        call sc__UI_showMinimap(Interface___MINIMAP_RIGHT_X , Interface___MINIMAP_RIGHT_Y)
-                    else
-                        call BlzFrameSetVisible(s__UI_minimap, false)
-                    endif
-                elseif check == s__Interface___Options_right[this] then
-                    if not (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_toggle[this])]+GetPlayerId(GetLocalPlayer())]) and (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_left[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                        call sc__UI_showMinimap(Interface___MINIMAP_LEFT_X , Interface___MINIMAP_LEFT_Y)
-                    else
-                        call BlzFrameSetVisible(s__UI_minimap, false)
-                    endif
-                elseif check == s__Interface___Options_toggle[this] then
-                    if (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_right[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                        call sc__UI_showMinimap(Interface___MINIMAP_RIGHT_X , Interface___MINIMAP_RIGHT_Y)
-                    elseif (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_left[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                        call sc__UI_showMinimap(Interface___MINIMAP_LEFT_X , Interface___MINIMAP_LEFT_Y)
-                    endif
-                elseif check == s__Interface___Options_heroes[this] then
-                    call sc__UI_showHeroes(false)
-                elseif check == s__Interface___Options_default[this] then
-                    call BlzFrameSetVisible(s__UI_default, false)
-                endif
-            endif
-        endfunction
-
-        function s__Interface___Options_onInit takes nothing returns nothing
-            local integer i= 0
-
-            set s__Interface___Options_table=s__Table_create()
-
-            loop
-                exitwhen i >= bj_MAX_PLAYER_SLOTS
-                    call BlzTriggerRegisterPlayerKeyEvent(s__Interface___Options_key, Player(i), Interface___MINIMAP_TOGGLE_KEY, 0, true)
-                    call BlzTriggerRegisterPlayerKeyEvent(s__Interface___Options_key, Player(i), Interface___MINIMAP_TOGGLE_KEY, 0, false)
-                set i=i + 1
-            endloop
-
-            call TriggerAddAction(s__Interface___Options_key, function s__Interface___Options_onKey)
-        endfunction
-    
-
-        function s__Interface___Menu_destroy takes integer this returns nothing
-            call s__Interface___Options_destroy(s__Interface___Menu_panel[this])
-            call s__Button_destroy(this)
-        endfunction
-
-        function s__Interface___Menu_create takes real x,real y,real width,real height,framehandle parent returns integer
-            local integer this= s__Interface___Menu__allocate(x , y , width , height , parent , true)
-
-            call s__Backdrop__set_texture(s__Component_image[(this)],(Interface___OPEN_MENU_TEXTURE)) // INLINED!!
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], ("Open Menu")) // INLINED!!
-            set s__Interface___Menu_panel[this]=s__Interface___Options_create(Interface___MENU_FRAME_X , Interface___MENU_FRAME_Y , Interface___MENU_FRAME_WIDTH , Interface___MENU_FRAME_HEIGHT , (s__Component_Components___Operators____frame[(this)])) // INLINED!!
-            call sc__Component__set_visible(s__Interface___Menu_panel[this],false)
-
-            call s__Tooltip_setPoint(s__Button_tooltip[this],FRAMEPOINT_TOP , FRAMEPOINT_BOTTOM , 0 , - 0.008)
-
-            return this
-        endfunction
-
-        function s__Interface___Menu_onClick takes integer this returns nothing
-            if GetLocalPlayer() == GetTriggerPlayer() then
-                call sc__Component__set_visible(s__Interface___Menu_panel[this],not sc__Component__get_visible(s__Interface___Menu_panel[this]))
-
-                if sc__Component__get_visible(s__Interface___Menu_panel[this]) then
-                    call s__Backdrop__set_texture(s__Component_image[(this)],(Interface___CLOSE_MENU_TEXTURE)) // INLINED!!
-                    call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], ("Close Menu")) // INLINED!!
-                else
-                    call s__Backdrop__set_texture(s__Component_image[(this)],(Interface___OPEN_MENU_TEXTURE)) // INLINED!!
-                    call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], ("Open Menu")) // INLINED!!
-                endif
-            endif
-        endfunction
-    
-
-
-        function s__Interface___Grid__set_visible takes integer this,boolean flag returns nothing
-            local integer i= 0
-            local integer j= 0
-            local integer k= 0
-
-            set s__Interface___Grid_isVisible[this]=flag
-
-            if s__Interface___Grid_isVisible[this] then
-                loop
-                    exitwhen i == Interface___SHOP_ROWS
-                        set j=0
-
-                        loop
-                            exitwhen j == Interface___SHOP_COLUMNS
-                                if k < 12 then
-                                    call BlzFrameSetAbsPoint(s__Interface___Grid_button[k], FRAMEPOINT_TOPLEFT, (s__Component_Components___Operators____x[(this)]) + ( Interface___SHOP_ICON_X + ( j * Interface___SHOP_SLOT_GAP ) ), (s__Component_Components___Operators____y[(this)]) + Interface___SHOP_ICON_Y - ( i * Interface___SHOP_SLOT_GAP )) // INLINED!!
-                                    call BlzFrameSetScale(s__Interface___Grid_button[k], Interface___SHOP_ICON_WIDTH / 0.04)
-                                endif
-
-                                set k=k + 1
-                            set j=j + 1
-                        endloop
-                    set i=i + 1
-                endloop
-            endif
-
-            call BlzFrameSetVisible((s__Component_Components___Operators____frame[(this)]), s__Interface___Grid_isVisible[this]) // INLINED!!
-        endfunction
-
-        function s__Interface___Grid__get_visible takes integer this returns boolean
-            return s__Interface___Grid_isVisible[this]
-        endfunction
-
-        function s__Interface___Grid_destroy takes integer this returns nothing
-            local integer i= 0
-            local integer j= 0
-            local integer k= 0
-
-            loop
-                exitwhen i == Interface___SHOP_ROWS
-                    set j=0
-
-                    loop
-                        exitwhen j == Interface___SHOP_COLUMNS
-                            call s__Backdrop_destroy(s___Interface___Grid_slot[s__Interface___Grid_slot[this]+k])
-                            set k=k + 1
-                        set j=j + 1
-                    endloop
-                set i=i + 1
-            endloop
-
-            call s__Component_destroy((this)) // INLINED!!
-        endfunction
-
-        function s__Interface___Grid_create takes real x,real y,real width,real height,framehandle parent returns integer
-            local integer this= s__Interface___Grid__allocate(x , y , width , height , parent , "EscMenuBackdrop")
-            local integer i= 0
-            local integer j= 0
-            local integer k= 0
-
-            loop
-                exitwhen i == Interface___SHOP_ROWS
-                    set j=0
-
-                    loop
-                        exitwhen j == Interface___SHOP_COLUMNS
-                            set s___Interface___Grid_slot[s__Interface___Grid_slot[this]+k]=s__Backdrop_create(Interface___SHOP_SLOT_X + ( j * Interface___SHOP_SLOT_GAP ) , Interface___SHOP_SLOT_Y - ( i * Interface___SHOP_SLOT_GAP ) , Interface___SHOP_SLOT_WIDTH , Interface___SHOP_SLOT_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , Interface___SHOP_SLOT_TEXTURE) // INLINED!!
-                            set k=k + 1
-                        set j=j + 1
-                    endloop
-                set i=i + 1
-            endloop
-
-            call s__Interface___Grid__set_visible(this,false)
-
-            return this
-        endfunction
-
-        function s__Interface___Grid_onInit takes nothing returns nothing
-            local integer i= 0
-
-            loop
-                exitwhen i == 12
-                    set s__Interface___Grid_button[i]=BlzGetFrameByName("CommandButton_" + I2S(i), 0)
-                set i=i + 1
-            endloop
-        endfunction
-
-
-
-
-
-        function s__Interface___Portrait_destroy takes integer this returns nothing
-            local integer i= 0
-
-            loop
-                exitwhen i == 5
-                    call BlzDestroyFrame(s___Interface___Portrait_shades[s__Interface___Portrait_shades[this]+i])
-                set i=i - 1
-            endloop
-
-            call s__StatusBar_destroy(s__Interface___Portrait_mana[this])
-            call s__StatusBar_destroy(s__Interface___Portrait_health[this])
-            call s__Text_destroy(s__Interface___Portrait_manaText[this])
-            call s__Text_destroy(s__Interface___Portrait_healthText[this])
-            call sc__Attribute_destroy(s__Interface___Portrait_damage[this])
-            call sc__Attribute_destroy(s__Interface___Portrait_armor[this])
-            call sc__Attribute_destroy(s__Interface___Portrait_strength[this])
-            call sc__Attribute_destroy(s__Interface___Portrait_agility[this])
-            call sc__Attribute_destroy(s__Interface___Portrait_intelligence[this])
-            call s__Component_destroy((this)) // INLINED!!
-        endfunction
-
-        function s__Interface___Portrait__set_opacity takes integer this,integer value returns nothing
-            local integer i= 0
-
-            loop
-                exitwhen i == 5
-                    call BlzFrameSetAlpha(s___Interface___Portrait_shades[s__Interface___Portrait_shades[this]+i], value)
-                set i=i + 1
-            endloop
-        endfunction
-
-        function s__Interface___Portrait_trim takes integer this,string text,boolean flag returns string
-            local integer i= 0
-            local integer length
-
-            if flag and text != null then
-                set length=StringLength(text)
-
-                loop
-                    exitwhen i == length - 1
-                        if SubString(text, i, i + 1) == "-" then
-                            return SubString(text, i + 2, length)
-                        endif
-                    set i=i + 1
-                endloop
-            endif
-
-            return text
-        endfunction
-
-        function s__Interface___Portrait_update takes integer this,unit u,player p returns nothing
-            local group g= CreateGroup()
-            local boolean visible= IsUnitVisible(u, p)
-            local boolean hero= IsUnitType(u, UNIT_TYPE_HERO)
-            local integer id= GetPlayerId(GetLocalPlayer())
-            local integer primary= BlzGetUnitIntegerField(u, UNIT_IF_PRIMARY_ATTRIBUTE)
-            local integer count
-
-            call GroupEnumUnitsSelected(g, p, null)
-
-            set count=CountUnitsInGroup(g)
-            call BlzFrameSetValue((s__StatusBar_Components___Operators____frame[((s__Interface___Portrait_mana[this]))]), ((GetUnitManaPercent(u))*1.0)) // INLINED!!
-            call BlzFrameSetValue((s__StatusBar_Components___Operators____frame[((s__Interface___Portrait_health[this]))]), ((GetUnitLifePercent(u))*1.0)) // INLINED!!
-            call s__Text__set_visible(s__Interface___Portrait_manaText[this],BlzGetUnitMaxMana(u) > 0)
-            call s__Text__set_visible(s__Interface___Portrait_healthText[this],BlzGetUnitMaxHP(u) > 0)
-            call s__Text__set_text(s__Interface___Portrait_manaText[this],"|cffFFFFFF" + I2S(R2I(GetUnitState(u, UNIT_STATE_MANA))) + " / " + I2S(BlzGetUnitMaxMana(u)) + "|r")
-            call s__Text__set_text(s__Interface___Portrait_healthText[this],"|cffFFFFFF" + I2S(R2I(GetWidgetLife(u))) + " / " + I2S(BlzGetUnitMaxHP(u)) + "|r")
-            call s__Text__set_text(s__Attribute_value[s__Interface___Portrait_damage[this]],s__Interface___Portrait_trim(this,BlzFrameGetText(s__Interface___Portrait_attack) , Interface___TRIM_DAMAGE))
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Interface___Portrait_damage[this]])], ("Damage: " + (s__Text_value[(s__Attribute_value[s__Interface___Portrait_damage[this]])]))) // INLINED!!
-            call sc__Component__set_visible(s__Interface___Portrait_damage[this],BlzGetUnitWeaponBooleanField(u, UNIT_WEAPON_BF_ATTACKS_ENABLED, 0) and visible and count == 1)
-            call s__Text__set_text(s__Attribute_value[s__Interface___Portrait_armor[this]],BlzFrameGetText(s__Interface___Portrait_defense))
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Interface___Portrait_armor[this]])], ("Armor: " + (s__Text_value[(s__Attribute_value[s__Interface___Portrait_armor[this]])]))) // INLINED!!
-            call sc__Component__set_visible(s__Interface___Portrait_armor[this],(s__Text_value[(s__Attribute_value[s__Interface___Portrait_armor[this]])]) != null and visible and count == 1) // INLINED!!
-            call s__Text__set_text(s__Attribute_value[s__Interface___Portrait_strength[this]],BlzFrameGetText(s__Interface___Portrait_str))
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Interface___Portrait_strength[this]])], ("Strength: " + (s__Text_value[(s__Attribute_value[s__Interface___Portrait_strength[this]])]))) // INLINED!!
-            call sc__Component__set_visible(s__Interface___Portrait_strength[this],hero and visible and count == 1)
-            call s__Text__set_text(s__Attribute_value[s__Interface___Portrait_agility[this]],BlzFrameGetText(s__Interface___Portrait_agi))
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Interface___Portrait_agility[this]])], ("Agility: " + (s__Text_value[(s__Attribute_value[s__Interface___Portrait_agility[this]])]))) // INLINED!!
-            call sc__Component__set_visible(s__Interface___Portrait_agility[this],hero and visible and count == 1)
-            call s__Text__set_text(s__Attribute_value[s__Interface___Portrait_intelligence[this]],BlzFrameGetText(s__Interface___Portrait_int))
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Interface___Portrait_intelligence[this]])], ("Intelligence: " + (s__Text_value[(s__Attribute_value[s__Interface___Portrait_intelligence[this]])]))) // INLINED!!
-            call sc__Component__set_visible(s__Interface___Portrait_intelligence[this],hero and visible and count == 1)
-
-            if hero then
-                if primary == 3 and s__Interface___Portrait_attribute[id] != primary then
-                    set s__Interface___Portrait_attribute[id]=primary
-                    call s__Button_display(s__Interface___Portrait_agility[this],Interface___ATTRIBUTE_HIGHLIGHT , Interface___HIGHLIGHT_SCALE , Interface___HIGHLIGHT_XOFFSET , Interface___HIGHLIGHT_YOFFSET)
-                    call s__Button_display(s__Interface___Portrait_intelligence[this],null , 0 , 0 , 0)
-                    call s__Button_display(s__Interface___Portrait_strength[this],null , 0 , 0 , 0)
-                elseif primary == 2 and s__Interface___Portrait_attribute[id] != primary then
-                    set s__Interface___Portrait_attribute[id]=primary
-                    call s__Button_display(s__Interface___Portrait_agility[this],null , 0 , 0 , 0)
-                    call s__Button_display(s__Interface___Portrait_intelligence[this],Interface___ATTRIBUTE_HIGHLIGHT , Interface___HIGHLIGHT_SCALE , Interface___HIGHLIGHT_XOFFSET , Interface___HIGHLIGHT_YOFFSET)
-                    call s__Button_display(s__Interface___Portrait_strength[this],null , 0 , 0 , 0)
-                elseif primary == 1 and s__Interface___Portrait_attribute[id] != primary then
-                    set s__Interface___Portrait_attribute[id]=primary
-                    call s__Button_display(s__Interface___Portrait_agility[this],null , 0 , 0 , 0)
-                    call s__Button_display(s__Interface___Portrait_intelligence[this],null , 0 , 0 , 0)
-                    call s__Button_display(s__Interface___Portrait_strength[this],Interface___ATTRIBUTE_HIGHLIGHT , Interface___HIGHLIGHT_SCALE , Interface___HIGHLIGHT_XOFFSET , Interface___HIGHLIGHT_YOFFSET)
-                endif
-            endif
-            
-            if BlzGetUnitMaxMana(u) <= 0 then
-                call BlzFrameSetAllPoints((s__StatusBar_Components___Operators____frame[(s__Interface___Portrait_health[this])]), (s__StatusBar_Components___Operators____frame[(s__Interface___Portrait_mana[this])])) // INLINED!!
-                call BlzFrameSetAllPoints((s__Text_Components___Operators____frame[(s__Interface___Portrait_healthText[this])]), (s__StatusBar_Components___Operators____frame[(s__Interface___Portrait_health[this])])) // INLINED!!
-            else
-                call BlzFrameSetAbsPoint((s__StatusBar_Components___Operators____frame[(s__Interface___Portrait_health[this])]), FRAMEPOINT_TOPLEFT, (s__Component_Components___Operators____x[(this)]) + Interface___HEALTH_X, (s__Component_Components___Operators____y[(this)]) + Interface___HEALTH_Y) // INLINED!!
-                call BlzFrameSetAbsPoint((s__StatusBar_Components___Operators____frame[(s__Interface___Portrait_health[this])]), FRAMEPOINT_BOTTOMRIGHT, (s__Component_Components___Operators____x[(this)]) + Interface___HEALTH_X + Interface___HEALTH_WIDTH, (s__Component_Components___Operators____y[(this)]) + Interface___HEALTH_Y - Interface___HEALTH_HEIGHT) // INLINED!!
-                call BlzFrameSetAllPoints((s__Text_Components___Operators____frame[(s__Interface___Portrait_healthText[this])]), (s__StatusBar_Components___Operators____frame[(s__Interface___Portrait_health[this])])) // INLINED!!
-            endif
-
-            call DestroyGroup(g)
-
-            set g=null
-        endfunction
-
-        function s__Interface___Portrait_create takes real x,real y,real width,real height,framehandle parent returns integer
-            local integer i= 0
-            local integer this= s__Interface___Portrait__allocate(x , y , width , height , parent , "EscMenuBackdrop")
-
-            set s__Interface___Portrait_mana[this]=s__StatusBar_create(Interface___MANA_X , Interface___MANA_Y , Interface___MANA_WIDTH , Interface___MANA_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , Interface___MANA_TEXTURE) // INLINED!!
-            call s__StatusBar__set_alpha(s__Interface___Portrait_mana[this],Interface___MANA_TRANSPARENCY)
-            set s__Interface___Portrait_manaText[this]=s__Text_create(0 , 0 , (s__StatusBar_Components___Operators____width[(s__Interface___Portrait_mana[this])]) , (s__StatusBar_Components___Operators____height[(s__Interface___Portrait_mana[this])]) , Interface___MANA_TEXT_SCALE , false , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , null , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_MIDDLE) // INLINED!!
-            set s__Interface___Portrait_health[this]=s__StatusBar_create(Interface___HEALTH_X , Interface___HEALTH_Y , Interface___HEALTH_WIDTH , Interface___HEALTH_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , Interface___HEALTH_TEXTURE) // INLINED!!
-            call s__StatusBar__set_alpha(s__Interface___Portrait_health[this],Interface___HEALTH_TRANSPARENCY)
-            set s__Interface___Portrait_healthText[this]=s__Text_create(0 , 0 , (s__StatusBar_Components___Operators____width[(s__Interface___Portrait_health[this])]) , (s__StatusBar_Components___Operators____height[(s__Interface___Portrait_health[this])]) , Interface___HEALTH_TEXT_SCALE , false , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , null , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_MIDDLE) // INLINED!!
-            set s__Interface___Portrait_damage[this]=sc__Attribute_create(x + Interface___ATTRIBUTES_X , y + Interface___ATTRIBUTES_Y - ( 0 * Interface___ATTRIBUTES_GAP ) , Interface___ATTRIBUTES_WIDTH , Interface___ATTRIBUTES_HEIGHT , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , Interface___DAMAGE_TEXTURE , "Damage" , null)
-            set s__Interface___Portrait_armor[this]=sc__Attribute_create(x + Interface___ATTRIBUTES_X , y + Interface___ATTRIBUTES_Y - ( 1 * Interface___ATTRIBUTES_GAP ) , Interface___ATTRIBUTES_WIDTH , Interface___ATTRIBUTES_HEIGHT , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , Interface___ARMOR_TEXTURE , "Armor" , null)
-            set s__Interface___Portrait_strength[this]=sc__Attribute_create(x + Interface___ATTRIBUTES_X , y + Interface___ATTRIBUTES_Y - ( 2 * Interface___ATTRIBUTES_GAP ) , Interface___ATTRIBUTES_WIDTH , Interface___ATTRIBUTES_HEIGHT , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , Interface___STRENGTH_TEXTURE , "Strength" , null)
-            set s__Interface___Portrait_agility[this]=sc__Attribute_create(x + Interface___ATTRIBUTES_X , y + Interface___ATTRIBUTES_Y - ( 3 * Interface___ATTRIBUTES_GAP ) , Interface___ATTRIBUTES_WIDTH , Interface___ATTRIBUTES_HEIGHT , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , Interface___AGILITY_TEXTURE , "Agility" , null)
-            set s__Interface___Portrait_intelligence[this]=sc__Attribute_create(x + Interface___ATTRIBUTES_X , y + Interface___ATTRIBUTES_Y - ( 4 * Interface___ATTRIBUTES_GAP ) , Interface___ATTRIBUTES_WIDTH , Interface___ATTRIBUTES_HEIGHT , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , Interface___INTELLIGENCE_TEXTURE , "Intelligence" , null)
-
-            call BlzFrameSetVisible(s__Interface___Portrait_portrait, true)
-            call BlzFrameClearAllPoints(s__Interface___Portrait_portrait)
-            call BlzFrameSetAbsPoint(s__Interface___Portrait_portrait, FRAMEPOINT_TOPLEFT, x + Interface___PORTRAIT_X + 0.01, y + Interface___PORTRAIT_Y)
-            call BlzFrameSetAbsPoint(s__Interface___Portrait_portrait, FRAMEPOINT_BOTTOMRIGHT, x + Interface___PORTRAIT_X + Interface___PORTRAIT_WIDTH - 0.01, y + Interface___PORTRAIT_Y - Interface___PORTRAIT_HEIGHT)
-            call BlzFrameSetAllPoints((s__Text_Components___Operators____frame[(s__Interface___Portrait_manaText[this])]), (s__StatusBar_Components___Operators____frame[(s__Interface___Portrait_mana[this])])) // INLINED!!
-            call BlzFrameSetAllPoints((s__Text_Components___Operators____frame[(s__Interface___Portrait_healthText[this])]), (s__StatusBar_Components___Operators____frame[(s__Interface___Portrait_health[this])])) // INLINED!!
-
-            loop
-                exitwhen i == 5
-                    set s___Interface___Portrait_shades[s__Interface___Portrait_shades[this]+i]=BlzCreateFrame("SemiTransparentBackdrop", s__Interface___Portrait_portrait, 0, 0)
-                    call BlzFrameSetAllPoints(s___Interface___Portrait_shades[s__Interface___Portrait_shades[this]+i], (s__Component_Components___Operators____frame[(this)])) // INLINED!!
-                    call BlzFrameSetAlpha(s___Interface___Portrait_shades[s__Interface___Portrait_shades[this]+i], Interface___PORTRAIT_DARKNESS)
-                set i=i + 1
-            endloop
-
-            return this
-        endfunction
-
-        function s__Interface___Portrait_onInit takes nothing returns nothing
-            set s__Interface___Portrait_agi=BlzGetFrameByName("InfoPanelIconHeroAgilityValue", 6)
-            set s__Interface___Portrait_str=BlzGetFrameByName("InfoPanelIconHeroStrengthValue", 6)
-            set s__Interface___Portrait_int=BlzGetFrameByName("InfoPanelIconHeroIntellectValue", 6)
-            set s__Interface___Portrait_attack=BlzGetFrameByName("InfoPanelIconValue", 0)
-            set s__Interface___Portrait_defense=BlzGetFrameByName("InfoPanelIconValue", 2)
-            set s__Interface___Portrait_portrait=BlzGetOriginFrame(ORIGIN_FRAME_PORTRAIT, 0)
-        endfunction
-
-
-
-
-        function s__Interface___Abilities__set_visible takes integer this,boolean flag returns nothing
-            local integer i= 0
-
-            if not s__Interface___Abilities_isVisible[this] and flag then
-                loop
-                    exitwhen i == 12
-                        if i < Interface___ABILITY_SLOT_COUNT then
-                            call BlzFrameSetAbsPoint(s__Interface___Abilities_button[i], FRAMEPOINT_TOPLEFT, (s__Component_Components___Operators____x[(this)]) + ( Interface___ABILITY_ICON_X + ( i * Interface___ABILITY_SLOT_GAP ) ), (s__Component_Components___Operators____y[(this)]) + Interface___ABILITY_ICON_Y) // INLINED!!
-                            call BlzFrameSetScale(s__Interface___Abilities_button[i], Interface___ABILITY_ICON_WIDTH / 0.04)
-                        else
-                            call BlzFrameSetAbsPoint(s__Interface___Abilities_button[i], FRAMEPOINT_TOPLEFT, 999, 999)
-                            call BlzFrameSetAbsPoint(s__Interface___Abilities_button[i], FRAMEPOINT_BOTTOMRIGHT, 999, 999)
-                        endif
-                    set i=i + 1
-                endloop
-            endif
-
-            set s__Interface___Abilities_isVisible[this]=flag
-        endfunction
-
-        function s__Interface___Abilities__get_visible takes integer this returns boolean
-            return s__Interface___Abilities_isVisible[this]
-        endfunction
-
-        function s__Interface___Abilities_destroy takes integer this returns nothing
-            local integer i= 0
-
-            loop
-                exitwhen i == Interface___ABILITY_SLOT_COUNT
-                    call s__Backdrop_destroy(s___Interface___Abilities_slot[s__Interface___Abilities_slot[this]+i])
-
-
-                        call s__Button_destroy(s___Interface___Abilities_levelup[s__Interface___Abilities_levelup[this]+i])
-
-                set i=i + 1
-            endloop
-
-            call s__Component_destroy((this)) // INLINED!!
-        endfunction
-
-        function s__Interface___Abilities_create takes real x,real y,real width,real height,framehandle parent returns integer
-            local integer this= s__Interface___Abilities__allocate(x , y , width , height , parent , "EscMenuBackdrop")
-            local integer i= 0
-
-            loop
-                exitwhen i == Interface___ABILITY_SLOT_COUNT
-                    set s___Interface___Abilities_slot[s__Interface___Abilities_slot[this]+i]=s__Backdrop_create(Interface___ABILITY_SLOT_X + ( i * Interface___ABILITY_SLOT_GAP ) , Interface___ABILITY_SLOT_Y , Interface___ABILITY_SLOT_WIDTH , Interface___ABILITY_SLOT_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , Interface___ABILITY_SLOT_TEXTURE) // INLINED!!
-
-
-                        set s___Interface___Abilities_levelup[s__Interface___Abilities_levelup[this]+i]=s__Button_create((s__Backdrop_Components___Operators____width[(s___Interface___Abilities_slot[s__Interface___Abilities_slot[this]+i])]) / 2 - Interface___SEPARATE_LEVELUP_WIDTH / 2 , (s__Backdrop_Components___Operators____y[(s___Interface___Abilities_slot[s__Interface___Abilities_slot[this]+i])]) + 2 * Interface___SEPARATE_LEVELUP_HEIGHT , Interface___SEPARATE_LEVELUP_WIDTH , Interface___SEPARATE_LEVELUP_HEIGHT , (s__Backdrop_Components___Operators____frame[(s___Interface___Abilities_slot[s__Interface___Abilities_slot[this]+i])]) , true) // INLINED!!
-                        call s__Backdrop__set_texture(s__Component_image[(s___Interface___Abilities_levelup[s__Interface___Abilities_levelup[this]+i])],(Interface___SEPARATE_LEVELUP_TEXTURE)) // INLINED!!
-                        call s__Tooltip__set_visible(s__Button_tooltip[s___Interface___Abilities_levelup[s__Interface___Abilities_levelup[this]+i]],false)
-                        call s__Component__set_onEnter(s___Interface___Abilities_levelup[s__Interface___Abilities_levelup[this]+i],function sc__Interface___Abilities_onHover)
-                        call sc__Component__set_visible(s___Interface___Abilities_levelup[s__Interface___Abilities_levelup[this]+i],false)
-                        call s__Component_setPoint(s___Interface___Abilities_levelup[s__Interface___Abilities_levelup[this]+i],FRAMEPOINT_BOTTOM , FRAMEPOINT_TOP , 0 , 0)
-
-                set i=i + 1
-            endloop
-
-            call s__Interface___Abilities__set_visible(this,true)
-
-            return this
-        endfunction
-
-        function s__Interface___Abilities_onHover takes nothing returns nothing
-            local unit u= (GetMainSelectedUnit(GetSelectedUnitIndex())) // INLINED!!
-            local integer b= (s__Component_array[GetPlayerId(GetTriggerPlayer())]) // INLINED!!
-            
-            if GetLocalPlayer() == GetTriggerPlayer() then
-                if GetHeroSkillPoints(u) > 0 then
-                    call BlzFrameSetAllPoints(s__Interface___Abilities_level, (s__Component_Components___Operators____frame[(b)])) // INLINED!!
-                    call BlzFrameSetScale(s__Interface___Abilities_level, (s__Component_Components___Operators____width[(b)]) / 0.04) // INLINED!!
-                else
-                    call BlzFrameSetAbsPoint(s__Interface___Abilities_level, FRAMEPOINT_TOPLEFT, 999, 999)
-                    call BlzFrameSetAbsPoint(s__Interface___Abilities_level, FRAMEPOINT_BOTTOMRIGHT, 999, 999)
-                endif
-            endif
-        endfunction
-
-        function s__Interface___Abilities_onInit takes nothing returns nothing
-            set s__Interface___Abilities_level=BlzGetFrameByName("CommandButton_7", 0)
-            set s__Interface___Abilities_button[0]=BlzGetFrameByName("CommandButton_8", 0)
-            set s__Interface___Abilities_button[1]=BlzGetFrameByName("CommandButton_9", 0)
-            set s__Interface___Abilities_button[2]=BlzGetFrameByName("CommandButton_10", 0)
-            set s__Interface___Abilities_button[3]=BlzGetFrameByName("CommandButton_11", 0)
-            set s__Interface___Abilities_button[4]=BlzGetFrameByName("CommandButton_5", 0)
-            set s__Interface___Abilities_button[5]=BlzGetFrameByName("CommandButton_6", 0)
-            set s__Interface___Abilities_button[6]=BlzGetFrameByName("CommandButton_7", 0)
-            set s__Interface___Abilities_button[7]=BlzGetFrameByName("CommandButton_0", 0)
-            set s__Interface___Abilities_button[8]=BlzGetFrameByName("CommandButton_1", 0)
-            set s__Interface___Abilities_button[9]=BlzGetFrameByName("CommandButton_2", 0)
-            set s__Interface___Abilities_button[10]=BlzGetFrameByName("CommandButton_3", 0)
-            set s__Interface___Abilities_button[11]=BlzGetFrameByName("CommandButton_4", 0)
-        endfunction
-
-
-        function s__Interface___Inventory_destroy takes integer this returns nothing
-            local integer i= 0
-
-            loop
-                exitwhen i == Interface___ITEM_SLOT_COUNT
-                    call s__Backdrop_destroy(s___Interface___Inventory_slot[s__Interface___Inventory_slot[this]+i])
-                set i=i + 1
-            endloop
-
-            call s__Component_destroy((this)) // INLINED!!
-        endfunction
-
-        function s__Interface___Inventory_create takes real x,real y,real width,real height,framehandle parent returns integer
-            local integer this= s__Interface___Inventory__allocate(x , y , width , height , parent , "EscMenuBackdrop")
-            local integer i= 0
-
-            loop
-                exitwhen i == Interface___ITEM_SLOT_COUNT
-                    set s___Interface___Inventory_slot[s__Interface___Inventory_slot[this]+i]=s__Backdrop_create(Interface___ITEM_SLOT_X + ( i * Interface___ITEM_SLOT_GAP ) , Interface___ITEM_SLOT_Y , Interface___ITEM_SLOT_WIDTH , Interface___ITEM_SLOT_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , Interface___ITEM_SLOT_TEXTURE) // INLINED!!
-
-                    call BlzFrameSetAbsPoint(BlzGetFrameByName("InventoryButton_" + I2S(i), 0), FRAMEPOINT_TOPLEFT, x + ( Interface___ITEM_ICON_X + ( i * Interface___ITEM_SLOT_GAP ) ), y + Interface___ITEM_ICON_Y)
-                    call BlzFrameSetScale(BlzGetFrameByName("InventoryButton_" + I2S(i), 0), Interface___ITEM_ICON_WIDTH / 0.032)
-                set i=i + 1
-            endloop
-
-            return this
-        endfunction
-
-
-
-
-        function s__Attribute__set_visible takes integer this,boolean flag returns nothing
-            set s__Attribute_isVisible[this]=flag
-            call BlzFrameSetVisible((s__Component_Components___Operators____frame[(this)]), flag and (not sc__Backdrop__get_visible(s__Button_block[(s__Attribute_button[this])]))) // INLINED!!
-        endfunction
-
-        function s__Attribute__get_visible takes integer this returns boolean
-            return s__Attribute_isVisible[this]
-        endfunction
-
-        function s__Attribute_destroy takes integer this returns nothing
-            call s__Text_destroy(s__Attribute_value[this])
-            call s__Button_destroy(s__Attribute_button[this])
-            
-            set s__Attribute_array[s__Attribute_id[this]]=s__Attribute_array[s__Attribute_key]
-            set s__Attribute_key=s__Attribute_key - 1
-
-            if s__Attribute_key == - 1 then
-                call PauseTimer(s__Attribute_timer)
-            endif
-
-            call s__Button_destroy(this)
-        endfunction
-
-        function s__Attribute_update takes integer this,unit u returns nothing
-        endfunction
-
-        function s__Attribute_create takes real x,real y,real width,real height,framehandle parent,string texture,string tooltip,framepointtype point returns integer
-            local integer this
-
-            if parent == null then
-                set parent=BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0)
-            endif
-
-            if point == null then
-                set point=FRAMEPOINT_TOPRIGHT
-            endif
-            
-            set this=s__Attribute__allocate(x , y , width , height , parent , true)
-            set s__Attribute_key=s__Attribute_key + 1
-            set s__Attribute_array[s__Attribute_key]=this
-            set s__Attribute_id[this]=s__Attribute_key
-            call s__Backdrop__set_texture(s__Component_image[(this)],(texture)) // INLINED!!
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], (tooltip)) // INLINED!!
-            set s__Attribute_value[this]=s__Text_create(Interface___ATTRIBUTES_TEXT_X , Interface___ATTRIBUTES_TEXT_Y , Interface___ATTRIBUTES_TEXT_WIDTH , Interface___ATTRIBUTES_TEXT_HEIGHT , Interface___ATTRIBUTES_TEXT_SCALE , false , (s__Component_Components___Operators____frame[(this)]) , null , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_LEFT) // INLINED!!
-            set s__Attribute_button[this]=s__Button_create(Interface___ATTRIBUTES_BUTTON_X + ( ( Interface___ATTRIBUTES_BUTTON_WIDTH + Interface___ATTRIBUTES_BUTTON_GAP ) * ModuloInteger(s__Attribute_key, Interface___ATTRIBUTES_COLUMNS) ) , - ( Interface___ATTRIBUTES_BUTTON_Y + ( ( Interface___ATTRIBUTES_BUTTON_HEIGHT + Interface___ATTRIBUTES_BUTTON_GAP ) * R2I(s__Attribute_key / Interface___ATTRIBUTES_COLUMNS) ) ) , Interface___ATTRIBUTES_BUTTON_WIDTH , Interface___ATTRIBUTES_BUTTON_HEIGHT , (s__Component_Components___Operators____frame[(s__Attribute_panel)]) , true) // INLINED!!
-            call s__Backdrop__set_texture(s__Component_image[(s__Attribute_button[this])],(texture)) // INLINED!!
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Attribute_button[this]])], (tooltip)) // INLINED!!
-            call s__Component__set_onClick(s__Attribute_button[this],function sc__Attribute_onClicked)
-            call SaveInteger(Table___ht, (s__Attribute_table), (s__Attribute_button[this]), ( this)) // INLINED!!
-            call s__Component__set_width(s__Attribute_panel,RMaxBJ((s__Component_Components___Operators____width[(s__Attribute_panel)]), ( Interface___ATTRIBUTES_BUTTON_WIDTH * ( ModuloInteger(s__Attribute_key, Interface___ATTRIBUTES_COLUMNS) + 1 ) ) + ( 2 * Interface___ATTRIBUTES_BUTTON_X ) + ( Interface___ATTRIBUTES_BUTTON_GAP * ModuloInteger(s__Attribute_key, Interface___ATTRIBUTES_COLUMNS) ))) // INLINED!!
-            call s__Component__set_height(s__Attribute_panel,RMaxBJ((s__Component_Components___Operators____height[(s__Attribute_panel)]), ( Interface___ATTRIBUTES_BUTTON_HEIGHT * ( R2I(s__Attribute_key / Interface___ATTRIBUTES_COLUMNS) + 1 ) ) + ( 2 * Interface___ATTRIBUTES_BUTTON_Y ) + ( Interface___ATTRIBUTES_BUTTON_GAP * R2I(s__Attribute_key / Interface___ATTRIBUTES_COLUMNS) ))) // INLINED!!
-
-            if point == FRAMEPOINT_LEFT or point == FRAMEPOINT_TOPLEFT or point == FRAMEPOINT_BOTTOMLEFT then
-                call s__Text__set_horizontal(s__Attribute_value[this],TEXT_JUSTIFY_RIGHT)
-                call s__Text_setPoint(s__Attribute_value[this],FRAMEPOINT_TOPRIGHT , FRAMEPOINT_TOPLEFT , - Interface___ATTRIBUTES_TEXT_X + Interface___ATTRIBUTES_WIDTH + 0.005 , Interface___ATTRIBUTES_TEXT_Y)
-            elseif point == FRAMEPOINT_TOP then
-                call s__Text__set_horizontal(s__Attribute_value[this],TEXT_JUSTIFY_CENTER)
-                call s__Text_setPoint(s__Attribute_value[this],FRAMEPOINT_BOTTOM , FRAMEPOINT_TOP , 0 , Interface___ATTRIBUTES_TEXT_Y + 0.005)
-            elseif point == FRAMEPOINT_BOTTOM then
-                call s__Text__set_horizontal(s__Attribute_value[this],TEXT_JUSTIFY_CENTER)
-                call s__Text_setPoint(s__Attribute_value[this],FRAMEPOINT_TOP , FRAMEPOINT_BOTTOM , 0 , - Interface___ATTRIBUTES_TEXT_Y - 0.005)
-            endif
-
-            if s__Attribute_key == 0 then
-                call TimerStart(s__Attribute_timer, 0.2, true, function sc__Attribute_onUpdate)
-            endif
-
-            return this
-        endfunction
-
-        function s__Attribute_onClicked takes nothing returns nothing
-            local integer b= (s__Component_array[GetPlayerId(GetTriggerPlayer())]) // INLINED!!
-            local integer this= (LoadInteger(Table___ht, (s__Attribute_table), (b))) // INLINED!!
-
-            if GetLocalPlayer() == GetTriggerPlayer() then
-                if b == s__Attribute_menu then
-                    call sc__Component__set_visible(s__Attribute_panel,not sc__Component__get_visible(s__Attribute_panel))
-
-                    if sc__Component__get_visible(s__Attribute_panel) then
-                        call s__Backdrop__set_texture(s__Component_image[(b)],(Interface___ATTRIBUTES_TOGGLE_CLOSE)) // INLINED!!
-                        call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[b])], ("Close Attribute Menu")) // INLINED!!
-                    else
-                        call s__Backdrop__set_texture(s__Component_image[(b)],(Interface___ATTRIBUTES_TOGGLE_OPEN)) // INLINED!!
-                        call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[b])], ("Open Attribute Menu")) // INLINED!!
-                    endif
-                else
-                    call sc__Backdrop__set_visible(s__Button_block[(s__Attribute_button[this])],not (not (not sc__Backdrop__get_visible(s__Button_block[(s__Attribute_button[this])])))) // INLINED!!
-                    call sc__Component__set_visible(this,sc__Component__get_visible(this))
-                endif
-            endif
-        endfunction
-
-        function s__Attribute_onUpdate takes nothing returns nothing
-            local integer i= 0
-            local unit u= (GetMainSelectedUnit(GetSelectedUnitIndex())) // INLINED!!
-
-            loop
-                exitwhen i > s__Attribute_key
-                    call sc__Attribute_update(s__Attribute_array[i],u)
-                set i=i + 1
-            endloop
-
-            set u=null
-        endfunction
-
-        function s__Attribute_onInit takes nothing returns nothing
-            set s__Attribute_table=s__Table_create()
-            set s__Attribute_menu=s__Button_create(Interface___INFO_X + Interface___INFO_WIDTH / 2 - Interface___ATTRIBUTES_TOGGLE_WIDTH / 2 , Interface___INFO_Y - 0.004 , Interface___ATTRIBUTES_TOGGLE_WIDTH , Interface___ATTRIBUTES_TOGGLE_HEIGHT , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , true)
-            call s__Backdrop__set_texture(s__Component_image[(s__Attribute_menu)],(Interface___ATTRIBUTES_TOGGLE_OPEN)) // INLINED!!
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Attribute_menu])], ("Open Attribute Menu")) // INLINED!!
-            call s__Component__set_onClick(s__Attribute_menu,function s__Attribute_onClicked)
-            set s__Attribute_panel=(s__Panel__allocate(((0 )*1.0) , (( 0 )*1.0) , (( 0.03 )*1.0) , (( 0.03 )*1.0) , ( (s__Component_Components___Operators____frame[(s__Attribute_menu)]) ) , "PanelFrame" , ( "Leaderboard"))) // INLINED!!
-            call sc__Component__set_visible(s__Attribute_panel,false)
-
-            call s__Component_setPoint(s__Attribute_panel,FRAMEPOINT_BOTTOM , FRAMEPOINT_TOP , 0 , Interface___BUFF_Y)
-        endfunction
-
-
-
-
-        function s__UI_showHeroes takes boolean show returns nothing
-            local integer i= 0
-
-            if show then
-                loop
-                    exitwhen i >= 7
-                        call BlzFrameSetAbsPoint(s__UI_hero[i], FRAMEPOINT_TOPLEFT, Interface___HERO_LIST_X, Interface___HERO_LIST_Y - ( i * Interface___HERO_LIST_GAP ))
-                        call BlzFrameSetScale(s__UI_hero[i], Interface___HERO_LIST_WIDTH / 0.038)
-                        call BlzFrameSetScale(s__UI_highlight[i], Interface___HERO_LIST_WIDTH / 0.038)
-                    set i=i + 1
-                endloop
-            else
-                loop
-                    exitwhen i >= 7
-                        call BlzFrameSetAbsPoint(s__UI_hero[i], FRAMEPOINT_TOPLEFT, 999, 999)
-                    set i=i + 1
-                endloop
-            endif
-        endfunction
-
-        function s__UI_showMinimap takes real x,real y returns nothing
-            call BlzFrameSetAbsPoint(s__UI_minimap, FRAMEPOINT_TOPLEFT, x, y)
-            call BlzFrameSetAbsPoint(s__UI_minimap, FRAMEPOINT_BOTTOMRIGHT, x + Interface___MINIMAP_WIDTH, y - Interface___MINIMAP_HEIGHT)
-            call BlzFrameSetVisible(s__UI_minimap, true)
-        endfunction
-
-        function s__UI_onPeriod takes nothing returns nothing
-            local integer i= 0
-            local player p= GetLocalPlayer()
-            local unit u= (GetMainSelectedUnit(GetSelectedUnitIndex())) // INLINED!!
-            local boolean shop= IsUnitShop(u , p)
-            local integer points= GetHeroSkillPoints(u)
-
-            if not IsUnitVisible(u, p) then
-                set u=null
-            endif
-
-            call s__Interface___Portrait_update(s__UI_portrait,u , p)
-
-            call s__Text__set_text(s__Interface___Resource_value[(s__UI_gold)],(BlzFrameGetText(s__UI_coin))) // INLINED!!
-            call s__Text__set_text(s__Interface___Resource_value[(s__UI_lumber)],(BlzFrameGetText(s__UI_wood))) // INLINED!!
-
-
-
-
-
-
-
-
-
-
-
-
-
-                loop
-                    exitwhen i == Interface___ABILITY_SLOT_COUNT
-                        call sc__Component__set_visible(s___Interface___Abilities_levelup[s__Interface___Abilities_levelup[s__UI_abilities]+i],points > 0 and not (s__Interface___Grid_isVisible[(s__UI_grid)]) and GetOwningPlayer(u) == p) // INLINED!!
-                    set i=i + 1
-                endloop
-
-                if ( not shop and points <= 0 ) or ( shop and not Interface___DISPLAY_SHOP ) then
-                    call BlzFrameSetAbsPoint(s__Interface___Abilities_level, FRAMEPOINT_TOPLEFT, 999, 999)
-                    call BlzFrameSetAbsPoint(s__Interface___Abilities_level, FRAMEPOINT_BOTTOMRIGHT, 999, 999)
-                endif
-
-
-            set u=null
-            set p=null
-        endfunction
-
-        function s__UI_onInit takes nothing returns nothing
-            local framehandle frame
-            local integer i= 0
-
-            set s__UI_coin=BlzGetFrameByName("ResourceBarGoldText", 0)
-            set s__UI_wood=BlzGetFrameByName("ResourceBarLumberText", 0)
-            set s__UI_minimap=BlzGetFrameByName("MiniMapFrame", 0)
-            set s__UI_default=BlzGetFrameByName("UpperButtonBarFrame", 0)
-            set s__UI_tooltip=BlzGetOriginFrame(ORIGIN_FRAME_UBERTOOLTIP, 0)
-            set s__UI_menu=s__Interface___Menu_create(Interface___MENU_X , Interface___MENU_Y , Interface___MENU_WIDTH , Interface___MENU_HEIGHT , null)
-            set s__UI_portrait=s__Interface___Portrait_create(Interface___INFO_X , Interface___INFO_Y , Interface___INFO_WIDTH , Interface___INFO_HEIGHT , null)
-            set s__UI_grid=s__Interface___Grid_create(Interface___SHOP_PANEL_X , Interface___SHOP_PANEL_Y , Interface___SHOP_COLUMNS * Interface___SHOP_SLOT_WIDTH + 0.032 , Interface___SHOP_SLOT_HEIGHT * Interface___SHOP_ROWS + 0.034 , null)
-            set s__UI_gold=s__Interface___Resource_create(Interface___GOLD_BACKGROUND_X , Interface___GOLD_BACKGROUND_Y , Interface___GOLD_BACKGROUND_WIDTH , Interface___GOLD_BACKGROUND_HEIGHT , (s__Component_Components___Operators____frame[(s__UI_menu)]) , true) // INLINED!!
-            set s__UI_lumber=s__Interface___Resource_create(Interface___LUMBER_BACKGROUND_X , Interface___LUMBER_BACKGROUND_Y , Interface___LUMBER_BACKGROUND_WIDTH , Interface___LUMBER_BACKGROUND_HEIGHT , (s__Component_Components___Operators____frame[(s__UI_menu)]) , false) // INLINED!!
-            set s__UI_abilities=s__Interface___Abilities_create(Interface___ABILITY_PANEL_X , Interface___ABILITY_PANEL_Y , Interface___ABILITY_SLOT_COUNT * Interface___ABILITY_SLOT_WIDTH + 0.032 , Interface___ABILITY_SLOT_HEIGHT + 0.034 , null)
-            set s__UI_inventory=s__Interface___Inventory_create(Interface___ITEM_PANEL_X , Interface___ITEM_PANEL_Y , Interface___ITEM_SLOT_COUNT * Interface___ITEM_SLOT_WIDTH + 0.032 , Interface___ITEM_SLOT_HEIGHT + 0.034 , null)
-
-            loop
-                exitwhen i >= 12
-                    set frame=BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), i), 1)
-
-                    if i < 7 then
-                        set s__UI_hero[i]=BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON, i)
-                        set s__UI_highlight[i]=BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON_INDICATOR, i)
-                    endif
-
-                    if i >= 6 then
-                        call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, Interface___ITEM_PANEL_X + ( Interface___GROUP_X + ( ( i - 6 ) * Interface___GROUP_GAP ) ), Interface___ITEM_PANEL_Y + Interface___GROUP_Y)
-                        call BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, Interface___ITEM_PANEL_X + ( Interface___GROUP_X + ( ( i - 6 ) * Interface___GROUP_GAP ) ) + Interface___GROUP_WIDTH, Interface___ITEM_PANEL_Y + Interface___GROUP_Y - Interface___GROUP_HEIGHT)
-                    else
-                        call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, Interface___ABILITY_PANEL_X + ( Interface___GROUP_X + ( i * Interface___GROUP_GAP ) ), Interface___ABILITY_PANEL_Y + Interface___GROUP_Y)
-                        call BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, Interface___ABILITY_PANEL_X + ( Interface___GROUP_X + ( i * Interface___GROUP_GAP ) ) + Interface___GROUP_WIDTH, Interface___ABILITY_PANEL_Y + Interface___GROUP_Y - Interface___GROUP_HEIGHT)
-                    endif
-                set i=i + 1
-            endloop
-
-            call BlzEnableUIAutoPosition(false)
-
-            call BlzFrameSetParent(s__UI_tooltip, BlzGetFrameByName("ConsoleUI", 0))
-            call BlzFrameSetParent(s__UI_minimap, BlzGetFrameByName("ConsoleUIBackdrop", 0))
-
-            call BlzFrameSetAlpha(s__UI_minimap, R2I(Interface___MAP_TRANSPARENCY))
-            call BlzFrameSetAlpha(BlzGetFrameByName("SimpleInventoryCover", 0), 0)
-
-            call BlzFrameSetScale(BlzGetFrameByName("InventoryText", 0), 0.0001)
-            call BlzFrameSetScale(BlzGetFrameByName("SimpleNameValue", 0), 0.00001)
-            call BlzFrameSetScale(BlzGetFrameByName("SimpleClassValue", 0), 0.00001)
-            call BlzFrameSetScale(BlzGetFrameByName("SimpleBuildingNameValue", 1), 0.00001)
-            call BlzFrameSetScale(BlzGetFrameByName("SimpleBuildingActionLabel", 1), 0.00001)
-            call BlzFrameSetScale(BlzGetFrameByName("SimpleHoldNameValue", 2), 0.00001)
-            call BlzFrameSetScale(BlzGetFrameByName("SimpleHoldDescriptionNameValue", 2), 0.00001)
-            call BlzFrameSetScale(BlzGetFrameByName("SimpleItemNameValue", 3), 0.00001)
-            call BlzFrameSetScale(BlzGetFrameByName("SimpleItemDescriptionValue", 3), 0.00001)
-            call BlzFrameSetScale(BlzGetFrameByName("SimpleDestructableNameValue", 4), 0.00001)
-            call BlzFrameSetScale(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR_LABEL, 0), 0.00001)
-            
-            call BlzFrameSetVisible(s__UI_default, false)
-            call BlzFrameSetVisible(s__UI_minimap, false)
-            call BlzFrameSetVisible(BlzFrameGetChild(BlzGetFrameByName("ConsoleBottomBar", 0), 3), false)
-            call BlzFrameSetVisible(BlzFrameGetChild(BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 5), 0), false)
-
-            call BlzFrameSetPoint(s__UI_tooltip, FRAMEPOINT_BOTTOM, (s__Component_Components___Operators____frame[(s__UI_portrait)]), FRAMEPOINT_TOP, 0, Interface___BUFF_Y) // INLINED!!
-            call BlzFrameSetAbsPoint(BlzGetFrameByName("ConsoleUI", 0), FRAMEPOINT_TOPLEFT, 0.0, 0.633)
-            call BlzFrameSetAbsPoint(BlzGetFrameByName("ResourceBarFrame", 0), FRAMEPOINT_TOPLEFT, 999, 999)
-            call BlzFrameSetAbsPoint(BlzGetFrameByName("ResourceBarFrame", 0), FRAMEPOINT_BOTTOMRIGHT, 999, 999)
-            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleProgressIndicator", 0), FRAMEPOINT_TOPLEFT, Interface___INFO_X + Interface___PROGRESS_X, Interface___INFO_Y + Interface___PROGRESS_Y)
-            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleProgressIndicator", 0), FRAMEPOINT_BOTTOMRIGHT, Interface___INFO_X + Interface___PROGRESS_X + Interface___PROGRESS_WIDTH, Interface___INFO_Y + Interface___PROGRESS_Y - Interface___PROGRESS_HEIGHT)
-            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleHeroLevelBar", 0), FRAMEPOINT_TOPLEFT, Interface___INFO_X + Interface___PROGRESS_X, Interface___INFO_Y + Interface___PROGRESS_Y)
-            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleHeroLevelBar", 0), FRAMEPOINT_BOTTOMRIGHT, Interface___INFO_X + Interface___PROGRESS_X + Interface___PROGRESS_WIDTH, Interface___INFO_Y + Interface___PROGRESS_Y - Interface___PROGRESS_HEIGHT)
-            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleBuildTimeIndicator", 1), FRAMEPOINT_TOPLEFT, Interface___INFO_X + Interface___PROGRESS_X, Interface___INFO_Y + Interface___PROGRESS_Y)
-            call BlzFrameSetAbsPoint(BlzGetFrameByName("SimpleBuildTimeIndicator", 1), FRAMEPOINT_BOTTOMRIGHT, Interface___INFO_X + Interface___PROGRESS_X + Interface___PROGRESS_WIDTH, Interface___INFO_Y + Interface___PROGRESS_Y - Interface___PROGRESS_HEIGHT)
-            call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_CHAT_MSG, 0), FRAMEPOINT_TOPLEFT, Interface___CHAT_X, Interface___CHAT_Y)
-            call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_CHAT_MSG, 0), FRAMEPOINT_BOTTOMRIGHT, Interface___CHAT_X + Interface___CHAT_WIDTH, Interface___CHAT_Y - Interface___CHAT_HEIGHT)
-            call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_MSG, 0), FRAMEPOINT_TOPLEFT, Interface___CHAT_X, Interface___CHAT_Y)
-            call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_MSG, 0), FRAMEPOINT_BOTTOMRIGHT, Interface___CHAT_X + Interface___CHAT_WIDTH, Interface___CHAT_Y - Interface___CHAT_HEIGHT)
-            call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR, 0), FRAMEPOINT_TOPLEFT, Interface___INFO_X + Interface___BUFF_X, Interface___INFO_Y + Interface___BUFF_Y)
-            call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR, 0), FRAMEPOINT_BOTTOMRIGHT, Interface___INFO_X + Interface___BUFF_X + Interface___BUFF_WIDTH, Interface___INFO_Y + Interface___BUFF_Y - Interface___BUFF_HEIGHT)
-
-            call TimerStart(CreateTimer(), 0.1, true, function s__UI_onPeriod)
-
-            set frame=null
-        endfunction
-
-//library Interface ends
 //library Missiles:
     
     // Thanks and Credits to BPower, Dirac and Vexorian for the Missile Library's at which i based
@@ -17550,7 +15895,7 @@ endfunction
             set s__Bonus_bonus[this]=0
             set s__Bonus_source[this]=null
             
-            call sc__NewBonus___BonusType_deallocate(this)
+            call sc__NewBonus___IBonus_deallocate(this)
         endfunction
 
         function s__Bonus_overflow takes integer this,real current,real value returns real
@@ -17567,8 +15912,8 @@ endfunction
             local integer this= s__Bonus_struct[bonus]
 
             if this != 0 then
-                if (st__NewBonus___BonusType_get[si__NewBonus___BonusType_type[this]]!=null) then
-                    return sc__NewBonus___BonusType_get(this,source)
+                if (st__NewBonus___IBonus_get[si__NewBonus___IBonus_type[this]]!=null) then
+                    return sc__NewBonus___IBonus_get(this,source)
                 endif
             else
                 call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Invalid Bonus Type")
@@ -17581,7 +15926,7 @@ endfunction
             local integer this= s__Bonus_struct[bonus]
             
             if this != 0 then
-                if (st__NewBonus___BonusType_Set[si__NewBonus___BonusType_type[this]]!=null) then
+                if (st__NewBonus___IBonus_Set[si__NewBonus___IBonus_type[this]]!=null) then
                     set s__Bonus_type[s__Bonus_key]=bonus
                     set s__Bonus_unit[s__Bonus_key]=source
                     set s__Bonus_amount[s__Bonus_key]=value
@@ -17592,7 +15937,7 @@ endfunction
                         return s__Bonus_setter(s__Bonus_unit[s__Bonus_key] , s__Bonus_type[s__Bonus_key] , s__Bonus_amount[s__Bonus_key])
                     endif
 
-                    return sc__NewBonus___BonusType_Set(this,s__Bonus_unit[s__Bonus_key] , s__Bonus_amount[s__Bonus_key])
+                    return sc__NewBonus___IBonus_Set(this,s__Bonus_unit[s__Bonus_key] , s__Bonus_amount[s__Bonus_key])
                 endif
             else
                 call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Invalid Bonus Type")
@@ -17605,7 +15950,7 @@ endfunction
             local integer this= s__Bonus_struct[bonus]
 
             if this != 0 and value != 0 then
-                if (st__NewBonus___BonusType_add[si__NewBonus___BonusType_type[this]]!=null) then
+                if (st__NewBonus___IBonus_add[si__NewBonus___IBonus_type[this]]!=null) then
                     set s__Bonus_type[s__Bonus_key]=bonus
                     set s__Bonus_unit[s__Bonus_key]=source
                     set s__Bonus_amount[s__Bonus_key]=value
@@ -17616,7 +15961,7 @@ endfunction
                         return s__Bonus_adder(s__Bonus_unit[s__Bonus_key] , s__Bonus_type[s__Bonus_key] , s__Bonus_amount[s__Bonus_key])
                     endif
                     
-                    return sc__NewBonus___BonusType_add(this,s__Bonus_unit[s__Bonus_key] , s__Bonus_amount[s__Bonus_key])
+                    return sc__NewBonus___IBonus_add(this,s__Bonus_unit[s__Bonus_key] , s__Bonus_amount[s__Bonus_key])
                 endif
             else
                 call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Invalid Bonus Type")
@@ -17699,10 +16044,10 @@ endfunction
 
         function s__Bonus_register takes integer bonus returns integer
             set s__Bonus_index=s__Bonus_index + 1
-            set s__Bonus_array[s__Bonus_index]=si__NewBonus___BonusType_type[bonus]
-            set s__Bonus_struct[si__NewBonus___BonusType_type[bonus]]=bonus
+            set s__Bonus_array[s__Bonus_index]=si__NewBonus___IBonus_type[bonus]
+            set s__Bonus_struct[si__NewBonus___IBonus_type[bonus]]=bonus
 
-            return si__NewBonus___BonusType_type[bonus]
+            return si__NewBonus___IBonus_type[bonus]
         endfunction
 
         function s__Bonus_registerEvent takes code c,integer bonus returns nothing
@@ -19084,27 +17429,27 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
 
     //function responsible to determine the duration of the Afterburn
     //By default, it uses the Cooldown value in the Object Editor
-    function Afterburner__GetDuration takes unit u,integer level returns real
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, Afterburner__ABILITY), ABILITY_RLF_DURATION_NORMAL, level - 1)
+    function Afterburner___GetDuration takes unit u,integer level returns real
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, Afterburner___ABILITY), ABILITY_RLF_DURATION_NORMAL, level - 1)
     endfunction
 
     //function responsible to determine the AoE of the Afterburn
     //By default, it uses the AoE value in the Object Editor
-    function Afterburner__GetAoE takes unit u,integer level returns real
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, Afterburner__ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
+    function Afterburner___GetAoE takes unit u,integer level returns real
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, Afterburner___ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
     endfunction
 
     //The damage per interval of the Afterburn
-    function Afterburner__GetDamage takes unit u,integer level returns real
+    function Afterburner___GetDamage takes unit u,integer level returns real
 
-            return 25. * level + 0.6 * (s__Bonus_getter((u ) , ( BONUS_DAMAGE))) // INLINED!!
+            return 25. * level + 0.6 * (s__Bonus_getter((u ) , ( BONUS_SPELL_POWER))) // INLINED!!
 
 
 
     endfunction
 
     //The damage interval of the Afterburn
-    function Afterburner__GetDamageInterval takes unit u,integer level returns real
+    function Afterburner___GetDamageInterval takes unit u,integer level returns real
         return 1.0
     endfunction
     
@@ -19113,54 +17458,50 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
     
 
 
-        function s__Afterburner__Afterburner_destroy takes integer this returns nothing
-            call sc__DummyPool_recycle((s__Afterburner__Afterburner_dummy[this])) // INLINED!!
+        function s__Afterburner___Afterburner_destroy takes integer this returns nothing
+            call sc__DummyPool_recycle((s__Afterburner___Afterburner_dummy[this])) // INLINED!!
             call sc__Ability___IAbility_deallocate(this)
 
-            set s__Afterburner__Afterburner_unit[this]=null
-            set s__Afterburner__Afterburner_dummy[this]=null
-            set s__Afterburner__Afterburner_proxy[s__Afterburner__Afterburner_id[this]]=0
+            set s__Afterburner___Afterburner_unit[this]=null
+            set s__Afterburner___Afterburner_dummy[this]=null
+            set s__Afterburner___Afterburner_array[s__Afterburner___Afterburner_id[this]]=0
         endfunction
 
-        function s__Afterburner__Afterburner_create takes real x,real y,real dmg,real duration,real aoe,real interval,unit source returns integer
-            local integer this= s__Afterburner__Afterburner__allocate()
+        function s__Afterburner___Afterburner_create takes real x,real y,real damage,real duration,real aoe,real interval,unit source returns integer
+            local integer this= s__Afterburner___Afterburner__allocate()
             local ability skill
     
-            set s__Afterburner__Afterburner_unit[this]=source
-            set s__Afterburner__Afterburner_damage[this]=dmg
-            set s__Afterburner__Afterburner_dummy[this]=(sc__DummyPool_retrieve((GetOwningPlayer(source) ) , (( x )*1.0) , (( y )*1.0) , (( 0 )*1.0) , (( 0)*1.0))) // INLINED!!
-            set s__Afterburner__Afterburner_id[this]=GetUnitUserData(s__Afterburner__Afterburner_dummy[this])
-            set s__Afterburner__Afterburner_proxy[s__Afterburner__Afterburner_id[this]]=this
+            set s__Afterburner___Afterburner_unit[this]=source
+            set s__Afterburner___Afterburner_dummy[this]=(sc__DummyPool_retrieve((GetOwningPlayer(source) ) , (( x )*1.0) , (( y )*1.0) , (( 0 )*1.0) , (( 0)*1.0))) // INLINED!!
+            set s__Afterburner___Afterburner_id[this]=GetUnitUserData(s__Afterburner___Afterburner_dummy[this])
+            set s__Afterburner___Afterburner_array[s__Afterburner___Afterburner_id[this]]=this
 
-            call UnitAddAbility(s__Afterburner__Afterburner_dummy[this], Afterburner__AFTERBURN_PROXY)
-            set skill=BlzGetUnitAbility(s__Afterburner__Afterburner_dummy[this], Afterburner__AFTERBURN_PROXY)
+            call UnitAddAbility(s__Afterburner___Afterburner_dummy[this], Afterburner___AFTERBURN_PROXY)
+            set skill=BlzGetUnitAbility(s__Afterburner___Afterburner_dummy[this], Afterburner___AFTERBURN_PROXY)
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_DURATION_NORMAL, 0, duration)
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_FULL_DAMAGE_INTERVAL, 0, duration)
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_HALF_DAMAGE_INTERVAL, 0, interval)
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_AREA_OF_EFFECT, 0, aoe)
-            call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, dmg)
-            call IncUnitAbilityLevel(s__Afterburner__Afterburner_dummy[this], Afterburner__AFTERBURN_PROXY)
-            call DecUnitAbilityLevel(s__Afterburner__Afterburner_dummy[this], Afterburner__AFTERBURN_PROXY)
-            call IssuePointOrder(s__Afterburner__Afterburner_dummy[this], "flamestrike", x, y)
-            call sc__Afterburner__Afterburner_StartTimer(duration + 0.05 , false , this , - 1)
+            call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, damage)
+            call IncUnitAbilityLevel(s__Afterburner___Afterburner_dummy[this], Afterburner___AFTERBURN_PROXY)
+            call DecUnitAbilityLevel(s__Afterburner___Afterburner_dummy[this], Afterburner___AFTERBURN_PROXY)
+            call IssuePointOrder(s__Afterburner___Afterburner_dummy[this], "flamestrike", x, y)
+            call sc__Afterburner___Afterburner_StartTimer(duration + 0.05 , false , this , - 1)
             
             set skill=null
 
             return this
         endfunction
 
-        function s__Afterburner__Afterburner_onTooltip takes integer this,unit source,integer level returns string
-            return "|cffffcc00Ragnaros|r spells leave a trail of fire after cast that burns enemy units within |cffffcc00" + N2S(Afterburner__GetAoE(source , level) , 0) + "|r range for |cff00ffff" + N2S(Afterburner__GetDamage(source , level) , 0) + " Magic|r damage every |cffffcc00" + N2S(Afterburner__GetDamageInterval(source , level) , 1) + "|r seconds.\n\nLasts |cffffcc00" + N2S(Afterburner__GetDuration(source , level) , 1) + "|r seconds."
+        function s__Afterburner___Afterburner_onTooltip takes integer this,unit source,integer level returns string
+            return "|cffffcc00Ragnaros|r spells leave a trail of fire after cast that burns enemy units within |cffffcc00" + N2S(Afterburner___GetAoE(source , level) , 0) + "|r range for |cff00ffff" + N2S(Afterburner___GetDamage(source , level) , 0) + " Magic|r damage every |cffffcc00" + N2S(Afterburner___GetDamageInterval(source , level) , 1) + "|r seconds.\n\nLasts |cffffcc00" + N2S(Afterburner___GetDuration(source , level) , 1) + "|r seconds."
         endfunction 
 
-        function s__Afterburner__Afterburner_onDamage takes nothing returns nothing
-            local integer this
+        function s__Afterburner___Afterburner_onDamage takes nothing returns nothing
+            local integer this= s__Afterburner___Afterburner_array[(GetUnitUserData(s__DamageInterface___Unit_unit[((s__Damage_sources[s__Damage_key]))]))] // INLINED!!
 
-            if s__Afterburner__Afterburner_proxy[(GetUnitUserData(s__DamageInterface___Unit_unit[((s__Damage_sources[s__Damage_key]))]))] != 0 and (s__Damage_damage[s__Damage_key]) > 0 then // INLINED!!
-                set this=s__Afterburner__Afterburner_proxy[(GetUnitUserData(s__DamageInterface___Unit_unit[((s__Damage_sources[s__Damage_key]))]))] // INLINED!!
-                call s__Damage__set_amount(0)
-
-                call UnitDamageTarget(s__Afterburner__Afterburner_unit[this], s__DamageInterface___Unit_unit[(s__Damage_targets[s__Damage_key])], s__Afterburner__Afterburner_damage[this], false, false, Afterburner__ATTACK_TYPE, Afterburner__DAMAGE_TYPE, null) // INLINED!!
+            if this != 0 and (s__Damage_damage[s__Damage_key]) > 0 then // INLINED!!
+                set s__Damage_newSource[s__Damage_key]=(s__Afterburner___Afterburner_unit[this]) // INLINED!!
             endif
         endfunction
 
@@ -19168,33 +17509,33 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
 
 
 
-        function s__Afterburner__Afterburner_Periodic___end takes integer this,integer i,integer id returns integer
+        function s__Afterburner___Afterburner_Periodic___end takes integer this,integer i,integer id returns integer
             if i >= 0 then
-                call SaveInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id))) - 1)) // INLINED!!
-                call SaveInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___table), (i), ( (LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___table), ((LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id)))))))) // INLINED!!
+                call SaveInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id))) - 1)) // INLINED!!
+                call SaveInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___table), (i), ( (LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___table), ((LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id)))))))) // INLINED!!
 
-                if (LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id))) == 0 then // INLINED!!
+                if (LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id))) == 0 then // INLINED!!
                     call PauseTimer(GetExpiredTimer())
                 endif
             else
                 call ReleaseTimer(GetExpiredTimer())
             endif
 
-            if (HaveSavedInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___struct), (s__Afterburner__Afterburner_Periodic____unique[this]))) then // INLINED!!
-                call RemoveSavedInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___struct), (s__Afterburner__Afterburner_Periodic____unique[this])) // INLINED!!
+            if (HaveSavedInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___struct), (s__Afterburner___Afterburner_Periodic____unique[this]))) then // INLINED!!
+                call RemoveSavedInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___struct), (s__Afterburner___Afterburner_Periodic____unique[this])) // INLINED!!
             endif
 
-            if s__Afterburner__Afterburner_Periodic____allocated[this] then
-                set s__Afterburner__Afterburner_Periodic____timer[this]=null
-                set s__Afterburner__Afterburner_Periodic____allocated[this]=false
+            if s__Afterburner___Afterburner_Periodic____allocated[this] then
+                set s__Afterburner___Afterburner_Periodic____timer[this]=null
+                set s__Afterburner___Afterburner_Periodic____allocated[this]=false
 
-                call s__Afterburner__Afterburner_destroy(this)
+                call s__Afterburner___Afterburner_destroy(this)
             endif
 
             return i - 1
         endfunction
 
-        function s__Afterburner__Afterburner_Periodic___onTimeout takes nothing returns nothing
+        function s__Afterburner___Afterburner_Periodic___onTimeout takes nothing returns nothing
             local integer this= (LoadInteger(TimerUtils___ht, 0, GetHandleId((GetExpiredTimer())))) // INLINED!!
             
             if this != 0 then
@@ -19202,11 +17543,11 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
 
 
 
-                call s__Afterburner__Afterburner_Periodic___end(this,- 1 , 0)
+                call s__Afterburner___Afterburner_Periodic___end(this,- 1 , 0)
             endif
         endfunction
 
-        function s__Afterburner__Afterburner_Periodic___onPeriodic takes nothing returns nothing
+        function s__Afterburner___Afterburner_Periodic___onPeriodic takes nothing returns nothing
             local integer i= 0
             local integer id= GetHandleId(GetExpiredTimer())
             local integer this= (LoadInteger(TimerUtils___ht, 0, GetHandleId((GetExpiredTimer())))) // INLINED!!
@@ -19219,8 +17560,8 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
 
             else
                 loop
-                    exitwhen i == (LoadInteger(Table___ht, (((s__Afterburner__Afterburner_Periodic___key))), (id))) // INLINED!!
-                        set this=(LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___table), (i))) // INLINED!!
+                    exitwhen i == (LoadInteger(Table___ht, (((s__Afterburner___Afterburner_Periodic___key))), (id))) // INLINED!!
+                        set this=(LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___table), (i))) // INLINED!!
 
                         if this != 0 then
 
@@ -19234,74 +17575,74 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
             endif
         endfunction
 
-        function s__Afterburner__Afterburner_HasStartedTimer takes integer id returns boolean
-            return (HaveSavedInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___struct), (id))) // INLINED!!
+        function s__Afterburner___Afterburner_HasStartedTimer takes integer id returns boolean
+            return (HaveSavedInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___struct), (id))) // INLINED!!
         endfunction
 
-        function s__Afterburner__Afterburner_GetTimerInstance takes integer id returns integer
-            return (LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___struct), (id))) // INLINED!!
+        function s__Afterburner___Afterburner_GetTimerInstance takes integer id returns integer
+            return (LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___struct), (id))) // INLINED!!
         endfunction
 
-        function s__Afterburner__Afterburner_GetRemainingTime takes integer this returns real
-            return TimerGetRemaining(s__Afterburner__Afterburner_Periodic____timer[this])
+        function s__Afterburner___Afterburner_GetRemainingTime takes integer this returns real
+            return TimerGetRemaining(s__Afterburner___Afterburner_Periodic____timer[this])
         endfunction
 
-        function s__Afterburner__Afterburner_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
+        function s__Afterburner___Afterburner_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
             local integer index= R2I(timeout * 100000)
             local integer id
 
             if this != 0 then
-                set s__Afterburner__Afterburner_Periodic____unique[this]=uniqueId
-                set s__Afterburner__Afterburner_Periodic____allocated[this]=true
+                set s__Afterburner___Afterburner_Periodic____unique[this]=uniqueId
+                set s__Afterburner___Afterburner_Periodic____allocated[this]=true
 
-                if s__Afterburner__Afterburner_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___struct), (s__Afterburner__Afterburner_Periodic____unique[this]))) then // INLINED!!
-                    call SaveInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___struct), (s__Afterburner__Afterburner_Periodic____unique[this]), ( this)) // INLINED!!
+                if s__Afterburner___Afterburner_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___struct), (s__Afterburner___Afterburner_Periodic____unique[this]))) then // INLINED!!
+                    call SaveInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___struct), (s__Afterburner___Afterburner_Periodic____unique[this]), ( this)) // INLINED!!
                 endif
 
                 if periodic then
-                    if timeout <= s__Afterburner__Afterburner_Periodic___PERIODIC_THRESHOLD then
-                        if not (HaveSavedHandle(Table___ht, (((s__Afterburner__Afterburner_Periodic___timers))), (index))) then // INLINED!!
-                            call SaveTimerHandle(Table___ht, (((s__Afterburner__Afterburner_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
+                    if timeout <= s__Afterburner___Afterburner_Periodic___PERIODIC_THRESHOLD then
+                        if not (HaveSavedHandle(Table___ht, (((s__Afterburner___Afterburner_Periodic___timers))), (index))) then // INLINED!!
+                            call SaveTimerHandle(Table___ht, (((s__Afterburner___Afterburner_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
                         endif
 
-                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__Afterburner__Afterburner_Periodic___timers))), (index)))) // INLINED!!
-                        set s__Afterburner__Afterburner_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__Afterburner__Afterburner_Periodic___timers))), (index))) // INLINED!!
-                        call SaveInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___table), ((LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id)))), ( this)) // INLINED!!
-                        call SaveInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id))) + 1)) // INLINED!!
+                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__Afterburner___Afterburner_Periodic___timers))), (index)))) // INLINED!!
+                        set s__Afterburner___Afterburner_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__Afterburner___Afterburner_Periodic___timers))), (index))) // INLINED!!
+                        call SaveInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___table), ((LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id)))), ( this)) // INLINED!!
+                        call SaveInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id))) + 1)) // INLINED!!
     
-                        if (LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id))) == 1 then // INLINED!!
-                            call TimerStart((LoadTimerHandle(Table___ht, (((s__Afterburner__Afterburner_Periodic___timers))), (index))), timeout, periodic, function s__Afterburner__Afterburner_Periodic___onPeriodic) // INLINED!!
+                        if (LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id))) == 1 then // INLINED!!
+                            call TimerStart((LoadTimerHandle(Table___ht, (((s__Afterburner___Afterburner_Periodic___timers))), (index))), timeout, periodic, function s__Afterburner___Afterburner_Periodic___onPeriodic) // INLINED!!
                         endif
                     else
-                        set s__Afterburner__Afterburner_Periodic____timer[this]=NewTimerEx(this)
-                        call TimerStart(s__Afterburner__Afterburner_Periodic____timer[this], timeout, periodic, function s__Afterburner__Afterburner_Periodic___onPeriodic)
+                        set s__Afterburner___Afterburner_Periodic____timer[this]=NewTimerEx(this)
+                        call TimerStart(s__Afterburner___Afterburner_Periodic____timer[this], timeout, periodic, function s__Afterburner___Afterburner_Periodic___onPeriodic)
                     endif
                 else
-                    set s__Afterburner__Afterburner_Periodic____timer[this]=NewTimerEx(this)
-                    call TimerStart(s__Afterburner__Afterburner_Periodic____timer[this], timeout, periodic, function s__Afterburner__Afterburner_Periodic___onTimeout)
+                    set s__Afterburner___Afterburner_Periodic____timer[this]=NewTimerEx(this)
+                    call TimerStart(s__Afterburner___Afterburner_Periodic____timer[this], timeout, periodic, function s__Afterburner___Afterburner_Periodic___onTimeout)
                 endif
             else
                 call BJDebugMsg("Periodic Error: instance not provided")
             endif
         endfunction
 
-        function s__Afterburner__Afterburner_Periodic___onInit takes nothing returns nothing
-            set s__Afterburner__Afterburner_Periodic___key=s__Table_create()
-            set s__Afterburner__Afterburner_Periodic___table=s__Table_create()
-            set s__Afterburner__Afterburner_Periodic___struct=s__Table_create()
-            set s__Afterburner__Afterburner_Periodic___timers=s__Table_create()
+        function s__Afterburner___Afterburner_Periodic___onInit takes nothing returns nothing
+            set s__Afterburner___Afterburner_Periodic___key=s__Table_create()
+            set s__Afterburner___Afterburner_Periodic___table=s__Table_create()
+            set s__Afterburner___Afterburner_Periodic___struct=s__Table_create()
+            set s__Afterburner___Afterburner_Periodic___timers=s__Table_create()
         endfunction
 
-        function s__Afterburner__Afterburner_onInit takes nothing returns nothing
-            call s__Ability_register((s__Afterburner__Afterburner__allocate() ) , ( Afterburner__ABILITY)) // INLINED!!
-            call sc__Damage_register(ATTACK_TYPE_NORMAL , null , (function s__Afterburner__Afterburner_onDamage) , true) // INLINED!!
+        function s__Afterburner___Afterburner_onInit takes nothing returns nothing
+            call s__Ability_register((s__Afterburner___Afterburner__allocate() ) , ( Afterburner___ABILITY)) // INLINED!!
+            call sc__Damage_register(ATTACK_TYPE_NORMAL , null , (function s__Afterburner___Afterburner_onDamage) , true) // INLINED!!
         endfunction
 
     function Afterburn takes real x,real y,unit source returns nothing
-        local integer level= GetUnitAbilityLevel(source, Afterburner__ABILITY)
+        local integer level= GetUnitAbilityLevel(source, Afterburner___ABILITY)
 
         if level > 0 then
-            call s__Afterburner__Afterburner_create(x , y , Afterburner__GetDamage(source , level) , Afterburner__GetDuration(source , level) , Afterburner__GetAoE(source , level) , Afterburner__GetDamageInterval(source , level) , source)
+            call s__Afterburner___Afterburner_create(x , y , Afterburner___GetDamage(source , level) , Afterburner___GetDuration(source , level) , Afterburner___GetAoE(source , level) , Afterburner___GetDamageInterval(source , level) , source)
         endif
     endfunction
 
@@ -20493,25 +18834,6 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
     
     
     
-    function ItemAddComponents takes integer whichItem,integer a,integer b,integer c,integer d,integer e returns nothing
-        call sc__Item_addComponents(whichItem , a , b , c , d , e)
-    endfunction
-
-    function ItemCountComponentOfType takes integer id,integer component returns integer
-        return sc__Item_countComponent(id , component)
-    endfunction
-
-    function UnitHasItemOfType takes unit u,integer id returns boolean
-        return sc__Item_hasType(u , id)
-    endfunction
-
-    function UnitCountItemOfType takes unit u,integer id returns integer
-        return sc__Item_countType(u , id)
-    endfunction
-
-    
-    
-    
 
     
 
@@ -20642,7 +18964,7 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
                 call PauseTimer(s__Item_timer)
             endif
             
-            call sc__Item___Events_deallocate(this)
+            call sc__Item___IItem_deallocate(this)
 
             return i - 1
         endfunction
@@ -20678,7 +19000,7 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
                 if (HaveSavedInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0))) then // INLINED!!
                     return ((LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0)))) // INLINED!!
                 else
-                    return sc__Item_create(id , 0 , 0 , 0 , 0 , 0)
+                    return sc__Item_create(id)
                 endif
             endif
 
@@ -20734,11 +19056,7 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
             return 0
         endfunction
 
-        function s__Item_new takes nothing returns integer
-            return s__Item__allocate()
-        endfunction
-
-        function s__Item_create takes integer id,integer a,integer b,integer c,integer d,integer e returns integer
+        function s__Item_create takes integer id returns integer
             local integer this= s__Item__allocate()
             local item i
 
@@ -20755,11 +19073,6 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
                     call s__Item__set_gold(this,s__Item_totalCost(id))
                     call SaveInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0), ( this)) // INLINED!!
 
-                    call sc__Item_save(id , a)
-                    call sc__Item_save(id , b)
-                    call sc__Item_save(id , c)
-                    call sc__Item_save(id , d)
-                    call sc__Item_save(id , e)
                     call RemoveItem(i)
 
                     set i=null
@@ -20805,7 +19118,7 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
                     set this=s__Item_array[i]
 
                     if UnitHasItem(s__Item_unit[this], s__Item_item[this]) then
-                        call sc__Item___Events_onTooltip(s__Item_type[this],s__Item_unit[this] , s__Item_item[this] , s__Item_index[this])
+                        call BlzSetItemExtendedTooltip(s__Item_item[this], sc__Item___IItem_onTooltip(s__Item_type[this],s__Item_unit[this] , s__Item_item[this] , s__Item_index[this]))
                     else
                         set i=s__Item_remove(this,i)
                     endif
@@ -20823,41 +19136,41 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
 
             if this != 0 then
 
-                    call s__Bonus_linkItem((u ) , ( BONUS_DAMAGE ) , (( s__Item___Events_damage[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_ARMOR ) , (( s__Item___Events_armor[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_DAMAGE_BLOCK ) , (( s__Item___Events_block[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_AGILITY ) , (( s__Item___Events_agility[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_STRENGTH ) , (( s__Item___Events_strength[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_INTELLIGENCE ) , (( s__Item___Events_intelligence[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_HEALTH ) , (( s__Item___Events_health[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_MANA ) , (( s__Item___Events_mana[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_MOVEMENT_SPEED ) , (( s__Item___Events_movementSpeed[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_SIGHT_RANGE ) , (( s__Item___Events_sightRange[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_HEALTH_REGEN ) , (( s__Item___Events_healthRegen[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_MANA_REGEN ) , (( s__Item___Events_manaRegen[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_ATTACK_SPEED ) , (( s__Item___Events_attackSpeed[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_MAGIC_RESISTANCE ) , (( s__Item___Events_magicResistance[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_EVASION_CHANCE ) , (( s__Item___Events_evasion[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_CRITICAL_DAMAGE ) , (( s__Item___Events_criticalDamage[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_CRITICAL_CHANCE ) , (( s__Item___Events_criticalChance[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_LIFE_STEAL ) , (( s__Item___Events_lifeSteal[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_MISS_CHANCE ) , (( s__Item___Events_missChance[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_SPELL_POWER ) , (( s__Item___Events_spellPower[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_SPELL_VAMP ) , (( s__Item___Events_spellVamp[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_COOLDOWN_REDUCTION ) , (( s__Item___Events_cooldownReduction[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_COOLDOWN_REDUCTION_FLAT ) , (( s__Item___Events_cooldownReductionFlat[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_COOLDOWN_OFFSET ) , (( s__Item___Events_cooldownOffset[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_TENACITY ) , (( s__Item___Events_tenacity[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_TENACITY_FLAT ) , (( s__Item___Events_tenacityFlat[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_TENACITY_OFFSET ) , (( s__Item___Events_tenacityOffset[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_ARMOR_PENETRATION ) , (( s__Item___Events_armorPenetration[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_ARMOR_PENETRATION_FLAT ) , (( s__Item___Events_armorPenetrationFlat[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_MAGIC_PENETRATION ) , (( s__Item___Events_magicPenetration[this] )*1.0) , ( i)) // INLINED!!
-                    call s__Bonus_linkItem((u ) , ( BONUS_MAGIC_PENETRATION_FLAT ) , (( s__Item___Events_magicPenetrationFlat[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_DAMAGE ) , (( s__Item___IItem_damage[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_ARMOR ) , (( s__Item___IItem_armor[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_DAMAGE_BLOCK ) , (( s__Item___IItem_block[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_AGILITY ) , (( s__Item___IItem_agility[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_STRENGTH ) , (( s__Item___IItem_strength[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_INTELLIGENCE ) , (( s__Item___IItem_intelligence[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_HEALTH ) , (( s__Item___IItem_health[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_MANA ) , (( s__Item___IItem_mana[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_MOVEMENT_SPEED ) , (( s__Item___IItem_movementSpeed[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_SIGHT_RANGE ) , (( s__Item___IItem_sightRange[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_HEALTH_REGEN ) , (( s__Item___IItem_healthRegen[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_MANA_REGEN ) , (( s__Item___IItem_manaRegen[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_ATTACK_SPEED ) , (( s__Item___IItem_attackSpeed[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_MAGIC_RESISTANCE ) , (( s__Item___IItem_magicResistance[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_EVASION_CHANCE ) , (( s__Item___IItem_evasion[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_CRITICAL_DAMAGE ) , (( s__Item___IItem_criticalDamage[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_CRITICAL_CHANCE ) , (( s__Item___IItem_criticalChance[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_LIFE_STEAL ) , (( s__Item___IItem_lifeSteal[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_MISS_CHANCE ) , (( s__Item___IItem_missChance[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_SPELL_POWER ) , (( s__Item___IItem_spellPower[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_SPELL_VAMP ) , (( s__Item___IItem_spellVamp[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_COOLDOWN_REDUCTION ) , (( s__Item___IItem_cooldownReduction[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_COOLDOWN_REDUCTION_FLAT ) , (( s__Item___IItem_cooldownReductionFlat[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_COOLDOWN_OFFSET ) , (( s__Item___IItem_cooldownOffset[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_TENACITY ) , (( s__Item___IItem_tenacity[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_TENACITY_FLAT ) , (( s__Item___IItem_tenacityFlat[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_TENACITY_OFFSET ) , (( s__Item___IItem_tenacityOffset[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_ARMOR_PENETRATION ) , (( s__Item___IItem_armorPenetration[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_ARMOR_PENETRATION_FLAT ) , (( s__Item___IItem_armorPenetrationFlat[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_MAGIC_PENETRATION ) , (( s__Item___IItem_magicPenetration[this] )*1.0) , ( i)) // INLINED!!
+                    call s__Bonus_linkItem((u ) , ( BONUS_MAGIC_PENETRATION_FLAT ) , (( s__Item___IItem_magicPenetrationFlat[this] )*1.0) , ( i)) // INLINED!!
 
 
 
-                    if (st__Item___Events_onTooltip[si__Item___Events_type[this]]!=null) then
+                    if (st__Item___IItem_onTooltip[si__Item___IItem_type[this]]!=null) then
                         set self=s__Item__allocate()
                         set s__Item_unit[self]=u
                         set s__Item_item[self]=i
@@ -20872,8 +19185,8 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
                     endif
 
 
-                if (st__Item___Events_onPickup[si__Item___Events_type[this]]!=null) then
-                    call sc__Item___Events_onPickup(this,u , i)
+                if (st__Item___IItem_onPickup[si__Item___IItem_type[this]]!=null) then
+                    call sc__Item___IItem_onPickup(this,u , i)
                 endif
             endif
         endfunction
@@ -20886,8 +19199,8 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
             call SaveInteger(Table___ht, (s__HashTable__getindex(s__Item_table,u)), (i), ( (LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_table,u)), (i))) - 1)) // INLINED!!
 
             if this != 0 then
-                if (st__Item___Events_onDrop[si__Item___Events_type[this]]!=null) then
-                    call sc__Item___Events_onDrop(this,GetManipulatingUnit() , GetManipulatedItem())
+                if (st__Item___IItem_onDrop[si__Item___IItem_type[this]]!=null) then
+                    call sc__Item___IItem_onDrop(this,GetManipulatingUnit() , GetManipulatedItem())
                 endif
             endif
         endfunction
@@ -20908,6 +19221,29 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM , function s__Item_onPickupItem)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM , function s__Item_onDropItem)
         endfunction
+
+    
+    
+    
+    function RegisterItem takes integer i,integer a,integer b,integer c,integer d,integer e returns nothing
+        call s__Item_addComponents(s__Item_id[i] , a , b , c , d , e)
+    endfunction
+
+    function ItemAddComponents takes integer whichItem,integer a,integer b,integer c,integer d,integer e returns nothing
+        call s__Item_addComponents(whichItem , a , b , c , d , e)
+    endfunction
+
+    function ItemCountComponentOfType takes integer id,integer component returns integer
+        return s__Item_countComponent(id , component)
+    endfunction
+
+    function UnitHasItemOfType takes unit u,integer id returns boolean
+        return s__Item_hasType(u , id)
+    endfunction
+
+    function UnitCountItemOfType takes unit u,integer id returns integer
+        return s__Item_countType(u , id)
+    endfunction
 
 //library Item ends
 //library MissileUtils:
@@ -21479,6 +19815,236 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
         endfunction
 
 //library MissileUtils ends
+//library MoltenShield:
+    
+    // Credits:
+    //     Power            - Shield model
+    //     Mythic           - Explosion model
+    //     Magtheridon96    - RegisterPlayerUnitEvent
+    
+    
+    
+    
+    
+
+    function MoltenShield___GetDamage takes unit source,integer level,real stored returns real
+        return stored + 0.25 * (s__Bonus_getter((source ) , ( BONUS_SPELL_POWER))) // INLINED!!
+    endfunction
+
+    // The amount of movement speed the target of Molten Shield gains
+    function MoltenShield___GetMovementBonus takes integer level returns integer
+        return 100 * level
+    endfunction
+
+    // The percentage of damage reduced to units with molten shield
+    function MoltenShield___GetDamageFactor takes integer level returns real
+        return 0.5
+    endfunction
+
+    // The damage area
+    function MoltenShield___GetDamageAoe takes integer level returns real
+        return 350. + 50 * level
+    endfunction
+    
+    
+    
+    
+
+
+        function s__MoltenShield___MoltenShield_destroy takes integer this returns nothing
+            set s__MoltenShield___MoltenShield_unit[this]=null
+            set s__MoltenShield___MoltenShield_stored[s__MoltenShield___MoltenShield_id[this]]=0
+
+            call sc__Ability___IAbility_deallocate(this)
+        endfunction
+
+        function s__MoltenShield___MoltenShield_onTooltip takes integer this,unit source,integer level returns string
+            return "Upon cast engulfs the target in a |cffffcc00Molten shield|r that reduces all damage taken by |cffffcc00" + N2S(MoltenShield___GetDamageFactor(level) * 100 , 1) + "%|r and increases |cffffcc00Movement Speed|r by |cffffcc00" + N2S((100 * (level)) , 0) + "|r for |cffffcc0010|r seconds. All damage reduced by |cffffcc00Molten Shield|r is stored and when depleated all damage stored is dealt as |cff00ffffMagic|r damage, dealing |cff00ffff" + N2S(MoltenShield___GetDamage(source , level , s__MoltenShield___MoltenShield_stored[GetUnitUserData(source)]) , 0) + " Magic|r damage to all enemy units within |cffffcc00" + N2S((350. + 50 * (level)) , 0) + " AoE|r." // INLINED!!
+        endfunction
+
+        function s__MoltenShield___MoltenShield_onPeriod takes integer this returns boolean
+            if GetUnitAbilityLevel(s__MoltenShield___MoltenShield_unit[this], MoltenShield___BUFF_ID) == 0 then
+                if s__MoltenShield___MoltenShield_stored[s__MoltenShield___MoltenShield_id[this]] > 0 then
+                    call UnitDamageArea(s__MoltenShield___MoltenShield_unit[this] , GetUnitX(s__MoltenShield___MoltenShield_unit[this]) , GetUnitY(s__MoltenShield___MoltenShield_unit[this]) , (350. + 50 * (s__MoltenShield___MoltenShield_level[this])) , MoltenShield___GetDamage(s__MoltenShield___MoltenShield_unit[this] , s__MoltenShield___MoltenShield_level[this] , s__MoltenShield___MoltenShield_stored[s__MoltenShield___MoltenShield_id[this]]) , MoltenShield___ATTACK_TYPE , MoltenShield___DAMAGE_TYPE , false , false , false) // INLINED!!
+                endif
+
+                call DestroyEffect(AddSpecialEffectTarget(MoltenShield___EXPLOSION_EFFECT, s__MoltenShield___MoltenShield_unit[this], MoltenShield___ATTACH_POINT))
+                
+                return false
+            endif
+
+            return true
+        endfunction
+
+        function s__MoltenShield___MoltenShield_onCast takes integer this returns nothing
+            if GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_target], MoltenShield___BUFF_ID) == 0 then
+                set this=s__MoltenShield___MoltenShield__allocate()
+                set s__MoltenShield___MoltenShield_id[this]=(GetUnitUserData(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])) // INLINED!!
+                set s__MoltenShield___MoltenShield_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_target]
+                set s__MoltenShield___MoltenShield_level[this]=(GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) // INLINED!!
+
+                call sc__MoltenShield___MoltenShield_StartTimer(0.03125 , true , this , - 1)
+                call s__Bonus_linkBuff((s__PluginSpellEffect___Unit_unit[s__Spell_target] ) , ( BONUS_MOVEMENT_SPEED ) , (( (100 * ((GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))))) )*1.0) , ( MoltenShield___BUFF_ID)) // INLINED!!
+            endif
+        endfunction
+
+        function s__MoltenShield___MoltenShield_onLevelUp takes nothing returns nothing
+            local unit u= GetTriggerUnit()
+        
+            if MoltenShield___GAIN_AT_LEVEL > 0 then
+                if GetUnitTypeId(u) == MoltenShield___RAGNAROS_ID and GetHeroLevel(u) == MoltenShield___GAIN_AT_LEVEL then
+                    call UnitAddAbility(u, MoltenShield___ABILITY)
+                    call UnitMakeAbilityPermanent(u, true, MoltenShield___ABILITY)
+                endif
+            endif
+        
+            set u=null
+        endfunction
+
+        function s__MoltenShield___MoltenShield_onDamage takes nothing returns nothing
+            local integer level= GetUnitAbilityLevel(s__DamageInterface___Unit_unit[(s__Damage_targets[s__Damage_key])], MoltenShield___BUFF_ID) // INLINED!!
+
+            if level > 0 and (s__Damage_damage[s__Damage_key]) > 0 then // INLINED!!
+                call s__Damage__set_amount((s__Damage_damage[s__Damage_key]) * MoltenShield___GetDamageFactor(level)) // INLINED!!
+                set s__MoltenShield___MoltenShield_stored[(GetUnitUserData(s__DamageInterface___Unit_unit[((s__Damage_targets[s__Damage_key]))]))]=s__MoltenShield___MoltenShield_stored[(GetUnitUserData(s__DamageInterface___Unit_unit[((s__Damage_targets[s__Damage_key]))]))] + (s__Damage_damage[s__Damage_key]) // INLINED!!
+            endif
+        endfunction
+
+//Implemented from module Periodic:
+
+
+
+        function s__MoltenShield___MoltenShield_Periodic___end takes integer this,integer i,integer id returns integer
+            if i >= 0 then
+                call SaveInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id))) - 1)) // INLINED!!
+                call SaveInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___table), (i), ( (LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___table), ((LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id)))))))) // INLINED!!
+
+                if (LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id))) == 0 then // INLINED!!
+                    call PauseTimer(GetExpiredTimer())
+                endif
+            else
+                call ReleaseTimer(GetExpiredTimer())
+            endif
+
+            if (HaveSavedInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___struct), (s__MoltenShield___MoltenShield_Periodic____unique[this]))) then // INLINED!!
+                call RemoveSavedInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___struct), (s__MoltenShield___MoltenShield_Periodic____unique[this])) // INLINED!!
+            endif
+
+            if s__MoltenShield___MoltenShield_Periodic____allocated[this] then
+                set s__MoltenShield___MoltenShield_Periodic____timer[this]=null
+                set s__MoltenShield___MoltenShield_Periodic____allocated[this]=false
+
+                call s__MoltenShield___MoltenShield_destroy(this)
+            endif
+
+            return i - 1
+        endfunction
+
+        function s__MoltenShield___MoltenShield_Periodic___onTimeout takes nothing returns nothing
+            local integer this= (LoadInteger(TimerUtils___ht, 0, GetHandleId((GetExpiredTimer())))) // INLINED!!
+            
+            if this != 0 then
+
+
+
+
+                call s__MoltenShield___MoltenShield_Periodic___end(this,- 1 , 0)
+            endif
+        endfunction
+
+        function s__MoltenShield___MoltenShield_Periodic___onPeriodic takes nothing returns nothing
+            local integer i= 0
+            local integer id= GetHandleId(GetExpiredTimer())
+            local integer this= (LoadInteger(TimerUtils___ht, 0, GetHandleId((GetExpiredTimer())))) // INLINED!!
+            
+            if this != 0 then
+
+                    if not s__MoltenShield___MoltenShield_onPeriod(this) then
+                        call s__MoltenShield___MoltenShield_Periodic___end(this,- 1 , 0)
+                    endif
+
+            else
+                loop
+                    exitwhen i == (LoadInteger(Table___ht, (((s__MoltenShield___MoltenShield_Periodic___key))), (id))) // INLINED!!
+                        set this=(LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___table), (i))) // INLINED!!
+
+                        if this != 0 then
+
+                                if not s__MoltenShield___MoltenShield_onPeriod(this) then
+                                    set i=s__MoltenShield___MoltenShield_Periodic___end(this,i , id)
+                                endif
+
+                        endif
+                    set i=i + 1
+                endloop
+            endif
+        endfunction
+
+        function s__MoltenShield___MoltenShield_HasStartedTimer takes integer id returns boolean
+            return (HaveSavedInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___struct), (id))) // INLINED!!
+        endfunction
+
+        function s__MoltenShield___MoltenShield_GetTimerInstance takes integer id returns integer
+            return (LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___struct), (id))) // INLINED!!
+        endfunction
+
+        function s__MoltenShield___MoltenShield_GetRemainingTime takes integer this returns real
+            return TimerGetRemaining(s__MoltenShield___MoltenShield_Periodic____timer[this])
+        endfunction
+
+        function s__MoltenShield___MoltenShield_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
+            local integer index= R2I(timeout * 100000)
+            local integer id
+
+            if this != 0 then
+                set s__MoltenShield___MoltenShield_Periodic____unique[this]=uniqueId
+                set s__MoltenShield___MoltenShield_Periodic____allocated[this]=true
+
+                if s__MoltenShield___MoltenShield_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___struct), (s__MoltenShield___MoltenShield_Periodic____unique[this]))) then // INLINED!!
+                    call SaveInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___struct), (s__MoltenShield___MoltenShield_Periodic____unique[this]), ( this)) // INLINED!!
+                endif
+
+                if periodic then
+                    if timeout <= s__MoltenShield___MoltenShield_Periodic___PERIODIC_THRESHOLD then
+                        if not (HaveSavedHandle(Table___ht, (((s__MoltenShield___MoltenShield_Periodic___timers))), (index))) then // INLINED!!
+                            call SaveTimerHandle(Table___ht, (((s__MoltenShield___MoltenShield_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
+                        endif
+
+                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__MoltenShield___MoltenShield_Periodic___timers))), (index)))) // INLINED!!
+                        set s__MoltenShield___MoltenShield_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__MoltenShield___MoltenShield_Periodic___timers))), (index))) // INLINED!!
+                        call SaveInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___table), ((LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id)))), ( this)) // INLINED!!
+                        call SaveInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id))) + 1)) // INLINED!!
+    
+                        if (LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id))) == 1 then // INLINED!!
+                            call TimerStart((LoadTimerHandle(Table___ht, (((s__MoltenShield___MoltenShield_Periodic___timers))), (index))), timeout, periodic, function s__MoltenShield___MoltenShield_Periodic___onPeriodic) // INLINED!!
+                        endif
+                    else
+                        set s__MoltenShield___MoltenShield_Periodic____timer[this]=NewTimerEx(this)
+                        call TimerStart(s__MoltenShield___MoltenShield_Periodic____timer[this], timeout, periodic, function s__MoltenShield___MoltenShield_Periodic___onPeriodic)
+                    endif
+                else
+                    set s__MoltenShield___MoltenShield_Periodic____timer[this]=NewTimerEx(this)
+                    call TimerStart(s__MoltenShield___MoltenShield_Periodic____timer[this], timeout, periodic, function s__MoltenShield___MoltenShield_Periodic___onTimeout)
+                endif
+            else
+                call BJDebugMsg("Periodic Error: instance not provided")
+            endif
+        endfunction
+
+        function s__MoltenShield___MoltenShield_Periodic___onInit takes nothing returns nothing
+            set s__MoltenShield___MoltenShield_Periodic___key=s__Table_create()
+            set s__MoltenShield___MoltenShield_Periodic___table=s__Table_create()
+            set s__MoltenShield___MoltenShield_Periodic___struct=s__Table_create()
+            set s__MoltenShield___MoltenShield_Periodic___timers=s__Table_create()
+        endfunction
+
+        function s__MoltenShield___MoltenShield_onInit takes nothing returns nothing
+            call s__Ability_register((s__MoltenShield___MoltenShield__allocate() ) , ( MoltenShield___ABILITY)) // INLINED!!
+            call TriggerAddCondition(s__Damage_anyAfter, Filter((function s__MoltenShield___MoltenShield_onDamage))) // INLINED!!
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL , function s__MoltenShield___MoltenShield_onLevelUp)
+        endfunction
+
+//library MoltenShield ends
 //library Sulfuras:
     
     // Credits: 
@@ -21491,7 +20057,7 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
     
 
     //Modify this function to change the amount of damage Ragnaros gains per kill
-    function Sulfuras__GetBonus takes unit source,integer level returns integer
+    function Sulfuras___GetBonus takes unit source,integer level returns integer
         if IsUnitType(source, UNIT_TYPE_HERO) then
             return 5 * level
         else
@@ -21500,12 +20066,12 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
     endfunction
 
     // Every GetStackCount number of kills the damage will be increased by GetBonus
-    function Sulfuras__GetStackCount takes unit source,integer level returns integer
+    function Sulfuras___GetStackCount takes unit source,integer level returns integer
         return 3 + 0 * level
     endfunction
 
     //Modify this function to change when Ragnaros gains bonus damage based on the Death Event.
-    function Sulfuras__UnitFilter takes player owner,unit target returns boolean
+    function Sulfuras___UnitFilter takes player owner,unit target returns boolean
         return IsUnitEnemy(target, owner) and not IsUnitType(target, UNIT_TYPE_STRUCTURE)
     endfunction
     
@@ -21514,7 +20080,7 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
     
 
         function s__Sulfuras_onTooltip takes unit source,integer level returns nothing
-            call BlzSetAbilityStringLevelField(BlzGetUnitAbility(source, Sulfuras__ABILITY), ABILITY_SLF_TOOLTIP_NORMAL_EXTENDED, level - 1, "|cffffcc00Ragnaros|r gains |cffffcc001|r damage for every |cffffcc003|r enemy unit killed by him. Hero kills grants |cffffcc005|r bonus damage.\n\nDamage Bonus: |cffffcc00" + I2S(s__Sulfuras_stacks[GetUnitUserData(source)]) + "|r")
+            call BlzSetAbilityStringLevelField(BlzGetUnitAbility(source, Sulfuras___ABILITY), ABILITY_SLF_TOOLTIP_NORMAL_EXTENDED, level - 1, "|cffffcc00Ragnaros|r gains |cffffcc001|r damage for every |cffffcc003|r enemy unit killed by him. Hero kills grants |cffffcc005|r bonus damage.\n\nDamage Bonus: |cffffcc00" + I2S(s__Sulfuras_stacks[GetUnitUserData(source)]) + "|r")
         endfunction
 
         function s__Sulfuras_onDeath takes nothing returns nothing
@@ -21524,24 +20090,24 @@ call s__lightningTimed_create((AddLightningEx(lightningType, true, GetUnitX(sour
             local integer level
             local integer amount
 
-            if GetUnitAbilityLevel(source, Sulfuras__ABILITY) > 0 then
+            if GetUnitAbilityLevel(source, Sulfuras___ABILITY) > 0 then
                 set target=GetDyingUnit()
 
-                if Sulfuras__UnitFilter(GetOwningPlayer(source) , target) then
+                if Sulfuras___UnitFilter(GetOwningPlayer(source) , target) then
                     set key=GetUnitUserData(source)
-                    set level=GetUnitAbilityLevel(source, Sulfuras__ABILITY)
+                    set level=GetUnitAbilityLevel(source, Sulfuras___ABILITY)
 
                     if IsUnitType(target, UNIT_TYPE_HERO) then
-                        set amount=Sulfuras__GetBonus(target , level)
+                        set amount=Sulfuras___GetBonus(target , level)
                         set s__Sulfuras_stacks[key]=s__Sulfuras_stacks[key] + amount
 
 call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
                     else
                         set s__Sulfuras_count[key]=s__Sulfuras_count[key] + 1
 
-                        if s__Sulfuras_count[key] >= Sulfuras__GetStackCount(source , level) then
+                        if s__Sulfuras_count[key] >= Sulfuras___GetStackCount(source , level) then
                             set s__Sulfuras_count[key]=0
-                            set amount=Sulfuras__GetBonus(target , level)
+                            set amount=Sulfuras___GetBonus(target , level)
                             set s__Sulfuras_stacks[key]=s__Sulfuras_stacks[key] + amount
 
 call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
@@ -21576,7 +20142,7 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
     
 
     //The damage amount of the explosion
-    function ExplosiveRune__GetDamage takes unit source,integer level returns real
+    function ExplosiveRune___GetDamage takes unit source,integer level returns real
 
             return ( 50. + 50. * level ) + 0.75 * (s__Bonus_getter((source ) , ( BONUS_SPELL_POWER))) // INLINED!!
 
@@ -21589,58 +20155,58 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
     
 
 
-        function s__ExplosiveRune__ExplosiveRune_destroy takes integer this returns nothing
-            set s__ExplosiveRune__ExplosiveRune_unit[this]=null
+        function s__ExplosiveRune___ExplosiveRune_destroy takes integer this returns nothing
+            set s__ExplosiveRune___ExplosiveRune_unit[this]=null
             call sc__Ability___IAbility_deallocate(this)
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_onTooltip takes integer this,unit source,integer level returns string
-            return "Ragnaros creates an |cffffcc00Explosive Rune|r in the target location that explodes after |cffffcc00" + N2S(ExplosiveRune__EXPLOSION_DELAY , 1) + "|r seconds, dealing |cff00ffff" + N2S(ExplosiveRune__GetDamage(source , level) , 0) + " Magic|r damage to enemy units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ExplosiveRune__ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1) , 0) + " AoE|r. Holds up to |cffffcc00" + I2S(ExplosiveRune__CHARGES_COUNT) + "|r charges. Gains |cffffcc001|r charge every |cffffcc00" + N2S(ExplosiveRune__CHARGES_COOLDOWN , 1) + "|r seconds.\n\nCharges: |cffffcc00" + I2S(s__ExplosiveRune__ExplosiveRune_charges[GetUnitUserData(source)]) + "|r"
+        function s__ExplosiveRune___ExplosiveRune_onTooltip takes integer this,unit source,integer level returns string
+            return "Ragnaros creates an |cffffcc00Explosive Rune|r in the target location that explodes after |cffffcc00" + N2S(ExplosiveRune___EXPLOSION_DELAY , 1) + "|r seconds, dealing |cff00ffff" + N2S(ExplosiveRune___GetDamage(source , level) , 0) + " Magic|r damage to enemy units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ExplosiveRune___ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1) , 0) + " AoE|r. Holds up to |cffffcc00" + I2S(ExplosiveRune___CHARGES_COUNT) + "|r charges. Gains |cffffcc001|r charge every |cffffcc00" + N2S(ExplosiveRune___CHARGES_COOLDOWN , 1) + "|r seconds.\n\nCharges: |cffffcc00" + I2S(s__ExplosiveRune___ExplosiveRune_charges[GetUnitUserData(source)]) + "|r"
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_onPeriod takes integer this returns boolean
-            local integer level= GetUnitAbilityLevel(s__ExplosiveRune__ExplosiveRune_unit[this], ExplosiveRune__ABILITY)
+        function s__ExplosiveRune___ExplosiveRune_onPeriod takes integer this returns boolean
+            local integer level= GetUnitAbilityLevel(s__ExplosiveRune___ExplosiveRune_unit[this], ExplosiveRune___ABILITY)
 
             if level > 0 then
-                if s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]] < ExplosiveRune__CHARGES_COUNT and s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]] >= 0 then
-                    set s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]]=s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]] + 1
+                if s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]] < ExplosiveRune___CHARGES_COUNT and s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]] >= 0 then
+                    set s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]]=s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]] + 1
 
-                    call BlzEndUnitAbilityCooldown(s__ExplosiveRune__ExplosiveRune_unit[this], ExplosiveRune__ABILITY)
+                    call BlzEndUnitAbilityCooldown(s__ExplosiveRune___ExplosiveRune_unit[this], ExplosiveRune___ABILITY)
                 endif
             else
-                set s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]]=0
+                set s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]]=0
             endif
 
             return level > 0
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_onExpire takes integer this returns nothing
+        function s__ExplosiveRune___ExplosiveRune_onExpire takes integer this returns nothing
 
-                call Afterburn(s__ExplosiveRune__ExplosiveRune_x[this] , s__ExplosiveRune__ExplosiveRune_y[this] , s__ExplosiveRune__ExplosiveRune_unit[this])
+                call Afterburn(s__ExplosiveRune___ExplosiveRune_x[this] , s__ExplosiveRune___ExplosiveRune_y[this] , s__ExplosiveRune___ExplosiveRune_unit[this])
 
 
-            call UnitDamageArea(s__ExplosiveRune__ExplosiveRune_unit[this] , s__ExplosiveRune__ExplosiveRune_x[this] , s__ExplosiveRune__ExplosiveRune_y[this] , s__ExplosiveRune__ExplosiveRune_aoe[this] , s__ExplosiveRune__ExplosiveRune_damage[this] , ExplosiveRune__ATTACK_TYPE , ExplosiveRune__DAMAGE_TYPE , ExplosiveRune__DAMAGE_STRUCTURES , ExplosiveRune__DAMAGE_MAGIC_IMMUNE , ExplosiveRune__DAMAGE_ALLIES)
-            call DestroyEffect(AddSpecialEffect(ExplosiveRune__EXPLOSION_EFFECT, s__ExplosiveRune__ExplosiveRune_x[this], s__ExplosiveRune__ExplosiveRune_y[this]))
+            call UnitDamageArea(s__ExplosiveRune___ExplosiveRune_unit[this] , s__ExplosiveRune___ExplosiveRune_x[this] , s__ExplosiveRune___ExplosiveRune_y[this] , s__ExplosiveRune___ExplosiveRune_aoe[this] , s__ExplosiveRune___ExplosiveRune_damage[this] , ExplosiveRune___ATTACK_TYPE , ExplosiveRune___DAMAGE_TYPE , ExplosiveRune___DAMAGE_STRUCTURES , ExplosiveRune___DAMAGE_MAGIC_IMMUNE , ExplosiveRune___DAMAGE_ALLIES)
+            call DestroyEffect(AddSpecialEffect(ExplosiveRune___EXPLOSION_EFFECT, s__ExplosiveRune___ExplosiveRune_x[this], s__ExplosiveRune___ExplosiveRune_y[this]))
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_onCast takes integer this returns nothing
-            set this=s__ExplosiveRune__ExplosiveRune__allocate()
+        function s__ExplosiveRune___ExplosiveRune_onCast takes integer this returns nothing
+            set this=s__ExplosiveRune___ExplosiveRune__allocate()
             
-            set s__ExplosiveRune__ExplosiveRune_x[this]=(GetSpellTargetX()) // INLINED!!
-            set s__ExplosiveRune__ExplosiveRune_y[this]=(GetSpellTargetY()) // INLINED!!
-            set s__ExplosiveRune__ExplosiveRune_id[this]=(GetUnitUserData(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])) // INLINED!!
-            set s__ExplosiveRune__ExplosiveRune_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
-            set s__ExplosiveRune__ExplosiveRune_damage[this]=ExplosiveRune__GetDamage(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId())))) // INLINED!!
-            set s__ExplosiveRune__ExplosiveRune_aoe[this]=BlzGetAbilityRealLevelField((BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))), ABILITY_RLF_AREA_OF_EFFECT, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1) // INLINED!!
+            set s__ExplosiveRune___ExplosiveRune_x[this]=(GetSpellTargetX()) // INLINED!!
+            set s__ExplosiveRune___ExplosiveRune_y[this]=(GetSpellTargetY()) // INLINED!!
+            set s__ExplosiveRune___ExplosiveRune_id[this]=(GetUnitUserData(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])) // INLINED!!
+            set s__ExplosiveRune___ExplosiveRune_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
+            set s__ExplosiveRune___ExplosiveRune_damage[this]=ExplosiveRune___GetDamage(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId())))) // INLINED!!
+            set s__ExplosiveRune___ExplosiveRune_aoe[this]=BlzGetAbilityRealLevelField((BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))), ABILITY_RLF_AREA_OF_EFFECT, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1) // INLINED!!
 
-            if s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]] > 0 then
-                set s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]]=s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]] - 1
+            if s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]] > 0 then
+                set s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]]=s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]] - 1
 
-                if s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]] >= 1 then
-                    call sc__ResetCooldown_reset((s__ExplosiveRune__ExplosiveRune_unit[this] ) , ( ExplosiveRune__ABILITY)) // INLINED!!
+                if s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]] >= 1 then
+                    call sc__ResetCooldown_reset((s__ExplosiveRune___ExplosiveRune_unit[this] ) , ( ExplosiveRune___ABILITY)) // INLINED!!
                 else
 
-                        call s__CDR_calculateCooldown((s__ExplosiveRune__ExplosiveRune_unit[this] ) , ( ExplosiveRune__ABILITY ) , ( (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) ) , (( (TimerGetRemaining(s__ExplosiveRune__ExplosiveRune_Periodic____timer[(sc__ExplosiveRune__ExplosiveRune_GetTimerInstance(s__ExplosiveRune__ExplosiveRune_id[this]))])))*1.0)) // INLINED!!
+                        call s__CDR_calculateCooldown((s__ExplosiveRune___ExplosiveRune_unit[this] ) , ( ExplosiveRune___ABILITY ) , ( (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) ) , (( (TimerGetRemaining(s__ExplosiveRune___ExplosiveRune_Periodic____timer[(sc__ExplosiveRune___ExplosiveRune_GetTimerInstance(s__ExplosiveRune___ExplosiveRune_id[this]))])))*1.0)) // INLINED!!
 
 
 
@@ -21649,19 +20215,19 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
                 endif
             endif
 
-            call sc__ExplosiveRune__ExplosiveRune_StartTimer(ExplosiveRune__EXPLOSION_DELAY , false , this , - 1)
+            call sc__ExplosiveRune___ExplosiveRune_StartTimer(ExplosiveRune___EXPLOSION_DELAY , false , this , - 1)
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_onLearn takes integer this,unit source,integer skill,integer level returns nothing
+        function s__ExplosiveRune___ExplosiveRune_onLearn takes integer this,unit source,integer skill,integer level returns nothing
             local integer id= GetUnitUserData(source)
 
-            if not sc__ExplosiveRune__ExplosiveRune_HasStartedTimer(id) then
-                set this=s__ExplosiveRune__ExplosiveRune__allocate()
-                set s__ExplosiveRune__ExplosiveRune_id[this]=id
-                set s__ExplosiveRune__ExplosiveRune_unit[this]=source
-                set s__ExplosiveRune__ExplosiveRune_charges[id]=ExplosiveRune__CHARGES_COUNT
+            if not sc__ExplosiveRune___ExplosiveRune_HasStartedTimer(id) then
+                set this=s__ExplosiveRune___ExplosiveRune__allocate()
+                set s__ExplosiveRune___ExplosiveRune_id[this]=id
+                set s__ExplosiveRune___ExplosiveRune_unit[this]=source
+                set s__ExplosiveRune___ExplosiveRune_charges[id]=ExplosiveRune___CHARGES_COUNT
 
-                call sc__ExplosiveRune__ExplosiveRune_StartTimer(ExplosiveRune__CHARGES_COOLDOWN , true , this , id)
+                call sc__ExplosiveRune___ExplosiveRune_StartTimer(ExplosiveRune___CHARGES_COOLDOWN , true , this , id)
             endif
         endfunction
 
@@ -21669,64 +20235,64 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
 
 
 
-        function s__ExplosiveRune__ExplosiveRune_Periodic___end takes integer this,integer i,integer id returns integer
+        function s__ExplosiveRune___ExplosiveRune_Periodic___end takes integer this,integer i,integer id returns integer
             if i >= 0 then
-                call SaveInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id))) - 1)) // INLINED!!
-                call SaveInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___table), (i), ( (LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___table), ((LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id)))))))) // INLINED!!
+                call SaveInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id))) - 1)) // INLINED!!
+                call SaveInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___table), (i), ( (LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___table), ((LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id)))))))) // INLINED!!
 
-                if (LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id))) == 0 then // INLINED!!
+                if (LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id))) == 0 then // INLINED!!
                     call PauseTimer(GetExpiredTimer())
                 endif
             else
                 call ReleaseTimer(GetExpiredTimer())
             endif
 
-            if (HaveSavedInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___struct), (s__ExplosiveRune__ExplosiveRune_Periodic____unique[this]))) then // INLINED!!
-                call RemoveSavedInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___struct), (s__ExplosiveRune__ExplosiveRune_Periodic____unique[this])) // INLINED!!
+            if (HaveSavedInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___struct), (s__ExplosiveRune___ExplosiveRune_Periodic____unique[this]))) then // INLINED!!
+                call RemoveSavedInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___struct), (s__ExplosiveRune___ExplosiveRune_Periodic____unique[this])) // INLINED!!
             endif
 
-            if s__ExplosiveRune__ExplosiveRune_Periodic____allocated[this] then
-                set s__ExplosiveRune__ExplosiveRune_Periodic____timer[this]=null
-                set s__ExplosiveRune__ExplosiveRune_Periodic____allocated[this]=false
+            if s__ExplosiveRune___ExplosiveRune_Periodic____allocated[this] then
+                set s__ExplosiveRune___ExplosiveRune_Periodic____timer[this]=null
+                set s__ExplosiveRune___ExplosiveRune_Periodic____allocated[this]=false
 
-                call s__ExplosiveRune__ExplosiveRune_destroy(this)
+                call s__ExplosiveRune___ExplosiveRune_destroy(this)
             endif
 
             return i - 1
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_Periodic___onTimeout takes nothing returns nothing
+        function s__ExplosiveRune___ExplosiveRune_Periodic___onTimeout takes nothing returns nothing
             local integer this= (LoadInteger(TimerUtils___ht, 0, GetHandleId((GetExpiredTimer())))) // INLINED!!
             
             if this != 0 then
 
-                    call s__ExplosiveRune__ExplosiveRune_onExpire(this)
+                    call s__ExplosiveRune___ExplosiveRune_onExpire(this)
 
 
-                call s__ExplosiveRune__ExplosiveRune_Periodic___end(this,- 1 , 0)
+                call s__ExplosiveRune___ExplosiveRune_Periodic___end(this,- 1 , 0)
             endif
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_Periodic___onPeriodic takes nothing returns nothing
+        function s__ExplosiveRune___ExplosiveRune_Periodic___onPeriodic takes nothing returns nothing
             local integer i= 0
             local integer id= GetHandleId(GetExpiredTimer())
             local integer this= (LoadInteger(TimerUtils___ht, 0, GetHandleId((GetExpiredTimer())))) // INLINED!!
             
             if this != 0 then
 
-                    if not s__ExplosiveRune__ExplosiveRune_onPeriod(this) then
-                        call s__ExplosiveRune__ExplosiveRune_Periodic___end(this,- 1 , 0)
+                    if not s__ExplosiveRune___ExplosiveRune_onPeriod(this) then
+                        call s__ExplosiveRune___ExplosiveRune_Periodic___end(this,- 1 , 0)
                     endif
 
             else
                 loop
-                    exitwhen i == (LoadInteger(Table___ht, (((s__ExplosiveRune__ExplosiveRune_Periodic___key))), (id))) // INLINED!!
-                        set this=(LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___table), (i))) // INLINED!!
+                    exitwhen i == (LoadInteger(Table___ht, (((s__ExplosiveRune___ExplosiveRune_Periodic___key))), (id))) // INLINED!!
+                        set this=(LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___table), (i))) // INLINED!!
 
                         if this != 0 then
 
-                                if not s__ExplosiveRune__ExplosiveRune_onPeriod(this) then
-                                    set i=s__ExplosiveRune__ExplosiveRune_Periodic___end(this,i , id)
+                                if not s__ExplosiveRune___ExplosiveRune_onPeriod(this) then
+                                    set i=s__ExplosiveRune___ExplosiveRune_Periodic___end(this,i , id)
                                 endif
 
                         endif
@@ -21735,69 +20301,174 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
             endif
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_HasStartedTimer takes integer id returns boolean
-            return (HaveSavedInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___struct), (id))) // INLINED!!
+        function s__ExplosiveRune___ExplosiveRune_HasStartedTimer takes integer id returns boolean
+            return (HaveSavedInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___struct), (id))) // INLINED!!
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_GetTimerInstance takes integer id returns integer
-            return (LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___struct), (id))) // INLINED!!
+        function s__ExplosiveRune___ExplosiveRune_GetTimerInstance takes integer id returns integer
+            return (LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___struct), (id))) // INLINED!!
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_GetRemainingTime takes integer this returns real
-            return TimerGetRemaining(s__ExplosiveRune__ExplosiveRune_Periodic____timer[this])
+        function s__ExplosiveRune___ExplosiveRune_GetRemainingTime takes integer this returns real
+            return TimerGetRemaining(s__ExplosiveRune___ExplosiveRune_Periodic____timer[this])
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
+        function s__ExplosiveRune___ExplosiveRune_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
             local integer index= R2I(timeout * 100000)
             local integer id
 
             if this != 0 then
-                set s__ExplosiveRune__ExplosiveRune_Periodic____unique[this]=uniqueId
-                set s__ExplosiveRune__ExplosiveRune_Periodic____allocated[this]=true
+                set s__ExplosiveRune___ExplosiveRune_Periodic____unique[this]=uniqueId
+                set s__ExplosiveRune___ExplosiveRune_Periodic____allocated[this]=true
 
-                if s__ExplosiveRune__ExplosiveRune_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___struct), (s__ExplosiveRune__ExplosiveRune_Periodic____unique[this]))) then // INLINED!!
-                    call SaveInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___struct), (s__ExplosiveRune__ExplosiveRune_Periodic____unique[this]), ( this)) // INLINED!!
+                if s__ExplosiveRune___ExplosiveRune_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___struct), (s__ExplosiveRune___ExplosiveRune_Periodic____unique[this]))) then // INLINED!!
+                    call SaveInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___struct), (s__ExplosiveRune___ExplosiveRune_Periodic____unique[this]), ( this)) // INLINED!!
                 endif
 
                 if periodic then
-                    if timeout <= s__ExplosiveRune__ExplosiveRune_Periodic___PERIODIC_THRESHOLD then
-                        if not (HaveSavedHandle(Table___ht, (((s__ExplosiveRune__ExplosiveRune_Periodic___timers))), (index))) then // INLINED!!
-                            call SaveTimerHandle(Table___ht, (((s__ExplosiveRune__ExplosiveRune_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
+                    if timeout <= s__ExplosiveRune___ExplosiveRune_Periodic___PERIODIC_THRESHOLD then
+                        if not (HaveSavedHandle(Table___ht, (((s__ExplosiveRune___ExplosiveRune_Periodic___timers))), (index))) then // INLINED!!
+                            call SaveTimerHandle(Table___ht, (((s__ExplosiveRune___ExplosiveRune_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
                         endif
 
-                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__ExplosiveRune__ExplosiveRune_Periodic___timers))), (index)))) // INLINED!!
-                        set s__ExplosiveRune__ExplosiveRune_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__ExplosiveRune__ExplosiveRune_Periodic___timers))), (index))) // INLINED!!
-                        call SaveInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___table), ((LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id)))), ( this)) // INLINED!!
-                        call SaveInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id))) + 1)) // INLINED!!
+                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__ExplosiveRune___ExplosiveRune_Periodic___timers))), (index)))) // INLINED!!
+                        set s__ExplosiveRune___ExplosiveRune_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__ExplosiveRune___ExplosiveRune_Periodic___timers))), (index))) // INLINED!!
+                        call SaveInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___table), ((LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id)))), ( this)) // INLINED!!
+                        call SaveInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id))) + 1)) // INLINED!!
     
-                        if (LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id))) == 1 then // INLINED!!
-                            call TimerStart((LoadTimerHandle(Table___ht, (((s__ExplosiveRune__ExplosiveRune_Periodic___timers))), (index))), timeout, periodic, function s__ExplosiveRune__ExplosiveRune_Periodic___onPeriodic) // INLINED!!
+                        if (LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id))) == 1 then // INLINED!!
+                            call TimerStart((LoadTimerHandle(Table___ht, (((s__ExplosiveRune___ExplosiveRune_Periodic___timers))), (index))), timeout, periodic, function s__ExplosiveRune___ExplosiveRune_Periodic___onPeriodic) // INLINED!!
                         endif
                     else
-                        set s__ExplosiveRune__ExplosiveRune_Periodic____timer[this]=NewTimerEx(this)
-                        call TimerStart(s__ExplosiveRune__ExplosiveRune_Periodic____timer[this], timeout, periodic, function s__ExplosiveRune__ExplosiveRune_Periodic___onPeriodic)
+                        set s__ExplosiveRune___ExplosiveRune_Periodic____timer[this]=NewTimerEx(this)
+                        call TimerStart(s__ExplosiveRune___ExplosiveRune_Periodic____timer[this], timeout, periodic, function s__ExplosiveRune___ExplosiveRune_Periodic___onPeriodic)
                     endif
                 else
-                    set s__ExplosiveRune__ExplosiveRune_Periodic____timer[this]=NewTimerEx(this)
-                    call TimerStart(s__ExplosiveRune__ExplosiveRune_Periodic____timer[this], timeout, periodic, function s__ExplosiveRune__ExplosiveRune_Periodic___onTimeout)
+                    set s__ExplosiveRune___ExplosiveRune_Periodic____timer[this]=NewTimerEx(this)
+                    call TimerStart(s__ExplosiveRune___ExplosiveRune_Periodic____timer[this], timeout, periodic, function s__ExplosiveRune___ExplosiveRune_Periodic___onTimeout)
                 endif
             else
                 call BJDebugMsg("Periodic Error: instance not provided")
             endif
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_Periodic___onInit takes nothing returns nothing
-            set s__ExplosiveRune__ExplosiveRune_Periodic___key=s__Table_create()
-            set s__ExplosiveRune__ExplosiveRune_Periodic___table=s__Table_create()
-            set s__ExplosiveRune__ExplosiveRune_Periodic___struct=s__Table_create()
-            set s__ExplosiveRune__ExplosiveRune_Periodic___timers=s__Table_create()
+        function s__ExplosiveRune___ExplosiveRune_Periodic___onInit takes nothing returns nothing
+            set s__ExplosiveRune___ExplosiveRune_Periodic___key=s__Table_create()
+            set s__ExplosiveRune___ExplosiveRune_Periodic___table=s__Table_create()
+            set s__ExplosiveRune___ExplosiveRune_Periodic___struct=s__Table_create()
+            set s__ExplosiveRune___ExplosiveRune_Periodic___timers=s__Table_create()
         endfunction
 
-        function s__ExplosiveRune__ExplosiveRune_onInit takes nothing returns nothing
-            call s__Ability_register((s__ExplosiveRune__ExplosiveRune__allocate() ) , ( ExplosiveRune__ABILITY)) // INLINED!!
+        function s__ExplosiveRune___ExplosiveRune_onInit takes nothing returns nothing
+            call s__Ability_register((s__ExplosiveRune___ExplosiveRune__allocate() ) , ( ExplosiveRune___ABILITY)) // INLINED!!
         endfunction
 
 //library ExplosiveRune ends
+//library LavaElemental:
+    
+    // Credits:
+    //     Henry         - Lava Elemental model (warcraft3undergorund.com)
+    //     Empyreal      - fire base model (xgmguru.ru)
+    //     Mythic        - Pillar of Flame model
+    //     Blizzard      - icon (edited by me)
+    //     Magtheridon96 - RegisterPlayerUnitEvent
+    
+    
+    
+    
+    
+
+    // The amount of damage the Lava Elemental has
+    function LavaElemental___GetElementalDamage takes unit u,integer level returns integer
+
+            return R2I(50 + 0.25 * level * s__Sulfuras_stacks[GetUnitUserData(u)])
+
+
+
+    endfunction
+
+    // The amount of health the Lava Elemental has
+    function LavaElemental___GetElementalHealth takes unit u,integer level returns integer
+        return R2I(500 * level + BlzGetUnitMaxHP(u) * 0.3)
+    endfunction
+    
+    
+    
+    
+
+
+        function s__LavaElemental___LavaElemental_destroy takes integer this returns nothing
+            set s__LavaElemental___LavaElemental_unit[this]=null
+            set s__LavaElemental___LavaElemental_effect[this]=null
+            set s__LavaElemental___LavaElemental_array[s__LavaElemental___LavaElemental_id[this]]=0
+
+            call sc__Ability___IAbility_deallocate(this)
+        endfunction
+
+        function s__LavaElemental___LavaElemental_onCast takes integer this returns nothing
+            local unit lava
+
+            set this=s__LavaElemental___LavaElemental__allocate()
+
+            if s__PluginSpellEffect___Unit_unit[s__Spell_target] != null then
+                set lava=CreateUnit((GetOwningPlayer(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])), LavaElemental___LAVA_ELEMENTAL, (GetUnitX(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])), (GetUnitY(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])), 0) // INLINED!!
+                set s__LavaElemental___LavaElemental_id[this]=GetUnitUserData(lava)
+                set s__LavaElemental___LavaElemental_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_target]
+                set s__LavaElemental___LavaElemental_effect[this]=AddSpecialEffect(LavaElemental___FIRA_BASE, (GetUnitX(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])), (GetUnitY(s__PluginSpellEffect___Unit_unit[(s__Spell_target)]))) // INLINED!!
+                set s__LavaElemental___LavaElemental_array[s__LavaElemental___LavaElemental_id[this]]=this
+                
+                call UnitAddAbility(s__PluginSpellEffect___Unit_unit[s__Spell_target], 'Abun')
+                call ShowUnit(s__PluginSpellEffect___Unit_unit[s__Spell_target], false)
+                call SetUnitInvulnerable(s__PluginSpellEffect___Unit_unit[s__Spell_target], true)
+                call SetUnitX(lava, (GetUnitX(s__PluginSpellEffect___Unit_unit[(s__Spell_target)]))) // INLINED!!
+                call SetUnitY(lava, (GetUnitY(s__PluginSpellEffect___Unit_unit[(s__Spell_target)]))) // INLINED!!
+                call BlzSetUnitMaxHP(lava, LavaElemental___GetElementalHealth(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))))) // INLINED!!
+                call SetUnitLifePercentBJ(lava, 100)
+                call BlzSetUnitBaseDamage(lava, LavaElemental___GetElementalDamage(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId())))), 0) // INLINED!!
+                call SetUnitPropWindow(lava, 0)
+                call BlzSetAbilityRealLevelField((BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))), ABILITY_RLF_COOLDOWN, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1, LavaElemental___STRUCTURE_COOLDOWN) // INLINED!!
+                call IncUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], LavaElemental___ABILITY)
+                call DecUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], LavaElemental___ABILITY)
+                call DestroyEffect(AddSpecialEffect(LavaElemental___SPAWN_EFFECT, (GetUnitX(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])), (GetUnitY(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])))) // INLINED!!
+            else
+                set lava=CreateUnit((GetOwningPlayer(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])), LavaElemental___LAVA_ELEMENTAL, (GetSpellTargetX()), (GetSpellTargetY()), 0) // INLINED!!
+                set s__LavaElemental___LavaElemental_id[this]=GetUnitUserData(lava)
+                set s__LavaElemental___LavaElemental_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_target]
+                set s__LavaElemental___LavaElemental_effect[this]=AddSpecialEffect(LavaElemental___FIRA_BASE, (GetSpellTargetX()), (GetSpellTargetY())) // INLINED!!
+                set s__LavaElemental___LavaElemental_array[s__LavaElemental___LavaElemental_id[this]]=this
+
+                call BlzSetUnitMaxHP(lava, LavaElemental___GetElementalHealth(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))))) // INLINED!!
+                call SetUnitLifePercentBJ(lava, 100)
+                call BlzSetUnitBaseDamage(lava, LavaElemental___GetElementalDamage(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId())))), 0) // INLINED!!
+                call SetUnitPropWindow(lava, 0)
+                call UnitApplyTimedLife(lava, 'BTLF', LavaElemental___ELEMENTAL_DURATION)
+                call BlzSetAbilityRealLevelField((BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))), ABILITY_RLF_COOLDOWN, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1, LavaElemental___NORMAL_COOLDOWN) // INLINED!!
+                call IncUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], LavaElemental___ABILITY)
+                call DecUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], LavaElemental___ABILITY)
+                call DestroyEffect(AddSpecialEffect(LavaElemental___SPAWN_EFFECT, (GetSpellTargetX()), (GetSpellTargetY()))) // INLINED!!
+            endif
+
+            set lava=null
+        endfunction
+
+        function s__LavaElemental___LavaElemental_onDeath takes nothing returns nothing
+            local integer this= s__LavaElemental___LavaElemental_array[GetUnitUserData(GetTriggerUnit())]
+
+            if this != 0 then
+                call UnitRemoveAbility(s__LavaElemental___LavaElemental_unit[this], 'Abun')
+                call ShowUnit(s__LavaElemental___LavaElemental_unit[this], true)
+                call SetUnitInvulnerable(s__LavaElemental___LavaElemental_unit[this], false)
+                call DestroyEffect(s__LavaElemental___LavaElemental_effect[this])
+                call s__LavaElemental___LavaElemental_destroy(this)
+            endif
+        endfunction
+
+        function s__LavaElemental___LavaElemental_onInit takes nothing returns nothing
+            call s__Ability_register((s__LavaElemental___LavaElemental__allocate() ) , ( LavaElemental___ABILITY)) // INLINED!!
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH , function s__LavaElemental___LavaElemental_onDeath)
+        endfunction
+
+//library LavaElemental ends
 //library LivingMeteor:
     
     // Credits:
@@ -21811,12 +20482,12 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
     
 
     // The roll distance of the meteor
-    function LivingMeteor__RollDistance takes integer level returns real
+    function LivingMeteor___RollDistance takes integer level returns real
         return 600. + 100. * level
     endfunction
 
     // The landing damage distance of the meteor
-    function LivingMeteor__LandingDamage takes unit source,integer level returns real
+    function LivingMeteor___LandingDamage takes unit source,integer level returns real
 
             return 50. + 50. * level + 1 * (s__Bonus_getter((source ) , ( BONUS_SPELL_POWER))) // INLINED!!
 
@@ -21826,9 +20497,9 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
 
     // The roll damage distance of the meteor.
     //will do this damage every DAMAGE_INTERVAL
-    function LivingMeteor__RollDamage takes unit source,integer level returns real
+    function LivingMeteor___RollDamage takes unit source,integer level returns real
 
-            return ( 25. * ( level * level - 2 * level + 2 ) ) * LivingMeteor__DAMAGE_INTERVAL + 0.5 * (s__Bonus_getter((source ) , ( BONUS_SPELL_POWER))) * LivingMeteor__DAMAGE_INTERVAL // INLINED!!
+            return ( 25. * ( level * level - 2 * level + 2 ) ) * LivingMeteor___DAMAGE_INTERVAL + 0.5 * (s__Bonus_getter((source ) , ( BONUS_SPELL_POWER))) * LivingMeteor___DAMAGE_INTERVAL // INLINED!!
 
 
 
@@ -21836,14 +20507,14 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
 
     // The size of the area around the impact point where units will be damaged
     // By default it is the Living Meteor ability field Area of Effect
-    function LivingMeteor__GetImpactAoE takes unit u,integer level returns real
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, LivingMeteor__ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
+    function LivingMeteor___GetImpactAoE takes unit u,integer level returns real
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, LivingMeteor___ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
     endfunction
 
     // The size of the area of the roll meteor that will damage units
     // every DAMAGE_INTERVAL. by default it is the same as the impact AoE
-    function LivingMeteor__GetRollAoE takes unit u,integer level returns real
-        return LivingMeteor__GetImpactAoE(u , level)
+    function LivingMeteor___GetRollAoE takes unit u,integer level returns real
+        return LivingMeteor___GetImpactAoE(u , level)
     endfunction
     
     
@@ -21851,132 +20522,132 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
     
 
 
-        function s__LivingMeteor__Meteor_onPeriod takes integer this returns boolean
-            if s__LivingMeteor__Meteor_rolling[this] then
-                set s__LivingMeteor__Meteor_i[this]=s__LivingMeteor__Meteor_i[this] + 1
-                set s__LivingMeteor__Meteor_j[this]=s__LivingMeteor__Meteor_j[this] + 1
+        function s__LivingMeteor___Meteor_onPeriod takes integer this returns boolean
+            if s__LivingMeteor___Meteor_rolling[this] then
+                set s__LivingMeteor___Meteor_i[this]=s__LivingMeteor___Meteor_i[this] + 1
+                set s__LivingMeteor___Meteor_j[this]=s__LivingMeteor___Meteor_j[this] + 1
 
-                if s__LivingMeteor__Meteor_j[this] == 25 then
-                    set s__LivingMeteor__Meteor_j[this]=0
+                if s__LivingMeteor___Meteor_j[this] == 25 then
+                    set s__LivingMeteor___Meteor_j[this]=0
 
 
                         call Afterburn(s__Missiles_x[this] , s__Missiles_y[this] , s__Missiles_source[this])
 
                 endif
 
-                if s__LivingMeteor__Meteor_i[this] == s__LivingMeteor__Meteor_ticks then
-                    set s__LivingMeteor__Meteor_i[this]=0
-                    call UnitDamageArea(s__Missiles_source[this] , s__Missiles_x[this] , s__Missiles_y[this] , s__LivingMeteor__Meteor_aoe[this] , s__Missiles_damage[this] , LivingMeteor__ATTACK_TYPE , LivingMeteor__DAMAGE_TYPE , LivingMeteor__DAMAGE_STRUCTURES , LivingMeteor__DAMAGE_ALLIES , LivingMeteor__DAMAGE_MAGIC_IMMUNE)
+                if s__LivingMeteor___Meteor_i[this] == s__LivingMeteor___Meteor_ticks then
+                    set s__LivingMeteor___Meteor_i[this]=0
+                    call UnitDamageArea(s__Missiles_source[this] , s__Missiles_x[this] , s__Missiles_y[this] , s__LivingMeteor___Meteor_aoe[this] , s__Missiles_damage[this] , LivingMeteor___ATTACK_TYPE , LivingMeteor___DAMAGE_TYPE , LivingMeteor___DAMAGE_STRUCTURES , LivingMeteor___DAMAGE_ALLIES , LivingMeteor___DAMAGE_MAGIC_IMMUNE)
                 endif
             endif
 
             return false
         endfunction
 
-        function s__LivingMeteor__Meteor_onFinish takes integer this returns boolean
-            if not s__LivingMeteor__Meteor_rolling[this] then
-                call DestroyEffect(AddSpecialEffect(LivingMeteor__IMPACT_MODEL, s__Missiles_x[this], s__Missiles_y[this]))
-                call UnitDamageArea(s__Missiles_source[this] , s__Missiles_x[this] , s__Missiles_y[this] , LivingMeteor__GetImpactAoE(s__Missiles_source[this] , s__LivingMeteor__Meteor_level[this]) , s__Missiles_damage[this] , LivingMeteor__ATTACK_TYPE , LivingMeteor__DAMAGE_TYPE , LivingMeteor__DAMAGE_STRUCTURES , LivingMeteor__DAMAGE_ALLIES , LivingMeteor__DAMAGE_MAGIC_IMMUNE)
-                call s__Missiles_deflect(this,s__Missiles_x[this] + s__LivingMeteor__Meteor_distance[this] * Cos(s__LivingMeteor__Meteor_angle[this]) , s__Missiles_y[this] + s__LivingMeteor__Meteor_distance[this] * Sin(s__LivingMeteor__Meteor_angle[this]) , 0)
+        function s__LivingMeteor___Meteor_onFinish takes integer this returns boolean
+            if not s__LivingMeteor___Meteor_rolling[this] then
+                call DestroyEffect(AddSpecialEffect(LivingMeteor___IMPACT_MODEL, s__Missiles_x[this], s__Missiles_y[this]))
+                call UnitDamageArea(s__Missiles_source[this] , s__Missiles_x[this] , s__Missiles_y[this] , LivingMeteor___GetImpactAoE(s__Missiles_source[this] , s__LivingMeteor___Meteor_level[this]) , s__Missiles_damage[this] , LivingMeteor___ATTACK_TYPE , LivingMeteor___DAMAGE_TYPE , LivingMeteor___DAMAGE_STRUCTURES , LivingMeteor___DAMAGE_ALLIES , LivingMeteor___DAMAGE_MAGIC_IMMUNE)
+                call s__Missiles_deflect(this,s__Missiles_x[this] + s__LivingMeteor___Meteor_distance[this] * Cos(s__LivingMeteor___Meteor_angle[this]) , s__Missiles_y[this] + s__LivingMeteor___Meteor_distance[this] * Sin(s__LivingMeteor___Meteor_angle[this]) , 0)
                 
 
                     call Afterburn(s__Missiles_x[this] , s__Missiles_y[this] , s__Missiles_source[this])
 
 
-                set s__LivingMeteor__Meteor_rolling[this]=true
-                set s__Missiles_damage[this]=LivingMeteor__RollDamage(s__Missiles_source[this] , s__LivingMeteor__Meteor_level[this])
-                call s__Missiles__set_duration(this,LivingMeteor__ROLLING_TIME)
+                set s__LivingMeteor___Meteor_rolling[this]=true
+                set s__Missiles_damage[this]=LivingMeteor___RollDamage(s__Missiles_source[this] , s__LivingMeteor___Meteor_level[this])
+                call s__Missiles__set_duration(this,LivingMeteor___ROLLING_TIME)
             endif
 
             return false
         endfunction
     
 
-        function s__LivingMeteor__LivingMeteor_destroy takes integer this returns nothing
-            set s__LivingMeteor__LivingMeteor_unit[this]=null
-            set s__LivingMeteor__LivingMeteor_player[this]=null
-            set s__LivingMeteor__LivingMeteor_ability[this]=null
+        function s__LivingMeteor___LivingMeteor_destroy takes integer this returns nothing
+            set s__LivingMeteor___LivingMeteor_unit[this]=null
+            set s__LivingMeteor___LivingMeteor_player[this]=null
+            set s__LivingMeteor___LivingMeteor_ability[this]=null
 
             call sc__Ability___IAbility_deallocate(this)
         endfunction
 
-        function s__LivingMeteor__LivingMeteor_onTooltip takes integer this,unit source,integer level returns string
-            return "Ragnaros summon a meteor at the target area that deals |cff00ffff" + N2S(LivingMeteor__LandingDamage(source , level) , 0) + " Magic|r damage on impact, then rolls in that target direction dealing |cff00ffff" + N2S(LivingMeteor__RollDamage(source , level) , 0) + " Magic|r every |cffffcc00" + N2S(LivingMeteor__DAMAGE_INTERVAL , 2) + "|r seconds to enemy units within |cffffcc00250 AoE|r until it reaches it's maximum range of |cffffcc00700 AoE|r from the initial impact point."
+        function s__LivingMeteor___LivingMeteor_onTooltip takes integer this,unit source,integer level returns string
+            return "Ragnaros summon a meteor at the target area that deals |cff00ffff" + N2S(LivingMeteor___LandingDamage(source , level) , 0) + " Magic|r damage on impact, then rolls in that target direction dealing |cff00ffff" + N2S(LivingMeteor___RollDamage(source , level) , 0) + " Magic|r every |cffffcc00" + N2S(LivingMeteor___DAMAGE_INTERVAL , 2) + "|r seconds to enemy units within |cffffcc00250 AoE|r until it reaches it's maximum range of |cffffcc00700 AoE|r from the initial impact point."
         endfunction
 
-        function s__LivingMeteor__LivingMeteor_onExpire takes integer this returns nothing
-            local real angle= AngleBetweenCoordinates(s__LivingMeteor__LivingMeteor_x[this] , s__LivingMeteor__LivingMeteor_y[this] , (s__UserMouse_mouseX[s__UserMouse__staticgetindex((s__LivingMeteor__LivingMeteor_player[this]))]) , (s__UserMouse_mouseY[s__UserMouse__staticgetindex((s__LivingMeteor__LivingMeteor_player[this]))])) // INLINED!!
-            local integer meteor= s__LivingMeteor__Meteor__allocate(s__LivingMeteor__LivingMeteor_x[this] + LivingMeteor__LAUNCH_OFFSET * Cos(angle + bj_PI) , s__LivingMeteor__LivingMeteor_y[this] + LivingMeteor__LAUNCH_OFFSET * Sin(angle + bj_PI) , LivingMeteor__START_HEIGHT , s__LivingMeteor__LivingMeteor_x[this] , s__LivingMeteor__LivingMeteor_y[this] , 0)
+        function s__LivingMeteor___LivingMeteor_onExpire takes integer this returns nothing
+            local real angle= AngleBetweenCoordinates(s__LivingMeteor___LivingMeteor_x[this] , s__LivingMeteor___LivingMeteor_y[this] , (s__UserMouse_mouseX[s__UserMouse__staticgetindex((s__LivingMeteor___LivingMeteor_player[this]))]) , (s__UserMouse_mouseY[s__UserMouse__staticgetindex((s__LivingMeteor___LivingMeteor_player[this]))])) // INLINED!!
+            local integer meteor= s__LivingMeteor___Meteor__allocate(s__LivingMeteor___LivingMeteor_x[this] + LivingMeteor___LAUNCH_OFFSET * Cos(angle + bj_PI) , s__LivingMeteor___LivingMeteor_y[this] + LivingMeteor___LAUNCH_OFFSET * Sin(angle + bj_PI) , LivingMeteor___START_HEIGHT , s__LivingMeteor___LivingMeteor_x[this] , s__LivingMeteor___LivingMeteor_y[this] , 0)
             
-            set s__Missiles_source[meteor]=s__LivingMeteor__LivingMeteor_unit[this]
-            set s__Missiles_owner[meteor]=s__LivingMeteor__LivingMeteor_player[this]
-            call s__Missiles__set_model(meteor,LivingMeteor__METEOR_MODEL)
-            call s__Missiles__set_scale(meteor,LivingMeteor__METEOR_SCALE)
-            call s__Missiles__set_duration(meteor,LivingMeteor__LANDING_TIME)
-            set s__LivingMeteor__Meteor_angle[meteor]=angle
-            set s__LivingMeteor__Meteor_level[meteor]=s__LivingMeteor__LivingMeteor_level[this]
-            set s__LivingMeteor__Meteor_rolling[meteor]=false
-            set s__LivingMeteor__Meteor_aoe[meteor]=(LivingMeteor__GetImpactAoE((s__LivingMeteor__LivingMeteor_unit[this] ) , ( s__LivingMeteor__LivingMeteor_level[this]))) // INLINED!!
-            set s__Missiles_damage[meteor]=LivingMeteor__LandingDamage(s__LivingMeteor__LivingMeteor_unit[this] , s__LivingMeteor__LivingMeteor_level[this])
-            set s__LivingMeteor__Meteor_distance[meteor]=(600. + 100. * (s__LivingMeteor__LivingMeteor_level[this])) // INLINED!!
+            set s__Missiles_source[meteor]=s__LivingMeteor___LivingMeteor_unit[this]
+            set s__Missiles_owner[meteor]=s__LivingMeteor___LivingMeteor_player[this]
+            call s__Missiles__set_model(meteor,LivingMeteor___METEOR_MODEL)
+            call s__Missiles__set_scale(meteor,LivingMeteor___METEOR_SCALE)
+            call s__Missiles__set_duration(meteor,LivingMeteor___LANDING_TIME)
+            set s__LivingMeteor___Meteor_angle[meteor]=angle
+            set s__LivingMeteor___Meteor_level[meteor]=s__LivingMeteor___LivingMeteor_level[this]
+            set s__LivingMeteor___Meteor_rolling[meteor]=false
+            set s__LivingMeteor___Meteor_aoe[meteor]=(LivingMeteor___GetImpactAoE((s__LivingMeteor___LivingMeteor_unit[this] ) , ( s__LivingMeteor___LivingMeteor_level[this]))) // INLINED!!
+            set s__Missiles_damage[meteor]=LivingMeteor___LandingDamage(s__LivingMeteor___LivingMeteor_unit[this] , s__LivingMeteor___LivingMeteor_level[this])
+            set s__LivingMeteor___Meteor_distance[meteor]=(600. + 100. * (s__LivingMeteor___LivingMeteor_level[this])) // INLINED!!
 
             call s__Missiles_launch(meteor)
         endfunction
 
-        function s__LivingMeteor__LivingMeteor_onCast takes integer this returns nothing
-            set this=s__LivingMeteor__LivingMeteor__allocate()
-            set s__LivingMeteor__LivingMeteor_x[this]=(GetSpellTargetX()) // INLINED!!
-            set s__LivingMeteor__LivingMeteor_y[this]=(GetSpellTargetY()) // INLINED!!
-            set s__LivingMeteor__LivingMeteor_level[this]=(GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) // INLINED!!
-            set s__LivingMeteor__LivingMeteor_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
-            set s__LivingMeteor__LivingMeteor_player[this]=(GetOwningPlayer(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])) // INLINED!!
+        function s__LivingMeteor___LivingMeteor_onCast takes integer this returns nothing
+            set this=s__LivingMeteor___LivingMeteor__allocate()
+            set s__LivingMeteor___LivingMeteor_x[this]=(GetSpellTargetX()) // INLINED!!
+            set s__LivingMeteor___LivingMeteor_y[this]=(GetSpellTargetY()) // INLINED!!
+            set s__LivingMeteor___LivingMeteor_level[this]=(GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) // INLINED!!
+            set s__LivingMeteor___LivingMeteor_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
+            set s__LivingMeteor___LivingMeteor_player[this]=(GetOwningPlayer(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])) // INLINED!!
 
-            call sc__LivingMeteor__LivingMeteor_StartTimer(LivingMeteor__DRAG_AND_DROP_TIME , false , this , - 1)
+            call sc__LivingMeteor___LivingMeteor_StartTimer(LivingMeteor___DRAG_AND_DROP_TIME , false , this , - 1)
         endfunction
 
 //Implemented from module Periodic:
 
 
 
-        function s__LivingMeteor__LivingMeteor_Periodic___end takes integer this,integer i,integer id returns integer
+        function s__LivingMeteor___LivingMeteor_Periodic___end takes integer this,integer i,integer id returns integer
             if i >= 0 then
-                call SaveInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id))) - 1)) // INLINED!!
-                call SaveInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___table), (i), ( (LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___table), ((LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id)))))))) // INLINED!!
+                call SaveInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id))) - 1)) // INLINED!!
+                call SaveInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___table), (i), ( (LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___table), ((LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id)))))))) // INLINED!!
 
-                if (LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id))) == 0 then // INLINED!!
+                if (LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id))) == 0 then // INLINED!!
                     call PauseTimer(GetExpiredTimer())
                 endif
             else
                 call ReleaseTimer(GetExpiredTimer())
             endif
 
-            if (HaveSavedInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___struct), (s__LivingMeteor__LivingMeteor_Periodic____unique[this]))) then // INLINED!!
-                call RemoveSavedInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___struct), (s__LivingMeteor__LivingMeteor_Periodic____unique[this])) // INLINED!!
+            if (HaveSavedInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___struct), (s__LivingMeteor___LivingMeteor_Periodic____unique[this]))) then // INLINED!!
+                call RemoveSavedInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___struct), (s__LivingMeteor___LivingMeteor_Periodic____unique[this])) // INLINED!!
             endif
 
-            if s__LivingMeteor__LivingMeteor_Periodic____allocated[this] then
-                set s__LivingMeteor__LivingMeteor_Periodic____timer[this]=null
-                set s__LivingMeteor__LivingMeteor_Periodic____allocated[this]=false
+            if s__LivingMeteor___LivingMeteor_Periodic____allocated[this] then
+                set s__LivingMeteor___LivingMeteor_Periodic____timer[this]=null
+                set s__LivingMeteor___LivingMeteor_Periodic____allocated[this]=false
 
-                call s__LivingMeteor__LivingMeteor_destroy(this)
+                call s__LivingMeteor___LivingMeteor_destroy(this)
             endif
 
             return i - 1
         endfunction
 
-        function s__LivingMeteor__LivingMeteor_Periodic___onTimeout takes nothing returns nothing
+        function s__LivingMeteor___LivingMeteor_Periodic___onTimeout takes nothing returns nothing
             local integer this= (LoadInteger(TimerUtils___ht, 0, GetHandleId((GetExpiredTimer())))) // INLINED!!
             
             if this != 0 then
 
-                    call s__LivingMeteor__LivingMeteor_onExpire(this)
+                    call s__LivingMeteor___LivingMeteor_onExpire(this)
 
 
-                call s__LivingMeteor__LivingMeteor_Periodic___end(this,- 1 , 0)
+                call s__LivingMeteor___LivingMeteor_Periodic___end(this,- 1 , 0)
             endif
         endfunction
 
-        function s__LivingMeteor__LivingMeteor_Periodic___onPeriodic takes nothing returns nothing
+        function s__LivingMeteor___LivingMeteor_Periodic___onPeriodic takes nothing returns nothing
             local integer i= 0
             local integer id= GetHandleId(GetExpiredTimer())
             local integer this= (LoadInteger(TimerUtils___ht, 0, GetHandleId((GetExpiredTimer())))) // INLINED!!
@@ -21989,8 +20660,8 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
 
             else
                 loop
-                    exitwhen i == (LoadInteger(Table___ht, (((s__LivingMeteor__LivingMeteor_Periodic___key))), (id))) // INLINED!!
-                        set this=(LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___table), (i))) // INLINED!!
+                    exitwhen i == (LoadInteger(Table___ht, (((s__LivingMeteor___LivingMeteor_Periodic___key))), (id))) // INLINED!!
+                        set this=(LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___table), (i))) // INLINED!!
 
                         if this != 0 then
 
@@ -22004,66 +20675,66 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
             endif
         endfunction
 
-        function s__LivingMeteor__LivingMeteor_HasStartedTimer takes integer id returns boolean
-            return (HaveSavedInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___struct), (id))) // INLINED!!
+        function s__LivingMeteor___LivingMeteor_HasStartedTimer takes integer id returns boolean
+            return (HaveSavedInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___struct), (id))) // INLINED!!
         endfunction
 
-        function s__LivingMeteor__LivingMeteor_GetTimerInstance takes integer id returns integer
-            return (LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___struct), (id))) // INLINED!!
+        function s__LivingMeteor___LivingMeteor_GetTimerInstance takes integer id returns integer
+            return (LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___struct), (id))) // INLINED!!
         endfunction
 
-        function s__LivingMeteor__LivingMeteor_GetRemainingTime takes integer this returns real
-            return TimerGetRemaining(s__LivingMeteor__LivingMeteor_Periodic____timer[this])
+        function s__LivingMeteor___LivingMeteor_GetRemainingTime takes integer this returns real
+            return TimerGetRemaining(s__LivingMeteor___LivingMeteor_Periodic____timer[this])
         endfunction
 
-        function s__LivingMeteor__LivingMeteor_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
+        function s__LivingMeteor___LivingMeteor_StartTimer takes real timeout,boolean periodic,integer this,integer uniqueId returns nothing
             local integer index= R2I(timeout * 100000)
             local integer id
 
             if this != 0 then
-                set s__LivingMeteor__LivingMeteor_Periodic____unique[this]=uniqueId
-                set s__LivingMeteor__LivingMeteor_Periodic____allocated[this]=true
+                set s__LivingMeteor___LivingMeteor_Periodic____unique[this]=uniqueId
+                set s__LivingMeteor___LivingMeteor_Periodic____allocated[this]=true
 
-                if s__LivingMeteor__LivingMeteor_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___struct), (s__LivingMeteor__LivingMeteor_Periodic____unique[this]))) then // INLINED!!
-                    call SaveInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___struct), (s__LivingMeteor__LivingMeteor_Periodic____unique[this]), ( this)) // INLINED!!
+                if s__LivingMeteor___LivingMeteor_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___struct), (s__LivingMeteor___LivingMeteor_Periodic____unique[this]))) then // INLINED!!
+                    call SaveInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___struct), (s__LivingMeteor___LivingMeteor_Periodic____unique[this]), ( this)) // INLINED!!
                 endif
 
                 if periodic then
-                    if timeout <= s__LivingMeteor__LivingMeteor_Periodic___PERIODIC_THRESHOLD then
-                        if not (HaveSavedHandle(Table___ht, (((s__LivingMeteor__LivingMeteor_Periodic___timers))), (index))) then // INLINED!!
-                            call SaveTimerHandle(Table___ht, (((s__LivingMeteor__LivingMeteor_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
+                    if timeout <= s__LivingMeteor___LivingMeteor_Periodic___PERIODIC_THRESHOLD then
+                        if not (HaveSavedHandle(Table___ht, (((s__LivingMeteor___LivingMeteor_Periodic___timers))), (index))) then // INLINED!!
+                            call SaveTimerHandle(Table___ht, (((s__LivingMeteor___LivingMeteor_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
                         endif
 
-                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__LivingMeteor__LivingMeteor_Periodic___timers))), (index)))) // INLINED!!
-                        set s__LivingMeteor__LivingMeteor_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__LivingMeteor__LivingMeteor_Periodic___timers))), (index))) // INLINED!!
-                        call SaveInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___table), ((LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id)))), ( this)) // INLINED!!
-                        call SaveInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id))) + 1)) // INLINED!!
+                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__LivingMeteor___LivingMeteor_Periodic___timers))), (index)))) // INLINED!!
+                        set s__LivingMeteor___LivingMeteor_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__LivingMeteor___LivingMeteor_Periodic___timers))), (index))) // INLINED!!
+                        call SaveInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___table), ((LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id)))), ( this)) // INLINED!!
+                        call SaveInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id))) + 1)) // INLINED!!
     
-                        if (LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id))) == 1 then // INLINED!!
-                            call TimerStart((LoadTimerHandle(Table___ht, (((s__LivingMeteor__LivingMeteor_Periodic___timers))), (index))), timeout, periodic, function s__LivingMeteor__LivingMeteor_Periodic___onPeriodic) // INLINED!!
+                        if (LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id))) == 1 then // INLINED!!
+                            call TimerStart((LoadTimerHandle(Table___ht, (((s__LivingMeteor___LivingMeteor_Periodic___timers))), (index))), timeout, periodic, function s__LivingMeteor___LivingMeteor_Periodic___onPeriodic) // INLINED!!
                         endif
                     else
-                        set s__LivingMeteor__LivingMeteor_Periodic____timer[this]=NewTimerEx(this)
-                        call TimerStart(s__LivingMeteor__LivingMeteor_Periodic____timer[this], timeout, periodic, function s__LivingMeteor__LivingMeteor_Periodic___onPeriodic)
+                        set s__LivingMeteor___LivingMeteor_Periodic____timer[this]=NewTimerEx(this)
+                        call TimerStart(s__LivingMeteor___LivingMeteor_Periodic____timer[this], timeout, periodic, function s__LivingMeteor___LivingMeteor_Periodic___onPeriodic)
                     endif
                 else
-                    set s__LivingMeteor__LivingMeteor_Periodic____timer[this]=NewTimerEx(this)
-                    call TimerStart(s__LivingMeteor__LivingMeteor_Periodic____timer[this], timeout, periodic, function s__LivingMeteor__LivingMeteor_Periodic___onTimeout)
+                    set s__LivingMeteor___LivingMeteor_Periodic____timer[this]=NewTimerEx(this)
+                    call TimerStart(s__LivingMeteor___LivingMeteor_Periodic____timer[this], timeout, periodic, function s__LivingMeteor___LivingMeteor_Periodic___onTimeout)
                 endif
             else
                 call BJDebugMsg("Periodic Error: instance not provided")
             endif
         endfunction
 
-        function s__LivingMeteor__LivingMeteor_Periodic___onInit takes nothing returns nothing
-            set s__LivingMeteor__LivingMeteor_Periodic___key=s__Table_create()
-            set s__LivingMeteor__LivingMeteor_Periodic___table=s__Table_create()
-            set s__LivingMeteor__LivingMeteor_Periodic___struct=s__Table_create()
-            set s__LivingMeteor__LivingMeteor_Periodic___timers=s__Table_create()
+        function s__LivingMeteor___LivingMeteor_Periodic___onInit takes nothing returns nothing
+            set s__LivingMeteor___LivingMeteor_Periodic___key=s__Table_create()
+            set s__LivingMeteor___LivingMeteor_Periodic___table=s__Table_create()
+            set s__LivingMeteor___LivingMeteor_Periodic___struct=s__Table_create()
+            set s__LivingMeteor___LivingMeteor_Periodic___timers=s__Table_create()
         endfunction
 
-        function s__LivingMeteor__LivingMeteor_onInit takes nothing returns nothing
-            call s__Ability_register((s__LivingMeteor__LivingMeteor__allocate() ) , ( LivingMeteor__ABILITY)) // INLINED!!
+        function s__LivingMeteor___LivingMeteor_onInit takes nothing returns nothing
+            call s__Ability_register((s__LivingMeteor___LivingMeteor__allocate() ) , ( LivingMeteor___ABILITY)) // INLINED!!
         endfunction
 
 //library LivingMeteor ends
@@ -22186,7 +20857,7 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
 
             if IsUnitInGroup(s__Shop___Transaction_unit[this], s__Shop_group[s__Shop___Transaction_id[this]]) then
                 if s__Shop___Transaction_type[this] == "buy" then
-                    if (sc__Item_hasType((s__Shop___Transaction_unit[this] ) , ( s__Item_id[s__Shop___Transaction_item[this]]))) then // INLINED!!
+                    if (s__Item_hasType((s__Shop___Transaction_unit[this] ) , ( s__Item_id[s__Shop___Transaction_item[this]]))) then // INLINED!!
                         loop
                             exitwhen i == UnitInventorySize(s__Shop___Transaction_unit[this])
                                 if GetItemTypeId(UnitItemInSlot(s__Shop___Transaction_unit[this], i)) == s__Item_id[s__Shop___Transaction_item[this]] then
@@ -22416,7 +21087,7 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
                 exitwhen j == (LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(i)])), (7))) // INLINED!!
                     set component=s__Item_get((LoadInteger(Table___ht, ((s__HashTable__getindex(s__Item_itemtype,s__Item_id[(i)]))), (j)))) // INLINED!!
 
-                    if (sc__Item_hasType((s__Shop___Transaction_unit[transaction] ) , ( s__Item_id[component]))) then // INLINED!!
+                    if (s__Item_hasType((s__Shop___Transaction_unit[transaction] ) , ( s__Item_id[component]))) then // INLINED!!
                         set k=0
 
                         loop
@@ -22875,12 +21546,12 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
                                 call s__Text__set_text(s__Shop___Slot_cost[slot],"|cffFFCC00" + I2S(s__Item_cost(component,sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id))) + "|r")
                                 
                                 if sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) != null then
-                                    if (sc__Item_hasType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))) then // INLINED!!
-                                        if (sc__Item_countType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))) >= s__Item_count(i,s__Item_id[component]) then // INLINED!!
+                                    if (s__Item_hasType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))) then // INLINED!!
+                                        if (s__Item_countType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))) >= s__Item_count(i,s__Item_id[component]) then // INLINED!!
                                             call sc__Backdrop__set_visible(s__Button_check[(slot)],(true)) // INLINED!!
                                         else
                                             call SaveInteger(Table___ht, (counter), (s__Item_id[component]), ( (LoadInteger(Table___ht, (counter), (s__Item_id[component]))) + 1)) // INLINED!!
-                                            call sc__Backdrop__set_visible(s__Button_check[(slot)],((LoadInteger(Table___ht, (counter), (s__Item_id[component]))) <= (sc__Item_countType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))))) // INLINED!!
+                                            call sc__Backdrop__set_visible(s__Button_check[(slot)],((LoadInteger(Table___ht, (counter), (s__Item_id[component]))) <= (s__Item_countType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))))) // INLINED!!
                                         endif
                                     else
                                         call sc__Backdrop__set_visible(s__Button_check[(slot)],(false)) // INLINED!!
@@ -24424,6 +23095,115 @@ call s__Bonus_adder((source ) , ( BONUS_DAMAGE ) , (( amount)*1.0)) // INLINED!!
         endfunction
 
 //library Shop ends
+//library SulfurasSmash:
+    
+    // Credtis:
+    //     Systemfre1       - Sulfuras model
+    //     AZ               - crack model
+    //     Blizzard         - icon (edited by me)
+    //     TriggerHappy     - TimedHandles
+    
+    
+    
+    
+    
+
+    // The stun time for units at the center of impact
+    function SulfurasSmash___GetStunTime takes unit u returns real
+
+            return 1 + 0.25 * R2I(s__Sulfuras_stacks[GetUnitUserData(u)] * 0.05)
+
+
+
+    endfunction
+    
+    // The AoE for damage, by default is the AoE editor field of the ability
+    function SulfurasSmash___GetNormalAoE takes unit u,integer level returns real
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, SulfurasSmash___ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
+    endfunction
+
+    // The AoE for enemies in the center of impact that will be stunned and take doubled damage
+    function SulfurasSmash___GetCenterAoE takes integer level returns real
+        return 200. + 0 * level
+    endfunction
+
+    // Ability impact damage
+    function SulfurasSmash___GetDamage takes unit u,integer level returns real
+
+            return 250 * level + ( 0.8 + 0.2 * level ) * (s__Bonus_getter((u ) , ( BONUS_SPELL_POWER))) // INLINED!!
+
+
+
+    endfunction
+
+    // Filter for units that will be damage on impact
+    function SulfurasSmash___DamageFilter takes unit source,unit target returns boolean
+        return UnitAlive(target) and IsUnitEnemy(target, GetOwningPlayer(source)) and not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE)
+    endfunction
+    
+    
+    
+    
+
+        function s__SulfurasSmash___Hammer_onFinish takes integer this returns boolean
+            local group g= CreateGroup()
+            local unit u
+
+            call GroupEnumUnitsInRange(g, s__Missiles_x[this], s__Missiles_y[this], SulfurasSmash___GetNormalAoE(s__Missiles_source[this] , s__SulfurasSmash___Hammer_level[this]), null)
+
+            loop
+                set u=FirstOfGroup(g)
+                exitwhen u == null
+                    if SulfurasSmash___DamageFilter(s__Missiles_source[this] , u) then
+                        if DistanceBetweenCoordinates(s__Missiles_x[this] , s__Missiles_y[this] , GetUnitX(u) , GetUnitY(u)) <= s__SulfurasSmash___Hammer_aoe[this] then
+                            if UnitDamageTarget(s__Missiles_source[this], u, 2 * s__Missiles_damage[this], false, false, SulfurasSmash___ATTACK_TYPE, SulfurasSmash___DAMAGE_TYPE, null) then
+                                call sc__CrowdControl_stun((u ) , (( s__SulfurasSmash___Hammer_stun[this] )*1.0) , ( SulfurasSmash___STUN_MODEL ) , ( SulfurasSmash___STUN_POINT ) , ( false)) // INLINED!!
+                            endif
+                        else
+                            call UnitDamageTarget(s__Missiles_source[this], u, s__Missiles_damage[this], false, false, SulfurasSmash___ATTACK_TYPE, SulfurasSmash___DAMAGE_TYPE, null)
+                        endif
+                    endif
+                call GroupRemoveUnit(g, u)
+            endloop
+
+            call DestroyGroup(g)
+call s__effectTimed_create((AddSpecialEffectEx(SulfurasSmash___IMPACT_MODEL , s__Missiles_x[this] , s__Missiles_y[this] , 0 , SulfurasSmash___IMPACT_SCALE) ) , (( SulfurasSmash___IMPACT_DURATION)*1.0)) // INLINED!!
+            
+
+                call Afterburn(s__Missiles_x[this] , s__Missiles_y[this] , s__Missiles_source[this])
+
+
+            set g=null
+
+            return true
+        endfunction
+
+        function s__SulfurasSmash___SulfurasSmash_onTooltip takes integer this,unit source,integer level returns string
+            return "|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc00" + N2S(SulfurasSmash___LANDING_TIME , 2) + " seconds|r and damaging enemy units for |cff00ffff" + N2S(SulfurasSmash___GetDamage(source , level) , 0) + " Magic|r damage. Enemy units in the center are stunned for |cffffcc00" + N2S((1 + 0.25 * R2I(s__Sulfuras_stacks[GetUnitUserData((source))] * 0.05)) , 2) + "|r seconds and take twice as much damage." // INLINED!!
+        endfunction
+
+        function s__SulfurasSmash___SulfurasSmash_onCast takes integer this returns nothing
+            local real angle= AngleBetweenCoordinates((GetSpellTargetX()) , (GetSpellTargetY()) , GetUnitX(s__PluginSpellEffect___Unit_unit[s__Spell_source]) , GetUnitY(s__PluginSpellEffect___Unit_unit[s__Spell_source])) // INLINED!!
+            local integer sulfuras= s__SulfurasSmash___Hammer__allocate((GetSpellTargetX()) + SulfurasSmash___LAUNCH_OFFSET * Cos(angle) , (GetSpellTargetY()) + SulfurasSmash___LAUNCH_OFFSET * Sin(angle) , SulfurasSmash___START_HEIGHT , (GetSpellTargetX()) , (GetSpellTargetY()) , 0) // INLINED!!
+            
+            call s__Missiles__set_model(sulfuras,SulfurasSmash___SULFURAS_MODEL)
+            call s__Missiles__set_scale(sulfuras,SulfurasSmash___SULFURAS_SCALE)
+            call s__Missiles__set_duration(sulfuras,SulfurasSmash___LANDING_TIME)
+            set s__Missiles_source[sulfuras]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
+            set s__SulfurasSmash___Hammer_level[sulfuras]=(GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) // INLINED!!
+            set s__Missiles_owner[sulfuras]=(GetOwningPlayer(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])) // INLINED!!
+            set s__Missiles_damage[sulfuras]=SulfurasSmash___GetDamage(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId())))) // INLINED!!
+            set s__SulfurasSmash___Hammer_stun[sulfuras]=(1 + 0.25 * R2I(s__Sulfuras_stacks[GetUnitUserData((s__PluginSpellEffect___Unit_unit[s__Spell_source]))] * 0.05)) // INLINED!!
+            set s__SulfurasSmash___Hammer_aoe[sulfuras]=(200. + 0 * ((GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))))) // INLINED!!
+
+            call s__Missiles_launch(sulfuras)
+        endfunction
+
+        function s__SulfurasSmash___SulfurasSmash_onInit takes nothing returns nothing
+            call s__Ability_register((s__SulfurasSmash___SulfurasSmash__allocate() ) , ( SulfurasSmash___ABILITY)) // INLINED!!
+        endfunction
+
+//library SulfurasSmash ends
 //===========================================================================
 // 
 // Ragnaros Hero Concept
@@ -25597,76 +24377,6 @@ endfunction
 //***************************************************************************
 //*  Periodic
 
-//***************************************************************************
-//*  Attributes
-// scope Attributes begins
-        function s__Attributes___SpellPower_update takes integer this,unit u returns nothing
-            local integer amount= R2I((s__Bonus_getter((u ) , ( BONUS_SPELL_POWER)))) // INLINED!!
-
-            call s__Text__set_text(s__Attribute_value[this],"|cff00ffff" + I2S(amount) + "|r")
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], ("|cff00ffffSpell Power: " + I2S(amount) + "|r")) // INLINED!!
-            call sc__Component__set_visible(this,IsUnitType(u, UNIT_TYPE_HERO) and IsUnitVisible(u, GetLocalPlayer()))
-        endfunction
-
-        function s__Attributes___SpellPower_onInit takes nothing returns nothing
-            call s__Attributes___SpellPower__allocate(0.429 , 0.09 , 0.0125 , 0.0125 , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , "ReplaceableTextures\\CommandButtons\\BTNSpellSteal.blp" , "Spell Power" , FRAMEPOINT_LEFT)
-        endfunction
-
-        function s__Attributes___CriticalStrike_update takes integer this,unit u returns nothing
-            local integer chance= R2I((s__Bonus_getter((u ) , ( BONUS_CRITICAL_CHANCE)))) // INLINED!!
-            local integer damage= R2I((s__Bonus_getter((u ) , ( BONUS_CRITICAL_DAMAGE))) * 100) // INLINED!!
-
-            call s__Text__set_text(s__Attribute_value[this],I2S(chance) + "%")
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], ("Critical Chance: " + I2S(chance) + "%\nCritical Damage: " + I2S(damage) + "%")) // INLINED!!
-            call sc__Component__set_visible(this,not IsUnitType(u, UNIT_TYPE_STRUCTURE) and IsUnitVisible(u, GetLocalPlayer()))
-        endfunction
-
-        function s__Attributes___CriticalStrike_onInit takes nothing returns nothing
-            call s__Attributes___CriticalStrike__allocate(0.429 , 0.076 , 0.0125 , 0.0125 , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , "ReplaceableTextures\\CommandButtons\\BTNCriticalStrike.blp" , "Critical Strike" , FRAMEPOINT_LEFT)
-        endfunction
-
-        function s__Attributes___Evasion_update takes integer this,unit u returns nothing
-            local integer amount= R2I((s__Bonus_getter((u ) , ( BONUS_EVASION_CHANCE)))) // INLINED!!
-
-            call s__Text__set_text(s__Attribute_value[this],I2S(amount) + "%")
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], ("Evasion: " + I2S(amount) + "%")) // INLINED!!
-            call sc__Component__set_visible(this,not IsUnitType(u, UNIT_TYPE_STRUCTURE) and IsUnitVisible(u, GetLocalPlayer()))
-        endfunction
-
-        function s__Attributes___Evasion_onInit takes nothing returns nothing
-            call s__Attributes___Evasion__allocate(0.429 , 0.062 , 0.0125 , 0.0125 , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , "ReplaceableTextures\\CommandButtons\\BTNEvasion.blp" , "Evasion" , FRAMEPOINT_LEFT)
-        endfunction
-
-        function s__Attributes___LifeSteal_update takes integer this,unit u returns nothing
-            local integer amount= R2I((s__Bonus_getter((u ) , ( BONUS_LIFE_STEAL))) * 100) // INLINED!!
-
-            call s__Text__set_text(s__Attribute_value[this],I2S(amount) + "%")
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], ("Life Steal: " + I2S(amount) + "%")) // INLINED!!
-            call sc__Component__set_visible(this,BlzGetUnitWeaponBooleanField(u, UNIT_WEAPON_BF_ATTACKS_ENABLED, 0) and IsUnitVisible(u, GetLocalPlayer()))
-        endfunction
-
-        function s__Attributes___LifeSteal_onInit takes nothing returns nothing
-            call s__Attributes___LifeSteal__allocate(0.429 , 0.048 , 0.0125 , 0.0125 , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , "ReplaceableTextures\\CommandButtons\\BTNMaskOfDeath.blp" , "Life Steal" , FRAMEPOINT_LEFT)
-        endfunction
-
-        function s__Attributes___MovementSpeed_update takes integer this,unit u returns nothing
-            local real speed= GetUnitMoveSpeed(u)
-
-            call sc__Component__set_visible(this,not IsUnitType(u, UNIT_TYPE_STRUCTURE) and IsUnitVisible(u, GetLocalPlayer()))
-
-            if speed >= 270 then
-                call s__Text__set_text(s__Attribute_value[this],"|cff22f722" + I2S(R2I(speed)) + "|r")
-                call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], ("Movement Speed: |cff22f722" + I2S(R2I(speed)) + "|r")) // INLINED!!
-            else
-                call s__Text__set_text(s__Attribute_value[this],"|cffff0000" + I2S(R2I(speed)) + "|r")
-                call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], ("Movement Speed: |cffff0000" + I2S(R2I(speed)) + "|r")) // INLINED!!
-            endif
-        endfunction
-
-        function s__Attributes___MovementSpeed_onInit takes nothing returns nothing
-            call s__Attributes___MovementSpeed__allocate(0.429 , 0.034 , 0.0125 , 0.0125 , BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0) , "ReplaceableTextures\\CommandButtons\\BTNBootsOfSpeed.blp" , "Movement Speed" , FRAMEPOINT_LEFT)
-        endfunction
-// scope Attributes ends
 
 //***************************************************************************
 //*
@@ -25953,6 +24663,9 @@ endfunction
 //===========================================================================
 
 //===========================================================================
+// Trigger: GetMainSelectedUnit
+//===========================================================================
+//===========================================================================
 // Trigger: RegisterPlayerUnitEvent
 //===========================================================================
 
@@ -25974,13 +24687,6 @@ endfunction
 
 //===========================================================================
 // Trigger: TenacityUtils
-//===========================================================================
-
-//===========================================================================
-// Trigger: GetMainSelectedUnit
-//===========================================================================
-//===========================================================================
-// Trigger: Interface
 //===========================================================================
 
 //===========================================================================
@@ -26006,6 +24712,15 @@ endfunction
 // Trigger: Afterburner
 //===========================================================================
 //===========================================================================
+// Trigger: LavaElemental
+//===========================================================================
+//===========================================================================
+// Trigger: SulfurasSmash
+//===========================================================================
+//===========================================================================
+// Trigger: MoltenShield
+//===========================================================================
+//===========================================================================
 // Trigger: Initialization
 //===========================================================================
 function Trig_Initialization_Actions takes nothing returns nothing
@@ -26022,7 +24737,7 @@ endfunction
 // Trigger: Revive
 //===========================================================================
 // scope Revive begins
-        function s__Revive__Revive_onDeath takes nothing returns nothing
+        function s__Revive___Revive_onDeath takes nothing returns nothing
             local unit d= GetTriggerUnit()
             local real x= GetUnitX(d)
             local real y= GetUnitY(d)
@@ -26034,8 +24749,8 @@ endfunction
             set d=null
         endfunction
 
-        function s__Revive__Revive_onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH , function s__Revive__Revive_onDeath)
+        function s__Revive___Revive_onInit takes nothing returns nothing
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH , function s__Revive___Revive_onDeath)
         endfunction
 // scope Revive ends
 //===========================================================================
@@ -26079,7 +24794,7 @@ endfunction
 //===========================================================================
 // scope Spawn begins
 
-        function s__Spawn__Revive_Spawn takes real x,real y,integer melee,integer ranged returns nothing
+        function s__Spawn___Revive_Spawn takes real x,real y,integer melee,integer ranged returns nothing
             local integer i= 0
             local unit u
 
@@ -26090,115 +24805,63 @@ endfunction
                     else
                         set u=CreateUnit(Player(1), ranged, x, y, 0)
                     endif
-                    call IssuePointOrderById(u, 851983, s__Spawn__Revive_centerX, s__Spawn__Revive_centerY)
+                    call IssuePointOrderById(u, 851983, s__Spawn___Revive_centerX, s__Spawn___Revive_centerY)
                 set i=i + 1
             endloop
 
             set u=null
         endfunction
 
-        function s__Spawn__Revive_onPeriod takes nothing returns nothing
+        function s__Spawn___Revive_onPeriod takes nothing returns nothing
             local integer i= 0
 
             loop
                 exitwhen i > 3
                     if i == 0 then
-                        call s__Spawn__Revive_Spawn(GetRectCenterX(gg_rct_Human) , GetRectCenterY(gg_rct_Human) , 'hfoo' , 'hrif')
+                        call s__Spawn___Revive_Spawn(GetRectCenterX(gg_rct_Human) , GetRectCenterY(gg_rct_Human) , 'hfoo' , 'hrif')
                     elseif i == 1 then
-                        call s__Spawn__Revive_Spawn(GetRectCenterX(gg_rct_NightElf) , GetRectCenterY(gg_rct_NightElf) , 'esen' , 'earc')
+                        call s__Spawn___Revive_Spawn(GetRectCenterX(gg_rct_NightElf) , GetRectCenterY(gg_rct_NightElf) , 'esen' , 'earc')
                     elseif i == 2 then
-                        call s__Spawn__Revive_Spawn(GetRectCenterX(gg_rct_Undead) , GetRectCenterY(gg_rct_Undead) , 'ugho' , 'ucry')
+                        call s__Spawn___Revive_Spawn(GetRectCenterX(gg_rct_Undead) , GetRectCenterY(gg_rct_Undead) , 'ugho' , 'ucry')
                     elseif i == 3 then
-                        call s__Spawn__Revive_Spawn(GetRectCenterX(gg_rct_Orc) , GetRectCenterY(gg_rct_Orc) , 'ogru' , 'ohun')
+                        call s__Spawn___Revive_Spawn(GetRectCenterX(gg_rct_Orc) , GetRectCenterY(gg_rct_Orc) , 'ogru' , 'ohun')
                     endif
                 set i=i + 1
             endloop
         endfunction
 
-        function s__Spawn__Revive_onInit takes nothing returns nothing
+        function s__Spawn___Revive_onInit takes nothing returns nothing
             local trigger t= CreateTrigger()
             call TriggerRegisterTimerEventPeriodic(t, 45.00)
-            call TriggerAddAction(t, function s__Spawn__Revive_onPeriod)
+            call TriggerAddAction(t, function s__Spawn___Revive_onPeriod)
         endfunction
 // scope Spawn ends
-//===========================================================================
-// Trigger: Camera
-//===========================================================================
-// scope Camera begins
-    function Camera__AdjustCamera takes nothing returns nothing
-        local real dist= GetCameraField(CAMERA_FIELD_TARGET_DISTANCE)
-        local oskeytype pKey= BlzGetTriggerPlayerKey()
-    
-        if pKey == OSKEY_HOME then
-            call SetCameraFieldForPlayer(Player(0), CAMERA_FIELD_TARGET_DISTANCE, dist + 25, 0.00)
-            call ClearTextMessages()
-            call DisplayTextToPlayer(Player(0), 0, 0, "Camera Distance: " + I2S(R2I(dist + 25)))
-        elseif pKey == OSKEY_END then
-            call SetCameraFieldForPlayer(Player(0), CAMERA_FIELD_TARGET_DISTANCE, dist - 25, 0.00)
-            call ClearTextMessages()
-            call DisplayTextToPlayer(Player(0), 0, 0, "Camera Distance: " + I2S(R2I(dist - 25)))
-        endif
-
-        set pKey=null
-    endfunction
-    //===========================================================================
-    function Camera__Init takes nothing returns nothing
-        local trigger t= CreateTrigger()
-
-        call BlzTriggerRegisterPlayerKeyEvent(t, Player(0), OSKEY_HOME, 0, false)
-        call BlzTriggerRegisterPlayerKeyEvent(t, Player(0), OSKEY_END, 0, false)
-        call TriggerAddCondition(t, Condition(function Camera__AdjustCamera))
-        call Cheat("iseedeadpeople")
-    endfunction
-    
-// scope Camera ends
 //===========================================================================
 // Trigger: OnDamage
 //===========================================================================
 // scope OnDamage begins
-        function s__OnDamage__OnDamage_onDamage takes nothing returns nothing
-            local unit source= GetEventDamageSource()
-            local unit target
-            local real damage
-            local string text
-            local damagetype damage_type
-            local attacktype attack_type
+        function s__OnDamage___OnDamage_onDamage takes nothing returns nothing
+            local string text= N2S((s__Damage_damage[s__Damage_key]) , 0) // INLINED!!
 
-            if IsUnitType(source, UNIT_TYPE_HERO) then
-                set target=BlzGetEventDamageTarget()
-                set damage=GetEventDamage()
-                set text=(I2S(R2I(((damage)*1.0)))) // INLINED!!
-
-                if damage > 0 then
-                    set damage_type=BlzGetEventDamageType()
-                    set attack_type=BlzGetEventAttackType()
-
-                    if damage_type == DAMAGE_TYPE_NORMAL then
-                        call s__ArcingTextTag_create("|cffff0000" + text + "|r" , target)
-                    elseif attack_type == ATTACK_TYPE_NORMAL then
-                        call s__ArcingTextTag_create("|cff00ffff" + text + "|r" , target)
-                    elseif damage_type == DAMAGE_TYPE_ENHANCED then
-                        call s__ArcingTextTag_create("|cff00ff00" + text + "|r" , target)
-                    elseif damage_type == DAMAGE_TYPE_UNIVERSAL then
-                        call s__ArcingTextTag_create(text , target)
-                    else
-                        call s__ArcingTextTag_create("|cffe4fd00" + text + "|r" , target)
-                    endif
-                elseif damage < 0 then
-                    call s__ArcingTextTag_create("|cff00ff00 +" + text + "|r" , target)
+            if (s__Damage_damage[s__Damage_key]) > 0 and (IsUnitType(s__DamageInterface___Unit_unit[((s__Damage_sources[s__Damage_key]))], UNIT_TYPE_HERO)) then // INLINED!!
+                if (s__Damage_damageType[s__Damage_key]) == DAMAGE_TYPE_NORMAL then // INLINED!!
+                    call s__ArcingTextTag_create("|cffff0000" + text + "|r" , s__DamageInterface___Unit_unit[(s__Damage_targets[s__Damage_key])]) // INLINED!!
+                elseif (s__Damage_attackType[s__Damage_key]) == ATTACK_TYPE_NORMAL then // INLINED!!
+                    call s__ArcingTextTag_create("|cff00ffff" + text + "|r" , s__DamageInterface___Unit_unit[(s__Damage_targets[s__Damage_key])]) // INLINED!!
+                elseif (s__Damage_damageType[s__Damage_key]) == DAMAGE_TYPE_ENHANCED then // INLINED!!
+                    call s__ArcingTextTag_create("|cff00ff00" + text + "|r" , s__DamageInterface___Unit_unit[(s__Damage_targets[s__Damage_key])]) // INLINED!!
+                elseif (s__Damage_damageType[s__Damage_key]) == DAMAGE_TYPE_UNIVERSAL then // INLINED!!
+                    call s__ArcingTextTag_create(text , s__DamageInterface___Unit_unit[(s__Damage_targets[s__Damage_key])]) // INLINED!!
+                else
+                    call s__ArcingTextTag_create("|cffe4fd00" + text + "|r" , s__DamageInterface___Unit_unit[(s__Damage_targets[s__Damage_key])]) // INLINED!!
                 endif
+            elseif (s__Damage_damage[s__Damage_key]) < 0 then // INLINED!!
+                call s__ArcingTextTag_create("|cff00ff00 +" + text + "|r" , s__DamageInterface___Unit_unit[(s__Damage_targets[s__Damage_key])]) // INLINED!!
             endif
-
-            set source=null
-            set target=null
-            set damage_type=null
-            set attack_type=null
         endfunction
 
-        function s__OnDamage__OnDamage_onInit takes nothing returns nothing
-            local trigger t= CreateTrigger()
-            call TriggerRegisterAnyUnitEventBJ(t, EVENT_PLAYER_UNIT_DAMAGED)
-            call TriggerAddCondition(t, Condition(function s__OnDamage__OnDamage_onDamage))
+        function s__OnDamage___OnDamage_onInit takes nothing returns nothing
+            call TriggerAddCondition(s__Damage_anyAfter, Filter((function s__OnDamage___OnDamage_onDamage))) // INLINED!!
         endfunction
 // scope OnDamage ends
 //===========================================================================
@@ -26218,6 +24881,7 @@ function InitCustomTriggers takes nothing returns nothing
     //Function not found: call InitTrig_SpellEffectEvent()
     //Function not found: call InitTrig_DestructableHider()
     //Function not found: call InitTrig_ArcingFloatingText()
+    //Function not found: call InitTrig_GetMainSelectedUnit()
     //Function not found: call InitTrig_RegisterPlayerUnitEvent()
     //Function not found: call InitTrig_MissileEffect()
     //Function not found: call InitTrig_MissileUtils()
@@ -26225,8 +24889,6 @@ function InitCustomTriggers takes nothing returns nothing
     //Function not found: call InitTrig_Damage()
     //Function not found: call InitTrig_Tenacity()
     //Function not found: call InitTrig_TenacityUtils()
-    //Function not found: call InitTrig_GetMainSelectedUnit()
-    //Function not found: call InitTrig_Interface()
     //Function not found: call InitTrig_CrowdControl()
     //Function not found: call InitTrig_CooldownReduction()
     //Function not found: call InitTrig_CooldownReductionUtils()
@@ -26234,11 +24896,13 @@ function InitCustomTriggers takes nothing returns nothing
     //Function not found: call InitTrig_Explosive_Rune()
     //Function not found: call InitTrig_LivingMeteor()
     //Function not found: call InitTrig_Afterburner()
+    //Function not found: call InitTrig_LavaElemental()
+    //Function not found: call InitTrig_SulfurasSmash()
+    //Function not found: call InitTrig_MoltenShield()
     call InitTrig_Initialization()
     //Function not found: call InitTrig_Revive()
     call InitTrig_Refresh()
     //Function not found: call InitTrig_Spawn()
-    //Function not found: call InitTrig_Camera()
     //Function not found: call InitTrig_OnDamage()
 endfunction
 
@@ -26288,11 +24952,10 @@ function main takes nothing returns nothing
     call CreateAllUnits()
     call InitBlizzard()
 
-call ExecuteFunc("jasshelper__initstructs91889750")
+call ExecuteFunc("jasshelper__initstructs91083484")
 call ExecuteFunc("DestructableHider___init")
 call ExecuteFunc("GetMainSelectedUnit___init_function")
 call ExecuteFunc("TimerUtils___init")
-call Camera__Init()
 
     call InitGlobals()
     call InitCustomTriggers()
@@ -26707,209 +25370,6 @@ function sa__ResetCooldown_reset takes nothing returns boolean
     call s__ResetCooldown_reset(f__arg_unit1,f__arg_integer1)
    return true
 endfunction
-function sa__UI_showHeroes takes nothing returns boolean
-local boolean show=f__arg_boolean1
-            local integer i= 0
-            if show then
-                loop
-                    exitwhen i >= 7
-                        call BlzFrameSetAbsPoint(s__UI_hero[i], FRAMEPOINT_TOPLEFT, Interface___HERO_LIST_X, Interface___HERO_LIST_Y - ( i * Interface___HERO_LIST_GAP ))
-                        call BlzFrameSetScale(s__UI_hero[i], Interface___HERO_LIST_WIDTH / 0.038)
-                        call BlzFrameSetScale(s__UI_highlight[i], Interface___HERO_LIST_WIDTH / 0.038)
-                    set i=i + 1
-                endloop
-            else
-                loop
-                    exitwhen i >= 7
-                        call BlzFrameSetAbsPoint(s__UI_hero[i], FRAMEPOINT_TOPLEFT, 999, 999)
-                    set i=i + 1
-                endloop
-            endif
-   return true
-endfunction
-function sa__UI_showMinimap takes nothing returns boolean
-local real x=f__arg_real1
-local real y=f__arg_real2
-            call BlzFrameSetAbsPoint(s__UI_minimap, FRAMEPOINT_TOPLEFT, x, y)
-            call BlzFrameSetAbsPoint(s__UI_minimap, FRAMEPOINT_BOTTOMRIGHT, x + Interface___MINIMAP_WIDTH, y - Interface___MINIMAP_HEIGHT)
-            call BlzFrameSetVisible(s__UI_minimap, true)
-   return true
-endfunction
-function sa__Backdrop__set_visible takes nothing returns boolean
-local integer this=f__arg_this
-local boolean visibility=f__arg_boolean1
-            set s__Backdrop_Components___Operators____visible[this]=visibility
-            call BlzFrameSetVisible((s__Backdrop_Components___Operators____frame[(this)]), visibility) // INLINED!!
-   return true
-endfunction
-function sa__Backdrop__get_visible takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_boolean= s__Backdrop_Components___Operators____visible[this]
-   return true
-endfunction
-function sa__Backdrop__get_frame takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_framehandle= s__Backdrop_Components___Operators____frame[this]
-   return true
-endfunction
-function sa__Backdrop_create takes nothing returns boolean
-local real x=f__arg_real1
-local real y=f__arg_real2
-local real width=f__arg_real3
-local real height=f__arg_real4
-local framehandle parent=f__arg_framehandle1
-local string texture=f__arg_string1
-            local integer this= s__Backdrop__allocate()
-            if parent == null then
-                set parent=Components___CONSOLE
-            endif
-            call s__Backdrop__set_x(this,x)
-            call s__Backdrop__set_y(this,y)
-            call s__Backdrop__set_width(this,width)
-            call s__Backdrop__set_height(this,height)
-            set s__Backdrop_parent[this]=parent
-            call s__Backdrop__set_texture(this,texture)
-            set s__Backdrop_Components___Operators____frame[(this)]=(BlzCreateFrameByType("BACKDROP", "", parent, "", 0)) // INLINED!!
-            if parent == Components___CONSOLE or parent == Components___WORLD then
-                call BlzFrameSetAbsPoint((s__Backdrop_Components___Operators____frame[(this)]), (s__Backdrop_Components___Operators____point[(this)]), x, y) // INLINED!!
-            else
-                call BlzFrameSetPoint((s__Backdrop_Components___Operators____frame[(this)]), (s__Backdrop_Components___Operators____point[(this)]), parent, (s__Backdrop_Components___Operators____relative[(this)]), x, y) // INLINED!!
-            endif
-            call BlzFrameSetSize((s__Backdrop_Components___Operators____frame[(this)]), width, height) // INLINED!!
-            call BlzFrameSetTexture((s__Backdrop_Components___Operators____frame[(this)]), texture, 0, true) // INLINED!!
-set f__result_integer= this
-   return true
-endfunction
-function sa__Sprite__set_visible takes nothing returns boolean
-local integer this=f__arg_this
-local boolean visibility=f__arg_boolean1
-            set s__Sprite_Components___Operators____visible[this]=visibility
-            call BlzFrameSetVisible((s__Sprite_Components___Operators____frame[(this)]), visibility) // INLINED!!
-   return true
-endfunction
-function sa__Sprite__get_visible takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_boolean= s__Sprite_Components___Operators____visible[this]
-   return true
-endfunction
-function sa__Sprite__get_frame takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_framehandle= s__Sprite_Components___Operators____frame[this]
-   return true
-endfunction
-function sa__Text__set_visible takes nothing returns boolean
-local integer this=f__arg_this
-local boolean visibility=f__arg_boolean1
-            set s__Text_Components___Operators____visible[this]=visibility
-            call BlzFrameSetVisible((s__Text_Components___Operators____frame[(this)]), visibility) // INLINED!!
-   return true
-endfunction
-function sa__Text__get_visible takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_boolean= s__Text_Components___Operators____visible[this]
-   return true
-endfunction
-function sa__Text__get_frame takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_framehandle= s__Text_Components___Operators____frame[this]
-   return true
-endfunction
-function sa__TextArea__set_visible takes nothing returns boolean
-local integer this=f__arg_this
-local boolean visibility=f__arg_boolean1
-            set s__TextArea_Components___Operators____visible[this]=visibility
-            call BlzFrameSetVisible((s__TextArea_Components___Operators____frame[(this)]), visibility) // INLINED!!
-   return true
-endfunction
-function sa__TextArea__get_visible takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_boolean= s__TextArea_Components___Operators____visible[this]
-   return true
-endfunction
-function sa__TextArea__get_frame takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_framehandle= s__TextArea_Components___Operators____frame[this]
-   return true
-endfunction
-function sa__StatusBar__set_visible takes nothing returns boolean
-local integer this=f__arg_this
-local boolean visibility=f__arg_boolean1
-            set s__StatusBar_Components___Operators____visible[this]=visibility
-            call BlzFrameSetVisible((s__StatusBar_Components___Operators____frame[(this)]), visibility) // INLINED!!
-   return true
-endfunction
-function sa__StatusBar__get_visible takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_boolean= s__StatusBar_Components___Operators____visible[this]
-   return true
-endfunction
-function sa__StatusBar__get_frame takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_framehandle= s__StatusBar_Components___Operators____frame[this]
-   return true
-endfunction
-function sa__Component__set_visible takes nothing returns boolean
-local integer this=f__arg_this
-local boolean visibility=f__arg_boolean1
-            set s__Component_Components___Operators____visible[this]=visibility
-            call BlzFrameSetVisible((s__Component_Components___Operators____frame[(this)]), visibility) // INLINED!!
-   return true
-endfunction
-function sa__Component__get_visible takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_boolean= s__Component_Components___Operators____visible[this]
-   return true
-endfunction
-function sa__Component__get_frame takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_framehandle= s__Component_Components___Operators____frame[this]
-   return true
-endfunction
-function sa__Component_get takes nothing returns boolean
-
-set f__result_integer= s__Component_array[GetPlayerId(GetTriggerPlayer())]
-   return true
-endfunction
-function sa__Component_create takes nothing returns boolean
-local real x=f__arg_real1
-local real y=f__arg_real2
-local real width=f__arg_real3
-local real height=f__arg_real4
-local framehandle parent=f__arg_framehandle1
-local string frameType=f__arg_string1
-local string template=f__arg_string2
-            local integer this= s__Component__allocate()
-            if parent == null then
-                set parent=Components___CONSOLE
-            endif
-            if template == "" or template == null then
-                set template="TransparentBackdrop"
-            endif
-            call s__Component__set_x(this,x)
-            call s__Component__set_y(this,y)
-            call s__Component__set_width(this,width)
-            call s__Component__set_height(this,height)
-            set s__Component_parent[this]=parent
-            set s__Component_Components___Operators____frame[(this)]=(BlzCreateFrame(template, parent, 0, 0)) // INLINED!!
-            set s__Component_listener[this]=BlzCreateFrame(frameType, (s__Component_Components___Operators____frame[(this)]), 0, 0) // INLINED!!
-            set s__Component_button[this]=BlzFrameGetChild(s__Component_listener[this], 0)
-            set s__Component_image[this]=s__Backdrop_create(0 , 0 , width , height , s__Component_listener[this] , null)
-            call sc__Backdrop__set_visible(s__Component_image[this],false)
-            call SaveInteger(Table___ht, (s__Component_table), (GetHandleId(s__Component_listener[this])), ( this)) // INLINED!!
-            call SaveInteger(Table___ht, (s__Component_table), (GetHandleId(s__Component_button[this])), ( this)) // INLINED!!
-            if parent == Components___CONSOLE or parent == Components___WORLD then
-                call BlzFrameSetAbsPoint((s__Component_Components___Operators____frame[(this)]), (s__Component_Components___Operators____point[(this)]), x, y) // INLINED!!
-            else
-                call BlzFrameSetPoint((s__Component_Components___Operators____frame[(this)]), (s__Component_Components___Operators____point[(this)]), parent, (s__Component_Components___Operators____relative[(this)]), x, y) // INLINED!!
-            endif
-            call BlzFrameSetSize((s__Component_Components___Operators____frame[(this)]), width, height) // INLINED!!
-            call BlzFrameSetAllPoints(s__Component_listener[this], (s__Component_Components___Operators____frame[(this)])) // INLINED!!
-            call BlzTriggerRegisterFrameEvent(s__Component_enter, s__Component_listener[this], FRAMEEVENT_MOUSE_ENTER)
-            call BlzTriggerRegisterFrameEvent(s__Component_leave, s__Component_listener[this], FRAMEEVENT_MOUSE_LEAVE)
-            call BlzTriggerRegisterFrameEvent(s__Component_scroll, s__Component_button[this], FRAMEEVENT_MOUSE_WHEEL)
-set f__result_integer= this
-   return true
-endfunction
 function sa__ArcingTextTag_StartTimer takes nothing returns boolean
 local real timeout=f__arg_real1
 local boolean periodic=f__arg_boolean1
@@ -26946,28 +25406,6 @@ local integer uniqueId=f__arg_integer2
             else
                 call BJDebugMsg("Periodic Error: instance not provided")
             endif
-   return true
-endfunction
-function sa__EditBox__set_visible takes nothing returns boolean
-local integer this=f__arg_this
-local boolean visibility=f__arg_boolean1
-            set s__EditBox_Components___Operators____visible[this]=visibility
-            call BlzFrameSetVisible((s__EditBox_Components___Operators____frame[(this)]), visibility) // INLINED!!
-   return true
-endfunction
-function sa__EditBox__get_visible takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_boolean= s__EditBox_Components___Operators____visible[this]
-   return true
-endfunction
-function sa__EditBox__get_frame takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_framehandle= s__EditBox_Components___Operators____frame[this]
-   return true
-endfunction
-function sa__EditBox_get takes nothing returns boolean
-
-set f__result_integer= (LoadInteger(Table___ht, (s__EditBox_table), (GetHandleId(BlzGetTriggerFrame())))) // INLINED!!
    return true
 endfunction
 function sa__Tenacity_get takes nothing returns boolean
@@ -27135,38 +25573,48 @@ local boolean posmitigation=f__arg_boolean1
             endif
    return true
 endfunction
-function sa__Panel_create takes nothing returns boolean
-local real x=f__arg_real1
-local real y=f__arg_real2
-local real width=f__arg_real3
-local real height=f__arg_real4
-local framehandle parent=f__arg_framehandle1
-local string template=f__arg_string1
-set f__result_integer= s__Panel__allocate(x , y , width , height , parent , "PanelFrame" , template)
+function sa__Backdrop__set_visible takes nothing returns boolean
+local integer this=f__arg_this
+local boolean visibility=f__arg_boolean1
+            set s__Backdrop_Components___Operators____visible[this]=visibility
+            call BlzFrameSetVisible((s__Backdrop_Components___Operators____frame[(this)]), visibility) // INLINED!!
    return true
 endfunction
-function sa__Button_create takes nothing returns boolean
+function sa__Backdrop__get_visible takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_boolean= s__Backdrop_Components___Operators____visible[this]
+   return true
+endfunction
+function sa__Backdrop__get_frame takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_framehandle= s__Backdrop_Components___Operators____frame[this]
+   return true
+endfunction
+function sa__Backdrop_create takes nothing returns boolean
 local real x=f__arg_real1
 local real y=f__arg_real2
 local real width=f__arg_real3
 local real height=f__arg_real4
 local framehandle parent=f__arg_framehandle1
-local boolean simpleTooltip=f__arg_boolean1
-            local integer this= s__Button__allocate(x , y , width , height , parent , "ComponentFrame" , null)
-            set s__Button_check[this]=s__Backdrop_create(0 , 0 , width , height , (s__Component_Components___Operators____frame[(this)]) , Components___CHECKED_BUTTON) // INLINED!!
-            set s__Button_block[this]=s__Backdrop_create(0 , 0 , width , height , (s__Component_Components___Operators____frame[(this)]) , Components___UNAVAILABLE_BUTTON) // INLINED!!
-            set s__Button_sprite[this]=s__Sprite_create(0 , 0 , width , height , (s__Component_Components___Operators____frame[(this)]) , FRAMEPOINT_CENTER , FRAMEPOINT_CENTER) // INLINED!!
-            set s__Button_tagger[this]=s__Sprite_create(0 , 0 , 0.00001 , 0.00001 , (s__Component_Components___Operators____frame[(this)]) , FRAMEPOINT_BOTTOMLEFT , FRAMEPOINT_BOTTOMLEFT) // INLINED!!
-            set s__Button_player[this]=s__Sprite_create(0 , 0 , 0.00001 , 0.00001 , (s__Component_Components___Operators____frame[(this)]) , FRAMEPOINT_BOTTOMLEFT , FRAMEPOINT_BOTTOMLEFT) // INLINED!!
-            set s__Button_tooltip[this]=s__Tooltip_create((s__Component_Components___Operators____frame[(this)]) , Components___TOOLTIP_SIZE , FRAMEPOINT_TOPLEFT , simpleTooltip) // INLINED!!
-            set s__Button_highlight[this]=BlzCreateFrame("HighlightFrame", (s__Component_Components___Operators____frame[(this)]), 0, 0) // INLINED!!
-            call sc__Backdrop__set_visible(s__Button_check[(this)],(false)) // INLINED!!
-            call sc__Backdrop__set_visible(s__Button_block[(this)],not (true)) // INLINED!!
-            call s__Button__set_highlighted(this,false)
-            call BlzFrameSetTooltip((s__Component_listener[(this)]), s__Tooltip_frame[s__Button_tooltip[this]]) // INLINED!!
-            call BlzFrameSetPoint(s__Button_highlight[this], FRAMEPOINT_TOPLEFT, (s__Component_Components___Operators____frame[(this)]), FRAMEPOINT_TOPLEFT, - 0.004, 0.0045) // INLINED!!
-            call BlzFrameSetSize(s__Button_highlight[this], width + 0.0085, height + 0.0085)
-            call BlzFrameSetTexture(s__Button_highlight[this], Components___HIGHLIGHT, 0, true)
+local string texture=f__arg_string1
+            local integer this= s__Backdrop__allocate()
+            if parent == null then
+                set parent=Components___CONSOLE
+            endif
+            call s__Backdrop__set_x(this,x)
+            call s__Backdrop__set_y(this,y)
+            call s__Backdrop__set_width(this,width)
+            call s__Backdrop__set_height(this,height)
+            set s__Backdrop_parent[this]=parent
+            call s__Backdrop__set_texture(this,texture)
+            set s__Backdrop_Components___Operators____frame[(this)]=(BlzCreateFrameByType("BACKDROP", "", parent, "", 0)) // INLINED!!
+            if parent == Components___CONSOLE or parent == Components___WORLD then
+                call BlzFrameSetAbsPoint((s__Backdrop_Components___Operators____frame[(this)]), (s__Backdrop_Components___Operators____point[(this)]), x, y) // INLINED!!
+            else
+                call BlzFrameSetPoint((s__Backdrop_Components___Operators____frame[(this)]), (s__Backdrop_Components___Operators____point[(this)]), parent, (s__Backdrop_Components___Operators____relative[(this)]), x, y) // INLINED!!
+            endif
+            call BlzFrameSetSize((s__Backdrop_Components___Operators____frame[(this)]), width, height) // INLINED!!
+            call BlzFrameSetTexture((s__Backdrop_Components___Operators____frame[(this)]), texture, 0, true) // INLINED!!
 set f__result_integer= this
    return true
 endfunction
@@ -27222,367 +25670,287 @@ function sa__CheckBox_get takes nothing returns boolean
 set f__result_integer= (LoadInteger(Table___ht, (s__CheckBox_table), (GetHandleId(BlzGetTriggerFrame())))) // INLINED!!
    return true
 endfunction
-function sa__Shop__set_visible takes nothing returns boolean
+function sa__EditBox__set_visible takes nothing returns boolean
 local integer this=f__arg_this
 local boolean visibility=f__arg_boolean1
-            set s__Shop_isVisible[this]=visibility
-            call s__Shop___Buyer__set_visible(s__Shop_buyer[this],visibility)
-            if not visibility then
-                set s__Shop___Buyer_index[s__Shop_buyer[this]]=0
-            else
-                if sc__Component__get_visible(s__Shop_details[this]) then
-                    call s__Shop___Detail_refresh(s__Shop_details[this],GetLocalPlayer())
-                endif
-            endif
+            set s__EditBox_Components___Operators____visible[this]=visibility
+            call BlzFrameSetVisible((s__EditBox_Components___Operators____frame[(this)]), visibility) // INLINED!!
+   return true
+endfunction
+function sa__EditBox__get_visible takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_boolean= s__EditBox_Components___Operators____visible[this]
+   return true
+endfunction
+function sa__EditBox__get_frame takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_framehandle= s__EditBox_Components___Operators____frame[this]
+   return true
+endfunction
+function sa__EditBox_get takes nothing returns boolean
+
+set f__result_integer= (LoadInteger(Table___ht, (s__EditBox_table), (GetHandleId(BlzGetTriggerFrame())))) // INLINED!!
+   return true
+endfunction
+function sa__Component__set_visible takes nothing returns boolean
+local integer this=f__arg_this
+local boolean visibility=f__arg_boolean1
+            set s__Component_Components___Operators____visible[this]=visibility
             call BlzFrameSetVisible((s__Component_Components___Operators____frame[(this)]), visibility) // INLINED!!
    return true
 endfunction
-function sa__Shop__get_visible takes nothing returns boolean
+function sa__Component__get_visible takes nothing returns boolean
 local integer this=f__arg_this
-set f__result_boolean= s__Shop_isVisible[this]
+set f__result_boolean= s__Component_Components___Operators____visible[this]
    return true
 endfunction
-function sa__Shop_buy takes nothing returns boolean
+function sa__Component__get_frame takes nothing returns boolean
 local integer this=f__arg_this
-local integer i=f__arg_integer1
-local player p=f__arg_player1
-            local integer id= GetPlayerId(p)
-            local integer cost= s__Item_cost(i,(LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id))))) // INLINED!!
-            local item new
-            if s__Shop_canBuy(this,i , p) and cost <= GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) then
-                set new=CreateItem(s__Item_id[i], GetUnitX((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id))))), GetUnitY((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))))) // INLINED!!
-                call s__Shop___Inventory_removeComponents(s__Shop___Buyer_inventory[s__Shop_buyer[this]],i , s__Shop___Transaction_create(this , (LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))) , i , cost , "buy")) // INLINED!!
-                if not UnitAddItem((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))), new) then // INLINED!!
-                    call IssueTargetItemOrder((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))), "smart", new) // INLINED!!
-                endif
-                call s__Shop___Inventory_show(s__Shop___Buyer_inventory[s__Shop_buyer[this]],(LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id))))) // INLINED!!
-                call s__Shop___Detail_refresh(s__Shop_details[this],p)
-                call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) - cost)
-                call s__Shop___Sound_success(p)
-                set new=null
-set f__result_boolean= true
-return true
-            else
-                if cost > GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) then
-                    call s__Shop___Sound_gold(p)
-                else
-                    call s__Shop___Sound_error(p)
-                endif
-set f__result_boolean= false
-return true
+set f__result_framehandle= s__Component_Components___Operators____frame[this]
+   return true
+endfunction
+function sa__Component_get takes nothing returns boolean
+
+set f__result_integer= s__Component_array[GetPlayerId(GetTriggerPlayer())]
+   return true
+endfunction
+function sa__Component_create takes nothing returns boolean
+local real x=f__arg_real1
+local real y=f__arg_real2
+local real width=f__arg_real3
+local real height=f__arg_real4
+local framehandle parent=f__arg_framehandle1
+local string frameType=f__arg_string1
+local string template=f__arg_string2
+            local integer this= s__Component__allocate()
+            if parent == null then
+                set parent=Components___CONSOLE
             endif
-set f__result_boolean= false
-   return true
-endfunction
-function sa__Shop_sell takes nothing returns boolean
-local integer this=f__arg_this
-local integer i=f__arg_integer1
-local player p=f__arg_player1
-local integer slot=f__arg_integer2
-            local integer cost
-            local integer gold
-            local integer charges
-            local integer id= GetPlayerId(p)
-            local boolean sold= false
-            if i != 0 and (LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))) != null then // INLINED!!
-                set charges=GetItemCharges(UnitItemInSlot((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))), slot)) // INLINED!!
-                if charges == 0 then
-                    set charges=1
-                endif
-                set gold=GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD)
-                set cost=R2I(R2I((LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(i)])), (1))) / (LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(i)])), (2)))) * charges * s__Shop_tax[this]) // INLINED!!
-                if GetItemTypeId(UnitItemInSlot((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))), slot)) == s__Item_id[i] then // INLINED!!
-                    set sold=true
-                    call s__Shop___Transaction_create(this , (LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))) , i , cost , "sell") // INLINED!!
-                    call RemoveItem(UnitItemInSlot((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))), slot)) // INLINED!!
-                    call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, gold + cost)
-                    call s__Shop___Inventory_show(s__Shop___Buyer_inventory[s__Shop_buyer[this]],(LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id))))) // INLINED!!
-                    call s__Shop___Detail_refresh(s__Shop_details[this],p)
-                endif
-                call s__Shop___Sound_success(p)
-            else
-                call s__Shop___Sound_error(p)
+            if template == "" or template == null then
+                set template="TransparentBackdrop"
             endif
-set f__result_boolean= sold
-   return true
-endfunction
-function sa__Shop_filter takes nothing returns boolean
-local integer this=f__arg_this
-local integer categories=f__arg_integer1
-local boolean andLogic=f__arg_boolean1
-            local integer slot= (LoadInteger(Table___ht, (s__HashTable__getindex(s__Shop_itempool,this)), (0))) // INLINED!!
-            local boolean process
-            local integer i= - 1
-            set s__Shop_size[this]=0
-            set s__Shop_first[this]=0
-            set s__Shop_last[this]=0
-            set s__Shop_head[this]=0
-            set s__Shop_tail[this]=0
-            loop
-                exitwhen slot == 0
-                    if andLogic then
-                        set process=categories == 0 or BlzBitAnd((LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(s__Shop___Slot_item[slot])])), (6))), categories) >= categories // INLINED!!
-                    else
-                        set process=categories == 0 or BlzBitAnd((LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(s__Shop___Slot_item[slot])])), (6))), categories) > 0 // INLINED!!
-                    endif
-                    if s__EditBox__get_text(s__Shop_edit[this]) != "" and s__EditBox__get_text(s__Shop_edit[this]) != null then
-                        set process=process and sc__Shop_find(this,StringCase((LoadStr(Table___ht, (((s__HashTable__getindex(s__Item_itempool,s__Item_id[(s__Shop___Slot_item[slot])])))), (3))), false) , StringCase(s__EditBox__get_text(s__Shop_edit[this]), false)) // INLINED!!
-                    endif
-                    if process then
-                        set i=i + 1
-                        set s__Shop_size[this]=s__Shop_size[this] + 1
-                        call s__Shop___Slot_move(slot,R2I(i / s__Shop_columns[this]) , ModuloInteger(i, s__Shop_columns[this]))
-                        call sc__Component__set_visible(slot,(s__Shop___Slot_current_row[(slot)]) >= 0 and (s__Shop___Slot_current_row[(slot)]) <= s__Shop_rows[this] - 1 and (s__Shop___Slot_current_column[(slot)]) >= 0 and (s__Shop___Slot_current_column[(slot)]) <= s__Shop_columns[this] - 1) // INLINED!!
-                        if i > 0 then
-                            set s__Shop___Slot_left[slot]=s__Shop_last[this]
-                            set s__Shop___Slot_right[s__Shop_last[this]]=slot
-                        else
-                            set s__Shop_first[this]=slot
-                            set s__Shop_head[this]=s__Shop_first[this]
-                        endif
-                        if sc__Component__get_visible(slot) then
-                            set s__Shop_tail[this]=slot
-                        endif
-                        set s__Shop_last[this]=slot
-                    else
-                        call sc__Component__set_visible(slot,false)
-                    endif
-                set slot=s__Shop___Slot_next[slot]
-            endloop
-   return true
-endfunction
-function sa__Shop_detail takes nothing returns boolean
-local integer this=f__arg_this
-local integer i=f__arg_integer1
-local player p=f__arg_player1
-            if i != 0 then
-                if GetLocalPlayer() == p then
-                    set s__Shop_rows[this]=Shop___DETAILED_ROWS
-                    set s__Shop_columns[this]=Shop___DETAILED_COLUMNS
-                    if not s__Shop_detailed[this] then
-                        set s__Shop_detailed[this]=true
-                        call s__Shop_filter(this,s__Shop___Category_active[s__Shop_category[this]] , s__Shop___Category_andLogic[s__Shop_category[this]])
-                    endif
-                endif
-                if not sc__Component__get_visible(s__Shop_details[this]) then
-                    call s__Shop_scrollTo(this,i , p)
-                endif
-                call s__Shop_select(this,i , p)
-                call s__Shop___Detail_show(s__Shop_details[this],i , p)
+            call s__Component__set_x(this,x)
+            call s__Component__set_y(this,y)
+            call s__Component__set_width(this,width)
+            call s__Component__set_height(this,height)
+            set s__Component_parent[this]=parent
+            set s__Component_Components___Operators____frame[(this)]=(BlzCreateFrame(template, parent, 0, 0)) // INLINED!!
+            set s__Component_listener[this]=BlzCreateFrame(frameType, (s__Component_Components___Operators____frame[(this)]), 0, 0) // INLINED!!
+            set s__Component_button[this]=BlzFrameGetChild(s__Component_listener[this], 0)
+            set s__Component_image[this]=s__Backdrop_create(0 , 0 , width , height , s__Component_listener[this] , null)
+            call sc__Backdrop__set_visible(s__Component_image[this],false)
+            call SaveInteger(Table___ht, (s__Component_table), (GetHandleId(s__Component_listener[this])), ( this)) // INLINED!!
+            call SaveInteger(Table___ht, (s__Component_table), (GetHandleId(s__Component_button[this])), ( this)) // INLINED!!
+            if parent == Components___CONSOLE or parent == Components___WORLD then
+                call BlzFrameSetAbsPoint((s__Component_Components___Operators____frame[(this)]), (s__Component_Components___Operators____point[(this)]), x, y) // INLINED!!
             else
-                if GetLocalPlayer() == p then
-                    set s__Shop_rows[this]=Shop___ROWS
-                    set s__Shop_columns[this]=Shop___COLUMNS
-                    set s__Shop_detailed[this]=false
-                    call sc__Component__set_visible(s__Shop_details[this],false)
-                    call s__Shop_filter(this,s__Shop___Category_active[s__Shop_category[this]] , s__Shop___Category_andLogic[s__Shop_category[this]])
-                    call s__Shop_scrollTo(this,s__Shop___Slot_item[((LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,this)), (GetPlayerId(p)))))] , p) // INLINED!!
-                endif
+                call BlzFrameSetPoint((s__Component_Components___Operators____frame[(this)]), (s__Component_Components___Operators____point[(this)]), parent, (s__Component_Components___Operators____relative[(this)]), x, y) // INLINED!!
             endif
+            call BlzFrameSetSize((s__Component_Components___Operators____frame[(this)]), width, height) // INLINED!!
+            call BlzFrameSetAllPoints(s__Component_listener[this], (s__Component_Components___Operators____frame[(this)])) // INLINED!!
+            call BlzTriggerRegisterFrameEvent(s__Component_enter, s__Component_listener[this], FRAMEEVENT_MOUSE_ENTER)
+            call BlzTriggerRegisterFrameEvent(s__Component_leave, s__Component_listener[this], FRAMEEVENT_MOUSE_LEAVE)
+            call BlzTriggerRegisterFrameEvent(s__Component_scroll, s__Component_button[this], FRAMEEVENT_MOUSE_WHEEL)
+set f__result_integer= this
    return true
 endfunction
-function sa__Shop_has takes nothing returns boolean
+function sa__StatusBar__set_visible takes nothing returns boolean
 local integer this=f__arg_this
-local integer id=f__arg_integer1
-set f__result_boolean= (HaveSavedInteger(Table___ht, (s__HashTable__getindex(Shop___table,this)), (id))) // INLINED!!
+local boolean visibility=f__arg_boolean1
+            set s__StatusBar_Components___Operators____visible[this]=visibility
+            call BlzFrameSetVisible((s__StatusBar_Components___Operators____frame[(this)]), visibility) // INLINED!!
    return true
 endfunction
-function sa__Shop_find takes nothing returns boolean
+function sa__StatusBar__get_visible takes nothing returns boolean
 local integer this=f__arg_this
-local string source=f__arg_string1
-local string target=f__arg_string2
-            local integer sourceLength= StringLength(source)
-            local integer targetLenght= StringLength(target)
+set f__result_boolean= s__StatusBar_Components___Operators____visible[this]
+   return true
+endfunction
+function sa__StatusBar__get_frame takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_framehandle= s__StatusBar_Components___Operators____frame[this]
+   return true
+endfunction
+function sa__TextArea__set_visible takes nothing returns boolean
+local integer this=f__arg_this
+local boolean visibility=f__arg_boolean1
+            set s__TextArea_Components___Operators____visible[this]=visibility
+            call BlzFrameSetVisible((s__TextArea_Components___Operators____frame[(this)]), visibility) // INLINED!!
+   return true
+endfunction
+function sa__TextArea__get_visible takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_boolean= s__TextArea_Components___Operators____visible[this]
+   return true
+endfunction
+function sa__TextArea__get_frame takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_framehandle= s__TextArea_Components___Operators____frame[this]
+   return true
+endfunction
+function sa__Text__set_visible takes nothing returns boolean
+local integer this=f__arg_this
+local boolean visibility=f__arg_boolean1
+            set s__Text_Components___Operators____visible[this]=visibility
+            call BlzFrameSetVisible((s__Text_Components___Operators____frame[(this)]), visibility) // INLINED!!
+   return true
+endfunction
+function sa__Text__get_visible takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_boolean= s__Text_Components___Operators____visible[this]
+   return true
+endfunction
+function sa__Text__get_frame takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_framehandle= s__Text_Components___Operators____frame[this]
+   return true
+endfunction
+function sa__Sprite__set_visible takes nothing returns boolean
+local integer this=f__arg_this
+local boolean visibility=f__arg_boolean1
+            set s__Sprite_Components___Operators____visible[this]=visibility
+            call BlzFrameSetVisible((s__Sprite_Components___Operators____frame[(this)]), visibility) // INLINED!!
+   return true
+endfunction
+function sa__Sprite__get_visible takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_boolean= s__Sprite_Components___Operators____visible[this]
+   return true
+endfunction
+function sa__Sprite__get_frame takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_framehandle= s__Sprite_Components___Operators____frame[this]
+   return true
+endfunction
+function sa__Item_calculate takes nothing returns boolean
+local integer this=f__arg_this
+local integer owned=f__arg_integer1
+            local integer piece
+            local integer amount
             local integer i= 0
-            if targetLenght <= sourceLength then
-                loop
-                    exitwhen i > sourceLength - targetLenght
-                        if SubString(source, i, i + targetLenght) == target then
-set f__result_boolean= true
+            if (LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(this)])), (7))) <= 0 then // INLINED!!
+set f__result_integer= (LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(this)])), (1))) // INLINED!!
 return true
+            else
+                set amount=s__Item__get_recipe(this)
+                loop
+                    exitwhen i == (LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(this)])), (7))) // INLINED!!
+                        set piece=sc__Item_get((LoadInteger(Table___ht, ((s__HashTable__getindex(s__Item_itemtype,s__Item_id[(this)]))), (i)))) // INLINED!!
+                        if (LoadInteger(Table___ht, (((owned))), (s__Item_id[piece]))) > 0 then // INLINED!!
+                            call SaveInteger(Table___ht, (owned), (s__Item_id[piece]), ( (LoadInteger(Table___ht, (owned), (s__Item_id[piece]))) - 1)) // INLINED!!
+                        else
+                            set amount=amount + s__Item_calculate(piece,owned)
                         endif
                     set i=i + 1
                 endloop
+set f__result_integer= amount
+return true
             endif
-set f__result_boolean= false
    return true
 endfunction
-function sa__Shop_addCategory takes nothing returns boolean
+function sa__Item_get takes nothing returns boolean
 local integer id=f__arg_integer1
-local string icon=f__arg_string1
-local string description=f__arg_string2
-            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,id)), (0))) // INLINED!!
-            if this != 0 then
-set f__result_integer= s__Shop___Category_add(s__Shop_category[this],icon , description)
+            if id > 0 then
+                if (HaveSavedInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0))) then // INLINED!!
+set f__result_integer= ((LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0)))) // INLINED!!
 return true
+                else
+set f__result_integer= sc__Item_create(id)
+return true
+                endif
             endif
 set f__result_integer= 0
    return true
 endfunction
-function sa__Shop_addItem takes nothing returns boolean
+function sa__Item_create takes nothing returns boolean
 local integer id=f__arg_integer1
-local integer itemId=f__arg_integer2
-local integer categories=f__arg_integer3
-            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,id)), (0))) // INLINED!!
-            local integer slot
-            local integer i
-            if this != 0 then
-                if not (HaveSavedInteger(Table___ht, (s__HashTable__getindex(Shop___table,this)), (itemId))) then // INLINED!!
-                    set i=s__Item_get(itemId)
-                    if i != 0 then
-                        set s__Shop_size[this]=s__Shop_size[this] + 1
-                        set s__Shop_index[this]=s__Shop_index[this] + 1
-                        call s__Item__set_categories(i,categories)
-                        set slot=s__Shop___Slot_create(this , i , 0 , 0 , (s__Component_Components___Operators____frame[(this)])) // INLINED!!
-                        call s__Shop___Slot__set_row(slot,R2I(s__Shop_index[this] / Shop___COLUMNS))
-                        call s__Shop___Slot__set_column(slot,ModuloInteger(s__Shop_index[this], Shop___COLUMNS))
-                        call sc__Component__set_visible(slot,(s__Shop___Slot_current_row[(slot)]) >= 0 and (s__Shop___Slot_current_row[(slot)]) <= Shop___ROWS - 1 and (s__Shop___Slot_current_column[(slot)]) >= 0 and (s__Shop___Slot_current_column[(slot)]) <= Shop___COLUMNS - 1) // INLINED!!
-                        if s__Shop_index[this] > 0 then
-                            set s__Shop___Slot_prev[slot]=s__Shop_last[this]
-                            set s__Shop___Slot_left[slot]=s__Shop_last[this]
-                            set s__Shop___Slot_next[s__Shop_last[this]]=slot
-                            set s__Shop___Slot_right[s__Shop_last[this]]=slot
-                        else
-                            set s__Shop_first[this]=slot
-                            set s__Shop_head[this]=slot
-                        endif
-                        if sc__Component__get_visible(slot) then
-                            set s__Shop_tail[this]=slot
-                        endif
-                        set s__Shop_last[this]=slot
-                        call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,this)), (itemId), ( slot)) // INLINED!!
-                        call SaveInteger(Table___ht, (s__HashTable__getindex(s__Shop_itempool,this)), (s__Shop_index[this]), ( slot)) // INLINED!!
-                    else
-                        call BJDebugMsg("Invalid item code: " + A2S(itemId))
-                    endif
-                else
-                    call BJDebugMsg("The item " + GetObjectName(itemId) + " is already registered for the shop " + GetObjectName(id))
+            local integer this= s__Item__allocate()
+            local item i
+            if id > 0 and not (HaveSavedInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0))) then // INLINED!!
+                set i=CreateItem(id, 0, 0)
+                if i != null then
+                    set s__Item_id[this]=id
+                    call s__Item__set_components(this,0)
+                    call s__Item__set_name(this,GetItemName(i))
+                    call s__Item__set_icon(this,BlzGetItemIconPath(i))
+                    call s__Item__set_tooltip(this,BlzGetItemExtendedTooltip(i))
+                    call s__Item__set_charges(this,GetItemCharges(i))
+                    call s__Item__set_gold(this,s__Item_totalCost(id))
+                    call SaveInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0), ( this)) // INLINED!!
+                    call RemoveItem(i)
+                    set i=null
                 endif
-            endif
-   return true
-endfunction
-function sa__Shop_create takes nothing returns boolean
-local integer id=f__arg_integer1
-local real aoe=f__arg_real1
-local real tax=f__arg_real2
-            local integer this
-            local integer i= 0
-            if not (HaveSavedInteger(Table___ht, (s__HashTable__getindex(Shop___table,id)), (0))) then // INLINED!!
-                set this=s__Shop__allocate(Shop___X , Shop___Y , Shop___WIDTH , Shop___HEIGHT , BlzGetFrameByName("ConsoleUIBackdrop", 0) , "EscMenuBackdrop")
-                set s__Shop_id[this]=id
-                set s__Shop_aoe[this]=aoe
-                set s__Shop_tax[this]=tax
-                set s__Shop_first[this]=0
-                set s__Shop_last[this]=0
-                set s__Shop_head[this]=0
-                set s__Shop_tail[this]=0
-                set s__Shop_size[this]=0
-                set s__Shop_index[this]=- 1
-                set s__Shop_rows[this]=Shop___ROWS
-                set s__Shop_columns[this]=Shop___COLUMNS
-                set s__Shop_count=s__Shop_count + 1
-                set s__Shop_detailed[this]=false
-                set s__Shop_scrolls[this]=(s__Table_create()) // INLINED!!
-                set s__Shop_buyer[this]=s__Shop___Buyer_create(this)
-                set s__Shop_details[this]=s__Shop___Detail_create(this)
-                set s__Shop_category[this]=s__Shop___Category_create(this)
-                set s__Shop_favorites[this]=s__Shop___Favorites_create(this)
-                set s__Shop_edit[this]=s__EditBox_create(0.021 , 0.02 , Shop___EDIT_WIDTH , Shop___EDIT_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , "EscMenuEditBoxTemplate") // INLINED!!
-                call s__EditBox__set_onText(s__Shop_edit[this],function sc__Shop_onSearch)
-                set s__Shop_close[this]=s__Button_create(( Shop___WIDTH - 2 * Shop___TOOLBAR_BUTTON_SIZE ) , 0.015000 , Shop___TOOLBAR_BUTTON_SIZE , Shop___TOOLBAR_BUTTON_SIZE , (s__Component_Components___Operators____frame[(this)]) , true) // INLINED!!
-                call s__Backdrop__set_texture(s__Component_image[(s__Shop_close[this])],(Shop___CLOSE_ICON)) // INLINED!!
-                call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Shop_close[this]])], ("Close")) // INLINED!!
-                call s__Component__set_onClick(s__Shop_close[this],function sc__Shop_onClose)
-                set s__Shop_break[this]=s__Button_create(( Shop___WIDTH - 2 * Shop___TOOLBAR_BUTTON_SIZE - 0.0205 ) , 0.015000 , Shop___TOOLBAR_BUTTON_SIZE , Shop___TOOLBAR_BUTTON_SIZE , (s__Component_Components___Operators____frame[(this)]) , true) // INLINED!!
-                call s__Backdrop__set_texture(s__Component_image[(s__Shop_break[this])],(Shop___DISMANTLE_ICON)) // INLINED!!
-                call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Shop_break[this]])], ("Dismantle")) // INLINED!!
-                call s__Component__set_onClick(s__Shop_break[this],function sc__Shop_onDismantle)
-                set s__Shop_revert[this]=s__Button_create(( Shop___WIDTH - 2 * Shop___TOOLBAR_BUTTON_SIZE - 0.0410 ) , 0.015000 , Shop___TOOLBAR_BUTTON_SIZE , Shop___TOOLBAR_BUTTON_SIZE , (s__Component_Components___Operators____frame[(this)]) , true) // INLINED!!
-                call s__Backdrop__set_texture(s__Component_image[(s__Shop_revert[this])],(Shop___UNDO_ICON)) // INLINED!!
-                call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Shop_revert[this]])], ("Undo")) // INLINED!!
-                call s__Component__set_onClick(s__Shop_revert[this],function sc__Shop_onUndo)
-                call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,id)), (0), ( this)) // INLINED!!
-                call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,s__Shop_edit[this])), (0), ( this)) // INLINED!!
-                call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,s__Shop_close[this])), (0), ( this)) // INLINED!!
-                call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,s__Shop_break[this])), (0), ( this)) // INLINED!!
-                call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,s__Shop_revert[this])), (0), ( this)) // INLINED!!
-                loop
-                    exitwhen i >= bj_MAX_PLAYER_SLOTS
-                        if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
-                            call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,GetHandleId(Player(i)))), (id), ( this)) // INLINED!!
-                            call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,GetHandleId(Player(i)))), (s__Shop_count), ( id)) // INLINED!!
-                        endif
-                    set i=i + 1
-                endloop
-                call s__Shop__set_visible(this,false)
             endif
 set f__result_integer= this
    return true
 endfunction
-function sa__Shop_onScroll takes nothing returns boolean
-local integer this=f__arg_this
-            local integer id= GetPlayerId(GetTriggerPlayer())
-            local integer direction= R2I(BlzGetTriggerFrameValue())
-            if (LoadInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (0))) != direction then // INLINED!!
-                call SaveInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (0), ( direction)) // INLINED!!
-                call SaveInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (1), ( 0)) // INLINED!!
-            else
-                call SaveInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (1), ( (LoadInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (1))) + 1)) // INLINED!!
-            endif
-            if GetLocalPlayer() == GetTriggerPlayer() then
-                if (LoadInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (1))) == 1 then // INLINED!!
-                    call s__Shop_scroll(this,direction < 0)
-                else
-                    call s__Shop_scroll(this,direction < 0)
-                endif
-            endif
-   return true
-endfunction
-function sa__Shop_onSearch takes nothing returns boolean
-
-            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,(sc__EditBox_get()))), (0))) // INLINED!!
-            if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                call s__Shop_filter(this,s__Shop___Category_active[s__Shop_category[this]] , s__Shop___Category_andLogic[s__Shop_category[this]])
+function sa__Item_save takes nothing returns boolean
+local integer id=f__arg_integer1
+local integer comp=f__arg_integer2
+            local integer this
+            local integer part
+            local integer i= 0
+            if comp > 0 and comp != id then
+                set this=s__Item_get(id)
+                set part=s__Item_get(comp)
+                call SaveInteger(Table___ht, ((s__HashTable__getindex(s__Item_itemtype,s__Item_id[(this)]))), ((LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(this)])), (7)))), ( comp)) // INLINED!!
+                call s__Item__set_components(this,(LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(this)])), (7))) + 1) // INLINED!!
+                call SaveInteger(Table___ht, ((s__HashTable__getindex(s__Item_counters,s__Item_id[(this)]))), (comp), ( (LoadInteger(Table___ht, ((s__HashTable__getindex(s__Item_counters,s__Item_id[(this)]))), (comp))) + 1)) // INLINED!!
+                loop
+                    exitwhen (LoadInteger(Table___ht, ((s__HashTable__getindex(s__Item_relations,s__Item_id[(part)]))), (i))) == id // INLINED!!
+                        if not (HaveSavedInteger(Table___ht, ((s__HashTable__getindex(s__Item_relations,s__Item_id[(part)]))), (i))) then // INLINED!!
+                            call SaveInteger(Table___ht, ((s__HashTable__getindex(s__Item_relations,s__Item_id[(part)]))), (i), ( id)) // INLINED!!
+                            exitwhen true
+                        endif
+                    set i=i + 1
+                endloop
             endif
    return true
 endfunction
-function sa__Shop_onClose takes nothing returns boolean
+function sa__Item_clear takes nothing returns boolean
 
-            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,(s__Component_array[GetPlayerId(GetTriggerPlayer())]))), (0))) // INLINED!!
-            local integer id= GetPlayerId(GetTriggerPlayer())
-            if this != 0 then
-                set s__Shop_unit[id]=null
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    call s__Shop__set_visible(this,false)
-                endif
-                call s__Shop___Transaction_clear(this , id)
-            endif
+            call RemoveItem(GetEnumItem())
    return true
 endfunction
-function sa__Shop_onDismantle takes nothing returns boolean
-
-            local integer id= GetPlayerId(GetTriggerPlayer())
-            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,(s__Component_array[GetPlayerId(GetTriggerPlayer())]))), (0))) // INLINED!!
-            if this != 0 then
-                if (HaveSavedInteger(Table___ht, (s__Shop___Inventory_selected[(s__Shop___Buyer_inventory[s__Shop_buyer[this]])]), ((id)))) then // INLINED!!
-                    call s__Shop_dismantle(this,((LoadInteger(Table___ht, (s__HashTable__getindex(s__Shop___Inventory_item[s__Shop___Buyer_inventory[s__Shop_buyer[this]]],id)), ((LoadInteger(Table___ht, (s__Shop___Inventory_selected[(s__Shop___Buyer_inventory[s__Shop_buyer[this]])]), ((id)))))))) , GetTriggerPlayer() , (LoadInteger(Table___ht, (s__Shop___Inventory_selected[(s__Shop___Buyer_inventory[s__Shop_buyer[this]])]), ((id))))) // INLINED!!
-                else
-                    call s__Shop___Sound_error(GetTriggerPlayer())
-                endif
-            endif
+function sa__Button_create takes nothing returns boolean
+local real x=f__arg_real1
+local real y=f__arg_real2
+local real width=f__arg_real3
+local real height=f__arg_real4
+local framehandle parent=f__arg_framehandle1
+local boolean simpleTooltip=f__arg_boolean1
+            local integer this= s__Button__allocate(x , y , width , height , parent , "ComponentFrame" , null)
+            set s__Button_check[this]=s__Backdrop_create(0 , 0 , width , height , (s__Component_Components___Operators____frame[(this)]) , Components___CHECKED_BUTTON) // INLINED!!
+            set s__Button_block[this]=s__Backdrop_create(0 , 0 , width , height , (s__Component_Components___Operators____frame[(this)]) , Components___UNAVAILABLE_BUTTON) // INLINED!!
+            set s__Button_sprite[this]=s__Sprite_create(0 , 0 , width , height , (s__Component_Components___Operators____frame[(this)]) , FRAMEPOINT_CENTER , FRAMEPOINT_CENTER) // INLINED!!
+            set s__Button_tagger[this]=s__Sprite_create(0 , 0 , 0.00001 , 0.00001 , (s__Component_Components___Operators____frame[(this)]) , FRAMEPOINT_BOTTOMLEFT , FRAMEPOINT_BOTTOMLEFT) // INLINED!!
+            set s__Button_player[this]=s__Sprite_create(0 , 0 , 0.00001 , 0.00001 , (s__Component_Components___Operators____frame[(this)]) , FRAMEPOINT_BOTTOMLEFT , FRAMEPOINT_BOTTOMLEFT) // INLINED!!
+            set s__Button_tooltip[this]=s__Tooltip_create((s__Component_Components___Operators____frame[(this)]) , Components___TOOLTIP_SIZE , FRAMEPOINT_TOPLEFT , simpleTooltip) // INLINED!!
+            set s__Button_highlight[this]=BlzCreateFrame("HighlightFrame", (s__Component_Components___Operators____frame[(this)]), 0, 0) // INLINED!!
+            call sc__Backdrop__set_visible(s__Button_check[(this)],(false)) // INLINED!!
+            call sc__Backdrop__set_visible(s__Button_block[(this)],not (true)) // INLINED!!
+            call s__Button__set_highlighted(this,false)
+            call BlzFrameSetTooltip((s__Component_listener[(this)]), s__Tooltip_frame[s__Button_tooltip[this]]) // INLINED!!
+            call BlzFrameSetPoint(s__Button_highlight[this], FRAMEPOINT_TOPLEFT, (s__Component_Components___Operators____frame[(this)]), FRAMEPOINT_TOPLEFT, - 0.004, 0.0045) // INLINED!!
+            call BlzFrameSetSize(s__Button_highlight[this], width + 0.0085, height + 0.0085)
+            call BlzFrameSetTexture(s__Button_highlight[this], Components___HIGHLIGHT, 0, true)
+set f__result_integer= this
    return true
 endfunction
-function sa__Shop_onUndo takes nothing returns boolean
-
-            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,(s__Component_array[GetPlayerId(GetTriggerPlayer())]))), (0))) // INLINED!!
-            if this != 0 then
-                call s__Shop_undo(this,GetTriggerPlayer())
-            endif
+function sa__Panel_create takes nothing returns boolean
+local real x=f__arg_real1
+local real y=f__arg_real2
+local real width=f__arg_real3
+local real height=f__arg_real4
+local framehandle parent=f__arg_framehandle1
+local string template=f__arg_string1
+set f__result_integer= s__Panel__allocate(x , y , width , height , parent , "PanelFrame" , template)
    return true
 endfunction
 function sa__Ability_onCasting takes nothing returns boolean
 
             local integer this= (LoadInteger(Table___ht, (s__Ability_struct), ((GetSpellAbilityId())))) // INLINED!!
+            local integer spell
             local string tooltip
             if this != 0 then
                 if (st__Ability___IAbility_onCast[si__Ability___IAbility_type[this]]!=null) then
@@ -27592,308 +25960,21 @@ function sa__Ability_onCasting takes nothing returns boolean
                     set tooltip=sc__Ability___IAbility_onTooltip(this,s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId())))) // INLINED!!
                     call BlzSetAbilityExtendedTooltip((GetSpellAbilityId()), tooltip, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1) // INLINED!!
                     call BlzSetAbilityStringLevelField((BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))), ABILITY_SLF_TOOLTIP_NORMAL_EXTENDED, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1, tooltip) // INLINED!!
-                endif
-            endif
-   return true
-endfunction
-function sa__Interface___Options_onSlider takes nothing returns boolean
-
-            local integer slide= (sc__Slider_get()) // INLINED!!
-            local integer this= (LoadInteger(Table___ht, (s__Interface___Options_table), (slide))) // INLINED!!
-            if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                if slide == s__Interface___Options_slider[this] then
-                    call s__Text__set_text(s__Interface___Options_sliderText[this],"|cffffffffMinimap Opacity: " + I2S(R2I(( (BlzFrameGetValue((s__Slider_Components___Operators____frame[((s__Interface___Options_slider[this]))]))) * 100 ) / 255)) + "%|r") // INLINED!!
-                    call BlzFrameSetAlpha(s__UI_minimap, R2I((BlzFrameGetValue((s__Slider_Components___Operators____frame[((s__Interface___Options_slider[this]))]))))) // INLINED!!
-                elseif slide == s__Interface___Options_shader[this] then
-                    call s__Text__set_text(s__Interface___Options_shaderText[this],"|cffffffffPortrait Opacity: " + I2S(R2I(( (BlzFrameGetValue((s__Slider_Components___Operators____frame[((s__Interface___Options_shader[this]))]))) * 100 ) / 255)) + "%|r") // INLINED!!
-                    call sc__Interface___Portrait__set_opacity(s__UI_portrait,R2I((BlzFrameGetValue((s__Slider_Components___Operators____frame[((s__Interface___Options_shader[this]))]))))) // INLINED!!
-                endif
-            endif
-   return true
-endfunction
-function sa__Interface___Options_onChecked takes nothing returns boolean
-
-            local integer check= (sc__CheckBox_get()) // INLINED!!
-            local integer this= (LoadInteger(Table___ht, (s__Interface___Options_table), (check))) // INLINED!!
-            if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == s__Interface___Options_left[this] and not (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_toggle[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                    call sc__UI_showMinimap(Interface___MINIMAP_LEFT_X , Interface___MINIMAP_LEFT_Y)
-                elseif check == s__Interface___Options_right[this] and not (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_toggle[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                    call sc__UI_showMinimap(Interface___MINIMAP_RIGHT_X , Interface___MINIMAP_RIGHT_Y)
-                elseif check == s__Interface___Options_toggle[this] then
-                    call BlzFrameSetVisible(s__UI_minimap, false)
-                elseif check == s__Interface___Options_heroes[this] then
-                    call sc__UI_showHeroes(true)
-                elseif check == s__Interface___Options_default[this] then
-                    call BlzFrameSetVisible(s__UI_default, true)
-                endif
-            endif
-   return true
-endfunction
-function sa__Interface___Options_onUnchecked takes nothing returns boolean
-
-            local integer check= (sc__CheckBox_get()) // INLINED!!
-            local integer this= (LoadInteger(Table___ht, (s__Interface___Options_table), (check))) // INLINED!!
-            if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == s__Interface___Options_left[this] then
-                    if not (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_toggle[this])]+GetPlayerId(GetLocalPlayer())]) and (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_right[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                        call sc__UI_showMinimap(Interface___MINIMAP_RIGHT_X , Interface___MINIMAP_RIGHT_Y)
-                    else
-                        call BlzFrameSetVisible(s__UI_minimap, false)
-                    endif
-                elseif check == s__Interface___Options_right[this] then
-                    if not (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_toggle[this])]+GetPlayerId(GetLocalPlayer())]) and (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_left[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                        call sc__UI_showMinimap(Interface___MINIMAP_LEFT_X , Interface___MINIMAP_LEFT_Y)
-                    else
-                        call BlzFrameSetVisible(s__UI_minimap, false)
-                    endif
-                elseif check == s__Interface___Options_toggle[this] then
-                    if (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_right[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                        call sc__UI_showMinimap(Interface___MINIMAP_RIGHT_X , Interface___MINIMAP_RIGHT_Y)
-                    elseif (s___CheckBox_isChecked[s__CheckBox_isChecked[(s__Interface___Options_left[this])]+GetPlayerId(GetLocalPlayer())]) then // INLINED!!
-                        call sc__UI_showMinimap(Interface___MINIMAP_LEFT_X , Interface___MINIMAP_LEFT_Y)
-                    endif
-                elseif check == s__Interface___Options_heroes[this] then
-                    call sc__UI_showHeroes(false)
-                elseif check == s__Interface___Options_default[this] then
-                    call BlzFrameSetVisible(s__UI_default, false)
-                endif
-            endif
-   return true
-endfunction
-function sa__Interface___Menu_onClick takes nothing returns boolean
-local integer this=f__arg_this
-            if GetLocalPlayer() == GetTriggerPlayer() then
-                call sc__Component__set_visible(s__Interface___Menu_panel[this],not sc__Component__get_visible(s__Interface___Menu_panel[this]))
-                if sc__Component__get_visible(s__Interface___Menu_panel[this]) then
-                    call s__Backdrop__set_texture(s__Component_image[(this)],(Interface___CLOSE_MENU_TEXTURE)) // INLINED!!
-                    call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], ("Close Menu")) // INLINED!!
-                else
-                    call s__Backdrop__set_texture(s__Component_image[(this)],(Interface___OPEN_MENU_TEXTURE)) // INLINED!!
-                    call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], ("Open Menu")) // INLINED!!
-                endif
-            endif
-   return true
-endfunction
-function sa__Interface___Grid__disposeArrays takes nothing returns boolean
- local integer this=f__arg_this
- local integer kthis
-    set si__Interface___Grid_arrN=si__Interface___Grid_arrN+1
-    set kthis=si__Interface___Grid_arr[this]
-    set si__Interface___Grid_arrV[si__Interface___Grid_arrN]=kthis
- return true
-endfunction
-function sa__Interface___Grid__set_visible takes nothing returns boolean
-local integer this=f__arg_this
-local boolean flag=f__arg_boolean1
-            local integer i= 0
-            local integer j= 0
-            local integer k= 0
-            set s__Interface___Grid_isVisible[this]=flag
-            if s__Interface___Grid_isVisible[this] then
-                loop
-                    exitwhen i == Interface___SHOP_ROWS
-                        set j=0
-                        loop
-                            exitwhen j == Interface___SHOP_COLUMNS
-                                if k < 12 then
-                                    call BlzFrameSetAbsPoint(s__Interface___Grid_button[k], FRAMEPOINT_TOPLEFT, (s__Component_Components___Operators____x[(this)]) + ( Interface___SHOP_ICON_X + ( j * Interface___SHOP_SLOT_GAP ) ), (s__Component_Components___Operators____y[(this)]) + Interface___SHOP_ICON_Y - ( i * Interface___SHOP_SLOT_GAP )) // INLINED!!
-                                    call BlzFrameSetScale(s__Interface___Grid_button[k], Interface___SHOP_ICON_WIDTH / 0.04)
-                                endif
-                                set k=k + 1
-                            set j=j + 1
-                        endloop
-                    set i=i + 1
-                endloop
-            endif
-            call BlzFrameSetVisible((s__Component_Components___Operators____frame[(this)]), s__Interface___Grid_isVisible[this]) // INLINED!!
-   return true
-endfunction
-function sa__Interface___Grid__get_visible takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_boolean= s__Interface___Grid_isVisible[this]
-   return true
-endfunction
-function sa__Interface___Portrait__disposeArrays takes nothing returns boolean
- local integer this=f__arg_this
- local integer kthis
-    set si__Interface___Portrait_arrN=si__Interface___Portrait_arrN+1
-    set kthis=si__Interface___Portrait_arr[this]
-    set si__Interface___Portrait_arrV[si__Interface___Portrait_arrN]=kthis
- return true
-endfunction
-function sa__Interface___Portrait__set_opacity takes nothing returns boolean
-local integer this=f__arg_this
-local integer value=f__arg_integer1
-            local integer i= 0
-            loop
-                exitwhen i == 5
-                    call BlzFrameSetAlpha(s___Interface___Portrait_shades[s__Interface___Portrait_shades[this]+i], value)
-                set i=i + 1
-            endloop
-   return true
-endfunction
-function sa__Interface___Abilities__disposeArrays takes nothing returns boolean
- local integer this=f__arg_this
- local integer kthis
-    set si__Interface___Abilities_arrN=si__Interface___Abilities_arrN+1
-    set kthis=si__Interface___Abilities_arr[this]
-    set si__Interface___Abilities_arrV[si__Interface___Abilities_arrN]=kthis
- return true
-endfunction
-function sa__Interface___Abilities__set_visible takes nothing returns boolean
-local integer this=f__arg_this
-local boolean flag=f__arg_boolean1
-            local integer i= 0
-            if not s__Interface___Abilities_isVisible[this] and flag then
-                loop
-                    exitwhen i == 12
-                        if i < Interface___ABILITY_SLOT_COUNT then
-                            call BlzFrameSetAbsPoint(s__Interface___Abilities_button[i], FRAMEPOINT_TOPLEFT, (s__Component_Components___Operators____x[(this)]) + ( Interface___ABILITY_ICON_X + ( i * Interface___ABILITY_SLOT_GAP ) ), (s__Component_Components___Operators____y[(this)]) + Interface___ABILITY_ICON_Y) // INLINED!!
-                            call BlzFrameSetScale(s__Interface___Abilities_button[i], Interface___ABILITY_ICON_WIDTH / 0.04)
-                        else
-                            call BlzFrameSetAbsPoint(s__Interface___Abilities_button[i], FRAMEPOINT_TOPLEFT, 999, 999)
-                            call BlzFrameSetAbsPoint(s__Interface___Abilities_button[i], FRAMEPOINT_BOTTOMRIGHT, 999, 999)
+                    if not (HaveSavedInteger(Table___ht, (s__HashTable__getindex(s__Ability_learned,(GetSpellAbilityId()))), ((GetUnitUserData(s__PluginSpellEffect___Unit_unit[(s__Spell_source)]))))) then // INLINED!!
+                        set spell=s__Ability__allocate()
+                        set s__Ability_type[spell]=this
+                        set s__Ability_id[spell]=(GetSpellAbilityId()) // INLINED!!
+                        set s__Ability_unit[spell]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
+                        set s__Ability_ability[spell]=(BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) // INLINED!!
+                        set s__Ability_key=s__Ability_key + 1
+                        set s__Ability_array[s__Ability_key]=spell
+                        call SaveInteger(Table___ht, (s__HashTable__getindex(s__Ability_learned,(GetSpellAbilityId()))), ((GetUnitUserData(s__PluginSpellEffect___Unit_unit[(s__Spell_source)]))), ( 1)) // INLINED!!
+                        if s__Ability_key == 0 then
+                            call TimerStart(s__Ability_timer, 1, true, function s__Ability_onPeriod)
                         endif
-                    set i=i + 1
-                endloop
-            endif
-            set s__Interface___Abilities_isVisible[this]=flag
-   return true
-endfunction
-function sa__Interface___Abilities__get_visible takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_boolean= s__Interface___Abilities_isVisible[this]
-   return true
-endfunction
-function sa__Interface___Abilities_onHover takes nothing returns boolean
-
-            local unit u= (GetMainSelectedUnit(GetSelectedUnitIndex())) // INLINED!!
-            local integer b= (s__Component_array[GetPlayerId(GetTriggerPlayer())]) // INLINED!!
-            if GetLocalPlayer() == GetTriggerPlayer() then
-                if GetHeroSkillPoints(u) > 0 then
-                    call BlzFrameSetAllPoints(s__Interface___Abilities_level, (s__Component_Components___Operators____frame[(b)])) // INLINED!!
-                    call BlzFrameSetScale(s__Interface___Abilities_level, (s__Component_Components___Operators____width[(b)]) / 0.04) // INLINED!!
-                else
-                    call BlzFrameSetAbsPoint(s__Interface___Abilities_level, FRAMEPOINT_TOPLEFT, 999, 999)
-                    call BlzFrameSetAbsPoint(s__Interface___Abilities_level, FRAMEPOINT_BOTTOMRIGHT, 999, 999)
-                endif
-            endif
-   return true
-endfunction
-function sa__Interface___Inventory__disposeArrays takes nothing returns boolean
- local integer this=f__arg_this
- local integer kthis
-    set si__Interface___Inventory_arrN=si__Interface___Inventory_arrN+1
-    set kthis=si__Interface___Inventory_arr[this]
-    set si__Interface___Inventory_arrV[si__Interface___Inventory_arrN]=kthis
- return true
-endfunction
-function sa__Attribute__set_visible takes nothing returns boolean
-local integer this=f__arg_this
-local boolean flag=f__arg_boolean1
-            set s__Attribute_isVisible[this]=flag
-            call BlzFrameSetVisible((s__Component_Components___Operators____frame[(this)]), flag and (not sc__Backdrop__get_visible(s__Button_block[(s__Attribute_button[this])]))) // INLINED!!
-   return true
-endfunction
-function sa__Attribute__get_visible takes nothing returns boolean
-local integer this=f__arg_this
-set f__result_boolean= s__Attribute_isVisible[this]
-   return true
-endfunction
-function sa__Attribute_destroy takes nothing returns boolean
-local integer this=f__arg_this
-            call s__Text_destroy(s__Attribute_value[this])
-            call s__Button_destroy(s__Attribute_button[this])
-            set s__Attribute_array[s__Attribute_id[this]]=s__Attribute_array[s__Attribute_key]
-            set s__Attribute_key=s__Attribute_key - 1
-            if s__Attribute_key == - 1 then
-                call PauseTimer(s__Attribute_timer)
-            endif
-            call s__Button_destroy(this)
-   return true
-endfunction
-function sa__Attribute_update takes nothing returns boolean
-    call s__Attribute_update(f__arg_this,f__arg_unit1)
-   return true
-endfunction
-function sa__Attribute_create takes nothing returns boolean
-local real x=f__arg_real1
-local real y=f__arg_real2
-local real width=f__arg_real3
-local real height=f__arg_real4
-local framehandle parent=f__arg_framehandle1
-local string texture=f__arg_string1
-local string tooltip=f__arg_string2
-local framepointtype point=f__arg_framepointtype1
-            local integer this
-            if parent == null then
-                set parent=BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0)
-            endif
-            if point == null then
-                set point=FRAMEPOINT_TOPRIGHT
-            endif
-            set this=s__Attribute__allocate(x , y , width , height , parent , true)
-            set s__Attribute_key=s__Attribute_key + 1
-            set s__Attribute_array[s__Attribute_key]=this
-            set s__Attribute_id[this]=s__Attribute_key
-            call s__Backdrop__set_texture(s__Component_image[(this)],(texture)) // INLINED!!
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[this])], (tooltip)) // INLINED!!
-            set s__Attribute_value[this]=s__Text_create(Interface___ATTRIBUTES_TEXT_X , Interface___ATTRIBUTES_TEXT_Y , Interface___ATTRIBUTES_TEXT_WIDTH , Interface___ATTRIBUTES_TEXT_HEIGHT , Interface___ATTRIBUTES_TEXT_SCALE , false , (s__Component_Components___Operators____frame[(this)]) , null , TEXT_JUSTIFY_CENTER , TEXT_JUSTIFY_LEFT) // INLINED!!
-            set s__Attribute_button[this]=s__Button_create(Interface___ATTRIBUTES_BUTTON_X + ( ( Interface___ATTRIBUTES_BUTTON_WIDTH + Interface___ATTRIBUTES_BUTTON_GAP ) * ModuloInteger(s__Attribute_key, Interface___ATTRIBUTES_COLUMNS) ) , - ( Interface___ATTRIBUTES_BUTTON_Y + ( ( Interface___ATTRIBUTES_BUTTON_HEIGHT + Interface___ATTRIBUTES_BUTTON_GAP ) * R2I(s__Attribute_key / Interface___ATTRIBUTES_COLUMNS) ) ) , Interface___ATTRIBUTES_BUTTON_WIDTH , Interface___ATTRIBUTES_BUTTON_HEIGHT , (s__Component_Components___Operators____frame[(s__Attribute_panel)]) , true) // INLINED!!
-            call s__Backdrop__set_texture(s__Component_image[(s__Attribute_button[this])],(texture)) // INLINED!!
-            call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Attribute_button[this]])], (tooltip)) // INLINED!!
-            call s__Component__set_onClick(s__Attribute_button[this],function sc__Attribute_onClicked)
-            call SaveInteger(Table___ht, (s__Attribute_table), (s__Attribute_button[this]), ( this)) // INLINED!!
-            call s__Component__set_width(s__Attribute_panel,RMaxBJ((s__Component_Components___Operators____width[(s__Attribute_panel)]), ( Interface___ATTRIBUTES_BUTTON_WIDTH * ( ModuloInteger(s__Attribute_key, Interface___ATTRIBUTES_COLUMNS) + 1 ) ) + ( 2 * Interface___ATTRIBUTES_BUTTON_X ) + ( Interface___ATTRIBUTES_BUTTON_GAP * ModuloInteger(s__Attribute_key, Interface___ATTRIBUTES_COLUMNS) ))) // INLINED!!
-            call s__Component__set_height(s__Attribute_panel,RMaxBJ((s__Component_Components___Operators____height[(s__Attribute_panel)]), ( Interface___ATTRIBUTES_BUTTON_HEIGHT * ( R2I(s__Attribute_key / Interface___ATTRIBUTES_COLUMNS) + 1 ) ) + ( 2 * Interface___ATTRIBUTES_BUTTON_Y ) + ( Interface___ATTRIBUTES_BUTTON_GAP * R2I(s__Attribute_key / Interface___ATTRIBUTES_COLUMNS) ))) // INLINED!!
-            if point == FRAMEPOINT_LEFT or point == FRAMEPOINT_TOPLEFT or point == FRAMEPOINT_BOTTOMLEFT then
-                call s__Text__set_horizontal(s__Attribute_value[this],TEXT_JUSTIFY_RIGHT)
-                call s__Text_setPoint(s__Attribute_value[this],FRAMEPOINT_TOPRIGHT , FRAMEPOINT_TOPLEFT , - Interface___ATTRIBUTES_TEXT_X + Interface___ATTRIBUTES_WIDTH + 0.005 , Interface___ATTRIBUTES_TEXT_Y)
-            elseif point == FRAMEPOINT_TOP then
-                call s__Text__set_horizontal(s__Attribute_value[this],TEXT_JUSTIFY_CENTER)
-                call s__Text_setPoint(s__Attribute_value[this],FRAMEPOINT_BOTTOM , FRAMEPOINT_TOP , 0 , Interface___ATTRIBUTES_TEXT_Y + 0.005)
-            elseif point == FRAMEPOINT_BOTTOM then
-                call s__Text__set_horizontal(s__Attribute_value[this],TEXT_JUSTIFY_CENTER)
-                call s__Text_setPoint(s__Attribute_value[this],FRAMEPOINT_TOP , FRAMEPOINT_BOTTOM , 0 , - Interface___ATTRIBUTES_TEXT_Y - 0.005)
-            endif
-            if s__Attribute_key == 0 then
-                call TimerStart(s__Attribute_timer, 0.2, true, function sc__Attribute_onUpdate)
-            endif
-set f__result_integer= this
-   return true
-endfunction
-function sa__Attribute_onClicked takes nothing returns boolean
-
-            local integer b= (s__Component_array[GetPlayerId(GetTriggerPlayer())]) // INLINED!!
-            local integer this= (LoadInteger(Table___ht, (s__Attribute_table), (b))) // INLINED!!
-            if GetLocalPlayer() == GetTriggerPlayer() then
-                if b == s__Attribute_menu then
-                    call sc__Component__set_visible(s__Attribute_panel,not sc__Component__get_visible(s__Attribute_panel))
-                    if sc__Component__get_visible(s__Attribute_panel) then
-                        call s__Backdrop__set_texture(s__Component_image[(b)],(Interface___ATTRIBUTES_TOGGLE_CLOSE)) // INLINED!!
-                        call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[b])], ("Close Attribute Menu")) // INLINED!!
-                    else
-                        call s__Backdrop__set_texture(s__Component_image[(b)],(Interface___ATTRIBUTES_TOGGLE_OPEN)) // INLINED!!
-                        call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[b])], ("Open Attribute Menu")) // INLINED!!
                     endif
-                else
-                    call sc__Backdrop__set_visible(s__Button_block[(s__Attribute_button[this])],not (not (not sc__Backdrop__get_visible(s__Button_block[(s__Attribute_button[this])])))) // INLINED!!
-                    call sc__Component__set_visible(this,sc__Component__get_visible(this))
                 endif
             endif
-   return true
-endfunction
-function sa__Attribute_onUpdate takes nothing returns boolean
-
-            local integer i= 0
-            local unit u= (GetMainSelectedUnit(GetSelectedUnitIndex())) // INLINED!!
-            loop
-                exitwhen i > s__Attribute_key
-                    call sc__Attribute_update(s__Attribute_array[i],u)
-                set i=i + 1
-            endloop
-            set u=null
    return true
 endfunction
 function sa__Missiles_terminate takes nothing returns boolean
@@ -28263,11 +26344,11 @@ function sa__TenacityUtils_addTimed takes nothing returns boolean
     call s__TenacityUtils_addTimed(f__arg_unit1,f__arg_real1,f__arg_real2,f__arg_integer1)
    return true
 endfunction
-function sa__Afterburner__Afterburner_onTooltip takes nothing returns boolean
-    set f__result_string=s__Afterburner__Afterburner_onTooltip(f__arg_this,f__arg_unit1,f__arg_integer1)
+function sa__Afterburner___Afterburner_onTooltip takes nothing returns boolean
+    set f__result_string=s__Afterburner___Afterburner_onTooltip(f__arg_this,f__arg_unit1,f__arg_integer1)
    return true
 endfunction
-function sa__Afterburner__Afterburner_StartTimer takes nothing returns boolean
+function sa__Afterburner___Afterburner_StartTimer takes nothing returns boolean
 local real timeout=f__arg_real1
 local boolean periodic=f__arg_boolean1
 local integer this=f__arg_integer1
@@ -28275,221 +26356,65 @@ local integer uniqueId=f__arg_integer2
             local integer index= R2I(timeout * 100000)
             local integer id
             if this != 0 then
-                set s__Afterburner__Afterburner_Periodic____unique[this]=uniqueId
-                set s__Afterburner__Afterburner_Periodic____allocated[this]=true
-                if s__Afterburner__Afterburner_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___struct), (s__Afterburner__Afterburner_Periodic____unique[this]))) then // INLINED!!
-                    call SaveInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___struct), (s__Afterburner__Afterburner_Periodic____unique[this]), ( this)) // INLINED!!
+                set s__Afterburner___Afterburner_Periodic____unique[this]=uniqueId
+                set s__Afterburner___Afterburner_Periodic____allocated[this]=true
+                if s__Afterburner___Afterburner_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___struct), (s__Afterburner___Afterburner_Periodic____unique[this]))) then // INLINED!!
+                    call SaveInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___struct), (s__Afterburner___Afterburner_Periodic____unique[this]), ( this)) // INLINED!!
                 endif
                 if periodic then
-                    if timeout <= s__Afterburner__Afterburner_Periodic___PERIODIC_THRESHOLD then
-                        if not (HaveSavedHandle(Table___ht, (((s__Afterburner__Afterburner_Periodic___timers))), (index))) then // INLINED!!
-                            call SaveTimerHandle(Table___ht, (((s__Afterburner__Afterburner_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
+                    if timeout <= s__Afterburner___Afterburner_Periodic___PERIODIC_THRESHOLD then
+                        if not (HaveSavedHandle(Table___ht, (((s__Afterburner___Afterburner_Periodic___timers))), (index))) then // INLINED!!
+                            call SaveTimerHandle(Table___ht, (((s__Afterburner___Afterburner_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
                         endif
-                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__Afterburner__Afterburner_Periodic___timers))), (index)))) // INLINED!!
-                        set s__Afterburner__Afterburner_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__Afterburner__Afterburner_Periodic___timers))), (index))) // INLINED!!
-                        call SaveInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___table), ((LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id)))), ( this)) // INLINED!!
-                        call SaveInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id))) + 1)) // INLINED!!
-                        if (LoadInteger(Table___ht, (s__Afterburner__Afterburner_Periodic___key), (id))) == 1 then // INLINED!!
-                            call TimerStart((LoadTimerHandle(Table___ht, (((s__Afterburner__Afterburner_Periodic___timers))), (index))), timeout, periodic, function s__Afterburner__Afterburner_Periodic___onPeriodic) // INLINED!!
+                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__Afterburner___Afterburner_Periodic___timers))), (index)))) // INLINED!!
+                        set s__Afterburner___Afterburner_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__Afterburner___Afterburner_Periodic___timers))), (index))) // INLINED!!
+                        call SaveInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___table), ((LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id)))), ( this)) // INLINED!!
+                        call SaveInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id))) + 1)) // INLINED!!
+                        if (LoadInteger(Table___ht, (s__Afterburner___Afterburner_Periodic___key), (id))) == 1 then // INLINED!!
+                            call TimerStart((LoadTimerHandle(Table___ht, (((s__Afterburner___Afterburner_Periodic___timers))), (index))), timeout, periodic, function s__Afterburner___Afterburner_Periodic___onPeriodic) // INLINED!!
                         endif
                     else
-                        set s__Afterburner__Afterburner_Periodic____timer[this]=NewTimerEx(this)
-                        call TimerStart(s__Afterburner__Afterburner_Periodic____timer[this], timeout, periodic, function s__Afterburner__Afterburner_Periodic___onPeriodic)
+                        set s__Afterburner___Afterburner_Periodic____timer[this]=NewTimerEx(this)
+                        call TimerStart(s__Afterburner___Afterburner_Periodic____timer[this], timeout, periodic, function s__Afterburner___Afterburner_Periodic___onPeriodic)
                     endif
                 else
-                    set s__Afterburner__Afterburner_Periodic____timer[this]=NewTimerEx(this)
-                    call TimerStart(s__Afterburner__Afterburner_Periodic____timer[this], timeout, periodic, function s__Afterburner__Afterburner_Periodic___onTimeout)
+                    set s__Afterburner___Afterburner_Periodic____timer[this]=NewTimerEx(this)
+                    call TimerStart(s__Afterburner___Afterburner_Periodic____timer[this], timeout, periodic, function s__Afterburner___Afterburner_Periodic___onTimeout)
                 endif
             else
                 call BJDebugMsg("Periodic Error: instance not provided")
             endif
    return true
 endfunction
-function sa__Item_calculate takes nothing returns boolean
+function sa__CooldownReductionFlat___CooldownReductionFlat_get takes nothing returns boolean
+    set f__result_real=s__CooldownReductionFlat___CooldownReductionFlat_get(f__arg_this,f__arg_unit1)
+   return true
+endfunction
+function sa__CooldownReductionFlat___CooldownReductionFlat_Set takes nothing returns boolean
+    set f__result_real=s__CooldownReductionFlat___CooldownReductionFlat_Set(f__arg_this,f__arg_unit1,f__arg_real1)
+   return true
+endfunction
+function sa__CooldownReductionFlat___CooldownReductionFlat_add takes nothing returns boolean
+    set f__result_real=s__CooldownReductionFlat___CooldownReductionFlat_add(f__arg_this,f__arg_unit1,f__arg_real1)
+   return true
+endfunction
+function sa__MoltenShield___MoltenShield_onTooltip takes nothing returns boolean
+    set f__result_string=s__MoltenShield___MoltenShield_onTooltip(f__arg_this,f__arg_unit1,f__arg_integer1)
+   return true
+endfunction
+function sa__MoltenShield___MoltenShield_onCast takes nothing returns boolean
 local integer this=f__arg_this
-local integer owned=f__arg_integer1
-            local integer piece
-            local integer amount
-            local integer i= 0
-            if (LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(this)])), (7))) <= 0 then // INLINED!!
-set f__result_integer= (LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(this)])), (1))) // INLINED!!
-return true
-            else
-                set amount=s__Item__get_recipe(this)
-                loop
-                    exitwhen i == (LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(this)])), (7))) // INLINED!!
-                        set piece=sc__Item_get((LoadInteger(Table___ht, ((s__HashTable__getindex(s__Item_itemtype,s__Item_id[(this)]))), (i)))) // INLINED!!
-                        if (LoadInteger(Table___ht, (((owned))), (s__Item_id[piece]))) > 0 then // INLINED!!
-                            call SaveInteger(Table___ht, (owned), (s__Item_id[piece]), ( (LoadInteger(Table___ht, (owned), (s__Item_id[piece]))) - 1)) // INLINED!!
-                        else
-                            set amount=amount + s__Item_calculate(piece,owned)
-                        endif
-                    set i=i + 1
-                endloop
-set f__result_integer= amount
-return true
+            if GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_target], MoltenShield___BUFF_ID) == 0 then
+                set this=s__MoltenShield___MoltenShield__allocate()
+                set s__MoltenShield___MoltenShield_id[this]=(GetUnitUserData(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])) // INLINED!!
+                set s__MoltenShield___MoltenShield_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_target]
+                set s__MoltenShield___MoltenShield_level[this]=(GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) // INLINED!!
+                call sc__MoltenShield___MoltenShield_StartTimer(0.03125 , true , this , - 1)
+                call s__Bonus_linkBuff((s__PluginSpellEffect___Unit_unit[s__Spell_target] ) , ( BONUS_MOVEMENT_SPEED ) , (( (100 * ((GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))))) )*1.0) , ( MoltenShield___BUFF_ID)) // INLINED!!
             endif
    return true
 endfunction
-function sa__Item_get takes nothing returns boolean
-local integer id=f__arg_integer1
-            if id > 0 then
-                if (HaveSavedInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0))) then // INLINED!!
-set f__result_integer= ((LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0)))) // INLINED!!
-return true
-                else
-set f__result_integer= sc__Item_create(id , 0 , 0 , 0 , 0 , 0)
-return true
-                endif
-            endif
-set f__result_integer= 0
-   return true
-endfunction
-function sa__Item_addComponents takes nothing returns boolean
-local integer id=f__arg_integer1
-local integer a=f__arg_integer2
-local integer b=f__arg_integer3
-local integer c=f__arg_integer4
-local integer d=f__arg_integer5
-local integer e=f__arg_integer6
-            local integer this
-            if id > 0 then
-                set this=s__Item_get(id)
-                call s__Item__set_components(this,0)
-                call FlushChildHashtable(Table___ht, ((s__HashTable__getindex(s__Item_itemtype,s__Item_id[(this)])))) // INLINED!!
-                call FlushChildHashtable(Table___ht, ((s__HashTable__getindex(s__Item_counters,s__Item_id[(this)])))) // INLINED!!
-                call sc__Item_save(id , a)
-                call sc__Item_save(id , b)
-                call sc__Item_save(id , c)
-                call sc__Item_save(id , d)
-                call sc__Item_save(id , e)
-            endif
-   return true
-endfunction
-function sa__Item_hasType takes nothing returns boolean
-    set f__result_boolean=s__Item_hasType(f__arg_unit1,f__arg_integer1)
-   return true
-endfunction
-function sa__Item_countType takes nothing returns boolean
-    set f__result_integer=s__Item_countType(f__arg_unit1,f__arg_integer1)
-   return true
-endfunction
-function sa__Item_countComponent takes nothing returns boolean
-local integer id=f__arg_integer1
-local integer component=f__arg_integer2
-            local integer this
-            if (HaveSavedInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0))) then // INLINED!!
-                set this=(LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0))) // INLINED!!
-set f__result_integer= s__Item_count(this,component)
-return true
-            endif
-set f__result_integer= 0
-   return true
-endfunction
-function sa__Item_create takes nothing returns boolean
-local integer id=f__arg_integer1
-local integer a=f__arg_integer2
-local integer b=f__arg_integer3
-local integer c=f__arg_integer4
-local integer d=f__arg_integer5
-local integer e=f__arg_integer6
-            local integer this= s__Item__allocate()
-            local item i
-            if id > 0 and not (HaveSavedInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0))) then // INLINED!!
-                set i=CreateItem(id, 0, 0)
-                if i != null then
-                    set s__Item_id[this]=id
-                    call s__Item__set_components(this,0)
-                    call s__Item__set_name(this,GetItemName(i))
-                    call s__Item__set_icon(this,BlzGetItemIconPath(i))
-                    call s__Item__set_tooltip(this,BlzGetItemExtendedTooltip(i))
-                    call s__Item__set_charges(this,GetItemCharges(i))
-                    call s__Item__set_gold(this,s__Item_totalCost(id))
-                    call SaveInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,id)), (0), ( this)) // INLINED!!
-                    call sc__Item_save(id , a)
-                    call sc__Item_save(id , b)
-                    call sc__Item_save(id , c)
-                    call sc__Item_save(id , d)
-                    call sc__Item_save(id , e)
-                    call RemoveItem(i)
-                    set i=null
-                endif
-            endif
-set f__result_integer= this
-   return true
-endfunction
-function sa__Item_save takes nothing returns boolean
-local integer id=f__arg_integer1
-local integer comp=f__arg_integer2
-            local integer this
-            local integer part
-            local integer i= 0
-            if comp > 0 and comp != id then
-                set this=s__Item_get(id)
-                set part=s__Item_get(comp)
-                call SaveInteger(Table___ht, ((s__HashTable__getindex(s__Item_itemtype,s__Item_id[(this)]))), ((LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(this)])), (7)))), ( comp)) // INLINED!!
-                call s__Item__set_components(this,(LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(this)])), (7))) + 1) // INLINED!!
-                call SaveInteger(Table___ht, ((s__HashTable__getindex(s__Item_counters,s__Item_id[(this)]))), (comp), ( (LoadInteger(Table___ht, ((s__HashTable__getindex(s__Item_counters,s__Item_id[(this)]))), (comp))) + 1)) // INLINED!!
-                loop
-                    exitwhen (LoadInteger(Table___ht, ((s__HashTable__getindex(s__Item_relations,s__Item_id[(part)]))), (i))) == id // INLINED!!
-                        if not (HaveSavedInteger(Table___ht, ((s__HashTable__getindex(s__Item_relations,s__Item_id[(part)]))), (i))) then // INLINED!!
-                            call SaveInteger(Table___ht, ((s__HashTable__getindex(s__Item_relations,s__Item_id[(part)]))), (i), ( id)) // INLINED!!
-                            exitwhen true
-                        endif
-                    set i=i + 1
-                endloop
-            endif
-   return true
-endfunction
-function sa__Item_clear takes nothing returns boolean
-
-            call RemoveItem(GetEnumItem())
-   return true
-endfunction
-function sa__ExplosiveRune__ExplosiveRune_onTooltip takes nothing returns boolean
-    set f__result_string=s__ExplosiveRune__ExplosiveRune_onTooltip(f__arg_this,f__arg_unit1,f__arg_integer1)
-   return true
-endfunction
-function sa__ExplosiveRune__ExplosiveRune_onCast takes nothing returns boolean
-local integer this=f__arg_this
-            set this=s__ExplosiveRune__ExplosiveRune__allocate()
-            set s__ExplosiveRune__ExplosiveRune_x[this]=(GetSpellTargetX()) // INLINED!!
-            set s__ExplosiveRune__ExplosiveRune_y[this]=(GetSpellTargetY()) // INLINED!!
-            set s__ExplosiveRune__ExplosiveRune_id[this]=(GetUnitUserData(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])) // INLINED!!
-            set s__ExplosiveRune__ExplosiveRune_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
-            set s__ExplosiveRune__ExplosiveRune_damage[this]=ExplosiveRune__GetDamage(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId())))) // INLINED!!
-            set s__ExplosiveRune__ExplosiveRune_aoe[this]=BlzGetAbilityRealLevelField((BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))), ABILITY_RLF_AREA_OF_EFFECT, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1) // INLINED!!
-            if s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]] > 0 then
-                set s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]]=s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]] - 1
-                if s__ExplosiveRune__ExplosiveRune_charges[s__ExplosiveRune__ExplosiveRune_id[this]] >= 1 then
-                    call sc__ResetCooldown_reset((s__ExplosiveRune__ExplosiveRune_unit[this] ) , ( ExplosiveRune__ABILITY)) // INLINED!!
-                else
-                        call s__CDR_calculateCooldown((s__ExplosiveRune__ExplosiveRune_unit[this] ) , ( ExplosiveRune__ABILITY ) , ( (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) ) , (( (TimerGetRemaining(s__ExplosiveRune__ExplosiveRune_Periodic____timer[(sc__ExplosiveRune__ExplosiveRune_GetTimerInstance(s__ExplosiveRune__ExplosiveRune_id[this]))])))*1.0)) // INLINED!!
-                endif
-            endif
-            call sc__ExplosiveRune__ExplosiveRune_StartTimer(ExplosiveRune__EXPLOSION_DELAY , false , this , - 1)
-   return true
-endfunction
-function sa__ExplosiveRune__ExplosiveRune_onLearn takes nothing returns boolean
-    call s__ExplosiveRune__ExplosiveRune_onLearn(f__arg_this,f__arg_unit1,f__arg_integer1,f__arg_integer2)
-   return true
-endfunction
-function sa__ExplosiveRune__ExplosiveRune_HasStartedTimer takes nothing returns boolean
-local integer id=f__arg_integer1
-set f__result_boolean= (HaveSavedInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___struct), (id))) // INLINED!!
-   return true
-endfunction
-function sa__ExplosiveRune__ExplosiveRune_GetTimerInstance takes nothing returns boolean
-local integer id=f__arg_integer1
-set f__result_integer= (LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___struct), (id))) // INLINED!!
-   return true
-endfunction
-function sa__ExplosiveRune__ExplosiveRune_GetRemainingTime takes nothing returns boolean
-local integer this=f__arg_integer1
-set f__result_real= TimerGetRemaining(s__ExplosiveRune__ExplosiveRune_Periodic____timer[this])
-   return true
-endfunction
-function sa__ExplosiveRune__ExplosiveRune_StartTimer takes nothing returns boolean
+function sa__MoltenShield___MoltenShield_StartTimer takes nothing returns boolean
 local real timeout=f__arg_real1
 local boolean periodic=f__arg_boolean1
 local integer this=f__arg_integer1
@@ -28497,83 +26422,206 @@ local integer uniqueId=f__arg_integer2
             local integer index= R2I(timeout * 100000)
             local integer id
             if this != 0 then
-                set s__ExplosiveRune__ExplosiveRune_Periodic____unique[this]=uniqueId
-                set s__ExplosiveRune__ExplosiveRune_Periodic____allocated[this]=true
-                if s__ExplosiveRune__ExplosiveRune_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___struct), (s__ExplosiveRune__ExplosiveRune_Periodic____unique[this]))) then // INLINED!!
-                    call SaveInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___struct), (s__ExplosiveRune__ExplosiveRune_Periodic____unique[this]), ( this)) // INLINED!!
+                set s__MoltenShield___MoltenShield_Periodic____unique[this]=uniqueId
+                set s__MoltenShield___MoltenShield_Periodic____allocated[this]=true
+                if s__MoltenShield___MoltenShield_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___struct), (s__MoltenShield___MoltenShield_Periodic____unique[this]))) then // INLINED!!
+                    call SaveInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___struct), (s__MoltenShield___MoltenShield_Periodic____unique[this]), ( this)) // INLINED!!
                 endif
                 if periodic then
-                    if timeout <= s__ExplosiveRune__ExplosiveRune_Periodic___PERIODIC_THRESHOLD then
-                        if not (HaveSavedHandle(Table___ht, (((s__ExplosiveRune__ExplosiveRune_Periodic___timers))), (index))) then // INLINED!!
-                            call SaveTimerHandle(Table___ht, (((s__ExplosiveRune__ExplosiveRune_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
+                    if timeout <= s__MoltenShield___MoltenShield_Periodic___PERIODIC_THRESHOLD then
+                        if not (HaveSavedHandle(Table___ht, (((s__MoltenShield___MoltenShield_Periodic___timers))), (index))) then // INLINED!!
+                            call SaveTimerHandle(Table___ht, (((s__MoltenShield___MoltenShield_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
                         endif
-                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__ExplosiveRune__ExplosiveRune_Periodic___timers))), (index)))) // INLINED!!
-                        set s__ExplosiveRune__ExplosiveRune_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__ExplosiveRune__ExplosiveRune_Periodic___timers))), (index))) // INLINED!!
-                        call SaveInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___table), ((LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id)))), ( this)) // INLINED!!
-                        call SaveInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id))) + 1)) // INLINED!!
-                        if (LoadInteger(Table___ht, (s__ExplosiveRune__ExplosiveRune_Periodic___key), (id))) == 1 then // INLINED!!
-                            call TimerStart((LoadTimerHandle(Table___ht, (((s__ExplosiveRune__ExplosiveRune_Periodic___timers))), (index))), timeout, periodic, function s__ExplosiveRune__ExplosiveRune_Periodic___onPeriodic) // INLINED!!
+                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__MoltenShield___MoltenShield_Periodic___timers))), (index)))) // INLINED!!
+                        set s__MoltenShield___MoltenShield_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__MoltenShield___MoltenShield_Periodic___timers))), (index))) // INLINED!!
+                        call SaveInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___table), ((LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id)))), ( this)) // INLINED!!
+                        call SaveInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id))) + 1)) // INLINED!!
+                        if (LoadInteger(Table___ht, (s__MoltenShield___MoltenShield_Periodic___key), (id))) == 1 then // INLINED!!
+                            call TimerStart((LoadTimerHandle(Table___ht, (((s__MoltenShield___MoltenShield_Periodic___timers))), (index))), timeout, periodic, function s__MoltenShield___MoltenShield_Periodic___onPeriodic) // INLINED!!
                         endif
                     else
-                        set s__ExplosiveRune__ExplosiveRune_Periodic____timer[this]=NewTimerEx(this)
-                        call TimerStart(s__ExplosiveRune__ExplosiveRune_Periodic____timer[this], timeout, periodic, function s__ExplosiveRune__ExplosiveRune_Periodic___onPeriodic)
+                        set s__MoltenShield___MoltenShield_Periodic____timer[this]=NewTimerEx(this)
+                        call TimerStart(s__MoltenShield___MoltenShield_Periodic____timer[this], timeout, periodic, function s__MoltenShield___MoltenShield_Periodic___onPeriodic)
                     endif
                 else
-                    set s__ExplosiveRune__ExplosiveRune_Periodic____timer[this]=NewTimerEx(this)
-                    call TimerStart(s__ExplosiveRune__ExplosiveRune_Periodic____timer[this], timeout, periodic, function s__ExplosiveRune__ExplosiveRune_Periodic___onTimeout)
+                    set s__MoltenShield___MoltenShield_Periodic____timer[this]=NewTimerEx(this)
+                    call TimerStart(s__MoltenShield___MoltenShield_Periodic____timer[this], timeout, periodic, function s__MoltenShield___MoltenShield_Periodic___onTimeout)
                 endif
             else
                 call BJDebugMsg("Periodic Error: instance not provided")
             endif
    return true
 endfunction
-function sa__LivingMeteor__Meteor_onPeriod takes nothing returns boolean
+function sa__ExplosiveRune___ExplosiveRune_onTooltip takes nothing returns boolean
+    set f__result_string=s__ExplosiveRune___ExplosiveRune_onTooltip(f__arg_this,f__arg_unit1,f__arg_integer1)
+   return true
+endfunction
+function sa__ExplosiveRune___ExplosiveRune_onCast takes nothing returns boolean
 local integer this=f__arg_this
-            if s__LivingMeteor__Meteor_rolling[this] then
-                set s__LivingMeteor__Meteor_i[this]=s__LivingMeteor__Meteor_i[this] + 1
-                set s__LivingMeteor__Meteor_j[this]=s__LivingMeteor__Meteor_j[this] + 1
-                if s__LivingMeteor__Meteor_j[this] == 25 then
-                    set s__LivingMeteor__Meteor_j[this]=0
+            set this=s__ExplosiveRune___ExplosiveRune__allocate()
+            set s__ExplosiveRune___ExplosiveRune_x[this]=(GetSpellTargetX()) // INLINED!!
+            set s__ExplosiveRune___ExplosiveRune_y[this]=(GetSpellTargetY()) // INLINED!!
+            set s__ExplosiveRune___ExplosiveRune_id[this]=(GetUnitUserData(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])) // INLINED!!
+            set s__ExplosiveRune___ExplosiveRune_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
+            set s__ExplosiveRune___ExplosiveRune_damage[this]=ExplosiveRune___GetDamage(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId())))) // INLINED!!
+            set s__ExplosiveRune___ExplosiveRune_aoe[this]=BlzGetAbilityRealLevelField((BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))), ABILITY_RLF_AREA_OF_EFFECT, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1) // INLINED!!
+            if s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]] > 0 then
+                set s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]]=s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]] - 1
+                if s__ExplosiveRune___ExplosiveRune_charges[s__ExplosiveRune___ExplosiveRune_id[this]] >= 1 then
+                    call sc__ResetCooldown_reset((s__ExplosiveRune___ExplosiveRune_unit[this] ) , ( ExplosiveRune___ABILITY)) // INLINED!!
+                else
+                        call s__CDR_calculateCooldown((s__ExplosiveRune___ExplosiveRune_unit[this] ) , ( ExplosiveRune___ABILITY ) , ( (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) ) , (( (TimerGetRemaining(s__ExplosiveRune___ExplosiveRune_Periodic____timer[(sc__ExplosiveRune___ExplosiveRune_GetTimerInstance(s__ExplosiveRune___ExplosiveRune_id[this]))])))*1.0)) // INLINED!!
+                endif
+            endif
+            call sc__ExplosiveRune___ExplosiveRune_StartTimer(ExplosiveRune___EXPLOSION_DELAY , false , this , - 1)
+   return true
+endfunction
+function sa__ExplosiveRune___ExplosiveRune_onLearn takes nothing returns boolean
+    call s__ExplosiveRune___ExplosiveRune_onLearn(f__arg_this,f__arg_unit1,f__arg_integer1,f__arg_integer2)
+   return true
+endfunction
+function sa__ExplosiveRune___ExplosiveRune_HasStartedTimer takes nothing returns boolean
+local integer id=f__arg_integer1
+set f__result_boolean= (HaveSavedInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___struct), (id))) // INLINED!!
+   return true
+endfunction
+function sa__ExplosiveRune___ExplosiveRune_GetTimerInstance takes nothing returns boolean
+local integer id=f__arg_integer1
+set f__result_integer= (LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___struct), (id))) // INLINED!!
+   return true
+endfunction
+function sa__ExplosiveRune___ExplosiveRune_GetRemainingTime takes nothing returns boolean
+local integer this=f__arg_integer1
+set f__result_real= TimerGetRemaining(s__ExplosiveRune___ExplosiveRune_Periodic____timer[this])
+   return true
+endfunction
+function sa__ExplosiveRune___ExplosiveRune_StartTimer takes nothing returns boolean
+local real timeout=f__arg_real1
+local boolean periodic=f__arg_boolean1
+local integer this=f__arg_integer1
+local integer uniqueId=f__arg_integer2
+            local integer index= R2I(timeout * 100000)
+            local integer id
+            if this != 0 then
+                set s__ExplosiveRune___ExplosiveRune_Periodic____unique[this]=uniqueId
+                set s__ExplosiveRune___ExplosiveRune_Periodic____allocated[this]=true
+                if s__ExplosiveRune___ExplosiveRune_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___struct), (s__ExplosiveRune___ExplosiveRune_Periodic____unique[this]))) then // INLINED!!
+                    call SaveInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___struct), (s__ExplosiveRune___ExplosiveRune_Periodic____unique[this]), ( this)) // INLINED!!
+                endif
+                if periodic then
+                    if timeout <= s__ExplosiveRune___ExplosiveRune_Periodic___PERIODIC_THRESHOLD then
+                        if not (HaveSavedHandle(Table___ht, (((s__ExplosiveRune___ExplosiveRune_Periodic___timers))), (index))) then // INLINED!!
+                            call SaveTimerHandle(Table___ht, (((s__ExplosiveRune___ExplosiveRune_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
+                        endif
+                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__ExplosiveRune___ExplosiveRune_Periodic___timers))), (index)))) // INLINED!!
+                        set s__ExplosiveRune___ExplosiveRune_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__ExplosiveRune___ExplosiveRune_Periodic___timers))), (index))) // INLINED!!
+                        call SaveInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___table), ((LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id)))), ( this)) // INLINED!!
+                        call SaveInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id))) + 1)) // INLINED!!
+                        if (LoadInteger(Table___ht, (s__ExplosiveRune___ExplosiveRune_Periodic___key), (id))) == 1 then // INLINED!!
+                            call TimerStart((LoadTimerHandle(Table___ht, (((s__ExplosiveRune___ExplosiveRune_Periodic___timers))), (index))), timeout, periodic, function s__ExplosiveRune___ExplosiveRune_Periodic___onPeriodic) // INLINED!!
+                        endif
+                    else
+                        set s__ExplosiveRune___ExplosiveRune_Periodic____timer[this]=NewTimerEx(this)
+                        call TimerStart(s__ExplosiveRune___ExplosiveRune_Periodic____timer[this], timeout, periodic, function s__ExplosiveRune___ExplosiveRune_Periodic___onPeriodic)
+                    endif
+                else
+                    set s__ExplosiveRune___ExplosiveRune_Periodic____timer[this]=NewTimerEx(this)
+                    call TimerStart(s__ExplosiveRune___ExplosiveRune_Periodic____timer[this], timeout, periodic, function s__ExplosiveRune___ExplosiveRune_Periodic___onTimeout)
+                endif
+            else
+                call BJDebugMsg("Periodic Error: instance not provided")
+            endif
+   return true
+endfunction
+function sa__LavaElemental___LavaElemental_onCast takes nothing returns boolean
+local integer this=f__arg_this
+            local unit lava
+            set this=s__LavaElemental___LavaElemental__allocate()
+            if s__PluginSpellEffect___Unit_unit[s__Spell_target] != null then
+                set lava=CreateUnit((GetOwningPlayer(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])), LavaElemental___LAVA_ELEMENTAL, (GetUnitX(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])), (GetUnitY(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])), 0) // INLINED!!
+                set s__LavaElemental___LavaElemental_id[this]=GetUnitUserData(lava)
+                set s__LavaElemental___LavaElemental_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_target]
+                set s__LavaElemental___LavaElemental_effect[this]=AddSpecialEffect(LavaElemental___FIRA_BASE, (GetUnitX(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])), (GetUnitY(s__PluginSpellEffect___Unit_unit[(s__Spell_target)]))) // INLINED!!
+                set s__LavaElemental___LavaElemental_array[s__LavaElemental___LavaElemental_id[this]]=this
+                call UnitAddAbility(s__PluginSpellEffect___Unit_unit[s__Spell_target], 'Abun')
+                call ShowUnit(s__PluginSpellEffect___Unit_unit[s__Spell_target], false)
+                call SetUnitInvulnerable(s__PluginSpellEffect___Unit_unit[s__Spell_target], true)
+                call SetUnitX(lava, (GetUnitX(s__PluginSpellEffect___Unit_unit[(s__Spell_target)]))) // INLINED!!
+                call SetUnitY(lava, (GetUnitY(s__PluginSpellEffect___Unit_unit[(s__Spell_target)]))) // INLINED!!
+                call BlzSetUnitMaxHP(lava, LavaElemental___GetElementalHealth(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))))) // INLINED!!
+                call SetUnitLifePercentBJ(lava, 100)
+                call BlzSetUnitBaseDamage(lava, LavaElemental___GetElementalDamage(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId())))), 0) // INLINED!!
+                call SetUnitPropWindow(lava, 0)
+                call BlzSetAbilityRealLevelField((BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))), ABILITY_RLF_COOLDOWN, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1, LavaElemental___STRUCTURE_COOLDOWN) // INLINED!!
+                call IncUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], LavaElemental___ABILITY)
+                call DecUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], LavaElemental___ABILITY)
+                call DestroyEffect(AddSpecialEffect(LavaElemental___SPAWN_EFFECT, (GetUnitX(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])), (GetUnitY(s__PluginSpellEffect___Unit_unit[(s__Spell_target)])))) // INLINED!!
+            else
+                set lava=CreateUnit((GetOwningPlayer(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])), LavaElemental___LAVA_ELEMENTAL, (GetSpellTargetX()), (GetSpellTargetY()), 0) // INLINED!!
+                set s__LavaElemental___LavaElemental_id[this]=GetUnitUserData(lava)
+                set s__LavaElemental___LavaElemental_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_target]
+                set s__LavaElemental___LavaElemental_effect[this]=AddSpecialEffect(LavaElemental___FIRA_BASE, (GetSpellTargetX()), (GetSpellTargetY())) // INLINED!!
+                set s__LavaElemental___LavaElemental_array[s__LavaElemental___LavaElemental_id[this]]=this
+                call BlzSetUnitMaxHP(lava, LavaElemental___GetElementalHealth(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))))) // INLINED!!
+                call SetUnitLifePercentBJ(lava, 100)
+                call BlzSetUnitBaseDamage(lava, LavaElemental___GetElementalDamage(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId())))), 0) // INLINED!!
+                call SetUnitPropWindow(lava, 0)
+                call UnitApplyTimedLife(lava, 'BTLF', LavaElemental___ELEMENTAL_DURATION)
+                call BlzSetAbilityRealLevelField((BlzGetUnitAbility(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))), ABILITY_RLF_COOLDOWN, (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) - 1, LavaElemental___NORMAL_COOLDOWN) // INLINED!!
+                call IncUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], LavaElemental___ABILITY)
+                call DecUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], LavaElemental___ABILITY)
+                call DestroyEffect(AddSpecialEffect(LavaElemental___SPAWN_EFFECT, (GetSpellTargetX()), (GetSpellTargetY()))) // INLINED!!
+            endif
+            set lava=null
+   return true
+endfunction
+function sa__LivingMeteor___Meteor_onPeriod takes nothing returns boolean
+local integer this=f__arg_this
+            if s__LivingMeteor___Meteor_rolling[this] then
+                set s__LivingMeteor___Meteor_i[this]=s__LivingMeteor___Meteor_i[this] + 1
+                set s__LivingMeteor___Meteor_j[this]=s__LivingMeteor___Meteor_j[this] + 1
+                if s__LivingMeteor___Meteor_j[this] == 25 then
+                    set s__LivingMeteor___Meteor_j[this]=0
                         call Afterburn(s__Missiles_x[this] , s__Missiles_y[this] , s__Missiles_source[this])
                 endif
-                if s__LivingMeteor__Meteor_i[this] == s__LivingMeteor__Meteor_ticks then
-                    set s__LivingMeteor__Meteor_i[this]=0
-                    call UnitDamageArea(s__Missiles_source[this] , s__Missiles_x[this] , s__Missiles_y[this] , s__LivingMeteor__Meteor_aoe[this] , s__Missiles_damage[this] , LivingMeteor__ATTACK_TYPE , LivingMeteor__DAMAGE_TYPE , LivingMeteor__DAMAGE_STRUCTURES , LivingMeteor__DAMAGE_ALLIES , LivingMeteor__DAMAGE_MAGIC_IMMUNE)
+                if s__LivingMeteor___Meteor_i[this] == s__LivingMeteor___Meteor_ticks then
+                    set s__LivingMeteor___Meteor_i[this]=0
+                    call UnitDamageArea(s__Missiles_source[this] , s__Missiles_x[this] , s__Missiles_y[this] , s__LivingMeteor___Meteor_aoe[this] , s__Missiles_damage[this] , LivingMeteor___ATTACK_TYPE , LivingMeteor___DAMAGE_TYPE , LivingMeteor___DAMAGE_STRUCTURES , LivingMeteor___DAMAGE_ALLIES , LivingMeteor___DAMAGE_MAGIC_IMMUNE)
                 endif
             endif
 set f__result_boolean= false
    return true
 endfunction
-function sa__LivingMeteor__Meteor_onFinish takes nothing returns boolean
+function sa__LivingMeteor___Meteor_onFinish takes nothing returns boolean
 local integer this=f__arg_this
-            if not s__LivingMeteor__Meteor_rolling[this] then
-                call DestroyEffect(AddSpecialEffect(LivingMeteor__IMPACT_MODEL, s__Missiles_x[this], s__Missiles_y[this]))
-                call UnitDamageArea(s__Missiles_source[this] , s__Missiles_x[this] , s__Missiles_y[this] , LivingMeteor__GetImpactAoE(s__Missiles_source[this] , s__LivingMeteor__Meteor_level[this]) , s__Missiles_damage[this] , LivingMeteor__ATTACK_TYPE , LivingMeteor__DAMAGE_TYPE , LivingMeteor__DAMAGE_STRUCTURES , LivingMeteor__DAMAGE_ALLIES , LivingMeteor__DAMAGE_MAGIC_IMMUNE)
-                call s__Missiles_deflect(this,s__Missiles_x[this] + s__LivingMeteor__Meteor_distance[this] * Cos(s__LivingMeteor__Meteor_angle[this]) , s__Missiles_y[this] + s__LivingMeteor__Meteor_distance[this] * Sin(s__LivingMeteor__Meteor_angle[this]) , 0)
+            if not s__LivingMeteor___Meteor_rolling[this] then
+                call DestroyEffect(AddSpecialEffect(LivingMeteor___IMPACT_MODEL, s__Missiles_x[this], s__Missiles_y[this]))
+                call UnitDamageArea(s__Missiles_source[this] , s__Missiles_x[this] , s__Missiles_y[this] , LivingMeteor___GetImpactAoE(s__Missiles_source[this] , s__LivingMeteor___Meteor_level[this]) , s__Missiles_damage[this] , LivingMeteor___ATTACK_TYPE , LivingMeteor___DAMAGE_TYPE , LivingMeteor___DAMAGE_STRUCTURES , LivingMeteor___DAMAGE_ALLIES , LivingMeteor___DAMAGE_MAGIC_IMMUNE)
+                call s__Missiles_deflect(this,s__Missiles_x[this] + s__LivingMeteor___Meteor_distance[this] * Cos(s__LivingMeteor___Meteor_angle[this]) , s__Missiles_y[this] + s__LivingMeteor___Meteor_distance[this] * Sin(s__LivingMeteor___Meteor_angle[this]) , 0)
                     call Afterburn(s__Missiles_x[this] , s__Missiles_y[this] , s__Missiles_source[this])
-                set s__LivingMeteor__Meteor_rolling[this]=true
-                set s__Missiles_damage[this]=LivingMeteor__RollDamage(s__Missiles_source[this] , s__LivingMeteor__Meteor_level[this])
-                call s__Missiles__set_duration(this,LivingMeteor__ROLLING_TIME)
+                set s__LivingMeteor___Meteor_rolling[this]=true
+                set s__Missiles_damage[this]=LivingMeteor___RollDamage(s__Missiles_source[this] , s__LivingMeteor___Meteor_level[this])
+                call s__Missiles__set_duration(this,LivingMeteor___ROLLING_TIME)
             endif
 set f__result_boolean= false
    return true
 endfunction
-function sa__LivingMeteor__LivingMeteor_onTooltip takes nothing returns boolean
-    set f__result_string=s__LivingMeteor__LivingMeteor_onTooltip(f__arg_this,f__arg_unit1,f__arg_integer1)
+function sa__LivingMeteor___LivingMeteor_onTooltip takes nothing returns boolean
+    set f__result_string=s__LivingMeteor___LivingMeteor_onTooltip(f__arg_this,f__arg_unit1,f__arg_integer1)
    return true
 endfunction
-function sa__LivingMeteor__LivingMeteor_onCast takes nothing returns boolean
+function sa__LivingMeteor___LivingMeteor_onCast takes nothing returns boolean
 local integer this=f__arg_this
-            set this=s__LivingMeteor__LivingMeteor__allocate()
-            set s__LivingMeteor__LivingMeteor_x[this]=(GetSpellTargetX()) // INLINED!!
-            set s__LivingMeteor__LivingMeteor_y[this]=(GetSpellTargetY()) // INLINED!!
-            set s__LivingMeteor__LivingMeteor_level[this]=(GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) // INLINED!!
-            set s__LivingMeteor__LivingMeteor_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
-            set s__LivingMeteor__LivingMeteor_player[this]=(GetOwningPlayer(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])) // INLINED!!
-            call sc__LivingMeteor__LivingMeteor_StartTimer(LivingMeteor__DRAG_AND_DROP_TIME , false , this , - 1)
+            set this=s__LivingMeteor___LivingMeteor__allocate()
+            set s__LivingMeteor___LivingMeteor_x[this]=(GetSpellTargetX()) // INLINED!!
+            set s__LivingMeteor___LivingMeteor_y[this]=(GetSpellTargetY()) // INLINED!!
+            set s__LivingMeteor___LivingMeteor_level[this]=(GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) // INLINED!!
+            set s__LivingMeteor___LivingMeteor_unit[this]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
+            set s__LivingMeteor___LivingMeteor_player[this]=(GetOwningPlayer(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])) // INLINED!!
+            call sc__LivingMeteor___LivingMeteor_StartTimer(LivingMeteor___DRAG_AND_DROP_TIME , false , this , - 1)
    return true
 endfunction
-function sa__LivingMeteor__LivingMeteor_StartTimer takes nothing returns boolean
+function sa__LivingMeteor___LivingMeteor_StartTimer takes nothing returns boolean
 local real timeout=f__arg_real1
 local boolean periodic=f__arg_boolean1
 local integer this=f__arg_integer1
@@ -28581,30 +26629,30 @@ local integer uniqueId=f__arg_integer2
             local integer index= R2I(timeout * 100000)
             local integer id
             if this != 0 then
-                set s__LivingMeteor__LivingMeteor_Periodic____unique[this]=uniqueId
-                set s__LivingMeteor__LivingMeteor_Periodic____allocated[this]=true
-                if s__LivingMeteor__LivingMeteor_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___struct), (s__LivingMeteor__LivingMeteor_Periodic____unique[this]))) then // INLINED!!
-                    call SaveInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___struct), (s__LivingMeteor__LivingMeteor_Periodic____unique[this]), ( this)) // INLINED!!
+                set s__LivingMeteor___LivingMeteor_Periodic____unique[this]=uniqueId
+                set s__LivingMeteor___LivingMeteor_Periodic____allocated[this]=true
+                if s__LivingMeteor___LivingMeteor_Periodic____unique[this] >= 0 and not (HaveSavedInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___struct), (s__LivingMeteor___LivingMeteor_Periodic____unique[this]))) then // INLINED!!
+                    call SaveInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___struct), (s__LivingMeteor___LivingMeteor_Periodic____unique[this]), ( this)) // INLINED!!
                 endif
                 if periodic then
-                    if timeout <= s__LivingMeteor__LivingMeteor_Periodic___PERIODIC_THRESHOLD then
-                        if not (HaveSavedHandle(Table___ht, (((s__LivingMeteor__LivingMeteor_Periodic___timers))), (index))) then // INLINED!!
-                            call SaveTimerHandle(Table___ht, (((s__LivingMeteor__LivingMeteor_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
+                    if timeout <= s__LivingMeteor___LivingMeteor_Periodic___PERIODIC_THRESHOLD then
+                        if not (HaveSavedHandle(Table___ht, (((s__LivingMeteor___LivingMeteor_Periodic___timers))), (index))) then // INLINED!!
+                            call SaveTimerHandle(Table___ht, (((s__LivingMeteor___LivingMeteor_Periodic___timers))), (index), ( CreateTimer())) // INLINED!!
                         endif
-                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__LivingMeteor__LivingMeteor_Periodic___timers))), (index)))) // INLINED!!
-                        set s__LivingMeteor__LivingMeteor_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__LivingMeteor__LivingMeteor_Periodic___timers))), (index))) // INLINED!!
-                        call SaveInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___table), ((LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id)))), ( this)) // INLINED!!
-                        call SaveInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id))) + 1)) // INLINED!!
-                        if (LoadInteger(Table___ht, (s__LivingMeteor__LivingMeteor_Periodic___key), (id))) == 1 then // INLINED!!
-                            call TimerStart((LoadTimerHandle(Table___ht, (((s__LivingMeteor__LivingMeteor_Periodic___timers))), (index))), timeout, periodic, function s__LivingMeteor__LivingMeteor_Periodic___onPeriodic) // INLINED!!
+                        set id=GetHandleId((LoadTimerHandle(Table___ht, (((s__LivingMeteor___LivingMeteor_Periodic___timers))), (index)))) // INLINED!!
+                        set s__LivingMeteor___LivingMeteor_Periodic____timer[this]=(LoadTimerHandle(Table___ht, (((s__LivingMeteor___LivingMeteor_Periodic___timers))), (index))) // INLINED!!
+                        call SaveInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___table), ((LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id)))), ( this)) // INLINED!!
+                        call SaveInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id), ( (LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id))) + 1)) // INLINED!!
+                        if (LoadInteger(Table___ht, (s__LivingMeteor___LivingMeteor_Periodic___key), (id))) == 1 then // INLINED!!
+                            call TimerStart((LoadTimerHandle(Table___ht, (((s__LivingMeteor___LivingMeteor_Periodic___timers))), (index))), timeout, periodic, function s__LivingMeteor___LivingMeteor_Periodic___onPeriodic) // INLINED!!
                         endif
                     else
-                        set s__LivingMeteor__LivingMeteor_Periodic____timer[this]=NewTimerEx(this)
-                        call TimerStart(s__LivingMeteor__LivingMeteor_Periodic____timer[this], timeout, periodic, function s__LivingMeteor__LivingMeteor_Periodic___onPeriodic)
+                        set s__LivingMeteor___LivingMeteor_Periodic____timer[this]=NewTimerEx(this)
+                        call TimerStart(s__LivingMeteor___LivingMeteor_Periodic____timer[this], timeout, periodic, function s__LivingMeteor___LivingMeteor_Periodic___onPeriodic)
                     endif
                 else
-                    set s__LivingMeteor__LivingMeteor_Periodic____timer[this]=NewTimerEx(this)
-                    call TimerStart(s__LivingMeteor__LivingMeteor_Periodic____timer[this], timeout, periodic, function s__LivingMeteor__LivingMeteor_Periodic___onTimeout)
+                    set s__LivingMeteor___LivingMeteor_Periodic____timer[this]=NewTimerEx(this)
+                    call TimerStart(s__LivingMeteor___LivingMeteor_Periodic____timer[this], timeout, periodic, function s__LivingMeteor___LivingMeteor_Periodic___onTimeout)
                 endif
             else
                 call BJDebugMsg("Periodic Error: instance not provided")
@@ -28737,12 +26785,12 @@ local player p=f__arg_player1
                                 call sc__Backdrop__set_visible(s__Button_block[(slot)],not (sc__Shop_has(s__Shop___Detail_shop[this],s__Item_id[component]))) // INLINED!!
                                 call s__Text__set_text(s__Shop___Slot_cost[slot],"|cffFFCC00" + I2S(s__Item_cost(component,sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id))) + "|r")
                                 if sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) != null then
-                                    if (sc__Item_hasType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))) then // INLINED!!
-                                        if (sc__Item_countType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))) >= s__Item_count(i,s__Item_id[component]) then // INLINED!!
+                                    if (s__Item_hasType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))) then // INLINED!!
+                                        if (s__Item_countType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))) >= s__Item_count(i,s__Item_id[component]) then // INLINED!!
                                             call sc__Backdrop__set_visible(s__Button_check[(slot)],(true)) // INLINED!!
                                         else
                                             call SaveInteger(Table___ht, (counter), (s__Item_id[component]), ( (LoadInteger(Table___ht, (counter), (s__Item_id[component]))) + 1)) // INLINED!!
-                                            call sc__Backdrop__set_visible(s__Button_check[(slot)],((LoadInteger(Table___ht, (counter), (s__Item_id[component]))) <= (sc__Item_countType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))))) // INLINED!!
+                                            call sc__Backdrop__set_visible(s__Button_check[(slot)],((LoadInteger(Table___ht, (counter), (s__Item_id[component]))) <= (s__Item_countType((sc__Shop___Buyer__getindex(s__Shop_buyer[s__Shop___Detail_shop[this]],id) ) , ( s__Item_id[component]))))) // INLINED!!
                                         endif
                                     else
                                         call sc__Backdrop__set_visible(s__Button_check[(slot)],(false)) // INLINED!!
@@ -29089,8 +27137,408 @@ function sa__Shop___Category_onLogic takes nothing returns boolean
             endif
    return true
 endfunction
-function sa__Attributes___MovementSpeed_update takes nothing returns boolean
-    call s__Attributes___MovementSpeed_update(f__arg_this,f__arg_unit1)
+function sa__Shop__set_visible takes nothing returns boolean
+local integer this=f__arg_this
+local boolean visibility=f__arg_boolean1
+            set s__Shop_isVisible[this]=visibility
+            call s__Shop___Buyer__set_visible(s__Shop_buyer[this],visibility)
+            if not visibility then
+                set s__Shop___Buyer_index[s__Shop_buyer[this]]=0
+            else
+                if sc__Component__get_visible(s__Shop_details[this]) then
+                    call s__Shop___Detail_refresh(s__Shop_details[this],GetLocalPlayer())
+                endif
+            endif
+            call BlzFrameSetVisible((s__Component_Components___Operators____frame[(this)]), visibility) // INLINED!!
+   return true
+endfunction
+function sa__Shop__get_visible takes nothing returns boolean
+local integer this=f__arg_this
+set f__result_boolean= s__Shop_isVisible[this]
+   return true
+endfunction
+function sa__Shop_buy takes nothing returns boolean
+local integer this=f__arg_this
+local integer i=f__arg_integer1
+local player p=f__arg_player1
+            local integer id= GetPlayerId(p)
+            local integer cost= s__Item_cost(i,(LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id))))) // INLINED!!
+            local item new
+            if s__Shop_canBuy(this,i , p) and cost <= GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) then
+                set new=CreateItem(s__Item_id[i], GetUnitX((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id))))), GetUnitY((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))))) // INLINED!!
+                call s__Shop___Inventory_removeComponents(s__Shop___Buyer_inventory[s__Shop_buyer[this]],i , s__Shop___Transaction_create(this , (LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))) , i , cost , "buy")) // INLINED!!
+                if not UnitAddItem((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))), new) then // INLINED!!
+                    call IssueTargetItemOrder((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))), "smart", new) // INLINED!!
+                endif
+                call s__Shop___Inventory_show(s__Shop___Buyer_inventory[s__Shop_buyer[this]],(LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id))))) // INLINED!!
+                call s__Shop___Detail_refresh(s__Shop_details[this],p)
+                call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) - cost)
+                call s__Shop___Sound_success(p)
+                set new=null
+set f__result_boolean= true
+return true
+            else
+                if cost > GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) then
+                    call s__Shop___Sound_gold(p)
+                else
+                    call s__Shop___Sound_error(p)
+                endif
+set f__result_boolean= false
+return true
+            endif
+set f__result_boolean= false
+   return true
+endfunction
+function sa__Shop_sell takes nothing returns boolean
+local integer this=f__arg_this
+local integer i=f__arg_integer1
+local player p=f__arg_player1
+local integer slot=f__arg_integer2
+            local integer cost
+            local integer gold
+            local integer charges
+            local integer id= GetPlayerId(p)
+            local boolean sold= false
+            if i != 0 and (LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))) != null then // INLINED!!
+                set charges=GetItemCharges(UnitItemInSlot((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))), slot)) // INLINED!!
+                if charges == 0 then
+                    set charges=1
+                endif
+                set gold=GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD)
+                set cost=R2I(R2I((LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(i)])), (1))) / (LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(i)])), (2)))) * charges * s__Shop_tax[this]) // INLINED!!
+                if GetItemTypeId(UnitItemInSlot((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))), slot)) == s__Item_id[i] then // INLINED!!
+                    set sold=true
+                    call s__Shop___Transaction_create(this , (LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))) , i , cost , "sell") // INLINED!!
+                    call RemoveItem(UnitItemInSlot((LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id)))), slot)) // INLINED!!
+                    call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, gold + cost)
+                    call s__Shop___Inventory_show(s__Shop___Buyer_inventory[s__Shop_buyer[this]],(LoadUnitHandle(Table___ht, (((s__Shop___Buyer_selected[(s__Shop_buyer[this])]))), ((id))))) // INLINED!!
+                    call s__Shop___Detail_refresh(s__Shop_details[this],p)
+                endif
+                call s__Shop___Sound_success(p)
+            else
+                call s__Shop___Sound_error(p)
+            endif
+set f__result_boolean= sold
+   return true
+endfunction
+function sa__Shop_filter takes nothing returns boolean
+local integer this=f__arg_this
+local integer categories=f__arg_integer1
+local boolean andLogic=f__arg_boolean1
+            local integer slot= (LoadInteger(Table___ht, (s__HashTable__getindex(s__Shop_itempool,this)), (0))) // INLINED!!
+            local boolean process
+            local integer i= - 1
+            set s__Shop_size[this]=0
+            set s__Shop_first[this]=0
+            set s__Shop_last[this]=0
+            set s__Shop_head[this]=0
+            set s__Shop_tail[this]=0
+            loop
+                exitwhen slot == 0
+                    if andLogic then
+                        set process=categories == 0 or BlzBitAnd((LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(s__Shop___Slot_item[slot])])), (6))), categories) >= categories // INLINED!!
+                    else
+                        set process=categories == 0 or BlzBitAnd((LoadInteger(Table___ht, (s__HashTable__getindex(s__Item_itempool,s__Item_id[(s__Shop___Slot_item[slot])])), (6))), categories) > 0 // INLINED!!
+                    endif
+                    if s__EditBox__get_text(s__Shop_edit[this]) != "" and s__EditBox__get_text(s__Shop_edit[this]) != null then
+                        set process=process and sc__Shop_find(this,StringCase((LoadStr(Table___ht, (((s__HashTable__getindex(s__Item_itempool,s__Item_id[(s__Shop___Slot_item[slot])])))), (3))), false) , StringCase(s__EditBox__get_text(s__Shop_edit[this]), false)) // INLINED!!
+                    endif
+                    if process then
+                        set i=i + 1
+                        set s__Shop_size[this]=s__Shop_size[this] + 1
+                        call s__Shop___Slot_move(slot,R2I(i / s__Shop_columns[this]) , ModuloInteger(i, s__Shop_columns[this]))
+                        call sc__Component__set_visible(slot,(s__Shop___Slot_current_row[(slot)]) >= 0 and (s__Shop___Slot_current_row[(slot)]) <= s__Shop_rows[this] - 1 and (s__Shop___Slot_current_column[(slot)]) >= 0 and (s__Shop___Slot_current_column[(slot)]) <= s__Shop_columns[this] - 1) // INLINED!!
+                        if i > 0 then
+                            set s__Shop___Slot_left[slot]=s__Shop_last[this]
+                            set s__Shop___Slot_right[s__Shop_last[this]]=slot
+                        else
+                            set s__Shop_first[this]=slot
+                            set s__Shop_head[this]=s__Shop_first[this]
+                        endif
+                        if sc__Component__get_visible(slot) then
+                            set s__Shop_tail[this]=slot
+                        endif
+                        set s__Shop_last[this]=slot
+                    else
+                        call sc__Component__set_visible(slot,false)
+                    endif
+                set slot=s__Shop___Slot_next[slot]
+            endloop
+   return true
+endfunction
+function sa__Shop_detail takes nothing returns boolean
+local integer this=f__arg_this
+local integer i=f__arg_integer1
+local player p=f__arg_player1
+            if i != 0 then
+                if GetLocalPlayer() == p then
+                    set s__Shop_rows[this]=Shop___DETAILED_ROWS
+                    set s__Shop_columns[this]=Shop___DETAILED_COLUMNS
+                    if not s__Shop_detailed[this] then
+                        set s__Shop_detailed[this]=true
+                        call s__Shop_filter(this,s__Shop___Category_active[s__Shop_category[this]] , s__Shop___Category_andLogic[s__Shop_category[this]])
+                    endif
+                endif
+                if not sc__Component__get_visible(s__Shop_details[this]) then
+                    call s__Shop_scrollTo(this,i , p)
+                endif
+                call s__Shop_select(this,i , p)
+                call s__Shop___Detail_show(s__Shop_details[this],i , p)
+            else
+                if GetLocalPlayer() == p then
+                    set s__Shop_rows[this]=Shop___ROWS
+                    set s__Shop_columns[this]=Shop___COLUMNS
+                    set s__Shop_detailed[this]=false
+                    call sc__Component__set_visible(s__Shop_details[this],false)
+                    call s__Shop_filter(this,s__Shop___Category_active[s__Shop_category[this]] , s__Shop___Category_andLogic[s__Shop_category[this]])
+                    call s__Shop_scrollTo(this,s__Shop___Slot_item[((LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,this)), (GetPlayerId(p)))))] , p) // INLINED!!
+                endif
+            endif
+   return true
+endfunction
+function sa__Shop_has takes nothing returns boolean
+local integer this=f__arg_this
+local integer id=f__arg_integer1
+set f__result_boolean= (HaveSavedInteger(Table___ht, (s__HashTable__getindex(Shop___table,this)), (id))) // INLINED!!
+   return true
+endfunction
+function sa__Shop_find takes nothing returns boolean
+local integer this=f__arg_this
+local string source=f__arg_string1
+local string target=f__arg_string2
+            local integer sourceLength= StringLength(source)
+            local integer targetLenght= StringLength(target)
+            local integer i= 0
+            if targetLenght <= sourceLength then
+                loop
+                    exitwhen i > sourceLength - targetLenght
+                        if SubString(source, i, i + targetLenght) == target then
+set f__result_boolean= true
+return true
+                        endif
+                    set i=i + 1
+                endloop
+            endif
+set f__result_boolean= false
+   return true
+endfunction
+function sa__Shop_addCategory takes nothing returns boolean
+local integer id=f__arg_integer1
+local string icon=f__arg_string1
+local string description=f__arg_string2
+            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,id)), (0))) // INLINED!!
+            if this != 0 then
+set f__result_integer= s__Shop___Category_add(s__Shop_category[this],icon , description)
+return true
+            endif
+set f__result_integer= 0
+   return true
+endfunction
+function sa__Shop_addItem takes nothing returns boolean
+local integer id=f__arg_integer1
+local integer itemId=f__arg_integer2
+local integer categories=f__arg_integer3
+            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,id)), (0))) // INLINED!!
+            local integer slot
+            local integer i
+            if this != 0 then
+                if not (HaveSavedInteger(Table___ht, (s__HashTable__getindex(Shop___table,this)), (itemId))) then // INLINED!!
+                    set i=s__Item_get(itemId)
+                    if i != 0 then
+                        set s__Shop_size[this]=s__Shop_size[this] + 1
+                        set s__Shop_index[this]=s__Shop_index[this] + 1
+                        call s__Item__set_categories(i,categories)
+                        set slot=s__Shop___Slot_create(this , i , 0 , 0 , (s__Component_Components___Operators____frame[(this)])) // INLINED!!
+                        call s__Shop___Slot__set_row(slot,R2I(s__Shop_index[this] / Shop___COLUMNS))
+                        call s__Shop___Slot__set_column(slot,ModuloInteger(s__Shop_index[this], Shop___COLUMNS))
+                        call sc__Component__set_visible(slot,(s__Shop___Slot_current_row[(slot)]) >= 0 and (s__Shop___Slot_current_row[(slot)]) <= Shop___ROWS - 1 and (s__Shop___Slot_current_column[(slot)]) >= 0 and (s__Shop___Slot_current_column[(slot)]) <= Shop___COLUMNS - 1) // INLINED!!
+                        if s__Shop_index[this] > 0 then
+                            set s__Shop___Slot_prev[slot]=s__Shop_last[this]
+                            set s__Shop___Slot_left[slot]=s__Shop_last[this]
+                            set s__Shop___Slot_next[s__Shop_last[this]]=slot
+                            set s__Shop___Slot_right[s__Shop_last[this]]=slot
+                        else
+                            set s__Shop_first[this]=slot
+                            set s__Shop_head[this]=slot
+                        endif
+                        if sc__Component__get_visible(slot) then
+                            set s__Shop_tail[this]=slot
+                        endif
+                        set s__Shop_last[this]=slot
+                        call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,this)), (itemId), ( slot)) // INLINED!!
+                        call SaveInteger(Table___ht, (s__HashTable__getindex(s__Shop_itempool,this)), (s__Shop_index[this]), ( slot)) // INLINED!!
+                    else
+                        call BJDebugMsg("Invalid item code: " + A2S(itemId))
+                    endif
+                else
+                    call BJDebugMsg("The item " + GetObjectName(itemId) + " is already registered for the shop " + GetObjectName(id))
+                endif
+            endif
+   return true
+endfunction
+function sa__Shop_create takes nothing returns boolean
+local integer id=f__arg_integer1
+local real aoe=f__arg_real1
+local real tax=f__arg_real2
+            local integer this
+            local integer i= 0
+            if not (HaveSavedInteger(Table___ht, (s__HashTable__getindex(Shop___table,id)), (0))) then // INLINED!!
+                set this=s__Shop__allocate(Shop___X , Shop___Y , Shop___WIDTH , Shop___HEIGHT , BlzGetFrameByName("ConsoleUIBackdrop", 0) , "EscMenuBackdrop")
+                set s__Shop_id[this]=id
+                set s__Shop_aoe[this]=aoe
+                set s__Shop_tax[this]=tax
+                set s__Shop_first[this]=0
+                set s__Shop_last[this]=0
+                set s__Shop_head[this]=0
+                set s__Shop_tail[this]=0
+                set s__Shop_size[this]=0
+                set s__Shop_index[this]=- 1
+                set s__Shop_rows[this]=Shop___ROWS
+                set s__Shop_columns[this]=Shop___COLUMNS
+                set s__Shop_count=s__Shop_count + 1
+                set s__Shop_detailed[this]=false
+                set s__Shop_scrolls[this]=(s__Table_create()) // INLINED!!
+                set s__Shop_buyer[this]=s__Shop___Buyer_create(this)
+                set s__Shop_details[this]=s__Shop___Detail_create(this)
+                set s__Shop_category[this]=s__Shop___Category_create(this)
+                set s__Shop_favorites[this]=s__Shop___Favorites_create(this)
+                set s__Shop_edit[this]=s__EditBox_create(0.021 , 0.02 , Shop___EDIT_WIDTH , Shop___EDIT_HEIGHT , (s__Component_Components___Operators____frame[(this)]) , "EscMenuEditBoxTemplate") // INLINED!!
+                call s__EditBox__set_onText(s__Shop_edit[this],function sc__Shop_onSearch)
+                set s__Shop_close[this]=s__Button_create(( Shop___WIDTH - 2 * Shop___TOOLBAR_BUTTON_SIZE ) , 0.015000 , Shop___TOOLBAR_BUTTON_SIZE , Shop___TOOLBAR_BUTTON_SIZE , (s__Component_Components___Operators____frame[(this)]) , true) // INLINED!!
+                call s__Backdrop__set_texture(s__Component_image[(s__Shop_close[this])],(Shop___CLOSE_ICON)) // INLINED!!
+                call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Shop_close[this]])], ("Close")) // INLINED!!
+                call s__Component__set_onClick(s__Shop_close[this],function sc__Shop_onClose)
+                set s__Shop_break[this]=s__Button_create(( Shop___WIDTH - 2 * Shop___TOOLBAR_BUTTON_SIZE - 0.0205 ) , 0.015000 , Shop___TOOLBAR_BUTTON_SIZE , Shop___TOOLBAR_BUTTON_SIZE , (s__Component_Components___Operators____frame[(this)]) , true) // INLINED!!
+                call s__Backdrop__set_texture(s__Component_image[(s__Shop_break[this])],(Shop___DISMANTLE_ICON)) // INLINED!!
+                call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Shop_break[this]])], ("Dismantle")) // INLINED!!
+                call s__Component__set_onClick(s__Shop_break[this],function sc__Shop_onDismantle)
+                set s__Shop_revert[this]=s__Button_create(( Shop___WIDTH - 2 * Shop___TOOLBAR_BUTTON_SIZE - 0.0410 ) , 0.015000 , Shop___TOOLBAR_BUTTON_SIZE , Shop___TOOLBAR_BUTTON_SIZE , (s__Component_Components___Operators____frame[(this)]) , true) // INLINED!!
+                call s__Backdrop__set_texture(s__Component_image[(s__Shop_revert[this])],(Shop___UNDO_ICON)) // INLINED!!
+                call BlzFrameSetText(s__Tooltip_tooltip[(s__Button_tooltip[s__Shop_revert[this]])], ("Undo")) // INLINED!!
+                call s__Component__set_onClick(s__Shop_revert[this],function sc__Shop_onUndo)
+                call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,id)), (0), ( this)) // INLINED!!
+                call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,s__Shop_edit[this])), (0), ( this)) // INLINED!!
+                call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,s__Shop_close[this])), (0), ( this)) // INLINED!!
+                call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,s__Shop_break[this])), (0), ( this)) // INLINED!!
+                call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,s__Shop_revert[this])), (0), ( this)) // INLINED!!
+                loop
+                    exitwhen i >= bj_MAX_PLAYER_SLOTS
+                        if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                            call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,GetHandleId(Player(i)))), (id), ( this)) // INLINED!!
+                            call SaveInteger(Table___ht, (s__HashTable__getindex(Shop___table,GetHandleId(Player(i)))), (s__Shop_count), ( id)) // INLINED!!
+                        endif
+                    set i=i + 1
+                endloop
+                call s__Shop__set_visible(this,false)
+            endif
+set f__result_integer= this
+   return true
+endfunction
+function sa__Shop_onScroll takes nothing returns boolean
+local integer this=f__arg_this
+            local integer id= GetPlayerId(GetTriggerPlayer())
+            local integer direction= R2I(BlzGetTriggerFrameValue())
+            if (LoadInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (0))) != direction then // INLINED!!
+                call SaveInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (0), ( direction)) // INLINED!!
+                call SaveInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (1), ( 0)) // INLINED!!
+            else
+                call SaveInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (1), ( (LoadInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (1))) + 1)) // INLINED!!
+            endif
+            if GetLocalPlayer() == GetTriggerPlayer() then
+                if (LoadInteger(Table___ht, (s__HashTable__getindex(s__Shop_scrolls[this],id)), (1))) == 1 then // INLINED!!
+                    call s__Shop_scroll(this,direction < 0)
+                else
+                    call s__Shop_scroll(this,direction < 0)
+                endif
+            endif
+   return true
+endfunction
+function sa__Shop_onSearch takes nothing returns boolean
+
+            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,(sc__EditBox_get()))), (0))) // INLINED!!
+            if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
+                call s__Shop_filter(this,s__Shop___Category_active[s__Shop_category[this]] , s__Shop___Category_andLogic[s__Shop_category[this]])
+            endif
+   return true
+endfunction
+function sa__Shop_onClose takes nothing returns boolean
+
+            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,(s__Component_array[GetPlayerId(GetTriggerPlayer())]))), (0))) // INLINED!!
+            local integer id= GetPlayerId(GetTriggerPlayer())
+            if this != 0 then
+                set s__Shop_unit[id]=null
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    call s__Shop__set_visible(this,false)
+                endif
+                call s__Shop___Transaction_clear(this , id)
+            endif
+   return true
+endfunction
+function sa__Shop_onDismantle takes nothing returns boolean
+
+            local integer id= GetPlayerId(GetTriggerPlayer())
+            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,(s__Component_array[GetPlayerId(GetTriggerPlayer())]))), (0))) // INLINED!!
+            if this != 0 then
+                if (HaveSavedInteger(Table___ht, (s__Shop___Inventory_selected[(s__Shop___Buyer_inventory[s__Shop_buyer[this]])]), ((id)))) then // INLINED!!
+                    call s__Shop_dismantle(this,((LoadInteger(Table___ht, (s__HashTable__getindex(s__Shop___Inventory_item[s__Shop___Buyer_inventory[s__Shop_buyer[this]]],id)), ((LoadInteger(Table___ht, (s__Shop___Inventory_selected[(s__Shop___Buyer_inventory[s__Shop_buyer[this]])]), ((id)))))))) , GetTriggerPlayer() , (LoadInteger(Table___ht, (s__Shop___Inventory_selected[(s__Shop___Buyer_inventory[s__Shop_buyer[this]])]), ((id))))) // INLINED!!
+                else
+                    call s__Shop___Sound_error(GetTriggerPlayer())
+                endif
+            endif
+   return true
+endfunction
+function sa__Shop_onUndo takes nothing returns boolean
+
+            local integer this= (LoadInteger(Table___ht, (s__HashTable__getindex(Shop___table,(s__Component_array[GetPlayerId(GetTriggerPlayer())]))), (0))) // INLINED!!
+            if this != 0 then
+                call s__Shop_undo(this,GetTriggerPlayer())
+            endif
+   return true
+endfunction
+function sa__SulfurasSmash___Hammer_onFinish takes nothing returns boolean
+local integer this=f__arg_this
+            local group g= CreateGroup()
+            local unit u
+            call GroupEnumUnitsInRange(g, s__Missiles_x[this], s__Missiles_y[this], SulfurasSmash___GetNormalAoE(s__Missiles_source[this] , s__SulfurasSmash___Hammer_level[this]), null)
+            loop
+                set u=FirstOfGroup(g)
+                exitwhen u == null
+                    if SulfurasSmash___DamageFilter(s__Missiles_source[this] , u) then
+                        if DistanceBetweenCoordinates(s__Missiles_x[this] , s__Missiles_y[this] , GetUnitX(u) , GetUnitY(u)) <= s__SulfurasSmash___Hammer_aoe[this] then
+                            if UnitDamageTarget(s__Missiles_source[this], u, 2 * s__Missiles_damage[this], false, false, SulfurasSmash___ATTACK_TYPE, SulfurasSmash___DAMAGE_TYPE, null) then
+                                call sc__CrowdControl_stun((u ) , (( s__SulfurasSmash___Hammer_stun[this] )*1.0) , ( SulfurasSmash___STUN_MODEL ) , ( SulfurasSmash___STUN_POINT ) , ( false)) // INLINED!!
+                            endif
+                        else
+                            call UnitDamageTarget(s__Missiles_source[this], u, s__Missiles_damage[this], false, false, SulfurasSmash___ATTACK_TYPE, SulfurasSmash___DAMAGE_TYPE, null)
+                        endif
+                    endif
+                call GroupRemoveUnit(g, u)
+            endloop
+            call DestroyGroup(g)
+call s__effectTimed_create((AddSpecialEffectEx(SulfurasSmash___IMPACT_MODEL , s__Missiles_x[this] , s__Missiles_y[this] , 0 , SulfurasSmash___IMPACT_SCALE) ) , (( SulfurasSmash___IMPACT_DURATION)*1.0)) // INLINED!!
+                call Afterburn(s__Missiles_x[this] , s__Missiles_y[this] , s__Missiles_source[this])
+            set g=null
+set f__result_boolean= true
+   return true
+endfunction
+function sa__SulfurasSmash___SulfurasSmash_onTooltip takes nothing returns boolean
+    set f__result_string=s__SulfurasSmash___SulfurasSmash_onTooltip(f__arg_this,f__arg_unit1,f__arg_integer1)
+   return true
+endfunction
+function sa__SulfurasSmash___SulfurasSmash_onCast takes nothing returns boolean
+local integer this=f__arg_this
+            local real angle= AngleBetweenCoordinates((GetSpellTargetX()) , (GetSpellTargetY()) , GetUnitX(s__PluginSpellEffect___Unit_unit[s__Spell_source]) , GetUnitY(s__PluginSpellEffect___Unit_unit[s__Spell_source])) // INLINED!!
+            local integer sulfuras= s__SulfurasSmash___Hammer__allocate((GetSpellTargetX()) + SulfurasSmash___LAUNCH_OFFSET * Cos(angle) , (GetSpellTargetY()) + SulfurasSmash___LAUNCH_OFFSET * Sin(angle) , SulfurasSmash___START_HEIGHT , (GetSpellTargetX()) , (GetSpellTargetY()) , 0) // INLINED!!
+            call s__Missiles__set_model(sulfuras,SulfurasSmash___SULFURAS_MODEL)
+            call s__Missiles__set_scale(sulfuras,SulfurasSmash___SULFURAS_SCALE)
+            call s__Missiles__set_duration(sulfuras,SulfurasSmash___LANDING_TIME)
+            set s__Missiles_source[sulfuras]=s__PluginSpellEffect___Unit_unit[s__Spell_source]
+            set s__SulfurasSmash___Hammer_level[sulfuras]=(GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))) // INLINED!!
+            set s__Missiles_owner[sulfuras]=(GetOwningPlayer(s__PluginSpellEffect___Unit_unit[(s__Spell_source)])) // INLINED!!
+            set s__Missiles_damage[sulfuras]=SulfurasSmash___GetDamage(s__PluginSpellEffect___Unit_unit[s__Spell_source] , (GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId())))) // INLINED!!
+            set s__SulfurasSmash___Hammer_stun[sulfuras]=(1 + 0.25 * R2I(s__Sulfuras_stacks[GetUnitUserData((s__PluginSpellEffect___Unit_unit[s__Spell_source]))] * 0.05)) // INLINED!!
+            set s__SulfurasSmash___Hammer_aoe[sulfuras]=(200. + 0 * ((GetUnitAbilityLevel(s__PluginSpellEffect___Unit_unit[s__Spell_source], (GetSpellAbilityId()))))) // INLINED!!
+            call s__Missiles_launch(sulfuras)
    return true
 endfunction
 function sa__MissChance___Miss_get takes nothing returns boolean
@@ -29453,34 +27901,6 @@ function sa__MagicPenetrationFlat___MagicPenetrationFlat_add takes nothing retur
     set f__result_real=s__MagicPenetrationFlat___MagicPenetrationFlat_add(f__arg_this,f__arg_unit1,f__arg_real1)
    return true
 endfunction
-function sa__CooldownReductionFlat___CooldownReductionFlat_get takes nothing returns boolean
-    set f__result_real=s__CooldownReductionFlat___CooldownReductionFlat_get(f__arg_this,f__arg_unit1)
-   return true
-endfunction
-function sa__CooldownReductionFlat___CooldownReductionFlat_Set takes nothing returns boolean
-    set f__result_real=s__CooldownReductionFlat___CooldownReductionFlat_Set(f__arg_this,f__arg_unit1,f__arg_real1)
-   return true
-endfunction
-function sa__CooldownReductionFlat___CooldownReductionFlat_add takes nothing returns boolean
-    set f__result_real=s__CooldownReductionFlat___CooldownReductionFlat_add(f__arg_this,f__arg_unit1,f__arg_real1)
-   return true
-endfunction
-function sa__Attributes___SpellPower_update takes nothing returns boolean
-    call s__Attributes___SpellPower_update(f__arg_this,f__arg_unit1)
-   return true
-endfunction
-function sa__Attributes___CriticalStrike_update takes nothing returns boolean
-    call s__Attributes___CriticalStrike_update(f__arg_this,f__arg_unit1)
-   return true
-endfunction
-function sa__Attributes___Evasion_update takes nothing returns boolean
-    call s__Attributes___Evasion_update(f__arg_this,f__arg_unit1)
-   return true
-endfunction
-function sa__Attributes___LifeSteal_update takes nothing returns boolean
-    call s__Attributes___LifeSteal_update(f__arg_this,f__arg_unit1)
-   return true
-endfunction
 function sa___prototype3_TimerUtils___init takes nothing returns boolean
 
      local integer i=0
@@ -29502,7 +27922,7 @@ function sa___prototype3_TimerUtils___init takes nothing returns boolean
     return true
 endfunction
 
-function jasshelper__initstructs91889750 takes nothing returns nothing
+function jasshelper__initstructs91083484 takes nothing returns nothing
     set st__Shop___Inventory_onClick=CreateTrigger()
     call TriggerAddCondition(st__Shop___Inventory_onClick,Condition( function sa__Shop___Inventory_onClick))
     set st__Shop___Inventory_onDoubleClick=CreateTrigger()
@@ -29529,9 +27949,9 @@ function jasshelper__initstructs91889750 takes nothing returns nothing
     call TriggerAddCondition(st__MissileGroup_removeGroup,Condition( function sa__MissileGroup_removeGroup))
     set st__MissileGroup_create=CreateTrigger()
     call TriggerAddCondition(st__MissileGroup_create,Condition( function sa__MissileGroup_create))
-    set st__Item___Events_onTooltip[131]=null
-    set st__Item___Events_onPickup[131]=null
-    set st__Item___Events_onDrop[131]=null
+    set st__Item___IItem_onTooltip[117]=null
+    set st__Item___IItem_onPickup[117]=null
+    set st__Item___IItem_onDrop[117]=null
     set st__CrowdControl_silence=CreateTrigger()
     call TriggerAddCondition(st__CrowdControl_silence,Condition( function sa__CrowdControl_silence))
     set st__CrowdControl_silenced=CreateTrigger()
@@ -29628,408 +28048,57 @@ function jasshelper__initstructs91889750 takes nothing returns nothing
     call TriggerAddCondition(st__TimedAbility_add,Condition( function sa__TimedAbility_add))
     set st__ResetCooldown_reset=CreateTrigger()
     call TriggerAddCondition(st__ResetCooldown_reset,Condition( function sa__ResetCooldown_reset))
-    set st__NewBonus___BonusType_get[113]=null
-    set st__NewBonus___BonusType_Set[113]=null
-    set st__NewBonus___BonusType_add[113]=null
-    set st__Missiles___MissileEvents_onHit[111]=null
-    set st__Missiles___MissileEvents_onHit[136]=null
-    set st__Missiles___MissileEvents_onMissile[111]=null
-    set st__Missiles___MissileEvents_onMissile[136]=null
-    set st__Missiles___MissileEvents_onDestructable[111]=null
-    set st__Missiles___MissileEvents_onDestructable[136]=null
-    set st__Missiles___MissileEvents_onItem[111]=null
-    set st__Missiles___MissileEvents_onItem[136]=null
-    set st__Missiles___MissileEvents_onCliff[111]=null
-    set st__Missiles___MissileEvents_onCliff[136]=null
-    set st__Missiles___MissileEvents_onTerrain[111]=null
-    set st__Missiles___MissileEvents_onTerrain[136]=null
-    set st__Missiles___MissileEvents_onTileset[111]=null
-    set st__Missiles___MissileEvents_onTileset[136]=null
-    set st__Missiles___MissileEvents_onPeriod[111]=null
-    set st__Missiles___MissileEvents_onFinish[111]=null
-    set st__Missiles___MissileEvents_onBoundaries[111]=null
-    set st__Missiles___MissileEvents_onBoundaries[136]=null
-    set st__Missiles___MissileEvents_onPause[111]=null
-    set st__Missiles___MissileEvents_onPause[136]=null
-    set st__Missiles___MissileEvents_onResume[111]=null
-    set st__Missiles___MissileEvents_onResume[136]=null
-    set st__Missiles___MissileEvents_onRemove[111]=null
-    set st__Missiles___MissileEvents_onRemove[136]=null
-    set st__UI_showHeroes=CreateTrigger()
-    call TriggerAddCondition(st__UI_showHeroes,Condition( function sa__UI_showHeroes))
-    set st__UI_showMinimap=CreateTrigger()
-    call TriggerAddCondition(st__UI_showMinimap,Condition( function sa__UI_showMinimap))
-    set st__Components___Events_onText[60]=null
-    set st__Components___Events_onText[65]=null
-    set st__Components___Events_onText[96]=null
-    set st__Components___Events_onText[106]=null
-    set st__Components___Events_onText[181]=null
-    set st__Components___Events_onText[182]=null
-    set st__Components___Events_onText[183]=null
-    set st__Components___Events_onText[184]=null
-    set st__Components___Events_onText[185]=null
-    set st__Components___Events_onText[141]=null
-    set st__Components___Events_onText[66]=null
-    set st__Components___Events_onText[94]=null
-    set st__Components___Events_onText[95]=null
-    set st__Components___Events_onText[97]=null
-    set st__Components___Events_onText[99]=null
-    set st__Components___Events_onText[101]=null
-    set st__Components___Events_onText[104]=null
-    set st__Components___Events_onText[142]=null
-    set st__Components___Events_onText[144]=null
-    set st__Components___Events_onText[145]=null
-    set st__Components___Events_onText[146]=null
-    set st__Components___Events_onText[149]=null
-    set st__Components___Events_onText[61]=null
-    set st__Components___Events_onText[62]=null
-    set st__Components___Events_onText[64]=null
-    set st__Components___Events_onCheck[60]=null
-    set st__Components___Events_onCheck[65]=null
-    set st__Components___Events_onCheck[96]=null
-    set st__Components___Events_onCheck[106]=null
-    set st__Components___Events_onCheck[181]=null
-    set st__Components___Events_onCheck[182]=null
-    set st__Components___Events_onCheck[183]=null
-    set st__Components___Events_onCheck[184]=null
-    set st__Components___Events_onCheck[185]=null
-    set st__Components___Events_onCheck[141]=null
-    set st__Components___Events_onCheck[66]=null
-    set st__Components___Events_onCheck[94]=null
-    set st__Components___Events_onCheck[95]=null
-    set st__Components___Events_onCheck[97]=null
-    set st__Components___Events_onCheck[99]=null
-    set st__Components___Events_onCheck[101]=null
-    set st__Components___Events_onCheck[104]=null
-    set st__Components___Events_onCheck[142]=null
-    set st__Components___Events_onCheck[144]=null
-    set st__Components___Events_onCheck[145]=null
-    set st__Components___Events_onCheck[146]=null
-    set st__Components___Events_onCheck[149]=null
-    set st__Components___Events_onCheck[61]=null
-    set st__Components___Events_onCheck[62]=null
-    set st__Components___Events_onCheck[64]=null
-    set st__Components___Events_onEnter[60]=null
-    set st__Components___Events_onEnter[65]=null
-    set st__Components___Events_onEnter[96]=null
-    set st__Components___Events_onEnter[106]=null
-    set st__Components___Events_onEnter[181]=null
-    set st__Components___Events_onEnter[182]=null
-    set st__Components___Events_onEnter[183]=null
-    set st__Components___Events_onEnter[184]=null
-    set st__Components___Events_onEnter[185]=null
-    set st__Components___Events_onEnter[141]=null
-    set st__Components___Events_onEnter[66]=null
-    set st__Components___Events_onEnter[94]=null
-    set st__Components___Events_onEnter[95]=null
-    set st__Components___Events_onEnter[97]=null
-    set st__Components___Events_onEnter[99]=null
-    set st__Components___Events_onEnter[101]=null
-    set st__Components___Events_onEnter[104]=null
-    set st__Components___Events_onEnter[142]=null
-    set st__Components___Events_onEnter[144]=null
-    set st__Components___Events_onEnter[145]=null
-    set st__Components___Events_onEnter[146]=null
-    set st__Components___Events_onEnter[149]=null
-    set st__Components___Events_onEnter[61]=null
-    set st__Components___Events_onEnter[62]=null
-    set st__Components___Events_onEnter[64]=null
-    set st__Components___Events_onLeave[60]=null
-    set st__Components___Events_onLeave[65]=null
-    set st__Components___Events_onLeave[96]=null
-    set st__Components___Events_onLeave[106]=null
-    set st__Components___Events_onLeave[181]=null
-    set st__Components___Events_onLeave[182]=null
-    set st__Components___Events_onLeave[183]=null
-    set st__Components___Events_onLeave[184]=null
-    set st__Components___Events_onLeave[185]=null
-    set st__Components___Events_onLeave[141]=null
-    set st__Components___Events_onLeave[66]=null
-    set st__Components___Events_onLeave[94]=null
-    set st__Components___Events_onLeave[95]=null
-    set st__Components___Events_onLeave[97]=null
-    set st__Components___Events_onLeave[99]=null
-    set st__Components___Events_onLeave[101]=null
-    set st__Components___Events_onLeave[104]=null
-    set st__Components___Events_onLeave[142]=null
-    set st__Components___Events_onLeave[144]=null
-    set st__Components___Events_onLeave[145]=null
-    set st__Components___Events_onLeave[146]=null
-    set st__Components___Events_onLeave[149]=null
-    set st__Components___Events_onLeave[61]=null
-    set st__Components___Events_onLeave[62]=null
-    set st__Components___Events_onLeave[64]=null
-    set st__Components___Events_onClick[60]=null
-    set st__Components___Events_onClick[65]=null
-    set st__Components___Events_onClick[106]=null
-    set st__Components___Events_onClick[181]=null
-    set st__Components___Events_onClick[182]=null
-    set st__Components___Events_onClick[183]=null
-    set st__Components___Events_onClick[184]=null
-    set st__Components___Events_onClick[185]=null
-    set st__Components___Events_onClick[66]=null
-    set st__Components___Events_onClick[94]=null
-    set st__Components___Events_onClick[95]=null
-    set st__Components___Events_onClick[97]=null
-    set st__Components___Events_onClick[99]=null
-    set st__Components___Events_onClick[101]=null
-    set st__Components___Events_onClick[104]=null
-    set st__Components___Events_onClick[142]=null
-    set st__Components___Events_onClick[144]=null
-    set st__Components___Events_onClick[145]=null
-    set st__Components___Events_onClick[146]=null
-    set st__Components___Events_onClick[149]=null
-    set st__Components___Events_onClick[61]=null
-    set st__Components___Events_onClick[62]=null
-    set st__Components___Events_onClick[64]=null
-    set st__Components___Events_onSlide[60]=null
-    set st__Components___Events_onSlide[65]=null
-    set st__Components___Events_onSlide[96]=null
-    set st__Components___Events_onSlide[106]=null
-    set st__Components___Events_onSlide[181]=null
-    set st__Components___Events_onSlide[182]=null
-    set st__Components___Events_onSlide[183]=null
-    set st__Components___Events_onSlide[184]=null
-    set st__Components___Events_onSlide[185]=null
-    set st__Components___Events_onSlide[141]=null
-    set st__Components___Events_onSlide[66]=null
-    set st__Components___Events_onSlide[94]=null
-    set st__Components___Events_onSlide[95]=null
-    set st__Components___Events_onSlide[97]=null
-    set st__Components___Events_onSlide[99]=null
-    set st__Components___Events_onSlide[101]=null
-    set st__Components___Events_onSlide[104]=null
-    set st__Components___Events_onSlide[142]=null
-    set st__Components___Events_onSlide[144]=null
-    set st__Components___Events_onSlide[145]=null
-    set st__Components___Events_onSlide[146]=null
-    set st__Components___Events_onSlide[149]=null
-    set st__Components___Events_onSlide[61]=null
-    set st__Components___Events_onSlide[62]=null
-    set st__Components___Events_onSlide[64]=null
-    set st__Components___Events_onScroll[60]=null
-    set st__Components___Events_onScroll[65]=null
-    set st__Components___Events_onScroll[96]=null
-    set st__Components___Events_onScroll[106]=null
-    set st__Components___Events_onScroll[181]=null
-    set st__Components___Events_onScroll[182]=null
-    set st__Components___Events_onScroll[183]=null
-    set st__Components___Events_onScroll[184]=null
-    set st__Components___Events_onScroll[185]=null
-    set st__Components___Events_onScroll[66]=null
-    set st__Components___Events_onScroll[94]=null
-    set st__Components___Events_onScroll[95]=null
-    set st__Components___Events_onScroll[97]=null
-    set st__Components___Events_onScroll[99]=null
-    set st__Components___Events_onScroll[101]=null
-    set st__Components___Events_onScroll[104]=null
-    set st__Components___Events_onScroll[145]=null
-    set st__Components___Events_onScroll[146]=null
-    set st__Components___Events_onScroll[61]=null
-    set st__Components___Events_onScroll[62]=null
-    set st__Components___Events_onScroll[64]=null
-    set st__Components___Events_onUncheck[60]=null
-    set st__Components___Events_onUncheck[65]=null
-    set st__Components___Events_onUncheck[96]=null
-    set st__Components___Events_onUncheck[106]=null
-    set st__Components___Events_onUncheck[181]=null
-    set st__Components___Events_onUncheck[182]=null
-    set st__Components___Events_onUncheck[183]=null
-    set st__Components___Events_onUncheck[184]=null
-    set st__Components___Events_onUncheck[185]=null
-    set st__Components___Events_onUncheck[141]=null
-    set st__Components___Events_onUncheck[66]=null
-    set st__Components___Events_onUncheck[94]=null
-    set st__Components___Events_onUncheck[95]=null
-    set st__Components___Events_onUncheck[97]=null
-    set st__Components___Events_onUncheck[99]=null
-    set st__Components___Events_onUncheck[101]=null
-    set st__Components___Events_onUncheck[104]=null
-    set st__Components___Events_onUncheck[142]=null
-    set st__Components___Events_onUncheck[144]=null
-    set st__Components___Events_onUncheck[145]=null
-    set st__Components___Events_onUncheck[146]=null
-    set st__Components___Events_onUncheck[149]=null
-    set st__Components___Events_onUncheck[61]=null
-    set st__Components___Events_onUncheck[62]=null
-    set st__Components___Events_onUncheck[64]=null
-    set st__Components___Events_onRightClick[60]=null
-    set st__Components___Events_onRightClick[65]=null
-    set st__Components___Events_onRightClick[96]=null
-    set st__Components___Events_onRightClick[106]=null
-    set st__Components___Events_onRightClick[181]=null
-    set st__Components___Events_onRightClick[182]=null
-    set st__Components___Events_onRightClick[183]=null
-    set st__Components___Events_onRightClick[184]=null
-    set st__Components___Events_onRightClick[185]=null
-    set st__Components___Events_onRightClick[66]=null
-    set st__Components___Events_onRightClick[94]=null
-    set st__Components___Events_onRightClick[95]=null
-    set st__Components___Events_onRightClick[97]=null
-    set st__Components___Events_onRightClick[99]=null
-    set st__Components___Events_onRightClick[101]=null
-    set st__Components___Events_onRightClick[104]=null
-    set st__Components___Events_onRightClick[142]=null
-    set st__Components___Events_onRightClick[144]=null
-    set st__Components___Events_onRightClick[145]=null
-    set st__Components___Events_onRightClick[146]=null
-    set st__Components___Events_onRightClick[149]=null
-    set st__Components___Events_onRightClick[61]=null
-    set st__Components___Events_onRightClick[62]=null
-    set st__Components___Events_onRightClick[64]=null
-    set st__Components___Events_onMiddleClick[60]=null
-    set st__Components___Events_onMiddleClick[65]=null
-    set st__Components___Events_onMiddleClick[96]=null
-    set st__Components___Events_onMiddleClick[106]=null
-    set st__Components___Events_onMiddleClick[181]=null
-    set st__Components___Events_onMiddleClick[182]=null
-    set st__Components___Events_onMiddleClick[183]=null
-    set st__Components___Events_onMiddleClick[184]=null
-    set st__Components___Events_onMiddleClick[185]=null
-    set st__Components___Events_onMiddleClick[66]=null
-    set st__Components___Events_onMiddleClick[94]=null
-    set st__Components___Events_onMiddleClick[95]=null
-    set st__Components___Events_onMiddleClick[97]=null
-    set st__Components___Events_onMiddleClick[99]=null
-    set st__Components___Events_onMiddleClick[101]=null
-    set st__Components___Events_onMiddleClick[104]=null
-    set st__Components___Events_onMiddleClick[142]=null
-    set st__Components___Events_onMiddleClick[144]=null
-    set st__Components___Events_onMiddleClick[145]=null
-    set st__Components___Events_onMiddleClick[146]=null
-    set st__Components___Events_onMiddleClick[149]=null
-    set st__Components___Events_onMiddleClick[61]=null
-    set st__Components___Events_onMiddleClick[62]=null
-    set st__Components___Events_onMiddleClick[64]=null
-    set st__Components___Events_onDoubleClick[60]=null
-    set st__Components___Events_onDoubleClick[65]=null
-    set st__Components___Events_onDoubleClick[96]=null
-    set st__Components___Events_onDoubleClick[106]=null
-    set st__Components___Events_onDoubleClick[181]=null
-    set st__Components___Events_onDoubleClick[182]=null
-    set st__Components___Events_onDoubleClick[183]=null
-    set st__Components___Events_onDoubleClick[184]=null
-    set st__Components___Events_onDoubleClick[185]=null
-    set st__Components___Events_onDoubleClick[66]=null
-    set st__Components___Events_onDoubleClick[94]=null
-    set st__Components___Events_onDoubleClick[95]=null
-    set st__Components___Events_onDoubleClick[97]=null
-    set st__Components___Events_onDoubleClick[99]=null
-    set st__Components___Events_onDoubleClick[101]=null
-    set st__Components___Events_onDoubleClick[104]=null
-    set st__Components___Events_onDoubleClick[142]=null
-    set st__Components___Events_onDoubleClick[144]=null
-    set st__Components___Events_onDoubleClick[145]=null
-    set st__Components___Events_onDoubleClick[146]=null
-    set st__Components___Events_onDoubleClick[149]=null
-    set st__Components___Events_onDoubleClick[61]=null
-    set st__Components___Events_onDoubleClick[62]=null
-    set st__Components___Events_onDoubleClick[64]=null
-    set st__Backdrop__set_visible[55]=CreateTrigger()
-    set st__Backdrop__set_visible[67]=st__Backdrop__set_visible[55]
-    call TriggerAddCondition(st__Backdrop__set_visible[55],Condition( function sa__Backdrop__set_visible))
-    call TriggerAddAction(st__Backdrop__set_visible[55], function sa__Backdrop__set_visible)
-    set st__Backdrop__get_visible[55]=CreateTrigger()
-    set st__Backdrop__get_visible[67]=st__Backdrop__get_visible[55]
-    call TriggerAddCondition(st__Backdrop__get_visible[55],Condition( function sa__Backdrop__get_visible))
-    call TriggerAddAction(st__Backdrop__get_visible[55], function sa__Backdrop__get_visible)
-    set st__Backdrop__get_frame=CreateTrigger()
-    call TriggerAddCondition(st__Backdrop__get_frame,Condition( function sa__Backdrop__get_frame))
-    set st__Backdrop_create=CreateTrigger()
-    call TriggerAddCondition(st__Backdrop_create,Condition( function sa__Backdrop_create))
-    set st__Backdrop_onDestroy[55]=null
-    set st__Backdrop_onDestroy[67]=null
-    set st__Sprite__set_visible=CreateTrigger()
-    call TriggerAddCondition(st__Sprite__set_visible,Condition( function sa__Sprite__set_visible))
-    set st__Sprite__get_visible=CreateTrigger()
-    call TriggerAddCondition(st__Sprite__get_visible,Condition( function sa__Sprite__get_visible))
-    set st__Sprite__get_frame=CreateTrigger()
-    call TriggerAddCondition(st__Sprite__get_frame,Condition( function sa__Sprite__get_frame))
-    set st__Text__set_visible=CreateTrigger()
-    call TriggerAddCondition(st__Text__set_visible,Condition( function sa__Text__set_visible))
-    set st__Text__get_visible=CreateTrigger()
-    call TriggerAddCondition(st__Text__get_visible,Condition( function sa__Text__get_visible))
-    set st__Text__get_frame=CreateTrigger()
-    call TriggerAddCondition(st__Text__get_frame,Condition( function sa__Text__get_frame))
-    set st__TextArea__set_visible=CreateTrigger()
-    call TriggerAddCondition(st__TextArea__set_visible,Condition( function sa__TextArea__set_visible))
-    set st__TextArea__get_visible=CreateTrigger()
-    call TriggerAddCondition(st__TextArea__get_visible,Condition( function sa__TextArea__get_visible))
-    set st__TextArea__get_frame=CreateTrigger()
-    call TriggerAddCondition(st__TextArea__get_frame,Condition( function sa__TextArea__get_frame))
-    set st__StatusBar__set_visible=CreateTrigger()
-    call TriggerAddCondition(st__StatusBar__set_visible,Condition( function sa__StatusBar__set_visible))
-    set st__StatusBar__get_visible=CreateTrigger()
-    call TriggerAddCondition(st__StatusBar__get_visible,Condition( function sa__StatusBar__get_visible))
-    set st__StatusBar__get_frame=CreateTrigger()
-    call TriggerAddCondition(st__StatusBar__get_frame,Condition( function sa__StatusBar__get_frame))
-    set st__Component__set_visible[60]=CreateTrigger()
-    set st__Component__set_visible[65]=st__Component__set_visible[60]
-    set st__Component__set_visible[96]=st__Component__set_visible[65]
-    set st__Component__set_visible[141]=st__Component__set_visible[65]
-    set st__Component__set_visible[66]=st__Component__set_visible[60]
-    set st__Component__set_visible[94]=st__Component__set_visible[66]
-    set st__Component__set_visible[95]=st__Component__set_visible[66]
-    set st__Component__set_visible[99]=st__Component__set_visible[66]
-    set st__Component__set_visible[104]=st__Component__set_visible[66]
-    set st__Component__set_visible[142]=st__Component__set_visible[66]
-    set st__Component__set_visible[145]=st__Component__set_visible[66]
-    set st__Component__set_visible[146]=st__Component__set_visible[66]
-    call TriggerAddCondition(st__Component__set_visible[60],Condition( function sa__Component__set_visible))
-    call TriggerAddAction(st__Component__set_visible[60], function sa__Component__set_visible)
-    set st__Component__get_visible[60]=CreateTrigger()
-    set st__Component__get_visible[65]=st__Component__get_visible[60]
-    set st__Component__get_visible[96]=st__Component__get_visible[65]
-    set st__Component__get_visible[141]=st__Component__get_visible[65]
-    set st__Component__get_visible[66]=st__Component__get_visible[60]
-    set st__Component__get_visible[94]=st__Component__get_visible[66]
-    set st__Component__get_visible[95]=st__Component__get_visible[66]
-    set st__Component__get_visible[99]=st__Component__get_visible[66]
-    set st__Component__get_visible[104]=st__Component__get_visible[66]
-    set st__Component__get_visible[142]=st__Component__get_visible[66]
-    set st__Component__get_visible[145]=st__Component__get_visible[66]
-    set st__Component__get_visible[146]=st__Component__get_visible[66]
-    call TriggerAddCondition(st__Component__get_visible[60],Condition( function sa__Component__get_visible))
-    call TriggerAddAction(st__Component__get_visible[60], function sa__Component__get_visible)
-    set st__Component__get_frame=CreateTrigger()
-    call TriggerAddCondition(st__Component__get_frame,Condition( function sa__Component__get_frame))
-    set st__Component_get=CreateTrigger()
-    call TriggerAddCondition(st__Component_get,Condition( function sa__Component_get))
-    set st__Component_create=CreateTrigger()
-    call TriggerAddCondition(st__Component_create,Condition( function sa__Component_create))
-    set st__Components___Events_onDestroy[60]=null
-    set st__Components___Events_onDestroy[65]=null
-    set st__Components___Events_onDestroy[96]=null
-    set st__Components___Events_onDestroy[106]=null
-    set st__Components___Events_onDestroy[181]=null
-    set st__Components___Events_onDestroy[182]=null
-    set st__Components___Events_onDestroy[183]=null
-    set st__Components___Events_onDestroy[184]=null
-    set st__Components___Events_onDestroy[185]=null
-    set st__Components___Events_onDestroy[141]=null
-    set st__Components___Events_onDestroy[66]=null
-    set st__Components___Events_onDestroy[94]=null
-    set st__Components___Events_onDestroy[95]=null
-    set st__Components___Events_onDestroy[144]=null
-    set st__Components___Events_onDestroy[145]=null
-    set st__Components___Events_onDestroy[149]=null
+    set st__NewBonus___IBonus_get[99]=null
+    set st__NewBonus___IBonus_Set[99]=null
+    set st__NewBonus___IBonus_add[99]=null
+    set st__Missiles___MissileEvents_onHit[97]=null
+    set st__Missiles___MissileEvents_onHit[124]=null
+    set st__Missiles___MissileEvents_onHit[138]=null
+    set st__Missiles___MissileEvents_onMissile[97]=null
+    set st__Missiles___MissileEvents_onMissile[124]=null
+    set st__Missiles___MissileEvents_onMissile[138]=null
+    set st__Missiles___MissileEvents_onDestructable[97]=null
+    set st__Missiles___MissileEvents_onDestructable[124]=null
+    set st__Missiles___MissileEvents_onDestructable[138]=null
+    set st__Missiles___MissileEvents_onItem[97]=null
+    set st__Missiles___MissileEvents_onItem[124]=null
+    set st__Missiles___MissileEvents_onItem[138]=null
+    set st__Missiles___MissileEvents_onCliff[97]=null
+    set st__Missiles___MissileEvents_onCliff[124]=null
+    set st__Missiles___MissileEvents_onCliff[138]=null
+    set st__Missiles___MissileEvents_onTerrain[97]=null
+    set st__Missiles___MissileEvents_onTerrain[124]=null
+    set st__Missiles___MissileEvents_onTerrain[138]=null
+    set st__Missiles___MissileEvents_onTileset[97]=null
+    set st__Missiles___MissileEvents_onTileset[124]=null
+    set st__Missiles___MissileEvents_onTileset[138]=null
+    set st__Missiles___MissileEvents_onPeriod[97]=null
+    set st__Missiles___MissileEvents_onPeriod[138]=null
+    set st__Missiles___MissileEvents_onFinish[97]=null
+    set st__Missiles___MissileEvents_onBoundaries[97]=null
+    set st__Missiles___MissileEvents_onBoundaries[124]=null
+    set st__Missiles___MissileEvents_onBoundaries[138]=null
+    set st__Missiles___MissileEvents_onPause[97]=null
+    set st__Missiles___MissileEvents_onPause[124]=null
+    set st__Missiles___MissileEvents_onPause[138]=null
+    set st__Missiles___MissileEvents_onResume[97]=null
+    set st__Missiles___MissileEvents_onResume[124]=null
+    set st__Missiles___MissileEvents_onResume[138]=null
+    set st__Missiles___MissileEvents_onRemove[97]=null
+    set st__Missiles___MissileEvents_onRemove[124]=null
+    set st__Missiles___MissileEvents_onRemove[138]=null
     set st__ArcingTextTag_StartTimer=CreateTrigger()
     call TriggerAddCondition(st__ArcingTextTag_StartTimer,Condition( function sa__ArcingTextTag_StartTimer))
-    set st__EditBox__set_visible=CreateTrigger()
-    call TriggerAddCondition(st__EditBox__set_visible,Condition( function sa__EditBox__set_visible))
-    set st__EditBox__get_visible=CreateTrigger()
-    call TriggerAddCondition(st__EditBox__get_visible,Condition( function sa__EditBox__get_visible))
-    set st__EditBox__get_frame=CreateTrigger()
-    call TriggerAddCondition(st__EditBox__get_frame,Condition( function sa__EditBox__get_frame))
-    set st__EditBox_get=CreateTrigger()
-    call TriggerAddCondition(st__EditBox_get,Condition( function sa__EditBox_get))
-    set st__Components___Events_onDestroy[61]=null
     set st__Ability___IAbility_onCast[91]=null
-    set st__Ability___IAbility_onCast[124]=null
+    set st__Ability___IAbility_onCast[110]=null
     set st__Ability___IAbility_onLearn[91]=null
-    set st__Ability___IAbility_onLearn[124]=null
-    set st__Ability___IAbility_onLearn[137]=null
+    set st__Ability___IAbility_onLearn[110]=null
+    set st__Ability___IAbility_onLearn[120]=null
+    set st__Ability___IAbility_onLearn[123]=null
+    set st__Ability___IAbility_onLearn[125]=null
+    set st__Ability___IAbility_onLearn[139]=null
     set st__Ability___IAbility_onTooltip[91]=null
+    set st__Ability___IAbility_onTooltip[123]=null
     set st__Tenacity_get=CreateTrigger()
     call TriggerAddCondition(st__Tenacity_get,Condition( function sa__Tenacity_get))
     set st__Tenacity_Set=CreateTrigger()
@@ -30045,7 +28114,7 @@ function jasshelper__initstructs91889750 takes nothing returns nothing
     set st__Tenacity_print=CreateTrigger()
     call TriggerAddCondition(st__Tenacity_print,Condition( function sa__Tenacity_print))
     set st__Tenacity_onDestroy[83]=null
-    set st__Tenacity_onDestroy[114]=null
+    set st__Tenacity_onDestroy[100]=null
     set st__Tenacity___List_update=CreateTrigger()
     call TriggerAddCondition(st__Tenacity___List_update,Condition( function sa__Tenacity___List_update))
     set st__MagicResistance_get=CreateTrigger()
@@ -30088,10 +28157,144 @@ function jasshelper__initstructs91889750 takes nothing returns nothing
     call TriggerAddCondition(st__Damage_register,Condition( function sa__Damage_register))
     set st__CDR_onDestroy[69]=null
     set st__CDR_onDestroy[93]=null
-    set st__Panel_create=CreateTrigger()
-    call TriggerAddCondition(st__Panel_create,Condition( function sa__Panel_create))
-    set st__Button_create=CreateTrigger()
-    call TriggerAddCondition(st__Button_create,Condition( function sa__Button_create))
+    set st__Components___IComponent_onText[60]=null
+    set st__Components___IComponent_onText[65]=null
+    set st__Components___IComponent_onText[129]=null
+    set st__Components___IComponent_onText[66]=null
+    set st__Components___IComponent_onText[130]=null
+    set st__Components___IComponent_onText[132]=null
+    set st__Components___IComponent_onText[133]=null
+    set st__Components___IComponent_onText[134]=null
+    set st__Components___IComponent_onText[137]=null
+    set st__Components___IComponent_onText[61]=null
+    set st__Components___IComponent_onText[62]=null
+    set st__Components___IComponent_onText[64]=null
+    set st__Components___IComponent_onCheck[60]=null
+    set st__Components___IComponent_onCheck[65]=null
+    set st__Components___IComponent_onCheck[129]=null
+    set st__Components___IComponent_onCheck[66]=null
+    set st__Components___IComponent_onCheck[130]=null
+    set st__Components___IComponent_onCheck[132]=null
+    set st__Components___IComponent_onCheck[133]=null
+    set st__Components___IComponent_onCheck[134]=null
+    set st__Components___IComponent_onCheck[137]=null
+    set st__Components___IComponent_onCheck[61]=null
+    set st__Components___IComponent_onCheck[62]=null
+    set st__Components___IComponent_onCheck[64]=null
+    set st__Components___IComponent_onEnter[60]=null
+    set st__Components___IComponent_onEnter[65]=null
+    set st__Components___IComponent_onEnter[129]=null
+    set st__Components___IComponent_onEnter[66]=null
+    set st__Components___IComponent_onEnter[130]=null
+    set st__Components___IComponent_onEnter[132]=null
+    set st__Components___IComponent_onEnter[133]=null
+    set st__Components___IComponent_onEnter[134]=null
+    set st__Components___IComponent_onEnter[137]=null
+    set st__Components___IComponent_onEnter[61]=null
+    set st__Components___IComponent_onEnter[62]=null
+    set st__Components___IComponent_onEnter[64]=null
+    set st__Components___IComponent_onLeave[60]=null
+    set st__Components___IComponent_onLeave[65]=null
+    set st__Components___IComponent_onLeave[129]=null
+    set st__Components___IComponent_onLeave[66]=null
+    set st__Components___IComponent_onLeave[130]=null
+    set st__Components___IComponent_onLeave[132]=null
+    set st__Components___IComponent_onLeave[133]=null
+    set st__Components___IComponent_onLeave[134]=null
+    set st__Components___IComponent_onLeave[137]=null
+    set st__Components___IComponent_onLeave[61]=null
+    set st__Components___IComponent_onLeave[62]=null
+    set st__Components___IComponent_onLeave[64]=null
+    set st__Components___IComponent_onClick[60]=null
+    set st__Components___IComponent_onClick[65]=null
+    set st__Components___IComponent_onClick[66]=null
+    set st__Components___IComponent_onClick[130]=null
+    set st__Components___IComponent_onClick[132]=null
+    set st__Components___IComponent_onClick[133]=null
+    set st__Components___IComponent_onClick[134]=null
+    set st__Components___IComponent_onClick[137]=null
+    set st__Components___IComponent_onClick[61]=null
+    set st__Components___IComponent_onClick[62]=null
+    set st__Components___IComponent_onClick[64]=null
+    set st__Components___IComponent_onSlide[60]=null
+    set st__Components___IComponent_onSlide[65]=null
+    set st__Components___IComponent_onSlide[129]=null
+    set st__Components___IComponent_onSlide[66]=null
+    set st__Components___IComponent_onSlide[130]=null
+    set st__Components___IComponent_onSlide[132]=null
+    set st__Components___IComponent_onSlide[133]=null
+    set st__Components___IComponent_onSlide[134]=null
+    set st__Components___IComponent_onSlide[137]=null
+    set st__Components___IComponent_onSlide[61]=null
+    set st__Components___IComponent_onSlide[62]=null
+    set st__Components___IComponent_onSlide[64]=null
+    set st__Components___IComponent_onScroll[60]=null
+    set st__Components___IComponent_onScroll[65]=null
+    set st__Components___IComponent_onScroll[66]=null
+    set st__Components___IComponent_onScroll[133]=null
+    set st__Components___IComponent_onScroll[134]=null
+    set st__Components___IComponent_onScroll[61]=null
+    set st__Components___IComponent_onScroll[62]=null
+    set st__Components___IComponent_onScroll[64]=null
+    set st__Components___IComponent_onUncheck[60]=null
+    set st__Components___IComponent_onUncheck[65]=null
+    set st__Components___IComponent_onUncheck[129]=null
+    set st__Components___IComponent_onUncheck[66]=null
+    set st__Components___IComponent_onUncheck[130]=null
+    set st__Components___IComponent_onUncheck[132]=null
+    set st__Components___IComponent_onUncheck[133]=null
+    set st__Components___IComponent_onUncheck[134]=null
+    set st__Components___IComponent_onUncheck[137]=null
+    set st__Components___IComponent_onUncheck[61]=null
+    set st__Components___IComponent_onUncheck[62]=null
+    set st__Components___IComponent_onUncheck[64]=null
+    set st__Components___IComponent_onRightClick[60]=null
+    set st__Components___IComponent_onRightClick[65]=null
+    set st__Components___IComponent_onRightClick[66]=null
+    set st__Components___IComponent_onRightClick[130]=null
+    set st__Components___IComponent_onRightClick[132]=null
+    set st__Components___IComponent_onRightClick[133]=null
+    set st__Components___IComponent_onRightClick[134]=null
+    set st__Components___IComponent_onRightClick[137]=null
+    set st__Components___IComponent_onRightClick[61]=null
+    set st__Components___IComponent_onRightClick[62]=null
+    set st__Components___IComponent_onRightClick[64]=null
+    set st__Components___IComponent_onMiddleClick[60]=null
+    set st__Components___IComponent_onMiddleClick[65]=null
+    set st__Components___IComponent_onMiddleClick[66]=null
+    set st__Components___IComponent_onMiddleClick[130]=null
+    set st__Components___IComponent_onMiddleClick[132]=null
+    set st__Components___IComponent_onMiddleClick[133]=null
+    set st__Components___IComponent_onMiddleClick[134]=null
+    set st__Components___IComponent_onMiddleClick[137]=null
+    set st__Components___IComponent_onMiddleClick[61]=null
+    set st__Components___IComponent_onMiddleClick[62]=null
+    set st__Components___IComponent_onMiddleClick[64]=null
+    set st__Components___IComponent_onDoubleClick[60]=null
+    set st__Components___IComponent_onDoubleClick[65]=null
+    set st__Components___IComponent_onDoubleClick[66]=null
+    set st__Components___IComponent_onDoubleClick[130]=null
+    set st__Components___IComponent_onDoubleClick[132]=null
+    set st__Components___IComponent_onDoubleClick[133]=null
+    set st__Components___IComponent_onDoubleClick[134]=null
+    set st__Components___IComponent_onDoubleClick[137]=null
+    set st__Components___IComponent_onDoubleClick[61]=null
+    set st__Components___IComponent_onDoubleClick[62]=null
+    set st__Components___IComponent_onDoubleClick[64]=null
+    set st__Backdrop__set_visible[55]=CreateTrigger()
+    set st__Backdrop__set_visible[67]=st__Backdrop__set_visible[55]
+    call TriggerAddCondition(st__Backdrop__set_visible[55],Condition( function sa__Backdrop__set_visible))
+    call TriggerAddAction(st__Backdrop__set_visible[55], function sa__Backdrop__set_visible)
+    set st__Backdrop__get_visible[55]=CreateTrigger()
+    set st__Backdrop__get_visible[67]=st__Backdrop__get_visible[55]
+    call TriggerAddCondition(st__Backdrop__get_visible[55],Condition( function sa__Backdrop__get_visible))
+    call TriggerAddAction(st__Backdrop__get_visible[55], function sa__Backdrop__get_visible)
+    set st__Backdrop__get_frame=CreateTrigger()
+    call TriggerAddCondition(st__Backdrop__get_frame,Condition( function sa__Backdrop__get_frame))
+    set st__Backdrop_create=CreateTrigger()
+    call TriggerAddCondition(st__Backdrop_create,Condition( function sa__Backdrop_create))
+    set st__Backdrop_onDestroy[55]=null
+    set st__Backdrop_onDestroy[67]=null
     set st__Slider__set_visible=CreateTrigger()
     call TriggerAddCondition(st__Slider__set_visible,Condition( function sa__Slider__set_visible))
     set st__Slider__get_visible=CreateTrigger()
@@ -30100,7 +28303,7 @@ function jasshelper__initstructs91889750 takes nothing returns nothing
     call TriggerAddCondition(st__Slider__get_frame,Condition( function sa__Slider__get_frame))
     set st__Slider_get=CreateTrigger()
     call TriggerAddCondition(st__Slider_get,Condition( function sa__Slider_get))
-    set st__Components___Events_onDestroy[64]=null
+    set st__Components___IComponent_onDestroy[64]=null
     set st__CheckBox__set_visible=CreateTrigger()
     call TriggerAddCondition(st__CheckBox__set_visible,Condition( function sa__CheckBox__set_visible))
     set st__CheckBox__get_visible=CreateTrigger()
@@ -30109,109 +28312,96 @@ function jasshelper__initstructs91889750 takes nothing returns nothing
     call TriggerAddCondition(st__CheckBox__get_frame,Condition( function sa__CheckBox__get_frame))
     set st__CheckBox_get=CreateTrigger()
     call TriggerAddCondition(st__CheckBox_get,Condition( function sa__CheckBox_get))
-    set st__Components___Events_onDestroy[62]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onDestroy[62],Condition( function sa__CheckBox__disposeArrays))
-    set st__Component__set_visible[149]=CreateTrigger()
-    call TriggerAddCondition(st__Component__set_visible[149],Condition( function sa__Shop__set_visible))
-    call TriggerAddAction(st__Component__set_visible[149], function sa__Shop__set_visible)
-    set st__Component__get_visible[149]=CreateTrigger()
-    call TriggerAddCondition(st__Component__get_visible[149],Condition( function sa__Shop__get_visible))
-    call TriggerAddAction(st__Component__get_visible[149], function sa__Shop__get_visible)
-    set st__Shop_buy=CreateTrigger()
-    call TriggerAddCondition(st__Shop_buy,Condition( function sa__Shop_buy))
-    set st__Shop_sell=CreateTrigger()
-    call TriggerAddCondition(st__Shop_sell,Condition( function sa__Shop_sell))
-    set st__Shop_filter=CreateTrigger()
-    call TriggerAddCondition(st__Shop_filter,Condition( function sa__Shop_filter))
-    set st__Shop_detail=CreateTrigger()
-    call TriggerAddCondition(st__Shop_detail,Condition( function sa__Shop_detail))
-    set st__Shop_has=CreateTrigger()
-    call TriggerAddCondition(st__Shop_has,Condition( function sa__Shop_has))
-    set st__Shop_find=CreateTrigger()
-    call TriggerAddCondition(st__Shop_find,Condition( function sa__Shop_find))
-    set st__Shop_addCategory=CreateTrigger()
-    call TriggerAddCondition(st__Shop_addCategory,Condition( function sa__Shop_addCategory))
-    set st__Shop_addItem=CreateTrigger()
-    call TriggerAddCondition(st__Shop_addItem,Condition( function sa__Shop_addItem))
-    set st__Shop_create=CreateTrigger()
-    call TriggerAddCondition(st__Shop_create,Condition( function sa__Shop_create))
-    set st__Components___Events_onScroll[149]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onScroll[149],Condition( function sa__Shop_onScroll))
-    call TriggerAddAction(st__Components___Events_onScroll[149], function sa__Shop_onScroll)
-    set st__Shop_onSearch=CreateTrigger()
-    call TriggerAddCondition(st__Shop_onSearch,Condition( function sa__Shop_onSearch))
-    set st__Shop_onClose=CreateTrigger()
-    call TriggerAddCondition(st__Shop_onClose,Condition( function sa__Shop_onClose))
-    set st__Shop_onDismantle=CreateTrigger()
-    call TriggerAddCondition(st__Shop_onDismantle,Condition( function sa__Shop_onDismantle))
-    set st__Shop_onUndo=CreateTrigger()
-    call TriggerAddCondition(st__Shop_onUndo,Condition( function sa__Shop_onUndo))
+    set st__Components___IComponent_onDestroy[62]=CreateTrigger()
+    call TriggerAddCondition(st__Components___IComponent_onDestroy[62],Condition( function sa__CheckBox__disposeArrays))
+    set st__EditBox__set_visible=CreateTrigger()
+    call TriggerAddCondition(st__EditBox__set_visible,Condition( function sa__EditBox__set_visible))
+    set st__EditBox__get_visible=CreateTrigger()
+    call TriggerAddCondition(st__EditBox__get_visible,Condition( function sa__EditBox__get_visible))
+    set st__EditBox__get_frame=CreateTrigger()
+    call TriggerAddCondition(st__EditBox__get_frame,Condition( function sa__EditBox__get_frame))
+    set st__EditBox_get=CreateTrigger()
+    call TriggerAddCondition(st__EditBox_get,Condition( function sa__EditBox_get))
+    set st__Components___IComponent_onDestroy[61]=null
+    set st__Component__set_visible[60]=CreateTrigger()
+    set st__Component__set_visible[65]=st__Component__set_visible[60]
+    set st__Component__set_visible[129]=st__Component__set_visible[65]
+    set st__Component__set_visible[66]=st__Component__set_visible[60]
+    set st__Component__set_visible[130]=st__Component__set_visible[66]
+    set st__Component__set_visible[133]=st__Component__set_visible[66]
+    set st__Component__set_visible[134]=st__Component__set_visible[66]
+    call TriggerAddCondition(st__Component__set_visible[60],Condition( function sa__Component__set_visible))
+    call TriggerAddAction(st__Component__set_visible[60], function sa__Component__set_visible)
+    set st__Component__get_visible[60]=CreateTrigger()
+    set st__Component__get_visible[65]=st__Component__get_visible[60]
+    set st__Component__get_visible[129]=st__Component__get_visible[65]
+    set st__Component__get_visible[66]=st__Component__get_visible[60]
+    set st__Component__get_visible[130]=st__Component__get_visible[66]
+    set st__Component__get_visible[133]=st__Component__get_visible[66]
+    set st__Component__get_visible[134]=st__Component__get_visible[66]
+    call TriggerAddCondition(st__Component__get_visible[60],Condition( function sa__Component__get_visible))
+    call TriggerAddAction(st__Component__get_visible[60], function sa__Component__get_visible)
+    set st__Component__get_frame=CreateTrigger()
+    call TriggerAddCondition(st__Component__get_frame,Condition( function sa__Component__get_frame))
+    set st__Component_get=CreateTrigger()
+    call TriggerAddCondition(st__Component_get,Condition( function sa__Component_get))
+    set st__Component_create=CreateTrigger()
+    call TriggerAddCondition(st__Component_create,Condition( function sa__Component_create))
+    set st__Components___IComponent_onDestroy[60]=null
+    set st__Components___IComponent_onDestroy[65]=null
+    set st__Components___IComponent_onDestroy[129]=null
+    set st__Components___IComponent_onDestroy[66]=null
+    set st__Components___IComponent_onDestroy[132]=null
+    set st__Components___IComponent_onDestroy[133]=null
+    set st__Components___IComponent_onDestroy[137]=null
+    set st__StatusBar__set_visible=CreateTrigger()
+    call TriggerAddCondition(st__StatusBar__set_visible,Condition( function sa__StatusBar__set_visible))
+    set st__StatusBar__get_visible=CreateTrigger()
+    call TriggerAddCondition(st__StatusBar__get_visible,Condition( function sa__StatusBar__get_visible))
+    set st__StatusBar__get_frame=CreateTrigger()
+    call TriggerAddCondition(st__StatusBar__get_frame,Condition( function sa__StatusBar__get_frame))
+    set st__TextArea__set_visible=CreateTrigger()
+    call TriggerAddCondition(st__TextArea__set_visible,Condition( function sa__TextArea__set_visible))
+    set st__TextArea__get_visible=CreateTrigger()
+    call TriggerAddCondition(st__TextArea__get_visible,Condition( function sa__TextArea__get_visible))
+    set st__TextArea__get_frame=CreateTrigger()
+    call TriggerAddCondition(st__TextArea__get_frame,Condition( function sa__TextArea__get_frame))
+    set st__Text__set_visible=CreateTrigger()
+    call TriggerAddCondition(st__Text__set_visible,Condition( function sa__Text__set_visible))
+    set st__Text__get_visible=CreateTrigger()
+    call TriggerAddCondition(st__Text__get_visible,Condition( function sa__Text__get_visible))
+    set st__Text__get_frame=CreateTrigger()
+    call TriggerAddCondition(st__Text__get_frame,Condition( function sa__Text__get_frame))
+    set st__Sprite__set_visible=CreateTrigger()
+    call TriggerAddCondition(st__Sprite__set_visible,Condition( function sa__Sprite__set_visible))
+    set st__Sprite__get_visible=CreateTrigger()
+    call TriggerAddCondition(st__Sprite__get_visible,Condition( function sa__Sprite__get_visible))
+    set st__Sprite__get_frame=CreateTrigger()
+    call TriggerAddCondition(st__Sprite__get_frame,Condition( function sa__Sprite__get_frame))
+    set st__Item_calculate=CreateTrigger()
+    call TriggerAddCondition(st__Item_calculate,Condition( function sa__Item_calculate))
+    set st__Item_get=CreateTrigger()
+    call TriggerAddCondition(st__Item_get,Condition( function sa__Item_get))
+    set st__Item_create=CreateTrigger()
+    call TriggerAddCondition(st__Item_create,Condition( function sa__Item_create))
+    set st__Item_save=CreateTrigger()
+    call TriggerAddCondition(st__Item_save,Condition( function sa__Item_save))
+    set st__Item_clear=CreateTrigger()
+    call TriggerAddCondition(st__Item_clear,Condition( function sa__Item_clear))
+    set st__Item___IItem_onDestroy[117]=null
+    set st__Button_create=CreateTrigger()
+    call TriggerAddCondition(st__Button_create,Condition( function sa__Button_create))
+    set st__Panel_create=CreateTrigger()
+    call TriggerAddCondition(st__Panel_create,Condition( function sa__Panel_create))
     set st__Ability_onCasting=CreateTrigger()
     call TriggerAddCondition(st__Ability_onCasting,Condition( function sa__Ability_onCasting))
     set st__Ability___IAbility_onDestroy[91]=null
-    set st__Ability___IAbility_onDestroy[124]=null
-    set st__Ability___IAbility_onDestroy[135]=null
-    set st__Ability___IAbility_onDestroy[137]=null
-    set st__Interface___Options_onSlider=CreateTrigger()
-    call TriggerAddCondition(st__Interface___Options_onSlider,Condition( function sa__Interface___Options_onSlider))
-    set st__Interface___Options_onChecked=CreateTrigger()
-    call TriggerAddCondition(st__Interface___Options_onChecked,Condition( function sa__Interface___Options_onChecked))
-    set st__Interface___Options_onUnchecked=CreateTrigger()
-    call TriggerAddCondition(st__Interface___Options_onUnchecked,Condition( function sa__Interface___Options_onUnchecked))
-    set st__Components___Events_onClick[96]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onClick[96],Condition( function sa__Interface___Menu_onClick))
-    call TriggerAddAction(st__Components___Events_onClick[96], function sa__Interface___Menu_onClick)
-    set st__Component__set_visible[97]=CreateTrigger()
-    call TriggerAddCondition(st__Component__set_visible[97],Condition( function sa__Interface___Grid__set_visible))
-    call TriggerAddAction(st__Component__set_visible[97], function sa__Interface___Grid__set_visible)
-    set st__Component__get_visible[97]=CreateTrigger()
-    call TriggerAddCondition(st__Component__get_visible[97],Condition( function sa__Interface___Grid__get_visible))
-    call TriggerAddAction(st__Component__get_visible[97], function sa__Interface___Grid__get_visible)
-    set st__Components___Events_onDestroy[97]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onDestroy[97],Condition( function sa__Interface___Grid__disposeArrays))
-    set st__Interface___Portrait__set_opacity=CreateTrigger()
-    call TriggerAddCondition(st__Interface___Portrait__set_opacity,Condition( function sa__Interface___Portrait__set_opacity))
-    set st__Components___Events_onDestroy[99]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onDestroy[99],Condition( function sa__Interface___Portrait__disposeArrays))
-    set st__Component__set_visible[101]=CreateTrigger()
-    call TriggerAddCondition(st__Component__set_visible[101],Condition( function sa__Interface___Abilities__set_visible))
-    call TriggerAddAction(st__Component__set_visible[101], function sa__Interface___Abilities__set_visible)
-    set st__Component__get_visible[101]=CreateTrigger()
-    call TriggerAddCondition(st__Component__get_visible[101],Condition( function sa__Interface___Abilities__get_visible))
-    call TriggerAddAction(st__Component__get_visible[101], function sa__Interface___Abilities__get_visible)
-    set st__Interface___Abilities_onHover=CreateTrigger()
-    call TriggerAddCondition(st__Interface___Abilities_onHover,Condition( function sa__Interface___Abilities_onHover))
-    set st__Components___Events_onDestroy[101]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onDestroy[101],Condition( function sa__Interface___Abilities__disposeArrays))
-    set st__Components___Events_onDestroy[104]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onDestroy[104],Condition( function sa__Interface___Inventory__disposeArrays))
-    set st__Component__set_visible[106]=CreateTrigger()
-    set st__Component__set_visible[181]=st__Component__set_visible[106]
-    set st__Component__set_visible[182]=st__Component__set_visible[106]
-    set st__Component__set_visible[183]=st__Component__set_visible[106]
-    set st__Component__set_visible[184]=st__Component__set_visible[106]
-    set st__Component__set_visible[185]=st__Component__set_visible[106]
-    call TriggerAddCondition(st__Component__set_visible[106],Condition( function sa__Attribute__set_visible))
-    call TriggerAddAction(st__Component__set_visible[106], function sa__Attribute__set_visible)
-    set st__Component__get_visible[106]=CreateTrigger()
-    set st__Component__get_visible[181]=st__Component__get_visible[106]
-    set st__Component__get_visible[182]=st__Component__get_visible[106]
-    set st__Component__get_visible[183]=st__Component__get_visible[106]
-    set st__Component__get_visible[184]=st__Component__get_visible[106]
-    set st__Component__get_visible[185]=st__Component__get_visible[106]
-    call TriggerAddCondition(st__Component__get_visible[106],Condition( function sa__Attribute__get_visible))
-    call TriggerAddAction(st__Component__get_visible[106], function sa__Attribute__get_visible)
-    set st__Attribute_destroy=CreateTrigger()
-    call TriggerAddCondition(st__Attribute_destroy,Condition( function sa__Attribute_destroy))
-    set st__Attribute_update[106]=CreateTrigger()
-    call TriggerAddCondition(st__Attribute_update[106],Condition( function sa__Attribute_update))
-    call TriggerAddAction(st__Attribute_update[106], function sa__Attribute_update)
-    set st__Attribute_create=CreateTrigger()
-    call TriggerAddCondition(st__Attribute_create,Condition( function sa__Attribute_create))
-    set st__Attribute_onClicked=CreateTrigger()
-    call TriggerAddCondition(st__Attribute_onClicked,Condition( function sa__Attribute_onClicked))
-    set st__Attribute_onUpdate=CreateTrigger()
-    call TriggerAddCondition(st__Attribute_onUpdate,Condition( function sa__Attribute_onUpdate))
+    set st__Ability___IAbility_onDestroy[110]=null
+    set st__Ability___IAbility_onDestroy[120]=null
+    set st__Ability___IAbility_onDestroy[122]=null
+    set st__Ability___IAbility_onDestroy[123]=null
+    set st__Ability___IAbility_onDestroy[125]=null
+    set st__Ability___IAbility_onDestroy[139]=null
     set st__Missiles_terminate=CreateTrigger()
     call TriggerAddCondition(st__Missiles_terminate,Condition( function sa__Missiles_terminate))
     set st__Missiles_reset=CreateTrigger()
@@ -30220,125 +28410,127 @@ function jasshelper__initstructs91889750 takes nothing returns nothing
     call TriggerAddCondition(st__Missiles_move,Condition( function sa__Missiles_move))
     set st__Missiles_create=CreateTrigger()
     call TriggerAddCondition(st__Missiles_create,Condition( function sa__Missiles_create))
-    set st__Missiles___MissileEvents_onDestroy[111]=null
-    set st__Missiles___MissileEvents_onDestroy[136]=null
+    set st__Missiles___MissileEvents_onDestroy[97]=null
+    set st__Missiles___MissileEvents_onDestroy[124]=null
+    set st__Missiles___MissileEvents_onDestroy[138]=null
     set st__Bonus_adder=CreateTrigger()
     call TriggerAddCondition(st__Bonus_adder,Condition( function sa__Bonus_adder))
     set st__Bonus_onEvent=CreateTrigger()
     call TriggerAddCondition(st__Bonus_onEvent,Condition( function sa__Bonus_onEvent))
     set st__Bonus_StartTimer=CreateTrigger()
     call TriggerAddCondition(st__Bonus_StartTimer,Condition( function sa__Bonus_StartTimer))
-    set st__NewBonus___BonusType_onDestroy[113]=null
-    set st__NewBonus___BonusType_onDestroy[150]=null
-    set st__NewBonus___BonusType_onDestroy[151]=null
-    set st__NewBonus___BonusType_onDestroy[152]=null
-    set st__NewBonus___BonusType_onDestroy[153]=null
-    set st__NewBonus___BonusType_onDestroy[154]=null
-    set st__NewBonus___BonusType_onDestroy[155]=null
-    set st__NewBonus___BonusType_onDestroy[156]=null
-    set st__NewBonus___BonusType_onDestroy[157]=null
-    set st__NewBonus___BonusType_onDestroy[158]=null
-    set st__NewBonus___BonusType_onDestroy[159]=null
-    set st__NewBonus___BonusType_onDestroy[160]=null
-    set st__NewBonus___BonusType_onDestroy[161]=null
-    set st__NewBonus___BonusType_onDestroy[162]=null
-    set st__NewBonus___BonusType_onDestroy[163]=null
-    set st__NewBonus___BonusType_onDestroy[164]=null
-    set st__NewBonus___BonusType_onDestroy[165]=null
-    set st__NewBonus___BonusType_onDestroy[166]=null
-    set st__NewBonus___BonusType_onDestroy[167]=null
-    set st__NewBonus___BonusType_onDestroy[168]=null
-    set st__NewBonus___BonusType_onDestroy[169]=null
-    set st__NewBonus___BonusType_onDestroy[170]=null
-    set st__NewBonus___BonusType_onDestroy[171]=null
-    set st__NewBonus___BonusType_onDestroy[172]=null
-    set st__NewBonus___BonusType_onDestroy[173]=null
-    set st__NewBonus___BonusType_onDestroy[174]=null
-    set st__NewBonus___BonusType_onDestroy[175]=null
-    set st__NewBonus___BonusType_onDestroy[176]=null
-    set st__NewBonus___BonusType_onDestroy[177]=null
-    set st__NewBonus___BonusType_onDestroy[178]=null
-    set st__NewBonus___BonusType_onDestroy[179]=null
-    set st__NewBonus___BonusType_onDestroy[180]=null
+    set st__NewBonus___IBonus_onDestroy[99]=null
+    set st__NewBonus___IBonus_onDestroy[140]=null
+    set st__NewBonus___IBonus_onDestroy[141]=null
+    set st__NewBonus___IBonus_onDestroy[142]=null
+    set st__NewBonus___IBonus_onDestroy[143]=null
+    set st__NewBonus___IBonus_onDestroy[144]=null
+    set st__NewBonus___IBonus_onDestroy[145]=null
+    set st__NewBonus___IBonus_onDestroy[146]=null
+    set st__NewBonus___IBonus_onDestroy[147]=null
+    set st__NewBonus___IBonus_onDestroy[148]=null
+    set st__NewBonus___IBonus_onDestroy[149]=null
+    set st__NewBonus___IBonus_onDestroy[150]=null
+    set st__NewBonus___IBonus_onDestroy[151]=null
+    set st__NewBonus___IBonus_onDestroy[152]=null
+    set st__NewBonus___IBonus_onDestroy[153]=null
+    set st__NewBonus___IBonus_onDestroy[154]=null
+    set st__NewBonus___IBonus_onDestroy[155]=null
+    set st__NewBonus___IBonus_onDestroy[156]=null
+    set st__NewBonus___IBonus_onDestroy[157]=null
+    set st__NewBonus___IBonus_onDestroy[158]=null
+    set st__NewBonus___IBonus_onDestroy[159]=null
+    set st__NewBonus___IBonus_onDestroy[160]=null
+    set st__NewBonus___IBonus_onDestroy[161]=null
+    set st__NewBonus___IBonus_onDestroy[162]=null
+    set st__NewBonus___IBonus_onDestroy[163]=null
+    set st__NewBonus___IBonus_onDestroy[164]=null
+    set st__NewBonus___IBonus_onDestroy[165]=null
+    set st__NewBonus___IBonus_onDestroy[166]=null
+    set st__NewBonus___IBonus_onDestroy[167]=null
+    set st__NewBonus___IBonus_onDestroy[168]=null
+    set st__NewBonus___IBonus_onDestroy[169]=null
+    set st__NewBonus___IBonus_onDestroy[170]=null
     set st__TenacityUtils_addTimed=CreateTrigger()
     call TriggerAddCondition(st__TenacityUtils_addTimed,Condition( function sa__TenacityUtils_addTimed))
-    set st__Ability___IAbility_onTooltip[124]=CreateTrigger()
-    call TriggerAddCondition(st__Ability___IAbility_onTooltip[124],Condition( function sa__Afterburner__Afterburner_onTooltip))
-    call TriggerAddAction(st__Ability___IAbility_onTooltip[124], function sa__Afterburner__Afterburner_onTooltip)
-    set st__Afterburner__Afterburner_StartTimer=CreateTrigger()
-    call TriggerAddCondition(st__Afterburner__Afterburner_StartTimer,Condition( function sa__Afterburner__Afterburner_StartTimer))
-    set st__Item_calculate=CreateTrigger()
-    call TriggerAddCondition(st__Item_calculate,Condition( function sa__Item_calculate))
-    set st__Item_get=CreateTrigger()
-    call TriggerAddCondition(st__Item_get,Condition( function sa__Item_get))
-    set st__Item_addComponents=CreateTrigger()
-    call TriggerAddCondition(st__Item_addComponents,Condition( function sa__Item_addComponents))
-    set st__Item_hasType=CreateTrigger()
-    call TriggerAddCondition(st__Item_hasType,Condition( function sa__Item_hasType))
-    set st__Item_countType=CreateTrigger()
-    call TriggerAddCondition(st__Item_countType,Condition( function sa__Item_countType))
-    set st__Item_countComponent=CreateTrigger()
-    call TriggerAddCondition(st__Item_countComponent,Condition( function sa__Item_countComponent))
-    set st__Item_create=CreateTrigger()
-    call TriggerAddCondition(st__Item_create,Condition( function sa__Item_create))
-    set st__Item_save=CreateTrigger()
-    call TriggerAddCondition(st__Item_save,Condition( function sa__Item_save))
-    set st__Item_clear=CreateTrigger()
-    call TriggerAddCondition(st__Item_clear,Condition( function sa__Item_clear))
-    set st__Item___Events_onDestroy[131]=null
-    set st__Ability___IAbility_onTooltip[135]=CreateTrigger()
-    call TriggerAddCondition(st__Ability___IAbility_onTooltip[135],Condition( function sa__ExplosiveRune__ExplosiveRune_onTooltip))
-    call TriggerAddAction(st__Ability___IAbility_onTooltip[135], function sa__ExplosiveRune__ExplosiveRune_onTooltip)
-    set st__Ability___IAbility_onCast[135]=CreateTrigger()
-    call TriggerAddCondition(st__Ability___IAbility_onCast[135],Condition( function sa__ExplosiveRune__ExplosiveRune_onCast))
-    call TriggerAddAction(st__Ability___IAbility_onCast[135], function sa__ExplosiveRune__ExplosiveRune_onCast)
-    set st__Ability___IAbility_onLearn[135]=CreateTrigger()
-    call TriggerAddCondition(st__Ability___IAbility_onLearn[135],Condition( function sa__ExplosiveRune__ExplosiveRune_onLearn))
-    call TriggerAddAction(st__Ability___IAbility_onLearn[135], function sa__ExplosiveRune__ExplosiveRune_onLearn)
-    set st__ExplosiveRune__ExplosiveRune_HasStartedTimer=CreateTrigger()
-    call TriggerAddCondition(st__ExplosiveRune__ExplosiveRune_HasStartedTimer,Condition( function sa__ExplosiveRune__ExplosiveRune_HasStartedTimer))
-    set st__ExplosiveRune__ExplosiveRune_GetTimerInstance=CreateTrigger()
-    call TriggerAddCondition(st__ExplosiveRune__ExplosiveRune_GetTimerInstance,Condition( function sa__ExplosiveRune__ExplosiveRune_GetTimerInstance))
-    set st__ExplosiveRune__ExplosiveRune_GetRemainingTime=CreateTrigger()
-    call TriggerAddCondition(st__ExplosiveRune__ExplosiveRune_GetRemainingTime,Condition( function sa__ExplosiveRune__ExplosiveRune_GetRemainingTime))
-    set st__ExplosiveRune__ExplosiveRune_StartTimer=CreateTrigger()
-    call TriggerAddCondition(st__ExplosiveRune__ExplosiveRune_StartTimer,Condition( function sa__ExplosiveRune__ExplosiveRune_StartTimer))
-    set st__Missiles___MissileEvents_onPeriod[136]=CreateTrigger()
-    call TriggerAddCondition(st__Missiles___MissileEvents_onPeriod[136],Condition( function sa__LivingMeteor__Meteor_onPeriod))
-    call TriggerAddAction(st__Missiles___MissileEvents_onPeriod[136], function sa__LivingMeteor__Meteor_onPeriod)
-    set st__Missiles___MissileEvents_onFinish[136]=CreateTrigger()
-    call TriggerAddCondition(st__Missiles___MissileEvents_onFinish[136],Condition( function sa__LivingMeteor__Meteor_onFinish))
-    call TriggerAddAction(st__Missiles___MissileEvents_onFinish[136], function sa__LivingMeteor__Meteor_onFinish)
-    set st__Ability___IAbility_onTooltip[137]=CreateTrigger()
-    call TriggerAddCondition(st__Ability___IAbility_onTooltip[137],Condition( function sa__LivingMeteor__LivingMeteor_onTooltip))
-    call TriggerAddAction(st__Ability___IAbility_onTooltip[137], function sa__LivingMeteor__LivingMeteor_onTooltip)
-    set st__Ability___IAbility_onCast[137]=CreateTrigger()
-    call TriggerAddCondition(st__Ability___IAbility_onCast[137],Condition( function sa__LivingMeteor__LivingMeteor_onCast))
-    call TriggerAddAction(st__Ability___IAbility_onCast[137], function sa__LivingMeteor__LivingMeteor_onCast)
-    set st__LivingMeteor__LivingMeteor_StartTimer=CreateTrigger()
-    call TriggerAddCondition(st__LivingMeteor__LivingMeteor_StartTimer,Condition( function sa__LivingMeteor__LivingMeteor_StartTimer))
+    set st__Ability___IAbility_onTooltip[110]=CreateTrigger()
+    call TriggerAddCondition(st__Ability___IAbility_onTooltip[110],Condition( function sa__Afterburner___Afterburner_onTooltip))
+    call TriggerAddAction(st__Ability___IAbility_onTooltip[110], function sa__Afterburner___Afterburner_onTooltip)
+    set st__Afterburner___Afterburner_StartTimer=CreateTrigger()
+    call TriggerAddCondition(st__Afterburner___Afterburner_StartTimer,Condition( function sa__Afterburner___Afterburner_StartTimer))
+    set st__NewBonus___IBonus_get[170]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[170],Condition( function sa__CooldownReductionFlat___CooldownReductionFlat_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[170], function sa__CooldownReductionFlat___CooldownReductionFlat_get)
+    set st__NewBonus___IBonus_Set[170]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[170],Condition( function sa__CooldownReductionFlat___CooldownReductionFlat_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[170], function sa__CooldownReductionFlat___CooldownReductionFlat_Set)
+    set st__NewBonus___IBonus_add[170]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[170],Condition( function sa__CooldownReductionFlat___CooldownReductionFlat_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[170], function sa__CooldownReductionFlat___CooldownReductionFlat_add)
+    set st__Ability___IAbility_onTooltip[120]=CreateTrigger()
+    call TriggerAddCondition(st__Ability___IAbility_onTooltip[120],Condition( function sa__MoltenShield___MoltenShield_onTooltip))
+    call TriggerAddAction(st__Ability___IAbility_onTooltip[120], function sa__MoltenShield___MoltenShield_onTooltip)
+    set st__Ability___IAbility_onCast[120]=CreateTrigger()
+    call TriggerAddCondition(st__Ability___IAbility_onCast[120],Condition( function sa__MoltenShield___MoltenShield_onCast))
+    call TriggerAddAction(st__Ability___IAbility_onCast[120], function sa__MoltenShield___MoltenShield_onCast)
+    set st__MoltenShield___MoltenShield_StartTimer=CreateTrigger()
+    call TriggerAddCondition(st__MoltenShield___MoltenShield_StartTimer,Condition( function sa__MoltenShield___MoltenShield_StartTimer))
+    set st__Ability___IAbility_onTooltip[122]=CreateTrigger()
+    call TriggerAddCondition(st__Ability___IAbility_onTooltip[122],Condition( function sa__ExplosiveRune___ExplosiveRune_onTooltip))
+    call TriggerAddAction(st__Ability___IAbility_onTooltip[122], function sa__ExplosiveRune___ExplosiveRune_onTooltip)
+    set st__Ability___IAbility_onCast[122]=CreateTrigger()
+    call TriggerAddCondition(st__Ability___IAbility_onCast[122],Condition( function sa__ExplosiveRune___ExplosiveRune_onCast))
+    call TriggerAddAction(st__Ability___IAbility_onCast[122], function sa__ExplosiveRune___ExplosiveRune_onCast)
+    set st__Ability___IAbility_onLearn[122]=CreateTrigger()
+    call TriggerAddCondition(st__Ability___IAbility_onLearn[122],Condition( function sa__ExplosiveRune___ExplosiveRune_onLearn))
+    call TriggerAddAction(st__Ability___IAbility_onLearn[122], function sa__ExplosiveRune___ExplosiveRune_onLearn)
+    set st__ExplosiveRune___ExplosiveRune_HasStartedTimer=CreateTrigger()
+    call TriggerAddCondition(st__ExplosiveRune___ExplosiveRune_HasStartedTimer,Condition( function sa__ExplosiveRune___ExplosiveRune_HasStartedTimer))
+    set st__ExplosiveRune___ExplosiveRune_GetTimerInstance=CreateTrigger()
+    call TriggerAddCondition(st__ExplosiveRune___ExplosiveRune_GetTimerInstance,Condition( function sa__ExplosiveRune___ExplosiveRune_GetTimerInstance))
+    set st__ExplosiveRune___ExplosiveRune_GetRemainingTime=CreateTrigger()
+    call TriggerAddCondition(st__ExplosiveRune___ExplosiveRune_GetRemainingTime,Condition( function sa__ExplosiveRune___ExplosiveRune_GetRemainingTime))
+    set st__ExplosiveRune___ExplosiveRune_StartTimer=CreateTrigger()
+    call TriggerAddCondition(st__ExplosiveRune___ExplosiveRune_StartTimer,Condition( function sa__ExplosiveRune___ExplosiveRune_StartTimer))
+    set st__Ability___IAbility_onCast[123]=CreateTrigger()
+    call TriggerAddCondition(st__Ability___IAbility_onCast[123],Condition( function sa__LavaElemental___LavaElemental_onCast))
+    call TriggerAddAction(st__Ability___IAbility_onCast[123], function sa__LavaElemental___LavaElemental_onCast)
+    set st__Missiles___MissileEvents_onPeriod[124]=CreateTrigger()
+    call TriggerAddCondition(st__Missiles___MissileEvents_onPeriod[124],Condition( function sa__LivingMeteor___Meteor_onPeriod))
+    call TriggerAddAction(st__Missiles___MissileEvents_onPeriod[124], function sa__LivingMeteor___Meteor_onPeriod)
+    set st__Missiles___MissileEvents_onFinish[124]=CreateTrigger()
+    call TriggerAddCondition(st__Missiles___MissileEvents_onFinish[124],Condition( function sa__LivingMeteor___Meteor_onFinish))
+    call TriggerAddAction(st__Missiles___MissileEvents_onFinish[124], function sa__LivingMeteor___Meteor_onFinish)
+    set st__Ability___IAbility_onTooltip[125]=CreateTrigger()
+    call TriggerAddCondition(st__Ability___IAbility_onTooltip[125],Condition( function sa__LivingMeteor___LivingMeteor_onTooltip))
+    call TriggerAddAction(st__Ability___IAbility_onTooltip[125], function sa__LivingMeteor___LivingMeteor_onTooltip)
+    set st__Ability___IAbility_onCast[125]=CreateTrigger()
+    call TriggerAddCondition(st__Ability___IAbility_onCast[125],Condition( function sa__LivingMeteor___LivingMeteor_onCast))
+    call TriggerAddAction(st__Ability___IAbility_onCast[125], function sa__LivingMeteor___LivingMeteor_onCast)
+    set st__LivingMeteor___LivingMeteor_StartTimer=CreateTrigger()
+    call TriggerAddCondition(st__LivingMeteor___LivingMeteor_StartTimer,Condition( function sa__LivingMeteor___LivingMeteor_StartTimer))
     set st__Shop___Slot_update=CreateTrigger()
     call TriggerAddCondition(st__Shop___Slot_update,Condition( function sa__Shop___Slot_update))
-    set st__Components___Events_onScroll[141]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onScroll[141],Condition( function sa__Shop___Slot_onScroll))
-    call TriggerAddAction(st__Components___Events_onScroll[141], function sa__Shop___Slot_onScroll)
-    set st__Components___Events_onClick[141]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onClick[141],Condition( function sa__Shop___Slot_onClick))
-    call TriggerAddAction(st__Components___Events_onClick[141], function sa__Shop___Slot_onClick)
-    set st__Components___Events_onMiddleClick[141]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onMiddleClick[141],Condition( function sa__Shop___Slot_onMiddleClick))
-    call TriggerAddAction(st__Components___Events_onMiddleClick[141], function sa__Shop___Slot_onMiddleClick)
-    set st__Components___Events_onDoubleClick[141]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onDoubleClick[141],Condition( function sa__Shop___Slot_onDoubleClick))
-    call TriggerAddAction(st__Components___Events_onDoubleClick[141], function sa__Shop___Slot_onDoubleClick)
-    set st__Components___Events_onRightClick[141]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onRightClick[141],Condition( function sa__Shop___Slot_onRightClick))
-    call TriggerAddAction(st__Components___Events_onRightClick[141], function sa__Shop___Slot_onRightClick)
+    set st__Components___IComponent_onScroll[129]=CreateTrigger()
+    call TriggerAddCondition(st__Components___IComponent_onScroll[129],Condition( function sa__Shop___Slot_onScroll))
+    call TriggerAddAction(st__Components___IComponent_onScroll[129], function sa__Shop___Slot_onScroll)
+    set st__Components___IComponent_onClick[129]=CreateTrigger()
+    call TriggerAddCondition(st__Components___IComponent_onClick[129],Condition( function sa__Shop___Slot_onClick))
+    call TriggerAddAction(st__Components___IComponent_onClick[129], function sa__Shop___Slot_onClick)
+    set st__Components___IComponent_onMiddleClick[129]=CreateTrigger()
+    call TriggerAddCondition(st__Components___IComponent_onMiddleClick[129],Condition( function sa__Shop___Slot_onMiddleClick))
+    call TriggerAddAction(st__Components___IComponent_onMiddleClick[129], function sa__Shop___Slot_onMiddleClick)
+    set st__Components___IComponent_onDoubleClick[129]=CreateTrigger()
+    call TriggerAddCondition(st__Components___IComponent_onDoubleClick[129],Condition( function sa__Shop___Slot_onDoubleClick))
+    call TriggerAddAction(st__Components___IComponent_onDoubleClick[129], function sa__Shop___Slot_onDoubleClick)
+    set st__Components___IComponent_onRightClick[129]=CreateTrigger()
+    call TriggerAddCondition(st__Components___IComponent_onRightClick[129],Condition( function sa__Shop___Slot_onRightClick))
+    call TriggerAddAction(st__Components___IComponent_onRightClick[129], function sa__Shop___Slot_onRightClick)
     set st__Shop___Detail_show=CreateTrigger()
     call TriggerAddCondition(st__Shop___Detail_show,Condition( function sa__Shop___Detail_show))
-    set st__Components___Events_onScroll[142]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onScroll[142],Condition( function sa__Shop___Detail_onScroll))
-    call TriggerAddAction(st__Components___Events_onScroll[142], function sa__Shop___Detail_onScroll)
+    set st__Components___IComponent_onScroll[130]=CreateTrigger()
+    call TriggerAddCondition(st__Components___IComponent_onScroll[130],Condition( function sa__Shop___Detail_onScroll))
+    call TriggerAddAction(st__Components___IComponent_onScroll[130], function sa__Shop___Detail_onScroll)
     set st__Shop___Detail_onClicked=CreateTrigger()
     call TriggerAddCondition(st__Shop___Detail_onClicked,Condition( function sa__Shop___Detail_onClicked))
     set st__Shop___Detail_onScrolled=CreateTrigger()
@@ -30347,19 +28539,19 @@ function jasshelper__initstructs91889750 takes nothing returns nothing
     call TriggerAddCondition(st__Shop___Detail_onMiddleClicked,Condition( function sa__Shop___Detail_onMiddleClicked))
     set st__Shop___Detail_onRightClicked=CreateTrigger()
     call TriggerAddCondition(st__Shop___Detail_onRightClicked,Condition( function sa__Shop___Detail_onRightClicked))
-    set st__Components___Events_onDestroy[142]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onDestroy[142],Condition( function sa__Shop___Detail__disposeArrays))
-    set st__Component__set_visible[144]=CreateTrigger()
-    call TriggerAddCondition(st__Component__set_visible[144],Condition( function sa__Shop___Buyer__set_visible))
-    call TriggerAddAction(st__Component__set_visible[144], function sa__Shop___Buyer__set_visible)
-    set st__Component__get_visible[144]=CreateTrigger()
-    call TriggerAddCondition(st__Component__get_visible[144],Condition( function sa__Shop___Buyer__get_visible))
-    call TriggerAddAction(st__Component__get_visible[144], function sa__Shop___Buyer__get_visible)
+    set st__Components___IComponent_onDestroy[130]=CreateTrigger()
+    call TriggerAddCondition(st__Components___IComponent_onDestroy[130],Condition( function sa__Shop___Detail__disposeArrays))
+    set st__Component__set_visible[132]=CreateTrigger()
+    call TriggerAddCondition(st__Component__set_visible[132],Condition( function sa__Shop___Buyer__set_visible))
+    call TriggerAddAction(st__Component__set_visible[132], function sa__Shop___Buyer__set_visible)
+    set st__Component__get_visible[132]=CreateTrigger()
+    call TriggerAddCondition(st__Component__get_visible[132],Condition( function sa__Shop___Buyer__get_visible))
+    call TriggerAddAction(st__Component__get_visible[132], function sa__Shop___Buyer__get_visible)
     set st__Shop___Buyer__getindex=CreateTrigger()
     call TriggerAddCondition(st__Shop___Buyer__getindex,Condition( function sa__Shop___Buyer__getindex))
-    set st__Components___Events_onScroll[144]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onScroll[144],Condition( function sa__Shop___Buyer_onScroll))
-    call TriggerAddAction(st__Components___Events_onScroll[144], function sa__Shop___Buyer_onScroll)
+    set st__Components___IComponent_onScroll[132]=CreateTrigger()
+    call TriggerAddCondition(st__Components___IComponent_onScroll[132],Condition( function sa__Shop___Buyer_onScroll))
+    call TriggerAddAction(st__Components___IComponent_onScroll[132], function sa__Shop___Buyer_onScroll)
     set st__Shop___Buyer_onScrolled=CreateTrigger()
     call TriggerAddCondition(st__Shop___Buyer_onScrolled,Condition( function sa__Shop___Buyer_onScrolled))
     set st__Shop___Buyer_onClicked=CreateTrigger()
@@ -30386,302 +28578,322 @@ function jasshelper__initstructs91889750 takes nothing returns nothing
     call TriggerAddCondition(st__Shop___Category_onClear,Condition( function sa__Shop___Category_onClear))
     set st__Shop___Category_onLogic=CreateTrigger()
     call TriggerAddCondition(st__Shop___Category_onLogic,Condition( function sa__Shop___Category_onLogic))
-    set st__Components___Events_onDestroy[146]=CreateTrigger()
-    call TriggerAddCondition(st__Components___Events_onDestroy[146],Condition( function sa__Shop___Category__disposeArrays))
-    set st__Attribute_update[185]=CreateTrigger()
-    call TriggerAddCondition(st__Attribute_update[185],Condition( function sa__Attributes___MovementSpeed_update))
-    call TriggerAddAction(st__Attribute_update[185], function sa__Attributes___MovementSpeed_update)
-    set st__NewBonus___BonusType_get[150]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[150],Condition( function sa__MissChance___Miss_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[150], function sa__MissChance___Miss_get)
-    set st__NewBonus___BonusType_Set[150]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[150],Condition( function sa__MissChance___Miss_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[150], function sa__MissChance___Miss_Set)
-    set st__NewBonus___BonusType_add[150]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[150],Condition( function sa__MissChance___Miss_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[150], function sa__MissChance___Miss_add)
-    set st__NewBonus___BonusType_get[151]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[151],Condition( function sa__Armor___Armor_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[151], function sa__Armor___Armor_get)
-    set st__NewBonus___BonusType_Set[151]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[151],Condition( function sa__Armor___Armor_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[151], function sa__Armor___Armor_Set)
-    set st__NewBonus___BonusType_add[151]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[151],Condition( function sa__Armor___Armor_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[151], function sa__Armor___Armor_add)
-    set st__NewBonus___BonusType_get[152]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[152],Condition( function sa__Block___Block_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[152], function sa__Block___Block_get)
-    set st__NewBonus___BonusType_Set[152]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[152],Condition( function sa__Block___Block_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[152], function sa__Block___Block_Set)
-    set st__NewBonus___BonusType_add[152]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[152],Condition( function sa__Block___Block_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[152], function sa__Block___Block_add)
-    set st__NewBonus___BonusType_get[153]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[153],Condition( function sa__Mana___Mana_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[153], function sa__Mana___Mana_get)
-    set st__NewBonus___BonusType_Set[153]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[153],Condition( function sa__Mana___Mana_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[153], function sa__Mana___Mana_Set)
-    set st__NewBonus___BonusType_add[153]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[153],Condition( function sa__Mana___Mana_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[153], function sa__Mana___Mana_add)
-    set st__NewBonus___BonusType_get[154]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[154],Condition( function sa__Agility___Agility_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[154], function sa__Agility___Agility_get)
-    set st__NewBonus___BonusType_Set[154]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[154],Condition( function sa__Agility___Agility_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[154], function sa__Agility___Agility_Set)
-    set st__NewBonus___BonusType_add[154]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[154],Condition( function sa__Agility___Agility_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[154], function sa__Agility___Agility_add)
-    set st__NewBonus___BonusType_get[155]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[155],Condition( function sa__Health___Health_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[155], function sa__Health___Health_get)
-    set st__NewBonus___BonusType_Set[155]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[155],Condition( function sa__Health___Health_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[155], function sa__Health___Health_Set)
-    set st__NewBonus___BonusType_add[155]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[155],Condition( function sa__Health___Health_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[155], function sa__Health___Health_add)
-    set st__NewBonus___BonusType_get[156]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[156],Condition( function sa__EvasionChance___Evasion_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[156], function sa__EvasionChance___Evasion_get)
-    set st__NewBonus___BonusType_Set[156]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[156],Condition( function sa__EvasionChance___Evasion_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[156], function sa__EvasionChance___Evasion_Set)
-    set st__NewBonus___BonusType_add[156]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[156],Condition( function sa__EvasionChance___Evasion_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[156], function sa__EvasionChance___Evasion_add)
-    set st__NewBonus___BonusType_get[157]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[157],Condition( function sa__DamageBonus___Damage_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[157], function sa__DamageBonus___Damage_get)
-    set st__NewBonus___BonusType_Set[157]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[157],Condition( function sa__DamageBonus___Damage_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[157], function sa__DamageBonus___Damage_Set)
-    set st__NewBonus___BonusType_add[157]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[157],Condition( function sa__DamageBonus___Damage_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[157], function sa__DamageBonus___Damage_add)
-    set st__NewBonus___BonusType_get[158]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[158],Condition( function sa__Strength___Strength_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[158], function sa__Strength___Strength_get)
-    set st__NewBonus___BonusType_Set[158]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[158],Condition( function sa__Strength___Strength_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[158], function sa__Strength___Strength_Set)
-    set st__NewBonus___BonusType_add[158]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[158],Condition( function sa__Strength___Strength_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[158], function sa__Strength___Strength_add)
-    set st__NewBonus___BonusType_get[159]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[159],Condition( function sa__TenacityBonus___Tenacity_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[159], function sa__TenacityBonus___Tenacity_get)
-    set st__NewBonus___BonusType_Set[159]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[159],Condition( function sa__TenacityBonus___Tenacity_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[159], function sa__TenacityBonus___Tenacity_Set)
-    set st__NewBonus___BonusType_add[159]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[159],Condition( function sa__TenacityBonus___Tenacity_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[159], function sa__TenacityBonus___Tenacity_add)
-    set st__NewBonus___BonusType_get[160]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[160],Condition( function sa__LifeSteal___LifeSteal_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[160], function sa__LifeSteal___LifeSteal_get)
-    set st__NewBonus___BonusType_Set[160]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[160],Condition( function sa__LifeSteal___LifeSteal_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[160], function sa__LifeSteal___LifeSteal_Set)
-    set st__NewBonus___BonusType_add[160]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[160],Condition( function sa__LifeSteal___LifeSteal_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[160], function sa__LifeSteal___LifeSteal_add)
-    set st__NewBonus___BonusType_get[161]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[161],Condition( function sa__SpellVamp___SpellVamp_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[161], function sa__SpellVamp___SpellVamp_get)
-    set st__NewBonus___BonusType_Set[161]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[161],Condition( function sa__SpellVamp___SpellVamp_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[161], function sa__SpellVamp___SpellVamp_Set)
-    set st__NewBonus___BonusType_add[161]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[161],Condition( function sa__SpellVamp___SpellVamp_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[161], function sa__SpellVamp___SpellVamp_add)
-    set st__NewBonus___BonusType_get[162]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[162],Condition( function sa__SpellPower___SpellPower_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[162], function sa__SpellPower___SpellPower_get)
-    set st__NewBonus___BonusType_Set[162]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[162],Condition( function sa__SpellPower___SpellPower_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[162], function sa__SpellPower___SpellPower_Set)
-    set st__NewBonus___BonusType_add[162]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[162],Condition( function sa__SpellPower___SpellPower_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[162], function sa__SpellPower___SpellPower_add)
-    set st__NewBonus___BonusType_get[163]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[163],Condition( function sa__Intelligence___Intelligence_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[163], function sa__Intelligence___Intelligence_get)
-    set st__NewBonus___BonusType_Set[163]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[163],Condition( function sa__Intelligence___Intelligence_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[163], function sa__Intelligence___Intelligence_Set)
-    set st__NewBonus___BonusType_add[163]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[163],Condition( function sa__Intelligence___Intelligence_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[163], function sa__Intelligence___Intelligence_add)
-    set st__NewBonus___BonusType_get[164]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[164],Condition( function sa__SightRange___SightRange_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[164], function sa__SightRange___SightRange_get)
-    set st__NewBonus___BonusType_Set[164]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[164],Condition( function sa__SightRange___SightRange_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[164], function sa__SightRange___SightRange_Set)
-    set st__NewBonus___BonusType_add[164]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[164],Condition( function sa__SightRange___SightRange_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[164], function sa__SightRange___SightRange_add)
-    set st__NewBonus___BonusType_get[165]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[165],Condition( function sa__TenacityFlat___TenacityFlat_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[165], function sa__TenacityFlat___TenacityFlat_get)
-    set st__NewBonus___BonusType_Set[165]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[165],Condition( function sa__TenacityFlat___TenacityFlat_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[165], function sa__TenacityFlat___TenacityFlat_Set)
-    set st__NewBonus___BonusType_add[165]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[165],Condition( function sa__TenacityFlat___TenacityFlat_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[165], function sa__TenacityFlat___TenacityFlat_add)
-    set st__NewBonus___BonusType_get[166]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[166],Condition( function sa__AttackSpeed___AttackSpeed_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[166], function sa__AttackSpeed___AttackSpeed_get)
-    set st__NewBonus___BonusType_Set[166]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[166],Condition( function sa__AttackSpeed___AttackSpeed_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[166], function sa__AttackSpeed___AttackSpeed_Set)
-    set st__NewBonus___BonusType_add[166]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[166],Condition( function sa__AttackSpeed___AttackSpeed_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[166], function sa__AttackSpeed___AttackSpeed_add)
-    set st__NewBonus___BonusType_get[167]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[167],Condition( function sa__CriticalChance___CriticalChance_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[167], function sa__CriticalChance___CriticalChance_get)
-    set st__NewBonus___BonusType_Set[167]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[167],Condition( function sa__CriticalChance___CriticalChance_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[167], function sa__CriticalChance___CriticalChance_Set)
-    set st__NewBonus___BonusType_add[167]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[167],Condition( function sa__CriticalChance___CriticalChance_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[167], function sa__CriticalChance___CriticalChance_add)
-    set st__NewBonus___BonusType_get[168]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[168],Condition( function sa__CriticalDamage___CriticalDamage_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[168], function sa__CriticalDamage___CriticalDamage_get)
-    set st__NewBonus___BonusType_Set[168]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[168],Condition( function sa__CriticalDamage___CriticalDamage_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[168], function sa__CriticalDamage___CriticalDamage_Set)
-    set st__NewBonus___BonusType_add[168]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[168],Condition( function sa__CriticalDamage___CriticalDamage_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[168], function sa__CriticalDamage___CriticalDamage_add)
-    set st__NewBonus___BonusType_get[169]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[169],Condition( function sa__TenacityOffset___TenacityOffset_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[169], function sa__TenacityOffset___TenacityOffset_get)
-    set st__NewBonus___BonusType_Set[169]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[169],Condition( function sa__TenacityOffset___TenacityOffset_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[169], function sa__TenacityOffset___TenacityOffset_Set)
-    set st__NewBonus___BonusType_add[169]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[169],Condition( function sa__TenacityOffset___TenacityOffset_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[169], function sa__TenacityOffset___TenacityOffset_add)
-    set st__NewBonus___BonusType_get[170]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[170],Condition( function sa__CooldownOffset___CooldownOffset_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[170], function sa__CooldownOffset___CooldownOffset_get)
-    set st__NewBonus___BonusType_Set[170]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[170],Condition( function sa__CooldownOffset___CooldownOffset_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[170], function sa__CooldownOffset___CooldownOffset_Set)
-    set st__NewBonus___BonusType_add[170]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[170],Condition( function sa__CooldownOffset___CooldownOffset_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[170], function sa__CooldownOffset___CooldownOffset_add)
-    set st__NewBonus___BonusType_get[171]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[171],Condition( function sa__ArmorPenetration___ArmorPenetration_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[171], function sa__ArmorPenetration___ArmorPenetration_get)
-    set st__NewBonus___BonusType_Set[171]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[171],Condition( function sa__ArmorPenetration___ArmorPenetration_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[171], function sa__ArmorPenetration___ArmorPenetration_Set)
-    set st__NewBonus___BonusType_add[171]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[171],Condition( function sa__ArmorPenetration___ArmorPenetration_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[171], function sa__ArmorPenetration___ArmorPenetration_add)
-    set st__NewBonus___BonusType_get[172]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[172],Condition( function sa__MovementSpeed___MovementSpeed_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[172], function sa__MovementSpeed___MovementSpeed_get)
-    set st__NewBonus___BonusType_Set[172]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[172],Condition( function sa__MovementSpeed___MovementSpeed_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[172], function sa__MovementSpeed___MovementSpeed_Set)
-    set st__NewBonus___BonusType_add[172]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[172],Condition( function sa__MovementSpeed___MovementSpeed_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[172], function sa__MovementSpeed___MovementSpeed_add)
-    set st__NewBonus___BonusType_get[173]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[173],Condition( function sa__MagicResistence___MagicResistence_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[173], function sa__MagicResistence___MagicResistence_get)
-    set st__NewBonus___BonusType_Set[173]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[173],Condition( function sa__MagicResistence___MagicResistence_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[173], function sa__MagicResistence___MagicResistence_Set)
-    set st__NewBonus___BonusType_add[173]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[173],Condition( function sa__MagicResistence___MagicResistence_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[173], function sa__MagicResistence___MagicResistence_add)
-    set st__NewBonus___BonusType_get[174]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[174],Condition( function sa__MagicPenetration___MagicPenetration_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[174], function sa__MagicPenetration___MagicPenetration_get)
-    set st__NewBonus___BonusType_Set[174]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[174],Condition( function sa__MagicPenetration___MagicPenetration_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[174], function sa__MagicPenetration___MagicPenetration_Set)
-    set st__NewBonus___BonusType_add[174]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[174],Condition( function sa__MagicPenetration___MagicPenetration_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[174], function sa__MagicPenetration___MagicPenetration_add)
-    set st__NewBonus___BonusType_get[175]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[175],Condition( function sa__ManaRegeneration___ManaRegeneration_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[175], function sa__ManaRegeneration___ManaRegeneration_get)
-    set st__NewBonus___BonusType_Set[175]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[175],Condition( function sa__ManaRegeneration___ManaRegeneration_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[175], function sa__ManaRegeneration___ManaRegeneration_Set)
-    set st__NewBonus___BonusType_add[175]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[175],Condition( function sa__ManaRegeneration___ManaRegeneration_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[175], function sa__ManaRegeneration___ManaRegeneration_add)
-    set st__NewBonus___BonusType_get[176]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[176],Condition( function sa__HealthRegeneration___HealthRegeneration_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[176], function sa__HealthRegeneration___HealthRegeneration_get)
-    set st__NewBonus___BonusType_Set[176]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[176],Condition( function sa__HealthRegeneration___HealthRegeneration_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[176], function sa__HealthRegeneration___HealthRegeneration_Set)
-    set st__NewBonus___BonusType_add[176]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[176],Condition( function sa__HealthRegeneration___HealthRegeneration_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[176], function sa__HealthRegeneration___HealthRegeneration_add)
-    set st__NewBonus___BonusType_get[177]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[177],Condition( function sa__CooldownReductionBonus___CooldownReduction_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[177], function sa__CooldownReductionBonus___CooldownReduction_get)
-    set st__NewBonus___BonusType_Set[177]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[177],Condition( function sa__CooldownReductionBonus___CooldownReduction_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[177], function sa__CooldownReductionBonus___CooldownReduction_Set)
-    set st__NewBonus___BonusType_add[177]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[177],Condition( function sa__CooldownReductionBonus___CooldownReduction_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[177], function sa__CooldownReductionBonus___CooldownReduction_add)
-    set st__NewBonus___BonusType_get[178]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[178],Condition( function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[178], function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_get)
-    set st__NewBonus___BonusType_Set[178]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[178],Condition( function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[178], function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_Set)
-    set st__NewBonus___BonusType_add[178]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[178],Condition( function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[178], function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_add)
-    set st__NewBonus___BonusType_get[179]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[179],Condition( function sa__MagicPenetrationFlat___MagicPenetrationFlat_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[179], function sa__MagicPenetrationFlat___MagicPenetrationFlat_get)
-    set st__NewBonus___BonusType_Set[179]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[179],Condition( function sa__MagicPenetrationFlat___MagicPenetrationFlat_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[179], function sa__MagicPenetrationFlat___MagicPenetrationFlat_Set)
-    set st__NewBonus___BonusType_add[179]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[179],Condition( function sa__MagicPenetrationFlat___MagicPenetrationFlat_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[179], function sa__MagicPenetrationFlat___MagicPenetrationFlat_add)
-    set st__NewBonus___BonusType_get[180]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_get[180],Condition( function sa__CooldownReductionFlat___CooldownReductionFlat_get))
-    call TriggerAddAction(st__NewBonus___BonusType_get[180], function sa__CooldownReductionFlat___CooldownReductionFlat_get)
-    set st__NewBonus___BonusType_Set[180]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_Set[180],Condition( function sa__CooldownReductionFlat___CooldownReductionFlat_Set))
-    call TriggerAddAction(st__NewBonus___BonusType_Set[180], function sa__CooldownReductionFlat___CooldownReductionFlat_Set)
-    set st__NewBonus___BonusType_add[180]=CreateTrigger()
-    call TriggerAddCondition(st__NewBonus___BonusType_add[180],Condition( function sa__CooldownReductionFlat___CooldownReductionFlat_add))
-    call TriggerAddAction(st__NewBonus___BonusType_add[180], function sa__CooldownReductionFlat___CooldownReductionFlat_add)
-    set st__Attribute_update[181]=CreateTrigger()
-    call TriggerAddCondition(st__Attribute_update[181],Condition( function sa__Attributes___SpellPower_update))
-    call TriggerAddAction(st__Attribute_update[181], function sa__Attributes___SpellPower_update)
-    set st__Attribute_update[182]=CreateTrigger()
-    call TriggerAddCondition(st__Attribute_update[182],Condition( function sa__Attributes___CriticalStrike_update))
-    call TriggerAddAction(st__Attribute_update[182], function sa__Attributes___CriticalStrike_update)
-    set st__Attribute_update[183]=CreateTrigger()
-    call TriggerAddCondition(st__Attribute_update[183],Condition( function sa__Attributes___Evasion_update))
-    call TriggerAddAction(st__Attribute_update[183], function sa__Attributes___Evasion_update)
-    set st__Attribute_update[184]=CreateTrigger()
-    call TriggerAddCondition(st__Attribute_update[184],Condition( function sa__Attributes___LifeSteal_update))
-    call TriggerAddAction(st__Attribute_update[184], function sa__Attributes___LifeSteal_update)
+    set st__Components___IComponent_onDestroy[134]=CreateTrigger()
+    call TriggerAddCondition(st__Components___IComponent_onDestroy[134],Condition( function sa__Shop___Category__disposeArrays))
+    set st__Component__set_visible[137]=CreateTrigger()
+    call TriggerAddCondition(st__Component__set_visible[137],Condition( function sa__Shop__set_visible))
+    call TriggerAddAction(st__Component__set_visible[137], function sa__Shop__set_visible)
+    set st__Component__get_visible[137]=CreateTrigger()
+    call TriggerAddCondition(st__Component__get_visible[137],Condition( function sa__Shop__get_visible))
+    call TriggerAddAction(st__Component__get_visible[137], function sa__Shop__get_visible)
+    set st__Shop_buy=CreateTrigger()
+    call TriggerAddCondition(st__Shop_buy,Condition( function sa__Shop_buy))
+    set st__Shop_sell=CreateTrigger()
+    call TriggerAddCondition(st__Shop_sell,Condition( function sa__Shop_sell))
+    set st__Shop_filter=CreateTrigger()
+    call TriggerAddCondition(st__Shop_filter,Condition( function sa__Shop_filter))
+    set st__Shop_detail=CreateTrigger()
+    call TriggerAddCondition(st__Shop_detail,Condition( function sa__Shop_detail))
+    set st__Shop_has=CreateTrigger()
+    call TriggerAddCondition(st__Shop_has,Condition( function sa__Shop_has))
+    set st__Shop_find=CreateTrigger()
+    call TriggerAddCondition(st__Shop_find,Condition( function sa__Shop_find))
+    set st__Shop_addCategory=CreateTrigger()
+    call TriggerAddCondition(st__Shop_addCategory,Condition( function sa__Shop_addCategory))
+    set st__Shop_addItem=CreateTrigger()
+    call TriggerAddCondition(st__Shop_addItem,Condition( function sa__Shop_addItem))
+    set st__Shop_create=CreateTrigger()
+    call TriggerAddCondition(st__Shop_create,Condition( function sa__Shop_create))
+    set st__Components___IComponent_onScroll[137]=CreateTrigger()
+    call TriggerAddCondition(st__Components___IComponent_onScroll[137],Condition( function sa__Shop_onScroll))
+    call TriggerAddAction(st__Components___IComponent_onScroll[137], function sa__Shop_onScroll)
+    set st__Shop_onSearch=CreateTrigger()
+    call TriggerAddCondition(st__Shop_onSearch,Condition( function sa__Shop_onSearch))
+    set st__Shop_onClose=CreateTrigger()
+    call TriggerAddCondition(st__Shop_onClose,Condition( function sa__Shop_onClose))
+    set st__Shop_onDismantle=CreateTrigger()
+    call TriggerAddCondition(st__Shop_onDismantle,Condition( function sa__Shop_onDismantle))
+    set st__Shop_onUndo=CreateTrigger()
+    call TriggerAddCondition(st__Shop_onUndo,Condition( function sa__Shop_onUndo))
+    set st__Missiles___MissileEvents_onFinish[138]=CreateTrigger()
+    call TriggerAddCondition(st__Missiles___MissileEvents_onFinish[138],Condition( function sa__SulfurasSmash___Hammer_onFinish))
+    call TriggerAddAction(st__Missiles___MissileEvents_onFinish[138], function sa__SulfurasSmash___Hammer_onFinish)
+    set st__Ability___IAbility_onTooltip[139]=CreateTrigger()
+    call TriggerAddCondition(st__Ability___IAbility_onTooltip[139],Condition( function sa__SulfurasSmash___SulfurasSmash_onTooltip))
+    call TriggerAddAction(st__Ability___IAbility_onTooltip[139], function sa__SulfurasSmash___SulfurasSmash_onTooltip)
+    set st__Ability___IAbility_onCast[139]=CreateTrigger()
+    call TriggerAddCondition(st__Ability___IAbility_onCast[139],Condition( function sa__SulfurasSmash___SulfurasSmash_onCast))
+    call TriggerAddAction(st__Ability___IAbility_onCast[139], function sa__SulfurasSmash___SulfurasSmash_onCast)
+    set st__NewBonus___IBonus_get[140]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[140],Condition( function sa__MissChance___Miss_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[140], function sa__MissChance___Miss_get)
+    set st__NewBonus___IBonus_Set[140]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[140],Condition( function sa__MissChance___Miss_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[140], function sa__MissChance___Miss_Set)
+    set st__NewBonus___IBonus_add[140]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[140],Condition( function sa__MissChance___Miss_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[140], function sa__MissChance___Miss_add)
+    set st__NewBonus___IBonus_get[141]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[141],Condition( function sa__Armor___Armor_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[141], function sa__Armor___Armor_get)
+    set st__NewBonus___IBonus_Set[141]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[141],Condition( function sa__Armor___Armor_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[141], function sa__Armor___Armor_Set)
+    set st__NewBonus___IBonus_add[141]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[141],Condition( function sa__Armor___Armor_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[141], function sa__Armor___Armor_add)
+    set st__NewBonus___IBonus_get[142]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[142],Condition( function sa__Block___Block_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[142], function sa__Block___Block_get)
+    set st__NewBonus___IBonus_Set[142]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[142],Condition( function sa__Block___Block_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[142], function sa__Block___Block_Set)
+    set st__NewBonus___IBonus_add[142]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[142],Condition( function sa__Block___Block_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[142], function sa__Block___Block_add)
+    set st__NewBonus___IBonus_get[143]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[143],Condition( function sa__Mana___Mana_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[143], function sa__Mana___Mana_get)
+    set st__NewBonus___IBonus_Set[143]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[143],Condition( function sa__Mana___Mana_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[143], function sa__Mana___Mana_Set)
+    set st__NewBonus___IBonus_add[143]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[143],Condition( function sa__Mana___Mana_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[143], function sa__Mana___Mana_add)
+    set st__NewBonus___IBonus_get[144]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[144],Condition( function sa__Agility___Agility_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[144], function sa__Agility___Agility_get)
+    set st__NewBonus___IBonus_Set[144]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[144],Condition( function sa__Agility___Agility_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[144], function sa__Agility___Agility_Set)
+    set st__NewBonus___IBonus_add[144]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[144],Condition( function sa__Agility___Agility_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[144], function sa__Agility___Agility_add)
+    set st__NewBonus___IBonus_get[145]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[145],Condition( function sa__Health___Health_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[145], function sa__Health___Health_get)
+    set st__NewBonus___IBonus_Set[145]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[145],Condition( function sa__Health___Health_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[145], function sa__Health___Health_Set)
+    set st__NewBonus___IBonus_add[145]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[145],Condition( function sa__Health___Health_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[145], function sa__Health___Health_add)
+    set st__NewBonus___IBonus_get[146]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[146],Condition( function sa__EvasionChance___Evasion_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[146], function sa__EvasionChance___Evasion_get)
+    set st__NewBonus___IBonus_Set[146]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[146],Condition( function sa__EvasionChance___Evasion_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[146], function sa__EvasionChance___Evasion_Set)
+    set st__NewBonus___IBonus_add[146]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[146],Condition( function sa__EvasionChance___Evasion_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[146], function sa__EvasionChance___Evasion_add)
+    set st__NewBonus___IBonus_get[147]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[147],Condition( function sa__DamageBonus___Damage_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[147], function sa__DamageBonus___Damage_get)
+    set st__NewBonus___IBonus_Set[147]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[147],Condition( function sa__DamageBonus___Damage_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[147], function sa__DamageBonus___Damage_Set)
+    set st__NewBonus___IBonus_add[147]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[147],Condition( function sa__DamageBonus___Damage_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[147], function sa__DamageBonus___Damage_add)
+    set st__NewBonus___IBonus_get[148]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[148],Condition( function sa__Strength___Strength_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[148], function sa__Strength___Strength_get)
+    set st__NewBonus___IBonus_Set[148]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[148],Condition( function sa__Strength___Strength_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[148], function sa__Strength___Strength_Set)
+    set st__NewBonus___IBonus_add[148]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[148],Condition( function sa__Strength___Strength_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[148], function sa__Strength___Strength_add)
+    set st__NewBonus___IBonus_get[149]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[149],Condition( function sa__TenacityBonus___Tenacity_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[149], function sa__TenacityBonus___Tenacity_get)
+    set st__NewBonus___IBonus_Set[149]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[149],Condition( function sa__TenacityBonus___Tenacity_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[149], function sa__TenacityBonus___Tenacity_Set)
+    set st__NewBonus___IBonus_add[149]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[149],Condition( function sa__TenacityBonus___Tenacity_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[149], function sa__TenacityBonus___Tenacity_add)
+    set st__NewBonus___IBonus_get[150]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[150],Condition( function sa__LifeSteal___LifeSteal_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[150], function sa__LifeSteal___LifeSteal_get)
+    set st__NewBonus___IBonus_Set[150]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[150],Condition( function sa__LifeSteal___LifeSteal_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[150], function sa__LifeSteal___LifeSteal_Set)
+    set st__NewBonus___IBonus_add[150]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[150],Condition( function sa__LifeSteal___LifeSteal_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[150], function sa__LifeSteal___LifeSteal_add)
+    set st__NewBonus___IBonus_get[151]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[151],Condition( function sa__SpellVamp___SpellVamp_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[151], function sa__SpellVamp___SpellVamp_get)
+    set st__NewBonus___IBonus_Set[151]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[151],Condition( function sa__SpellVamp___SpellVamp_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[151], function sa__SpellVamp___SpellVamp_Set)
+    set st__NewBonus___IBonus_add[151]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[151],Condition( function sa__SpellVamp___SpellVamp_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[151], function sa__SpellVamp___SpellVamp_add)
+    set st__NewBonus___IBonus_get[152]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[152],Condition( function sa__SpellPower___SpellPower_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[152], function sa__SpellPower___SpellPower_get)
+    set st__NewBonus___IBonus_Set[152]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[152],Condition( function sa__SpellPower___SpellPower_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[152], function sa__SpellPower___SpellPower_Set)
+    set st__NewBonus___IBonus_add[152]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[152],Condition( function sa__SpellPower___SpellPower_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[152], function sa__SpellPower___SpellPower_add)
+    set st__NewBonus___IBonus_get[153]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[153],Condition( function sa__Intelligence___Intelligence_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[153], function sa__Intelligence___Intelligence_get)
+    set st__NewBonus___IBonus_Set[153]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[153],Condition( function sa__Intelligence___Intelligence_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[153], function sa__Intelligence___Intelligence_Set)
+    set st__NewBonus___IBonus_add[153]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[153],Condition( function sa__Intelligence___Intelligence_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[153], function sa__Intelligence___Intelligence_add)
+    set st__NewBonus___IBonus_get[154]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[154],Condition( function sa__SightRange___SightRange_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[154], function sa__SightRange___SightRange_get)
+    set st__NewBonus___IBonus_Set[154]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[154],Condition( function sa__SightRange___SightRange_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[154], function sa__SightRange___SightRange_Set)
+    set st__NewBonus___IBonus_add[154]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[154],Condition( function sa__SightRange___SightRange_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[154], function sa__SightRange___SightRange_add)
+    set st__NewBonus___IBonus_get[155]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[155],Condition( function sa__TenacityFlat___TenacityFlat_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[155], function sa__TenacityFlat___TenacityFlat_get)
+    set st__NewBonus___IBonus_Set[155]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[155],Condition( function sa__TenacityFlat___TenacityFlat_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[155], function sa__TenacityFlat___TenacityFlat_Set)
+    set st__NewBonus___IBonus_add[155]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[155],Condition( function sa__TenacityFlat___TenacityFlat_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[155], function sa__TenacityFlat___TenacityFlat_add)
+    set st__NewBonus___IBonus_get[156]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[156],Condition( function sa__AttackSpeed___AttackSpeed_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[156], function sa__AttackSpeed___AttackSpeed_get)
+    set st__NewBonus___IBonus_Set[156]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[156],Condition( function sa__AttackSpeed___AttackSpeed_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[156], function sa__AttackSpeed___AttackSpeed_Set)
+    set st__NewBonus___IBonus_add[156]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[156],Condition( function sa__AttackSpeed___AttackSpeed_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[156], function sa__AttackSpeed___AttackSpeed_add)
+    set st__NewBonus___IBonus_get[157]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[157],Condition( function sa__CriticalChance___CriticalChance_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[157], function sa__CriticalChance___CriticalChance_get)
+    set st__NewBonus___IBonus_Set[157]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[157],Condition( function sa__CriticalChance___CriticalChance_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[157], function sa__CriticalChance___CriticalChance_Set)
+    set st__NewBonus___IBonus_add[157]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[157],Condition( function sa__CriticalChance___CriticalChance_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[157], function sa__CriticalChance___CriticalChance_add)
+    set st__NewBonus___IBonus_get[158]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[158],Condition( function sa__CriticalDamage___CriticalDamage_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[158], function sa__CriticalDamage___CriticalDamage_get)
+    set st__NewBonus___IBonus_Set[158]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[158],Condition( function sa__CriticalDamage___CriticalDamage_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[158], function sa__CriticalDamage___CriticalDamage_Set)
+    set st__NewBonus___IBonus_add[158]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[158],Condition( function sa__CriticalDamage___CriticalDamage_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[158], function sa__CriticalDamage___CriticalDamage_add)
+    set st__NewBonus___IBonus_get[159]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[159],Condition( function sa__TenacityOffset___TenacityOffset_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[159], function sa__TenacityOffset___TenacityOffset_get)
+    set st__NewBonus___IBonus_Set[159]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[159],Condition( function sa__TenacityOffset___TenacityOffset_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[159], function sa__TenacityOffset___TenacityOffset_Set)
+    set st__NewBonus___IBonus_add[159]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[159],Condition( function sa__TenacityOffset___TenacityOffset_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[159], function sa__TenacityOffset___TenacityOffset_add)
+    set st__NewBonus___IBonus_get[160]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[160],Condition( function sa__CooldownOffset___CooldownOffset_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[160], function sa__CooldownOffset___CooldownOffset_get)
+    set st__NewBonus___IBonus_Set[160]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[160],Condition( function sa__CooldownOffset___CooldownOffset_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[160], function sa__CooldownOffset___CooldownOffset_Set)
+    set st__NewBonus___IBonus_add[160]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[160],Condition( function sa__CooldownOffset___CooldownOffset_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[160], function sa__CooldownOffset___CooldownOffset_add)
+    set st__NewBonus___IBonus_get[161]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[161],Condition( function sa__ArmorPenetration___ArmorPenetration_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[161], function sa__ArmorPenetration___ArmorPenetration_get)
+    set st__NewBonus___IBonus_Set[161]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[161],Condition( function sa__ArmorPenetration___ArmorPenetration_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[161], function sa__ArmorPenetration___ArmorPenetration_Set)
+    set st__NewBonus___IBonus_add[161]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[161],Condition( function sa__ArmorPenetration___ArmorPenetration_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[161], function sa__ArmorPenetration___ArmorPenetration_add)
+    set st__NewBonus___IBonus_get[162]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[162],Condition( function sa__MovementSpeed___MovementSpeed_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[162], function sa__MovementSpeed___MovementSpeed_get)
+    set st__NewBonus___IBonus_Set[162]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[162],Condition( function sa__MovementSpeed___MovementSpeed_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[162], function sa__MovementSpeed___MovementSpeed_Set)
+    set st__NewBonus___IBonus_add[162]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[162],Condition( function sa__MovementSpeed___MovementSpeed_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[162], function sa__MovementSpeed___MovementSpeed_add)
+    set st__NewBonus___IBonus_get[163]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[163],Condition( function sa__MagicResistence___MagicResistence_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[163], function sa__MagicResistence___MagicResistence_get)
+    set st__NewBonus___IBonus_Set[163]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[163],Condition( function sa__MagicResistence___MagicResistence_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[163], function sa__MagicResistence___MagicResistence_Set)
+    set st__NewBonus___IBonus_add[163]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[163],Condition( function sa__MagicResistence___MagicResistence_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[163], function sa__MagicResistence___MagicResistence_add)
+    set st__NewBonus___IBonus_get[164]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[164],Condition( function sa__MagicPenetration___MagicPenetration_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[164], function sa__MagicPenetration___MagicPenetration_get)
+    set st__NewBonus___IBonus_Set[164]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[164],Condition( function sa__MagicPenetration___MagicPenetration_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[164], function sa__MagicPenetration___MagicPenetration_Set)
+    set st__NewBonus___IBonus_add[164]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[164],Condition( function sa__MagicPenetration___MagicPenetration_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[164], function sa__MagicPenetration___MagicPenetration_add)
+    set st__NewBonus___IBonus_get[165]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[165],Condition( function sa__ManaRegeneration___ManaRegeneration_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[165], function sa__ManaRegeneration___ManaRegeneration_get)
+    set st__NewBonus___IBonus_Set[165]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[165],Condition( function sa__ManaRegeneration___ManaRegeneration_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[165], function sa__ManaRegeneration___ManaRegeneration_Set)
+    set st__NewBonus___IBonus_add[165]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[165],Condition( function sa__ManaRegeneration___ManaRegeneration_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[165], function sa__ManaRegeneration___ManaRegeneration_add)
+    set st__NewBonus___IBonus_get[166]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[166],Condition( function sa__HealthRegeneration___HealthRegeneration_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[166], function sa__HealthRegeneration___HealthRegeneration_get)
+    set st__NewBonus___IBonus_Set[166]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[166],Condition( function sa__HealthRegeneration___HealthRegeneration_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[166], function sa__HealthRegeneration___HealthRegeneration_Set)
+    set st__NewBonus___IBonus_add[166]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[166],Condition( function sa__HealthRegeneration___HealthRegeneration_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[166], function sa__HealthRegeneration___HealthRegeneration_add)
+    set st__NewBonus___IBonus_get[167]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[167],Condition( function sa__CooldownReductionBonus___CooldownReduction_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[167], function sa__CooldownReductionBonus___CooldownReduction_get)
+    set st__NewBonus___IBonus_Set[167]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[167],Condition( function sa__CooldownReductionBonus___CooldownReduction_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[167], function sa__CooldownReductionBonus___CooldownReduction_Set)
+    set st__NewBonus___IBonus_add[167]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[167],Condition( function sa__CooldownReductionBonus___CooldownReduction_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[167], function sa__CooldownReductionBonus___CooldownReduction_add)
+    set st__NewBonus___IBonus_get[168]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[168],Condition( function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[168], function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_get)
+    set st__NewBonus___IBonus_Set[168]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[168],Condition( function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[168], function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_Set)
+    set st__NewBonus___IBonus_add[168]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[168],Condition( function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[168], function sa__ArmorPenetrationFlat___ArmorPenetrationFlat_add)
+    set st__NewBonus___IBonus_get[169]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_get[169],Condition( function sa__MagicPenetrationFlat___MagicPenetrationFlat_get))
+    call TriggerAddAction(st__NewBonus___IBonus_get[169], function sa__MagicPenetrationFlat___MagicPenetrationFlat_get)
+    set st__NewBonus___IBonus_Set[169]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_Set[169],Condition( function sa__MagicPenetrationFlat___MagicPenetrationFlat_Set))
+    call TriggerAddAction(st__NewBonus___IBonus_Set[169], function sa__MagicPenetrationFlat___MagicPenetrationFlat_Set)
+    set st__NewBonus___IBonus_add[169]=CreateTrigger()
+    call TriggerAddCondition(st__NewBonus___IBonus_add[169],Condition( function sa__MagicPenetrationFlat___MagicPenetrationFlat_add))
+    call TriggerAddAction(st__NewBonus___IBonus_add[169], function sa__MagicPenetrationFlat___MagicPenetrationFlat_add)
     set st___prototype3[1]=CreateTrigger()
     call TriggerAddAction(st___prototype3[1],function sa___prototype3_TimerUtils___init)
     call TriggerAddCondition(st___prototype3[1],Condition(function sa___prototype3_TimerUtils___init))
@@ -30798,20 +29010,6 @@ call ExecuteFunc("s__ArcingTextTag_Periodic___onInit")
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 call ExecuteFunc("s__Bonus_Periodic___onInit")
 
 
@@ -30824,7 +29022,7 @@ call ExecuteFunc("s__Bonus_Periodic___onInit")
 
 
 
-call ExecuteFunc("s__Afterburner__Afterburner_Periodic___onInit")
+call ExecuteFunc("s__Afterburner___Afterburner_Periodic___onInit")
 
 
 
@@ -30835,14 +29033,14 @@ call ExecuteFunc("s__Afterburner__Afterburner_Periodic___onInit")
 
 
 
-
-call ExecuteFunc("s__ExplosiveRune__ExplosiveRune_Periodic___onInit")
-
-
-call ExecuteFunc("s__LivingMeteor__LivingMeteor_Periodic___onInit")
+call ExecuteFunc("s__MoltenShield___MoltenShield_Periodic___onInit")
 
 
+call ExecuteFunc("s__ExplosiveRune___ExplosiveRune_Periodic___onInit")
 
+
+
+call ExecuteFunc("s__LivingMeteor___LivingMeteor_Periodic___onInit")
 
 
 
@@ -30903,28 +29101,25 @@ call ExecuteFunc("s__LivingMeteor__LivingMeteor_Periodic___onInit")
     call ExecuteFunc("s__Tenacity_onInit")
     call ExecuteFunc("s__Ability_onInit")
     call ExecuteFunc("s__ArcingTextTag_onInit")
-    call ExecuteFunc("s__Interface___Options_onInit")
-    call ExecuteFunc("s__Interface___Grid_onInit")
-    call ExecuteFunc("s__Interface___Portrait_onInit")
-    call ExecuteFunc("s__Interface___Abilities_onInit")
-    call ExecuteFunc("s__Attribute_onInit")
-    call ExecuteFunc("s__UI_onInit")
     call ExecuteFunc("s__Missiles___Pool_onInit")
     call ExecuteFunc("s__Bonus_onInit")
     call ExecuteFunc("s__DummyPool_onInit")
     call ExecuteFunc("s__EffectLink_onInit")
-    call ExecuteFunc("s__Afterburner__Afterburner_onInit")
+    call ExecuteFunc("s__Afterburner___Afterburner_onInit")
     call ExecuteFunc("s__Fear_onInit")
     call ExecuteFunc("s__Taunt_onInit")
     call ExecuteFunc("s__CrowdControl_onInit")
     call ExecuteFunc("s__Item_onInit")
+    call ExecuteFunc("s__MoltenShield___MoltenShield_onInit")
     call ExecuteFunc("s__Sulfuras_onInit")
-    call ExecuteFunc("s__ExplosiveRune__ExplosiveRune_onInit")
-    call ExecuteFunc("s__LivingMeteor__LivingMeteor_onInit")
+    call ExecuteFunc("s__ExplosiveRune___ExplosiveRune_onInit")
+    call ExecuteFunc("s__LavaElemental___LavaElemental_onInit")
+    call ExecuteFunc("s__LivingMeteor___LivingMeteor_onInit")
     call ExecuteFunc("s__Shop___Sound_onInit")
     call ExecuteFunc("s__Shop___Transaction_onInit")
     call ExecuteFunc("s__Shop___Buyer_onInit")
     call ExecuteFunc("s__Shop_onInit")
+    call ExecuteFunc("s__SulfurasSmash___SulfurasSmash_onInit")
     call ExecuteFunc("s__MissChance___Miss_onInit")
     call ExecuteFunc("s__Armor___Armor_onInit")
     call ExecuteFunc("s__Block___Block_onInit")
@@ -30956,13 +29151,8 @@ call ExecuteFunc("s__LivingMeteor__LivingMeteor_Periodic___onInit")
     call ExecuteFunc("s__ArmorPenetrationFlat___ArmorPenetrationFlat_onInit")
     call ExecuteFunc("s__MagicPenetrationFlat___MagicPenetrationFlat_onInit")
     call ExecuteFunc("s__CooldownReductionFlat___CooldownReductionFlat_onInit")
-    call ExecuteFunc("s__Attributes___SpellPower_onInit")
-    call ExecuteFunc("s__Attributes___CriticalStrike_onInit")
-    call ExecuteFunc("s__Attributes___Evasion_onInit")
-    call ExecuteFunc("s__Attributes___LifeSteal_onInit")
-    call ExecuteFunc("s__Attributes___MovementSpeed_onInit")
-    call ExecuteFunc("s__Revive__Revive_onInit")
-    call ExecuteFunc("s__Spawn__Revive_onInit")
-    call ExecuteFunc("s__OnDamage__OnDamage_onInit")
+    call ExecuteFunc("s__Revive___Revive_onInit")
+    call ExecuteFunc("s__Spawn___Revive_onInit")
+    call ExecuteFunc("s__OnDamage___OnDamage_onInit")
 endfunction
 

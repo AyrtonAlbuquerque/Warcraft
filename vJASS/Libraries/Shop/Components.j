@@ -42,7 +42,7 @@ library Components requires Table
     /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
-    private interface Events
+    private interface IComponent
         method onText takes nothing returns nothing defaults nothing
         method onCheck takes nothing returns nothing defaults nothing
         method onEnter takes nothing returns nothing defaults nothing
@@ -710,7 +710,7 @@ library Components requires Table
         endmethod
     endstruct
 
-    struct Component extends Events
+    struct Component extends IComponent
         private static trigger click = CreateTrigger()
         private static trigger enter = CreateTrigger()
         private static trigger leave = CreateTrigger()
@@ -1029,7 +1029,7 @@ library Components requires Table
         endmethod
     endstruct
 
-    struct EditBox extends Events
+    struct EditBox extends IComponent
         private static trigger typing = CreateTrigger()
         private static trigger enter = CreateTrigger()
         private static Table table
@@ -1166,7 +1166,7 @@ library Components requires Table
         endmethod
     endstruct
 
-    struct CheckBox extends Events
+    struct CheckBox extends IComponent
         private static trigger event = CreateTrigger()
         private static Table table
 
@@ -1280,7 +1280,7 @@ library Components requires Table
         endmethod
     endstruct
 
-    struct Slider extends Events
+    struct Slider extends IComponent
         private static trigger event = CreateTrigger()
         private static Table table
 

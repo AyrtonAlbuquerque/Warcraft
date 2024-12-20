@@ -1,12 +1,11 @@
-library LavaElemental requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, NewBonus optional Sulfuras
+library LavaElemental requires Ability, RegisterPlayerUnitEvent, PluginSpellEffect, NewBonus optional Sulfuras
     /* -------------------- Lava Elemental v1.6 by Chopinski -------------------- */
     // Credits:
     //     Henry         - Lava Elemental model (warcraft3undergorund.com)
     //     Empyreal      - fire base model (xgmguru.ru)
     //     Mythic        - Pillar of Flame model
     //     Blizzard      - icon (edited by me)
-    //     Magtheridon96 - RegisterPlayerUnitEvent 
-    //     Bribe         - SpellEffectEvent and UnitIndexer
+    //     Magtheridon96 - RegisterPlayerUnitEvent
     /* ----------------------------------- END ---------------------------------- */
     
     /* -------------------------------------------------------------------------- */
@@ -38,62 +37,44 @@ library LavaElemental requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
         static if LIBRARY_Sulfuras then
             return R2I(50 + 0.25 * level * Sulfuras.stacks[GetUnitUserData(u)])
         else
-            return 25 + 25*level
+            return 25 + 25 * level
         endif
     endfunction
 
     // The amount of health the Lava Elemental has
     private function GetElementalHealth takes unit u, integer level returns integer
-        return R2I(500*level + BlzGetUnitMaxHP(u)*0.3)
+        return R2I(500 * level + BlzGetUnitMaxHP(u) * 0.3)
     endfunction
     
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct LavaElemental
-        static integer array n
+    private struct LavaElemental extends Ability
+        private static integer array array
 
         unit unit
+        integer id
         effect effect
-        integer index
 
         method destroy takes nothing returns nothing
             set unit = null
             set effect = null
-            set n[index] = 0
+            set array[id] = 0
 
             call deallocate()
         endmethod
 
-        private static method onDeath takes nothing returns nothing
-            local unit killed = GetTriggerUnit()
-            local integer index = GetUnitUserData(killed)
-            local integer id = GetUnitTypeId(killed)
-            local thistype this
-
-            if id == LAVA_ELEMENTAL and n[index] != 0 then
-                set this = n[index]
-                
-                call UnitRemoveAbility(unit, 'Abun')
-                call ShowUnit(unit, true)
-                call SetUnitInvulnerable(unit, false)
-                call DestroyEffect(effect)
-                call destroy()
-            endif
-
-            set killed = null
-        endmethod
-
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
+        private method onCast takes nothing returns nothing
             local unit lava
 
+            set this = thistype.allocate()
+
             if Spell.target.unit != null then
-                set lava = CreateUnit(Spell.source.player, LAVA_ELEMENTAL, Spell.target.x, Spell.target.y, 0.0)
+                set lava = CreateUnit(Spell.source.player, LAVA_ELEMENTAL, Spell.target.x, Spell.target.y, 0)
+                set id = GetUnitUserData(lava)
                 set unit = Spell.target.unit
                 set effect = AddSpecialEffect(FIRA_BASE, Spell.target.x, Spell.target.y)
-                set index = GetUnitUserData(lava)
-                set n[index] = this
+                set array[id] = this
                 
                 call UnitAddAbility(Spell.target.unit, 'Abun')
                 call ShowUnit(Spell.target.unit, false)
@@ -109,11 +90,11 @@ library LavaElemental requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
                 call DecUnitAbilityLevel(Spell.source.unit, ABILITY)
                 call DestroyEffect(AddSpecialEffect(SPAWN_EFFECT, Spell.target.x, Spell.target.y))
             else
-                set lava = CreateUnit(Spell.source.player, LAVA_ELEMENTAL, Spell.x, Spell.y, 0.0)
+                set lava = CreateUnit(Spell.source.player, LAVA_ELEMENTAL, Spell.x, Spell.y, 0)
+                set id = GetUnitUserData(lava)
                 set unit = Spell.target.unit
                 set effect = AddSpecialEffect(FIRA_BASE, Spell.x, Spell.y)
-                set index = GetUnitUserData(lava)
-                set n[index] = this
+                set array[id] = this
 
                 call BlzSetUnitMaxHP(lava, GetElementalHealth(Spell.source.unit, Spell.level))
                 call SetUnitLifePercentBJ(lava, 100)
@@ -129,8 +110,20 @@ library LavaElemental requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
             set lava = null
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+        private static method onDeath takes nothing returns nothing
+            local thistype this = array[GetUnitUserData(GetTriggerUnit())]
+
+            if this != 0 then
+                call UnitRemoveAbility(unit, 'Abun')
+                call ShowUnit(unit, true)
+                call SetUnitInvulnerable(unit, false)
+                call DestroyEffect(effect)
+                call destroy()
+            endif
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
         endmethod
     endstruct

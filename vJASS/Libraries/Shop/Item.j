@@ -14,28 +14,9 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
     endglobals
 
     /* ----------------------------------------------------------------------------------------- */
-    /*                                          JASS API                                         */
-    /* ----------------------------------------------------------------------------------------- */
-    function ItemAddComponents takes integer whichItem, integer a, integer b, integer c, integer d, integer e returns nothing
-        call Item.addComponents(whichItem, a, b, c, d, e)
-    endfunction
-
-    function ItemCountComponentOfType takes integer id, integer component returns integer
-        return Item.countComponent(id, component)
-    endfunction
-
-    function UnitHasItemOfType takes unit u, integer id returns boolean
-        return Item.hasType(u, id)
-    endfunction
-
-    function UnitCountItemOfType takes unit u, integer id returns integer
-        return Item.countType(u, id)
-    endfunction
-
-    /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
-    private interface Events
+    private interface IItem
         real mana = 0
         real armor = 0
         real block = 0
@@ -68,24 +49,24 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
         real magicPenetrationFlat = 0
         real cooldownReductionFlat = 0
 
-        method onTooltip takes unit u, item i, integer id returns nothing defaults nothing
+        method onTooltip takes unit u, item i, integer id returns string defaults null
         method onPickup takes unit u, item i returns nothing defaults nothing
         method onDrop takes unit u, item i returns nothing defaults nothing
     endinterface
     
-    struct Item extends Events
-        private static timer timer = CreateTimer()
-        private static trigger trigger = CreateTrigger()
-        private static player player = Player(bj_PLAYER_NEUTRAL_EXTRA)
-        private static integer key = -1
+    struct Item extends IItem
         private static unit shop
         private static rect rect
+        private static integer key = -1
         private static HashTable table
         private static HashTable itempool
         private static HashTable itemtype
         private static HashTable counters
         private static HashTable relations
         private static thistype array array
+        private static timer timer = CreateTimer()
+        private static trigger trigger = CreateTrigger()
+        private static player player = Player(bj_PLAYER_NEUTRAL_EXTRA)
 
         private unit unit
         private item item
@@ -255,7 +236,7 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                 if itempool[id].has(0) then
                     return Item(itempool[id][0])
                 else
-                    return create(id, 0, 0, 0, 0, 0)
+                    return create(id)
                 endif
             endif
 
@@ -311,11 +292,7 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
             return 0
         endmethod
 
-        static method new takes nothing returns thistype
-            return thistype.allocate()
-        endmethod
-
-        static method create takes integer id, integer a, integer b, integer c, integer d, integer e returns thistype
+        static method create takes integer id returns thistype
             local thistype this = thistype.allocate()
             local item i
 
@@ -332,11 +309,6 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                     set gold = totalCost(id)
                     set itempool[id][0] = this
 
-                    call save(id, a)
-                    call save(id, b)
-                    call save(id, c)
-                    call save(id, d)
-                    call save(id, e)
                     call RemoveItem(i)
 
                     set i = null
@@ -382,7 +354,7 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                     set this = array[i]
 
                     if UnitHasItem(unit, item) then
-                        call type.onTooltip(unit, item, index)
+                        call BlzSetItemExtendedTooltip(item, type.onTooltip(unit, item, index))
                     else
                         set i = remove(i)
                     endif
@@ -486,4 +458,27 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function thistype.onDropItem)
         endmethod
     endstruct
+
+    /* ----------------------------------------------------------------------------------------- */
+    /*                                          JASS API                                         */
+    /* ----------------------------------------------------------------------------------------- */
+    function RegisterItem takes Item i, integer a, integer b, integer c, integer d, integer e returns nothing
+        call Item.addComponents(i.id, a, b, c, d, e)
+    endfunction
+
+    function ItemAddComponents takes integer whichItem, integer a, integer b, integer c, integer d, integer e returns nothing
+        call Item.addComponents(whichItem, a, b, c, d, e)
+    endfunction
+
+    function ItemCountComponentOfType takes integer id, integer component returns integer
+        return Item.countComponent(id, component)
+    endfunction
+
+    function UnitHasItemOfType takes unit u, integer id returns boolean
+        return Item.hasType(u, id)
+    endfunction
+
+    function UnitCountItemOfType takes unit u, integer id returns integer
+        return Item.countType(u, id)
+    endfunction
 endlibrary

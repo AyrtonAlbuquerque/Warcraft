@@ -1,11 +1,9 @@
-library SulfurasSmash requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, Missiles, TimedHandles, Utilities, CrowdControl optional Sulfuras, optional Afterburner
-    /* -------------------- Sulfuras Smash v1.6 by Chopinski -------------------- */
+library SulfurasSmash requires Ability, PluginSpellEffect, Missiles, TimedHandles, Utilities, CrowdControl optional Sulfuras, optional Afterburner, optional NewBonus
+    /* -------------------- Sulfuras Smash v1.7 by Chopinski -------------------- */
     // Credtis:
     //     Systemfre1       - Sulfuras model
     //     AZ               - crack model
     //     Blizzard         - icon (edited by me)
-    //     Magtheridon96    - RegisterPlayerUnitEvent 
-    //     Bribe            - SpellEffectEvent, UnitIndexer
     //     TriggerHappy     - TimedHandles
     /* ----------------------------------- END ---------------------------------- */
     
@@ -45,7 +43,7 @@ library SulfurasSmash requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
     // The stun time for units at the center of impact
     private function GetStunTime takes unit u returns real
         static if LIBRARY_Sulfuras then
-            return 1 + 0.25*R2I(Sulfuras.stacks[GetUnitUserData(u)]*0.01)
+            return 1 + 0.25 * R2I(Sulfuras.stacks[GetUnitUserData(u)] * 0.05)
         else
             return 1.5
         endif
@@ -58,12 +56,16 @@ library SulfurasSmash requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
 
     // The AoE for enemies in the center of impact that will be stunned and take doubled damage
     private function GetCenterAoE takes integer level returns real
-        return 200. + 0.*level
+        return 200. + 0 * level
     endfunction
 
     // Ability impact damage
-    private function GetDamage takes integer level returns real
-        return 250.*level
+    private function GetDamage takes unit u, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 250 * level + (0.8 + 0.2 * level) * GetUnitBonus(u, BONUS_SPELL_POWER)
+        else
+            return 250 * level
+        endif
     endfunction
 
     // Filter for units that will be damage on impact
@@ -75,66 +77,68 @@ library SulfurasSmash requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Hammer extends Missiles
-        real stun
         real aoe
+        real stun
         integer level
 
-        method onFinish takes nothing returns boolean
-            local group g = CreateGroup()    
-            local integer i = 0
-            local integer j
-            local unit v
+        private method onFinish takes nothing returns boolean
+            local group g = CreateGroup()
+            local unit u
 
             call GroupEnumUnitsInRange(g, x, y, GetNormalAoE(source, level), null)
-            set j = BlzGroupGetSize(g)
+
             loop
-                exitwhen i == j
-                    set v = BlzGroupUnitAt(g, i)
-                    if DamageFilter(source, v) then
-                        if DistanceBetweenCoordinates(x, y, GetUnitX(v), GetUnitY(v)) <= aoe then
-                            if UnitDamageTarget(source, v, 2*damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
-                                call StunUnit(v, stun, STUN_MODEL, STUN_POINT, false)
+                set u = FirstOfGroup(g)
+                exitwhen u == null
+                    if DamageFilter(source, u) then
+                        if DistanceBetweenCoordinates(x, y, GetUnitX(u), GetUnitY(u)) <= aoe then
+                            if UnitDamageTarget(source, u, 2*damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
+                                call StunUnit(u, stun, STUN_MODEL, STUN_POINT, false)
                             endif
                         else
-                            call UnitDamageTarget(source, v, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
+                            call UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
                         endif
                     endif
-                set i = i + 1
+                call GroupRemoveUnit(g, u)
             endloop
-            call DestroyEffectTimed(AddSpecialEffectEx(IMPACT_MODEL, x, y, 0, IMPACT_SCALE), IMPACT_DURATION)
+
             call DestroyGroup(g)
+            call DestroyEffectTimed(AddSpecialEffectEx(IMPACT_MODEL, x, y, 0, IMPACT_SCALE), IMPACT_DURATION)
             
             static if LIBRARY_Afterburner then
                 call Afterburn(x, y, source)
             endif
 
-            set g   = null
-            set v   = null
+            set g = null
 
             return true
         endmethod
     endstruct
 
-    private struct SulfurasSmash extends array
-        private static method onCast takes nothing returns nothing
-            local real a = AngleBetweenCoordinates(Spell.x, Spell.y, GetUnitX(Spell.source.unit), GetUnitY(Spell.source.unit))
-            local Hammer sulfuras = Hammer.create(Spell.x + LAUNCH_OFFSET*Cos(a), Spell.y + LAUNCH_OFFSET*Sin(a), START_HEIGHT, Spell.x, Spell.y, 0)
+    private struct SulfurasSmash extends Ability
+        private method onTooltip takes unit source, integer level returns string
+            return "|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc00" + N2S(LANDING_TIME, 2) + " seconds|r and damaging enemy units for |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage. Enemy units in the center are stunned for |cffffcc00" + N2S(GetStunTime(source), 2) + "|r seconds and take twice as much damage."
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            local real angle = AngleBetweenCoordinates(Spell.x, Spell.y, GetUnitX(Spell.source.unit), GetUnitY(Spell.source.unit))
+            local Hammer sulfuras = Hammer.create(Spell.x + LAUNCH_OFFSET*Cos(angle), Spell.y + LAUNCH_OFFSET*Sin(angle), START_HEIGHT, Spell.x, Spell.y, 0)
             
             set sulfuras.model = SULFURAS_MODEL
             set sulfuras.scale = SULFURAS_SCALE
             set sulfuras.duration = LANDING_TIME
             set sulfuras.source = Spell.source.unit
             set sulfuras.level = Spell.level
-            set sulfuras.damage = GetDamage(Spell.level)
             set sulfuras.owner = Spell.source.player
+            set sulfuras.damage = GetDamage(Spell.source.unit, Spell.level)
             set sulfuras.stun = GetStunTime(Spell.source.unit)
             set sulfuras.aoe = GetCenterAoE(Spell.level)
 
             call sulfuras.launch()
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

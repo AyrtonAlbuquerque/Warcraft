@@ -33,7 +33,7 @@ library Afterburner requires Ability, Periodic, DamageInterface, Utilities, opti
     //The damage per interval of the Afterburn
     private function GetDamage takes unit u, integer level returns real
         static if LIBRARY_NewBonus then
-            return 25. * level + 0.6 * GetUnitBonus(u, BONUS_DAMAGE)
+            return 25. * level + 0.6 * GetUnitBonus(u, BONUS_SPELL_POWER)
         else
             return 25. * level
         endif
@@ -48,12 +48,11 @@ library Afterburner requires Ability, Periodic, DamageInterface, Utilities, opti
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Afterburner extends Ability
-        private static integer array proxy
+        private static integer array array
 
         private unit unit
         private unit dummy
         private integer id
-        private real damage
 
         method destroy takes nothing returns nothing
             call DummyRecycle(dummy)
@@ -61,18 +60,17 @@ library Afterburner requires Ability, Periodic, DamageInterface, Utilities, opti
 
             set unit = null
             set dummy = null
-            set proxy[id] = 0
+            set array[id] = 0
         endmethod
 
-        static method create takes real x, real y, real dmg, real duration, real aoe, real interval, unit source returns thistype
+        static method create takes real x, real y, real damage, real duration, real aoe, real interval, unit source returns thistype
             local thistype this = thistype.allocate()
             local ability skill
     
             set unit = source
-            set damage = dmg
             set dummy = DummyRetrieve(GetOwningPlayer(source), x, y, 0, 0)
             set id = GetUnitUserData(dummy)
-            set proxy[id] = this
+            set array[id] = this
 
             call UnitAddAbility(dummy, AFTERBURN_PROXY)
             set skill = BlzGetUnitAbility(dummy, AFTERBURN_PROXY)
@@ -80,7 +78,7 @@ library Afterburner requires Ability, Periodic, DamageInterface, Utilities, opti
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_FULL_DAMAGE_INTERVAL, 0, duration)
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_HALF_DAMAGE_INTERVAL, 0, interval)
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_AREA_OF_EFFECT, 0, aoe)
-            call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, dmg)
+            call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, damage)
             call IncUnitAbilityLevel(dummy, AFTERBURN_PROXY)
             call DecUnitAbilityLevel(dummy, AFTERBURN_PROXY)
             call IssuePointOrder(dummy, "flamestrike", x, y)
@@ -96,13 +94,10 @@ library Afterburner requires Ability, Periodic, DamageInterface, Utilities, opti
         endmethod 
 
         private static method onDamage takes nothing returns nothing
-            local thistype this
+            local thistype this = array[Damage.source.id]
 
-            if proxy[Damage.source.id] != 0 and Damage.amount > 0 then
-                set this = proxy[Damage.source.id]
-                set Damage.amount = 0
-
-                call UnitDamageTarget(unit, Damage.target.unit, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
+            if this != 0 and Damage.amount > 0 then
+                set Damage.source = unit
             endif
         endmethod
 

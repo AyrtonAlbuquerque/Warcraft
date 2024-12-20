@@ -138,7 +138,7 @@ Afterburner
 }
 
 STRING 36
-// Abilities: A003 (Afterburner), Researchtip (Tooltip - Learn)
+// Abilities: A003 (Afterburner), Tip (Tooltip - Normal)
 {
 Afterburner
 }
@@ -156,12 +156,6 @@ Afterburner
 }
 
 STRING 41
-// Abilities: A003 (Afterburner), Tip (Tooltip - Normal)
-{
-Afterburner
-}
-
-STRING 42
 // Abilities: A003 (Afterburner), Tip (Tooltip - Normal)
 {
 Afterburner
@@ -425,28 +419,6 @@ STRING 114
 R
 }
 
-STRING 115
-// Abilities: A005 (Sulfuras Smash), Ubertip (Tooltip - Normal - Extended)
-{
-|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc001.25 seconds|r and damaging enemy units for |cff00ffff250 Magic|r damage. Enemy units in the center are stunned for (|cffffcc001|r + |cffffcc000.25 seconds|r per |cffffcc00100 Sulfuras|r stacks) and take twice as much damage.
-}
-
-STRING 116
-// Abilities: A005 (Sulfuras Smash), Researchubertip (Tooltip - Learn - Extended)
-{
-|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc001.25 seconds|r and damaging enemy units. Enemy units in the center are stunned for a (|cffffcc001 + 0.25 seconds|r for every |cffffcc00100 Sulfuras stacks|r) |cffffcc00Ragnaros|r has and take twice as much damage.
-
-|cffffcc00Level 1|r - |cff00ffff250 Magic|r damage on impact.
-
-|cffffcc00Level 2|r - |cff00ffff500 Magic|r damage on impact.
-}
-
-STRING 117
-// Abilities: A005 (Sulfuras Smash), Ubertip (Tooltip - Normal - Extended)
-{
-|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc001.25 seconds|r and damaging enemy units for |cff00ffff500 Magic|r damage. Enemy units in the center are stunned for (|cffffcc001|r + |cffffcc000.25 seconds|r per |cffffcc00100 Sulfuras|r stacks) and take twice as much damage.
-}
-
 STRING 119
 // Abilities: A006 (Molten Shield), Hotkey (Hotkey - Normal)
 {
@@ -557,8 +529,6 @@ Silence
 STRING 174
 {
 Press the |cffffcc00ESC|r key to Level Up, Heal Health and Mana and reset his cooldowns.
-
-Use the |cff00ff00HOME key|r and |cffff0000END key|r to control camera distance.
 }
 
 STRING 175
@@ -959,5 +929,33 @@ STRING 245
 |cffffcc00Ragnaros|r spells leave a trail of fire after cast that burns enemy units within range for |cff00ffff100|r + (|cffffcc0060%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage per second.
 
 Lasts |cffffcc0010|r seconds.
+}
+
+STRING 246
+// Abilities: A003 (Afterburner), Researchtip (Tooltip - Learn)
+{
+Afterburner - [|cffffcc00Level %d|r]
+}
+
+STRING 247
+// Abilities: A005 (Sulfuras Smash), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc001.25 seconds|r and damaging enemy units for |cff00ffff250|r + (|cffffcc00100%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage. Enemy units in the center are stunned for (|cffffcc001|r + |cffffcc000.25 seconds|r per |cffffcc0020 Sulfuras|r stacks) and take twice as much damage.
+}
+
+STRING 248
+// Abilities: A005 (Sulfuras Smash), Researchubertip (Tooltip - Learn - Extended)
+{
+|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc001.25 seconds|r and damaging enemy units. Enemy units in the center are stunned for a (|cffffcc001 + 0.25 seconds|r for every |cffffcc0020 Sulfuras stacks|r) |cffffcc00Ragnaros|r has and take twice as much damage.
+
+|cffffcc00Level 1|r - |cff00ffff250|r + (|cffffcc00100%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage on impact.
+
+|cffffcc00Level 2|r - |cff00ffff500|r + (|cffffcc00120%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage on impact.
+}
+
+STRING 249
+// Abilities: A005 (Sulfuras Smash), Ubertip (Tooltip - Normal - Extended)
+{
+|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc001.25 seconds|r and damaging enemy units for |cff00ffff500|r + (|cffffcc00100%|r of |cff00ffffSpell Power|r) |cff00ffffMagic|r damage. Enemy units in the center are stunned for (|cffffcc001|r + |cffffcc000.25 seconds|r per |cffffcc0020 Sulfuras|r stacks) and take twice as much damage.
 }
 
