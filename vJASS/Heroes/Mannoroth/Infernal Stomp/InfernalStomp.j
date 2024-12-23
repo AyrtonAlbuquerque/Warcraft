@@ -1,5 +1,5 @@
-library InfernalStomp requires SpellEffectEvent, PluginSpellEffect, CrowdControl
-    /* ------------------------------------- Infernal Stomp v1.0 ------------------------------------ */
+library InfernalStomp requires Ability, PluginSpellEffect, CrowdControl, optional NewBonus
+    /* ------------------------------------- Infernal Stomp v1.1 ------------------------------------ */
     // Credits:
     //     Bribe         - SpellEffectEvent
     /* ---------------------------------------- By Chopinksi ---------------------------------------- */
@@ -17,8 +17,12 @@ library InfernalStomp requires SpellEffectEvent, PluginSpellEffect, CrowdControl
     endglobals
 
     // The damage dealt
-    private function GetDamage takes integer level returns real
-        return 200. + 0.*level
+    private function GetDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 200. + 0. * level + 1. * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 200. + 0. * level
+        endif
     endfunction
 
     // The stun duration
@@ -39,17 +43,22 @@ library InfernalStomp requires SpellEffectEvent, PluginSpellEffect, CrowdControl
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct InfernalStomp extends array
-        private static method onCast takes nothing returns nothing
+    private struct InfernalStomp extends Ability
+        private method onTooltip takes unit source, integer level returns string
+            return "Slams the ground, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage to nearby enemy land units and stunning them for |cffffcc00" + N2S(GetDuration(source, level), 0) + "|r second."
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            local unit u
             local group g = CreateGroup()
             local unit source = Spell.source.unit
             local player owner = Spell.source.player
-            local real duration = GetDuration(Spell.source.unit, Spell.level)
             local real aoe = GetAoE(Spell.source.unit, Spell.level)
-            local real damage = GetDamage(Spell.level)
-            local unit u
+            local real duration = GetDuration(Spell.source.unit, Spell.level)
+            local real damage = GetDamage(Spell.source.unit, Spell.level)
 
             call GroupEnumUnitsInRange(g, Spell.source.x, Spell.source.y, aoe, null)
+
             loop
                 set u = FirstOfGroup(g)
                 exitwhen u == null
@@ -60,6 +69,7 @@ library InfernalStomp requires SpellEffectEvent, PluginSpellEffect, CrowdControl
                     endif
                 call GroupRemoveUnit(g, u)
             endloop
+
             call DestroyGroup(g)
 
             set g = null
@@ -68,7 +78,7 @@ library InfernalStomp requires SpellEffectEvent, PluginSpellEffect, CrowdControl
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

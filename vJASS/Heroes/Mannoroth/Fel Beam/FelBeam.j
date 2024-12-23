@@ -1,8 +1,7 @@
-library FelBeam requires Missiles, SpellEffectEvent, PluginSpellEffect, NewBonus, Utilities
-    /* ----------------------- Fel Beam v1.4 by Chopinski ----------------------- */
+library FelBeam requires Missiles, Ability, Periodic, PluginSpellEffect, NewBonus, Utilities
+    /* ----------------------- Fel Beam v1.5 by Chopinski ----------------------- */
     // Credits:
     //     BPower    - Missile Library
-    //     Bribe     - SpellEffectEvent
     //     AZ        - Fel Beam model
     //     nGy       - Haunt model
     //     The Panda - ToxicBeam icon
@@ -44,8 +43,8 @@ library FelBeam requires Missiles, SpellEffectEvent, PluginSpellEffect, NewBonus
     endfunction
 
     // The damage amount
-    private function GetDamage takes integer level returns real
-        return 50. * (level*level -2*level + 2)
+    private function GetDamage takes unit source, integer level returns real
+        return 100. * level + (0.8 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
     endfunction
 
     // The amount of armor reduced
@@ -62,95 +61,63 @@ library FelBeam requires Missiles, SpellEffectEvent, PluginSpellEffect, NewBonus
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     struct Curse
-        static timer timer = CreateTimer()
-        static integer array n
-        static boolean array cursed
-        //Dynamic Indexing
-        static integer didx = -1
-        static thistype array data
+        readonly static boolean array cursed
 
-        unit    unit
-        integer armor
-        integer index
-        real    ticks
-        effect  effect
+        private unit unit
+        private integer id
+        private integer armor
+        private real duration
+        private effect effect
 
-        method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             call DestroyEffect(effect)
             call AddUnitBonus(unit, BONUS_ARMOR, armor)
 
-            set data[i]       = data[didx]
-            set didx          = didx - 1
-            set cursed[index] = false
-            set n[index]      = 0
-            set unit          = null
-            set effect        = null
-
-            if didx == -1 then
-                call PauseTimer(timer)
-            endif
+            set unit = null
+            set effect = null
+            set cursed[id] = false
 
             call deallocate()
-
-            return i - 1
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer  i = 0
-            local thistype this
+        private method onPeriod takes nothing returns boolean
+            set duration = duration - 0.5
 
-            loop
-                exitwhen i > didx
-                    set this = data[i]
-
-                    if ticks <= 0 or not UnitAlive(unit) then
-                        set i = remove(i)
-                    endif
-                    set ticks = ticks - 0.5
-                set i = i + 1
-            endloop
+            return duration > 0 and UnitAlive(unit)
         endmethod
 
         static method create takes unit target, real duration, integer amount returns thistype
-            local integer  idx = GetUnitUserData(target)
-            local thistype this
+            local integer i = GetUnitUserData(target)
+            local thistype this = GetTimerInstance(i)
 
-            if n[idx] != 0 then
-                set this       = n[idx]
-            else
-                set this       = thistype.allocate()
-                set unit       = target
-                set armor      = amount
-                set effect     = AddSpecialEffectTarget(CURSE_MODEL, target, CURSE_ATTACH)
-                set index      = idx
-                set didx       = didx + 1
-                set data[didx] = this
-                set n[idx]     = this
+            if this == 0 then
+                set this = thistype.allocate()
+                set id = i
+                set unit = target
+                set armor = amount
+                set effect = AddSpecialEffectTarget(CURSE_MODEL, target, CURSE_ATTACH)
 
+                call StartTimer(0.5, true, this, i)
                 call AddUnitBonus(target, BONUS_ARMOR, -amount)
-                if didx == 0 then
-                    call TimerStart(timer, 0.5, true, function thistype.onPeriod)
-                endif
             endif
 
-            if duration >= 0.5 then
-                set ticks = duration
-            else
-                set ticks = 0.
-            endif
+            set this.duration = duration
 
             return this
         endmethod
+
+        implement Periodic
     endstruct
 
     struct Beam extends Missiles
+        integer id
         integer armor
-        integer index
-        real    curse_duration
+        real curse_duration
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             if UnitAlive(target) then
-                set Curse.cursed[index] = true
+                set Curse.cursed[id] = true
+
                 if UnitDamageTarget(source, target, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
                     call Curse.create(target, curse_duration, armor)
                 endif
@@ -160,39 +127,49 @@ library FelBeam requires Missiles, SpellEffectEvent, PluginSpellEffect, NewBonus
         endmethod
     endstruct
 
-    struct FelBeam
+    struct FelBeam extends Ability
         static unit array source
 
         static method launch takes Beam beam, unit caster, unit target, integer level returns nothing
-            set beam.source         = caster
-            set beam.target         = target
-            set beam.model          = MISSILE_MODEL
-            set beam.scale          = MISSILE_SCALE
-            set beam.speed          = MISSILE_SPEED
-            set beam.damage         = GetDamage(level)
-            set beam.owner          = GetOwningPlayer(caster)
-            set beam.armor          = GetArmorReduction(level)
+            set beam.source = caster
+            set beam.target = target
+            set beam.model = MISSILE_MODEL
+            set beam.scale = MISSILE_SCALE
+            set beam.speed = MISSILE_SPEED
+            set beam.id = GetUnitUserData(target)
+            set beam.damage = GetDamage(caster, level)
+            set beam.owner = GetOwningPlayer(caster)
+            set beam.armor = GetArmorReduction(level)
             set beam.curse_duration = GetCurseDuration(level)
-            set beam.index          = GetUnitUserData(target)
-            set source[beam.index]  = caster
+            set source[beam.id] = caster
 
             call beam.launch()
         endmethod
 
+        private method onTooltip takes unit source, integer level returns string
+            return "|cffffcc00Mannoroth|r launch at the target unit a |cffffcc00Fel Beam|r, that apply |cffffcc00Fel Curse|r and deals |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage. The cursed unit have it's armor reduced by |cffffcc00" + N2S(GetArmorReduction(level), 0) + "|r and if it dies under the effect of |cffffcc00Fel Curse|r curse, another |cffffcc00Fel Beam|r will spawn from it's location and seek a nearby enemy unit within |cffffcc00" + N2S(GetSearchRange(level), 0) + " AoE|r.\n\nLast for |cffffcc00" + N2S(GetCurseDuration(level), 1) + "|r seconds."
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            local Beam beam = Beam.create(Spell.source.x, Spell.source.y, START_HEIGHT, Spell.target.x, Spell.target.y, END_HEIGHT)
+            
+            call launch(beam, Spell.source.unit, Spell.target.unit, Spell.level)
+        endmethod
+
         private static method onDeath takes nothing returns nothing
-            local unit    killed = GetTriggerUnit()
-            local integer index  = GetUnitUserData(killed)
-            local unit    caster = source[index]
+            local unit killed = GetTriggerUnit()
+            local integer id = GetUnitUserData(killed)
+            local unit caster = source[id]
+            local real x
+            local real y
+            local real z
+            local unit u
+            local group g
+            local Beam beam
             local integer level
-            local real    x
-            local real    y
-            local real    z
-            local group   g
-            local unit    v
-            local Beam    beam
         
-            if Curse.cursed[index] then
-                if source[index] == null then
+            if Curse.cursed[id] then
+                if source[id] == null then
                     set caster = GetKillingUnit()
                     set level  = 1
                 else
@@ -203,30 +180,28 @@ library FelBeam requires Missiles, SpellEffectEvent, PluginSpellEffect, NewBonus
                 set y = GetUnitY(killed)
                 set z = GetUnitFlyHeight(killed) + START_HEIGHT
                 set g = GetEnemyUnitsInRange(GetOwningPlayer(caster), x, y, GetSearchRange(level), false, false)
+
                 if BlzGroupGetSize(g) > 0 then
-                    set v    = GroupPickRandomUnit(g)
-                    set beam = Beam.create(x, y, z, GetUnitX(v), GetUnitY(v), END_HEIGHT)
-                    call launch(beam, caster, v, level)
+                    set u = GroupPickRandomUnit(g)
+                    set beam = Beam.create(x, y, z, GetUnitX(u), GetUnitY(u), END_HEIGHT)
+
+                    call launch(beam, caster, u, level)
                 endif
+
                 call DestroyGroup(g)
-                set source[index]       = null
-                set Curse.cursed[index] = false
+
+                set source[id] = null
+                set Curse.cursed[id] = false
             endif
         
-            set g      = null
-            set v      = null
+            set g = null
+            set u = null
             set killed = null
             set caster = null
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local Beam beam = Beam.create(Spell.source.x, Spell.source.y, START_HEIGHT, Spell.target.x, Spell.target.y, END_HEIGHT)
-            
-            call launch(beam, Spell.source.unit, Spell.target.unit, Spell.level)
-        endmethod
-
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
         endmethod
     endstruct

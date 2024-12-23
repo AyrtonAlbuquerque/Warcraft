@@ -1,4 +1,4 @@
-library InfernalCharge requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl
+library InfernalCharge requires Ability, PluginSpellEffect, Missiles, Utilities, CrowdControl, optional NewBonus
     /* ------------------------------------ Infernal Charge v1.5 ------------------------------------ */
     // Credits:
     //     marilynmonroe - Pit Infernal model
@@ -28,8 +28,12 @@ library InfernalCharge requires SpellEffectEvent, PluginSpellEffect, Missiles, U
     endglobals
 
     // The damage dealt by the Pit Infernal when charging
-    private function GetChargeDamage takes integer level returns real
-        return 200. + 0.*level
+    private function GetChargeDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 200. + 0.*level + 1. * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 200. + 0.*level
+        endif
     endfunction
 
     // The Area of Effect at which units will be knocked back
@@ -59,14 +63,14 @@ library InfernalCharge requires SpellEffectEvent, PluginSpellEffect, Missiles, U
         real distance
         real knockback
 
-        method onPeriod takes nothing returns boolean
+        private method onPeriod takes nothing returns boolean
             call SetUnitX(source, x)
             call SetUnitY(source, y)
 
             return false
         endmethod
 
-        method onHit takes unit hit returns boolean
+        private method onHit takes unit hit returns boolean
             if ChargeFilter(owner, hit) then
                 if UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
                     call KnockbackUnit(hit, AngleBetweenCoordinates(x, y, GetUnitX(hit), GetUnitY(hit)), distance, knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, true, true, false, false)
@@ -76,7 +80,7 @@ library InfernalCharge requires SpellEffectEvent, PluginSpellEffect, Missiles, U
             return false
         endmethod
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             call BlzPauseUnitEx(source, false)
             call SetUnitTimeScale(source, 1)
             call SetUnitAnimation(source, "Stand")
@@ -85,18 +89,22 @@ library InfernalCharge requires SpellEffectEvent, PluginSpellEffect, Missiles, U
         endmethod
     endstruct
 
-    private struct PitInfernal
-        static method onCast takes nothing returns nothing
+    private struct PitInfernal extends Ability
+        private method onTooltip takes unit source, integer level returns string
+            return "|cffffcc00Pit Infernal|r charges in the pointed direction, knocking back and damaging enemy units, dealing |cff00ffff" + N2S(GetChargeDamage(source, level), 0) + "|r |cff00ffffMagic|r damage."
+        endmethod
+
+        private method onCast takes nothing returns nothing
             local Charge charge = Charge.create(Spell.source.x, Spell.source.y, 0, Spell.x, Spell.y, 0)
 
-            set charge.damage    = GetChargeDamage(Spell.level)
-            set charge.source    = Spell.source.unit
-            set charge.owner     = GetOwningPlayer(Spell.source.unit)
+            set charge.source = Spell.source.unit
+            set charge.duration = CHARGE_TIME
+            set charge.model = KNOCKBACK_MODEL
+            set charge.damage = GetChargeDamage(Spell.source.unit, Spell.level)
+            set charge.owner = GetOwningPlayer(Spell.source.unit)
             set charge.collision = GetChargeAoE(Spell.level)
-            set charge.model     = KNOCKBACK_MODEL
-            set charge.distance  = GetKnockbackDistance(Spell.level)
+            set charge.distance = GetKnockbackDistance(Spell.level)
             set charge.knockback = GetKnockbackDuration(Spell.level)
-            set charge.duration  = CHARGE_TIME
 
             call BlzPauseUnitEx(Spell.source.unit, true)
             call SetUnitTimeScale(Spell.source.unit, TIME_SCALE)
@@ -104,8 +112,8 @@ library InfernalCharge requires SpellEffectEvent, PluginSpellEffect, Missiles, U
             call charge.launch()
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

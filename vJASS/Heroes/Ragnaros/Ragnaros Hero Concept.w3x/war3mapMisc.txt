@@ -1,7 +1,0 @@
-[Misc]
-BoneDecayTime=5.0
-BuildingKillsGiveExp=1
-GrantNormalXP=50
-MaxHeroLevel=20
-MaxUnitSpeed=522.0
-

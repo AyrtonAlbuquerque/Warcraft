@@ -61,9 +61,9 @@ library LivingMeteor requires Ability, PluginSpellEffect, Missiles, MouseUtils, 
     //will do this damage every DAMAGE_INTERVAL
     private function RollDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return (25.*(level*level -2*level + 2))*DAMAGE_INTERVAL + 0.5*GetUnitBonus(source, BONUS_SPELL_POWER)*DAMAGE_INTERVAL
+            return 25. * level * DAMAGE_INTERVAL + (1 + 0.25*level) * GetUnitBonus(source, BONUS_SPELL_POWER) * DAMAGE_INTERVAL
         else
-            return (25.*(level*level -2*level + 2))*DAMAGE_INTERVAL
+            return 25. * level * DAMAGE_INTERVAL
         endif
     endfunction
 

@@ -1,5 +1,5 @@
-library Reanimation requires RegisterPlayerUnitEvent, TimerUtils
-    /* --------------------- Reanimation v1.4 by Chopinski -------------------- */
+library Reanimation requires RegisterPlayerUnitEvent, Ability, TimerUtils
+    /* --------------------- Reanimation v1.5 by Chopinski -------------------- */
     // Credits:
     //     Henry         - Reanimated Mannoroth model
     //     Magtheridon96 - RegisterPlayerUnitEvent
@@ -11,12 +11,12 @@ library Reanimation requires RegisterPlayerUnitEvent, TimerUtils
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the reanimation ability
-        private constant integer ABILITY                    = 'A02M'
+        private constant integer ABILITY                    = 'A008'
         // The raw code of the reanimation metamorphosis 
         // ability that is used to change its model
-        private constant integer REANIMATION_METAMORPHOSIS  = 'A02X'
+        private constant integer REANIMATION_METAMORPHOSIS  = 'A006'
         // The Reanimation buff
-        private constant integer REANIMATION_BUFF           = 'B00Q'
+        private constant integer REANIMATION_BUFF           = 'B002'
         // The effect created on the gorund when mannoroth dies
         private constant string  MANNOROTH_SKELETON         = "Reanimation.mdl"
         // The size of the skeleton model
@@ -31,22 +31,35 @@ library Reanimation requires RegisterPlayerUnitEvent, TimerUtils
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Reanimate
-        static boolean array Reanimated
-        static trigger trigger = CreateTrigger()
+    private struct Reanimate extends Ability
+        private static boolean array reanimated
 
-        timer timer
-        unit unit
-        effect effect
-        integer level
-        integer index
-        integer stage
-        real face
+        private unit unit
+        private real face
+        private integer id
+        private timer timer
+        private effect effect
+        private integer level
+        private integer stage
 
-        static method onExpire takes nothing returns nothing
+        method destroy takes nothing returns nothing
+            call BlzSetAbilityStringLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_SLF_ICON_NORMAL, level - 1, "ReplaceableTextures\\CommandButtons\\PASReanimation.blp")
+            call IncUnitAbilityLevel(unit, ABILITY)
+            call DecUnitAbilityLevel(unit, ABILITY)
+            call ReleaseTimer(timer)
+            call deallocate()
+
+            set unit = null
+            set timer = null
+            set effect = null
+            set reanimated[id] = false
+        endmethod
+
+        private static method onExpire takes nothing returns nothing
             local thistype this = GetTimerData(GetExpiredTimer())
 
             set stage = stage + 1
+
             if stage == 1 then
                 call BlzPauseUnitEx(unit, false)
                 call ShowUnit(unit, false)
@@ -70,50 +83,36 @@ library Reanimation requires RegisterPlayerUnitEvent, TimerUtils
                 call DestroyEffect(effect)
                 call TimerStart(timer, GetCooldown(unit, level) - 14, false, function thistype.onExpire)
             else
-                set Reanimated[index] = false
-                call ReleaseTimer(timer)
-                call BlzSetAbilityStringLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_SLF_ICON_NORMAL, level - 1, "ReplaceableTextures\\CommandButtons\\PASReanimation.blp")
-                call IncUnitAbilityLevel(unit, ABILITY)
-                call DecUnitAbilityLevel(unit, ABILITY)
-                set timer = null
-                set unit = null
-                set effect = null
-                call deallocate()
+                call destroy()
             endif
         endmethod   
 
         private static method onDamage takes nothing returns nothing
-            local unit target = BlzGetEventDamageTarget()
-            local real damage = GetEventDamage()
-            local integer index = GetUnitUserData(target)
-            local integer level = GetUnitAbilityLevel(target, ABILITY)
+            local integer level = GetUnitAbilityLevel(Damage.target.unit, ABILITY)
             local thistype this
-            
         
-            if level > 0 and damage >= GetWidgetLife(target) and not Reanimated[index] then
+            if level > 0 and Damage.amount >= Damage.target.health and not reanimated[Damage.target.id] then
                 set this = thistype.allocate()
-                set .timer = NewTimerEx(this)
-                set .unit = target
-                set .level = level
-                set .index = index
-                set .stage = 0
-                set .face = GetUnitFacing(target)*bj_DEGTORAD
-                set Reanimated[index] = true
+                set timer = NewTimerEx(this)
+                set stage = 0
+                set this.level = level
+                set unit = Damage.target.unit
+                set id = Damage.target.id
+                set face = GetUnitFacing(Damage.target.unit) * bj_DEGTORAD
+                set reanimated[id] = true
+                set Damage.amount = 0
+
                 call TimerStart(timer, 3, false, function thistype.onExpire)
-        
-                call BlzSetAbilityStringLevelField(BlzGetUnitAbility(target, ABILITY), ABILITY_SLF_ICON_NORMAL, level - 1, "ReplaceableTextures\\CommandButtonsDisabled\\DISPASReanimation.blp")
-                call IncUnitAbilityLevel(target, ABILITY)
-                call DecUnitAbilityLevel(target, ABILITY)
-                call SetUnitInvulnerable(target, true)
-                call BlzSetEventDamage(0)
-                call BlzPauseUnitEx(target, true)
-                call SetUnitAnimation(target, "Death")
+                call BlzSetAbilityStringLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_SLF_ICON_NORMAL, level - 1, "ReplaceableTextures\\CommandButtonsDisabled\\DISPASReanimation.blp")
+                call IncUnitAbilityLevel(unit, ABILITY)
+                call DecUnitAbilityLevel(unit, ABILITY)
+                call SetUnitInvulnerable(unit, true)
+                call BlzPauseUnitEx(unit, true)
+                call SetUnitAnimation(unit, "Death")
             endif
-        
-            set target = null
         endmethod
 
-        static method onInit takes nothing returns nothing
+        private static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

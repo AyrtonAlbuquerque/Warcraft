@@ -1,8 +1,6 @@
-library FelBlast requires SpellEffectEvent, PluginSpellEffect, TimerUtils, Utilities optional FelBeam
-    /* ----------------------- Fel Blast v1.4 by Chopinski ---------------------- */
+library FelBlast requires Ability, PluginSpellEffect, Periodic, Utilities optional FelBeam optional NewBonus
+    /* ----------------------- Fel Blast v1.5 by Chopinski ---------------------- */
     // Credits:
-    //     Vexorian - TimerUtils Library
-    //     Bribe    - SpellEffectEvent
     //     Mythic   - Nther Blast model
     //     san      - Miasma icon
     /* ----------------------------------- END ---------------------------------- */
@@ -27,7 +25,11 @@ library FelBlast requires SpellEffectEvent, PluginSpellEffect, TimerUtils, Utili
 
     // The damage amount of the blast
     private function GetDamage takes unit u, integer level returns real
-        return 50.*level + GetHeroStr(u, true)*(1 + 0.25*level)
+        static if LIBRARY_NewBonus then
+            return 50. * level + GetHeroStr(u, true) * (1 + 0.25*level) + 0.5 * GetUnitBonus(u, BONUS_SPELL_POWER)
+        else
+            return 50. * level + GetHeroStr(u, true) * (1 + 0.25*level)
+        endif
     endfunction
 
     // The damage area of effect. By default is the ability AoE field in the editor
@@ -43,69 +45,76 @@ library FelBlast requires SpellEffectEvent, PluginSpellEffect, TimerUtils, Utili
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct FelBlast
-        unit    unit
-        real    x
-        real    y
-        real    damage
-        real    radius
-        real    duration
-        player  owner
-        integer armor
-        timer   timer
+    private struct FelBlast extends Ability
+        private real x
+        private real y
+        private unit unit
+        private real damage
+        private real radius
+        private real duration
+        private player owner
+        private integer armor
 
-        private static method onBlast takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            local group    g
-            local unit     v
-        
-            set g = GetEnemyUnitsInRange(owner, x, y, radius, false, false)
-            loop
-                set v = FirstOfGroup(g)
-                exitwhen v == null
-                    if DamageFilter(owner, v) then
-                        static if LIBRARY_FelBeam then
-                            set FelBeam.source[GetUnitUserData(v)] = unit
-                            set Curse.cursed[GetUnitUserData(v)]   = true
-                            call Curse.create(v, duration, armor)
-                        endif
-                        call UnitDamageTarget(unit, v, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
-                    endif
-                call GroupRemoveUnit(g, v)
-            endloop
-            call DestroyGroup(g)
-            call ReleaseTimer(timer)
-            
-            set g     = null
-            set timer = null
-            set unit  = null
+        method destroy takes nothing returns nothing
+            set unit = null
             set owner = null
 
             call deallocate()
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
+        private method onTooltip takes unit source, integer level returns string
+            return "|cffffcc00Mannoroth|r blasts the target area with Fel Fire dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and cursing all enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r with |cffffcc00Fel Curse|r. When a unit affected by |cffffcc00Fel Curse|r dies, it will spawn a |cffffcc00Fel Beam|r to a random target within |cffffcc001000 AoE|r."
+        endmethod
 
-            set timer  = NewTimerEx(this)
-            set unit   = Spell.source.unit
-            set x      = Spell.x
-            set y      = Spell.y
+        private method onExpire takes nothing returns nothing
+            local unit u
+            local group g
+        
+            set g = GetEnemyUnitsInRange(owner, x, y, radius, false, false)
+
+            loop
+                set u = FirstOfGroup(g)
+                exitwhen u == null
+                    if DamageFilter(owner, u) then
+                        static if LIBRARY_FelBeam then
+                            set FelBeam.source[GetUnitUserData(u)] = unit
+                            set Curse.cursed[GetUnitUserData(u)] = true
+
+                            call Curse.create(u, duration, armor)
+                        endif
+
+                        call UnitDamageTarget(unit, u, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
+                    endif
+                call GroupRemoveUnit(g, u)
+            endloop
+
+            call DestroyGroup(g)
+            
+            set g = null
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
+            set x = Spell.x
+            set y = Spell.y
+            set unit = Spell.source.unit
             set owner  = Spell.source.player
             set damage = GetDamage(unit, Spell.level)
             set radius = GetAoE(unit, Spell.level)
 
             static if LIBRARY_FelBeam then
-                set armor    = FelBeam_GetArmorReduction(GetUnitAbilityLevel(unit, FelBeam_ABILITY))
+                set armor = FelBeam_GetArmorReduction(GetUnitAbilityLevel(unit, FelBeam_ABILITY))
                 set duration = FelBeam_GetCurseDuration(GetUnitAbilityLevel(unit, FelBeam_ABILITY))
             endif
         
+            call StartTimer(BLAST_DELAY, false, this, -1)
             call DestroyEffect(AddSpecialEffectEx(BLAST_MODEL, x, y, 0, BLAST_SCALE))
-            call TimerStart(timer, BLAST_DELAY, false, function thistype.onBlast)
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+        implement Periodic
+
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

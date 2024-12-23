@@ -1,9 +1,8 @@
-library RainOfFelFire requires Missiles, SpellEffectEvent, PluginSpellEffect, Utilities
-    /* ------------------- Rain of Fel Fire v1.4 by Chopinski ------------------- */
+library RainOfFelFire requires Missiles, Ability, PluginSpellEffect, Utilities, Periodic, optional NewBonus
+    /* ------------------- Rain of Fel Fire v1.5 by Chopinski ------------------- */
     // Credits:
     //     The Panda - InfernalShower icon
     //     Mythic    - Rain of Fire model
-    //     Bribe     - SpellEffectEvent
     /* ----------------------------------- END ---------------------------------- */
     
     /* -------------------------------------------------------------------------- */
@@ -41,7 +40,7 @@ library RainOfFelFire requires Missiles, SpellEffectEvent, PluginSpellEffect, Ut
 
     // The interval at which the rain of fire meteors spwan
     private function GetInterval takes integer level returns real
-        return 0.2 + 0.*level
+        return 0.2 - 0.025 * level
     endfunction
 
     // The max range that a rain of fel fire missile can spawn
@@ -51,13 +50,21 @@ library RainOfFelFire requires Missiles, SpellEffectEvent, PluginSpellEffect, Ut
     endfunction
 
     // The amount of damage dealt when the missile lands
-    private function GetImpactDamage takes integer level returns real
-        return 25.*level
+    private function GetImpactDamage takes unit source, integer level returns real
+        static if NewBonus then
+            return 25. * level + (0.8 + 0.05*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 25. * level
+        endif
     endfunction
 
     // The amount of damage over time dealt to units in range of the impact area
-    private function GetDoTDamage takes integer level returns real
-        return 5.*level
+    private function GetDoTDamage takes unit source, integer level returns real
+        static if NewBonus then
+            return 5. * level + (0.05 + 0.05*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 5. * level
+        endif
     endfunction
 
     // How long the dot will last
@@ -79,199 +86,149 @@ library RainOfFelFire requires Missiles, SpellEffectEvent, PluginSpellEffect, Ut
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct DoT
-        static timer timer = CreateTimer()
-        static integer array n
-        //Dynamic Indexing
-        static integer didx = -1
-        static thistype array data
+        private integer id
+        private unit source
+        private unit target
+        private real damage
+        private real duration
+        private integer level
+        private effect effect
 
-        unit    source
-        unit    target
-        real    damage
-        real    ticks
-        real    decrement
-        integer index
-        effect  effect
-
-        method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             call DestroyEffect(effect)
-
-            set data[i]  = data[didx]
-            set didx     = didx - 1
-            set n[index] = 0
-            set source   = null
-            set target   = null
-            set effect   = null
-
-            if didx == -1 then
-                call PauseTimer(timer)
-            endif
-
             call deallocate()
 
-            return i - 1
+            set source = null
+            set target = null
+            set effect = null
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer  i = 0
-            local thistype this
+        private method onPeriod takes nothing returns boolean
+            set duration = duration - GetDoTInterval(level)
 
-            loop
-                exitwhen i > didx
-                    set this = data[i]
-
-                    if ticks > 0 then
-                        if UnitAlive(target) then
-                            call UnitDamageTarget(source, target, damage, true, false, DOT_ATTACK_TYPE, DOT_DAMAGE_TYPE, null)
-                        else
-                            set ticks = 0
-                        endif
-                    else
-                        set i = remove(i)
-                    endif
-                    set ticks = ticks - decrement
-                set i = i + 1
-            endloop
-        endmethod
-
-        static method create takes unit src, unit tgt, real dmg, integer lvl returns thistype
-            local integer  idx = GetUnitUserData(tgt)
-            local thistype this
-            
-            if n[idx] != 0 then
-                set this       = n[idx]
-            else
-                set this       = thistype.allocate()
-                set source     = src
-                set target     = tgt
-                set damage     = dmg
-                set effect     = AddSpecialEffectTarget(DOT_MODEL, tgt, DOT_ATTACH)
-                set index      = idx
-                set didx       = didx + 1
-                set data[didx] = this
-                set n[idx]     = this
-
-                if didx == 0 then
-                    call TimerStart(timer, GetDoTInterval(lvl), true, function thistype.onPeriod)
+            if duration > 0 then
+                if UnitAlive(target) then
+                    call UnitDamageTarget(source, target, damage, true, false, DOT_ATTACK_TYPE, DOT_DAMAGE_TYPE, null)
+                else
+                    return false
                 endif
             endif
+        
+            return duration > 0
+        endmethod
 
-            if GetDoTInterval(lvl) > 0 then
-                set ticks     = GetDoTDuration(lvl)/GetDoTInterval(lvl)
-                set decrement = GetDoTInterval(lvl)
-            else
-                set ticks     = GetDoTDuration(lvl)
-                set decrement = 1.
+        static method create takes unit source, unit target, real damage, integer level returns thistype
+            local integer id = GetUnitUserData(target)
+            local thistype this = GetTimerInstance(id)
+            
+            if this == 0 then
+                set this = thistype.allocate()
+                set this.id = id
+                set this.level = level
+                set this.source = source
+                set this.target = target
+                set this.damage = damage
+                set effect = AddSpecialEffectTarget(DOT_MODEL, target, DOT_ATTACH)
+
+                call StartTimer(GetDoTInterval(level), true, this, id)
             endif
+
+            set this.duration = GetDoTDuration(level)
 
             return this
         endmethod
+
+        implement Periodic
     endstruct
 
     private struct Meteor extends Missiles
         integer level
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
+            local unit u
             local group g = CreateGroup()
-            local unit  u
 
             call GroupEnumUnitsInRange(g, x, y, IMPACT_RADIUS, null)
+
             loop
                 set u = FirstOfGroup(g)
                 exitwhen u == null
                     if DamageFilter(owner, u) then
                         if UnitDamageTarget(source, u, damage, false, false, IMPACT_ATTACK_TYPE, IMPACT_DAMAGE_TYPE, null) then
-                            call DoT.create(source, u, GetDoTDamage(level), level)
+                            call DoT.create(source, u, GetDoTDamage(source, level), level)
                         endif
                     endif
                 call GroupRemoveUnit(g, u)
             endloop
+
             call DestroyGroup(g)
 
             set g = null
+
             return true
         endmethod
     endstruct
 
-    private struct FelFire
-        static thistype array data
-        static timer          timer = CreateTimer()
-        static integer        didx  = -1
+    private struct FelFire extends Ability
+        private real x
+        private real y
+        private unit unit
+        private real duration
+        private integer level
 
-        unit    unit
-        real    x
-        real    y
-        real    duration
-        integer level
-
-        method remove takes integer i returns integer
-            set data[i] = data[didx]
-            set didx    = didx - 1
-            set unit    = null
-
-            if didx == -1 then
-                call PauseTimer(timer)
-            endif
-
+        method destroy takes nothing returns nothing
+            set unit = null
             call deallocate()
-
-            return i - 1
         endmethod
         
-        private static method onPeriod takes nothing returns nothing
-            local integer  i = 0
-            local thistype this
-            local real theta
-            local real radius
+        private method onTooltip takes unit source, integer level returns string
+            return "|cffffcc00Mannoroth|r calls fire down from the skies every |cffffcc00" + N2S(GetInterval(level), 3) + "|r seconds, dealing |cff00ffff" + N2S(GetImpactDamage(source, level), 0) + "|r |cff00ffffMagic|r damage on impact and |cffd45e19" + N2S(GetDoTDamage(source, level), 0) + " Pure|r damage per second for |cffffcc00" + N2S(GetDoTDuration(level), 1) + "|r seconds.\n\nLasts |cffffcc00" + N2S(GetDuration(level), 1) + "|r seconds."
+        endmethod
+
+        private method onPeriod takes nothing returns boolean
             local real x
-            local real y                                              
+            local real y
+            local real theta
+            local real radius                                              
             local Meteor meteor
 
-            loop
-                exitwhen i > didx
-                    set this = data[i]
+            set duration = duration - GetInterval(level)
 
-                    if duration > 0 then
-                        set theta    = 2*bj_PI*GetRandomReal(0, 1)
-                        set radius   = GetRandomRange(GetRange(unit, level))
-                        set x        = .x + radius*Cos(theta)
-                        set y        = .y + radius*Sin(theta)  
-                        set meteor   = Meteor.create(x, y, START_HEIGHT, x, y, 20)
+            if duration > 0 then
+                set theta = 2*bj_PI*GetRandomReal(0, 1)
+                set radius = GetRandomRange(GetRange(unit, level))
+                set x = .x + radius*Cos(theta)
+                set y = .y + radius*Sin(theta)  
+                set meteor = Meteor.create(x, y, START_HEIGHT, x, y, 20)
 
-                        set meteor.damage   = GetImpactDamage(level)
-                        set meteor.model    = MISSILE_MODEL
-                        set meteor.source   = unit
-                        set meteor.owner    = GetOwningPlayer(unit)
-                        set meteor.level    = level
-                        set meteor.duration = LANDING_TIME
+                set meteor.source = unit
+                set meteor.level = level
+                set meteor.model = MISSILE_MODEL
+                set meteor.duration = LANDING_TIME
+                set meteor.owner = GetOwningPlayer(unit)
+                set meteor.damage = GetImpactDamage(unit, level)
 
-                        call meteor.launch()
-                    else
-                        set i = remove(i)
-                    endif
-                    set duration = duration - GetInterval(level)
-                set i = i + 1
-            endloop
-        endmethod
-
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
-
-            set unit       = Spell.source.unit
-            set level      = Spell.level
-            set duration   = GetDuration(Spell.level)
-            set x          = Spell.x
-            set y          = Spell.y
-            set didx       = didx + 1
-            set data[didx] = this
-
-            if didx == 0 then
-                call TimerStart(timer, GetInterval(Spell.level), true, function thistype.onPeriod)
+                call meteor.launch()
             endif
+            
+            return duration > 0
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
+            set x = Spell.x
+            set y = Spell.y
+            set level = Spell.level
+            set unit = Spell.source.unit
+            set duration = GetDuration(Spell.level)
+
+            call StartTimer(GetInterval(Spell.level), true, this, -1)
+        endmethod
+
+        implement Periodic
+
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

@@ -1,11 +1,10 @@
-library DoomCurse requires DamageInterface, TimerUtils, SpellEffectEvent, PluginSpellEffect, NewBonus
-    /* ---------------------- Doom Curse v1.4 by Chopinski --------------------- */
+library DoomCurse requires DamageInterface, TimerUtils, Ability, PluginSpellEffect, NewBonus
+    /* ---------------------- Doom Curse v1.5 by Chopinski --------------------- */
     // Credits:
     //     marilynmonroe - Pit Infernal model
     //     Mr.Goblin     - Inferno icon
     //     Vexorian      - TimerUtils Library
     //     Mytich        - Soul Armor Spring.mdx
-    //     Bribe         - SpellEffectEvent Library
     /* ----------------------------------- END ---------------------------------- */
     
     /* -------------------------------------------------------------------------- */
@@ -25,8 +24,8 @@ library DoomCurse requires DamageInterface, TimerUtils, SpellEffectEvent, Plugin
     endglobals
 
     // The damage dealt per interval
-    private function GetDamage takes integer level returns real
-        return 125.*level
+    private function GetDamage takes unit source, integer level returns real
+        return 125. * level + 1.5 * GetUnitBonus(source, BONUS_SPELL_POWER)
     endfunction
 
     // The interval at which the damage is dealt
@@ -36,7 +35,7 @@ library DoomCurse requires DamageInterface, TimerUtils, SpellEffectEvent, Plugin
 
     // The damage amplification cursed units take from caster
     private function GetAmplification takes integer level returns real
-        return 1.1 + 0.2*level
+        return 0.1 + 0.2*level
     endfunction
 
     // The Pit Infernal base damage
@@ -54,6 +53,11 @@ library DoomCurse requires DamageInterface, TimerUtils, SpellEffectEvent, Plugin
         return 10.*level + GetUnitBonus(source, BONUS_ARMOR)
     endfunction
 
+    // The Pit Infernal Spell Power
+    private function GetSpellPower takes unit source, integer level returns real
+        return GetUnitBonus(source, BONUS_SPELL_POWER)
+    endfunction
+
     // The Pit Infernal duration. By default is the ability summoned unit duration field. If 0 the unit will last forever.
     private function GetDuration takes unit u, integer level returns real
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, ABILITY), ABILITY_RLF_SUMMONED_UNIT_DURATION_SECONDS_NDO3, level - 1)
@@ -62,64 +66,69 @@ library DoomCurse requires DamageInterface, TimerUtils, SpellEffectEvent, Plugin
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DoomCurse
-        static unit array source
+    private struct DoomCurse extends Ability
+        private static unit array source
 
-        timer   timer
-        unit    caster
-        unit    target
-        integer index
-        integer level
-        real    damage
+        private integer id
+        private unit caster
+        private unit target
+        private real damage
+        private integer level
 
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
+        method destroy takes nothing returns nothing
+            set caster = null
+            set target = null
+            set source[id] = null
 
-            if GetUnitAbilityLevel(target, CURSE_BUFF) > 0 then
-                call UnitDamageTarget(caster, target, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
-            else
-                call ReleaseTimer(timer)
-                set source[index] = null
-                set caster        = null
-                set target        = null
-                set timer         = null
-                call deallocate()
-            endif
+            call deallocate()
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
+        private method onTooltip takes unit source, integer level returns string
+            return "|cffffcc00Mannoroth|r marks an enemy unit with a |cffffcc00Doom Curse|r, silencing, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage every |cffffcc00" + N2S(GetInterval(level), 1) + "|r second and increases the damage that the targeted unit takes from |cffffcc00Mannoroth|r by |cffffcc00" + N2S(GetAmplification(level) * 100, 0) + "%|r. If the cursed unit dies under the effect of |cffffcc00Doom Curse|r, a |cffffcc00Pit Infernal|r will spawn from it corpse. The |cffffcc00Pit Infernal|r can cast |cffffcc00Infernal Charge|r, charging towards the pointed direction, knocking enemy units aside and damaging them, and |cffffcc00War Stomp|r."
+        endmethod
 
-            set timer         = NewTimerEx(this)
-            set caster        = Spell.source.unit
-            set level         = Spell.level
-            set target        = Spell.target.unit
-            set index         = GetUnitUserData(Spell.target.unit)
-            set damage        = GetDamage(Spell.level)
-            set source[index] = Spell.source.unit
+        private method onPeriod takes nothing returns boolean
+            if GetUnitAbilityLevel(target, CURSE_BUFF) > 0 then
+                call UnitDamageTarget(caster, target, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)
 
-            call TimerStart(timer, GetInterval(Spell.level), true, function thistype.onPeriod)
+                return true
+            endif
+                
+            return false
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
+            set id = Spell.target.id
+            set level = Spell.level
+            set caster = Spell.source.unit
+            set target = Spell.target.unit
+            set damage = GetDamage(Spell.source.unit, Spell.level)
+            set source[id] = Spell.source.unit
+
+            call StartTimer(GetInterval(Spell.level), true, this, -1)
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real    damage = GetEventDamage()
+            local integer level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
             local boolean cursed = GetUnitAbilityLevel(Damage.target.unit, CURSE_BUFF) > 0
-            local integer level  = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
-            local unit    u
+            local unit u
 
-            if cursed and damage > 0 then
+            if cursed and Damage.amount > 0 then
                 if source[Damage.target.id] == Damage.source.unit then
-                    set damage = damage*GetAmplification(level)
-                    call BlzSetEventDamage(damage)
+                    set Damage.amount = Damage.amount * (1 + GetAmplification(level))
                 endif
 
-                if damage >= GetWidgetLife(Damage.target.unit) and source[Damage.target.id] != null then
-                    set u = CreateUnit(GetOwningPlayer(source[Damage.target.id]), UNIT_ID, Damage.target.x, Damage.target.y, 0.)
+                if Damage.amount >= GetWidgetLife(Damage.target.unit) and source[Damage.target.id] != null then
+                    set u = CreateUnit(GetOwningPlayer(source[Damage.target.id]), UNIT_ID, Damage.target.x, Damage.target.y, 0)
+
+                    call SetUnitBonus(u, BONUS_SPELL_POWER, GetSpellPower(source[Damage.target.id], level))
                     call SetUnitAnimation(u, "Birth")
                     call BlzSetUnitBaseDamage(u, GetBaseDamage(level, source[Damage.target.id]), 0)
                     call BlzSetUnitMaxHP(u, GetHealth(level, source[Damage.target.id]))
                     call BlzSetUnitArmor(u, GetArmor(level, source[Damage.target.id]))
                     call SetUnitLifePercentBJ(u, 100)
+
                     if GetDuration(source[Damage.target.id], level) > 0 then
                         call UnitApplyTimedLife(u, 'BTLF', GetDuration(source[Damage.target.id], level))
                     endif
@@ -129,8 +138,10 @@ library DoomCurse requires DamageInterface, TimerUtils, SpellEffectEvent, Plugin
             set u = null
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+        implement Periodic
+
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAnyDamageEvent(function thistype.onDamage)
         endmethod
     endstruct
