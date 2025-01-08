@@ -1,5 +1,5 @@
-library ThunderClap requires SpellEffectEvent, PluginSpellEffect, TimedHandles, CrowdControl optional Avatar
-    /* -------------------------------------- Thunder Clap v1.4 ------------------------------------- */
+library ThunderClap requires Ability, TimedHandles, CrowdControl, Utilities optional Avatar optional NewBonus
+    /* -------------------------------------- Thunder Clap v1.5 ------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
     //     Bribe          - SpellEffectEvent
@@ -30,7 +30,11 @@ library ThunderClap requires SpellEffectEvent, PluginSpellEffect, TimedHandles, 
 
     // The damage dealt
     private function GetDamage takes unit source, integer level returns real
-        return 25.*(2*level + 1)
+        static if LIBRARY_NewBonus then
+            return 75.*level + (0.6 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 75.*level
+        endif
     endfunction
 
     // The movement speed slow amount
@@ -82,47 +86,58 @@ library ThunderClap requires SpellEffectEvent, PluginSpellEffect, TimedHandles, 
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct ThunderClap extends array
-        private static method onCast takes nothing returns nothing
+    private struct ThunderClap extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r by |cffffcc00" + N2S(GetAttackSlowAmount(source, level) * 100, 0) + "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc002.5%|r (|cffffcc0010%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r"
+        endmethod
+        
+        private method onCast takes nothing returns nothing
             local unit source = Spell.source.unit
             local player owner = Spell.source.player
-            local integer level = Spell.level
             local integer id = Spell.id
-            local real damage = GetDamage(Spell.source.unit, Spell.level)
-            local real movement = GetMovementSlowAmount(Spell.source.unit, Spell.level)
-            local real attack = GetAttackSlowAmount(Spell.source.unit, Spell.level)
-            local real aoe = GetAoE(Spell.source.unit, Spell.level)
+            local integer level = GetUnitAbilityLevel(Spell.source.unit, ABILITY)
+            local real damage = GetDamage(Spell.source.unit, level)
+            local real movement = GetMovementSlowAmount(Spell.source.unit, level)
+            local real attack = GetAttackSlowAmount(Spell.source.unit, level)
+            local real aoe = GetAoE(Spell.source.unit, level)
             local group g = CreateGroup()
             local real heal = 0
             local unit u
     
             call GroupEnumUnitsInRange(g, Spell.source.x, Spell.source.y, aoe, null)
+
             loop
                 set u = FirstOfGroup(g)
                 exitwhen u == null
                     if UnitFilter(owner, u) then
-                        set heal = heal + GetHealAmount(source, u, level)
-
                         static if LIBRARY_Avatar then
                             if GetUnitAbilityLevel(source, Avatar_BUFF) > 0 then
                                 if id ==  THUNDER_CLAP_RECAST then
                                     if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                                        set heal = heal + GetHealAmount(source, u, level)
+
                                         call StunUnit(u, GetDuration(source, u, level), STUN_MODEL, STUN_POINT, false)
                                     endif
                                 else
                                     if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                                        set heal = heal + GetHealAmount(source, u, level)
+
                                         call SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
                                         call SlowUnitAttack(u, attack, GetDuration(source, u, level), null, null, false)
                                     endif
                                 endif
                             else
                                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                                    set heal = heal + GetHealAmount(source, u, level)
+
                                     call SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
                                     call SlowUnitAttack(u, attack, GetDuration(source, u, level), null, null, false)
                                 endif
                             endif
                         else
                             if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                                set heal = heal + GetHealAmount(source, u, level)
+
                                 call SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
                                 call SlowUnitAttack(u, attack, GetDuration(source, u, level), null, null, false)
                             endif
@@ -130,6 +145,7 @@ library ThunderClap requires SpellEffectEvent, PluginSpellEffect, TimedHandles, 
                     endif
                 call GroupRemoveUnit(g, u)
             endloop
+
             call DestroyGroup(g)
 
             if heal > 0 then
@@ -142,9 +158,9 @@ library ThunderClap requires SpellEffectEvent, PluginSpellEffect, TimedHandles, 
             set source = null
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
-            call RegisterSpellEffectEvent(THUNDER_CLAP_RECAST, function thistype.onCast)
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
+            call RegisterSpell(thistype.allocate(), THUNDER_CLAP_RECAST)
         endmethod
     endstruct
 endlibrary

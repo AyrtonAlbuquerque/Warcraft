@@ -1,5 +1,5 @@
-library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl optional ThunderClap
-    /* --------------------------------------- Storm Bolt v1.4 -------------------------------------- */
+library StormBolt requires Ability, Missiles, Utilities, CrowdControl optional ThunderClap optional NewBonus
+    /* --------------------------------------- Storm Bolt v1.5 -------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
     //     Bribe          - SpellEffectEvent
@@ -32,13 +32,17 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
     endglobals
 
     // The storm bolt damage
-    public function GetDamage takes integer level returns real
-        return 50. + 50.*level
+    public function GetDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 50. + 50.*level + (1.1 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 50. + 50.*level
+        endif
     endfunction
 
     // The storm bolt damage when the target is already stunned
-    public function GetBonusDamage takes real damage, integer level returns real
-        return damage * (1. + 0.25*level)
+    public function GetBonusDamage takes integer level returns real
+        return 0.25 * level
     endfunction
 
     // The storm bolt AoE
@@ -70,21 +74,21 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
     private struct Hammer extends Missiles
-        integer level
-        real slowDuration
         real slow
-        real newDamage
+        integer level
         boolean bonus
+        real newDamage
+        real slowDuration
         boolean deflected
 
-        method onHit takes unit u returns boolean
+        private method onHit takes unit u returns boolean
             if UnitAlive(u) then
                 if DamageFilter(owner, u) then
+                    set newDamage = damage
+
                     if IsUnitStunned(u) or IsUnitSlowed(u) then
-                        set newDamage = GetBonusDamage(damage, level)
+                        set newDamage = damage * (1 + GetBonusDamage(level))
                         set bonus  = true
-                    else
-                        set newDamage = damage
                     endif
     
                     if UnitDamageTarget(source, u, newDamage, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
@@ -100,9 +104,10 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
             return false
         endmethod
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             if not deflected then
                 set deflected = true
+                
                 call deflectTarget(source)
                 call flushAll()
             else
@@ -115,19 +120,23 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
         endmethod
     endstruct
 
-    struct StormBolt extends array
+    struct StormBolt extends Ability
         readonly static real array x
         readonly static real array y
 
-        private static method onCast takes nothing returns nothing
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Muradin|r throw his hammer towards a target location. On its way the hammer deals |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slows enemy units by |cffffcc00" + N2S(GetSlow(level) * 100, 0) + "%|r for |cffffcc00" + N2S(GetSlowDuration(level), 1) + "|r seconds. Units already under the effect of a |cffd45e19Stun|r or |cffd45e19Slow|r takes |cffffcc00" + N2S(GetBonusDamage(level) * 100, 0) + "%|r bonus damage. Upon reaching the destination the hammer comes back to |cffffcc00Muradin|r. When the hammer finally reaches |cffffcc00Muradin|r the cooldown of |cff00ff00Thunder Clap|r is reseted."
+        endmethod
+
+        private method onCast takes nothing returns nothing
             local integer level = GetUnitAbilityLevel(Spell.source.unit, ABILITY)
             local real angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
             local real distance = GetMinimumDistance(level)
             local Hammer hammer
 
             if DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y) < distance then
-                set x[Spell.source.id] = Spell.source.x + distance*Cos(angle)
-                set y[Spell.source.id] = Spell.source.y + distance*Sin(angle)
+                set x[Spell.source.id] = Spell.source.x + distance * Cos(angle)
+                set y[Spell.source.id] = Spell.source.y + distance * Sin(angle)
                 set hammer = Hammer.create(Spell.source.x, Spell.source.y, 60, x[Spell.source.id], y[Spell.source.id], 60)
             else
                 set x[Spell.source.id] = Spell.x
@@ -143,19 +152,18 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
             set hammer.level = level
             set hammer.bonus = false
             set hammer.deflected = false
-            set hammer.damage = GetDamage(hammer.level)
+            set hammer.damage = GetDamage(hammer.source, hammer.level)
             set hammer.collision = GetAoE(Spell.source.unit, level)
             set hammer.slow = GetSlow(level)
             set hammer.slowDuration = GetSlowDuration(level)
 
             call hammer.attach(EXTRA_MODEL, 0, 0, 0, MISSILE_SCALE)
-
             call hammer.launch()
         endmethod
 
         static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
-            call RegisterSpellEffectEvent(STORM_BOLT_RECAST, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
+            call RegisterSpell(thistype.allocate(), STORM_BOLT_RECAST)
         endmethod
     endstruct
 endlibrary

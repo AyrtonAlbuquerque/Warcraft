@@ -1,5 +1,5 @@
-library Bash requires DamageInterface, CrowdControl
-    /* ------------------------------------------ Bash v1.0 ----------------------------------------- */
+library Bash requires Ability, DamageInterface, CrowdControl, Utilities optional NewBonus
+    /* ------------------------------------------ Bash v1.1 ----------------------------------------- */
     // Credits:
     //     PrinceYaser - Icon
     /* ---------------------------------------- By Chipinski ---------------------------------------- */
@@ -18,7 +18,11 @@ library Bash requires DamageInterface, CrowdControl
 
     // The damage dealt
     private function GetDamage takes unit source, integer level returns real
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1)
+        static if LIBRARY_NewBonus then
+            return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1) + 0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1)
+        endif
     endfunction
 
     // The proc chance
@@ -43,7 +47,11 @@ library Bash requires DamageInterface, CrowdControl
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct Bash extends array
+    private struct Bash extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "Gives a |cffffcc00" + N2S(GetChance(source, level), 0) + "%|r chance that an attack will do |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r bonus |cff00ffffMagic|r damage and stun an opponent for |cffffcc001|r (|cffffcc000.5|r for |cffffcc00Heroes|r) second."
+        endmethod
+
         private static method onDamage takes nothing returns nothing
             local integer level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
 
@@ -59,6 +67,7 @@ library Bash requires DamageInterface, CrowdControl
         endmethod
 
         private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

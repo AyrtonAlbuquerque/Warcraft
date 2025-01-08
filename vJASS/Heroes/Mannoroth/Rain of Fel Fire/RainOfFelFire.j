@@ -1,4 +1,4 @@
-library RainOfFelFire requires Missiles, Ability, PluginSpellEffect, Utilities, Periodic, optional NewBonus
+library RainOfFelFire requires Missiles, Ability, Utilities, Periodic, optional NewBonus
     /* ------------------- Rain of Fel Fire v1.5 by Chopinski ------------------- */
     // Credits:
     //     The Panda - InfernalShower icon
@@ -181,7 +181,7 @@ library RainOfFelFire requires Missiles, Ability, PluginSpellEffect, Utilities, 
             call deallocate()
         endmethod
         
-        private method onTooltip takes unit source, integer level returns string
+        private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Mannoroth|r calls fire down from the skies every |cffffcc00" + N2S(GetInterval(level), 3) + "|r seconds, dealing |cff00ffff" + N2S(GetImpactDamage(source, level), 0) + "|r |cff00ffffMagic|r damage on impact and |cffd45e19" + N2S(GetDoTDamage(source, level), 0) + " Pure|r damage per second for |cffffcc00" + N2S(GetDoTDuration(level), 1) + "|r seconds.\n\nLasts |cffffcc00" + N2S(GetDuration(level), 1) + "|r seconds."
         endmethod
 

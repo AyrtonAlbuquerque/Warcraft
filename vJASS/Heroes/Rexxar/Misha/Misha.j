@@ -1,9 +1,7 @@
-library Misha requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, NewBonus, TimerUtils
-    /* ------------------------- Misha v1.0 by Chopinski ------------------------ */
+library Misha requires RegisterPlayerUnitEvent, Ability, NewBonus, Periodic, Utilities
+    /* ------------------------- Misha v1.1 by Chopinski ------------------------ */
     // Credits:
-    //     Blizzard        - Icon
-    //     Bribe           - SpellEffectEvent
-    //     Vexorian        - TimerUtils
+    //     Blizzard - Icon
     /* ----------------------------------- END ---------------------------------- */
 
     /* -------------------------------------------------------------------------- */
@@ -17,33 +15,84 @@ library Misha requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEff
     endglobals
     
     // The Misha Max Health
-    private function GetMishaHealth takes unit source, integer level returns integer
-        return 1500 + 500*level + R2I(BlzGetUnitMaxHP(source)*0.125*level)
+    private function GetMishaHealth takes unit source, integer level returns real
+        return 1500 + 500 * level + (0.125 * level) * BlzGetUnitMaxHP(source)
     endfunction
     
     // The Misha Damage
-    private function GetMishaDamage takes unit source, integer level returns integer
-        return 25 + 25*level + R2I(GetUnitBonus(source, BONUS_DAMAGE)*0.5)
+    private function GetMishaDamage takes unit source, integer level returns real
+        return 25 + 25 * level + 0.5 * GetUnitBonus(source, BONUS_DAMAGE)
     endfunction
     
     // The Misha Armor
     private function GetMishaArmor takes unit source, integer level returns real
-        return 1. + 1.*level + GetUnitBonus(source, BONUS_DAMAGE)*0.1*level
+        return 1. + 1. * level + (0.1 * level) * GetUnitBonus(source, BONUS_DAMAGE)
     endfunction
 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct Misha
+    struct Misha extends Ability
         readonly static group array group
         readonly static integer array owner
         
-        timer timer
-        unit unit
-        integer id
-        integer level
-        player player
-    
+        private unit unit
+        private integer id
+        private integer level
+        private player player
+        
+        method destroy takes nothing returns nothing
+            set unit = null
+            set player = null
+
+            call deallocate()
+        endmethod
+        
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Rexxar|r summons his companion |cffffcc00Misha|r to aid him in the battlefield. |cffffcc00Misha|r has |cffff0000" + N2S(GetMishaHealth(source, level), 0) + "|r |cffff0000Health|r, |cffff0000" + N2S(GetMishaDamage(source, level), 0) + "|r |cffff0000Damage|r and |cff808080" + N2S(GetMishaArmor(source, level), 0) + "|r |cff808080Armor|r."
+        endmethod
+
+        private method onExpire takes nothing returns nothing
+            local unit u
+            local group g = CreateGroup()
+            
+            if group[id] == null then
+                set group[id] = CreateGroup()
+            endif
+            
+            call GroupClear(group[id])
+            call GroupEnumUnitsOfPlayer(g, player, null)
+
+            loop
+                set u = FirstOfGroup(g)
+                exitwhen u == null
+                    if UnitAlive(u) and GetUnitTypeId(u) == MISHA then
+                        set owner[GetUnitUserData(u)] = id
+
+                        call GroupAddUnit(group[id], u)
+                        call BlzSetUnitMaxHP(u, R2I(GetMishaHealth(unit, level)))
+                        call SetUnitLifePercentBJ(u, 100)
+                        call BlzSetUnitBaseDamage(u, R2I(GetMishaDamage(unit, level)), 0)
+                        call BlzSetUnitArmor(u, GetMishaArmor(unit, level))
+                    endif
+                call GroupRemoveUnit(g, u)
+            endloop
+
+            call DestroyGroup(g)
+
+            set g = null
+        endmethod
+        
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
+            set id = Spell.source.id
+            set unit = Spell.source.unit
+            set level = Spell.level
+            set player = Spell.source.player
+            
+            call StartTimer(0, false, this, -1)
+        endmethod
+
         private static method onDeath takes nothing returns nothing
             local unit source = GetTriggerUnit()
             local integer i = GetUnitUserData(source)
@@ -56,63 +105,12 @@ library Misha requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEff
             
             set source = null
         endmethod
-        
-        private static method setup takes unit source, unit owner, integer level returns nothing
-            local real r
-            
-            set r = GetUnitLifePercent(source)
-            call BlzSetUnitMaxHP(source, GetMishaHealth(owner, level))
-            call SetUnitLifePercentBJ(source, r)
-            call BlzSetUnitBaseDamage(source, GetMishaDamage(owner, level), 0)
-            call BlzSetUnitArmor(source, GetMishaArmor(owner, level))
-        endmethod
-        
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            local group g = CreateGroup()
-            local unit u
-            
-            if group[id] == null then
-                set group[id] = CreateGroup()
-            endif
-            
-            call GroupClear(group[id])
-            call GroupEnumUnitsOfPlayer(g, player, null)
-            loop
-                set u = FirstOfGroup(g)
-                exitwhen u == null
-                    if UnitAlive(u) and GetUnitTypeId(u) == MISHA then
-                        set owner[GetUnitUserData(u)] = id
-                        call GroupAddUnit(group[id], u)
-                        call setup(u, unit, level)
-                    endif
-                call GroupRemoveUnit(g, u)
-            endloop
-            call DestroyGroup(g)
-            call ReleaseTimer(timer)
-            call deallocate()
-            
-            set g = null
-            set unit = null
-            set timer = null
-            set player = null
-        endmethod
-        
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
-            
-            set timer = NewTimerEx(this)
-            set id = Spell.source.id
-            set unit = Spell.source.unit
-            set level = Spell.level
-            set player = Spell.source.player
-            
-            call TimerStart(timer, 0, false, function thistype.onExpire)
-        endmethod
     
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
         endmethod
     endstruct
 endlibrary

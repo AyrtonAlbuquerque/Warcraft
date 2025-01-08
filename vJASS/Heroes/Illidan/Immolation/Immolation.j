@@ -1,9 +1,8 @@
-library Immolation requires RegisterPlayerUnitEvent, NewBonusUtils, TimerUtils
-    /* ---------------------- Immolation v1.1 by Chopinski ---------------------- */
+library Immolation requires Ability, RegisterPlayerUnitEvent, NewBonus, Periodic, Utilities
+    /* ---------------------- Immolation v1.2 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Magtheridon96   - RegisterPlayerUnitEvent
-    //     Vexorian        - TimerUtils
     //     Mythic          - Immolation Effect (Edited by me)
     /* ----------------------------------- END ---------------------------------- */
     
@@ -29,8 +28,13 @@ library Immolation requires RegisterPlayerUnitEvent, NewBonusUtils, TimerUtils
     endfunction
 
     // The Immolation damage
-    private function GetDamage takes integer level returns real
-        return 20.*level
+    private function GetDamage takes unit source, integer level returns real
+        return 20. * level + (0.2 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+    endfunction
+
+    // The Immolation ardor reduction
+    private function GetArmorReduction takes integer level returns real
+        return 1 + 0.*level
     endfunction
 
     // The Immolation armor debuff duration
@@ -45,71 +49,73 @@ library Immolation requires RegisterPlayerUnitEvent, NewBonusUtils, TimerUtils
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Immolation
-        static thistype array n
+    private struct Immolation extends Ability
+        private unit unit
+        private group group
+        private player player
 
-        timer   timer
-        unit    unit
-        group   group
-        player  player
-        integer i
+        method destroy takes nothing returns nothing
+            call DestroyGroup(group)
+            call deallocate()
 
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            local integer  level
-            local unit     u
+            set unit = null
+            set group = null
+            set player = null
+        endmethod
 
-            if GetUnitAbilityLevel(unit, BUFF) > 0 then
-                set level = GetUnitAbilityLevel(unit, ABILITY)
+        private method onTooltip takes unit source, integer level, ability spell returns string 
+            return "Engulfs |cffffcc00Illidan|r in fel flames, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage to nearby enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r and shreding their armor by |cffffcc00" + N2S(GetArmorReduction(level), 0) + "|r every time they are affected by |cffffcc00Immolation|r for |cffffcc00" + N2S(GetDuration(level), 0) + "|r seconds.\n\nDrains mana until deactivated. "
+        endmethod
+
+        private method onPeriod takes nothing returns boolean
+            local integer level = GetUnitAbilityLevel(unit, ABILITY)
+            local unit u
+
+            if GetUnitAbilityLevel(unit, BUFF) > 0 then 
                 call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), GetAoE(unit, level), null)
+
                 loop
                     set u = FirstOfGroup(group)
                     exitwhen u == null
                         if DamageFilter(player, u) then
-                            if UnitDamageTarget(unit, u, GetDamage(level), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                            if UnitDamageTarget(unit, u, GetDamage(unit, level), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                                 call DestroyEffect(AddSpecialEffectTarget(MODEL, u, ATTACH_POINT))
-                                call AddUnitBonusTimed(u, BONUS_ARMOR, -1, GetDuration(level))
+                                call AddUnitBonusTimed(u, BONUS_ARMOR, -GetArmorReduction(level), GetDuration(level))
                             endif
                         endif
                     call GroupRemoveUnit(group, u)
                 endloop
-            else
-                call ReleaseTimer(timer)
-                call DestroyGroup(group)
-                call deallocate()
 
-                set n[i]   = 0
-                set timer  = null
-                set unit   = null
-                set player = null
-                set group  = null
+                set u = null
+
+                return true
             endif
 
-            set u = null
+            return false
         endmethod
 
         private static method onOrder takes nothing returns nothing
-            local unit     source = GetOrderedUnit()
-            local integer  index  = GetUnitUserData(source)
+            local unit source = GetOrderedUnit()
+            local integer id = GetUnitUserData(source)
             local thistype this
 
-            if n[index] == 0 and GetIssuedOrderId() == 852177 then
-                set this   = thistype.allocate()
-                set i      = index
-                set timer  = NewTimerEx(this)
-                set group  = CreateGroup()
+            if GetIssuedOrderId() == 852177 and not HasStartedTimer(id) then
+                set this = thistype.allocate()
+                set unit = source
+                set group = CreateGroup()
                 set player = GetOwningPlayer(source)
-                set unit   = source
-                set n[i]   = this
 
+                call StartTimer(PERIOD, true, this, id)
                 call LinkEffectToBuff(source, BUFF, "Ember Green.mdl", "chest")
-                call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
             endif
         
             set source = null
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)
         endmethod
     endstruct

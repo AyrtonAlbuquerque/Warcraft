@@ -1,8 +1,7 @@
-library WindWalk requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, NewBonusUtils, CriticalStrike
-    /* ----------------------- Wind Walk v1.2 by Chopinski ---------------------- */
+library WindWalk requires RegisterPlayerUnitEvent, Ability, NewBonus, DamageInterface, Utilities
+    /* ----------------------- Wind Walk v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
-    //     Bribe          - SpellEffectEvent
     //     Anachron       - Icon
     /* ----------------------------------- END ---------------------------------- */
     
@@ -24,45 +23,19 @@ library WindWalk requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpell
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct WindWalk extends array
-        static boolean array check
+    private struct WindWalk extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "Allows |cffffcc00Samuro|r to become invisible, and move |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_MOVEMENT_SPEED_INCREASE_PERCENT_OWK2, level -1) * 100, 0) + "%|r faster for |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, level -1), 1) + "|r seconds. While invisible, |cffffcc00Samuro|r has |cff00ff00" + N2S(GetRegenBonus(level), 0) + "|r increased |cff00ff00Health Regeneration|r. When |cffffcc00Samuro|r attacks a unit to break invisibility, he will hit a |cffffcc00Critical Strike|r with |cffffcc00100%|r bonus |cffffcc00Critical Damage|r and |cffff0000" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_BACKSTAB_DAMAGE, level -1), 0) + "|r bonus damage on that attack."
+        endmethod
 
-        private static method onCast takes nothing returns nothing
+        private method onCast takes nothing returns nothing
             call LinkBonusToBuff(Spell.source.unit, BONUS_HEALTH_REGEN, GetRegenBonus(Spell.level), BUFF)
+            call LinkBonusToBuff(Spell.source.unit, BONUS_CRITICAL_CHANCE, 1, BUFF)
+            call LinkBonusToBuff(Spell.source.unit, BONUS_CRITICAL_DAMAGE, 1, BUFF)
         endmethod
 
-        private static method onAttack takes nothing returns nothing
-            local unit    source = GetAttacker()
-            local integer level  = GetUnitAbilityLevel(source, BUFF)
-            local integer idx    = GetUnitUserData(source)
-
-            if check[idx] and level == 0 then
-                set check[idx] = false
-                call UnitAddCriticalStrike(source, -100, -1)
-            elseif not check[idx] and level > 0 then
-                set check[idx] = true
-                call UnitAddCriticalStrike(source, 100, 1)
-            endif
-
-            set source = null
-        endmethod
-
-        private static method onCritical takes nothing returns nothing
-            local unit    source = GetCriticalSource()
-            local integer idx    = GetUnitUserData(source)
-
-            if check[idx] then
-                set check[idx] = false
-                call UnitAddCriticalStrike(source, -100, -1)
-            endif
-
-            set source = null
-        endmethod
-
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function thistype.onAttack)
-            call RegisterCriticalStrikeEvent(function thistype.onCritical)
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

@@ -32,7 +32,7 @@ scope Block
                     call UnitMakeAbilityPermanent(u, true, ability)
                 endif
             
-                if BlzSetAbilityRealLevelField(BlzGetUnitAbility(u, ability), field, 0, R2I(value)) then
+                if BlzSetAbilityRealLevelField(BlzGetUnitAbility(u, ability), field, 0, value) then
                     call IncUnitAbilityLevel(u, ability)
                     call DecUnitAbilityLevel(u, ability)
                 endif
@@ -49,9 +49,9 @@ scope Block
 
         private static method onDamage takes nothing returns nothing
             static if LIBRARY_DamageInterface then
-                if Damage.amount > 0 and block[Damage.source.id] > 0 then
-                    if Damage.amount > block[Damage.source.id] then
-                        set Damage.amount = Damage.amount - block[Damage.source.id]
+                if Damage.isAttack and Damage.amount > 0 and block[Damage.target.id] > 0 then
+                    if Damage.amount > block[Damage.target.id] then
+                        set Damage.amount = Damage.amount - block[Damage.target.id]
                     else
                         set Damage.amount = 0
                     endif

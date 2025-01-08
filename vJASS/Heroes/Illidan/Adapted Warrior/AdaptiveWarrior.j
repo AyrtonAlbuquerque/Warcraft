@@ -1,5 +1,5 @@
-library AdaptedWarrior requires Evasion, NewBonusUtils, DamageInterface, RegisterPlayerUnitEvent, Utilities
-    /* -------------------- Adapted Warrior v1.2 by Chopinski ------------------- */
+library AdaptedWarrior requires Ability, NewBonus, DamageInterface, RegisterPlayerUnitEvent, Utilities
+    /* -------------------- Adapted Warrior v1.3 by Chopinski ------------------- */
     // Credits:
     //     FrIkY          - Icon
     /* ----------------------------------- END ---------------------------------- */
@@ -56,7 +56,11 @@ library AdaptedWarrior requires Evasion, NewBonusUtils, DamageInterface, Registe
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct AdaptedWarrior extends array
+    private struct AdaptedWarrior extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "When |cffffcc00Illidan|r evades an attack, his |cffffcc00Attack Speed|r is increased by |cffffcc00" + N2S(GetAttackSpeedBonus(level), 0) + "%|r and |cffffcc00Movement Speed|r is increased by |cffffcc00" + N2S(GetMovementSpeedBonus(level), 0) + "|r for |cffffcc00" + N2S(GetMovementSpeedDuration(level), 0) + "|r seconds. Additionally |cffffcc00Illidan|r attacks destroy |cff00ffff" + N2S(GetManaBurned(level), 0) + " Mana|r per hit. The mana combusts, dealing |cff00ffffMagic|r damage to the attacked unit. If the attacked unit mana is below |cffffcc00" + N2S(GetManaPercent(level), 0) + "%|r, the combusted mana deals |cffd45e19Pure|r damage instead."
+        endmethod
+
         private static method onEvade takes nothing returns nothing
             local unit source = GetMissingUnit()
             local unit target = GetEvadingUnit()
@@ -72,16 +76,15 @@ library AdaptedWarrior requires Evasion, NewBonusUtils, DamageInterface, Registe
             set target = null
         endmethod
 
-        static method onDamage takes nothing returns nothing
+        private static method onDamage takes nothing returns nothing
             local integer level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
-            local real mana
             local real burn
 
             if Damage.isEnemy and not Damage.target.isMagicImmune and level > 0 and BlzGetUnitMaxMana(Damage.target.unit) > 0 then
-                set mana = GetUnitState(Damage.target.unit, UNIT_STATE_MANA)
                 set burn = GetManaBurned(level)
 
                 call AddUnitMana(Damage.target.unit, -burn)
+
                 if GetUnitManaPercent(Damage.target.unit) < GetManaPercent(level) then
                     call DestroyEffect(AddSpecialEffectTarget(BONUS_MODEL, Damage.target.unit, ATTACH_POINT))
                     call UnitDamageTarget(Damage.source.unit, Damage.target.unit, burn, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, null)
@@ -103,6 +106,7 @@ library AdaptedWarrior requires Evasion, NewBonusUtils, DamageInterface, Registe
         endmethod
 
         private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterEvasionEvent(function thistype.onEvade)
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)

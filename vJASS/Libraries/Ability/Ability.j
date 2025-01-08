@@ -1,12 +1,27 @@
-library Ability requires Table, RegisterPlayerUnitEvent, PluginSpellEffect
-    /* ----------------------------------------------------------------------------------------- */
-    /*                                           System                                          */
-    /* ----------------------------------------------------------------------------------------- */
+library Ability requires Spell, Table, RegisterPlayerUnitEvent
     private interface IAbility
+        method onEnd takes nothing returns nothing defaults nothing
         method onCast takes nothing returns nothing defaults nothing
+        method onStart takes nothing returns nothing defaults nothing
+        method onFinish takes nothing returns nothing defaults nothing
+        method onChannel takes nothing returns nothing defaults nothing
         method onLearn takes unit source, integer skill, integer level returns nothing defaults nothing
-        method onTooltip takes unit source, integer level returns string defaults null
+        method onTooltip takes unit source, integer level, ability spell returns string defaults null
     endinterface
+
+    private module MAbility
+        private static method onInit takes nothing returns nothing
+            set struct = Table.create()
+            set learned = HashTable.create()
+
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function thistype.onLearning)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST, function thistype.onStarting)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCasting)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, function thistype.onEnding)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_FINISH, function thistype.onFinishing)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, function thistype.onChanneling)
+        endmethod
+    endmodule
 
     struct Ability extends IAbility
         private static Table struct
@@ -23,8 +38,6 @@ library Ability requires Table, RegisterPlayerUnitEvent, PluginSpellEffect
         static method register takes IAbility spell, integer id returns nothing
             if id > 0 and spell != 0 then
                 set struct[id] = spell
-
-                call RegisterSpellEffectEvent(id, function thistype.onCasting)
             endif
         endmethod
 
@@ -40,7 +53,7 @@ library Ability requires Table, RegisterPlayerUnitEvent, PluginSpellEffect
                     set level = GetUnitAbilityLevel(unit, id)
                     
                     if level > 0 then
-                        set tooltip = type.onTooltip(unit, level)
+                        set tooltip = type.onTooltip(unit, level, ability)
 
                         call BlzSetAbilityExtendedTooltip(id, tooltip, level - 1)
                         call BlzSetAbilityStringLevelField(ability, ABILITY_SLF_TOOLTIP_NORMAL_EXTENDED, level - 1, tooltip)
@@ -91,7 +104,7 @@ library Ability requires Table, RegisterPlayerUnitEvent, PluginSpellEffect
                 endif
 
                 if onTooltip.exists then
-                    set tooltip = onTooltip(Spell.source.unit, Spell.level)
+                    set tooltip = onTooltip(Spell.source.unit, Spell.level, Spell.ability)
 
                     call BlzSetAbilityExtendedTooltip(Spell.id, tooltip, Spell.level - 1)
                     call BlzSetAbilityStringLevelField(Spell.ability, ABILITY_SLF_TOOLTIP_NORMAL_EXTENDED, Spell.level - 1, tooltip)
@@ -114,12 +127,47 @@ library Ability requires Table, RegisterPlayerUnitEvent, PluginSpellEffect
             endif
         endmethod
 
-        private static method onInit takes nothing returns nothing
-            set struct = Table.create()
-            set learned = HashTable.create() 
+        private static method onEnding takes nothing returns nothing
+            local thistype this = struct[Spell.id]
 
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function thistype.onLearning)
+            if this != 0 then
+                if onEnd.exists then
+                    call onEnd()
+                endif
+            endif
         endmethod
+
+        private static method onStarting takes nothing returns nothing
+            local thistype this = struct[Spell.id]
+
+            if this != 0 then
+                if onStart.exists then
+                    call onStart()
+                endif
+            endif
+        endmethod
+
+        private static method onFinishing takes nothing returns nothing
+            local thistype this = struct[Spell.id]
+
+            if this != 0 then
+                if onFinish.exists then
+                    call onFinish()
+                endif
+            endif
+        endmethod
+
+        private static method onChanneling takes nothing returns nothing
+            local thistype this = struct[Spell.id]
+            
+            if this != 0 then
+                if onChannel.exists then
+                    call onChannel()
+                endif
+            endif
+        endmethod
+
+        implement MAbility
     endstruct
 
     /* ----------------------------------------------------------------------------------------- */

@@ -1,4 +1,4 @@
-library PandaPower requires RegisterPlayerUnitEvent
+library PandaPower requires RegisterPlayerUnitEvent, NewBonus, Ability
     /* ---------------------- Panda Power v1.2 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -18,10 +18,22 @@ library PandaPower requires RegisterPlayerUnitEvent
         private constant integer GAIN_AT_LEVEL = 20
     endglobals
 
+    private function GetAgilityBonus takes integer level returns real
+        return 20 + 0.*level
+    endfunction
+
+    private function GetStrengthBonus takes integer level returns real
+        return 20 + 0.*level
+    endfunction
+
+    private function GetIntelligenceBonus takes integer level returns real
+        return 20 + 0.*level
+    endfunction
+
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct PandaPower extends array
+    private struct PandaPower extends Ability
         private static method onLevelUp takes nothing returns nothing
             local unit u = GetTriggerUnit()
         
@@ -29,6 +41,9 @@ library PandaPower requires RegisterPlayerUnitEvent
                 if GetUnitTypeId(u) == CHEN_ID and GetHeroLevel(u) == GAIN_AT_LEVEL then
                     call UnitAddAbility(u, ABILITY)
                     call UnitMakeAbilityPermanent(u, true, ABILITY)
+                    call AddUnitBonus(u, BONUS_AGILITY, GetAgilityBonus(GetUnitAbilityLevel(u, ABILITY)))
+                    call AddUnitBonus(u, BONUS_STRENGTH, GetStrengthBonus(GetUnitAbilityLevel(u, ABILITY)))
+                    call AddUnitBonus(u, BONUS_INTELLIGENCE, GetIntelligenceBonus(GetUnitAbilityLevel(u, ABILITY)))
                 endif
             endif
         

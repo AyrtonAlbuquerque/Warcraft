@@ -1,4 +1,4 @@
-library InfernalCharge requires Ability, PluginSpellEffect, Missiles, Utilities, CrowdControl, optional NewBonus
+library InfernalCharge requires Ability, Missiles, Utilities, CrowdControl, optional NewBonus
     /* ------------------------------------ Infernal Charge v1.5 ------------------------------------ */
     // Credits:
     //     marilynmonroe - Pit Infernal model
@@ -90,7 +90,7 @@ library InfernalCharge requires Ability, PluginSpellEffect, Missiles, Utilities,
     endstruct
 
     private struct PitInfernal extends Ability
-        private method onTooltip takes unit source, integer level returns string
+        private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Pit Infernal|r charges in the pointed direction, knocking back and damaging enemy units, dealing |cff00ffff" + N2S(GetChargeDamage(source, level), 0) + "|r |cff00ffffMagic|r damage."
         endmethod
 

@@ -1,5 +1,5 @@
-library DwarfEndurance requires RegisterPlayerUnitEvent, DamageInterface
-    /* -------------------- Dwarf Endurance v1.2 by Chopinski ------------------- */
+library DwarfEndurance requires Ability, DamageInterface, Periodic, Utilities
+    /* -------------------- Dwarf Endurance v1.3 by Chopinski ------------------- */
     // Credits:
     //     Blizzard       - Icon
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -32,108 +32,76 @@ library DwarfEndurance requires RegisterPlayerUnitEvent, DamageInterface
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DwarfEndurance
-        static timer timer = CreateTimer()
-        static integer array n
-        static integer didx = -1
-        static thistype array data
+    private struct DwarfEndurance extends Ability
+        private unit unit
+        private integer id
+        private real cooldown
+        private effect effect
 
-        unit    unit
-        effect  effect
-        integer idx
-        real    count
-
-        private method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             call DestroyEffect(effect)
-
-            set data[i] = data[didx]
-            set didx    = didx - 1
-            set n[idx]  = 0
-            set unit    = null
-            set effect  = null
-
-            if didx == -1 then
-                call PauseTimer(timer)
-            endif
-
             call deallocate()
 
-            return i - 1
+            set unit = null
+            set effect = null
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer  level
-            local integer  i = 0
-            local thistype this
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "When |cffffcc00Muradin|r stops taking damage for |cffffcc00" + N2S(GetCooldown(), 1) + "|r seconds, |cff00ff00Health Regeneration|r is increased by |cff00ff00" + N2S(GetHeal(level), 0) + "|r per second."
+        endmethod
 
-            loop
-                exitwhen i > didx
-                    set this = data[i]
-
-                    set level = GetUnitAbilityLevel(unit, ABILITY)
-                    if level > 0 then
-                        if count == 0 then
-                            if UnitAlive(unit) then
-                                call SetWidgetLife(unit, GetWidgetLife(unit) + GetHeal(level)*PERIOD)
-                            endif
-                        else
-                            set count = count - 1
-
-                            if effect != null then
-                                call DestroyEffect(effect)
-                                set effect = null
-                            endif
-
-                            if count == 0 then
-                                set effect = AddSpecialEffectTarget(HEAL_EFFECT, unit, ATTACH_POINT)
-                            endif
-                        endif
-                    else
-                        set i = remove(i)
+        private method onPeriod takes nothing returns boolean
+            local integer level = GetUnitAbilityLevel(unit, ABILITY)
+                    
+            if level > 0 then
+                if cooldown <= 0 then
+                    if UnitAlive(unit) then
+                        call SetWidgetLife(unit, GetWidgetLife(unit) + GetHeal(level) * PERIOD)
                     endif
-                set i = i + 1
-            endloop
+                else
+                    set cooldown = cooldown - PERIOD
+
+                    if effect != null then
+                        call DestroyEffect(effect)
+                        set effect = null
+                    endif
+
+                    if cooldown <= 0 then
+                        set effect = AddSpecialEffectTarget(HEAL_EFFECT, unit, ATTACH_POINT)
+                    endif
+                endif
+            endif
+
+            return level > 0
+        endmethod
+
+        private method onLearn takes unit source, integer skill, integer level returns nothing
+            local integer id = GetUnitUserData(source)
+        
+            if not HasStartedTimer(id) then
+                set this = thistype.allocate()
+                set this.id = id
+                set cooldown = 0
+                set unit = source
+                set effect = AddSpecialEffectTarget(HEAL_EFFECT, source, ATTACH_POINT)
+
+                call StartTimer(PERIOD, true, this, id)
+            endif
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local thistype this
+            local thistype this = GetTimerInstance(Damage.target.id)
         
-            if GetUnitAbilityLevel(Damage.target.unit, ABILITY) > 0 then
-                if n[Damage.target.id] != 0 then
-                    set this  = n[Damage.target.id]
-                    set count = GetCooldown()/PERIOD
-                endif
+            if this != 0 then
+                set cooldown = GetCooldown()
             endif
         endmethod
 
-        private static method onLevel takes nothing returns nothing
-            local unit     source = GetTriggerUnit()
-            local boolean  skill  = GetLearnedSkill() == ABILITY
-            local integer  index  = GetUnitUserData(source)
-            local thistype this
-        
-            if skill and n[index] == 0 then
-                set this       = thistype.allocate()
-                set unit       = source
-                set effect     = AddSpecialEffectTarget(HEAL_EFFECT, source, ATTACH_POINT)
-                set idx        = index
-                set count      = 0
-                set didx       = didx + 1
-                set data[didx] = this
-                set n[index]   = this
+        implement Periodic
 
-                if didx == 0 then
-                    call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
-                endif
-            endif
-
-            set source = null
-        endmethod
-
-
-        static method onInit takes nothing returns nothing
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAnyDamageEvent(function thistype.onDamage)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function thistype.onLevel)
         endmethod
     endstruct
 endlibrary

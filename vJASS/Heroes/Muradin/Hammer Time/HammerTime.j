@@ -1,4 +1,4 @@
-library HammerTime requires DamageInterface, optional StormBolt, optional ThunderClap, optional Avatar
+library HammerTime requires Ability, DamageInterface, Utilities optional StormBolt, optional ThunderClap, optional Avatar
     /* ---------------------- HammerTime v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -35,7 +35,11 @@ library HammerTime requires DamageInterface, optional StormBolt, optional Thunde
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct HammerTime extends array
+    private struct HammerTime extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Muradin|r basic attacks against enemy units reduce the cooldown of |cffffcc00Storm Bolt|r by |cffffcc00" + N2S(GetStormBoltCooldown(level), 1) + "|r seconds and |cffffcc00Thunder Clap|r by |cffffcc00" + N2S(GetThunderClapCooldown(level), 1) + "|r seconds and |cffffcc00Avatar|r cooldown by |cffffcc00" + N2S(GetAvatarCooldown(level), 1) +"|r second."
+        endmethod
+
         private static method onLevelUp takes nothing returns nothing
             local unit u = GetTriggerUnit()
         
@@ -58,6 +62,7 @@ library HammerTime requires DamageInterface, optional StormBolt, optional Thunde
                 static if LIBRARY_StormBolt then
                     set cooldown  = BlzGetUnitAbilityCooldownRemaining(Damage.source.unit, StormBolt_ABILITY)
                     set reduction = GetStormBoltCooldown(level)
+
                     if cooldown > 0 then
                         if cooldown - reduction <= 0 then
                             call ResetUnitAbilityCooldown(Damage.source.unit, StormBolt_ABILITY)
@@ -70,6 +75,7 @@ library HammerTime requires DamageInterface, optional StormBolt, optional Thunde
                 static if LIBRARY_ThunderClap then
                     set cooldown  = BlzGetUnitAbilityCooldownRemaining(Damage.source.unit, ThunderClap_ABILITY)
                     set reduction = GetThunderClapCooldown(level)
+
                     if cooldown > 0 then
                         if cooldown - reduction <= 0 then
                             call ResetUnitAbilityCooldown(Damage.source.unit, ThunderClap_ABILITY)
@@ -82,6 +88,7 @@ library HammerTime requires DamageInterface, optional StormBolt, optional Thunde
                 static if LIBRARY_Avatar then
                     set cooldown  = BlzGetUnitAbilityCooldownRemaining(Damage.source.unit, Avatar_ABILITY)
                     set reduction = GetAvatarCooldown(level)
+
                     if cooldown > 0 then
                         if cooldown - reduction <= 0 then
                             call ResetUnitAbilityCooldown(Damage.source.unit, Avatar_ABILITY)
@@ -93,9 +100,10 @@ library HammerTime requires DamageInterface, optional StormBolt, optional Thunde
             endif
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevelUp)
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAttackDamageEvent(function thistype.onDamage)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevelUp)
         endmethod
     endstruct
 endlibrary

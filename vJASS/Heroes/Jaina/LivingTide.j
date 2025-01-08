@@ -1,9 +1,7 @@
-library LivingTide requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, MouseUtils
-    /* ---------------------- Living Tide v1.0 by Chopinski --------------------- */
+library LivingTide requires Ability, Missiles, Utilities, MouseUtils, Periodic optional NewBonus
+    /* ---------------------- Living Tide v1.1 by Chopinski --------------------- */
     // Credits:
     //     Blizzard        - Icon
-    //     Bribe           - SpellEffectEvent
-    //     Vexorian        - TimerUtils
     //     Magtheridon96   - RegisterPlayerUnitEvent
     //     MyPad           - MouseUtils
     /* ----------------------------------- END ---------------------------------- */
@@ -26,7 +24,11 @@ library LivingTide requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
 
     // The amount of damage dealt in a second
     private function GetDamagePerSecond takes unit source, integer level returns real
-        return 100. * level
+        static if LIBRARY_NewBonus then
+            return 50. * level + (0.2 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 50. * level
+        endif
     endfunction
 
     // The living tide collision size
@@ -63,7 +65,7 @@ library LivingTide requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Tide extends Missiles
-        method onHit takes unit u returns boolean
+        private method onHit takes unit u returns boolean
             if UnitFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                     call flush(u)
@@ -73,103 +75,76 @@ library LivingTide requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
             return false
         endmethod
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             call pause(true)
             return false
         endmethod
     endstruct
 
-    private struct LivingTide
-        static timer timer = CreateTimer()
-        static integer key = -1
-        static thistype array array
-        static thistype array struct
+    private struct LivingTide extends Ability
+        private static thistype array struct
 
-        unit unit
-        player player
-        integer id
-        integer level
-        integer mana
-        real step
-        real range
-        Tide tide
+        private Tide tide
+        private real step
+        private real range
+        private unit unit
+        private integer id
+        private integer mana
+        private integer level
+        private player player
 
-        method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             call tide.terminate()
-            
-            set array[i] = array[key]
-            set key = key - 1
-            set unit = null
-            set player = null
-            set tide = 0
-
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
-
             call deallocate()
 
-            return i - 1
+            set tide = 0
+            set unit = null
+            set player = null
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local real cost
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Jaina|r conjures a |cffffcc00Living Tide|r at the target location that follows the cursor at constant speed and deals |cff00ffff" + N2S(GetDamagePerSecond(source, level), 0) + " Magic|r damage to enemy units within |cffffcc00" + N2S(GetCollision(source, level), 0) + " AoE|r of it. |cffffcc00Jaina|r can keep the |cffffcc00Living Tide|r alive for as long as she has mana or until being interrupted. Drains |cffffcc00" + N2S(GetBaseManaCostPerSecond(source, level), 0) + "|r mana per second. Mana drain is increased by |cffffcc00" + N2S(GetManaCostPerIncrement(source, level), 0) + "|r for every |cffffcc00" + N2S(GetManaCostRangeIncrement(source, level), 0) + "|r range between |cffffcc00Jaina|r and the |cffffcc00Living Tide|r."
+        endmethod
+
+        private method onPeriod takes nothing returns boolean
             local real x
             local real y
-            local thistype this
+            local real cost
 
-            loop
-                exitwhen i > key
-                    set this = array[i]
+            if struct[id] != 0 then
+                set x = GetUnitX(unit)
+                set y = GetUnitY(unit)
+                set cost = (mana + step*(DistanceBetweenCoordinates(x, y, tide.x, tide.y)/range)) * PERIOD
 
-                    if struct[id] != 0 then
-                        set x = GetUnitX(unit)
-                        set y = GetUnitY(unit)
-                        set cost = (mana + step*(DistanceBetweenCoordinates(x, y, tide.x, tide.y)/range)) * PERIOD
+                if cost > GetUnitState(unit, UNIT_STATE_MANA) then
+                    call IssueImmediateOrder(unit, "stop")
+                    set struct[id] = 0
+                else
+                    call AddUnitMana(unit, -cost)
+                    call tide.deflect(GetPlayerMouseX(player), GetPlayerMouseY(player), 0)
+                    call BlzSetUnitFacingEx(unit, AngleBetweenCoordinates(x, y, tide.x, tide.y)*bj_RADTODEG)
 
-                        if cost > GetUnitState(unit, UNIT_STATE_MANA) then
-                            call IssueImmediateOrder(unit, "stop")
-                            set struct[id] = 0
-                            set i = remove(i)
-                        else
-                            call AddUnitMana(unit, -cost)
-                            call tide.deflect(GetPlayerMouseX(player), GetPlayerMouseY(player), 0)
-                            call BlzSetUnitFacingEx(unit, AngleBetweenCoordinates(x, y, tide.x, tide.y)*bj_RADTODEG)
-
-                            if tide.paused then
-                                call tide.pause(false)
-                            endif
-                        endif
-                    else
-                        set i = remove(i)
+                    if tide.paused then
+                        call tide.pause(false)
                     endif
-                set i = i + 1
-            endloop
-        endmethod
-
-        private static method onEnd takes nothing returns nothing
-            if GetSpellAbilityId() == ABILITY then
-                set struct[GetUnitUserData(GetTriggerUnit())] = 0
+                endif
             endif
+
+            return struct[id] != 0
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local thistype this
-
+        private method onCast takes nothing returns nothing
             if struct[Spell.source.id] == 0 then
                 set this = thistype.allocate()
                 set id = Spell.source.id
                 set unit = Spell.source.unit
-                set player = Spell.source.player
                 set level = Spell.level
+                set player = Spell.source.player
                 set mana = GetBaseManaCostPerSecond(unit, level)
                 set range = GetManaCostRangeIncrement(unit, level)
                 set step = GetManaCostPerIncrement(unit, level)
-                set key = key + 1
-                set array[key] = this
-                set struct[id] = this
                 set tide = Tide.create(Spell.x, Spell.y, 0, Spell.source.x, Spell.source.y, 0)
+                set struct[id] = this
 
                 set tide.model = MODEL
                 set tide.scale = SCALE
@@ -177,20 +152,22 @@ library LivingTide requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
                 set tide.source = unit
                 set tide.owner = player
                 set tide.vision = GetVisionRange(unit, level)
-                set tide.damage = GetDamagePerSecond(unit, level) / (1/Missiles_PERIOD)
+                set tide.damage = GetDamagePerSecond(unit, level)*Missiles_PERIOD
                 set tide.collision = GetCollision(unit, level)
 
                 call tide.launch()
-
-                if key == 0 then
-                    call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
-                endif
+                call StartTimer(PERIOD, true, this, id)
             endif
         endmethod
 
+        private method onEnd takes nothing returns nothing
+            set struct[GetUnitUserData(GetTriggerUnit())] = 0
+        endmethod
+
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, function thistype.onEnd)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

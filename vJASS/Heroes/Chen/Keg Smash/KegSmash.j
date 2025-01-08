@@ -1,8 +1,7 @@
-library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities, Missiles, TimerUtils, CrowdControl
-    /* ----------------------- Keg Smash v1.3 by Chopinski ---------------------- */
+library KegSmash requires Ability, NewBonus, Utilities, Missiles, TimerUtils, CrowdControl
+    /* ----------------------- Keg Smash v1.4 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard           - Icon
-    //     Bribe              - SpellEffectEvent
     //     Vexorian           - TimerUtils
     //     JesusHipster       - Barrel model
     //     EvilCryptLord      - Brew Cloud model (edited by me)
@@ -36,7 +35,7 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
 
     // The Keg Smash miss chance per level
     private function GetChance takes integer level returns real
-        return 20.*level
+        return 0.2*level
     endfunction
 
     // The Keg Smash Brew Cloud duration
@@ -60,8 +59,8 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
     endfunction
 
     // The Keg Smash Damage
-    private function GetDamage takes integer level returns real
-        return 75. + 50.*level
+    private function GetDamage takes unit source, integer level returns real
+        return 75. + 50.*level + (0.6 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
     endfunction
 
     // The Keg Smash Damage Filter for enemy units
@@ -73,165 +72,137 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Ignite
-        static integer array proxy
+        private static integer array proxy
 
-        timer     timer
-        unit      unit
-        unit      dummy
-        real      damage
-        integer   index
+        private unit unit
+        private unit dummy
+        private integer id
+        private real damage
 
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
+        method destroy takes nothing returns nothing
             call UnitRemoveAbility(dummy, IGNITE)
             call DummyRecycle(dummy)
-            call ReleaseTimer(timer)
             call deallocate()
 
-            set unit  = null
+            set unit = null
             set dummy = null
-            set timer = null
-            set proxy[index] = 0
+            set proxy[id] = 0
         endmethod
 
         static method create takes real x, real y, real dmg, real duration, real aoe, real interval, unit source returns thistype
             local thistype this = thistype.allocate()
-            local ability  abi
+            local ability spell
 
-            set timer        = NewTimerEx(this)
-            set unit         = source
-            set damage       = dmg
-            set dummy        = DummyRetrieve(GetOwningPlayer(source), x, y, 0, 0)
-            set index        = GetUnitUserData(dummy)
-            set proxy[index] = this
+            set unit = source
+            set damage = dmg
+            set dummy = DummyRetrieve(GetOwningPlayer(source), x, y, 0, 0)
+            set id = GetUnitUserData(dummy)
+            set proxy[id] = this
 
             call UnitAddAbility(dummy, IGNITE)
-            set abi = BlzGetUnitAbility(dummy, IGNITE)
-            call BlzSetAbilityRealLevelField(abi, ABILITY_RLF_DURATION_NORMAL, 0, duration)
-            call BlzSetAbilityRealLevelField(abi, ABILITY_RLF_FULL_DAMAGE_INTERVAL, 0, duration)
-            call BlzSetAbilityRealLevelField(abi, ABILITY_RLF_HALF_DAMAGE_INTERVAL, 0, interval)
-            call BlzSetAbilityRealLevelField(abi, ABILITY_RLF_AREA_OF_EFFECT, 0, aoe)
-            call BlzSetAbilityRealLevelField(abi, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, dmg)
+            set spell = BlzGetUnitAbility(dummy, IGNITE)
+            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_NORMAL, 0, duration)
+            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_FULL_DAMAGE_INTERVAL, 0, duration)
+            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_HALF_DAMAGE_INTERVAL, 0, interval)
+            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, 0, aoe)
+            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, dmg)
             call IncUnitAbilityLevel(dummy, IGNITE)
             call DecUnitAbilityLevel(dummy, IGNITE)
             call IssuePointOrder(dummy, "flamestrike", x, y)
-            call TimerStart(timer, duration + 0.05, false, function thistype.onExpire)
+            call StartTimer(duration + 0.05, false, this, -1)
 
-            set abi = null
+            set spell = null
+
             return this
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local thistype this
+            local thistype this = proxy[Damage.source.id]
 
-            if proxy[Damage.source.id] != 0 and GetEventDamage() > 0 then
-                set this = proxy[Damage.source.id]
-                call BlzSetEventDamage(0)
-                call UnitDamageTarget(unit, Damage.target.unit, damage, false, false, Damage.attacktype, Damage.damagetype, null)
+            if this != 0 and Damage.amount > 0 then
+                set Damage.source = unit
             endif
         endmethod
 
-        static method onInit takes nothing returns nothing
+        implement Periodic
+
+        private static method onInit takes nothing returns nothing
             call RegisterSpellDamageEvent(function thistype.onDamage)
         endmethod 
     endstruct
 
     struct BrewCloud
-        private static thistype array n
-        private static thistype array data
-		private static integer didx  = -1
-        private static timer timer = CreateTimer()
-
-        private unit source
+        private real x
+        private real y
+        private real aoe
+        private real slow
         private unit unit
+        private unit source
         private group group
         private player player
         private effect effect
-        private boolean ignited
-        private integer duration
+        private real duration
         private integer level
-        private integer index
-        private real slow
+        private boolean ignited
         private real slowDuration
-        private real aoe
-        private real x
-        private real y
 
-        private method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             call UnitRemoveAbility(unit, DEBUFF)
             call DestroyGroup(group)
             call DestroyEffect(effect)
             call DummyRecycle(unit)
+            call deallocate()
 
             set unit = null
             set group = null
             set player = null
             set effect = null
             set source = null
-            set n[index] = 0
-			set data[i] = data[didx]
-			set didx = didx - 1
-
-			if didx == -1 then
-				call PauseTimer(timer)
-			endif
-
-			call deallocate()
-
-			return i - 1
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local thistype this
+        private method onPeriod takes nothing returns boolean
             local unit u
-	
-			loop
-				exitwhen i > didx
-					set this = data[i]
 
-                    if duration > 0 then
-                        if not ignited then
-                            call GroupEnumUnitsInRange(group, x, y, aoe, null)
-                            loop
-                                set u = FirstOfGroup(group)
-                                exitwhen u == null
-                                    if UnitAlive(u) and IsUnitEnemy(u, player) and GetUnitAbilityLevel(u, BUFF) == 0 then
-                                        if not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
-                                            call IssueTargetOrder(unit, "drunkenhaze", u)
-                                            call SlowUnit(u, slow, slowDuration, null, null, false)
-                                        endif
-                                    endif
-                                call GroupRemoveUnit(group, u)
-                            endloop
-                        else
-                            call DestroyEffect(effect)
-                        endif
-					else
-						set i = remove(i)
-                    endif
-                    set duration = duration - 1
-				set i = i + 1
-			endloop
+            set duration = duration - PERIOD
+
+            if duration > 0 then
+                if not ignited then
+                    call GroupEnumUnitsInRange(group, x, y, aoe, null)
+                    
+                    loop
+                        set u = FirstOfGroup(group)
+                        exitwhen u == null
+                            if UnitAlive(u) and IsUnitEnemy(u, player) and GetUnitAbilityLevel(u, BUFF) == 0 then
+                                if not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
+                                    call IssueTargetOrder(unit, "drunkenhaze", u)
+                                    call SlowUnit(u, slow, slowDuration, null, null, false)
+                                endif
+                            endif
+                        call GroupRemoveUnit(group, u)
+                    endloop
+                else
+                    call DestroyEffect(effect)
+                endif
+            endif
+            
+            return duration > 0
         endmethod
 
         static method ignite takes unit dummy, real damage, real duration, real interval returns nothing
-            local integer  i = GetUnitUserData(dummy)
-            local thistype this
+            local thistype this = GetTimerInstance(GetUnitUserData(dummy))
 
-            if n[i] != 0 then
-                set this = n[i]
+            if this != 0 then
                 if not ignited then
-                    set .ignited  = true
-                    set .duration = 0
+                    set this.duration = 0
+                    set this.ignited = true
+
                     call Ignite.create(x, y, damage, duration, aoe, interval, source)
                 endif
             endif
         endmethod
 
         static method active takes unit dummy returns boolean
-            local thistype this = n[GetUnitUserData(dummy)]
+            local thistype this = GetTimerInstance(GetUnitUserData(dummy))
 
             if this != 0 then
                 return not ignited
@@ -240,31 +211,24 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
             return false
         endmethod
 
-        static method create takes player owner, unit source, unit dummy, real x, real y, real aoe, real dur, real slow, real slowDuration, integer level returns thistype
+        static method create takes player owner, unit source, unit dummy, real x, real y, real aoe, real duration, real slow, real slowDuration, integer level returns thistype
             local thistype this = thistype.allocate()
 
-            set .x = x 
-            set .y = y
-            set .aoe = aoe
-            set .slow = slow
-            set .slowDuration = slowDuration
-            set .level = level
-            set .source = source
-            set player = owner
-            set unit = dummy
-            set ignited = false
-            set index = GetUnitUserData(dummy)
-            set group = CreateGroup()
-            set effect = AddSpecialEffectEx(CLOUD, x, y, 0, CLOUD_SCALE)
-            set duration = R2I(dur/PERIOD)
-            set didx = didx + 1
-            set data[didx] = this
-            set n[index] = this
+            set this.x = x 
+            set this.y = y
+            set this.aoe = aoe
+            set this.slow = slow
+            set this.unit = dummy
+            set this.level = level
+            set this.player = owner
+            set this.source = source
+            set this.ignited = false
+            set this.duration = duration
+            set this.slowDuration = slowDuration
+            set this.group = CreateGroup()
+            set this.effect = AddSpecialEffectEx(CLOUD, x, y, 0, CLOUD_SCALE)
             
-
-            if didx == 0 then
-                call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
-            endif
+            call StartTimer(PERIOD, true, this, GetUnitUserData(dummy))
 
             return this
         endmethod
@@ -275,68 +239,86 @@ library KegSmash requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Ut
             endif
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
             call RegisterSpellEffectEvent(DEBUFF, function thistype.onCast)
         endmethod
     endstruct
 
-    private struct KegSmash extends Missiles
-        unit unit
+    private struct Keg extends Missiles
+        real aoe
+        real time
+        real slow
+        unit cloud
         group group
         integer level
-        real aoe
-        real dur
-        real slow
-        real slowDuration
 
-        method onFinish takes nothing returns boolean
+        method operator unit takes nothing returns unit
+            return cloud
+        endmethod
+
+        method operator unit= takes unit u returns nothing
+            set cloud = u
+
+            call UnitAddAbility(u, DEBUFF)
+            call SetUnitAbilityLevel(u, DEBUFF, level)
+        endmethod
+
+        private method onFinish takes nothing returns boolean
+            local real d = GetSlowDuration(unit, level)
             local unit u
 
-            call BrewCloud.create(owner, source, unit, x, y, aoe, dur, slow, slowDuration, level)
+            call BrewCloud.create(owner, source, unit, x, y, aoe, time, slow, d, level)
             call GroupEnumUnitsInRange(group, x, y, aoe, null)
+
             loop
                 set u = FirstOfGroup(group)
                 exitwhen u == null
                     if DamageFilter(owner, u) then
                         if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                             call IssueTargetOrder(unit, "drunkenhaze", u)
-                            call SlowUnit(u, slow, slowDuration, null, null, false)
+                            call SlowUnit(u, slow, d, null, null, false)
                         endif
                     endif
                 call GroupRemoveUnit(group, u)
             endloop
+
             call DestroyGroup(group)
 
             set unit = null
             set group = null
+
             return true
         endmethod
+    endstruct
 
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.create(Spell.source.x, Spell.source.y, 60, Spell.x, Spell.y, 60)
+    private struct KegSmash extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Chen|r rolls his keg in the targeted direction. Upon arrival the keg explodes, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage, slowing all enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r by |cffffcc00" + N2S(GetSlow(source, level), 0) + "%|r and leaving a |cffffcc00Brew Cloud|r. Enemy units that come in contact with the |cffffcc00Brew Cloud|r get soaked with brew and drunk, having their |cffffff00Movement Speed|r reduced by |cffffcc00" + N2S(GetSlow(source, level), 0) + "%|r and when attacking they have |cffffcc00" + N2S(GetChance(level), 0) + "%|r chance of missing their target.\n\nLasts for |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds."
+        endmethod
 
-            set unit = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
-            call UnitAddAbility(unit, DEBUFF)
-            call SetUnitAbilityLevel(unit, DEBUFF, Spell.level)
+        private method onCast takes nothing returns nothing
+            local Keg keg = Keg.create(Spell.source.x, Spell.source.y, 60, Spell.x, Spell.y, 60)
 
-            set model = MODEL
-            set scale = SCALE
-            set speed = SPEED
-            set source = Spell.source.unit 
-            set owner = Spell.source.player
-            set level = Spell.level
-            set group = CreateGroup()
-            set damage = GetDamage(Spell.level)
-            set aoe = GetAoE(Spell.source.unit, Spell.level)
-            set dur = GetDuration(Spell.source.unit, Spell.level)
-            set slow = GetSlow(Spell.source.unit, Spell.level)
-            set slowDuration = GetSlowDuration(unit, Spell.level)
-
-            call launch()
+            set keg.model = MODEL
+            set keg.scale = SCALE
+            set keg.speed = SPEED
+            set keg.level = Spell.level
+            set keg.source = Spell.source.unit 
+            set keg.owner = Spell.source.player
+            set keg.group = CreateGroup()
+            set keg.damage = GetDamage(Spell.source.unit, Spell.level)
+            set keg.aoe = GetAoE(Spell.source.unit, Spell.level)
+            set keg.time = GetDuration(Spell.source.unit, Spell.level)
+            set keg.slow = GetSlow(Spell.source.unit, Spell.level)
+            set keg.unit = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
+            
+            call keg.launch()
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

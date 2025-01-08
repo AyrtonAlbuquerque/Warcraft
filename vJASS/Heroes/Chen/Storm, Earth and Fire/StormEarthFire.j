@@ -1,5 +1,5 @@
-library StormEarthFire requires SpellEffectEvent, PluginSpellEffect, Zap, LightningAttack, Fissure, BreathOfFire, NewBonus
-    /* ----------------- Storm, Earth and Fire v1.2 by Chopinski ---------------- */
+library StormEarthFire requires Ability, Zap, LightningAttack, Fissure, BreathOfFire, NewBonus, Utilities, Periodic
+    /* ----------------- Storm, Earth and Fire v1.3 by Chopinski ---------------- */
     // Credits:
     //     Blizazrd    - Icon
     //     Bribe       - SpellEffectEvent, UnitIndexerGUI
@@ -67,22 +67,35 @@ library StormEarthFire requires SpellEffectEvent, PluginSpellEffect, Zap, Lightn
         endif
     endfunction
 
+    // The attack damage block for Earth spitir
+    private function GetDamageBlock takes integer level returns real
+        return 25. * level
+    endfunction
+
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct StormEarthFire
-        timer timer
-        unit unit
-        group group
-        player player
-        integer level
+    private struct StormEarthFire extends Ability
+        private unit unit
+        private group group
+        private player player
+        private integer level
 
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            local unit    u
+        method destroy takes nothing returns nothing
+            call DestroyGroup(group)
+            call deallocate()
+
+            set unit = null
+            set group = null
+            set player = null
+        endmethod
+
+        private method onExpire takes nothing returns nothing
+            local unit u
             local integer id
 
             call GroupEnumUnitsOfPlayer(group, player, null)
+
             loop
                 set u  = FirstOfGroup(group)
                 set id = GetUnitTypeId(u)
@@ -94,8 +107,7 @@ library StormEarthFire requires SpellEffectEvent, PluginSpellEffect, Zap, Lightn
                         call BlzSetUnitMaxMana(u, GetMana(id, level, unit))
                         call BlzSetUnitBaseDamage(u, GetDamage(id, level, unit), 0)
                         call BlzSetUnitArmor(u, GetArmor(id, level, unit))
-                        call SetUnitBonus(u, BONUS_SPELL_POWER_FLAT, GetUnitBonus(unit, BONUS_SPELL_POWER_FLAT))
-                        call SetUnitBonus(u, BONUS_SPELL_POWER_PERCENT, GetUnitBonus(unit, BONUS_SPELL_POWER_PERCENT))
+                        call SetUnitBonus(u, BONUS_SPELL_POWER, GetUnitBonus(unit, BONUS_SPELL_POWER))
                         call SetUnitLifePercentBJ(u, 100)
                         call SetUnitManaPercentBJ(u, 100)
                     elseif id == EARTH then
@@ -105,8 +117,8 @@ library StormEarthFire requires SpellEffectEvent, PluginSpellEffect, Zap, Lightn
                         call BlzSetUnitMaxMana(u, GetMana(id, level, unit))
                         call BlzSetUnitBaseDamage(u, GetDamage(id, level, unit), 0)
                         call BlzSetUnitArmor(u, GetArmor(id, level, unit))
-                        call SetUnitBonus(u, BONUS_SPELL_POWER_FLAT, GetUnitBonus(unit, BONUS_SPELL_POWER_FLAT))
-                        call SetUnitBonus(u, BONUS_SPELL_POWER_PERCENT, GetUnitBonus(unit, BONUS_SPELL_POWER_PERCENT))
+                        call AddUnitBonus(u, BONUS_DAMAGE_BLOCK, GetDamageBlock(level))
+                        call SetUnitBonus(u, BONUS_SPELL_POWER, GetUnitBonus(unit, BONUS_SPELL_POWER))
                         call SetUnitLifePercentBJ(u, 100)
                         call SetUnitManaPercentBJ(u, 100)
                     elseif id == FIRE then
@@ -116,37 +128,28 @@ library StormEarthFire requires SpellEffectEvent, PluginSpellEffect, Zap, Lightn
                         call BlzSetUnitMaxMana(u, GetMana(id, level, unit))
                         call BlzSetUnitBaseDamage(u, GetDamage(id, level, unit), 0)
                         call BlzSetUnitArmor(u, GetArmor(id, level, unit))
-                        call SetUnitBonus(u, BONUS_SPELL_POWER_FLAT, GetUnitBonus(unit, BONUS_SPELL_POWER_FLAT))
-                        call SetUnitBonus(u, BONUS_SPELL_POWER_PERCENT, GetUnitBonus(unit, BONUS_SPELL_POWER_PERCENT))
+                        call SetUnitBonus(u, BONUS_SPELL_POWER, GetUnitBonus(unit, BONUS_SPELL_POWER))
                         call SetUnitLifePercentBJ(u, 100)
                         call SetUnitManaPercentBJ(u, 100)
                     endif
                 call GroupRemoveUnit(group, u)
             endloop
-            call DestroyGroup(group)
-            call ReleaseTimer(timer)
-            call deallocate()
-
-            set unit = null
-            set timer = null
-            set group = null
-            set player = null
         endmethod   
 
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
-
-            set timer = NewTimerEx(this)
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
             set player = Spell.source.player
             set unit = Spell.source.unit
             set level = Spell.level
             set group = CreateGroup()
 
-            call TimerStart(timer, 0, false, function thistype.onExpire)
+            call StartTimer(0, false, this, -1)
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

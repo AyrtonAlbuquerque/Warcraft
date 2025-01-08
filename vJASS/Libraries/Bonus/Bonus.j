@@ -104,8 +104,8 @@ library NewBonus requires Table, Periodic
         static method adder takes unit source, integer bonus, real value returns real
             local thistype this = struct[bonus]
 
-            if this != 0 and value != 0 then
-                if add.exists then
+            if this != 0 then
+                if add.exists and value != 0 then
                     set type[key] = bonus
                     set unit[key] = source
                     set amount[key] = value

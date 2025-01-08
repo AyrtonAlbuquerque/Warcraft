@@ -1,5 +1,5 @@
-library AxeThrow requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl
-    /* ----------------------- Axe Throw v1.1 by Chopinski ---------------------- */
+library AxeThrow requires Ability, Missiles, Utilities, CrowdControl optional NewBonus
+    /* ----------------------- Axe Throw v1.2 by Chopinski ---------------------- */
     // Credits:
     //     -Berz-          - Icon
     //     Bribe           - SpellEffectEvent
@@ -45,7 +45,11 @@ library AxeThrow requires SpellEffectEvent, PluginSpellEffect, Missiles, Utiliti
     
     // The missile damage
     private function GetDamage takes unit source, integer level returns real
-        return 50. + 50.*level
+        static if LIBRARY_NewBonus then
+            return 50. + 50. * level + 0.8 * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 50. + 50. * level
+        endif
     endfunction
     
     // The slow amount
@@ -77,7 +81,7 @@ library AxeThrow requires SpellEffectEvent, PluginSpellEffect, Missiles, Utiliti
         real reduction
         boolean deflected
     
-        method onHit takes unit u returns boolean
+        private method onHit takes unit u returns boolean
             if UnitAlive(u) then
                 if DamageFilter(owner, u) then
                     if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
@@ -94,7 +98,7 @@ library AxeThrow requires SpellEffectEvent, PluginSpellEffect, Missiles, Utiliti
             return false
         endmethod
         
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             if not deflected then
                 set deflected = true
                 call deflectTarget(source)
@@ -102,37 +106,43 @@ library AxeThrow requires SpellEffectEvent, PluginSpellEffect, Missiles, Utiliti
             
             return false
         endmethod
-    
-        private static method onCast takes nothing returns nothing
-            local thistype this
+    endstruct
+
+    private struct AxeThrow extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Rexxar|r thow his axes in an arc, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slowing enemy units hit by |cffffcc00" + N2S(GetSlowAmount(level) * 100, 0) + "%|r for |cffffcc00" + N2S(GetSlowDuration(level), 1) + "|r seconds. Upon reacinhg the targeted destination, the axes return to |cffffcc00Rexxar|r. Every unit killed by the axes reduces cooldown by |cffffcc00" + N2S(GetCooldownReduction(level), 1) + "|r seconds."
+        endmethod
+
+        private method onCast takes nothing returns nothing
             local integer i = GetAxeCount(Spell.level)
             local integer a = 1
+            local Axe axe
             
             loop
                 exitwhen i == 0
-                    set this = thistype.create(Spell.source.x, Spell.source.y, 100, Spell.x, Spell.y, 100)
-                    set model = MODEL
-                    set scale = SCALE
-                    set speed = SPEED
-                    set deflected = false
-                    set source = Spell.source.unit
-                    set owner = Spell.source.player
-                    set arc = GetArc(Spell.level)
-                    set curve = a*GetCurve(Spell.level)
-                    set collision = GetAoE(Spell.source.unit, Spell.level)
-                    set damage = GetDamage(Spell.source.unit, Spell.level)
-                    set slow = GetSlowAmount(Spell.level)
-                    set time = GetSlowDuration(Spell.level)
-                    set reduction = GetCooldownReduction(Spell.level)
+                    set axe = Axe.create(Spell.source.x, Spell.source.y, 100, Spell.x, Spell.y, 100)
+                    set axe.model = MODEL
+                    set axe.scale = SCALE
+                    set axe.speed = SPEED
+                    set axe.deflected = false
+                    set axe.source = Spell.source.unit
+                    set axe.owner = Spell.source.player
+                    set axe.arc = GetArc(Spell.level)
+                    set axe.curve = a*GetCurve(Spell.level)
+                    set axe.collision = GetAoE(Spell.source.unit, Spell.level)
+                    set axe.damage = GetDamage(Spell.source.unit, Spell.level)
+                    set axe.slow = GetSlowAmount(Spell.level)
+                    set axe.time = GetSlowDuration(Spell.level)
+                    set axe.reduction = GetCooldownReduction(Spell.level)
                     set a = -a
                     
-                    call launch()
+                    call axe.launch()
                 set i = i - 1
             endloop
         endmethod
-    
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

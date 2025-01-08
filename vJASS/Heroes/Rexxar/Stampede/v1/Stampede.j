@@ -1,9 +1,7 @@
-library Stampede requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, TimerUtils, CrowdControl
-    /* ----------------------- Stampede v1.1 by Chopinski ----------------------- */
+library Stampede requires Ability, Missiles, Utilities, Periodic, CrowdControl, optional NewBonus
+    /* ----------------------- Stampede v1.2 by Chopinski ----------------------- */
     // Credits:
-    //     Bribe           - SpellEffectEvent
-    //     Vexorian        - TimerUtils
-    //     00110000        - RemorselessWinter effect
+    //     00110000 - RemorselessWinter effect
     /* ----------------------------------- END ---------------------------------- */
 
     /* -------------------------------------------------------------------------- */
@@ -30,7 +28,11 @@ library Stampede requires SpellEffectEvent, PluginSpellEffect, Missiles, Utiliti
 
     // The amount of damage dealt when a boar hits an enemy
     private function GetDamage takes unit source, integer level returns real
-        return 75.*level
+        static if LIBRARY_NewBonus then
+            return 75. * level + (0.6 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 75. * level
+        endif
     endfunction
 
     // The stun duration
@@ -66,10 +68,10 @@ library Stampede requires SpellEffectEvent, PluginSpellEffect, Missiles, Utiliti
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Missile extends Missiles
+    private struct Lizard extends Missiles
         real stun
 
-        method onHit takes unit u returns boolean
+        private method onHit takes unit u returns boolean
             if UnitFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                     call StunUnit(u, stun, STUN_MODEL, STUN_ATTACH, false)
@@ -80,63 +82,69 @@ library Stampede requires SpellEffectEvent, PluginSpellEffect, Missiles, Utiliti
         endmethod
     endstruct
 
-    private struct Stampede
-        timer timer
-        effect effect
-        unit unit
-        player player
-        integer level
-        real collision
-        real duration
-        real damage
-        real tick
-        real stun
-        real aoe
-        real x
-        real y
+    private struct Stampede extends Ability
+        private real x
+        private real y
+        private real aoe
+        private real stun
+        private real tick
+        private unit unit
+        private real damage
+        private real duration
+        private effect effect
+        private player player
+        private integer level
+        private real collision
 
-        static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            local Missile missile
-            local real angle
+        method destroy takes nothing returns nothing
+            call DestroyEffect(effect)
+            call deallocate()
+
+            set unit = null
+            set effect = null
+            set player = null
+        endmethod
+
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Rexxar|r calls forth a rampaging horde of lizards. The lizards spawn from a random direction within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r every |cffffcc00" + N2S(GetSpawnInterval(level), 1) + "|r seconds and when coming in contact with an enemy unit they will do |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and stun the target for |cffffcc00" + N2S(GetStunDuration(level), 0) + "|r seconds. Lasts for |cffffcc00" + N2S(GetDuration(source, level), 0) + "|r seconds."
+        endmethod
+
+        private method onPeriod takes nothing returns boolean
             local real fx
             local real fy
+            local real angle
+            local Lizard lizard
+
+            set duration = duration - tick
 
             if duration > 0 then
-                set duration = duration - tick
                 set fx = GetRandomCoordInRange(x, aoe, true)
                 set fy = GetRandomCoordInRange(y, aoe, false)
                 set angle = AngleBetweenCoordinates(fx, fy, x, y)
-                set missile = Missile.create(fx, fy, 0, x + aoe*Cos(angle), y + aoe*Sin(angle), 0)
-                set missile.model = MODEL
-                set missile.scale = SCALE
-                set missile.speed = SPEED
-                set missile.source = unit
-                set missile.owner = player
-                set missile.collision = collision
-                set missile.damage = damage
-                set missile.stun = stun
+                set lizard = Lizard.create(fx, fy, 0, x + aoe * Cos(angle), y + aoe * Sin(angle), 0)
 
-                call missile.launch()
-            else
-                call ReleaseTimer(timer)
-                call DestroyEffect(effect)
-                call deallocate()
+                set lizard.model = MODEL
+                set lizard.scale = SCALE
+                set lizard.speed = SPEED
+                set lizard.stun = stun
+                set lizard.source = unit
+                set lizard.owner = player
+                set lizard.damage = damage
+                set lizard.collision = collision
 
-                set timer = null
-                set effect = null
+                call lizard.launch()
             endif
+
+            return duration > 0
         endmethod
 
-        static method onCast takes nothing returns nothing
-            local thistype this = thistype.create()
-
-            set timer = NewTimerEx(this)
+        private method onCast takes nothing returns nothing
+            set this = thistype.create()
             set x = Spell.x
             set y = Spell.y
+            set level = Spell.level
             set unit = Spell.source.unit
             set player = Spell.source.player
-            set level = Spell.level
             set collision = GetCollisionSize(level)
             set duration = GetDuration(unit, level)
             set damage = GetDamage(unit, level)
@@ -145,11 +153,13 @@ library Stampede requires SpellEffectEvent, PluginSpellEffect, Missiles, Utiliti
             set aoe = GetAoE(unit, level)/2
             set effect = AddSpecialEffectEx(AOE_MODEL, x, y, 0, AOE_SCALE)
 
-            call TimerStart(timer, tick, true, function thistype.onPeriod)
+            call StartTimer(tick, true, this, -1)
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

@@ -1,8 +1,7 @@
-library EagleEye requires SpellEffectEvent, PluginSpellEffect, Missiles, NewBonusUtils, TimerUtils
-    /* ---------------------- Eagle's Eye v1.0 by Chopinksi --------------------- */
+library EagleEye requires Ability, Missiles, NewBonus, TimerUtils
+    /* ---------------------- Eagle's Eye v1.1 by Chopinksi --------------------- */
     // Credits: SkriK
     //     SkriK           - Icon
-    //     Bribe           - SpellEffectEvent
     //     Vexorian        - TimerUtils
     //     Vinz            - Blind and Death models
     /* ----------------------------------- END ---------------------------------- */
@@ -40,7 +39,11 @@ library EagleEye requires SpellEffectEvent, PluginSpellEffect, Missiles, NewBonu
 
     // The amount of damage dealt when single target
     private function GetDamage takes unit source, integer level returns real
-        return 100. + 50.*level
+        static if LIBRARY_NewBonus then
+            return 100. + 50. * level + (0.6 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 100. + 50. * level
+        endif
     endfunction
 
     //
@@ -50,7 +53,11 @@ library EagleEye requires SpellEffectEvent, PluginSpellEffect, Missiles, NewBonu
 
     // The amount of damage dealt when targeted at the ground
     private function GetAoEDamage takes unit source, integer level returns real
-        return 50.*level
+        static if LIBRARY_NewBonus then
+            return 50. * level + 0.5 * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 50. * level
+        endif
     endfunction
 
     // The amount of vision reduced
@@ -81,22 +88,25 @@ library EagleEye requires SpellEffectEvent, PluginSpellEffect, Missiles, NewBonu
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct EagleEye extends Missiles
+    private struct Eagle extends Missiles
+        real aoe
+        real time
         timer timer
         group group
-        real time
         real timeout
-        real reduction
-        real aoe
         integer level
+        real reduction
         boolean targeted
 
         private static method onExpire takes nothing returns nothing
             local thistype this = GetTimerData(GetExpiredTimer())
             local unit u
 
+            set timeout = timeout - PERIOD
+
             if timeout > 0 then
                 call GroupEnumUnitsInRange(group, x, y, vision, null)
+
                 loop
                     set u = FirstOfGroup(group)
                     exitwhen u == null
@@ -111,7 +121,6 @@ library EagleEye requires SpellEffectEvent, PluginSpellEffect, Missiles, NewBonu
                         endif
                     call GroupRemoveUnit(group, u)
                 endloop
-                set timeout = timeout - PERIOD
             else
                 call ReleaseTimer(timer)
                 call terminate()
@@ -141,6 +150,7 @@ library EagleEye requires SpellEffectEvent, PluginSpellEffect, Missiles, NewBonu
                     endif
                 else
                     call GroupEnumUnitsInRange(group, x, y, aoe, null)
+
                     loop
                         set u = FirstOfGroup(group)
                         exitwhen u == null
@@ -154,9 +164,11 @@ library EagleEye requires SpellEffectEvent, PluginSpellEffect, Missiles, NewBonu
                             endif
                         call GroupRemoveUnit(group, u)
                     endloop
+
                     call DestroyEffect(AddSpecialEffectEx(DEATH_MODEL, x, y, 50, DEATH_SCALE))
                 endif
-                call alpha(0)
+
+                set alpha = 0
 
                 return true
             endif
@@ -164,41 +176,48 @@ library EagleEye requires SpellEffectEvent, PluginSpellEffect, Missiles, NewBonu
 
         private method onRemove takes nothing returns nothing
             call DestroyGroup(group)
+
             set group = null
             set timer = null
         endmethod
+    endstruct
 
-        private static method onCast takes nothing returns nothing
-            local thistype this
-            
+    private struct EagleEye extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Rexxar|r sends an eagle to the targeted enemy |cff00ff00unit|r or |cff00ff00location|r. In its path the eagle reveals the surrounding area. Upon reaching the targeted unit, the eagle will blind it, reducing its sight range by |cffffcc00" + N2S(GetVisionReduction(source, level), 0) + "|r for |cffffcc00" + N2S(GetReductionDuraiton(source, level), 0) + "|r seconds and dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage. When reaching the targeted location the eagle will remain in its position for |cffffcc00" + N2S(GetDuration(source, level), 0) + "|r seconds , revealing |cffffcc00" + N2S(GetVisionRange(source, level), 0) + " AoE|r. When any enemy unit comes in range, the eagle will lunge towards it, dealing |cff00ffff" + N2S(GetAoEDamage(source, level), 0) + " Magic|r damage and blinding all enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r."
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            local Eagle eagle
+
             if Spell.target.unit == null then
-                set this = thistype.create(Spell.source.x, Spell.source.y, 50, Spell.x, Spell.y, HEIGHT)
-                set targeted = false
-                set aoe = GetAoE(Spell.source.unit, Spell.level)
-                set damage = GetAoEDamage(Spell.source.unit, Spell.level)
+                set eagle = Eagle.create(Spell.source.x, Spell.source.y, 50, Spell.x, Spell.y, HEIGHT)
+                set eagle.targeted = false
+                set eagle.aoe = GetAoE(Spell.source.unit, Spell.level)
+                set eagle.damage = GetAoEDamage(Spell.source.unit, Spell.level)
             else
-                set this = thistype.create(Spell.source.x, Spell.source.y, 50, Spell.target.x, Spell.target.y, 50)
-                set targeted = true
-                set target = Spell.target.unit
-                set damage = GetDamage(Spell.source.unit, Spell.level)
+                set eagle = Eagle.create(Spell.source.x, Spell.source.y, 50, Spell.target.x, Spell.target.y, 50)
+                set eagle.targeted = true
+                set eagle.target = Spell.target.unit
+                set eagle.damage = GetDamage(Spell.source.unit, Spell.level)
             endif
 
-            set model = MODEL
-            set scale = SCALE
-            set speed = SPEED
-            set source = Spell.source.unit
-            set owner = Spell.source.player
-            set level = Spell.level
-            set vision = GetVisionRange(source, level)
-            set time = GetReductionDuraiton(source, level)
-            set reduction = GetVisionReduction(source, level)
-            set timeout = GetDuration(source, level)
+            set eagle.model = MODEL
+            set eagle.scale = SCALE
+            set eagle.speed = SPEED
+            set eagle.source = Spell.source.unit
+            set eagle.owner = Spell.source.player
+            set eagle.level = Spell.level
+            set eagle.vision = GetVisionRange(Spell.source.unit, Spell.level)
+            set eagle.time = GetReductionDuraiton(Spell.source.unit, Spell.level)
+            set eagle.reduction = GetVisionReduction(Spell.source.unit, Spell.level)
+            set eagle.timeout = GetDuration(Spell.source.unit, Spell.level)
 
-            call launch()
+            call eagle.launch()
         endmethod
-    
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
-        endmethod
+            call RegisterSpell(thistype.allocate(), ABILITY)
+        endmethod        
     endstruct
 endlibrary

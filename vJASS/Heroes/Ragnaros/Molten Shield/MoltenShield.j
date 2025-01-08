@@ -1,4 +1,4 @@
-library MoltenShield requires RegisterPlayerUnitEvent, Ability, PluginSpellEffect, DamageInterface, NewBonus
+library MoltenShield requires RegisterPlayerUnitEvent, Ability, DamageInterface, NewBonus
     /* --------------------- Molten Shield v1.6 by Chopinski -------------------- */
     // Credits:
     //     Power            - Shield model
@@ -65,7 +65,7 @@ library MoltenShield requires RegisterPlayerUnitEvent, Ability, PluginSpellEffec
             call deallocate()
         endmethod
 
-        private method onTooltip takes unit source, integer level returns string
+        private method onTooltip takes unit source, integer level, ability spell returns string
             return "Upon cast engulfs the target in a |cffffcc00Molten shield|r that reduces all damage taken by |cffffcc00" + N2S(GetDamageFactor(level) * 100, 1) + "%|r and increases |cffffcc00Movement Speed|r by |cffffcc00" + N2S(GetMovementBonus(level), 0) + "|r for |cffffcc0010|r seconds. All damage reduced by |cffffcc00Molten Shield|r is stored and when depleated all damage stored is dealt as |cff00ffffMagic|r damage, dealing |cff00ffff" + N2S(GetDamage(source, level, stored[GetUnitUserData(source)]), 0) + " Magic|r damage to all enemy units within |cffffcc00" + N2S(GetDamageAoe(level), 0) + " AoE|r."
         endmethod
 

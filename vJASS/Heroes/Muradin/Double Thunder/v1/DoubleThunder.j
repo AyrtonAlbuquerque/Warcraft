@@ -1,5 +1,5 @@
 library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, optional ThunderClap, optional Avatar
-    /* ------------------------------------- Double Thunder v1.4 ------------------------------------ */
+    /* ------------------------------------- Double Thunder v1.5 ------------------------------------ */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Blizzard       - Icon
@@ -43,12 +43,11 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
     private struct DoubleThunder extends array
-        static method onLevel takes nothing returns nothing
-            local unit    source = GetTriggerUnit()
-            local integer level  = GetHeroLevel(source)
+        private static method onLevel takes nothing returns nothing
+            local unit source = GetTriggerUnit()
         
             if GetUnitAbilityLevel(source, ABILITY) > 0 then
-                call SetUnitAbilityLevel(source, ABILITY, GetLevel(level))
+                call SetUnitAbilityLevel(source, ABILITY, GetLevel(GetHeroLevel(source)))
             endif
         
             set source = null
@@ -89,11 +88,11 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
             set target = null
         endmethod
 
-        static method onInit takes nothing returns nothing
+        private static method onInit takes nothing returns nothing
             local trigger t = CreateTrigger()
+
             call TriggerRegisterAnyUnitEventBJ(t, EVENT_PLAYER_UNIT_SPELL_EFFECT)
             call TriggerAddAction(t, function thistype.onCast)
-
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
         endmethod
     endstruct

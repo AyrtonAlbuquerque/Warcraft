@@ -1,4 +1,4 @@
-library ExplosiveRune requires PluginSpellEffect, Ability, Utilities optional Afterburner, CooldownReduction, NewBonus
+library ExplosiveRune requires Ability, Utilities optional Afterburner, CooldownReduction, NewBonus
     /* -------------------- Explosive Rune v1.6 by Chopinski -------------------- */
     // Credits:
     //     Mythic           - Conflagrate model
@@ -62,8 +62,8 @@ library ExplosiveRune requires PluginSpellEffect, Ability, Utilities optional Af
             call deallocate()
         endmethod
 
-        private method onTooltip takes unit source, integer level returns string
-            return "Ragnaros creates an |cffffcc00Explosive Rune|r in the target location that explodes after |cffffcc00" + N2S(EXPLOSION_DELAY, 1) + "|r seconds, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage to enemy units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + " AoE|r. Holds up to |cffffcc00" + I2S(CHARGES_COUNT) + "|r charges. Gains |cffffcc001|r charge every |cffffcc00" + N2S(CHARGES_COOLDOWN, 1) + "|r seconds.\n\nCharges: |cffffcc00" + I2S(charges[GetUnitUserData(source)]) + "|r"
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "Ragnaros creates an |cffffcc00Explosive Rune|r in the target location that explodes after |cffffcc00" + N2S(EXPLOSION_DELAY, 1) + "|r seconds, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage to enemy units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + " AoE|r. Holds up to |cffffcc00" + I2S(CHARGES_COUNT) + "|r charges. Gains |cffffcc001|r charge every |cffffcc00" + N2S(CHARGES_COOLDOWN, 1) + "|r seconds.\n\nCharges: |cffffcc00" + I2S(charges[GetUnitUserData(source)]) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean

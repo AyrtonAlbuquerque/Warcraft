@@ -1,7 +1,6 @@
-library BadWeather requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, TimerUtils, Utilities, DamageInterface
-    /* ---------------------- Bad Weather v1.0 by Chopinski --------------------- */
+library BadWeather requires RegisterPlayerUnitEvent, Ability, Periodic, Utilities, DamageInterface
+    /* ---------------------- Bad Weather v1.1 by Chopinski --------------------- */
     // Credits:
-    //     Bribe                - SpellEffectEvent
     //     Magtheridon96        - RegisterPlayerUnitEvent
     //     Vexorian             - TimerUtils
     /* ----------------------------------- END ---------------------------------- */
@@ -44,40 +43,37 @@ library BadWeather requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct BadWeather
-        timer timer
-        unit unit
-        effect effect
+    private struct BadWeather extends Ability
+        private unit unit
+        private effect effect
 
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
+        method destroy takes nothing returns nothing
             call UnitRemoveAbility(unit, DEBUFF)
             call DestroyEffect(effect)
             call DummyRecycle(unit)
-            call ReleaseTimer(timer)
             call deallocate()
             
-            set timer = null
             set unit = null
             set effect = null
         endmethod
 
-        private static method onDamage takes nothing returns nothing
-            if GetUnitAbilityLevel(Damage.target.unit, BUFF) > 0 and Damage.isEnemy then
-                call BlzSetEventDamage(GetEventDamage()*(1 + GetDamageBonus(BUFF)))
-            endif
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Jaina|r conjures a heavy rain at the target region causing all enemy units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + " AoE|r to take |cffffcc00" + N2S(20, 0) + "%|r increased |cff00ffffMagic|r damage.\n\nLasts for |cffffcc00" + N2S(GetDuratoin(source, level), 0) + "|r seconds."
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
-
-            set timer = NewTimerEx(this)
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
             set unit = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
             set effect = AddSpecialEffectEx(MODEL, Spell.x, Spell.y, 0, SCALE)
 
             call UnitAddAbility(unit, DEBUFF)
-            call TimerStart(timer, GetDuratoin(Spell.source.unit, Spell.level), false, function thistype.onExpire)
+            call StartTimer(GetDuratoin(Spell.source.unit, Spell.level), false, this, -1)
+        endmethod
+
+        private static method onDamage takes nothing returns nothing
+            if GetUnitAbilityLevel(Damage.target.unit, BUFF) > 0 and Damage.isEnemy then
+                set Damage.amount = Damage.amount * (1 + GetDamageBonus(BUFF))
+            endif
         endmethod
 
         private static method onLevelUp takes nothing returns nothing
@@ -93,10 +89,12 @@ library BadWeather requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
             set u = null
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevelUp)
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterSpellDamageEvent(function thistype.onDamage)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevelUp)
         endmethod
     endstruct
 endlibrary

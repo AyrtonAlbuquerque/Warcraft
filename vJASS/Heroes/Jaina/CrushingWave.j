@@ -1,8 +1,7 @@
-library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl optional WaterElemental
-    /* --------------------- Crushing Wave v1.1 by Chopinski -------------------- */
+library CrushingWave requires Ability, Missiles, Utilities, CrowdControl optional WaterElemental, optional NewBonus
+    /* --------------------- Crushing Wave v1.2 by Chopinski -------------------- */
     // Credits:
     //     Blizzard        - Icon
-    //     Bribe           - SpellEffectEvent
     /* ----------------------------------- END ---------------------------------- */
 
     /* -------------------------------------------------------------------------- */
@@ -21,7 +20,11 @@ library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Uti
 
     // The wave damage
     private function GetDamage takes unit source, integer level returns real
-        return 50. + 50.*level
+        static if LIBRARY_NewBonus then
+            return 50. + 50.*level + (0.15 + 0.15*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 50. + 50.*level
+        endif
     endfunction
 
     // The Wave collision
@@ -62,7 +65,7 @@ library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Uti
         real slow
         real timeout
 
-        method onPeriod takes nothing returns boolean
+        private method onPeriod takes nothing returns boolean
             if unit != null then
                 call SetUnitX(unit, x)
                 call SetUnitY(unit, y)
@@ -71,7 +74,7 @@ library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Uti
             return false
         endmethod
 
-        method onHit takes unit u returns boolean
+        private method onHit takes unit u returns boolean
             if UnitFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                     call SlowUnit(u, slow, timeout, null, null, false)
@@ -81,7 +84,7 @@ library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Uti
             return false
         endmethod
 
-        method onRemove takes nothing returns nothing
+        private method onRemove takes nothing returns nothing
             if unit != null then
                 call PauseUnit(unit, false)
                 call SetUnitAnimation(unit, "Stand")
@@ -92,7 +95,7 @@ library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Uti
         endmethod
     endstruct
 
-    private struct CrushingWave extends array
+    private struct CrushingWave extends Ability
         private static method launch takes real x, real y, real z, real tx, real ty, real tz, unit source, player owner, integer level, unit elemental returns nothing
             local Wave wave = Wave.create(x, y, z, tx, ty, tz)
             
@@ -117,18 +120,23 @@ library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Uti
             call wave.launch()
         endmethod
 
-        private static method onCast takes nothing returns nothing
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Jaina|r creates a |cffffcc00Crushing Wave|r towards the target direction, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slowing all enemy units caught in it's path by |cffffcc00" + N2S(GetSlowAmount(source, level) * 100, 0) + "%|r  for |cffffcc00" + N2S(GetSlowDuration(source, level), 2) + "|r seconds. If there are any of her |cffffcc00Water Elementals|r within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r range when she casts |cffffcc00Crushing Wave|r, the elementals will turn into |cffffcc00Crushing Waves|r themselves applying the same effects and dashing towards the target point."
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            local unit u
+            local group g
             local real angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
             local real offset = GetTravelDistance(Spell.source.unit, Spell.level)
-            local group g
-            local unit u
 
-            call launch(Spell.source.x, Spell.source.y, 0, Spell.source.x + offset*Cos(angle), Spell.source.y + offset*Sin(angle), 0, Spell.source.unit, Spell.source.player, Spell.level, null)
+            call launch(Spell.source.x, Spell.source.y, 0, Spell.source.x + offset * Cos(angle), Spell.source.y + offset * Sin(angle), 0, Spell.source.unit, Spell.source.player, Spell.level, null)
             
             static if LIBRARY_WaterElemental then
                 set g = CreateGroup()
                 
                 call GroupEnumUnitsInRange(g, Spell.source.x, Spell.source.y, GetAoE(Spell.source.unit, Spell.level), null)
+
                 loop
                     set u = FirstOfGroup(g)
                     exitwhen u == null
@@ -139,6 +147,7 @@ library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Uti
                         endif
                     call GroupRemoveUnit(g, u)
                 endloop
+
                 call DestroyGroup(g)
             endif
 
@@ -147,7 +156,7 @@ library CrushingWave requires SpellEffectEvent, PluginSpellEffect, Missiles, Uti
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

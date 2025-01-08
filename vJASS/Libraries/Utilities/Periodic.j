@@ -116,11 +116,17 @@ library Periodic requires Table, TimerUtils
                             call TimerStart(timers.timer[index], timeout, periodic, function thistype.onPeriodic)
                         endif
                     else
-                        set _timer = NewTimerEx(this)
+                        if _timer == null then
+                            set _timer = NewTimerEx(this)
+                        endif
+
                         call TimerStart(_timer, timeout, periodic, function thistype.onPeriodic)
                     endif
                 else
-                    set _timer = NewTimerEx(this)
+                    if _timer == null then
+                        set _timer = NewTimerEx(this)
+                    endif
+
                     call TimerStart(_timer, timeout, periodic, function thistype.onTimeout)
                 endif
             else

@@ -1,8 +1,7 @@
-library DrunkenBrawler requires RegisterPlayerUnitEvent, NewBonusUtils
-    /* -------------------- Drunken Brawler v1.2 by Chopinski ------------------- */
+library DrunkenBrawler requires Ability, NewBonus, Utilities
+    /* -------------------- Drunken Brawler v1.3 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
-    //     Magtheridon96   - RegisterPlayerUnitEvent
     /* ----------------------------------- END ---------------------------------- */
     
     /* -------------------------------------------------------------------------- */
@@ -15,46 +14,35 @@ library DrunkenBrawler requires RegisterPlayerUnitEvent, NewBonusUtils
 
     // The Evasion bonus
     private function GetEvasionBonus takes integer level returns real
-        return 7. + 0.*level
+        return 0.07 + 0.*level
     endfunction
 
     // The Critical chance bonus
     private function GetCriticalChanceBonus takes integer level returns real
-        if level == 1 then
-            return 10. + 0.*level
-        else
-            return 0.
-        endif
+        return 0.05 + 0.*level
     endfunction
 
     // The Critical damage bonus
     private function GetCriticalDamageBonus takes integer level returns real
-        if level == 1 then
-            return 1. + 0.*level
-        else
-            return 0.75
-        endif
+        return 0.075 + 0.*level
     endfunction
 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct DrunkenBrawler extends array
-        private static method onLevel takes nothing returns nothing
-            local unit    source = GetTriggerUnit()
-            local integer level  = GetUnitAbilityLevel(source, ABILITY)
+    private struct DrunkenBrawler extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Chen|r has |cffffcc00" + N2S(GetEvasionBonus(level) * 100 * level, 1) + "%|r chance to dodge attacks and have increased |cffffcc00" + N2S(GetCriticalChanceBonus(level) * 100 * level, 1) + "%|r |cffffcc00Critical Strike Chance|r and |cffffcc00" + N2S(GetCriticalDamageBonus(level) * 100 * level, 1) + "%|r |cffffcc00Critical Strike Damage|r."
+        endmethod
 
-            if GetLearnedSkill() == ABILITY then
-                call AddUnitBonus(source, BONUS_EVASION_CHANCE, GetEvasionBonus(level))
-                call AddUnitBonus(source, BONUS_CRITICAL_CHANCE, GetCriticalChanceBonus(level))
-                call AddUnitBonus(source, BONUS_CRITICAL_DAMAGE, GetCriticalDamageBonus(level))
-            endif
-
-            set source = null
+        private method onLearn takes unit source, integer skill, integer level returns nothing
+            call AddUnitBonus(source, BONUS_EVASION_CHANCE, GetEvasionBonus(level))
+            call AddUnitBonus(source, BONUS_CRITICAL_CHANCE, GetCriticalChanceBonus(level))
+            call AddUnitBonus(source, BONUS_CRITICAL_DAMAGE, GetCriticalDamageBonus(level))
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function thistype.onLevel)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

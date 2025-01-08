@@ -1,4 +1,4 @@
-library LivingMeteor requires Ability, PluginSpellEffect, Missiles, MouseUtils, Utilities, Periodic optional Afterburner, NewBonus
+library LivingMeteor requires Ability, Missiles, MouseUtils, Utilities, Periodic optional Afterburner, NewBonus
     /* --------------------- Living Meteor v1.6 by Chopinski -------------------- */
     // Credits:
     //     Blizzard         - icon (Edited by me)
@@ -135,12 +135,12 @@ library LivingMeteor requires Ability, PluginSpellEffect, Missiles, MouseUtils, 
     endstruct
     
     private struct LivingMeteor extends Ability
-        real x
-        real y
-        unit unit
-        player player
-        integer level
-        ability ability
+        private real x
+        private real y
+        private unit unit
+        private player player
+        private integer level
+        private ability ability
 
         method destroy takes nothing returns nothing
             set unit = null
@@ -150,7 +150,7 @@ library LivingMeteor requires Ability, PluginSpellEffect, Missiles, MouseUtils, 
             call deallocate()
         endmethod
 
-        private method onTooltip takes unit source, integer level returns string
+        private method onTooltip takes unit source, integer level, ability spell returns string
             return "Ragnaros summon a meteor at the target area that deals |cff00ffff" + N2S(LandingDamage(source, level), 0) + " Magic|r damage on impact, then rolls in that target direction dealing |cff00ffff" + N2S(RollDamage(source, level), 0) + " Magic|r every |cffffcc00" + N2S(DAMAGE_INTERVAL, 2) + "|r seconds to enemy units within |cffffcc00250 AoE|r until it reaches it's maximum range of |cffffcc00700 AoE|r from the initial impact point."
         endmethod
 
@@ -186,7 +186,7 @@ library LivingMeteor requires Ability, PluginSpellEffect, Missiles, MouseUtils, 
 
         implement Periodic
 
-        static method onInit takes nothing returns nothing
+        private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct

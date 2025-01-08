@@ -1,5 +1,5 @@
-library FeralRoar requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities, CrowdControl optional Misha
-    /* ---------------------- Feral Roar v1.1 by Chopinski ---------------------- */
+library FeralRoar requires Ability, NewBonus, Utilities, CrowdControl optional Misha
+    /* ---------------------- Feral Roar v1.2 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Bribe           - SpellEffectEvent
@@ -38,7 +38,7 @@ library FeralRoar requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, U
     
     // The bonus damage
     private function GetBonusDamage takes unit source, integer level returns real
-        return BlzGetUnitBaseDamage(source, 0)*(0.2 + 0.05*level)
+        return 0.2 + 0.05*level
     endfunction
     
     // The bonus armor
@@ -54,25 +54,30 @@ library FeralRoar requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, U
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct FeralRoar extends array
-        private static method onCast takes nothing returns nothing
+    private struct FeralRoar extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Rexxar|r roars in fury, increasing the damage of nearby allies by |cffffcc00" + N2S(GetBonusDamage(source, level) * 100, 0) + "%|r of base damage, armor by |cffffcc00" + N2S(GetBonusArmor(source, level), 0) + "|r and fearing enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r for |cffffcc00" + N2S(GetFearDuration(level), 2) + "|r seconds. If |cffffcc00Misha|r is summoned she will also roar granting the same effects and gainning |cff00ff00" + N2S(GetBonusRegeneration(level), 1) + " Health Regeneration|r.\n\nLasts for |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_NORMAL, level - 1), 0) + "|r seconds."
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            local unit u
+            local integer size
+            local integer i = 0
             local group g = CreateGroup()
-            local unit source = Spell.source.unit
-            local player owner = Spell.source.player
             local integer level = Spell.level
             local integer id = Spell.source.id
-            local integer i = 0
-            local integer size
-            local unit u
+            local unit source = Spell.source.unit
+            local player owner = Spell.source.player
             
             call GroupEnumUnitsInRange(g, Spell.source.x, Spell.source.y, GetAoE(source, level), null)
+
             loop
                 set u = FirstOfGroup(g)
                 exitwhen u == null
                     if UnitAlive(u) then
                         if IsUnitAlly(u, owner) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
                             if GetUnitAbilityLevel(u, BUFF) == 0 then
-                                call LinkBonusToBuff(u, BONUS_DAMAGE, GetBonusDamage(u, level), BUFF)
+                                call LinkBonusToBuff(u, BONUS_DAMAGE, BlzGetUnitBaseDamage(source, 0) * GetBonusDamage(u, level), BUFF)
                                 call LinkBonusToBuff(u, BONUS_ARMOR, GetBonusArmor(u, level), BUFF)
                             endif
                         else
@@ -83,6 +88,7 @@ library FeralRoar requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, U
                     endif
                 call GroupRemoveUnit(g, u)
             endloop
+
             call DestroyGroup(g)
             
             static if LIBRARY_Misha then
@@ -93,6 +99,7 @@ library FeralRoar requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, U
                         loop
                             exitwhen i == size
                                 set u = BlzGroupUnitAt(Misha.group[id], i)
+                                
                                 call UnitAddAbilityTimed(u, ABILITY, 0.5, level, false)
                                 call BlzSetAbilityIntegerLevelField(BlzGetUnitAbility(u, ABILITY), ABILITY_ILF_MANA_COST, level - 1, 0)
                                 call IssueImmediateOrder(u, ORDER)
@@ -109,7 +116,7 @@ library FeralRoar requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, U
         endmethod
     
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

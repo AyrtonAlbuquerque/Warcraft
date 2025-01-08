@@ -30,7 +30,7 @@ scope CriticalDamage
                     call UnitMakeAbilityPermanent(u, true, ability)
                 endif
                 
-                if BlzSetAbilityRealLevelField(BlzGetUnitAbility(u, ability), field, 0, R2I(value)) then
+                if BlzSetAbilityRealLevelField(BlzGetUnitAbility(u, ability), field, 0, value) then
                     call IncUnitAbilityLevel(u, ability)
                     call DecUnitAbilityLevel(u, ability)
                 endif

@@ -1,4 +1,4 @@
-library FelBeam requires Missiles, Ability, Periodic, PluginSpellEffect, NewBonus, Utilities
+library FelBeam requires Missiles, Ability, Periodic, NewBonus, Utilities
     /* ----------------------- Fel Beam v1.5 by Chopinski ----------------------- */
     // Credits:
     //     BPower    - Missile Library
@@ -146,7 +146,7 @@ library FelBeam requires Missiles, Ability, Periodic, PluginSpellEffect, NewBonu
             call beam.launch()
         endmethod
 
-        private method onTooltip takes unit source, integer level returns string
+        private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Mannoroth|r launch at the target unit a |cffffcc00Fel Beam|r, that apply |cffffcc00Fel Curse|r and deals |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage. The cursed unit have it's armor reduced by |cffffcc00" + N2S(GetArmorReduction(level), 0) + "|r and if it dies under the effect of |cffffcc00Fel Curse|r curse, another |cffffcc00Fel Beam|r will spawn from it's location and seek a nearby enemy unit within |cffffcc00" + N2S(GetSearchRange(level), 0) + " AoE|r.\n\nLast for |cffffcc00" + N2S(GetCurseDuration(level), 1) + "|r seconds."
         endmethod
 

@@ -89,7 +89,7 @@ library Afterburner requires Ability, Periodic, DamageInterface, Utilities, opti
             return this
         endmethod
 
-        private method onTooltip takes unit source, integer level returns string
+        private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Ragnaros|r spells leave a trail of fire after cast that burns enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + "|r range for |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage every |cffffcc00" + N2S(GetDamageInterval(source, level), 1) + "|r seconds.\n\nLasts |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds."
         endmethod 
 

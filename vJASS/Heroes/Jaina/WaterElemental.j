@@ -1,5 +1,5 @@
-library WaterElemental requires SpellEffectEvent, PluginSpellEffect, NewBonus, Indexer
-    /* -------------------- Water Elemental v1.1 by Chopinski ------------------- */
+library WaterElemental requires Ability, NewBonus, Indexer, Utilities
+    /* -------------------- Water Elemental v1.2 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Bribe           - SpellEffectEvent
@@ -21,12 +21,12 @@ library WaterElemental requires SpellEffectEvent, PluginSpellEffect, NewBonus, I
 
     // The unit damage
     private function GetDamage takes unit source, integer level returns integer
-        return 30 + R2I((BlzGetUnitBaseDamage(source, 0) + GetUnitBonus(source, BONUS_DAMAGE))*0.3)
+        return 30 + R2I(0.3 * GetUnitBonus(source, BONUS_DAMAGE) + 0.3 * GetUnitBonus(source, BONUS_SPELL_POWER))
     endfunction
 
     // The unit health
     private function GetHealth takes unit source, integer level returns integer
-        return 600 + R2I(BlzGetUnitMaxHP(source)*0.4)
+        return 600 + R2I(0.4 * BlzGetUnitMaxHP(source))
     endfunction
 
     // The unit armor
@@ -82,7 +82,7 @@ library WaterElemental requires SpellEffectEvent, PluginSpellEffect, NewBonus, I
                 elseif order == "attackground" or order == "smart" or order == "move" or order == "attack" then
                     loop
                         exitwhen i == size
-                            call IssuePointOrder(BlzGroupUnitAt(group, i), order, x + 300*Cos(i*2*bj_PI/size), y + 300*Sin(i*2*bj_PI/size))
+                            call IssuePointOrder(BlzGroupUnitAt(group, i), order, x + 300 * Cos(i*2*bj_PI/size), y + 300 * Sin(i*2*bj_PI/size))
                         set i = i + 1
                     endloop
                 endif
@@ -94,14 +94,22 @@ library WaterElemental requires SpellEffectEvent, PluginSpellEffect, NewBonus, I
         endmethod
 
         static method owner takes integer id returns unit
-            local thistype this
+            local thistype this = struct[id]
 
-            if struct[id] != 0 then
-                set this = struct[id]
+            if this != 0 then
                 return unit
             else
                 return null
             endif
+        endmethod
+
+        static method create takes unit source returns thistype
+            local thistype this = thistype.allocate()
+
+            set unit = source
+            set group = CreateGroup()
+
+            return this
         endmethod
 
         private static method onOrder takes nothing returns nothing
@@ -146,62 +154,35 @@ library WaterElemental requires SpellEffectEvent, PluginSpellEffect, NewBonus, I
             endif
         endmethod
 
-        static method create takes unit source returns thistype
-            local thistype this = thistype.allocate()
-
-            set unit = source
-            set group = CreateGroup()
-
-            return this
-        endmethod
-
         private static method onInit takes nothing returns nothing
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, function thistype.onOrder)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, function thistype.onOrder)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, function thistype.onOrder)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, function thistype.onOrder)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
         endmethod
     endstruct
     
-    private struct Master
+    private struct WaterElemental extends Ability
         private static thistype array struct
 
-        Elemental elementals
+        private integer id
+        private Elemental elementals
 
         method destroy takes nothing returns nothing
             call elementals.destroy()
             call deallocate()
+
+            set struct[id] = 0
         endmethod
 
-        private static method onDeindex takes nothing returns nothing
-            local integer id = GetUnitUserData(GetIndexUnit())
-            local thistype this
-
-            if struct[id] != 0 then
-                set this = struct[id]
-                call destroy()
-                set struct[id] = 0
-            endif
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Jaina|r summon a |cffffcc00Water Elemental|r to aid her in combat. The |cffffcc00Water Elemental|r has |cffff0000" + N2S(GetDamage(source, level), 0) + "|r Attack Damage, |cffff0000" + N2S(GetHealth(source, level), 0) + "|r |cffff0000Health|r and |cff808080" + N2S(GetArmor(source, level), 0) + "|r |cff808080Armor|r. By default the elementals shadow her movement and commands until any order is given. Ordering the elemental to follow |cffffcc00Jaina|r makes it shadow her again.\n\nLasts |cffffcc00" + N2S(GetDuration(source, level), 0) + "|r seconds."
         endmethod
 
-        private static method onOrder takes nothing returns nothing
-            local unit source = GetOrderedUnit()
-            local integer id = GetUnitUserData(source)
-            local thistype this
-
-            if GetUnitAbilityLevel(source, ABILITY) > 0 and struct[id] != 0 then
-                set this = struct[id]
-                call elementals.command(GetOrderTargetUnit(), GetOrderPointX(), GetOrderPointY(), OrderId2String(GetIssuedOrderId()))
-            endif
-
-            set source = null
-        endmethod
-
-        private static method onCast takes nothing returns nothing
-            local thistype this
+        private method onCast takes nothing returns nothing
             local real angle = GetUnitFacing(Spell.source.unit)
-            local unit u = CreateUnit(Spell.source.player, ELEMENTAL, Spell.source.x + 250*Cos(Deg2Rad(angle)), Spell.source.y + 250*Sin(Deg2Rad(angle)), angle)
+            local unit u = CreateUnit(Spell.source.player, ELEMENTAL, Spell.source.x + 250 * Cos(Deg2Rad(angle)), Spell.source.y + 250 * Sin(Deg2Rad(angle)), angle)
 
             call DestroyEffect(AddSpecialEffectEx(MODEL, GetUnitX(u), GetUnitY(u), 0, SCALE))
 
@@ -224,12 +205,31 @@ library WaterElemental requires SpellEffectEvent, PluginSpellEffect, NewBonus, I
             set u = null
         endmethod
 
+        private static method onDeindex takes nothing returns nothing
+            local thistype this = struct[GetUnitUserData(GetIndexUnit())]
+
+            if this != 0 then
+                call destroy()
+            endif
+        endmethod
+
+        private static method onOrder takes nothing returns nothing
+            local unit source = GetOrderedUnit()
+            local thistype this = struct[GetUnitUserData(source)]
+
+            if GetUnitAbilityLevel(source, ABILITY) > 0 and this != 0 then
+                call elementals.command(GetOrderTargetUnit(), GetOrderPointX(), GetOrderPointY(), OrderId2String(GetIssuedOrderId()))
+            endif
+
+            set source = null
+        endmethod
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
+            call RegisterUnitDeindexEvent(function thistype.onDeindex)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, function thistype.onOrder)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, function thistype.onOrder)
-            call RegisterUnitDeindexEvent(function thistype.onDeindex)
         endmethod
     endstruct
 endlibrary

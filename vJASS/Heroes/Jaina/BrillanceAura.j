@@ -1,7 +1,6 @@
-library BrillanceAura requires RegisterPlayerUnitEvent, TimerUtils
-    /* -------------------- Brilliance Aure v1.1 by Chopinski ------------------- */
+library BrillanceAura requires RegisterPlayerUnitEvent, Ability, Periodic, Utilities
+    /* -------------------- Brilliance Aure v1.2 by Chopinski ------------------- */
     // Credits
-    //      Vexorian         - TimerUtils
     //      Magtheridon96    - RegisterPlayerUnitEvent
     /* ----------------------------------- END ---------------------------------- */
 
@@ -28,19 +27,28 @@ library BrillanceAura requires RegisterPlayerUnitEvent, TimerUtils
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct BrillianceAura
-        static thistype array struct
+    private struct BrillianceAura extends Ability
+        private unit unit
+        private integer id
+        private real bonus
+        private integer levels
+        private ability ability
+        private abilityreallevelfield field
 
-        timer timer
-        unit unit
-        ability ability
-        integer id
-        integer levels
-        real bonus
-        abilityreallevelfield field
+        method destroy takes nothing returns nothing
+            set bonus = 0
+            set unit = null
+            set field = null
+            set ability = null
 
-        static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
+            call deallocate()
+        endmethod
+
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Jaina|r gives additional |cff00ffff" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_MANA_REGENERATION_INCREASE, level - 1), 1) + "|r |cff00ffffMana Regeneration|r to nearby friendly units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + " AoE|r. When she casts an ability the bonus |cff00ffffMana Regeneration|r is increased by |cff00ffff" + N2S(GetBonusManaRegen(source, level), 1) + "|r for a |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds."
+        endmethod
+
+        private method onExpire takes nothing returns nothing
             local integer i = 0
 
             loop
@@ -50,19 +58,9 @@ library BrillanceAura requires RegisterPlayerUnitEvent, TimerUtils
                     call DecUnitAbilityLevel(unit, ABILITY)
                 set i = i + 1
             endloop
-            
-            call ReleaseTimer(timer)
-            call deallocate()
-
-            set struct[id] = 0
-            set bonus = 0
-            set field = null
-            set timer = null
-            set unit = null
-            set ability = null
         endmethod
 
-        static method onCast takes nothing returns nothing
+        private static method onSpell takes nothing returns nothing
             local unit source = GetTriggerUnit()
             local integer level = GetUnitAbilityLevel(source, ABILITY)
             local integer i = 0
@@ -71,9 +69,8 @@ library BrillanceAura requires RegisterPlayerUnitEvent, TimerUtils
             if level > 0 then
                 static if STACK then
                     set this = thistype.allocate()
-                    set timer = NewTimerEx(this)
-                    set id = GetUnitUserData(source)
                     set unit = source
+                    set id = GetUnitUserData(source)
                     set field = ABILITY_RLF_MANA_REGENERATION_INCREASE
                     set ability = BlzGetUnitAbility(source, ABILITY)
                     set levels = BlzGetAbilityIntegerField(ability, ABILITY_IF_LEVELS)
@@ -87,18 +84,16 @@ library BrillanceAura requires RegisterPlayerUnitEvent, TimerUtils
                         set i = i + 1
                     endloop
                 else
-                    if struct[GetUnitUserData(source)] != 0 then
-                        set this = struct[GetUnitUserData(source)]
-                    else
+                    set this = GetTimerInstance(GetUnitUserData(source))
+
+                    if this == 0 then
                         set this = thistype.allocate()
-                        set timer = NewTimerEx(this)
-                        set id = GetUnitUserData(source)
+                        set bonus = 0
                         set unit = source
+                        set id = GetUnitUserData(source)
                         set field = ABILITY_RLF_MANA_REGENERATION_INCREASE
                         set ability = BlzGetUnitAbility(source, ABILITY)
                         set levels = BlzGetAbilityIntegerField(ability, ABILITY_IF_LEVELS)
-                        set bonus = 0
-                        set struct[id] = this
                     endif
                     
                     if bonus == 0 then
@@ -114,14 +109,17 @@ library BrillanceAura requires RegisterPlayerUnitEvent, TimerUtils
                     endif
                 endif
 
-                call TimerStart(timer, GetDuration(source, level), false, function thistype.onExpire)
+                call StartTimer(GetDuration(source, level), false, this, id)
             endif
 
             set source = null
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onSpell)
         endmethod
     endstruct
 endlibrary

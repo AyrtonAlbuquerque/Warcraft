@@ -1,8 +1,7 @@
-library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, TimedHandles, SpellPower, CrowdControl optional Avatar
-    /* --------------------------------------- Storm Bolt v1.3 -------------------------------------- */
+library StormBolt requires Ability, Missiles, Utilities, TimedHandles, CrowdControl, NewBonus optional Avatar
+    /* --------------------------------------- Storm Bolt v1.4 -------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
-    //     Bribe          - SpellEffectEvent
     //     TriggerHappy   - TimedHandles
     /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
@@ -33,13 +32,17 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
     endglobals
 
     // The storm bolt damage
-    public function GetDamage takes integer level returns real
-        return 150. + 50.*level
+    public function GetDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 150. + 50.*level + (1.1 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 150. + 50.*level
+        endif
     endfunction
 
     // The storm bolt damage when the target is already stunned
-    public function GetBonusDamage takes real damage, integer level returns real
-        return damage * (1. + 0.25*level)
+    public function GetBonusDamage takes integer level returns real
+        return 0.25 * level
     endfunction
 
     // The storm bolt stun duration
@@ -60,15 +63,15 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
     private struct Hammer extends Missiles
+        real time
+        real mana
         integer level
-        real    dur
-        real    mana
         boolean bonus = false
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             if UnitAlive(target) then
                 if IsUnitStunned(target) then
-                    set damage = GetSpellDamage(GetBonusDamage(damage, level), source)
+                    set damage = damage * (1 + GetBonusDamage(level))
                     set bonus  = true
                 endif
 
@@ -80,13 +83,14 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
                     if not UnitAlive(target) then
                         call AddUnitMana(source, mana)
                         call DestroyEffectTimed(AddSpecialEffectTarget(REFUND_MANA, source, ATTACH_POINT), 1.0)
+
                         static if LIBRARY_Avatar then
                             if GetUnitAbilityLevel(source, Avatar_BUFF) > 0 then
                                 call ResetUnitAbilityCooldown(source, ABILITY)
                             endif
                         endif
                     else
-                        call StunUnit(target, dur, STUN_MODEL, STUN_POINT, false)
+                        call StunUnit(target, time, STUN_MODEL, STUN_POINT, false)
                     endif
                 endif
             endif
@@ -95,8 +99,12 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
         endmethod
     endstruct
 
-    struct StormBolt extends array
-        private static method onCast takes nothing returns nothing
+    struct StormBolt extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Muradin|r throw his hammer at an enemy unit, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and stunning the target for |cffffcc003|r seconds (|cffffcc001|r on |cffffcc00Heroes|r). If the target is already stunned, |cffffcc00Storm Bolt|r will do |cffffcc00" + N2S(GetBonusDamage(level), 0) + "%|r bonus damage. In addintion, if |cffffcc00Storm Bolt|r kills the target, |cffffcc0050%|r of its mana cost is refunded."
+        endmethod
+
+        private method onCast takes nothing returns nothing
             local Hammer hammer = Hammer.create(Spell.source.x, Spell.source.y, 60, Spell.target.x, Spell.target.y, 60)
 
             set hammer.source = Spell.source.unit
@@ -105,16 +113,16 @@ library StormBolt requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilit
             set hammer.speed = MISSILE_SPEED
             set hammer.scale = MISSILE_SCALE
             set hammer.level = GetUnitAbilityLevel(Spell.source.unit, ABILITY)
-            set hammer.damage = GetDamage(hammer.level)
-            set hammer.dur = GetDuration(Spell.source.unit, Spell.target.unit, hammer.level)
+            set hammer.damage = GetDamage(Spell.source.unit, hammer.level)
+            set hammer.time = GetDuration(Spell.source.unit, Spell.target.unit, hammer.level)
             set hammer.mana = GetMana(Spell.source.unit, hammer.level)
 
             call hammer.launch()
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
-            call RegisterSpellEffectEvent(STORM_BOLT_RECAST, function thistype.onCast)
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
+            call RegisterSpell(thistype.allocate(), STORM_BOLT_RECAST)
         endmethod
     endstruct
 endlibrary

@@ -1,5 +1,5 @@
-library BreathOfFire requires SpellEffectEvent, PluginSpellEffect, NewBonus, Utilities, Missiles, optional KegSmash
-    /* -------------------- Breath of Fire v1.2 by Chopinski -------------------- */
+library BreathOfFire requires Ability, NewBonus, Utilities, Missiles, Periodic optional KegSmash
+    /* -------------------- Breath of Fire v1.4 by Chopinski -------------------- */
     // Credits:
     //     Blizzard           - Icon
     //     Bribe              - SpellEffectEvent
@@ -47,13 +47,13 @@ library BreathOfFire requires SpellEffectEvent, PluginSpellEffect, NewBonus, Uti
     endfunction
 
     // The Breath of Fire DoT damage
-    private function GetDoTDamage takes integer level returns real
-        return 10.*level
+    private function GetDoTDamage takes unit source, integer level returns real
+        return 10. * level + 0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)
     endfunction
 
     // The Breath of Fire Brew Cloud ignite damage
-    private function GetIgniteDamage takes integer level returns real
-        return 25.*level
+    private function GetIgniteDamage takes unit source, integer level returns real
+        return 25. * level + 0.5 * GetUnitBonus(source, BONUS_SPELL_POWER)
     endfunction
 
     // The Breath of Fire Brew Cloud ignite damage interval
@@ -62,8 +62,8 @@ library BreathOfFire requires SpellEffectEvent, PluginSpellEffect, NewBonus, Uti
     endfunction
 
     // The Breath of Fire Damage
-    private function GetDamage takes integer level returns real
-        return 50. + 50.*level
+    private function GetDamage takes unit source, integer level returns real
+        return 50. + 50.*level + 0.75 * GetUnitBonus(source, BONUS_SPELL_POWER)
     endfunction
 
     // The Breath of Fire armor reduction
@@ -80,118 +80,84 @@ library BreathOfFire requires SpellEffectEvent, PluginSpellEffect, NewBonus, Uti
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct DoT
-        static thistype array n
-        static thistype array data
-		static integer 		  didx  = -1
-        static timer 		  timer = CreateTimer()
+        private unit source
+        private unit target
+        private real damage
+        private effect effect
+        private real duration
 
-        unit    source
-        unit    target
-        real    damage
-        effect  effect
-        integer armor
-        integer index
-        integer duration
-
-        private method remove takes integer i returns integer
-            call AddUnitBonus(target, BONUS_ARMOR, armor)
+        method destroy takes nothing returns nothing
             call DestroyEffect(effect)
+            call deallocate()
 
-            set source   = null
-            set target   = null
-            set effect   = null
-			set data[i]  = data[didx]
-            set didx 	 = didx - 1
-            set n[index] = 0
-
-			if didx == -1 then
-				call PauseTimer(timer)
-			endif
-
-			call deallocate()
-
-			return i - 1
+            set source = null
+            set target = null
+            set effect = null
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local thistype this
-	
-			loop
-				exitwhen i > didx
-					set this = data[i]
+        private method onPeriod takes nothing returns boolean
+            set duration = duration - PERIOD
 
-                    if duration > 0 then
-                        if UnitAlive(target) then
-                            static if LIBRARY_KegSmash then
-                                if GetUnitAbilityLevel(target, KegSmash_BUFF) > 0 then
-                                    call UnitDamageTarget(source, target, 2*damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
-                                else
-                                    call UnitDamageTarget(source, target, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
-                                endif
-                            else
-                                call UnitDamageTarget(source, target, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
-                            endif
+            if duration > 0 then
+                if UnitAlive(target) then
+                    static if LIBRARY_KegSmash then
+                        if GetUnitAbilityLevel(target, KegSmash_BUFF) > 0 then
+                            call UnitDamageTarget(source, target, 2*damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
                         else
-                            set i = remove(i)
+                            call UnitDamageTarget(source, target, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
                         endif
-					else
-						set i = remove(i)
+                    else
+                        call UnitDamageTarget(source, target, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
                     endif
-                    set duration = duration - 1
-				set i = i + 1
-			endloop
-        endmethod
-
-        static method create takes unit source, unit target, integer level returns thistype
-            local integer  i = GetUnitUserData(target)
-            local thistype this
-        
-            if n[i] != 0 then
-                set this = n[i]
-            else
-                set this = thistype.allocate()
-                set .source    = source
-                set .target    = target
-                set .damage    = GetDoTDamage(level)
-                set .index     = i
-                set .effect    = AddSpecialEffectTarget(DOT_MODEL, target, ATTACH)
-                set .armor     = 0
-                set n[i]       = this
-                set didx       = didx + 1
-                set data[didx] = this
-
-                static if LIBRARY_KegSmash then
-                    if GetUnitAbilityLevel(target, KegSmash_BUFF) > 0 then
-                        set armor = GetArmorReduction(level)
-                        call AddUnitBonus(target, BONUS_ARMOR, -armor)
-                    endif
-                endif
-
-                if didx == 0 then
-                    call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
+                else
+                    return false
                 endif
             endif
 
-            set duration = R2I(GetDuration(source, level)/PERIOD)
+            return duration > 0
+        endmethod
+
+        static method create takes unit source, unit target, integer level returns thistype
+            local integer id = GetUnitUserData(target)
+            local thistype this = GetTimerInstance(id)
+
+            if this == 0 then
+                set this = thistype.allocate()
+                set this.source = source
+                set this.target = target
+                set this.damage = GetDoTDamage(source, level)
+                set this.effect = AddSpecialEffectTarget(DOT_MODEL, target, ATTACH)
+
+                static if LIBRARY_KegSmash then
+                    if GetUnitAbilityLevel(target, KegSmash_BUFF) > 0 then
+                        call LinkBonusToBuff(target, BONUS_ARMOR, -GetArmorReduction(level), KegSmash_BUFF)
+                    endif
+                endif
+
+                call StartTimer(PERIOD, true, this, id)
+            endif
+
+            set duration = GetDuration(source, level)
 
             return this
         endmethod
+
+        implement Periodic
     endstruct
 
-    private struct BreathOfFire extends Missiles
-        group   group
+    private struct Wave extends Missiles
+        group group
         integer level
-        real    fov
-        real    face
-        real    centerX
-        real    centerY
-        real    distance
-        real    ignite_damage
-        real    ignite_duration
-        real    ignite_interval
+        real fov
+        real face
+        real centerX
+        real centerY
+        real distance
+        real ignite_damage
+        real ignite_duration
+        real ignite_interval
 
-        method onHit takes unit hit returns boolean
+        private method onHit takes unit hit returns boolean
             if IsUnitInCone(hit, centerX, centerY, distance, face, fov) then
                 if DamageFilter(owner, hit) then
                     if UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
@@ -203,17 +169,19 @@ library BreathOfFire requires SpellEffectEvent, PluginSpellEffect, NewBonus, Uti
             return false
         endmethod
 
-        method onPeriod takes nothing returns boolean
+        private method onPeriod takes nothing returns boolean
             static if LIBRARY_KegSmash then
                 local unit u
                 local real d
 
                 call GroupEnumUnitsOfPlayer(group, owner, null)
+
                 loop
                     set u = FirstOfGroup(group)
                     exitwhen u == null
                         if GetUnitTypeId(u) == Utilities_DUMMY and BrewCloud.active(u) then
                             set d = DistanceBetweenCoordinates(x, y, GetUnitX(u), GetUnitY(u))
+
                             if d <= collision + KegSmash_GetAoE(source, level)/2 and IsUnitInCone(u, centerX, centerY, 2*distance, face, 180) then
                                 call BrewCloud.ignite(u, ignite_damage, ignite_duration, ignite_interval)
                             endif
@@ -225,42 +193,48 @@ library BreathOfFire requires SpellEffectEvent, PluginSpellEffect, NewBonus, Uti
             return false
         endmethod
 
-        method onRemove takes nothing returns nothing
+        private method onRemove takes nothing returns nothing
             call DestroyGroup(group)
             set group = null
         endmethod
+    endstruct
 
-        private static method onCast takes nothing returns nothing
-            local real     a    = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
-            local real     d    = GetDistance(Spell.source.unit, Spell.level)
-            local effect   e    = AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, 0, SCALE)
-            local thistype this = thistype.create(Spell.source.x, Spell.source.y, 0, Spell.source.x + d*Cos(a), Spell.source.y + d*Sin(a), 0)
+    private struct BreathOfFire extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Chen|r breathes fire in a cone, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage to enemy units and setting them on fire, dealing |cff00ffff" + N2S(GetDoTDamage(source, level), 0) + "|r |cff00ffffMagic|r damage every |cffffcc00" + N2S(GetIgniteInterval(level), 1) + "|r second. If the unit is under the effect of |cffffcc00Drunken Haze|r, the |cffffcc00DoT|r damage is doubled and reduces the unit armor by |cffffcc00" + N2S(GetArmorReduction(level), 0) + "|r. In addition, if the fire wave comes in contact with a |cffffcc00Brew Cloud|r it will ignite it, setting the terrain on fire, dealing |cff00ffff" + N2S(GetIgniteDamage(source, level), 0) + "|r |cff00ffffMagic|r damage per second to enemy units within range.\n\nLasts |cffffcc00" + N2S(GetDuration(source, level), 0) + "|r seconds."
+        endmethod
 
-            set speed     = SPEED
-            set source    = Spell.source.unit 
-            set owner     = Spell.source.player
-            set level     = Spell.level
-            set centerX   = Spell.source.x
-            set centerY   = Spell.source.y
-            set face      = a*bj_RADTODEG
-            set distance  = d
-            set fov       = GetCone(Spell.level)
-            set damage    = GetDamage(Spell.level)
-            set collision = GetFinalArea(Spell.level)
-            set group     = CreateGroup()
-            set ignite_damage   = GetIgniteDamage(Spell.level)
-            set ignite_duration = GetDuration(Spell.source.unit, Spell.level)
-            set ignite_interval = GetIgniteInterval(Spell.level)
+        private method onCast takes nothing returns nothing
+            local real distance = GetDistance(Spell.source.unit, Spell.level)
+            local real angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
+            local effect e = AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, 0, SCALE)
+            local Wave wave = Wave.create(Spell.source.x, Spell.source.y, 0, Spell.source.x + distance * Cos(angle), Spell.source.y + distance * Sin(angle), 0)
 
-            call BlzSetSpecialEffectYaw(e, a)
+            set wave.speed = SPEED
+            set wave.level = Spell.level
+            set wave.distance = distance
+            set wave.face = angle * bj_RADTODEG
+            set wave.source = Spell.source.unit 
+            set wave.owner = Spell.source.player
+            set wave.centerX = Spell.source.x
+            set wave.centerY = Spell.source.y
+            set wave.group = CreateGroup()
+            set wave.fov = GetCone(Spell.level)
+            set wave.damage = GetDamage(Spell.source.unit, Spell.level)
+            set wave.collision = GetFinalArea(Spell.level)
+            set wave.ignite_damage = GetIgniteDamage(Spell.source.unit, Spell.level)
+            set wave.ignite_duration = GetDuration(Spell.source.unit, Spell.level)
+            set wave.ignite_interval = GetIgniteInterval(Spell.level)
+
+            call BlzSetSpecialEffectYaw(e, angle)
             call DestroyEffect(e)
-            call launch()
+            call wave.launch()
 
             set e = null
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

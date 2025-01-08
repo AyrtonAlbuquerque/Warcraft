@@ -1,5 +1,5 @@
-library WildBond requires RegisterPlayerUnitEvent, TimerUtils, Indexer, NewBonus
-    /* ----------------------- Wild Bond v1.0 by Chopinski ---------------------- */
+library WildBond requires RegisterPlayerUnitEvent, Periodic, Indexer, NewBonus, Ability
+    /* ----------------------- Wild Bond v1.1 by Chopinski ---------------------- */
     // Credits:
     //     Nyx-Studio      - Icon
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -29,20 +29,28 @@ library WildBond requires RegisterPlayerUnitEvent, TimerUtils, Indexer, NewBonus
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct WildBond
-        static thistype array struct
-
-        timer timer
-        unit unit
-        player player
-        group group
-        real bonus
+    private struct WildBond extends Ability
+        private unit unit
+        private real bonus
+        private group group
+        private player player
         
-        private method update takes nothing returns nothing
+        method destroy takes nothing returns nothing
+            call DestroyGroup(group)
+            call deallocate()
+            
+            set unit = null
+            set group = null
+            set player  = null
+        endmethod
+
+        method update takes nothing returns nothing
             local unit u
 
             set bonus = 0
+
             call GroupEnumUnitsOfPlayer(group, player, null)
+
             loop
                 set u = FirstOfGroup(group)
                 exitwhen u == null
@@ -51,30 +59,40 @@ library WildBond requires RegisterPlayerUnitEvent, TimerUtils, Indexer, NewBonus
                     endif
                 call GroupRemoveUnit(group, u)
             endloop
+
             call AddUnitBonus(unit, BONUS_DAMAGE, bonus)
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
+        static method create takes unit source returns thistype
+            local integer id = GetUnitUserData(source)
+            local thistype this
 
+            if not HasStartedTimer(id) then
+                set this = thistype.allocate()
+                set unit = source
+                set group = CreateGroup()
+                set player = GetOwningPlayer(source)
+
+                call update()
+                call StartTimer(PERIOD, true, this, id)
+            endif
+
+            return this
+        endmethod
+
+        private method onPeriod takes nothing returns boolean
             if GetUnitAbilityLevel(unit, ABILITY) > 0 then
                 call AddUnitBonus(unit, BONUS_DAMAGE, -bonus)
                 call update()
-            else
-                call ReleaseTimer(timer)
-                call DestroyGroup(group)
-                call deallocate()
-                
-                set struct[GetUnitUserData(unit)] = 0
-                set timer = null
-                set group = null
-                set unit = null
-                set player  = null
+
+                return true
             endif
+
+            return false
         endmethod
 
-        private static method onLearn takes nothing returns nothing
-            call create(GetLearningUnit(), GetLearnedSkill())
+        private method onLearn takes unit source, integer skill, integer level returns nothing
+            call create(source)
         endmethod
 
         private static method onLevelUp takes nothing returns nothing
@@ -84,35 +102,18 @@ library WildBond requires RegisterPlayerUnitEvent, TimerUtils, Indexer, NewBonus
                 if GetUnitTypeId(u) == REXXAR_ID and GetHeroLevel(u) == GAIN_AT_LEVEL then
                     call UnitAddAbility(u, ABILITY)
                     call UnitMakeAbilityPermanent(u, true, ABILITY)
-                    call create(u, ABILITY)
+                    call create(u)
                 endif
             endif
         
             set u = null
         endmethod
 
-        static method create takes unit source, integer skill returns thistype
-            local thistype this
-            local integer i = GetUnitUserData(source)
-
-            if skill == ABILITY and struct[i] == 0 then
-                set this = thistype.allocate()
-                set timer = NewTimerEx(this)
-                set unit = source
-                set player = GetOwningPlayer(source)
-                set group = CreateGroup()
-                set struct[i] = this
-
-                call update()
-                call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
-            endif
-
-            return this
-        endmethod
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevelUp)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function thistype.onLearn)
         endmethod
     endstruct
 endlibrary

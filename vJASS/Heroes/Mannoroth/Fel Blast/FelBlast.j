@@ -1,4 +1,4 @@
-library FelBlast requires Ability, PluginSpellEffect, Periodic, Utilities optional FelBeam optional NewBonus
+library FelBlast requires Ability, Periodic, Utilities optional FelBeam optional NewBonus
     /* ----------------------- Fel Blast v1.5 by Chopinski ---------------------- */
     // Credits:
     //     Mythic   - Nther Blast model
@@ -62,7 +62,7 @@ library FelBlast requires Ability, PluginSpellEffect, Periodic, Utilities option
             call deallocate()
         endmethod
 
-        private method onTooltip takes unit source, integer level returns string
+        private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Mannoroth|r blasts the target area with Fel Fire dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and cursing all enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r with |cffffcc00Fel Curse|r. When a unit affected by |cffffcc00Fel Curse|r dies, it will spawn a |cffffcc00Fel Beam|r to a random target within |cffffcc001000 AoE|r."
         endmethod
 

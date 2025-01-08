@@ -1,5 +1,5 @@
-library Critical requires RegisterPlayerUnitEvent, NewBonusUtils, CriticalStrike, Missiles
-    /* ----------------------- Critical v1.2 by Chopinski ----------------------- */
+library Critical requires Ability, NewBonus, DamageInterface, Missiles, Utilities
+    /* ----------------------- Critical v1.3 by Chopinski ----------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Blizzard       - Icon
@@ -10,7 +10,7 @@ library Critical requires RegisterPlayerUnitEvent, NewBonusUtils, CriticalStrike
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Critical Strike ability
-        private constant integer    ABILITY         = 'A003'
+        public constant integer     ABILITY         = 'A003'
         // The missile model
         private constant string     MISSILE_MODEL   = "Fire_Slash.mdl"
         // The missile size
@@ -26,24 +26,20 @@ library Critical requires RegisterPlayerUnitEvent, NewBonusUtils, CriticalStrike
     // The the critical strike chance increament
     private function GetBonusChance takes integer level returns real
         if level == 1 then
-            return 10.
+            return 0.1
         else
-            return 5.
+            return 0.05
         endif
     endfunction
 
     // The the critical strike multiplier increament
     private function GetBonusMultiplier takes integer level returns real
-        if level == 1 then
-            return 1.
-        else
-            return 0.5
-        endif
+        return 0.1
     endfunction
 
     // The Fire Slash damage deatl based on a base damage amount and the ability level
-    public function GetDamage takes real damage, integer level returns real
-        return damage*(0.2 + 0.05*level)
+    public function GetDamage takes integer level returns real
+        return 0.2 + 0.05 * level
     endfunction
 
     // The Fire Slash travel distance
@@ -74,58 +70,45 @@ library Critical requires RegisterPlayerUnitEvent, NewBonusUtils, CriticalStrike
         endmethod
     endstruct
     
-    private struct CriticalStrike
-        static method slash takes unit source, unit target, real damage, integer level returns nothing
-            local real x  = GetUnitX(target)
-            local real y  = GetUnitY(target)
-            local real z  = GetUnitFlyHeight(target)
-            local real a  = AngleBetweenCoordinates(GetUnitX(source), GetUnitY(source), x, y)
-            local real d  = GetDistance(level)
-            local real tx = x + d*Cos(a)
-            local real ty = y + d*Sin(a)
-            local FireSlash missile = FireSlash.create(x, y, z, tx, ty, 0)
+    private struct CriticalStrike extends Ability
+        private static method slash takes unit source, unit target, real damage, integer level returns nothing
+            local real x = GetUnitX(target)
+            local real y = GetUnitY(target)
+            local real distance = GetDistance(level)
+            local real angle = AngleBetweenCoordinates(GetUnitX(source), GetUnitY(source), x, y)
+            local FireSlash slash = FireSlash.create(x, y, GetUnitFlyHeight(target), x + distance * Cos(angle), y + distance * Sin(angle), 0)
 
-            set missile.source = source
-            set missile.owner = GetOwningPlayer(source)
-            set missile.damage = damage
-            set missile.model = MISSILE_MODEL
-            set missile.scale = MISSILE_SCALE
-            set missile.speed = MISSILE_SPEED
-            set missile.collision = GetCollision(level)
+            set slash.source = source
+            set slash.damage = damage
+            set slash.model = MISSILE_MODEL
+            set slash.scale = MISSILE_SCALE
+            set slash.speed = MISSILE_SPEED
+            set slash.owner = GetOwningPlayer(source)
+            set slash.collision = GetCollision(level)
 
-            call missile.launch()
+            call slash.launch()
+        endmethod
+
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Samuro|r gains |cffffcc00" + N2S(5 + 5 * level, 0) + "%|r increased |cffffcc00Critical Strike Chance|r and |cffffcc00" + N2S(10 * level, 0) + "%|r |cffffcc00Critical Strike Damage|r. Whenever |cffffcc00Samuro|r hits a |cffffcc00Critical Strike|r a |cffffcc00Fire Slash|r is generated in the direction of the attack, damaging enemy units in its path for |cffffcc00" + N2S(GetDamage(level) * 100, 0) + "%|r of the total critical strike damage as |cffd45e19True|r damage."
         endmethod
 
         private static method onCritical takes nothing returns nothing
-            local unit source = GetCriticalSource()
-            local unit target = GetCriticalTarget()
-            local real damage = GetCriticalDamage()
-            local integer level  = GetUnitAbilityLevel(source, ABILITY)
+            local integer level = GetUnitAbilityLevel(GetCriticalSource(), ABILITY)
 
             if level > 0 then
-                call slash(source, target, GetDamage(damage, level), level)
+                call slash(GetCriticalSource(), GetCriticalTarget(), GetCriticalDamage() * GetDamage(level), level)
             endif
-
-            set source = null
-            set target = null
         endmethod
 
-        static method onLevelUp takes nothing returns nothing
-            local unit source = GetTriggerUnit()
-            local integer level = GetUnitAbilityLevel(source, ABILITY)
-            local integer skill = GetLearnedSkill()
-        
-            if skill == ABILITY then
-                call AddUnitBonus(source, BONUS_CRITICAL_CHANCE, GetBonusChance(level))
-                call AddUnitBonus(source, BONUS_CRITICAL_DAMAGE, GetBonusMultiplier(level))
-            endif
-        
-            set source = null
+        private method onLearn takes unit source, integer skill, integer level returns nothing
+            call AddUnitBonus(source, BONUS_CRITICAL_CHANCE, GetBonusChance(level))
+            call AddUnitBonus(source, BONUS_CRITICAL_DAMAGE, GetBonusMultiplier(level))
         endmethod
 
-        static method onInit takes nothing returns nothing
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterCriticalStrikeEvent(function thistype.onCritical)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function thistype.onLevelUp)
         endmethod
     endstruct
 endlibrary

@@ -1,5 +1,5 @@
-library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, optional ThunderClap, optional Avatar
-    /* ------------------------------------- Double Thunder v1.4 ------------------------------------ */
+library DoubleThunder requires RegisterPlayerUnitEvent, Utilities optional StormBolt, optional ThunderClap, optional Avatar
+    /* ------------------------------------- Double Thunder v1.5 ------------------------------------ */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Blizzard       - Icon
@@ -43,12 +43,11 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
     private struct DoubleThunder extends array
-        static method onLevel takes nothing returns nothing
-            local unit    source = GetTriggerUnit()
-            local integer level  = GetHeroLevel(source)
+        private static method onLevel takes nothing returns nothing
+            local unit source = GetTriggerUnit()
         
             if GetUnitAbilityLevel(source, ABILITY) > 0 then
-                call SetUnitAbilityLevel(source, ABILITY, GetLevel(level))
+                call SetUnitAbilityLevel(source, ABILITY, GetLevel(GetHeroLevel(source)))
             endif
         
             set source = null
@@ -56,14 +55,12 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
 
         private static method onCast takes nothing returns nothing
             local unit source = GetTriggerUnit()
-            local integer skill = GetSpellAbilityId()
-            local integer level = GetUnitAbilityLevel(source, ABILITY)
-            local integer chance = GetDoubleChance(source, level)
             local integer id = GetUnitUserData(source)
+            local integer skill = GetSpellAbilityId()
         
             static if LIBRARY_StormBolt then
                 if skill == StormBolt_ABILITY then
-                    if GetRandomInt(1, 100) <= chance then
+                    if GetRandomInt(1, 100) <= GetDoubleChance(source, GetUnitAbilityLevel(source, ABILITY)) then
                         call UnitAddAbility(source,  StormBolt_STORM_BOLT_RECAST)
                         call TriggerSleepAction(0.10)
                         call IssuePointOrder(source, "creepthunderbolt", StormBolt.x[id], StormBolt.y[id])
@@ -75,7 +72,7 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
 
             static if LIBRARY_ThunderClap then
                 if skill == ThunderClap_ABILITY then
-                    if GetRandomInt(1, 100) <= chance then
+                    if GetRandomInt(1, 100) <= GetDoubleChance(source, GetUnitAbilityLevel(source, ABILITY)) then
                         call UnitAddAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
                         call SetUnitAbilityLevel(source, ThunderClap_THUNDER_CLAP_RECAST, GetUnitAbilityLevel(source, ThunderClap_ABILITY))
                         call IssueImmediateOrder(source, "creepthunderclap")
@@ -88,11 +85,11 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
             set source = null
         endmethod
 
-        static method onInit takes nothing returns nothing
+        private static method onInit takes nothing returns nothing
             local trigger t = CreateTrigger()
+
             call TriggerRegisterAnyUnitEventBJ(t, EVENT_PLAYER_UNIT_SPELL_EFFECT)
             call TriggerAddAction(t, function thistype.onCast)
-
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
         endmethod
     endstruct

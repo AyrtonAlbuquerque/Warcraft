@@ -1,5 +1,5 @@
-library AdaptiveStrike requires RegisterPlayerUnitEvent, NewBonus
-    /* -------------------- Adaptive Strike v1.2 by Chopinski ------------------- */
+library AdaptiveStrike requires RegisterPlayerUnitEvent, NewBonus, Ability, Utilities
+    /* -------------------- Adaptive Strike v1.3 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Magtheridon96   - RegisterPlayerUnitEvent
@@ -19,13 +19,13 @@ library AdaptiveStrike requires RegisterPlayerUnitEvent, NewBonus
     endglobals
 
     // The Adaptive Strike proc chance
-    private function GetChance takes integer level returns boolean
-        return GetRandomInt(level, 4) <= level
-    endfunction
+    private function GetChance takes integer level returns real
+        return 25. * level
+    endfunction 
 
     // The Adaptive Strike damage
     private function GetDamage takes unit source, integer level returns real
-        return 25*level + GetUnitBonus(source, BONUS_DAMAGE)*0.5
+        return 25 * level + 0.5 * GetUnitBonus(source, BONUS_DAMAGE)
     endfunction
 
     // The Adaptive Strike AoE
@@ -40,32 +40,22 @@ library AdaptiveStrike requires RegisterPlayerUnitEvent, NewBonus
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct AdaptiveStrike extends array
-        static integer array state
+    private struct AdaptiveStrike extends Ability
+        private static integer array state
 
-        static method onDamage takes nothing returns nothing
-            local integer level
-
-            if state[Damage.source.id] != 0 then
-                set level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
-                if state[Damage.source.id] == 1 then
-                    call UnitDamageCone(Damage.source.unit, Damage.source.x, Damage.source.y, GetUnitFacing(Damage.source.unit), 150, GetAoE(false, level), GetDamage(Damage.source.unit, level), ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, false, true, false)
-                else
-                    call UnitDamageArea(Damage.source.unit, Damage.source.x, Damage.source.y, GetAoE(true, level), GetDamage(Damage.source.unit, level), ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, false, true, false)
-                endif
-                set state[Damage.source.id] = 0
-            endif
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Illidan|r attacks have a |cffffcc00" + N2S(GetChance(level), 0) + "%|r chance to become |cffffcc00Adaptive|r, varying between a |cffffcc00Cleave|r in front or a |cffffcc00Slash|r around when in his normal form, dealing |cffd45e19" + N2S(GetDamage(source, level), 0) + "|r |cffd45e19Pure|r damage to units within |cffffcc00" + N2S(GetAoE(false, level), 0) + " AoE|r. In addition, |cffffcc00Illidan|r |cffffcc00Dark|r form attacks becomes an area of effect attack, applying on hit effects to all units damaged."
         endmethod
 
-        static method onAttack takes nothing returns nothing
-            local unit    source = GetAttacker()
-            local integer level  = GetUnitAbilityLevel(source, ABILITY)
-            local integer i
+        private static method onAttack takes nothing returns nothing
+            local unit source = GetAttacker()
+            local integer id = GetUnitUserData(source)
+            local integer level = GetUnitAbilityLevel(source, ABILITY)
         
-            if level > 0 and IsUnitType(source, UNIT_TYPE_MELEE_ATTACKER) and GetChance(level) then
-                set i = GetUnitUserData(source)
-                set state[i] = GetRandomInt(1, 2)
-                if state[i] == 1 then
+            if level > 0 and IsUnitType(source, UNIT_TYPE_MELEE_ATTACKER) and GetRandomReal(0, 100) <= GetChance(level) then
+                set state[id] = GetRandomInt(1, 2)
+
+                if state[id] == 1 then
                     call SetUnitAnimationByIndex(source, 4)
                     call QueueUnitAnimation(source, "Stand Ready")
                     call DestroyEffect(AddSpecialEffectTarget(CLEAVE, source, "origin"))
@@ -79,9 +69,26 @@ library AdaptiveStrike requires RegisterPlayerUnitEvent, NewBonus
             set source = null
         endmethod
 
+        private static method onDamage takes nothing returns nothing
+            local integer level
+
+            if state[Damage.source.id] != 0 then
+                set level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
+
+                if state[Damage.source.id] == 1 then
+                    call UnitDamageCone(Damage.source.unit, Damage.source.x, Damage.source.y, GetUnitFacing(Damage.source.unit), 150, GetAoE(false, level), GetDamage(Damage.source.unit, level), ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, false, true, false)
+                else
+                    call UnitDamageArea(Damage.source.unit, Damage.source.x, Damage.source.y, GetAoE(true, level), GetDamage(Damage.source.unit, level), ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, false, true, false)
+                endif
+
+                set state[Damage.source.id] = 0
+            endif
+        endmethod
+
         private static method onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function thistype.onAttack)
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAttackDamageEvent(function thistype.onDamage)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function thistype.onAttack)
         endmethod
     endstruct
 endlibrary

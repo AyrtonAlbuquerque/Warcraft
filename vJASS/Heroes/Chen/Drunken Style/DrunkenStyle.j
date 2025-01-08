@@ -1,10 +1,8 @@
-library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Missiles, TimerUtils, MouseUtils, NewBonus, CrowdControl
-    /* --------------------- Drunken Style v1.3 by Chopinski -------------------- */
+library DrunkenStyle requires Ability, Utilities, Missiles, MouseUtils, NewBonus, CrowdControl, Periodic
+    /* --------------------- Drunken Style v1.4 by Chopinski -------------------- */
     // Credits:
-    //     Blizzard           - Icon
-    //     Bribe              - SpellEffectEvent
-    //     Vexorian           - TimerUtils
-    //     Vexorian           - MouseUtils
+    //     Blizzard - Icon
+    //     Vexorian - MouseUtils
     /* ----------------------------------- END ---------------------------------- */
     
     /* -------------------------------------------------------------------------- */
@@ -63,8 +61,8 @@ library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Mi
     endfunction
 
     // The Drunken Style dash damage
-    private function GetDamage takes integer level, unit source returns real
-        return 25.*level + GetUnitBonus(source, BONUS_DAMAGE)*(0.25 + 0.25*level)
+    private function GetDamage takes unit source, integer level returns real
+        return 25. * level + (0.25 + 0.25*level) * GetUnitBonus(source, BONUS_DAMAGE)
     endfunction
 
     // The Drunken Style Damage Filter for enemy units
@@ -78,24 +76,24 @@ library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Mi
     private struct Dash extends Missiles
         real fov
         real face
-        real distance
-        real knockback
         real centerX
         real centerY
+        real distance
+        real knockback
 
-        method onPeriod takes nothing returns boolean
+        private method onPeriod takes nothing returns boolean
             if UnitAlive(source) then
                 call SetUnitX(source, x)
                 call SetUnitY(source, y)
                 call BlzSetUnitFacingEx(source, face)
 
                 return false
-            else
-                return true
             endif
+
+            return true
         endmethod
 
-        method onHit takes unit hit returns boolean
+        private method onHit takes unit hit returns boolean
             if IsUnitInCone(hit, centerX, centerY, collision, face, fov) then
                 if DamageFilter(owner, hit) then
                     if UnitDamageTarget(source, hit, damage, true, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WOOD_HEAVY_BASH) then
@@ -107,7 +105,7 @@ library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Mi
             return false
         endmethod
 
-        method onRemove takes nothing returns nothing
+        private method onRemove takes nothing returns nothing
             call BlzUnitInterruptAttack(source)
             call SetUnitTimeScale(source, 1)
             call IssueImmediateOrder(source, "stop")
@@ -115,110 +113,69 @@ library DrunkenStyle requires SpellEffectEvent, PluginSpellEffect, Utilities, Mi
         endmethod
     endstruct
     
-    private struct DrunkenStyle
-        static thistype array n
-        static integer array type
+    private struct DrunkenStyle extends Ability
+        private static integer array type
 
-        timer timer
-        integer i
+        private integer id
 
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            call ReleaseTimer(timer)
+        method destroy takes nothing returns nothing
+            set type[id] = 0
             call deallocate()
-
-            set n[i] = 0
-            set type[i] = 0
-            set timer = null
         endmethod
 
-        private static method getAngle takes player owner, unit caster, real x, real y, real mx, real my, real aoe returns real
-            local group g = CreateGroup() 
-            local integer j = 0
-            local real a = 0.
-            local unit u
-            local integer size
-
-            call GroupEnumUnitsInRange(g, mx, my, aoe, null)
-            set size = BlzGroupGetSize(g)
-            if size > 0 then
-                loop
-                    exitwhen j == size
-                        set u = BlzGroupUnitAt(g, j)
-                        if IsUnitEnemy(u, owner) and UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
-                            set j = size
-                            set a = AngleBetweenCoordinates(x, y, mx, my)
-                        else
-                            set j = j + 1
-                        endif
-                endloop
-
-                if a == 0. then
-                    set a = GetUnitFacing(caster)*bj_DEGTORAD
-                endif
-            else
-                set a = GetUnitFacing(caster)*bj_DEGTORAD
-            endif
-            call DestroyGroup(g)
-
-            set g = null
-            set u = null
-            return a
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Chen|r performs a series of |cffffcc003|r attacks in sequence, |cffffcc00Swing|r, |cffffcc00Kick|r and |cffffcc00Swipe|r, dashing a short distance towards the cursor in each attack, dealing |cffff0000" + N2S(GetDamage(source, level), 0) + "|r |cffff0000Physical|r damage and knocking back enemy units in range. Every cast performs one attack of the sequence. The sequence resets after |cffffcc00" + N2S(GetResetTime(level), 1) + "|r seconds if left uncasted. If |cffffcc00Chen|r performs all attacks, |cffffcc00Drunken Style|r goes into cooldown. All attacks can hit |cffffcc00Critical Strikes|r and/or |cffffcc00Miss|r.\n\n|cffffcc00Swing|r  knocks back enemy units in a wide angle in front of |cffffcc00Chen|r.\n\n|cffffcc00Kick|r knocks back enemy units directly in front of |cffffcc00Chen|r.\n\n|cffffcc00Swipe|r knocks back enemy units all around |cffffcc00Chen|r."
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local real d = GetDistance(Spell.level)
-            local real a = getAngle(Spell.source.player, Spell.source.unit, Spell.source.x, Spell.source.y, GetPlayerMouseX(Spell.source.player), GetPlayerMouseY(Spell.source.player), 100)
-            local Dash dash = Dash.create(Spell.source.x, Spell.source.y, 0, Spell.source.x + d*Cos(a), Spell.source.y + d*Sin(a), 0)
-            local thistype this
+        private method onCast takes nothing returns nothing
+            local real distance = GetDistance(Spell.level)
+            local real angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, GetPlayerMouseX(Spell.source.player), GetPlayerMouseY(Spell.source.player))
+            local Dash dash = Dash.create(Spell.source.x, Spell.source.y, 0, Spell.source.x + distance * Cos(angle), Spell.source.y + distance * Sin(angle), 0)
             
-            if n[Spell.source.id] != 0 then
-                set this = n[Spell.source.id]
-            else
+            set this = GetTimerInstance(Spell.source.id)
+
+            if this == 0 then
                 set this = thistype.allocate()
-                set timer = NewTimerEx(this)
-                set i = Spell.source.id
-                set n[i]  = this
+                set id = Spell.source.id
             endif
 
-            set type[i] = type[i] + 1
+            set type[id] = type[id] + 1
 
-            if type[i] > 3 then
-                set type[i] = 0
-                call SetUnitAnimationByIndex(Spell.source.unit, 14)
-            elseif type[i] == 1 then
+            if type[id] == 1 then
                 call StartUnitAbilityCooldown(Spell.source.unit, ABILITY, 0.25)
                 call SetUnitAnimationByIndex(Spell.source.unit, 14)
-            elseif type[i] == 2 then
+            elseif type[id] == 2 then
                 call StartUnitAbilityCooldown(Spell.source.unit, ABILITY, 0.25)
                 call SetUnitAnimationByIndex(Spell.source.unit, 23)
             else
+                set type[id] = 0
                 call SetUnitAnimationByIndex(Spell.source.unit, 17)
             endif
 
             set dash.model = MODEL
+            set dash.type = type[id]
+            set dash.face = angle * bj_RADTODEG
             set dash.source = Spell.source.unit
             set dash.owner = Spell.source.player
             set dash.centerX = Spell.source.x
             set dash.centerY = Spell.source.y
-            set dash.type = type[i]
-            set dash.face = a*bj_RADTODEG
-            set dash.damage = GetDamage(Spell.level, Spell.source.unit)
+            set dash.damage = GetDamage(Spell.source.unit, Spell.level)
             set dash.duration = GetDuration(Spell.level)
-            set dash.collision = GetCollision(type[i])
-            set dash.fov = GetDamageCone(type[i])
+            set dash.collision = GetCollision(type[id])
+            set dash.fov = GetDamageCone(type[id])
             set dash.distance = GetKnockDistance(Spell.level)
             set dash.knockback = GetKnockDuration(Spell.level)
 
             call dash.launch()
             call BlzUnitInterruptAttack(Spell.source.unit)
             call SetUnitTimeScale(Spell.source.unit, 1.75)
-            call TimerStart(timer, GetResetTime(Spell.level), false, function thistype.onExpire)
+            call StartTimer(GetResetTime(Spell.level), false, this, id)
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

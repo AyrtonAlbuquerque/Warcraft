@@ -1,4 +1,4 @@
-library SulfurasSmash requires Ability, PluginSpellEffect, Missiles, TimedHandles, Utilities, CrowdControl optional Sulfuras, optional Afterburner, optional NewBonus
+library SulfurasSmash requires Ability, Missiles, TimedHandles, Utilities, CrowdControl optional Sulfuras, optional Afterburner, optional NewBonus
     /* -------------------- Sulfuras Smash v1.7 by Chopinski -------------------- */
     // Credtis:
     //     Systemfre1       - Sulfuras model
@@ -116,7 +116,7 @@ library SulfurasSmash requires Ability, PluginSpellEffect, Missiles, TimedHandle
     endstruct
 
     private struct SulfurasSmash extends Ability
-        private method onTooltip takes unit source, integer level returns string
+        private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc00" + N2S(LANDING_TIME, 2) + " seconds|r and damaging enemy units for |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage. Enemy units in the center are stunned for |cffffcc00" + N2S(GetStunTime(source), 2) + "|r seconds and take twice as much damage."
         endmethod
 

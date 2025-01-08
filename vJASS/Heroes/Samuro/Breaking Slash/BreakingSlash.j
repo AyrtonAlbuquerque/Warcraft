@@ -1,5 +1,5 @@
-library BreakingSlash requires CriticalStrike, Missiles
-    /* -------------------- Breaking Slash v1.2 by Chopinski -------------------- */
+library BreakingSlash requires Ability, Missiles
+    /* -------------------- Breaking Slash v1.3 by Chopinski -------------------- */
     // Credits:
     //     PeeKay         - Icon
     //     AZ             - Slash model
@@ -24,8 +24,8 @@ library BreakingSlash requires CriticalStrike, Missiles
     endglobals
 
     // The Fire Slash damage deatl based on a base damage amount and the ability level
-    public function GetDamage takes real damage, integer level returns real
-        return damage*level*0.3
+    public function GetDamage takes integer level returns real
+        return 0.3 * level
     endfunction
 
     // The Fire Slash travel distance
@@ -58,43 +58,39 @@ library BreakingSlash requires CriticalStrike, Missiles
         endmethod
     endstruct
 
-    struct BreakingSlash extends array
-        static method slash takes unit source, unit target, real damage, integer level returns nothing
-            local real x  = GetUnitX(target)
-            local real y  = GetUnitY(target)
-            local real z  = GetUnitFlyHeight(target)
-            local real a  = AngleBetweenCoordinates(GetUnitX(source), GetUnitY(source), x, y)
-            local real d  = GetDistance(level)
-            local real tx = x + d*Cos(a)
-            local real ty = y + d*Sin(a)
-            local FireSlash missile = FireSlash.create(x, y, z, tx, ty, 0)
+    private struct BreakingSlash extends Ability
+        private static method slash takes unit source, unit target, real damage, integer level returns nothing
+            local real x = GetUnitX(target)
+            local real y = GetUnitY(target)
+            local real distance = GetDistance(level)
+            local real angle = AngleBetweenCoordinates(GetUnitX(source), GetUnitY(source), x, y)
+            local FireSlash slash = FireSlash.create(x, y, GetUnitFlyHeight(target), x + distance * Cos(angle), y + distance * Sin(angle), 0)
 
-            set missile.source    = source
-            set missile.owner     = GetOwningPlayer(source)
-            set missile.damage    = damage
-            set missile.model     = MISSILE_MODEL
-            set missile.scale     = MISSILE_SCALE
-            set missile.speed     = MISSILE_SPEED
-            set missile.collision = GetCollision(level)
+            set slash.source = source
+            set slash.damage = damage
+            set slash.model = MISSILE_MODEL
+            set slash.scale = MISSILE_SCALE
+            set slash.speed = MISSILE_SPEED
+            set slash.owner = GetOwningPlayer(source)
+            set slash.collision = GetCollision(level)
 
-            call missile.launch()
+            call slash.launch()
+        endmethod
+
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return ""
         endmethod
 
         private static method onCritical takes nothing returns nothing
-            local unit    source = GetCriticalSource()
-            local unit    target = GetCriticalTarget()
-            local real    damage = GetCriticalDamage()
-            local integer level  = GetUnitAbilityLevel(source, ABILITY)
+            local integer level = GetUnitAbilityLevel(GetCriticalSource(), ABILITY)
 
             if level > 0 then
-                call slash(source, target, GetDamage(damage, level), level)
+                call slash(GetCriticalSource(), GetCriticalTarget(), GetCriticalDamage() * GetDamage(level), level)
             endif
-
-            set source = null
-            set target = null
         endmethod
 
-        static method onInit takes nothing returns nothing
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterCriticalStrikeEvent(function thistype.onCritical)
         endmethod
     endstruct

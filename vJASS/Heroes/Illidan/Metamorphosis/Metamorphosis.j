@@ -1,8 +1,7 @@
-library Metamorphosis requires DamageInterface, SpellEffectEvent, PluginSpellEffect, Utilities, NewBonusUtils, CrowdControl
-    /* ------------------------------------- Metamorphosis v1.3 ------------------------------------- */
+library Metamorphosis requires DamageInterface, Ability, Utilities, NewBonus, CrowdControl, Periodic
+    /* ------------------------------------- Metamorphosis v1.4 ------------------------------------- */
     // Credits:
     //     BLazeKraze      - Icon
-    //     Bribe           - SpellEffectEvent
     //     Mythic          - Damnation Black model (edited by me)
     //     Henry           - Dark Illidan model from Warcraft Underground
     /* ---------------------------------------- By Chopinski ---------------------------------------- */
@@ -38,6 +37,11 @@ library Metamorphosis requires DamageInterface, SpellEffectEvent, PluginSpellEff
     endfunction
 
     // The Metamorphosis Armor debuff Duration
+    private function GetArmorReduction takes integer level returns real
+        return 1. + 0.*level
+    endfunction
+
+    // The Metamorphosis Armor debuff Duration
     private function GetArmorDuration takes unit source, integer level returns real
         return 5. + 0.*level
     endfunction
@@ -68,65 +72,71 @@ library Metamorphosis requires DamageInterface, SpellEffectEvent, PluginSpellEff
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct Metamorphosis
-        timer timer
-        unit unit
-        group group
-        player player
-        integer level
+    private struct Metamorphosis extends Ability
+        private unit unit
+        private group group
+        private player player
+        private integer level
 
-        static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
+        method destroy takes nothing returns nothing
+            call DestroyGroup(group)
+            call deallocate()
+
+            set unit = null
+            set group = null
+            set player = null
+        endmethod
+
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Illidan|r transforms into a powerful |cffffcc00Demon|r with a ranged |cffffcc00AoE|r attack and gains |cffff0000" + N2S(50 * level, 0) + "|r bonus |cffff0000Health|r and |cffff0000" + N2S(5 * level, 0) + "|r bonus |cffff0000Damage|r for each enemy unit affected by his transformation (doubled fo |cffffcc00Heroes|r). |cffffcc00Illidan|r also gains |cffffcc00Fly|r movement type while in his dark form and his basic attacks reduce all damaged enemy units armor by |cffffcc00" + N2S(GetArmorReduction(level), 0) + "|r for |cffffcc00" + N2S(GetArmorDuration(source, level), 0) + "|r seconds. When lifting off and landing when transforming, all enemy units within |cffffcc00" + N2S(GetAoE(level), 0) + " AoE|r will be |cffffcc00Feared|r for |cffffcc005|r seconds (|cffffcc002|r for Heroes).\n\nLasts for |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, level - 1), 0) + "|r seconds."
+        endmethod
+
+        private method onExpire takes nothing returns nothing
+            local unit u
             local integer health = 0
             local integer damage = 0
-            local unit u
 
             call DestroyEffect(AddSpecialEffectEx(MODEL, GetUnitX(unit), GetUnitY(unit), GetUnitZ(unit), 2))
             call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), GetAoE(level), null)
+
             loop
                 set u = FirstOfGroup(group)
                 exitwhen u == null
                     if FearFilter(player, u) then
                         set health = health + GetBonusHealth(u, level)
                         set damage = damage + GetBonusDamage(u, level)
+
                         call FearUnit(u, GetDuration(u, level), FEAR_MODEL, ATTACH_FEAR, false)
                     endif
                 call GroupRemoveUnit(group, u)
             endloop
+
             call LinkBonusToBuff(unit, BONUS_HEALTH, health, BUFF)
             call LinkBonusToBuff(unit, BONUS_DAMAGE, damage, BUFF)
-            call DestroyGroup(group)
-            call ReleaseTimer(timer)
-            call deallocate()
-
-            set timer = null
-            set unit = null
-            set group = null
-            set player = null
         endmethod
 
-        static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
-
-            set timer = NewTimerEx(this)
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
             set group = CreateGroup()
+            set level = Spell.level
             set unit = Spell.source.unit
             set player = Spell.source.player
-            set level = Spell.level
 
-            call TimerStart(timer, 0.5, false, function thistype.onExpire)
+            call StartTimer(0.5, false, this, -1)
         endmethod
 
-        static method onDamage takes nothing returns nothing
+        private static method onDamage takes nothing returns nothing
             if GetUnitAbilityLevel(Damage.source.unit, BUFF) > 0 then
                 if Damage.isEnemy and not Damage.target.isMagicImmune then
-                    call AddUnitBonusTimed(Damage.target.unit, BONUS_ARMOR, -1, GetArmorDuration(Damage.target.unit, GetUnitAbilityLevel(Damage.source.unit, ABILITY)))
+                    call AddUnitBonusTimed(Damage.target.unit, BONUS_ARMOR, -GetArmorReduction(GetUnitAbilityLevel(Damage.source.unit, ABILITY)), GetArmorDuration(Damage.target.unit, GetUnitAbilityLevel(Damage.source.unit, ABILITY)))
                 endif
             endif
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

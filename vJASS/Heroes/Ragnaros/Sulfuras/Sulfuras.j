@@ -1,4 +1,4 @@
-library Sulfuras requires RegisterPlayerUnitEvent, NewBonus
+library Sulfuras requires RegisterPlayerUnitEvent, Ability, NewBonus, Utilities
     /* ---------------------------------------- Sulfuras v1.6 --------------------------------------- */
     // Credits: 
     //     Blizzard      - icon (Edited by me)
@@ -35,12 +35,12 @@ library Sulfuras requires RegisterPlayerUnitEvent, NewBonus
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    struct Sulfuras
+    struct Sulfuras extends Ability
         private static integer array count
         readonly static integer array stacks
 
-        private static method onTooltip takes unit source, integer level returns nothing
-            call BlzSetAbilityStringLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_SLF_TOOLTIP_NORMAL_EXTENDED, level - 1, "|cffffcc00Ragnaros|r gains |cffffcc001|r damage for every |cffffcc003|r enemy unit killed by him. Hero kills grants |cffffcc005|r bonus damage.\n\nDamage Bonus: |cffffcc00" + I2S(stacks[GetUnitUserData(source)]) + "|r")
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Ragnaros|r gains |cffffcc001|r damage for every |cffffcc00" + N2S(GetStackCount(source, level), 0) + "|r enemy unit killed by him. Hero kills grants |cffffcc005|r bonus damage.\n\nDamage Bonus: |cffffcc00" + I2S(stacks[GetUnitUserData(source)]) + "|r"
         endmethod
 
         private static method onDeath takes nothing returns nothing
@@ -73,8 +73,6 @@ library Sulfuras requires RegisterPlayerUnitEvent, NewBonus
                             call AddUnitBonus(source, BONUS_DAMAGE, amount)
                         endif
                     endif
-
-                    call onTooltip(source, level)
                 endif
             endif
 

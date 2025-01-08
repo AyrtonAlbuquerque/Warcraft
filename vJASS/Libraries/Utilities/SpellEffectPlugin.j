@@ -140,6 +140,14 @@ library PluginSpellEffect requires RegisterPlayerUnitEvent
             return BlzGetUnitAbility(source.unit, id)
         endmethod
 
+        static method operator isAlly takes nothing returns boolean
+            return IsUnitAlly(target.unit, source.player)
+        endmethod
+
+        static method operator isEnemy takes nothing returns boolean
+            return IsUnitEnemy(target.unit, source.player)
+        endmethod
+
         private static method onCast takes nothing returns nothing
             if GetUnitAbilityLevel(GetTriggerUnit(), 'Aloc') == 0 then
                 set source.unit = GetTriggerUnit()
@@ -150,7 +158,7 @@ library PluginSpellEffect requires RegisterPlayerUnitEvent
         private static method onInit takes nothing returns nothing
             set source = Unit.create()
             set target = Unit.create()
-        
+            call BJDebugMsg("SpellEffectPlugin loaded.")
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCast)
         endmethod
     endmodule

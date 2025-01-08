@@ -1,5 +1,5 @@
-library WaterOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageInterface
-    /* ----------------------- Water Orb v1.0 by Chopinski ---------------------- */
+library ManaOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageInterface, Ability, Periodic
+    /* ------------------------ Mana Orb v1.1 by Chopinski ---------------------- */
     // Credits:
     //     Darkfang             - Icon
     //     Magtheridon96        - RegisterPlayerUnitEvent
@@ -10,6 +10,8 @@ library WaterOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageIn
     /*                                Configuration                               */
     /* -------------------------------------------------------------------------- */
     globals
+        // The raw code of the ability
+        private constant integer ABILITY        = 'A006'
         // The raw code of the level 1 buff
         private constant integer BUFF_1         = 'B002'
         // The raw code of the level 2 buff
@@ -99,95 +101,78 @@ library WaterOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageIn
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct WaterOrb
-        static timer timer = CreateTimer()
-        static integer key = -1
-        static thistype array array
-        static integer array flag
+    private struct ManaOrb extends Ability
+        private static integer array buff
 
-        group group
-        player player
-        effect effect
-        real duration
-        real bonus
-        real range
-        real x
-        real y
+        private real x
+        private real y
+        private real bonus
+        private real range
+        private group group
+        private player player
+        private effect effect
+        private real duration
 
-        private method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             call DestroyGroup(group)
             call DestroyEffect(effect)
+            call deallocate()
             
-            set array[i] = array[key]
-            set key = key - 1
             set group = null
             set player = null
             set effect = null
-
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
-
-            call deallocate()
-
-            return i - 1
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local thistype this
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "Enemy units that die within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + " AoE|r of |cffffcc00Jaina|r have a |cffffcc00" + N2S(20, 0) + "%|r chance to drop a |cff00ffffMana Orb|r. Enemy heroes always drop an orb. Whenever |cffffcc00Jaina|r or an allied |cffffcc00Hero|r comes near a |cff00ffffMana Orb|r they will collect it, gaining |cff00ffff" + N2S(10 + 10 * level, 0) + "|r maximum mana. The orb lingers for |cffffcc0020|r seconds before disappearing."
+        endmethod
+
+        private method onPeriod takes nothing returns boolean
             local unit u
 
-            loop
-                exitwhen i > key
-                    set this = array[i]
+            set duration = duration - PERIOD
 
-                    if duration > 0 then
-                        set duration = duration - PERIOD
+            if duration > 0 then
+                call GroupEnumUnitsInRange(group, x, y, range, null)
 
-                        call GroupEnumUnitsInRange(group, x, y, range, null)
-                        loop
-                            set u = FirstOfGroup(group)
-                            exitwhen u == null
-                                if UnitPickupFilter(player, u) then
-                                    call AddUnitBonus(u, BONUS_MANA, bonus)
-                                    call DestroyEffect(AddSpecialEffectTarget(EFFECT, u, ATTACH))
-                                    set i = remove(i)
-                                    exitwhen true
-                                endif
-                            call GroupRemoveUnit(group, u)
-                        endloop
-                    else
-                        set i = remove(i)
-                    endif
-                set i = i + 1
-            endloop
+                loop
+                    set u = FirstOfGroup(group)
+                    exitwhen u == null
+                        if UnitPickupFilter(player, u) then
+                            call AddUnitBonus(u, BONUS_MANA, bonus)
+                            call DestroyEffect(AddSpecialEffectTarget(EFFECT, u, ATTACH))
+                            
+                            return false
+                        endif
+                    call GroupRemoveUnit(group, u)
+                endloop
+            endif
 
             set u = null
+
+            return duration > 0
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
-
-            if damage > 0 then
-                set flag[Damage.target.id] = 0
+            if Damage.amount > 0 then
+                set buff[Damage.target.id] = 0
                 
-                if damage >= GetWidgetLife(Damage.target.unit) and UnitDropFilter(Damage.target.unit) then
+                if Damage.amount >= Damage.target.health and UnitDropFilter(Damage.target.unit) then
                     if GetUnitAbilityLevel(Damage.target.unit, BUFF_4) > 0 then
                         if GetRandomInt(0, 100) <= GetDropChance(Damage.target.unit, BUFF_4) then
-                            set flag[Damage.target.id] = BUFF_4
+                            set buff[Damage.target.id] = BUFF_4
                         endif
                     elseif GetUnitAbilityLevel(Damage.target.unit, BUFF_3) > 0 then
                         if GetRandomInt(0, 100) <= GetDropChance(Damage.target.unit, BUFF_3) then
-                            set flag[Damage.target.id] = BUFF_3
+                            set buff[Damage.target.id] = BUFF_3
                         endif
                     elseif GetUnitAbilityLevel(Damage.target.unit, BUFF_2) > 0 then
                         if GetRandomInt(0, 100) <= GetDropChance(Damage.target.unit, BUFF_2) then
-                            set flag[Damage.target.id] = BUFF_2
+                            set buff[Damage.target.id] = BUFF_2
                         endif
                     elseif GetUnitAbilityLevel(Damage.target.unit, BUFF_1) > 0 then
                         if GetRandomInt(0, 100) <= GetDropChance(Damage.target.unit, BUFF_1) then
-                            set flag[Damage.target.id] = BUFF_1
+                            set buff[Damage.target.id] = BUFF_1
                         endif
                     endif
                 endif
@@ -199,30 +184,29 @@ library WaterOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageIn
             local integer id = GetUnitUserData(source)
             local thistype this
             
-            if flag[id] != 0 then
+            if buff[id] != 0 then
                 set this = thistype.allocate()
-                set key = key + 1
-                set array[key] = this
                 set x = GetUnitX(source)
                 set y = GetUnitY(source)
                 set group = CreateGroup()
                 set player = GetOwningPlayer(source)
                 set effect = AddSpecialEffectEx(MODEL, x, y, 0, SCALE)
-                set duration = GetDuratoin(flag[id])
-                set range = GetPickupRange(flag[id])
-                set bonus = GetManaBonus(flag[id])
+                set duration = GetDuratoin(buff[id])
+                set range = GetPickupRange(buff[id])
+                set bonus = GetManaBonus(buff[id])
                 
-                if key == 0 then
-                    call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
-                endif
+                call StartTimer(PERIOD, true, this, -1)
             endif
 
             set source = null
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAnyDamageEvent(function thistype.onDamage)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
         endmethod
     endstruct
 endlibrary

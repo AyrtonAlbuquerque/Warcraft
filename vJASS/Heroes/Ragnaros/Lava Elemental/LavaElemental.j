@@ -1,4 +1,4 @@
-library LavaElemental requires Ability, RegisterPlayerUnitEvent, PluginSpellEffect, NewBonus, Utilities optional Sulfuras
+library LavaElemental requires Ability, RegisterPlayerUnitEvent, NewBonus, Utilities optional Sulfuras
     /* -------------------- Lava Elemental v1.6 by Chopinski -------------------- */
     // Credits:
     //     Henry         - Lava Elemental model (warcraft3undergorund.com)
@@ -52,9 +52,9 @@ library LavaElemental requires Ability, RegisterPlayerUnitEvent, PluginSpellEffe
     private struct LavaElemental extends Ability
         private static integer array array
 
-        unit unit
-        integer id
-        effect effect
+        private unit unit
+        private integer id
+        private effect effect
 
         method destroy takes nothing returns nothing
             set unit = null
@@ -64,7 +64,7 @@ library LavaElemental requires Ability, RegisterPlayerUnitEvent, PluginSpellEffe
             call deallocate()
         endmethod
 
-        private method onTooltip takes unit source, integer level returns string
+        private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Ragnaros|r summons a |cffffcc00Lava Elemental|r. This abiliy can be targeted in the |cffffcc00ground|r or |cffffcc00allied structure|r. When summoned in the ground, the |cffffcc00Lava Elemental|r has a life time of |cffffcc00" + N2S(ELEMENTAL_DURATION, 1) + " seconds|r and this ability cooldown is set to |cffffcc00" + N2S(NORMAL_COOLDOWN, 1) + " seconds|r. When targeted at an allied building, the |cffffcc00Lava Elemental|r takes that building place and lasts forever or until it dies and this ability cooldown is set to |cffffcc00" + N2S(STRUCTURE_COOLDOWN, 1) + " seconds|r. All the damage that would be given to the structure is instead taken by the |cffffcc00Lava Elemental|r.\n\n|cffffcc00Lava Elemental|r damage is |cffff0000" + N2S(GetElementalDamage(source, level), 0) + "|r and it's attacks burn the ground around the impact for |cff00ffff50 Magic|r damage per second for |cffffcc002 seconds|r."
         endmethod
 
