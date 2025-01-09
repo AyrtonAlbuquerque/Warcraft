@@ -9,20 +9,6 @@ library Ability requires Spell, Table, RegisterPlayerUnitEvent
         method onTooltip takes unit source, integer level, ability spell returns string defaults null
     endinterface
 
-    private module MAbility
-        private static method onInit takes nothing returns nothing
-            set struct = Table.create()
-            set learned = HashTable.create()
-
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function thistype.onLearning)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST, function thistype.onStarting)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCasting)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, function thistype.onEnding)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_FINISH, function thistype.onFinishing)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, function thistype.onChanneling)
-        endmethod
-    endmodule
-
     struct Ability extends IAbility
         private static Table struct
         private static HashTable learned
@@ -159,7 +145,7 @@ library Ability requires Spell, Table, RegisterPlayerUnitEvent
 
         private static method onChanneling takes nothing returns nothing
             local thistype this = struct[Spell.id]
-            
+
             if this != 0 then
                 if onChannel.exists then
                     call onChannel()
@@ -167,7 +153,17 @@ library Ability requires Spell, Table, RegisterPlayerUnitEvent
             endif
         endmethod
 
-        implement MAbility
+        private static method onInit takes nothing returns nothing
+            set struct = Table.create()
+            set learned = HashTable.create()
+
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function thistype.onLearning)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST, function thistype.onStarting)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCasting)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, function thistype.onEnding)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_FINISH, function thistype.onFinishing)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, function thistype.onChanneling)
+        endmethod
     endstruct
 
     /* ----------------------------------------------------------------------------------------- */
