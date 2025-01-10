@@ -1,5 +1,5 @@
-library WitheringFire requires RegisterPlayerUnitEvent
-    /* -------------------- Withering Fire v1.2 by Chopinski -------------------- */
+library WitheringFire requires RegisterPlayerUnitEvent, Ability
+    /* -------------------- Withering Fire v1.3 by Chopinski -------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Blizzard       - Icon
@@ -25,7 +25,7 @@ library WitheringFire requires RegisterPlayerUnitEvent
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct WitheringFire
+    struct WitheringFire extends Ability
         static method setMissileArt takes unit source, boolean curse returns nothing
             if curse then
                 call UnitRemoveAbility(source, WITHERING_FIRE_NORMAL)
@@ -52,7 +52,8 @@ library WitheringFire requires RegisterPlayerUnitEvent
             set u = null
         endmethod
 
-        static method onInit takes nothing returns nothing
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevelUp)
         endmethod
     endstruct

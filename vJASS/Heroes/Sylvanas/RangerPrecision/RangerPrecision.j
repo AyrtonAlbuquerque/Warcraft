@@ -1,5 +1,5 @@
-library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBonusUtils
-    /* ------------------- Ranger Precision v1.2 by Chopinski ------------------- */
+library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBonus, Ability, Utilities
+    /* ------------------- Ranger Precision v1.3 by Chopinski ------------------- */
     // Credits:
     //     Magtheridon96 - RegisterPlayerUnitEvent
     //     The Panda     - Dark Bow icon
@@ -10,13 +10,11 @@ library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBo
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Ranger Precision ability
-        public  constant integer ABILITY                = 'A00M'
+        public  constant integer ABILITY                = 'A00E'
         // The raw code of the Withering Fire Normal Ability
-        private constant integer WITHERING_FIRE_NORMAL  = 'A00S'
+        private constant integer WITHERING_FIRE_NORMAL  = 'A00M'
         // The raw code of the Withering Fire Cursed Ability
-        private constant integer WITHERING_FIRE_CURSED  = 'A00R'
-        // The bonus type gained
-        private constant integer BONUS_TYPE             = BONUS_AGILITY
+        private constant integer WITHERING_FIRE_CURSED  = 'A00N'
     endglobals
 
     // The bonus duration
@@ -42,7 +40,7 @@ library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBo
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct RangerPrecision extends array
+    struct RangerPrecision extends Ability
         private static integer array count
         readonly static boolean array enabled
 
@@ -50,11 +48,16 @@ library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBo
             set enabled[GetUnitUserData(u)] = flag           
         endmethod
 
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "Whenever |cffffcc00Sylvanas|r kill an enemy unit or |cffffcc00attack|r an enemy |cffffcc00Hero|r her abilities with the bow and arrow improve and she gains |cff00ff00" + N2S(GetBonusAmount(level), 0) + " Agility|r for |cffffcc00" + N2S(GetBonusDuration(level), 0) + " seconds. Additionally every |cffffcc00" + N2S(GetAttackCount(level), 0) + "|r attacks |cffffcc00Sylvanas|r wiill shoot up to |cffffcc003|r targets at once. If |cffffcc00Black Arrows|r is active, all targets will be cursed.
+"
+        endmethod
+
         private static method onDamage takes nothing returns nothing
             local integer level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
 
             if level > 0 and Damage.target.isHero then
-                call AddUnitBonusTimed(Damage.source.unit, BONUS_TYPE, GetBonusAmount(level), GetBonusDuration(level))
+                call AddUnitBonusTimed(Damage.source.unit, BONUS_AGILITY, GetBonusAmount(level), GetBonusDuration(level))
             endif
         endmethod
 
@@ -63,7 +66,7 @@ library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBo
             local integer level = GetUnitAbilityLevel(killer, ABILITY)
 
             if level > 0 then
-                call AddUnitBonusTimed(killer, BONUS_TYPE, GetBonusAmount(level), GetBonusDuration(level))
+                call AddUnitBonusTimed(killer, BONUS_AGILITY, GetBonusAmount(level), GetBonusDuration(level))
             endif
 
             set killer = null
@@ -120,10 +123,11 @@ library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBo
         endmethod
 
         private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function thistype.onAttack)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function thistype.onAttack)
         endmethod
     endstruct
 endlibrary

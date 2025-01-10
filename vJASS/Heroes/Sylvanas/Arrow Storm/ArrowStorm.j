@@ -1,7 +1,6 @@
-library ArrowStorm requires SpellEffectEvent, PluginSpellEffect, Utilities, Missiles, optional BlackArrow
-    /* ---------------------- ArrowStorm v1.3 by Chopinski ---------------------- */
+library ArrowStorm requires Ability, Utilities, Missiles, optional BlackArrow optional NewBonus
+    /* ---------------------- ArrowStorm v1.4 by Chopinski ---------------------- */
     // Credits:
-    //     Bribe        - SpellEffectEvent
     //     Deathclaw24  - Arrow Storm Icon
     //     AZ           - Black Arrow model
     /* ----------------------------------- END ---------------------------------- */
@@ -34,8 +33,12 @@ library ArrowStorm requires SpellEffectEvent, PluginSpellEffect, Utilities, Miss
     endfunction
 
     // The damage each arrow deals
-    private function GetDamage takes integer level returns real
-        return 25. + 25.*level
+    private function GetDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 25. + 25.*level + 0.15 * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 25. + 25.*level
+        endif
     endfunction
 
     // The Lauch AoE
@@ -56,87 +59,87 @@ library ArrowStorm requires SpellEffectEvent, PluginSpellEffect, Utilities, Miss
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct ArrowStorm extends Missiles
-        integer level
-        integer ability
-        boolean curse
+    private struct Arrow extends Missiles
         real aoe
-        real curse_duration
+        real timeout
+        integer level
+        boolean curse
+        integer ability
 
-        method onFinish takes nothing returns boolean
-            local group g = CreateGroup()
-            local integer i = 0
-            local real size
+        private method onFinish takes nothing returns boolean
             local unit u
+            local group g = CreateGroup()
 
             call GroupEnumUnitsInRange(g, x, y, aoe, null)
-            set size = BlzGroupGetSize(g)
-            if size > 0 then
-                loop
-                    exitwhen i == size
-                        set u = BlzGroupUnitAt(g, i)
 
-                        if Filtered(owner, u) then
-                            if UnitDamageTarget(source, u, damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null) and curse then
-                                static if LIBRARY_BlackArrow then
-                                    call BlackArrow.curse(u, source, owner)
-                                endif
+            loop
+                set u = FirstOfGroup(g)
+                exitwhen u == null
+                    if Filtered(owner, u) then
+                        if UnitDamageTarget(source, u, damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null) and curse then
+                            static if LIBRARY_BlackArrow then
+                                call BlackArrow.curse(u, source, owner)
                             endif
                         endif
-                    set i = i + 1
-                endloop
-            endif
+                    endif
+                call GroupRemoveUnit(g, u)
+            endloop
+
             call DestroyGroup(g)
 
-            set u = null
             set g = null
 
             return true
         endmethod
+    endstruct
 
-        private static method onCast takes nothing returns nothing
-            local integer i = 0
-            local integer count = GetArrowCount(Spell.level)
-            local real aoe = GetAoE(Spell.source.unit, Spell.level)
+    private struct ArrowStorm extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Sylvanas|r lauches |cffffcc00" + N2S(GetArrowCount(level), 0) + "|r arrows into the air that will land within |cffffcc00" + N2S(GetAoE(source, level), 0) + "|r |cffffcc00AoE|r of targeted area in random spots, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage to enemy units hitted. If |cffffcc00Black Arrows|r is active, |cffffcc00Arrow Storm|r will curse enemy units hit."
+        endmethod
+
+        private method onCast takes nothing returns nothing
             local real radius
-            local thistype this
+            local Arrow arrow
+            local integer i = GetArrowCount(Spell.level)
 
             loop
-                exitwhen i == count
-                    set radius = GetRandomRange(aoe)
-                    set this = ArrowStorm.create(Spell.source.x, Spell.source.y, 85, GetRandomCoordInRange(Spell.x, radius, true), GetRandomCoordInRange(Spell.y, radius, false), 0)
-                    set source = Spell.source.unit
-                    set owner = Spell.source.player
-                    set speed = ARROW_SPEED
-                    set arc = ARROW_ARC
-                    set damage = GetDamage(Spell.level)
-                    set .aoe = GetArrowAoE(Spell.level)
+                exitwhen i == 0
+                    set radius = GetRandomRange(GetAoE(Spell.source.unit, Spell.level))
+                    set arrow = Arrow.create(Spell.source.x, Spell.source.y, 85, GetRandomCoordInRange(Spell.x, radius, true), GetRandomCoordInRange(Spell.y, radius, false), 0)
+
+                    set arrow.source = Spell.source.unit
+                    set arrow.owner = Spell.source.player
+                    set arrow.speed = ARROW_SPEED
+                    set arrow.arc = ARROW_ARC
+                    set arrow.damage = GetDamage(Spell.source.unit, Spell.level)
+                    set arrow.aoe = GetArrowAoE(Spell.level)
 
                     static if LIBRARY_BlackArrow then
                         if BlackArrow.active[GetUnitUserData(Spell.source.unit)] then
-                            set level = GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)
-                            set model = CURSE_ARROW_MODEL
-                            set curse = level > 0
-                            set ability = BlackArrow_BLACK_ARROW_CURSE
-                            set curse_duration = BlackArrow_GetCurseDuration(level)
+                            set arrow.level = GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)
+                            set arrow.model = CURSE_ARROW_MODEL
+                            set arrow.curse = arrow.level > 0
+                            set arrow.ability = BlackArrow_BLACK_ARROW_CURSE
+                            set arrow.timeout = BlackArrow_GetCurseDuration(arrow.level)
                         else    
-                            set model = ARROW_MODEL
-                            set curse = false
+                            set arrow.model = ARROW_MODEL
+                            set arrow.curse = false
                         endif
                     else
-                        set model = ARROW_MODEL
-                        set curse = false
+                        set arrow.model = ARROW_MODEL
+                        set arrow.curse = false
                     endif
 
-                    set scale  = ARROW_SCALE
+                    set arrow.scale = ARROW_SCALE
 
-                    call launch()
-                set i = i + 1
+                    call arrow.launch()
+                set i = i - 1
             endloop
         endmethod   
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

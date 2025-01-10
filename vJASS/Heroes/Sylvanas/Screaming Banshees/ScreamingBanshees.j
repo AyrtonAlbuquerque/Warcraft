@@ -1,7 +1,6 @@
-library ScreamingBanshees requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Missiles, Utilities
-    /* ------------------ Screaming Banshees v1.2 by Chopinski ------------------ */
+library ScreamingBanshees requires Ability, NewBonus, Missiles, Utilities
+    /* ------------------ Screaming Banshees v1.3 by Chopinski ------------------ */
     // Credits:
-    //     Bribe        - SpellEffectEvent
     //     4eNNightmare - Icon
     /* ----------------------------------- END ---------------------------------- */
     
@@ -47,78 +46,77 @@ library ScreamingBanshees requires SpellEffectEvent, PluginSpellEffect, NewBonus
 
     // Filter
     private function Filtered takes player op, unit target returns boolean
-        return IsUnitEnemy(target, op) and /*
-            */ UnitAlive(target) and /*
-            */ not IsUnitType(target, UNIT_TYPE_STRUCTURE) and /*
-            */ not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE)
+        return IsUnitEnemy(target, op) and UnitAlive(target) and not IsUnitType(target, UNIT_TYPE_STRUCTURE) and not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE)
     endfunction
 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct ScreamingBanshees extends Missiles
-        private static thistype array n
-
-        integer idx
+    private struct Banshee extends Missiles
+        real timeout
         integer armor
-        real    dur
-        boolean finish
 
-        method onPeriod takes nothing returns boolean
-            return finish
-        endmethod
-
-        method onHit takes unit hit returns boolean
+        private method onHit takes unit hit returns boolean
             if Filtered(owner, hit) then
                 call DestroyEffect(AddSpecialEffectTarget(HIT_MODEL, hit, ATTACH_POINT))
-                call AddUnitBonusTimed(hit, BONUS_ARMOR, -armor, dur)
+                call AddUnitBonusTimed(hit, BONUS_ARMOR, -armor, timeout)
             endif
 
             return false
         endmethod
 
-        method onRemove takes nothing returns nothing
+        private method onRemove takes nothing returns nothing
             call UnitRemoveAbility(source, TELEPORT)
             call BlzUnitHideAbility(source, ABILITY, false)
         endmethod
+    endstruct
 
-        private static method onCast takes nothing returns nothing
-            local real     a    = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
-            local real     r    = GetDistance(Spell.level)
-            local thistype this = thistype.create(Spell.source.x, Spell.source.y, 50, Spell.source.x + r*Cos(a), Spell.source.y + r*Sin(a), 50)
+    private struct ScreamingBanshees extends Ability
+        private static Banshee array array
 
-            set source    = Spell.source.unit
-            set owner     = Spell.source.player
-            set speed     = MISSILE_SPEED
-            set model     = MISSILE_MODEL
-            set scale     = MISSILE_SCALE
-            set collision = GetCollisionSize(Spell.level)
-            set armor     = GetArmorReduction(Spell.level)
-            set dur       = GetDuration(Spell.level)
-            set idx       = Spell.source.id
-            set finish    = false
-            set n[idx]    = this
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Sylvanas|r releases |cffffcc00Screaming Banshees|r in the target direction. The banshees travel |cffffcc00" + N2S(GetDistance(level), 0) + "|r distance and when passing through an enemy unit it reduces its |cff808080Armor|r by |cff808080" + N2S(GetArmorReduction(level), 0) + "|r for |cffffcc00" + N2S(GetDuration(level), 0) + "|r seconds. |cffffcc00Sylvanas|r can reactivate the ability to teleport to the banshees position."
+        endmethod
 
-            call UnitAddAbility(Spell.source.unit, TELEPORT)
-            call BlzUnitHideAbility(Spell.source.unit, ABILITY, true)
-            call launch()
-        endmethod  
-        
-        private static method onRecast takes nothing returns nothing
-            local thistype this
+        private method onCast takes nothing returns nothing
+            local real angle
+            local real distance
+            local Banshee banshee
 
-            if n[Spell.source.id] != 0 then
-                set this = n[Spell.source.id]
-                call SetUnitX(Spell.source.unit, x)
-                call SetUnitY(Spell.source.unit, y)
-                set finish = true
-                set n[Spell.source.id] = 0
+            if Spell.id == ABILITY then
+                set distance = GetDistance(Spell.level)
+                set angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
+                set banshee = Banshee.create(Spell.source.x, Spell.source.y, 50, Spell.source.x + distance * Cos(angle), Spell.source.y + distance * Sin(angle), 50)
+
+                set banshee.source = Spell.source.unit
+                set banshee.owner = Spell.source.player
+                set banshee.speed = MISSILE_SPEED
+                set banshee.model = MISSILE_MODEL
+                set banshee.scale = MISSILE_SCALE
+                set banshee.collision = GetCollisionSize(Spell.level)
+                set banshee.armor = GetArmorReduction(Spell.level)
+                set banshee.timeout = GetDuration(Spell.level)
+                set array[Spell.source.id] = banshee
+
+                call UnitAddAbility(Spell.source.unit, TELEPORT)
+                call BlzUnitHideAbility(Spell.source.unit, ABILITY, true)
+                call banshee.launch()
+            else
+                set banshee = array[Spell.source.id]
+
+                if banshee != 0 then
+                    call SetUnitX(banshee.source, banshee.x)
+                    call SetUnitY(banshee.source, banshee.y)
+                    call IssueImmediateOrder(banshee.source, "stop")
+                    call banshee.terminate()
+                    set array[Spell.source.id] = 0
+                endif
             endif
         endmethod
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
-            call RegisterSpellEffectEvent(TELEPORT, function thistype.onRecast)
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
+            call RegisterSpell(thistype.allocate(), TELEPORT)
         endmethod
     endstruct
 endlibrary

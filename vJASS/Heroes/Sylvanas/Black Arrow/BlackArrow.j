@@ -1,5 +1,5 @@
-library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities, NewBonus optional RangerPrecision
-    /* ---------------------- Black Arrow v1.3 by Chopinski --------------------- */
+library BlackArrow requires Ability, DamageInterface, RegisterPlayerUnitEvent, Utilities, NewBonus, Periodic optional RangerPrecision
+    /* ---------------------- Black Arrow v1.4 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96 - RegisterPlayerUnitEvent
     //     AZ            - Black Arrow model
@@ -12,13 +12,13 @@ library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities,
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Black Arrow ability
-        public  constant integer ABILITY           = 'A00N'
+        public  constant integer ABILITY           = 'A00C'
         // The raw code of the Black Arrow Curse debuff
-        public  constant integer BLACK_ARROW_CURSE = 'A00O'
+        public  constant integer BLACK_ARROW_CURSE = 'A00D'
         // The raw code of the melee unit
-        private constant integer SKELETON_WARRIOR  = 'u004'
+        private constant integer SKELETON_WARRIOR  = 'u000'
         // The raw code of the ranged unit
-        private constant integer SKELETON_ARCHER   = 'n005'
+        private constant integer SKELETON_ARCHER   = 'n001'
         // The raw code of the Elite unit
         private constant integer SKELETON_ELITE    = 'n000'
         // The effect created when the skelton warrior spawns
@@ -32,27 +32,27 @@ library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities,
 
     // The damage bonus when Black Arrows is active
     private function GetBonusDamage takes unit u, integer level returns real
-        return (5 + 5*level) + ((0.05*level)*GetHeroAgi(u, true))
+        return (5 + 5 * level) + (0.05 * level) * GetHeroAgi(u, true) + 0.1 * GetUnitBonus(u, BONUS_SPELL_POWER)
     endfunction
 
     // The melee sketelon health amount
     private function GetSkeletonWarriorHealth takes integer level, unit source returns integer
-        return R2I(50*(level + 6) + BlzGetUnitMaxHP(source)*0.15)
+        return R2I(50 * (level + 6) + BlzGetUnitMaxHP(source) * 0.15)
     endfunction
 
     // The melee sketelon damage amount
     private function GetSkeletonWarriorDamage takes integer level, unit source returns integer
-        return R2I(5*(level + 3) + GetUnitBonus(source, BONUS_DAMAGE)*0.15)
+        return R2I(5 * (level + 3) + GetUnitBonus(source, BONUS_DAMAGE) * 0.15)
     endfunction
 
     // The ranged sketelon health amount
     private function GetSkeletonArcherHealth takes integer level, unit source returns integer
-        return R2I(50*(level + 3) + BlzGetUnitMaxHP(source)*0.15)
+        return R2I(50 * (level + 3) + BlzGetUnitMaxHP(source) * 0.15)
     endfunction
 
     // The ranged sketelon damage amount
     private function GetSkeletonArcherDamage takes integer level, unit source returns integer
-        return R2I(5*(level + 6) + GetUnitBonus(source, BONUS_DAMAGE)*0.15)
+        return R2I(5 * (level + 6) + GetUnitBonus(source, BONUS_DAMAGE) * 0.15)
     endfunction
 
     // The sketelon duration
@@ -67,12 +67,12 @@ library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities,
 
     // The elite sketelon health amount
     private function GetEliteHealth takes integer level, unit source returns integer
-        return R2I(50*(level + 11) + BlzGetUnitMaxHP(source)*0.33)
+        return R2I(50 * (level + 11) + BlzGetUnitMaxHP(source) * 0.33)
     endfunction
 
     // The elite sketelon damage amount
     private function GetEliteDamage takes integer level, unit source returns integer
-        return R2I(5*(level + 11) + GetUnitBonus(source, BONUS_DAMAGE)*0.33)
+        return R2I(5 * (level + 11) + GetUnitBonus(source, BONUS_DAMAGE) * 0.33)
     endfunction
 
     // The elite sketelon duration
@@ -93,16 +93,21 @@ library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities,
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct BlackArrow
-        private static integer array counter
+    struct BlackArrow extends Ability
         private static integer array elite
+        private static integer array counter
         private static integer array skeletons
-        static player array owner
+        
         static unit array source
+        static player array owner
         static boolean array active
 
-        timer   t
-        integer idx
+        private integer id
+
+        method destroy takes nothing returns nothing
+            set elite[id] = 0
+            call deallocate()
+        endmethod
 
         static method curse takes unit target, unit source, player owner returns nothing
             local integer id
@@ -117,45 +122,21 @@ library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities,
             endif
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            call ReleaseTimer(t)
-            set elite[idx] = 0
-            set t = null
-            call deallocate()
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "Increases |cffffcc00Sylvanas|r damage by |cffff0000" + N2S(GetBonusDamage(source, level), 0) + "|r and apply a curse on attacked units. If a cursed unit dies a |cffffcc00Skeleton Warrior|r will be spawnmed in its location lasting for |cffffcc00" + N2S(GetSkeletonDuration(level), 0) + "|r seconds. Attacking an enemy Hero |cffffcc005|r times while |cffffcc00Black Arrows|r is active creates an |cffffcc00Elite Skeleton Warrior|r at the target location. Max |cffffcc00" + N2S(GetMaxEliteCount(level), 0) + " Elite Warriors|r with |cffffcc00" + N2S(GetEliteCountReset(level), 0) + "|r seconds cooldown."
         endmethod
 
-        private static method onOrder takes nothing returns nothing
-            local unit source = GetOrderedUnit()
-            local integer id = GetIssuedOrderId()
-            local integer idx = GetUnitUserData(source)
-
-            if id == 852174 or id == 852175 then
-                set active[idx] = id == 852174
-                static if LIBRARY_RangerPrecision then
-                    if GetUnitAbilityLevel(source, RangerPrecision_ABILITY) > 0 then
-                        call RangerPrecision.enable(source, active[idx])
-                    endif
-                endif
-            endif
-
-            set source = null
-        endmethod
-
-        static method onDamage takes nothing returns nothing
-            local integer level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
-            local integer manaCost = BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(Damage.source.unit, ABILITY), ABILITY_ILF_MANA_COST, level - 1)
-            local boolean hasMana = GetUnitState(Damage.source.unit, UNIT_STATE_MANA) > manaCost
-            local real damage = GetEventDamage()
+        private static method onDamage takes nothing returns nothing
             local unit u
             local thistype this
+            local integer level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
+            local integer cost = BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(Damage.source.unit, ABILITY), ABILITY_ILF_MANA_COST, level - 1)
 
-            if active[Damage.source.id] and Damage.isEnemy and not Damage.target.isStructure and hasMana and damage > 0 then
+            if active[Damage.source.id] and Damage.isEnemy and not Damage.target.isStructure and Damage.amount > 0 and Damage.source.mana > cost then
                 set owner[Damage.target.id] = Damage.source.player
                 set source[Damage.target.id] = Damage.source.unit
+                set Damage.amount = Damage.amount + GetBonusDamage(Damage.source.unit, level)
 
-                call BlzSetEventDamage(damage + GetBonusDamage(Damage.source.unit, level))
                 if Damage.target.isHero then
                     set counter[Damage.source.id] = counter[Damage.source.id] + 1
 
@@ -175,9 +156,9 @@ library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities,
                             
                             if elite[Damage.source.id] == GetMaxEliteCount(level) then
                                 set this = thistype.allocate()
-                                set .t   = NewTimerEx(this)
-                                set .idx = Damage.source.id
-                                call TimerStart(.t, GetEliteCountReset(level), false, function thistype.onPeriod)
+                                set id = Damage.source.id
+
+                                call StartTimer(GetEliteCountReset(level), false, this, id)
                             endif
                         endif
                     endif
@@ -188,39 +169,52 @@ library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities,
             set u = null
         endmethod
 
-        private static method onDeath takes nothing returns nothing
-            local unit killed = GetTriggerUnit()
-            local integer level = GetUnitAbilityLevel(killed, BLACK_ARROW_CURSE)
-            local integer i = GetUnitUserData(killed)
-            local integer idx = GetPlayerId(owner[i])
-            local integer id = GetUnitTypeId(killed)
-            local boolean ranged = IsUnitType(killed, UNIT_TYPE_RANGED_ATTACKER)
-            local boolean skeleton = id == SKELETON_WARRIOR or id == SKELETON_ARCHER
-            local unit u
-            local real x
-            local real y
+        private static method onOrder takes nothing returns nothing
+            local unit source = GetOrderedUnit()
+            local integer id = GetIssuedOrderId()
+            local integer i = GetUnitUserData(source)
 
-            if skeleton then
-                set idx = GetPlayerId(GetOwningPlayer(killed))
-                set skeletons[idx] = skeletons[idx] - 1
-            elseif level > 0 and skeletons[idx] < GetMaxSkeletonCount(level) then
-                set skeletons[idx] = skeletons[idx] + 1
-                set x = GetUnitX(killed)
-                set y = GetUnitY(killed)
-                
-                if ranged then
-                    set u = CreateUnit(owner[i], SKELETON_ARCHER, x, y, 0)
+            if id == 852174 or id == 852175 then
+                set active[i] = id == 852174
+
+                static if LIBRARY_RangerPrecision then
+                    if GetUnitAbilityLevel(source, RangerPrecision_ABILITY) > 0 then
+                        call RangerPrecision.enable(source, active[i])
+                    endif
+                endif
+            endif
+
+            set source = null
+        endmethod
+
+        private static method onDeath takes nothing returns nothing
+            local unit u
+            local unit killed = GetTriggerUnit()
+            local integer i = GetUnitUserData(killed)
+            local integer id = GetPlayerId(owner[i])
+            local integer level = GetUnitAbilityLevel(killed, BLACK_ARROW_CURSE)
+
+            if GetUnitTypeId(killed) == SKELETON_WARRIOR or GetUnitTypeId(killed) == SKELETON_ARCHER then
+                set id = GetPlayerId(GetOwningPlayer(killed))
+                set skeletons[id] = skeletons[id] - 1
+            elseif level > 0 and skeletons[id] < GetMaxSkeletonCount(level) then
+                set skeletons[id] = skeletons[id] + 1
+
+                if IsUnitType(killed, UNIT_TYPE_RANGED_ATTACKER) then
+                    set u = CreateUnit(owner[i], SKELETON_ARCHER, GetUnitX(killed), GetUnitY(killed), 0)
+
                     call BlzSetUnitMaxHP(u, GetSkeletonArcherHealth(level, source[i]))
                     call BlzSetUnitBaseDamage(u, GetSkeletonArcherDamage(level, source[i]), 0)
                 else
-                    set u = CreateUnit(owner[i], SKELETON_WARRIOR, x, y, 0)
+                    set u = CreateUnit(owner[i], SKELETON_WARRIOR, GetUnitX(killed), GetUnitY(killed), 0)
+
                     call BlzSetUnitMaxHP(u, GetSkeletonWarriorHealth(level, source[i]))
                     call BlzSetUnitBaseDamage(u, GetSkeletonWarriorDamage(level, source[i]), 0)
                 endif
                 
-                call UnitApplyTimedLife(u, 'BTLF', GetSkeletonDuration(level))
                 call SetUnitLifePercentBJ(u, 100)
                 call SetUnitAnimation(u, "Birth")
+                call UnitApplyTimedLife(u, 'BTLF', GetSkeletonDuration(level))
                 call DestroyEffect(AddSpecialEffectEx(RAISE_EFFECT, GetUnitX(u), GetUnitY(u), GetUnitFlyHeight(u), 1))
             endif
 
@@ -228,7 +222,10 @@ library BlackArrow requires DamageInterface, RegisterPlayerUnitEvent, Utilities,
             set killed = null
         endmethod   
 
-        static method onInit takes nothing returns nothing
+        implement Periodic
+
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)

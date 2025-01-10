@@ -1,7 +1,6 @@
-library BansheeCry requires SpellEffectEvent, PluginSpellEffect, Utilities, CrowdControl
-    /* -------------------------------- Cry of the Banshee Queen v1.3 ------------------------------- */
+library BansheeCry requires Ability, Utilities, CrowdControl
+    /* -------------------------------- Cry of the Banshee Queen v1.4 ------------------------------- */
     // Credits:
-    //     Bribe         - SpellEffectEvent
     //     Darkfang      - Void Curse Icon
     //     Mythic        - Call of the Dread model (edited by me)
     /* ---------------------------------------- By Chopinski ---------------------------------------- */
@@ -53,37 +52,31 @@ library BansheeCry requires SpellEffectEvent, PluginSpellEffect, Utilities, Crow
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct BansheeCry extends array
-        private static method onCast takes nothing returns nothing
-            local integer i = 0
+    private struct BansheeCry extends Ability
+        private method onCast takes nothing returns nothing
             local group g = CreateGroup()
-            local player p = Spell.source.player
-            local integer level = Spell.level
             local unit u
-            local integer  size
 
             call SpamEffectUnit(Spell.source.unit, SCREAM_MODEL, ATTACH_SCREAM, 0.1, 5)
-            call GroupEnumUnitsInRange(g, Spell.source.x, Spell.source.y, GetAoE(Spell.source.unit, level), null)
-            set size = BlzGroupGetSize(g)
-            if size > 0 then
-                loop
-                    exitwhen i == size
-                        set u =  BlzGroupUnitAt(g, i)
-                        if Filtered(p, u) then
-                            call FearUnit(u, GetDuration(u, level), FEAR_MODEL, ATTACH_FEAR, false)
-                            call SlowUnit(u, GetSlow(u, level), GetDuration(u, level), null, null, false)
-                        endif
-                    set i = i + 1
-                endloop
-            endif
+            call GroupEnumUnitsInRange(g, Spell.source.x, Spell.source.y, GetAoE(Spell.source.unit, Spell.level), null)
+
+            loop
+                set u = FirstOfGroup(g)
+                exitwhen u == null
+                    if Filtered(Spell.source.player, u) then
+                        call FearUnit(u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
+                        call SlowUnit(u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), null, null, false)
+                    endif
+                call GroupRemoveUnit(g, u)
+            endloop
+
             call DestroyGroup(g)
 
             set g = null
-            set u = null
         endmethod   
 
-        static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+        private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary
