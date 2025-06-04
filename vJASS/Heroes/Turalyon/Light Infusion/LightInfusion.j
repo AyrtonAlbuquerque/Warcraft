@@ -1,8 +1,8 @@
-library LightInfusion requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, Table, Utilities, NewBonus
-    /* -------------------- Light Infusion v1.2 by Chopinski -------------------- */
+library LightInfusion requires RegisterPlayerUnitEvent, Ability, Table, Utilities, NewBonus, Periodic
+    /* -------------------- Light Infusion v1.3 by Chopinski -------------------- */
     // Credits:
     //     NO-Bloody-Name  - Icon
-    //     Bribe           - SpellEffectEvent, Table
+    //     Bribe           - Table
     //     Magtheridon96   - RegisterPlayerUnitEvent
     //     Mythic          - Divine Edict Effect
     //     JetFangInferno  - LightFlash effect
@@ -46,89 +46,47 @@ library LightInfusion requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct LightInfusion
+    struct LightInfusion extends Ability
+        private static constant real CIRCLE = 2*bj_PI
+        private static constant real STEP = 2.5*bj_DEGTORAD
+
         readonly static integer array charges
-        private static thistype array data
-		private static integer 		  didx    = -1
-        private static timer 		  timer   = CreateTimer()
-        private static constant real  STEP    = 2.5*bj_DEGTORAD
-        private static constant real  CIRCLE = 2*bj_PI
-        private static thistype array n
 
-        private unit    unit
-        private real    angle
-        private real    arc
-        private real    bonus
-        private integer index
-        private Table   table
+        private real arc
+        private unit unit
+        private real angle
+        private real bonus
+        private integer id
+        private Table table
 
-        private method remove takes integer i returns integer
-            local integer j = 0
+        method destroy takes nothing returns nothing
+            local integer i = 0
 
             loop
-                exitwhen j >= GetMaxCharges(GetUnitAbilityLevel(unit, ABILITY))
-                    call DestroyEffect(table.effect[j])
-                set j = j + 1
+                exitwhen i >= GetMaxCharges(GetUnitAbilityLevel(unit, ABILITY))
+                    call DestroyEffect(table.effect[i])
+                set i = i + 1
             endloop
-			call table.destroy()
 
-			set data[i]        = data[didx]
-			set didx 	       = didx - 1
-			set charges[index] = 0
-			set n[index]	   = 0
-			set unit           = null
+			set charges[id] = 0
+			set unit = null
 
-			if didx == -1 then
-				call PauseTimer(timer)
-			endif
-
+            call table.destroy()
 			call deallocate()
-
-			return i - 1
 		endmethod
-
-        private static method onPeriod takes nothing returns nothing
-			local real     x
-			local real     y
-            local real 	   z
-            local integer  i = 0
-            local integer  j
-			local thistype this
-	
-			loop
-				exitwhen i > didx
-					set this = data[i]
-	
-                    if charges[index] > 0 then
-                        set angle = angle + STEP
-                        set x = GetUnitX(unit)
-						set y = GetUnitY(unit)
-                        set z = GetUnitZ(unit) + 100
-                        set j = 0
-                        loop
-                            exitwhen j >= charges[index]
-                                call BlzSetSpecialEffectPosition(table.effect[j], x + OFFSET*Cos(angle + j*arc), y + OFFSET*Sin(angle + j*arc), z)
-                            set j = j + 1
-                        endloop
-					else
-						set i = remove(i)
-					endif
-				set i = i + 1
-			endloop
-        endmethod
         
         static method consume takes integer i returns nothing
             local real x
             local real y
             local real z
-            local thistype this
+            local thistype this = GetTimerInstance(i)
 
-            if charges[i] > 0 and n[i] != 0 then
-                set this = n[i]
+            if this != 0 and charges[i] > 0 then
                 set charges[i] = charges[i] - 1
                 set x = BlzGetLocalSpecialEffectX(table.effect[charges[i]])
                 set y = BlzGetLocalSpecialEffectY(table.effect[charges[i]])
                 set z = BlzGetLocalSpecialEffectZ(table.effect[charges[i]])
+                
                 if charges[i] > 0 then
                     set arc = CIRCLE/charges[i]
                 endif
@@ -136,39 +94,48 @@ library LightInfusion requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
                 call DestroyEffect(AddSpecialEffectEx(DEATH_MODEL, x, y, z, DEATH_SCALE))
                 call DestroyEffect(table.effect[charges[i]])
                 call AddUnitBonus(unit, BONUS_HEALTH_REGEN, -bonus)
-                set bonus = charges[i]*GetBonusRegen(GetUnitAbilityLevel(unit, ABILITY))
+                set bonus = charges[i] * GetBonusRegen(GetUnitAbilityLevel(unit, ABILITY))
                 call AddUnitBonus(unit, BONUS_HEALTH_REGEN, bonus)
             endif
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local thistype this
+        private method onPeriod takes nothing returns boolean
+            local integer i = 0
+	
+			if charges[id] > 0 then
+                set angle = angle + STEP
 
+                loop
+                    exitwhen i >= charges[id]
+                        call BlzSetSpecialEffectPosition(table.effect[i], GetUnitX(unit) + OFFSET*Cos(angle + i*arc), GetUnitY(unit) + OFFSET*Sin(angle + i*arc), GetUnitZ(unit) + 100)
+                    set i = i + 1
+                endloop
+            endif
+
+            return charges[id] > 0
+        endmethod
+
+        private method onCast takes nothing returns nothing
             if charges[Spell.source.id] < GetMaxCharges(Spell.level) then
-                if n[Spell.source.id] != 0 then
-                    set this = n[Spell.source.id]
-                else
-                    set this       = thistype.allocate()
-                    set unit       = Spell.source.unit
-                    set table      = Table.create()
-                    set index      = Spell.source.id
-                    set angle      = 0.
-                    set bonus      = 0.
-                    set n[index]   = this
-                    set didx       = didx + 1
-                    set data[didx] = this
+                set this = GetTimerInstance(Spell.source.id)
 
-                    if didx == 0 then
-                        call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
-                    endif
+                if this == 0 then
+                    set this = thistype.allocate()
+                    set id = Spell.source.id
+                    set unit = Spell.source.unit
+                    set table = Table.create()
+                    set angle = 0
+                    set bonus = 0
+
+                    call StartTimer(PERIOD, true, this, id)
                 endif
 
-                set table.effect[charges[index]] = AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, Spell.source.z + 100, SCALE)
-                set charges[index] = charges[index] + 1
-                set arc = CIRCLE/charges[index]
+                set table.effect[charges[id]] = AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, Spell.source.z + 100, SCALE)
+                set charges[id] = charges[id] + 1
+                set arc = CIRCLE/charges[id]
 
                 call AddUnitBonus(unit, BONUS_HEALTH_REGEN, -bonus)
-                set bonus = charges[index]*GetBonusRegen(Spell.level)
+                set bonus = charges[id] * GetBonusRegen(Spell.level)
                 call AddUnitBonus(unit, BONUS_HEALTH_REGEN, bonus)
             else
                 call ResetUnitAbilityCooldown(Spell.source.unit, Spell.id)
@@ -186,8 +153,10 @@ library LightInfusion requires RegisterPlayerUnitEvent, SpellEffectEvent, Plugin
             set source = null
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
         endmethod
     endstruct
