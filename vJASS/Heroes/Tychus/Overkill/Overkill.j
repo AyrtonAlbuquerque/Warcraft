@@ -1,5 +1,5 @@
-library Overkill requires RegisterPlayerUnitEvent, Missiles, Utilities, MouseUtils, NewBonus optional ArsenalUpgrade
-    /* ----------------------- Overkill v1.3 by Chopinski ----------------------- */
+library Overkill requires Ability, RegisterPlayerUnitEvent, Missiles, Utilities, MouseUtils, NewBonus, Periodic optional ArsenalUpgrade
+    /* ----------------------- Overkill v1.4 by Chopinski ----------------------- */
     // Credits:
     //     Blizzard         - Icon
     //     Magtheridon96    - RegisterPlayerUnitEvent
@@ -39,7 +39,7 @@ library Overkill requires RegisterPlayerUnitEvent, Missiles, Utilities, MouseUti
 
     // The Bullet damage.
     private function GetDamage takes integer level, unit source returns real
-        return (5. + 5.*level) + GetUnitBonus(source, BONUS_DAMAGE)*0.25*level
+        return (5. + 5.*level) + (0.25 * level) * GetUnitBonus(source, BONUS_DAMAGE)
     endfunction
 
     // The Bullet collision.
@@ -79,7 +79,7 @@ library Overkill requires RegisterPlayerUnitEvent, Missiles, Utilities, MouseUti
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Bullet extends Missiles
-        method onHit takes unit hit returns boolean
+        private method onHit takes unit hit returns boolean
             if DamageFilter(owner, hit) then
                 call UnitDamageTarget(source, hit, damage, true, true, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, null)
             endif
@@ -88,119 +88,94 @@ library Overkill requires RegisterPlayerUnitEvent, Missiles, Utilities, MouseUti
         endmethod
     endstruct
 
-    private struct Overkill
-        static timer timer = CreateTimer()
-        static integer key = -1
-        static thistype array array
-        static thistype array n
+    private struct Overkill extends Ability
+        private unit unit
+        private integer id
+        private real prevX
+        private real prevY
+        private player player
 
-        unit unit
-        player  player
-        real prevX
-        real prevY
-        integer id
-
-        private method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             call AddUnitAnimationProperties(unit, "spin", false)
             call QueueUnitAnimation(unit, "Stand Ready")
             call IssueImmediateOrderById(unit, 852590)
             call UnitRemoveAbility(unit, 'Abun')
-
-            set array[i] = array[key]
-            set key = key - 1
-            set n[id] = 0
-            set unit = null
-            set player = null
-
-            if key == -1 then
-                call PauseTimer(timer)
-            endif
-
             call deallocate()
 
-            return i - 1
+            set unit = null
+            set player = null
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local integer level
-            local real cost
-            local real offset
-            local real face
-            local real range
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Tychus|r fire his mini-gun at full power, unleashing a barrage of bullets towards his facing direction. Each bullet consumes |cff00ffff" + N2S(GetManaCost(source, level), 0) + " Mana|r and deals |cffff0000" + N2S(GetDamage(level, source), 0) + " Physical|r damage to any enemy unit in its trajectory. |cffffcc00Tychus|r will only stop firing if he has no mana left or deactivates |cffffcc00Overkill|r. In addition |cffffcc00Tychus|r can move while on |cffffcc00Overkill|r and will always be facing the |cffffcc00Cursor|r during its active period."
+        endmethod
+
+        private method onPeriod takes nothing returns boolean
             local real x
             local real y
-            local boolean  morphed = false
-            local thistype this
+            local real face
+            local real range
+            local real offset
             local Bullet bullet
+            local boolean morphed = false
+            local integer level = GetUnitAbilityLevel(unit, ABILITY)
+            local real cost = GetManaCost(unit, level)
 
-            loop
-                exitwhen i > key
-                    set this = array[i]
-                    set level = GetUnitAbilityLevel(unit, ABILITY)
-                    set cost = GetManaCost(unit, level)
+            static if LIBRARY_CommanderOdin then
+                set morphed = CommanderOdin.morphed[id]
+            endif
 
-                    static if LIBRARY_CommanderOdin then
-                        set morphed = CommanderOdin.morphed[id]
-                    endif
+            if GetUnitAbilityLevel(unit, BUFF) > 0 and GetUnitState(unit, UNIT_STATE_MANA) >= cost and not morphed then
+                set x = GetUnitX(unit)
+                set y = GetUnitY(unit)
+                set offset = GetTravelDistance(level)
+                set range = GetRandomRange(GetMaxAoE(level))
+                set face = GetUnitFacing(unit)*bj_DEGTORAD
+                set bullet = Bullet.create(GetX(x, face), GetY(y, face), 70, GetRandomCoordInRange(x + offset*Cos(face), range, true), GetRandomCoordInRange(y + offset*Sin(face), range, false), GetRandomReal(0, 80))
+                
+                set bullet.model = MODEL
+                set bullet.speed = SPEED
+                set bullet.scale = SCALE
+                set bullet.source = unit
+                set bullet.owner = player
+                set bullet.damage = GetDamage(level, unit)
+                set bullet.collision = GetCollision(level)
 
-                    if GetUnitAbilityLevel(unit, BUFF) > 0 and GetUnitState(unit, UNIT_STATE_MANA) >= cost and not morphed then
-                        set offset = GetTravelDistance(level)
-                        set range = GetRandomRange(GetMaxAoE(level))
-                        set face = GetUnitFacing(unit)*bj_DEGTORAD
-                        set x = GetUnitX(unit)
-                        set y = GetUnitY(unit)
-                        set bullet = Bullet.create(GetX(x, face), GetY(y, face), 70, GetRandomCoordInRange(x + offset*Cos(face), range, true), GetRandomCoordInRange(y + offset*Sin(face), range, false), GetRandomReal(0, 80))
-                        set bullet.model = MODEL
-                        set bullet.speed = SPEED
-                        set bullet.scale = SCALE
-                        set bullet.source = unit
-                        set bullet.owner = player
-                        set bullet.damage = GetDamage(level, unit)
-                        set bullet.collision = GetCollision(level)
+                if x != prevX and y != prevY then
+                    set prevX = x
+                    set prevY = y
 
-                        if x != prevX and y != prevY then
-                            set prevX = x
-                            set prevY = y
-                            call AddUnitAnimationProperties(unit, "spin", true)
-                        else
-                            call AddUnitAnimationProperties(unit, "spin", false)
-                            call SetUnitAnimation(unit, "Attack")
-                        endif
+                    call AddUnitAnimationProperties(unit, "spin", true)
+                else
+                    call AddUnitAnimationProperties(unit, "spin", false)
+                    call SetUnitAnimation(unit, "Attack")
+                endif
 
-                        call AddUnitMana(unit, -cost)
-                        call BlzSetUnitFacingEx(unit, AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))*bj_RADTODEG)
-                        call bullet.launch()
-                    else
-                        set i = remove(i)
-                    endif
-                set i = i + 1
-            endloop
+                call AddUnitMana(unit, -cost)
+                call BlzSetUnitFacingEx(unit, AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))*bj_RADTODEG)
+                call bullet.launch()
+
+                return true
+            endif
+
+            return false
         endmethod
 
         private static method onOrder takes nothing returns nothing
-            local integer order = GetIssuedOrderId()
             local unit caster = GetOrderedUnit()
-            local integer i = GetUnitUserData(caster)
-            local thistype this
+            local integer order = GetIssuedOrderId()
+            local thistype this = GetTimerInstance(GetUnitUserData(caster))
 
-            if order == 852589 then // On
-                if n[i] != 0 then
-                    set this = n[i]
-                else
+            if order == 852589 then
+                if this == 0 then
                     set this = thistype.allocate()
                     set unit = caster
-                    set id = i
+                    set id = GetUnitUserData(caster)
                     set prevX = GetUnitX(caster)
                     set prevY = GetUnitY(caster)
                     set player = GetOwningPlayer(caster)
-                    set key = key + 1
-                    set array[key] = this
-                    set n[i] = this
 
-                    if key == 0 then
-                        call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
-                    endif
+                    call StartTimer(PERIOD, true, this, id)
                 endif
 
                 call UnitAddAbility(unit, 'Abun')
@@ -209,7 +184,10 @@ library Overkill requires RegisterPlayerUnitEvent, Missiles, Utilities, MouseUti
             set caster = null
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)
         endmethod
     endstruct

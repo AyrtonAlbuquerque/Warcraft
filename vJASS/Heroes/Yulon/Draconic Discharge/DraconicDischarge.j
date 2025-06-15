@@ -1,8 +1,7 @@
-library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilities, LineSegmentEnumeration, CrowdControl
-    /* ------------------ Draconic Discharge v1.3 by Chopinski ------------------ */
+library DraconicDischarge requires Ability, Utilities, LineSegmentEnumeration, CrowdControl optional NewBonus
+    /* ------------------ Draconic Discharge v1.4 by Chopinski ------------------ */
     // Credits:
     //     N-ix Studio      - Icon
-    //     Bribe            - SpellEffectEvent
     //     IcemanBo, AGD    - LineSegmentEnumeration
     //     Wood             - Model
     /* ----------------------------------- END ---------------------------------- */
@@ -32,7 +31,11 @@ library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilitie
 
     // The Damage dealt
     private function GetDamage takes unit source, integer level returns real
-        return 125.*level
+        static if LIBRARY_NewBonus then
+            return 125. * level + (0.2 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 125. * level
+        endif
     endfunction
 
     // The blast range
@@ -42,7 +45,7 @@ library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilitie
     
     // The stun duration
     private function GetStunDuration takes unit source, integer level returns real
-        return 1. + 0.*level
+        return 1. + 0.25*level
     endfunction
 
     // The Damage Filter.
@@ -53,48 +56,50 @@ library DraconicDischarge requires SpellEffectEvent, PluginSpellEffect, Utilitie
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DraconicDischarge extends array
-        private static method onCast takes nothing returns nothing
-            local unit source = Spell.source.unit
-            local player owner = Spell.source.player
-            local real aoe = GetAoE(source, Spell.level)
-            local real range = GetRange(source, Spell.level)
-            local real damage = GetDamage(source, Spell.level)
-            local real duration = GetStunDuration(source, Spell.level)
-            local real angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
-            local real minX = Spell.source.x + OFFSET*Cos(angle)
-            local real minY = Spell.source.y + OFFSET*Sin(angle)
-            local real maxX = Spell.source.x + (OFFSET + range)*Cos(angle)
-            local real maxY = Spell.source.y + (OFFSET + range)*Sin(angle)
-            local effect e = AddSpecialEffectEx(MODEL, minX, minY, 65, SCALE)
+    private struct DraconicDischarge extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Yu'lon|r discharges a powerful enegy blast towards the targeted direction, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r Magic|r damage and stunning enemy units caught in its radius for |cffffcc00" + N2S(GetStunDuration(source, level), 0) + "|r seconds. |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r, |cffffcc00" + N2S(GetRange(source, level), 0) + "|r blast range."
+        endmethod
+
+        private method onCast takes nothing returns nothing
             local group g = CreateGroup()
+            local real aoe = GetAoE(Spell.source.unit, Spell.level)
+            local real range = GetRange(Spell.source.unit, Spell.level)
+            local real damage = GetDamage(Spell.source.unit, Spell.level)
+            local real duration = GetStunDuration(Spell.source.unit, Spell.level)
+            local real angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
+            local real minX = Spell.source.x
+            local real minY = Spell.source.y
+            local real maxX = Spell.source.x + range * Cos(angle)
+            local real maxY = Spell.source.y + range * Sin(angle)
+            local effect e = AddSpecialEffectEx(MODEL, Spell.source.x + OFFSET * Cos(angle), Spell.source.y + OFFSET * Sin(angle), 65, SCALE)
             local unit u
             
-            call QueueUnitAnimation(source, "Stand")
-            call BlzSetUnitFacingEx(source, angle*bj_RADTODEG)
             call BlzSetSpecialEffectYaw(e, angle)
+            call QueueUnitAnimation(Spell.source.unit, "Stand")
+            call BlzSetUnitFacingEx(Spell.source.unit, angle*bj_RADTODEG)
             call LineSegment.EnumUnitsEx(g, minX, minY, maxX, maxY, aoe, true)
+
             loop
                 set u = FirstOfGroup(g)
                 exitwhen u == null
-                    if DamageFilter(owner, u) then
-                        if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                    if DamageFilter(Spell.source.player, u) then
+                        if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                             call StunUnit(u, duration, STUN_MODEL, STUN_ATTACH, false)
                         endif
                     endif
                 call GroupRemoveUnit(g, u)
             endloop
+
             call DestroyEffect(e)
             call DestroyGroup(g)
             
             set g = null
             set e = null
-            set owner = null
-            set source = null
         endmethod
         
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate() ,ABILITY)
         endmethod
     endstruct
 endlibrary

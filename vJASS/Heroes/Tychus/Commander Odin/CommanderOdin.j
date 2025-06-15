@@ -1,9 +1,7 @@
-library CommanderOdin requires SpellEffectEvent, PluginSpellEffect, TimerUtils, optional FragGranade, optional AutomatedTurrent, optional Overkill, optional RunAndGun, optional OdinAttack, optional OdinAnnihilate, optional OdinIncinerate
-    /* -------------------- Commander Odin v1.2 by Chopinski -------------------- */
+library CommanderOdin requires Ability, Periodic, optional FragGranade, optional AutomatedTurrent, optional Overkill, optional RunAndGun, optional OdinAttack, optional OdinAnnihilate, optional OdinIncinerate
+    /* -------------------- Commander Odin v1.3 by Chopinski -------------------- */
     // Credits:
     //     Blizzard        - Icon
-    //     Bribe           - SpellEffectEvent
-    //     Vexorian        - TimerUtils
     /* ----------------------------------- END ---------------------------------- */
     
     /* -------------------------------------------------------------------------- */
@@ -17,17 +15,23 @@ library CommanderOdin requires SpellEffectEvent, PluginSpellEffect, TimerUtils, 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct CommanderOdin
+    struct CommanderOdin extends Ability
         readonly static boolean array morphed
 
-        timer   timer
-        unit    unit
-        integer level
-        boolean hide
+        private unit unit
+        private boolean hide
+        private integer level
 
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
+        method destroy takes nothing returns nothing
+            call deallocate()
+            set unit = null
+        endmethod
 
+        private method onTooltip takes unit source, integer level, ability spell returns string
+        return "|cffffcc00Tychus|r calls for a |cffffcc00Commander Odin|r to pilot, gaining |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_ALTERNATE_FORM_HIT_POINT_BONUS, level - 1), 0) + "|r bonus |cffff0000Health|r and new abilities for |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, level - 1), 1) + "|r seconds."
+        endmethod
+
+        private method onExpire takes nothing returns nothing
             if hide then
                 static if LIBRARY_OdinAttack then
                     call SetUnitAbilityLevel(unit, OdinAttack_ABILITY, level)
@@ -57,28 +61,22 @@ library CommanderOdin requires SpellEffectEvent, PluginSpellEffect, TimerUtils, 
             static if LIBRARY_RunAndGun then
                 call BlzUnitDisableAbility(unit, RunAndGun_ABILITY, hide, hide)
             endif
-
-            call ReleaseTimer(timer)
-            call deallocate()
-
-            set timer = null
-            set unit  = null
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
-
-            set morphed[Spell.source.id] = not morphed[Spell.source.id]
-            set timer = NewTimerEx(this)
-            set unit  = Spell.source.unit
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
             set level = Spell.level
-            set hide  = morphed[Spell.source.id]
+            set unit = Spell.source.unit
+            set morphed[Spell.source.id] = not morphed[Spell.source.id]
+            set hide = morphed[Spell.source.id]
 
-            call TimerStart(timer, BlzGetAbilityRealLevelField(BlzGetUnitAbility(Spell.source.unit, ABILITY), ABILITY_RLF_DURATION_NORMAL, Spell.level - 1) + 0.01, false, function thistype.onExpire)
+            call StartTimer(BlzGetAbilityRealLevelField(Spell.ability, ABILITY_RLF_DURATION_NORMAL, Spell.level - 1) + 0.01, false, this, 0)
         endmethod
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

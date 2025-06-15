@@ -1,8 +1,7 @@
-library DragonDash requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities
-    /* ---------------------- Dragon Dash v1.1 by Chopinski --------------------- */
+library DragonDash requires Ability, Missiles, Utilities
+    /* ---------------------- Dragon Dash v1.2 by Chopinski --------------------- */
     // Credits:
     //     Zipfinator    - Icon
-    //     Bribe         - SpellEffectEvent
     //     AZ            - Model
     /* ----------------------------------- END ---------------------------------- */
     
@@ -49,13 +48,13 @@ library DragonDash requires SpellEffectEvent, PluginSpellEffect, Missiles, Utili
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DragonDash extends Missiles
-        real reduction
+    private struct Dash extends Missiles
         real theta
         effect dash
         effect wind
+        real reduction
         
-        method onPeriod takes nothing returns boolean
+        private method onPeriod takes nothing returns boolean
             call BlzSetSpecialEffectPosition(dash, x + OFFSET*Cos(theta), y + OFFSET*Sin(theta), z)
             call BlzSetSpecialEffectYaw(dash, effect.yaw)
             call SetUnitX(source, x)
@@ -65,7 +64,7 @@ library DragonDash requires SpellEffectEvent, PluginSpellEffect, Missiles, Utili
             return false
         endmethod
         
-        method onHit takes unit u returns boolean
+        private method onHit takes unit u returns boolean
             local real cooldown
             
             if UnitFilter(owner, u) then
@@ -80,11 +79,11 @@ library DragonDash requires SpellEffectEvent, PluginSpellEffect, Missiles, Utili
             return false
         endmethod
         
-        method onPause takes nothing returns boolean
+        private method onPause takes nothing returns boolean
             return true
         endmethod
         
-        method onRemove takes nothing returns nothing
+        private method onRemove takes nothing returns nothing
             call IssueImmediateOrder(source, "stop")
             call SetUnitAnimation(source, "Stand")
             call DestroyEffect(wind)
@@ -93,34 +92,40 @@ library DragonDash requires SpellEffectEvent, PluginSpellEffect, Missiles, Utili
             set wind = null
             set dash = null
         endmethod
+    endstruct
+
+    private struct DragonDash extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Yu'lon|r dashes up to |cffffcc00" + N2S(GetDistance(level), 0) + "|r range towards the targeted direction and with no collision. For each enemy unit |cffffcc00Yu'lon|r pass trough, |cffffcc00Dragon Dash|r cooldown is reduced by |cffffcc00" + N2S(GetCooldownReduction(level), 1) + "|r second."
+        endmethod
         
-        private static method onCast takes nothing returns nothing
+        private method onCast takes nothing returns nothing
             local real point = DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
             local real angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
             local real distance = GetDistance(Spell.level)
-            local thistype this
+            local Dash dash
             
             if point < distance then
                 set distance = point
             endif
             
-            set this = thistype.create(Spell.source.x, Spell.source.y, 0, Spell.source.x + distance*Cos(angle), Spell.source.y + distance*Sin(angle), 0)
-            set speed = SPEED
-            set theta = angle
-            set owner = Spell.source.player
-            set source = Spell.source.unit
-            set collision = GetCollision(Spell.level)
-            set reduction = GetCooldownReduction(Spell.level)
-            set dash = AddSpecialEffectEx(MODEL, Spell.source.x + OFFSET*Cos(angle), Spell.source.y + OFFSET*Sin(angle), 0, SCALE)
-            set wind = AddSpecialEffectTarget(WIND_MODEL, source, ATTACH_POINT)
+            set dash = Dash.create(Spell.source.x, Spell.source.y, 0, Spell.source.x + distance*Cos(angle), Spell.source.y + distance*Sin(angle), 0)
+            set dash.speed = SPEED
+            set dash.theta = angle
+            set dash.owner = Spell.source.player
+            set dash.source = Spell.source.unit
+            set dash.collision = GetCollision(Spell.level)
+            set dash.reduction = GetCooldownReduction(Spell.level)
+            set dash.dash = AddSpecialEffectEx(MODEL, Spell.source.x + OFFSET*Cos(angle), Spell.source.y + OFFSET*Sin(angle), 0, SCALE)
+            set dash.wind = AddSpecialEffectTarget(WIND_MODEL, dash.source, ATTACH_POINT)
             
             call BlzSetAbilityRealLevelField(Spell.ability, ABILITY_RLF_FOLLOW_THROUGH_TIME, Spell.level - 1, distance/SPEED)
-            call SetUnitAnimation(source, "Spell Channel")
-            call launch()
+            call SetUnitAnimation(dash.source, "Spell Channel")
+            call dash.launch()
         endmethod
         
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

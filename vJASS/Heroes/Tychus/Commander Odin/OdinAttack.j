@@ -1,8 +1,7 @@
-library OdinAttack requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, Missiles, Utilities
-    /* ---------------------- Odin Attack v1.2 by Chopinski --------------------- */
+library OdinAttack requires RegisterPlayerUnitEvent, Ability, Missiles, Utilities, NewBonus
+    /* ---------------------- Odin Attack v1.3 by Chopinski --------------------- */
     // Credits:
     //     a-ravlik        - Icon
-    //     Bribe           - SpellEffectEvent
     //     Magtheridon96   - RegisterPlayerUnitEvent
     //     Mythic          - Interceptor Shell model
     /* ----------------------------------- END ---------------------------------- */
@@ -55,8 +54,8 @@ library OdinAttack requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
     endfunction
 
     // The explosion damage
-    private function GetDamage takes integer level returns real
-        return 125.*level
+    private function GetDamage takes unit source, integer level returns real
+        return 125. * level + 0.75 * GetUnitBonus(source, BONUS_DAMAGE)
     endfunction
 
     // The numebr of rockets per attack per level
@@ -77,14 +76,15 @@ library OdinAttack requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct OdinAttack extends Missiles
-        real  aoe
+    private struct Attack extends Missiles
+        real aoe
         group group
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             local unit u
 
             call GroupEnumUnitsInRange(group, x, y, aoe, null)
+
             loop
                 set u = FirstOfGroup(group)
                 exitwhen u == null
@@ -93,42 +93,46 @@ library OdinAttack requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
                     endif
                 call GroupRemoveUnit(group, u)
             endloop
+
             call DestroyGroup(group)
 
             set group = null
+
             return true
         endmethod
+    endstruct
 
-        private static method onCast takes nothing returns nothing
-            local integer  i = GetMissileCount(Spell.level)
-            local real     range
-            local real     face
-            local real     angle
-            local real     offset
-            local real     x
-            local real     y
-            local thistype this
+    private struct OdinAttack extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Odin|r attacks shots |cffffcc00" + N2S(GetMissileCount(level), 0) + "|r rockets to a location nearby the primary target location, dealing |cffffcc00" + N2S(GetDamage(source, level), 0) + "|r damage to all nearby enemy units within |cffffcc00" + N2S(GetAoE(level), 0) + "|r AoE."
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            local real x
+            local real y
+            local Attack attack
+            local integer i = GetMissileCount(Spell.level)
+            local real face = GetUnitFacing(Spell.source.unit) * bj_DEGTORAD
+            local real range = GetRandomRange(GetAttackAoE(Spell.source.unit, Spell.level))
+            local real angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
+            local real offset = DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y) - OFFSET
 
             if i > 0 then
-                set range = GetRandomRange(GetAttackAoE(Spell.source.unit, Spell.level))
-                set face  = GetUnitFacing(Spell.source.unit)*bj_DEGTORAD
                 loop
                     exitwhen i <= 0
-                        set x      = GetX(Spell.source.x, face, i)
-                        set y      = GetY(Spell.source.y, face, i)
-                        set offset = DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y) - OFFSET
-                        set angle  = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
-                        set this   = thistype.create(x, y, HEIGHT, x + offset*Cos(angle), y + offset*Sin(angle), 50)
-                        set model  = MODEL
-                        set scale  = SCALE
-                        set speed  = SPEED
-                        set source = Spell.source.unit
-                        set owner  = Spell.source.player
-                        set damage = GetDamage(Spell.level)
-                        set aoe    = GetAoE(Spell.level)
-                        set group  = CreateGroup()
+                        set x = GetX(Spell.source.x, face, i)
+                        set y = GetY(Spell.source.y, face, i)
+                        set attack = Attack.create(x, y, HEIGHT, x + offset*Cos(angle), y + offset*Sin(angle), 50)
+                        set attack.model = MODEL
+                        set attack.scale = SCALE
+                        set attack.speed = SPEED
+                        set attack.source = Spell.source.unit
+                        set attack.owner = Spell.source.player
+                        set attack.group = CreateGroup()
+                        set attack.aoe = GetAoE(Spell.level)
+                        set attack.damage = GetDamage(Spell.source.unit, Spell.level)
 
-                        call launch()
+                        call attack.launch()
                     set i = i - 1
                 endloop
             endif
@@ -145,8 +149,8 @@ library OdinAttack requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
         endmethod
 
         private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function thistype.onAttack)
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
         endmethod
     endstruct
 endlibrary

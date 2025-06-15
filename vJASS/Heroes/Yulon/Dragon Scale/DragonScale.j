@@ -1,5 +1,5 @@
-library DragonScale requires RegisterPlayerUnitEvent, DamageInterface
-    /* --------------------- Dragon Scale v1.1 by Chopinski --------------------- */
+library DragonScale requires RegisterPlayerUnitEvent, DamageInterface, Ability optional NewBonus
+    /* --------------------- Dragon Scale v1.2 by Chopinski --------------------- */
     // Credits:
     //     Arowanna        - Icon
     //     Magtheridon96   - RegisterPlayerUnitEvent
@@ -19,8 +19,12 @@ library DragonScale requires RegisterPlayerUnitEvent, DamageInterface
     endglobals
 
     // The maximum bonus damage per level
-    private function GetBonus takes integer level returns real
-        return 50.*level
+    private function GetBonus takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 25.*level + (0.05 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 25.*level
+        endif
     endfunction
 
     // The damage reduction per level
@@ -36,40 +40,39 @@ library DragonScale requires RegisterPlayerUnitEvent, DamageInterface
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DragonScale extends array
+    private struct DragonScale extends Ability
         private static real array energy
 
-        private static method onSpellDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
-            local integer level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
-            local real amount
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Yu'lon|r dragon scales reduced all damage taken by |cffffcc00" + N2S(GetDamageReduction(level) * 100, 0) + "%|r. All damage reduced is stored as |cff00ffffMagic|r energy. Whenever |cffffcc00Yu'lon|r deals |cff00ffffMagic|r damage, a portion of the energy stored is used to increased the damage dealt. Maximum |cff00ffff" + N2S(GetBonus(source, level), 0) + " Magic|r damage bonus per damage instance.\n\nAt levels |cffffcc005|r, |cffffcc0010|r, and |cffffcc0015|r, Dragon Scale level is increased by |cffffcc001|r.\n\nEnergy Stored: |cff00ffff" + N2S(energy[GetUnitUserData(source)], 0) + "|r"
+        endmethod
 
-            if damage > 0 and level > 0 and Damage.isEnemy and energy[Damage.source.id] > 0 then
-                set amount = GetBonus(level)
+        private static method onSpellDamage takes nothing returns nothing
+            local real amount
+            local integer level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
+
+            if Damage.amount > 0 and level > 0 and Damage.isEnemy and energy[Damage.source.id] > 0 then
+                set amount = GetBonus(Damage.source.unit, level)
                 
                 if amount >= energy[Damage.source.id] then
                     set amount = energy[Damage.source.id]
                 endif
                 
-                set damage = damage + amount
+                set Damage.amount = Damage.amount + amount
                 set energy[Damage.source.id] = energy[Damage.source.id] - amount
                 
                 call DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.target.unit, ATTACH_POINT))
-                call BlzSetEventDamage(damage)
             endif
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
-            local integer level = GetUnitAbilityLevel(Damage.target.unit, ABILITY)
             local real amount
+            local integer level = GetUnitAbilityLevel(Damage.target.unit, ABILITY)
 
-            if damage > 0 and level > 0 and Damage.isEnemy then
-                set amount = damage*GetDamageReduction(level)
-                set damage = damage - amount
-                set energy[Damage.target.id] = energy[Damage.target.id] + amount 
-                
-                call BlzSetEventDamage(damage)
+            if Damage.amount > 0 and level > 0 and Damage.isEnemy then
+                set amount = Damage.amount * GetDamageReduction(level)
+                set Damage.amount = Damage.amount - amount
+                set energy[Damage.target.id] = energy[Damage.target.id] + amount
             endif
         endmethod
 
@@ -84,9 +87,10 @@ library DragonScale requires RegisterPlayerUnitEvent, DamageInterface
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterSpellDamageEvent(function thistype.onSpellDamage)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
         endmethod
     endstruct
 endlibrary

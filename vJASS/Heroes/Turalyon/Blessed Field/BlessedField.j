@@ -1,10 +1,8 @@
-library BlessedField requires SpellEffectEvent, PluginSpellEffect, TimerUtils, Utilities, optional LightInfusion
-    /* --------------------- Blessed Field v1.2 by Chopinski -------------------- */
+library BlessedField requires Ability, Periodic, Utilities, optional LightInfusion
+    /* --------------------- Blessed Field v1.3 by Chopinski -------------------- */
     // Credits:
-    //     Darkfang           - Icon
-    //     Bribe              - SpellEffectEvent
-    //     Vexorian           - TimerUtils
-    //     AZ                 - Blessings effect
+    //     Darkfang - Icon
+    //     AZ       - Blessings effect
     /* ----------------------------------- END ---------------------------------- */
     
     /* -------------------------------------------------------------------------- */
@@ -60,47 +58,49 @@ library BlessedField requires SpellEffectEvent, PluginSpellEffect, TimerUtils, U
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct BlessedField
-        static integer array revive
+    private struct BlessedField extends Ability
+        private static integer array revive
 
-        timer   timer
-        real    x
-        real    y
-        unit    unit
-        real    face
-        effect  effect
-        player  player
-        integer level
-        integer index
-        boolean infused = false
+        private real x
+        private real y
+        private unit unit
+        private real face
+        private integer id
+        private effect effect
+        private player player
+        private integer level
+        private boolean infused = false
 
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            
-            call ReleaseTimer(timer)
-            call DestroyEffect(effect)
-            call UnitRemoveAbility(unit, AURA)
-            call UnitRemoveAbility(unit, INFUSED_AURA)
-            call DummyRecycle(unit)
-            call deallocate()
+        method destroy takes nothing returns nothing
+            if unit == null then
+                set revive[id] = revive[id] - 1
+            else
+                call DestroyEffect(effect)
+                call UnitRemoveAbility(unit, AURA)
+                call UnitRemoveAbility(unit, INFUSED_AURA)
+                call DummyRecycle(unit)
+            endif
 
-            set timer  = null
-            set unit   = null
+            set unit = null
             set effect = null
             set player = null
+
+            call deallocate()
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Turalyon|r blesses the targeted area, creating a |cffffcc00Blessed Field|r. All allied units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + "|r |cffffcc00AoE|r have their |cff00ff00Health Regeneration|r increased by |cff00ff00" + N2S(25 * level, 0) + "|r and take |cffffcc00" + N2S((1 - GetDamageReduction(level)) * 100, 0) + "%|r reduced damage from all sources.\n\n|cffffcc00Light Infused|r: When allied units within |cffffcc00Blessed Field|r area receives a killing blow, their death is denied and they regain |cffffcc00" + N2S((0.1 + 0.2*level) * 100, 0) + "%|r of their |cffff0000Maximum Health|r. This effect can only happen once for |cffffcc00Hero|r units with |cffffcc00" + N2S(GetHeroResetTime(), 1) + "|r seconds cooldown."
+        endmethod
 
-            set timer    = NewTimerEx(this)
-            set x        = Spell.x
-            set y        = Spell.y
-            set face     = 0.
-            set player   = Spell.source.player
-            set unit     = DummyRetrieve(player, x, y, 0, face)
-            set effect   = AddSpecialEffectEx(MODEL, x, y, 0, SCALE)
-            set level    = Spell.level
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
+            set face = 0
+            set x = Spell.x
+            set y = Spell.y
+            set level = Spell.level
+            set player = Spell.source.player
+            set unit = DummyRetrieve(player, x, y, 0, face)
+            set effect = AddSpecialEffectEx(MODEL, x, y, 0, SCALE)
 
             call UnitAddAbility(unit, AURA)
             call SetUnitAbilityLevel(unit, AURA, level)
@@ -113,82 +113,68 @@ library BlessedField requires SpellEffectEvent, PluginSpellEffect, TimerUtils, U
                 endif
             endif
 
+            call StartTimer(GetDuration(Spell.source.unit, level), false, this, 0)
             call DestroyEffect(AddSpecialEffectEx(SPAWN_MODEL, x, y, 0, SPAWN_SCALE))
-            call TimerStart(timer, GetDuration(Spell.source.unit, level), true, function thistype.onExpire)
-        endmethod
-
-        private static method onReset takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            set revive[index] = revive[index] - 1
-
-            call ReleaseTimer(timer)
-            call deallocate()
-
-            set timer = null
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
             local thistype this
 
-            if damage > 0 then
-                if GetUnitAbilityLevel(Damage.target.unit, BUFF_2) > 0 then // Level 2 of the Blessed Field ability (50% reductions)
-                    set damage = damage*GetDamageReduction(2)
+            if Damage.amount > 0 then
+                if GetUnitAbilityLevel(Damage.target.unit, BUFF_2) > 0 then
+                    set Damage.amount = Damage.amount * GetDamageReduction(2)
 
-                    if GetUnitAbilityLevel(Damage.target.unit, BUFF_4) > 0 then // Level 2 of the Blessed Field Infused ability (50% hp restore)
-                        if damage >= GetWidgetLife(Damage.target.unit) then
+                    if GetUnitAbilityLevel(Damage.target.unit, BUFF_4) > 0 then
+                        if Damage.amount >= Damage.target.health then
+                            set Damage.amount = 0
+                            
                             if not Damage.target.isHero then
-                                set damage = 0
                                 call SetWidgetLife(Damage.target.unit, GetHealthRegained(Damage.target.unit, 2))
                                 call DestroyEffect(AddSpecialEffectTarget(RESTORE_MODEL, Damage.target.unit, "origin"))
                             else
                                 if revive[Damage.target.id] == 0 then
-                                    set this   = thistype.allocate()
-                                    set timer  = NewTimerEx(this)
-                                    set index  = Damage.target.id
-                                    set damage = 0
+                                    set this = thistype.allocate()
+                                    set id = Damage.target.id
                                     set revive[Damage.target.id] = revive[Damage.target.id] + 1
 
+                                    call StartTimer(GetHeroResetTime(), false, this, id)
                                     call SetWidgetLife(Damage.target.unit, GetHealthRegained(Damage.target.unit, 2))
                                     call DestroyEffect(AddSpecialEffectTarget(RESTORE_MODEL, Damage.target.unit, "origin"))
-                                    call TimerStart(timer, GetHeroResetTime(), false, function thistype.onReset)
                                 endif
                             endif
                         endif
                     endif
-                    call BlzSetEventDamage(damage)
-                elseif GetUnitAbilityLevel(Damage.target.unit, BUFF_1) > 0 then // Level 1 of the Blessed Field ability (30% reductions)
-                    set damage = damage*GetDamageReduction(1)
+                elseif GetUnitAbilityLevel(Damage.target.unit, BUFF_1) > 0 then
+                    set Damage.amount = Damage.amount * GetDamageReduction(1)
 
-                    if GetUnitAbilityLevel(Damage.target.unit, BUFF_3) > 0 then // Level 1 of the Blessed Field Infused ability (30% hp restore)
-                        if damage >= GetWidgetLife(Damage.target.unit) then
+                    if GetUnitAbilityLevel(Damage.target.unit, BUFF_3) > 0 then
+                        if Damage.amount >= Damage.target.health then
+                            set Damage.amount = 0
+
                             if not Damage.target.isHero then
-                                set damage = 0
                                 call SetWidgetLife(Damage.target.unit, GetHealthRegained(Damage.target.unit, 1))
                                 call DestroyEffect(AddSpecialEffectTarget(RESTORE_MODEL, Damage.target.unit, "origin"))
                             else
                                 if revive[Damage.target.id] == 0 then
-                                    set this   = thistype.allocate()
-                                    set timer  = NewTimerEx(this)
-                                    set index  = Damage.target.id
-                                    set damage = 0
+                                    set this = thistype.allocate()
+                                    set id = Damage.target.id
                                     set revive[Damage.target.id] = revive[Damage.target.id] + 1
 
+                                    call StartTimer(GetHeroResetTime(), false, this, id)
                                     call SetWidgetLife(Damage.target.unit, GetHealthRegained(Damage.target.unit, 1))
                                     call DestroyEffect(AddSpecialEffectTarget(RESTORE_MODEL, Damage.target.unit, "origin"))
-                                    call TimerStart(timer, GetHeroResetTime(), false, function thistype.onReset)
                                 endif
                             endif
                         endif
                     endif
-                    call BlzSetEventDamage(damage)
                 endif
             endif
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAnyDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

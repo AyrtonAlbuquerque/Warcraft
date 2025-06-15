@@ -1,9 +1,8 @@
-library DragonBurst requires SpellEffectEvent, PluginSpellEffect, Utilities, CrowdControl
-    /* --------------------- Dragon Burst v1.2 by Chopinski --------------------- */
+library DragonBurst requires Ability, Utilities, CrowdControl optional NewBonus
+    /* --------------------- Dragon Burst v1.3 by Chopinski --------------------- */
     // Credits:
-    //     Blizzard, TheKaldorei    - Icon
-    //     Bribe                    - SpellEffectEvent
-    //     AZ                       - Model
+    //     Blizzard, TheKaldorei - Icon
+    //     AZ                    - Model
     /* ----------------------------------- END ---------------------------------- */
     
     /* -------------------------------------------------------------------------- */
@@ -33,8 +32,12 @@ library DragonBurst requires SpellEffectEvent, PluginSpellEffect, Utilities, Cro
     endfunction
 
     // The Damage dealt
-    private function GetDamage takes integer level returns real
-        return 100. + 50.*level
+    private function GetDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 100. + 50.*level + (0.8 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 100. + 50.*level
+        endif
     endfunction
 
     // The Knock Up duration
@@ -60,21 +63,26 @@ library DragonBurst requires SpellEffectEvent, PluginSpellEffect, Utilities, Cro
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DragonBurst extends array
-        private static method onCast takes nothing returns nothing
-            local real center = GetCenterAoE(Spell.source.unit, Spell.level)
-            local real aoe = GetAoE(Spell.source.unit, Spell.level)
-            local real height = GetKnockUpHeight(Spell.level)
-            local real damage = GetDamage(Spell.level)
-            local group g = CreateGroup()
-            local real distance
-            local real angle
-            local unit u
+    private struct DragonBurst extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Yu'lon|r creates an eruption at the target location, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r damage to all nearby enemy units. Units at the center of the eruption are |cffffcc00Knocked Up|r for |cffffcc00" + N2S(GetKnockUpDuration(source, level), 2) + "|r seconds and units further away from the center are |cffffcc00Knocked Back|r away from the center."
+        endmethod
+        
+        private method onCast takes nothing returns nothing
             local real x
             local real y
+            local unit u
+            local real angle
+            local real distance
+            local group g = CreateGroup()
+            local real height = GetKnockUpHeight(Spell.level)
+            local real aoe = GetAoE(Spell.source.unit, Spell.level)
+            local real damage = GetDamage(Spell.source.unit, Spell.level)
+            local real center = GetCenterAoE(Spell.source.unit, Spell.level)
             
             call DestroyEffect(AddSpecialEffectEx(MODEL, Spell.x, Spell.y, 0, SCALE))
             call GroupEnumUnitsInRange(g, Spell.x, Spell.y, aoe, null)
+
             loop
                 set u = FirstOfGroup(g)
                 exitwhen u == null
@@ -94,13 +102,14 @@ library DragonBurst requires SpellEffectEvent, PluginSpellEffect, Utilities, Cro
                     endif
                 call GroupRemoveUnit(g, u)
             endloop
+
             call DestroyGroup(g)
             
             set g = null
         endmethod
         
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

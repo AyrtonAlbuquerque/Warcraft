@@ -1,8 +1,7 @@
-library HolyLink requires SpellEffectEvent, PluginSpellEffect, Utilities, DamageInterface, NewBonus, optional LightInfusion
-    /* ----------------------- Holy Link v1.2 by Chopinski ---------------------- */
+library HolyLink requires Ability, Utilities, DamageInterface, NewBonus, Periodic optional LightInfusion
+    /* ----------------------- Holy Link v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard        - Icon
-    //     Bribe           - SpellEffectEvent
     //     Metal_Sonic     - Rejuvenation Effect
     /* ----------------------------------- END ---------------------------------- */
     
@@ -52,191 +51,168 @@ library HolyLink requires SpellEffectEvent, PluginSpellEffect, Utilities, Damage
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct HolyLink
-        static thistype array n
-        static integer  array reduce
-        static thistype array data
-		static integer 		  didx  = -1
-        static timer 		  timer = CreateTimer()
+    private struct HolyLink extends Ability
+        private static integer array reduce
 
-        unit      unit
-        unit      target
-        integer   index
-        integer   bonus
-        effect    effect
-        effect    self
-        real      distance
-        boolean   infused
-        lightning lightning
-        integer   count
+        private unit unit
+        private integer id
+        private unit target
+        private effect self
+        private integer bonus
+        private effect effect
+        private real distance
+        private integer count
+        private boolean infused
+        private lightning lightning
 
-        private method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             call DestroyLightning(lightning)
             call DestroyEffect(effect)
 
             if infused then
                 set reduce[GetUnitUserData(target)] = reduce[GetUnitUserData(target)] - 1
+
                 call DestroyEffect(self)
                 call AddUnitBonus(unit, BONUS_MOVEMENT_SPEED, -bonus)
                 call AddUnitBonus(target, BONUS_MOVEMENT_SPEED, -bonus)
             endif
 
-            set unit      = null
-            set target    = null
+            set self = null
+            set unit = null
+            set target = null
+            set effect = null
             set lightning = null
-            set effect    = null
-            set self      = null
-            set n[index]  = 0
-			set data[i]   = data[didx]
-			set didx 	  = didx - 1
-
-			if didx == -1 then
-				call PauseTimer(timer)
-			endif
 
 			call deallocate()
-
-			return i - 1
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer  i = 0
-            local real     x
-            local real     y
-            local real     tx
-            local real     ty
-            local integer  level
-			local thistype this
-	
-			loop
-				exitwhen i > didx
-					set this = data[i]
-                    set x    = GetUnitX(unit)
-                    set y    = GetUnitY(unit)
-                    set tx   = GetUnitX(target)
-                    set ty   = GetUnitY(target)
-
-                    if DistanceBetweenCoordinates(x, y, tx, ty) <= distance and UnitAlive(target) and UnitAlive(unit) then
-                        set level = GetUnitAbilityLevel(unit, ABILITY)
-
-                        if infused then
-                            call SetWidgetLife(unit, GetWidgetLife(unit) + GetBonus(unit, level))
-                            call SetWidgetLife(target, GetWidgetLife(target) + GetBonus(target, level))
-                        else
-                            call SetWidgetLife(target, GetWidgetLife(target) + GetBonus(target, level))
-                        endif
-
-                        if count <= 28 then // This is here because reforged lightnings don't persist visually...
-                            set count = count + 1
-                            call MoveLightningEx(lightning, false, x, y, GetUnitZ(unit) + 30, tx, ty, GetUnitZ(target) + 30)
-                        else
-                            set count = 0
-                            call DestroyLightning(lightning)
-                            set lightning = AddLightningEx(LIGHTNING, false, x, y, GetUnitZ(unit) + 30, tx, ty, GetUnitZ(target) + 30)
-                        endif
-					else
-						set i = remove(i)
-					endif
-				set i = i + 1
-			endloop
-        endmethod
-
-        private static method link takes unit source, unit target, integer index, integer level, boolean infused returns nothing
+        private static method link takes unit source, unit target, integer id, integer level, boolean infused returns nothing
             local thistype this = thistype.allocate()
 
-            set unit       = source
-            set .target    = target
-            set .index     = index
-            set .infused   = infused
-            set bonus      = GetMovementBonus(level, infused)
-            set distance   = GetAoE(level, infused)
-            set count      = 0
-            set lightning  = AddLightningEx(LIGHTNING, false, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + 30, GetUnitX(target), GetUnitY(target), GetUnitZ(target) + 30)
-            set effect     = AddSpecialEffectTarget(MODEL, target, ATTACH_POINT)
-            set n[index]   = this
-            set didx       = didx + 1
-            set data[didx] = this
+            set this.id = id
+            set this.count = 0
+            set this.unit = source
+            set this.target = target
+            set this.infused = infused
+            set this.distance = GetAoE(level, infused)
+            set this.bonus = GetMovementBonus(level, infused)
+            set this.effect = AddSpecialEffectTarget(MODEL, target, ATTACH_POINT)
+            set this.lightning = AddLightningEx(LIGHTNING, false, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + 30, GetUnitX(target), GetUnitY(target), GetUnitZ(target) + 30)
 
             if infused then
-                set self  = AddSpecialEffectTarget(MODEL, source, ATTACH_POINT)
+                set self = AddSpecialEffectTarget(MODEL, source, ATTACH_POINT)
                 set reduce[GetUnitUserData(target)] = reduce[GetUnitUserData(target)] + 1
+
                 call AddUnitBonus(source, BONUS_MOVEMENT_SPEED, bonus)
                 call AddUnitBonus(target, BONUS_MOVEMENT_SPEED, bonus)
             endif
 
-            if didx == 0 then
-                call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
-            endif
+            call StartTimer(PERIOD, true, this, id)
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local integer  i = GetUnitUserData(Spell.target.unit)
-            local thistype this
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Turalyon|r creates a |cffffcc00Holy Link|r between himself and the targeted allied unit, increasing its |cff00ff00Health Regeneration|r while linked to |cffffcc00Turalyon|r by |cff00ff00" + N2S(5. + 5.*level, 1) + "|r increased by |cffffcc001%|r for every |cffffcc001%|r of the linked unit missing health. The link is broken if the distance between |cffffcc00Turalyon|r and the linked unit is greater than |cffffcc00" + N2S(GetAoE(level, false), 0) + " AoE|r.\n\n|cffffcc00Light Infused|r: Both |cffffcc00Turalyon|r and the linked unit get their |cff00ff00Health Regeneration|r increased. In addition their |cffffff00Movement Speed|r is increased by |cffffcc00" + I2S(GetMovementBonus(level, true)) + "|r and all the damage the linked unit takes is reduced by |cffffcc0025%|r. The distance at which the link is broken is also increased to |cffffcc00" + N2S(GetAoE(level, true), 0) + " AoE|r."
+        endmethod
 
-            if n[Spell.source.id] != 0 then // If a link already exists
-                set this = n[Spell.source.id]
+        private method onPeriod takes nothing returns boolean
+            local real x = GetUnitX(unit)
+            local real y = GetUnitY(unit)
+            local real tx = GetUnitX(target)
+            local real ty = GetUnitY(target)
+            local integer level = GetUnitAbilityLevel(unit, ABILITY)
 
-                if Spell.target.unit == target then // Trying to link with already linked target
+            if DistanceBetweenCoordinates(x, y, tx, ty) <= distance and UnitAlive(target) and UnitAlive(unit) then
+                if infused then
+                    call SetWidgetLife(unit, GetWidgetLife(unit) + GetBonus(unit, level))
+                    call SetWidgetLife(target, GetWidgetLife(target) + GetBonus(target, level))
+                else
+                    call SetWidgetLife(target, GetWidgetLife(target) + GetBonus(target, level))
+                endif
+
+                if count <= 28 then // This is here because reforged lightnings don't persist visually...
+                    set count = count + 1
+                    call MoveLightningEx(lightning, false, x, y, GetUnitZ(unit) + 30, tx, ty, GetUnitZ(target) + 30)
+                else
+                    set count = 0
+                    call DestroyLightning(lightning)
+                    set lightning = AddLightningEx(LIGHTNING, false, x, y, GetUnitZ(unit) + 30, tx, ty, GetUnitZ(target) + 30)
+                endif
+            
+                return true
+            endif
+
+            return false
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            set this = GetTimerInstance(Spell.source.id)
+
+            if this != 0 then
+                if Spell.target.unit == target then
                     static if LIBRARY_LightInfusion then
-                        if infused then // Already Infused, reset
+                        if infused then
                             call ResetUnitAbilityCooldown(unit, Spell.id)
                         else
-                            set infused  = LightInfusion.charges[index] > 0
+                            set infused = LightInfusion.charges[id] > 0
                             set distance = GetAoE(Spell.level, infused)
-                            set bonus    = GetMovementBonus(Spell.level, infused)
+                            set bonus = GetMovementBonus(Spell.level, infused)
 
                             if infused then
-                                set reduce[i] = reduce[i] + 1 
+                                set reduce[Spell.target.id] = reduce[Spell.target.id] + 1 
                                 set self = AddSpecialEffectTarget(MODEL, unit, ATTACH_POINT)
+
                                 call AddUnitBonus(unit, BONUS_MOVEMENT_SPEED, bonus)
                                 call AddUnitBonus(target, BONUS_MOVEMENT_SPEED, bonus)
                             endif
-                            call LightInfusion.consume(index)
+
+                            call LightInfusion.consume(id)
                         endif
                     else
                         call ResetUnitAbilityCooldown(unit, Spell.id)
                     endif
-                else // Link exists but trying to link to another unit
+                else
                     call DestroyLightning(lightning)
                     call DestroyEffect(effect)
 
                     static if LIBRARY_LightInfusion then
-                        if infused then // Clean up from previous linked unit
+                        if infused then
                             set reduce[GetUnitUserData(target)] = reduce[GetUnitUserData(target)] - 1
+
+                            call DestroyEffect(self)
                             call AddUnitBonus(unit, BONUS_MOVEMENT_SPEED, -bonus)
                             call AddUnitBonus(target, BONUS_MOVEMENT_SPEED, -bonus)
-                            call DestroyEffect(self)
                         endif
 
-                        // Set up for current linked unit
-                        set unit      = Spell.source.unit
-                        set target    = Spell.target.unit
-                        set infused   = LightInfusion.charges[index] > 0
-                        set bonus     = GetMovementBonus(Spell.level, infused)
-                        set distance  = GetAoE(Spell.level, infused)
-                        set count     = 0
+                        set count = 0
+                        set unit = Spell.source.unit
+                        set target = Spell.target.unit
+                        set infused = LightInfusion.charges[id] > 0
+                        set distance = GetAoE(Spell.level, infused)
+                        set bonus = GetMovementBonus(Spell.level, infused)
+                        set effect = AddSpecialEffectTarget(MODEL, target, ATTACH_POINT)
                         set lightning = AddLightningEx(LIGHTNING, false, Spell.source.x, Spell.source.y, Spell.source.z + 30, Spell.target.x, Spell.target.y, Spell.target.z + 30)
-                        set effect    = AddSpecialEffectTarget(MODEL, target, ATTACH_POINT)
 
                         if infused then
-                            set reduce[i] = reduce[i] + 1 
+                            set reduce[Spell.target.id] = reduce[Spell.target.id] + 1 
                             set self = AddSpecialEffectTarget(MODEL, unit, ATTACH_POINT)
+
                             call AddUnitBonus(unit, BONUS_MOVEMENT_SPEED, bonus)
                             call AddUnitBonus(target, BONUS_MOVEMENT_SPEED, bonus)
                         endif
-                        call LightInfusion.consume(index)
+
+                        call LightInfusion.consume(id)
                     else
-                        set unit      = Spell.source.unit
-                        set target    = Spell.target.unit
-                        set infused   = false
-                        set bonus     = GetMovementBonus(Spell.level, infused)
-                        set distance  = GetAoE(Spell.level, infused)
-                        set count     = 0
+                        set count = 0
+                        set infused = false
+                        set unit = Spell.source.unit
+                        set target = Spell.target.unit
+                        set distance = GetAoE(Spell.level, infused)
+                        set bonus = GetMovementBonus(Spell.level, infused)
+                        set effect = AddSpecialEffectTarget(MODEL, target, ATTACH_POINT)
                         set lightning = AddLightningEx(LIGHTNING, false, Spell.source.x, Spell.source.y, Spell.source.z + 30, Spell.target.x, Spell.target.y, Spell.target.z + 30)
-                        set effect    = AddSpecialEffectTarget(MODEL, target, ATTACH_POINT)
                     endif
                 endif
-            else // Create the link
+            else
                 static if LIBRARY_LightInfusion then
                     call link(Spell.source.unit, Spell.target.unit, Spell.source.id, Spell.level, LightInfusion.charges[Spell.source.id] > 0)
                     call LightInfusion.consume(Spell.source.id)
@@ -246,18 +222,18 @@ library HolyLink requires SpellEffectEvent, PluginSpellEffect, Utilities, Damage
             endif
         endmethod
 
-        static if LIBRARY_LightInfusion then
-            private static method onDamage takes nothing returns nothing
-                local real damage = GetEventDamage()
-
-                if damage > 0 and reduce[Damage.target.id] > 0 then
-                    call BlzSetEventDamage(damage*0.75)
+        private static method onDamage takes nothing returns nothing
+            static if LIBRARY_LightInfusion then
+                if Damage.amount > 0 and reduce[Damage.target.id] > 0 then
+                    set Damage.amount = Damage.amount * 0.75
                 endif
-            endmethod
-        endif
+            endif
+        endmethod
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
 
             static if LIBRARY_LightInfusion then
                 call RegisterAnyDamageEvent(function thistype.onDamage)

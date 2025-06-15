@@ -1,8 +1,7 @@
-library LightBurst requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, Utilities, CrowdControl optional LightInfusion
-    /* -------------------------------------- Light Burst v1.3 -------------------------------------- */
+library LightBurst requires Ability, NewBonus, Utilities, CrowdControl optional LightInfusion
+    /* -------------------------------------- Light Burst v1.4 -------------------------------------- */
     // Credits:
     //     Redeemer59         - Icon
-    //     Bribe              - SpellEffectEvent
     //     AZ                 - Stomp and Misisle effect
     /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
@@ -51,8 +50,8 @@ library LightBurst requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, 
     endfunction
 
     // The Light Burst Damage
-    private function GetDamage takes integer level returns real
-        return 50. + 50.*level
+    private function GetDamage takes unit source, integer level returns real
+        return 50. + 50.*level + (0.6 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
     endfunction
 
     // The Light Burst Damage Filter for enemy units
@@ -63,74 +62,84 @@ library LightBurst requires SpellEffectEvent, PluginSpellEffect, NewBonusUtils, 
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct Missile extends Missiles
-        real    aoe
-        real    dur
-        real    slow
-        real    bonus
+    private struct Burst extends Missiles
+        real aoe
+        real time
+        real slow
+        real bonus
         boolean infused = false
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             local group g = CreateGroup()
-            local unit  u
+            local unit u
 
             call DestroyEffect(AddSpecialEffectEx(STOMP, x, y, 0, STOMP_SCALE))
             call GroupEnumUnitsInRange(g, x, y, aoe, null)
+
             loop
                 set u = FirstOfGroup(g)
                 exitwhen u == null
                     if UnitAlive(u) then
                         if IsUnitEnemy(u, owner) then
                             if DamageFilter(u) then
-                                call UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
-                                call SlowUnit(u, slow, dur, null, null, false)
+                                if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                                    call SlowUnit(u, slow, time, null, null, false)
 
-                                if infused then
-                                    call DisarmUnit(u, dur, DISARM, ATTACH, false)
+                                    if infused then
+                                        call DisarmUnit(u, time, DISARM, ATTACH, false)
+                                    endif
                                 endif
                             endif
                         else
                             if infused then
-                                call AddUnitBonusTimed(u, BONUS_MOVEMENT_SPEED, bonus, dur)
+                                call AddUnitBonusTimed(u, BONUS_MOVEMENT_SPEED, bonus, time)
                             endif
                         endif
                     endif
                 call GroupRemoveUnit(g, u)
             endloop
+
             call DestroyGroup(g)
 
             set g = null
+
             return true
         endmethod
     endstruct
 
-    private struct LightBurst extends array
-        private static method onCast takes nothing returns nothing
-            local Missile missile = Missile.create(Spell.source.x, Spell.source.y, HEIGHT, Spell.x, Spell.y, 0)
+    private struct LightBurst extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Turalyon|r thrusts his light sword releasing a |cffffcc00Light Burst|r towards the targeted direction. Upon arrival it explodes, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage and slowing all enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r by |cffffcc00" + N2S(GetSlow(level) * 100, 0) + "%|r.\n\n|cffffcc00Light Infused|r: |cffffcc00Light Burst|r increases the |cffffff00Movement Speed|r of any allied unit within its explosion range by |cffffcc00" + I2S(GetBonus(level)) + "|r and |cffff0000Disarms|r enemy units for |cffffcc00" + N2S(GetDuration(level), 1) + "|r seconds."
 
-            set missile.model  = MODEL
-            set missile.scale  = SCALE
-            set missile.speed  = SPEED
-            set missile.source = Spell.source.unit 
-            set missile.owner  = Spell.source.player
-            set missile.damage = GetDamage(Spell.level)
-            set missile.aoe    = GetAoE(Spell.source.unit, Spell.level)
-            set missile.dur    = GetDuration(Spell.level)
-            set missile.slow   = GetSlow(Spell.level)
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            local Burst burst = Burst.create(Spell.source.x, Spell.source.y, HEIGHT, Spell.x, Spell.y, 0)
+
+            set burst.model = MODEL
+            set burst.scale = SCALE
+            set burst.speed = SPEED
+            set burst.source = Spell.source.unit 
+            set burst.owner = Spell.source.player
+            set burst.slow = GetSlow(Spell.level)
+            set burst.time = GetDuration(Spell.level)
+            set burst.aoe = GetAoE(Spell.source.unit, Spell.level)
+            set burst.damage = GetDamage(Spell.source.unit, Spell.level)
 
             static if LIBRARY_LightInfusion then
                 if LightInfusion.charges[Spell.source.id] > 0 then
-                    set missile.infused = true
-                    set missile.bonus   = GetBonus(Spell.level)
+                    set burst.infused = true
+                    set burst.bonus = GetBonus(Spell.level)
+
                     call LightInfusion.consume(Spell.source.id)
                 endif
             endif
 
-            call missile.launch()
+            call burst.launch()
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

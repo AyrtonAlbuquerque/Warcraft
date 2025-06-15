@@ -1,9 +1,7 @@
-library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewBonusUtils, TimerUtils, Utilities, CrowdControl, optional ArsenalUpgrade,
-    /* ---------------------- Bullet Time v1.3 by Chopinski --------------------- */
+library FragGranade requires Ability, Missiles, NewBonus, Periodic, Utilities, CrowdControl, optional ArsenalUpgrade,
+    /* ---------------------- Bullet Time v1.4 by Chopinski --------------------- */
     // Credits:
     //     Blizzard          - Icon
-    //     Vexorian          - TimerUtils
-    //     Bribe             - SpellEffectEvent
     //     Magtheridon96     - RegisterPlayerUnitEvent
     //     WILL THE ALMIGHTY - Explosion model
     /* ----------------------------------- END ---------------------------------- */
@@ -55,11 +53,11 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
     endfunction
 
     // The Frag Granade damage
-    private function GetDamage takes integer level returns real
-        return 50. + 50.*level
+    private function GetDamage takes unit source, integer level returns real
+        return 50. + 50.*level + (0.1 * level) * GetUnitBonus(source, BONUS_SPELL_POWER) + (0.2 + 0.1*level) * GetUnitBonus(source, BONUS_DAMAGE)
     endfunction
 
-    // The Frag Granade lasting duraton
+    // The Frag Granade lasting duration
     private function GetDuration takes unit source, integer level returns real
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DURATION_HERO, level - 1)
     endfunction
@@ -78,55 +76,46 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Mine
-        static timer timer = CreateTimer()
-        static integer id = -1
-        static thistype array array
+        private real x
+        private real y
+        private real aoe
+        private unit unit
+        private real stun
+        private real armor
+        private group group
+        private real damage
+        private player player
+        private effect effect
+        private real duration
+        private real proximity
+        private real armor_duration
+        
 
-        unit unit
-        group group
-        player player
-        effect effect
-        real damage
-        real proximity
-        real duration
-        real stun
-        real armor
-        real armor_dur
-        real aoe
-        real x
-        real y
-
-        private method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
+            call explode()
             call DestroyGroup(group)
             call DestroyEffect(effect)
             call DestroyEffect(AddSpecialEffectEx(EXPLOSION, x, y, 0, EXP_SCALE))
-
-            set unit     = null
-            set group    = null
-            set effect   = null
-            set player   = null
-            set array[i] = array[id]
-            set id       = id - 1
-
-            if id == -1 then
-                call PauseTimer(timer)
-            endif
-
             call deallocate()
 
-            return i - 1
+            set unit = null
+            set group = null
+            set effect = null
+            set player = null
         endmethod
 
         private method explode takes nothing returns nothing
             local unit u
 
             call GroupEnumUnitsInRange(group, x, y, aoe, null)
+
             loop
                 set u = FirstOfGroup(group)
                 exitwhen u == null
                     if DamageFilter(player, u) then
                         if UnitDamageTarget(unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                            call AddUnitBonusTimed(u, BONUS_ARMOR, -armor, armor_dur)
+                            call AddUnitBonusTimed(u, BONUS_ARMOR, -armor, armor_duration)
+                            
                             if stun > 0 then
                                 call StunUnit(u, stun, STUN_MODEL, STUN_ATTACH, false)
                             endif
@@ -136,91 +125,77 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
             endloop
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer i = 0
+        private method onPeriod takes nothing returns boolean
             local unit u
-            local thistype this
 
-            loop
-                exitwhen i > id
-                    set this = array[i]
+            set duration = duration - PERIOD
 
-                    if duration > 0 then
-                        call GroupEnumUnitsInRange(group, x, y, proximity, null)
-                        loop
-                            set u = FirstOfGroup(group)
-                            exitwhen u == null
-                                if DamageFilter(player, u) then
-                                    set duration = 0
-                                    call explode()
-                                    exitwhen true
-                                endif
-                            call GroupRemoveUnit(group, u)
-                        endloop
+            if duration > 0 then
+                call GroupEnumUnitsInRange(group, x, y, proximity, null)
 
-                        if duration == 0 then
-                            set i = remove(i)
+                loop
+                    set u = FirstOfGroup(group)
+                    exitwhen u == null
+                        if DamageFilter(player, u) then
+                            set u = null
+                            return false
                         endif
-                    else
-                        call explode()
-                        set i = remove(i)
-                    endif
-                    set duration = duration - PERIOD
-                set i = i + 1
-            endloop
+                    call GroupRemoveUnit(group, u)
+                endloop
+            endif
 
-            set u = null
+            return duration > 0
         endmethod
 
         static method create takes unit source, player owner, integer level, real tx, real ty, real amount, real area, real reduction, real armor_time, real stun_time, real timeout returns thistype
             local thistype this = thistype.allocate()
 
+            set x = tx
+            set y = ty
+            set aoe = area
             set unit = source
             set player = owner
             set damage = amount
-            set duration = timeout
-            set armor = reduction
-            set armor_dur = armor_time
-            set aoe = area
-            set x = tx
-            set y = ty
             set stun = stun_time
+            set armor = reduction
+            set duration = timeout
+            set armor_duration = armor_time
+            set group = CreateGroup()
             set proximity = GetProximityAoE(level)
             set effect = AddSpecialEffectEx(MODEL, x, y, 20, SCALE)
-            set group = CreateGroup()
-            set id = id + 1
-            set array[id] = this
 
+            call StartTimer(PERIOD, true, this, 0)
             call BlzSetSpecialEffectTimeScale(effect, 0)
-
-            if id == 0 then
-                call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
-            endif
 
             return this
         endmethod
+
+        implement Periodic
     endstruct
 
-    private struct FragGranade extends Missiles
+    private struct Granade extends Missiles
         real aoe
-        integer armor
-        real armor_dur
+        real time
         real stun
-        integer level
         group group
+        integer armor
+        integer level
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             local integer i = 0
             local unit u
 
             call GroupEnumUnitsInRange(group, x, y, aoe, null)
+
             loop
                 set u = FirstOfGroup(group)
                 exitwhen u == null
                     if DamageFilter(owner, u) then
                         set i = i + 1
+
                         if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                            call AddUnitBonusTimed(u, BONUS_ARMOR, -armor, armor_dur)
+                            call AddUnitBonusTimed(u, BONUS_ARMOR, -armor, time)
+
                             if stun > 0 then
                                 call StunUnit(u, stun, STUN_MODEL, STUN_ATTACH, false)
                             endif
@@ -228,46 +203,55 @@ library FragGranade requires SpellEffectEvent, PluginSpellEffect, Missiles, NewB
                     endif
                 call GroupRemoveUnit(group, u)
             endloop
+
             call DestroyGroup(group)
 
             if i > 0 then
                 call DestroyEffect(AddSpecialEffectEx(EXPLOSION, x, y, 0, EXP_SCALE))
             else
-                call Mine.create(source, owner, level, x, y, damage, aoe, armor, armor_dur, stun, GetDuration(source, level))
+                call Mine.create(source, owner, level, x, y, damage, aoe, armor, time, stun, GetDuration(source, level))
             endif
 
             set group = null
+
             return true
         endmethod
+    endstruct
 
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.create(Spell.source.x, Spell.source.y, 75, Spell.x, Spell.y, 0)
+    private struct FragGranade extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Tychus|r throws a |cffffcc00Frag Granade|r at the target location. Upon arrival, if there are enemy units nearby, the granade explodes dealing |cff00ffff" + N2S(GetDamage(source, level),0) + " Magic|r damage and shredding |cff808080" + I2S(GetArmor(level)) + " Armor|r for |cffffcc00" + N2S(GetArmorDuration(level), 1) + "|r seconds. If there are no enemies nearby, the granade will stay in the location and explode when an enemy unit comes nearby or its duration expires after |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds."
 
-            set source = Spell.source.unit
-            set owner = Spell.source.player
-            set level = Spell.level
-            set speed = SPEED
-            set model = MODEL
-            set scale = SCALE
-            set arc = ARC
-            set stun = 0.
-            set damage = GetDamage(level)
-            set aoe = GetAoE(level)
-            set armor = GetArmor(level)
-            set armor_dur = GetArmorDuration(level)
-            set group = CreateGroup()
+        endmethod
+
+        private method onCast takes nothing returns nothing
+            local Granade granade = Granade.create(Spell.source.x, Spell.source.y, 75, Spell.x, Spell.y, 0)
+
+            set granade.speed = SPEED
+            set granade.model = MODEL
+            set granade.scale = SCALE
+            set granade.arc = ARC
+            set granade.stun = 0
+            set granade.source = Spell.source.unit
+            set granade.owner = Spell.source.player
+            set granade.level = Spell.level
+            set granade.damage = GetDamage(Spell.source.unit, Spell.level)
+            set granade.aoe = GetAoE(Spell.level)
+            set granade.armor = GetArmor(Spell.level)
+            set granade.time = GetArmorDuration(Spell.level)
+            set granade.group = CreateGroup()
 
             static if LIBRARY_ArsenalUpgrade then
                 if GetUnitAbilityLevel(Spell.source.unit, ArsenalUpgrade_ABILITY) > 0 then
-                    set stun = GetStunDuration(Spell.level)
+                    set granade.stun = GetStunDuration(Spell.level)
                 endif
             endif
 
-            call launch()
+            call granade.launch()
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

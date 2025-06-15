@@ -9,9 +9,12 @@ library Periodic requires Table, TimerUtils
 
         private timer _timer
         private integer _unique
+        private integer _calls = 0
         private boolean _allocated
 
         private method end takes integer i, integer id returns integer
+            set _calls = _calls - 1
+
             if i >= 0 then
                 set key[id] = key[id] - 1
                 set table[i] = table[key[id]]
@@ -23,15 +26,18 @@ library Periodic requires Table, TimerUtils
                 call ReleaseTimer(GetExpiredTimer())
             endif
 
-            if struct.has(_unique) then
-                call struct.remove(_unique)
-            endif
+            if _calls <= 0 then
+                if struct.has(_unique) then
+                    call struct.remove(_unique)
+                endif
 
-            if _allocated then
-                set _timer = null
-                set _allocated = false
+                if _allocated then
+                    set _calls = 0
+                    set _timer = null
+                    set _allocated = false
 
-                call destroy()
+                    call destroy()
+                endif
             endif
 
             return i - 1
@@ -96,6 +102,7 @@ library Periodic requires Table, TimerUtils
             if this != 0 then
                 set _unique = uniqueId
                 set _allocated = true
+                set _calls = _calls + 1
 
                 if _unique >= 0 and not struct.has(_unique) then
                     set struct[_unique] = this
@@ -123,11 +130,7 @@ library Periodic requires Table, TimerUtils
                         call TimerStart(_timer, timeout, periodic, function thistype.onPeriodic)
                     endif
                 else
-                    if _timer == null then
-                        set _timer = NewTimerEx(this)
-                    endif
-
-                    call TimerStart(_timer, timeout, periodic, function thistype.onTimeout)
+                    call TimerStart(NewTimerEx(this), timeout, periodic, function thistype.onTimeout)
                 endif
             else
                 call BJDebugMsg("Periodic Error: instance not provided")

@@ -1,8 +1,7 @@
-library WhirlwindSpin requires SpellEffectEvent, PluginSpellEffect, Utilities, CrowdControl
-    /* --------------------- WhirlwindSpin v1.2 by Chopinski -------------------- */
+library WhirlwindSpin requires Ability, Utilities, CrowdControl, Periodic optional NewBonus
+    /* --------------------- WhirlwindSpin v1.3 by Chopinski -------------------- */
     // Credits:
     //     AnsonRuk    - Icon
-    //     Bribe       - SpellEffectEvent
     //     AZ          - Model
     /* ----------------------------------- END ---------------------------------- */
     
@@ -11,7 +10,7 @@ library WhirlwindSpin requires SpellEffectEvent, PluginSpellEffect, Utilities, C
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY          = 'A003'
+        private constant integer ABILITY          = 'A004'
         // The Model
         private constant string  MODEL            = "DragonSpin.mdl"
         // The model scale
@@ -28,8 +27,12 @@ library WhirlwindSpin requires SpellEffectEvent, PluginSpellEffect, Utilities, C
     endfunction
 
     // The Damage dealt
-    private function GetDamage takes integer level returns real
-        return 50. + 50.*level
+    private function GetDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 50. + 50. * level + (0.9 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 50. + 50. * level
+        endif
     endfunction
 
     // The Knock Back duration
@@ -55,35 +58,34 @@ library WhirlwindSpin requires SpellEffectEvent, PluginSpellEffect, Utilities, C
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct WhirlwindSpin
-        timer timer
-        unit unit
+    private struct WhirlwindSpin extends Ability
+        private unit unit
     
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            
+        method destroy takes nothing returns nothing
             call SetUnitTimeScale(unit, 1)
-            call ReleaseTimer(timer)
             call deallocate()
             
-            set timer = null
             set unit = null
         endmethod
     
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
-            local real aoe = GetAoE(Spell.source.unit, Spell.level)
-            local real damage = GetDamage(Spell.level)
-            local real duration = GetKnockBackDuration(Spell.source.unit, Spell.level)
-            local group g = CreateGroup()
-            local real distance
-            local real angle
-            local unit u
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Yu'lon|r violently spins around it's location creating an outward force that deals |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r Magic damage. and pushes all enemy units back."
+        endmethod
+
+        private method onCast takes nothing returns nothing
             local real x
             local real y
-            
+            local unit u
+            local real angle
+            local real distance
+            local group g = CreateGroup()
+            local real damage = GetDamage(Spell.source.unit, Spell.level)
+            local real aoe = GetAoE(Spell.source.unit, Spell.level)
+            local real duration = GetKnockBackDuration(Spell.source.unit, Spell.level)
+
             call DestroyEffect(AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, 0, SCALE))
             call GroupEnumUnitsInRange(g, Spell.source.x, Spell.source.y, aoe, null)
+
             loop
                 set u = FirstOfGroup(g)
                 exitwhen u == null
@@ -99,19 +101,22 @@ library WhirlwindSpin requires SpellEffectEvent, PluginSpellEffect, Utilities, C
                     endif
                 call GroupRemoveUnit(g, u)
             endloop
+
             call DestroyGroup(g)
             
-            set timer = NewTimerEx(this)
+            set this = thistype.allocate()
             set unit = Spell.source.unit
             
             call SetUnitTimeScale(unit, GetTimeScale(unit, Spell.level))
-            call TimerStart(timer, GetTimeScaleTime(unit, Spell.level), false, function thistype.onExpire)
+            call StartTimer(GetTimeScaleTime(unit, Spell.level), false, this, 0)
             
             set g = null
         endmethod
         
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

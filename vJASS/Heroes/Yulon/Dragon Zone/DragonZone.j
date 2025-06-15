@@ -1,8 +1,6 @@
-library DragonZone requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, Utilities, CrowdControl
-    /* ---------------------- Dragon Zone v1.2 by Chopinski --------------------- */
+library DragonZone requires Ability, Utilities, CrowdControl, Periodic optional NewBonus
+    /* ---------------------- Dragon Zone v1.3 by Chopinski --------------------- */
     // Credits:
-    //     Magtheridon96  - RegisterPlayerUnitEvent
-    //     Bribe          - SpellEffectEvent
     //     AZ             - Model
     //     N-ix Studio    - Icon
     /* ----------------------------------- END ---------------------------------- */
@@ -29,14 +27,18 @@ library DragonZone requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
         private constant real    PERIOD           = 0.1
     endglobals
 
+    // The bonus regeneration
+    private function GetBonusRegen takes unit source, integer level returns real
+        static if NewBonus then
+            return 12.5 * level + (0.025 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 12.5 * level
+        endif
+    endfunction
+
     // The AOE
     private function GetAoE takes unit source, integer level returns real
          return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
-    endfunction
-
-    // The Damage dealt
-    private function GetDamage takes integer level returns real
-        return 50. + 50.*level
     endfunction
 
     // The maximum Knock Back duration
@@ -67,93 +69,93 @@ library DragonZone requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpe
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DragonZone
-        timer t
-        timer timer
-        unit unit
-        group group
-        player player
-        real duration
-        real knock
-        real aoe
-        real x
-        real y
+    private struct DragonZone extends Ability
+        private real x
+        private real y
+        private real aoe
+        private unit unit
+        private real knock
+        private group group
+        private real duration
+        private player player
         
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            local real distance
-            local real angle
-            local real ux
-            local real uy
-            local unit u
+        method destroy takes nothing returns nothing
+            call DestroyGroup(group)
+            call deallocate()
             
-            if duration > 0 then
-                set duration = duration - PERIOD
-                
+            set unit = null
+            set group = null
+            set player = null
+        endmethod
+
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Yu'lon|r creates a safe zone around himself. The zone heals any allied unit within it for |cff00ff00" + N2S(GetBonusRegen(source, level), 1) + " Health Regeneration|r bonus and knocks back any enemy unit that tries to get through it. |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r zone. Lasts |cffffcc00" + N2S(GetDuration(source, level), 0) + "|r seconds."
+        endmethod
+
+        private method onPeriod takes nothing returns boolean
+            local unit u
+            local real angle
+            local real distance
+            
+            set duration = duration - PERIOD
+
+            if duration > 0 then            
                 call GroupEnumUnitsInRange(group, x, y, aoe, null)
+
                 loop
                     set u = FirstOfGroup(group)
                     exitwhen u == null
                         if UnitFilter(player, u) then
                             if not IsUnitKnockedBack(u) then
-                                set ux = GetUnitX(u)
-                                set uy = GetUnitY(u)
-                                set angle = AngleBetweenCoordinates(x, y, ux, uy)
-                                set distance = DistanceBetweenCoordinates(x, y, ux, uy)
+                                set angle = AngleBetweenCoordinates(x, y, GetUnitX(u), GetUnitY(u))
+                                set distance = DistanceBetweenCoordinates(x, y, GetUnitX(u), GetUnitY(u))
                                 
                                 call KnockbackUnit(u, angle, aoe + 25 - distance, knock*(distance/aoe), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
                             endif
                         endif
                     call GroupRemoveUnit(group, u)
                 endloop
-            else
-                call ReleaseTimer(t)
-                call DestroyGroup(group)
-                call deallocate()
-                
-                set t = null
-                set group = null
-                set player = null
             endif
+
+            return duration > 0
         endmethod
         
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            
+        private method onExpire takes nothing returns nothing
             call SetUnitTimeScale(unit, 1)
-            call ReleaseTimer(timer)
-            
-            set timer = null
-            set unit = null
         endmethod
     
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
+        private method onCast takes nothing returns nothing
             local unit dummy = DummyRetrieve(Spell.source.player, Spell.source.x, Spell.source.y, 0, 0)
+            local ability spell
             
-            set t = NewTimerEx(this)
-            set timer = NewTimerEx(this)
-            set unit = Spell.source.unit
-            set player = Spell.source.player
+            set this = thistype.allocate()
             set x = Spell.source.x
             set y = Spell.source.y
+            set unit = Spell.source.unit
+            set player = Spell.source.player
+            set group = CreateGroup()
             set aoe = GetAoE(unit, Spell.level)
             set duration = GetDuration(unit, Spell.level)
             set knock = GetMaxKnockBackDuration(unit, Spell.level)
-            set group = CreateGroup()
             
             call DestroyEffectTimed(AddSpecialEffectEx(MODEL, x, y, 0, SCALE), duration)
             call UnitAddAbilityTimed(dummy, REGEN_ABILITY, duration, Spell.level, true)
+            set spell = BlzGetUnitAbility(dummy, REGEN_ABILITY)
+            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_AMOUNT_OF_HIT_POINTS_REGENERATED, Spell.level - 1, GetBonusRegen(unit, Spell.level))
+            call IncUnitAbilityLevel(dummy, REGEN_ABILITY)
+            call DecUnitAbilityLevel(dummy, REGEN_ABILITY)
             call DummyRecycleTimed(dummy, duration)
             call SetUnitTimeScale(unit, GetTimeScale(unit, Spell.level))
-            call TimerStart(timer, GetTimeScaleTime(unit, Spell.level), false, function thistype.onExpire)
-            call TimerStart(t, PERIOD, true, function thistype.onPeriod)
+            call StartTimer(PERIOD, true, this, 0)
+            call StartTimer(GetTimeScaleTime(unit, Spell.level), false, this, 0)
             
             set dummy = null
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary

@@ -1,9 +1,8 @@
-library AutomatedTurrent requires SpellEffectEvent, PluginSpellEffect, DamageInterface, Missiles, Utilities, NewBonus optional ArsenalUpgrade
-    /* ------------------- Automated Turrent v1.2 by Chipinski ------------------ */
+library AutomatedTurrent requires Ability, DamageInterface, Missiles, Utilities, NewBonus optional ArsenalUpgrade
+    /* ------------------- Automated Turrent v1.3 by Chipinski ------------------ */
     // Credits:
     //     NFWar        - Gun Fire Icon
     //     4eNNightmare - Rocket Flare Icon
-    //     Bribe        - SpellEffectEvent
     //     Mythic       - Missile model
     /* ----------------------------------- END ---------------------------------- */
     
@@ -32,12 +31,12 @@ library AutomatedTurrent requires SpellEffectEvent, PluginSpellEffect, DamageInt
 
     // The Automated Turrent max hp
     private function GetMaxHealth takes integer level, unit source returns integer
-        return R2I(100 + 100*level + BlzGetUnitMaxHP(source)*0.2)
+        return R2I(100 + 100*level + 0.2 * BlzGetUnitMaxHP(source))
     endfunction
 
     // The Automated Turrent base damage.
     private function GetUnitDamage takes integer level, unit source returns integer
-        return R2I(5*level + GetUnitBonus(source, BONUS_DAMAGE)*0.2)
+        return R2I(5 * level + (0.1 + 0.1*level) * GetUnitBonus(source, BONUS_DAMAGE))
     endfunction
 
     // The number of Automated Turrents created
@@ -69,8 +68,8 @@ library AutomatedTurrent requires SpellEffectEvent, PluginSpellEffect, DamageInt
     endfunction
 
     // The Automated Turrent missile damage.
-    private function GetDamage takes integer level returns real
-        return 25.*level
+    private function GetDamage takes unit source, integer level returns real
+        return 25.*level + (0.25 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)
     endfunction
 
     // The Automated Turrent missile arc.
@@ -92,13 +91,14 @@ library AutomatedTurrent requires SpellEffectEvent, PluginSpellEffect, DamageInt
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Missile extends Missiles
+        real aoe
         group group
-        real  aoe
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             local unit u
 
             call GroupEnumUnitsInRange(group, x, y, aoe, null)
+
             loop
                 set u = FirstOfGroup(group)
                 exitwhen u == null
@@ -107,50 +107,31 @@ library AutomatedTurrent requires SpellEffectEvent, PluginSpellEffect, DamageInt
                     endif
                 call GroupRemoveUnit(group, u)
             endloop
+
             call DestroyGroup(group)
 
             set group = null
+            
             return true
         endmethod
     endstruct
 
-    private struct AutomatedTurrent extends array
-        static integer array array
+    private struct AutomatedTurrent extends Ability
+        private static unit array owner
+        private static integer array array
 
-        private static method onDamage takes nothing returns nothing
-            local integer level = GetUnitAbilityLevel(Damage.source.unit, MISSILE)
-            local real    range
-            local Missile missile
-
-            if level > 0 and Damage.isEnemy then
-                set array[Damage.source.id] = array[Damage.source.id] + 1
-                if array[Damage.source.id] >= GetAttackCount(Damage.source.unit, level) then
-                    set array[Damage.source.id] = 0
-                    set range   = GetRandomRange(GetMaxAoE(level))
-                    set missile = Missile.create(Damage.source.x, Damage.source.y, Damage.source.z + 80, GetRandomCoordInRange(Damage.target.x, range, true), GetRandomCoordInRange(Damage.target.y, range, false), 0)
-                    set missile.model  = MODEL
-                    set missile.scale  = SCALE
-                    set missile.speed  = SPEED
-                    set missile.source = Damage.source.unit
-                    set missile.owner  = Damage.source.player
-                    set missile.arc    = GetArc(level)
-                    set missile.curve  = GetCurve(level)
-                    set missile.damage = GetDamage(level)
-                    set missile.group  = CreateGroup()
-                    set missile.aoe    = GetAoE(level)
-
-                    call missile.launch()
-                endif
-            endif
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Tychus|r summons an immobile |cffffcc00Automated Turrent|r at the target location The turrent has |cffff0000" + I2S(GetUnitDamage(level, source)) + " Attack Damage|r and |cffff0000" + I2S(GetMaxHealth(level, source)) + " Health|r. Every |cffffcc00" + I2S(GetAttackCount(source, level)) + "|r attacks, |cffffcc00Automated Turrent|r releases a |cffffcc00Missile|r to a random spot within |cffffcc00" + N2S(GetMaxAoE(level), 0) + " AoE|r of it's primary target. The |cffffcc00Missile|r damages enemy units within |cffffcc00" + N2S(GetAoE(level), 0) + " AoE|r, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage."
         endmethod
 
-        private static method onCast takes nothing returns nothing
+        private method onCast takes nothing returns nothing
             local integer i = GetAmount(Spell.level)
-            local unit    u
+            local unit u
             
             loop
                 exitwhen i <= 0
                     set u = CreateUnit(Spell.source.player, UNIT, Spell.x, Spell.y, 0)
+                    set owner[GetUnitUserData(u)] = Spell.source.unit
                     set array[GetUnitUserData(u)] = 0
 
                     call SetUnitAbilityLevel(u, MISSILE, Spell.level)
@@ -164,8 +145,36 @@ library AutomatedTurrent requires SpellEffectEvent, PluginSpellEffect, DamageInt
             set u = null
         endmethod
 
+        private static method onDamage takes nothing returns nothing
+            local real range
+            local Missile missile
+            local integer level = GetUnitAbilityLevel(Damage.source.unit, MISSILE)
+
+            if level > 0 and Damage.isEnemy then
+                set array[Damage.source.id] = array[Damage.source.id] + 1
+
+                if array[Damage.source.id] >= GetAttackCount(Damage.source.unit, level) then
+                    set array[Damage.source.id] = 0
+                    set range = GetRandomRange(GetMaxAoE(level))
+                    set missile = Missile.create(Damage.source.x, Damage.source.y, Damage.source.z + 80, GetRandomCoordInRange(Damage.target.x, range, true), GetRandomCoordInRange(Damage.target.y, range, false), 0)
+                    set missile.model = MODEL
+                    set missile.scale = SCALE
+                    set missile.speed = SPEED
+                    set missile.source = Damage.source.unit
+                    set missile.owner = Damage.source.player
+                    set missile.arc = GetArc(level)
+                    set missile.curve = GetCurve(level)
+                    set missile.damage = GetDamage(owner[Damage.source.id], level)
+                    set missile.group = CreateGroup()
+                    set missile.aoe = GetAoE(level)
+
+                    call missile.launch()
+                endif
+            endif
+        endmethod
+
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

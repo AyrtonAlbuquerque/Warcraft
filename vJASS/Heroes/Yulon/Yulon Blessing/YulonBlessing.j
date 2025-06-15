@@ -1,5 +1,5 @@
-library YulonBlessing requires RegisterPlayerUnitEvent, Utilities
-    /* -------------------- Yulon Blessing v1.1 by Chopinski -------------------- */
+library YulonBlessing requires RegisterPlayerUnitEvent, Utilities, Ability, TimerUtils
+    /* -------------------- Yulon Blessing v1.2 by Chopinski -------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Palaslayer     - icon
@@ -48,15 +48,15 @@ library YulonBlessing requires RegisterPlayerUnitEvent, Utilities
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct YulonBlessing
+    private struct YulonBlessing extends Ability
         private static integer array array
         private static boolean array active
     
-        timer timer
-        unit unit
-        group group
-        player player
-        integer id
+        private unit unit
+        private integer id
+        private timer timer
+        private group group
+        private player player
     
         private method execute takes nothing returns nothing
             local integer level = GetUnitAbilityLevel(unit, ABILITY)
@@ -64,13 +64,14 @@ library YulonBlessing requires RegisterPlayerUnitEvent, Utilities
             local unit u
             
             if GetUnitLifePercent(unit) >= GetMinHealthPercentage(level) and UnitAlive(unit) then
-                set amount = BlzGetUnitMaxHP(unit)*GetPercentage(level)
+                set amount = BlzGetUnitMaxHP(unit) * GetPercentage(level)
                 
                 call DestroyEffectTimed(AddSpecialEffectTarget(CASTER_MODEL, unit, ATTACH_POINT), 1)
                 call SetWidgetLife(unit, GetWidgetLife(unit) - amount)
                 call AddUnitMana(unit, amount)
                 call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), GetAoE(unit, level), null)
                 call GroupRemoveUnit(group, unit)
+
                 loop
                     set u = FirstOfGroup(group)
                     exitwhen u == null
@@ -85,7 +86,7 @@ library YulonBlessing requires RegisterPlayerUnitEvent, Utilities
                 call IssueImmediateOrderById(unit, 852544)
             endif
         endmethod
-    
+
         private static method onPeriod takes nothing returns nothing
             local thistype this = GetTimerData(GetExpiredTimer())
             local integer level = GetUnitAbilityLevel(unit, ABILITY)
@@ -107,6 +108,29 @@ library YulonBlessing requires RegisterPlayerUnitEvent, Utilities
             endif
         endmethod
         
+        private method onCast takes nothing returns nothing
+            set this = array[Spell.source.id]
+
+            if this == 0 then
+                set this = thistype.allocate()
+                set id = Spell.source.id
+                set unit = Spell.source.unit
+                set player = Spell.source.player
+                set group = CreateGroup()
+                set timer = NewTimerEx(this)
+                set array[id] = this
+            endif
+
+            call execute()
+        endmethod
+        
+        private method onLearn takes unit source, integer skill, integer level returns nothing
+            if active[GetUnitUserData(source)] then
+                call IssueImmediateOrderById(source, 852544)
+                call IssueImmediateOrderById(source, 852543)
+            endif
+        endmethod
+
         private static method onOrder takes nothing returns nothing
             local integer order = GetIssuedOrderId()
             local integer id
@@ -122,11 +146,11 @@ library YulonBlessing requires RegisterPlayerUnitEvent, Utilities
                     set this = array[id]
                 else
                     set this = thistype.allocate()
-                    set timer = NewTimerEx(this)
+                    set this.id = id
                     set unit = source
                     set group = CreateGroup()
+                    set timer = NewTimerEx(this)
                     set player = GetOwningPlayer(source)
-                    set .id = id
                     set array[id] = this
                 endif
                 
@@ -139,43 +163,10 @@ library YulonBlessing requires RegisterPlayerUnitEvent, Utilities
 
             set source = null
         endmethod
-        
-        private static method onCast takes nothing returns nothing
-            local thistype this
-            
-            if array[Spell.source.id] != 0 then
-                set this = array[Spell.source.id]
-            else
-                set this = thistype.allocate()
-                set timer = NewTimerEx(this)
-                set unit = Spell.source.unit
-                set group = CreateGroup()
-                set player = Spell.source.player
-                set id = Spell.source.id
-                set array[id] = this
-            endif
-            call execute()
-        endmethod
-        
-        private static method onLevel takes nothing returns nothing
-            local unit source
-        
-            if GetLearnedSkill() == ABILITY then
-                set source = GetTriggerUnit()
-
-                if active[GetUnitUserData(source)] then
-                    call IssueImmediateOrderById(source, 852544)
-                    call IssueImmediateOrderById(source, 852543)
-                endif
-            endif
-            
-            set source = null
-        endmethod
 
         private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function thistype.onLevel)
         endmethod
     endstruct
 endlibrary

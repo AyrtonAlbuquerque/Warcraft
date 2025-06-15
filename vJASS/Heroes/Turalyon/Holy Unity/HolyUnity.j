@@ -1,5 +1,5 @@
-library HolyUnity requires RegisterPlayerUnitEvent
-    /* ---------------------- Holy unity v1.2 by Chopinski ---------------------- */
+library HolyUnity requires RegisterPlayerUnitEvent, Ability, Periodic
+    /* ---------------------- Holy unity v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     KelThuzad      - Icon
@@ -37,66 +37,50 @@ library HolyUnity requires RegisterPlayerUnitEvent
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct HolyUnity
-        static thistype array data
-        static integer 		  didx  = -1
-        static timer 		  timer = CreateTimer()
+    private struct HolyUnity extends Ability
+        private unit unit
+        private group group
+        private player player
+        private ability ability
 
-        unit    unit
-        group   group
-        player  player
-        ability ability
-
-        private method remove takes integer i returns integer
+        method destroy takes nothing returns nothing
             call DestroyGroup(group)
-
-            set unit    = null
-            set group   = null
-            set player  = null
-            set ability = null
-            set data[i] = data[didx]
-            set didx 	= didx - 1
-
-            if didx == -1 then
-                call PauseTimer(timer)
-            endif
-
             call deallocate()
 
-            return i - 1
+            set unit = null
+            set group = null
+            set player = null
+            set ability = null
         endmethod
 
-        private static method onPeriod takes nothing returns nothing
-            local integer  i     = 0
-            local integer  bonus = 0
-            local integer  level
-            local unit     u
-            local thistype this
-    
-            loop
-                exitwhen i > didx
-                    set this = data[i]
-                    set level = GetUnitAbilityLevel(unit, ABILITY)
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Turalyon|r gains |cffffcc002|r (|cffffcc005|r for |cffffcc00Heroes|r) |cffff0000Strength|r for every allied unit within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r."
+        endmethod
 
-                    if level > 0 then
-                        call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), GetAoE(unit, level), null)
-                        call GroupRemoveUnit(group, unit)
-                        loop
-                            set u = FirstOfGroup(group)
-                            exitwhen u == null
-                                if UnitAlive(u) and IsUnitAlly(u, player) then
-                                    set bonus = bonus + GetBonus(u, level)
-                                endif
-                            call GroupRemoveUnit(group, u)
-                        endloop
-                        call BlzSetAbilityIntegerLevelField(ability, ABILITY_ILF_STRENGTH_BONUS_ISTR, level - 1, bonus)
-                        call IncUnitAbilityLevel(unit, ABILITY)
-                        call DecUnitAbilityLevel(unit, ABILITY)
-                    else
-                        set i = remove(i)
-                    endif
-                set i = i + 1
-            endloop
+        private method onPeriod takes nothing returns boolean
+            local unit u
+            local integer bonus = 0
+            local integer level = GetUnitAbilityLevel(unit, ABILITY)
+
+            if level > 0 then
+                call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), GetAoE(unit, level), null)
+                call GroupRemoveUnit(group, unit)
+
+                loop
+                    set u = FirstOfGroup(group)
+                    exitwhen u == null
+                        if UnitAlive(u) and IsUnitAlly(u, player) then
+                            set bonus = bonus + GetBonus(u, level)
+                        endif
+                    call GroupRemoveUnit(group, u)
+                endloop
+
+                call BlzSetAbilityIntegerLevelField(ability, ABILITY_ILF_STRENGTH_BONUS_ISTR, level - 1, bonus)
+                call IncUnitAbilityLevel(unit, ABILITY)
+                call DecUnitAbilityLevel(unit, ABILITY)
+            endif
+
+            return level > 0
         endmethod
 
         private static method onLevelUp takes nothing returns nothing
@@ -105,27 +89,27 @@ library HolyUnity requires RegisterPlayerUnitEvent
         
             if GAIN_AT_LEVEL > 0 then
                 if GetUnitTypeId(u) == TURALYON_ID and GetHeroLevel(u) == GAIN_AT_LEVEL then
-                    set this   = thistype.allocate()
-                    set unit   = u
-                    set group  = CreateGroup()
+                    set this = thistype.allocate()
+                    set unit = u
+                    set group = CreateGroup()
                     set player = GetOwningPlayer(u)
-                    set didx   = didx + 1
-                    set data[didx] = this
 
                     call UnitAddAbility(u, ABILITY)
                     call UnitMakeAbilityPermanent(u, true, ABILITY)
+
                     set ability = BlzGetUnitAbility(u, ABILITY)
 
-                    if didx == 0 then
-                        call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
-                    endif
+                    call StartTimer(PERIOD, true, this, 0)
                 endif
             endif
         
             set u = null
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevelUp)
         endmethod
     endstruct

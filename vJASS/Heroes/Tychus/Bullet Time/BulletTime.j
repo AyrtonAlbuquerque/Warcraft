@@ -1,8 +1,7 @@
-library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonusUtils, TimerUtils
-    /* ---------------------- Bullet Time v1.2 by Chopinski --------------------- */
+library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Periodic, Ability
+    /* ---------------------- Bullet Time v1.3 by Chopinski --------------------- */
     // Credits:
     //     Blizzard        - Icon
-    //     Vexorian        - TimerUtils
     //     Magtheridon96   - RegisterPlayerUnitEvent
     /* ----------------------------------- END ---------------------------------- */
     
@@ -37,43 +36,34 @@ library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonusUt
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct BulletTime
-        static thistype array array
+    private struct BulletTime extends Ability
+        private unit unit
+        private real bonus
 
-        timer   timer
-        unit    unit
-        real    bonus
-        integer i
-
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
+        method destroy takes nothing returns nothing
             call AddUnitBonus(unit, BONUS_ATTACK_SPEED, -bonus)
-            call ReleaseTimer(timer)
             call deallocate()
 
-            set array[i] = 0
-            set timer    = null
-            set unit     = null
+            set unit = null
+        endmethod
+
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "Every attack increases the fire rate of |cffffcc00Tychus|r mini-gun by |cffffcc00" + N2S(GetBonus(level) * 100, 0) + "%|r, stacking up to |cffffcc00" + N2S(GetMaxBonus(level) * 100, 0) + "%|r bonus |cffffcc00Attack Speed|r. The bonus lasts for |cffffcc00" + N2S(GetDuration(level), 1) + "|r seconds after |cffffcc00Tychus|r stops attacking."
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local integer  level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
-            local real     amount
+            local real amount
             local thistype this
+            local integer level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
 
             if level > 0 and Damage.isEnemy then
                 set amount = GetBonus(level)
+                set this = GetTimerInstance(Damage.source.id)
 
-                if array[Damage.source.id] != 0 then
-                    set this = array[Damage.source.id]
-                else
-                    set this     = thistype.allocate()
-                    set timer    = NewTimerEx(this)
-                    set unit     = Damage.source.unit
-                    set bonus    = 0.
-                    set i        = Damage.source.id
-                    set array[i] = this
+                if this == 0 then
+                    set this = thistype.allocate()
+                    set unit = Damage.source.unit
+                    set bonus = 0
                 endif
 
                 if bonus + amount <= GetMaxBonus(level) then
@@ -81,7 +71,7 @@ library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonusUt
                     call AddUnitBonus(unit, BONUS_ATTACK_SPEED, amount)
                 endif
 
-                call TimerStart(timer, GetDuration(level), false, function thistype.onExpire)
+                call StartTimer(GetDuration(level), false, this, Damage.source.id)
             endif
         endmethod
 
@@ -95,9 +85,12 @@ library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonusUt
             set source = null
         endmethod
 
+        implement Periodic
+
         private static method onInit takes nothing returns nothing
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAttackDamageEvent(function thistype.onDamage)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
         endmethod
     endstruct
 endlibrary

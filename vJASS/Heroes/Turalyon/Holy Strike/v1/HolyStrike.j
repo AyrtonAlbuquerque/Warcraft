@@ -1,5 +1,5 @@
-library HolyStrike requires DamageInterface
-    /* ---------------------- Holy Strike v1.2 by Chopinski --------------------- */
+library HolyStrike requires DamageInterface, Ability
+    /* ---------------------- Holy Strike v1.3 by Chopinski --------------------- */
     // Credits:
     //     AbstractCreativity - Icon
     //     Bribe              - SpellEffectEvent
@@ -10,6 +10,8 @@ library HolyStrike requires DamageInterface
     /*                                Configuration                               */
     /* -------------------------------------------------------------------------- */
     globals
+        // The Holy Strike ablity
+        private constant integer ABILITY      = 'A003'
         // The Holy Strike level 1 buff
         private constant integer BUFF_1       = 'B001'
         // The Holy Strike level 2 buff
@@ -38,7 +40,11 @@ library HolyStrike requires DamageInterface
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct HolyStrike extends array
+    private struct HolyStrike extends Ability
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Turalyon|r provides to all nearby allied units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + " AoE|r the ability to |cffffcc00Holy Strike|r, healing |cffffcc00" + N2S(GetHeal(level, false), 0) + "|r health with every auto attack. Healing halved for range attacks."
+        endmethod
+
         private static method onDamage takes nothing returns nothing
             if Damage.isEnemy then
                 if GetUnitAbilityLevel(Damage.source.unit, BUFF_4) > 0 then
@@ -58,6 +64,7 @@ library HolyStrike requires DamageInterface
         endmethod
 
         private static method onInit takes nothing returns nothing
+            call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

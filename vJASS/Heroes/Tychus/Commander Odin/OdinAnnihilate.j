@@ -1,9 +1,7 @@
-library OdinAnnihilate requires SpellEffectEvent, PluginSpellEffect, Missiles, TimerUtils, Utilities
+library OdinAnnihilate requires Ability, Missiles, Periodic, Utilities optional NewBonus
     /* -------------------- Odin Annihilate v1.2 by Chopinski ------------------- */
     // Credits:
     //     a-ravlik        - Icon
-    //     Bribe           - SpellEffectEvent
-    //     vexorian        - TimerUtils
     //     Mythic          - Interceptor Shell model
     /* ----------------------------------- END ---------------------------------- */
     
@@ -34,8 +32,12 @@ library OdinAnnihilate requires SpellEffectEvent, PluginSpellEffect, Missiles, T
     endfunction
 
     // The explosion damage
-    private function GetDamage takes integer level returns real
-        return 50.*level
+    private function GetDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 50. * level + (0.8 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 50. * level
+        endif
     endfunction
 
     // The numebr of rockets.
@@ -67,14 +69,15 @@ library OdinAnnihilate requires SpellEffectEvent, PluginSpellEffect, Missiles, T
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Rocket extends Missiles  
+        real aoe
         group group
-        real  aoe
 
-        method onFinish takes nothing returns boolean
+        private method onFinish takes nothing returns boolean
             local unit u
 
             call DestroyEffect(AddSpecialEffect(MODEL, x, y))
             call GroupEnumUnitsInRange(group, x, y, aoe, null)
+
             loop
                 set u = FirstOfGroup(group)
                 exitwhen u == null
@@ -83,70 +86,78 @@ library OdinAnnihilate requires SpellEffectEvent, PluginSpellEffect, Missiles, T
                     endif
                 call GroupRemoveUnit(group, u)
             endloop
+
             call DestroyGroup(group)
 
             set group = null
+
             return true
         endmethod
     endstruct
 
-    private struct OdinAnnihilate
-        timer   timer
-        unit    unit
-        player  player
-        integer count
-        integer level
-        real    aoe
-        real    x
-        real    y
+    private struct OdinAnnihilate extends Ability
+        private real x
+        private real y
+        private real aoe
+        private unit unit
+        private player player
+        private integer count
+        private integer level
 
-        private static method onPeriod takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-            local real     range
-            local Rocket   rocket
+        method destroy takes nothing returns nothing
+            set unit = null
+            set player = null
+
+            call deallocate()
+        endmethod
+
+        private method onTooltip takes unit source, integer level, ability spell returns string
+            return "|cffffcc00Odin|r unleashes a barrage of |cffffcc00" + N2S(GetRocketCount(level), 0) + "|r rockets towards the target area, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r Magic|r damage each rocket."
+        endmethod
+
+        private method onPeriod takes nothing returns boolean
+            local real range
+            local Rocket rocket
+
+            set count = count - 1
 
             if count > 0 then
-                set range  = GetRandomRange(aoe)
+                set range = GetRandomRange(aoe)
                 set rocket = Rocket.create(GetUnitX(unit), GetUnitY(unit), HEIGHT, GetRandomCoordInRange(x, range, true), GetRandomCoordInRange(y, range, false), 50)
-                set rocket.model  = MODEL
-                set rocket.scale  = SCALE
-                set rocket.speed  = SPEED
+                set rocket.model = MODEL
+                set rocket.scale = SCALE
+                set rocket.speed = SPEED
                 set rocket.source = unit
-                set rocket.owner  = player
-                set rocket.arc    = GetArc(level)
-                set rocket.curve  = GetCurve(level)
-                set rocket.damage = GetDamage(level)
-                set rocket.aoe    = GetAoE(level)
-                set rocket.group  = CreateGroup()
+                set rocket.owner = player
+                set rocket.arc = GetArc(level)
+                set rocket.aoe = GetAoE(level)
+                set rocket.group = CreateGroup()
+                set rocket.curve = GetCurve(level)
+                set rocket.damage = GetDamage(unit, level)
 
                 call rocket.launch()
-            else
-                call ReleaseTimer(timer)
-                call deallocate()
-                set player = null
-                set timer  = null
-                set unit   = null
             endif
-            set count = count - 1
+
+            return count > 0
         endmethod
 
-        private static method onCast takes nothing returns nothing
-            local thistype this = thistype.allocate()
-
-            set timer  = NewTimerEx(this)
-            set unit   = Spell.source.unit
-            set level  = Spell.level
+        private method onCast takes nothing returns nothing
+            set this = thistype.allocate()
+            set x = Spell.x
+            set y = Spell.y
+            set level = Spell.level
+            set unit = Spell.source.unit
             set player = Spell.source.player
-            set x      = Spell.x
-            set y      = Spell.y
-            set aoe    = GetMaxAoE(Spell.source.unit, Spell.level)
-            set count  = GetRocketCount(Spell.level)
+            set count = GetRocketCount(Spell.level)
+            set aoe = GetMaxAoE(Spell.source.unit, Spell.level)
 
-            call TimerStart(timer, GetInterval(Spell.level), true, function thistype.onPeriod)
+            call StartTimer(GetInterval(Spell.level), true, this, 0)
         endmethod
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ABILITY, function thistype.onCast)
+            call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
 endlibrary
