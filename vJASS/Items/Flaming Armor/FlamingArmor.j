@@ -14,7 +14,7 @@ scope FlamingArmor
         method destroy takes nothing returns nothing
             call DestroyEffect(effect)
             call DestroyGroup(group)
-            call super.destroy()
+            call deallocate()
 
             set unit = null
             set effect = null
@@ -22,8 +22,8 @@ scope FlamingArmor
             set player = null
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0018000|r Health\n+ |cffffcc0010|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Damage Reduction|r: All damage taken are reduced by |cffffcc0015%%|r.\n\n|cff00ff00Passive|r: |cffffcc00Guarding Flames|r: Every second, all enemy units within |cffffcc00400 AoE|r take |cff0080ff" + AbilitySpellDamageEx(250, u) + "|r |cff0080ffMagic|r damage.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives|r:\n+ |cffffcc0018000|r Health\n+ |cffffcc0010|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Damage Reduction|r: All damage taken are reduced by |cffffcc0015%%|r.\n\n|cff00ff00Passive|r: |cffffcc00Guarding Flames|r: Every second, all enemy units within |cffffcc00400 AoE|r take |cff0080ff" + N2S(250, 0) + "|r |cff0080ffMagic|r damage."
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -53,7 +53,7 @@ scope FlamingArmor
             local thistype self
 
             if not HasStartedTimer(id) then
-                set self = thistype.new()
+                set self = thistype.allocate(0)
                 set self.unit = u
                 set self.group = CreateGroup()
                 set self.player = GetOwningPlayer(u)
@@ -73,7 +73,7 @@ scope FlamingArmor
 
         private static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, CloakOfFlames.code, FusedLifeCrystals.code, SteelArmor.code, 0, 0)
+            call RegisterItem(allocate(code), CloakOfFlames.code, FusedLifeCrystals.code, SteelArmor.code, 0, 0)
         endmethod
     endstruct
 endscope

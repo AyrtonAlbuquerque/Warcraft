@@ -52,7 +52,7 @@ scope DesertRing
         private static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDebuff)
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, OrbOfSands.code, SorcererRing.code, 0, 0 ,0)
+            call RegisterItem(allocate(code), OrbOfSands.code, SorcererRing.code, 0, 0 ,0)
         endmethod
     endstruct
 endscope

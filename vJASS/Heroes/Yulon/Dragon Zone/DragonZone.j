@@ -13,8 +13,6 @@ library DragonZone requires Ability, Utilities, CrowdControl, Periodic optional 
         private constant integer ABILITY          = 'A006'
         // The raw code of the regen ability
         private constant integer REGEN_ABILITY    = 'A007'
-        // The raw code of the Yu'lon unit in the editor
-        private constant integer YULON_ID         = 'H000'
         // The Model
         private constant string  MODEL            = "DragonZone.mdl"
         // The model scale

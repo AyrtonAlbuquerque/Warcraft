@@ -41,8 +41,8 @@ scope PhoenixAxe
             call missile.launch()
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc001250|r Damage\n+ |cffffcc00500|r Spell Power\n+ |cffffcc0025%%|r Critical Strike Chance\n+ |cffffcc00250%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Fire Slash|r: After hitting a Critical Strike a |cffffcc00Fire Slash|r is lauched from the attacked unit position, damaging enemy units in its path for |cffffcc00" + I2S(1000 + stacks[id]) + "|r |cffd45e19Pure|r damage. When attacking enemy Heroes, every |cffffcc00third|r attack will lauch a |cffffcc00Fire Slash|r.\n\n|cff00ff00Passive|r: |cffffcc00Slash Stacks|r: For every enemy unit killed by |cffffcc00Fire Slash|r, |cffffcc00Phoenix Axe|r gains |cffffcc001|r stack permanently, causing subsequent Slashes to deal more damage.\n\nStacks: |cffffcc00" + I2S(stacks[id] / 100) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc001250|r Damage\n+ |cffffcc00500|r Spell Power\n+ |cffffcc0025%%|r Critical Strike Chance\n+ |cffffcc00250%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Fire Slash|r: After hitting a Critical Strike a |cffffcc00Fire Slash|r is lauched from the attacked unit position, damaging enemy units in its path for |cffffcc00" + I2S(1000 + stacks[id]) + "|r |cffd45e19Pure|r damage. When attacking enemy Heroes, every |cffffcc00third|r attack will lauch a |cffffcc00Fire Slash|r.\n\n|cff00ff00Passive|r: |cffffcc00Slash Stacks|r: For every enemy unit killed by |cffffcc00Fire Slash|r, |cffffcc00Phoenix Axe|r gains |cffffcc001|r stack permanently, causing subsequent Slashes to deal more damage.\n\nStacks: |cffffcc00" + I2S(stacks[id] / 100) + "|r"
         endmethod
 
         private static method onCritical takes nothing returns nothing
@@ -71,7 +71,7 @@ scope PhoenixAxe
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterCriticalStrikeEvent(function thistype.onCritical)
-            call thistype.allocate(code, SphereOfFire.code, GreedyAxe.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SphereOfFire.code, GreedyAxe.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

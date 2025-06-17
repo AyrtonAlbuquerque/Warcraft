@@ -19,7 +19,7 @@ scope ArcanaScepter
 
         private static method onInit takes nothing returns nothing
             call RegisterSpellDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, HolyScepter.code, AncientSphere.code, 0, 0, 0)
+            call RegisterItem(allocate(code), HolyScepter.code, AncientSphere.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

@@ -20,11 +20,11 @@ scope SakuraBlade
             set group = null
             set player = null
 
-			call super.destroy()
+			call deallocate()
 		endmethod
     
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc001000|r Damage\n+ |cffffcc00100%%|r Movement Speed\n+ |cffffcc00400%%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Sakura Fall|r: |cffffcc00Movement Speed|r, |cffffcc00Attack Speed|r and |cffff0000Damage|r provided by Sakura Blade also affect allied units.|r\n\n|cff00ff00Passive|r: |cffffcc00Sakura Lamina|r: For every allied Hero within |cffffcc00800 AoE|r, the damage provided by |cffffcc00Sakura Blade|r is increased by |cffffcc00250|r.\n\nBonus Damage: |cffffcc00" + I2S(250*bonus[id]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives|r:\n+ |cffffcc001000|r Damage\n+ |cffffcc00100%%|r Movement Speed\n+ |cffffcc00400%%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Sakura Fall|r: |cffffcc00Movement Speed|r, |cffffcc00Attack Speed|r and |cffff0000Damage|r provided by Sakura Blade also affect allied units.|r\n\n|cff00ff00Passive|r: |cffffcc00Sakura Lamina|r: For every allied Hero within |cffffcc00800 AoE|r, the damage provided by |cffffcc00Sakura Blade|r is increased by |cffffcc00250|r.\n\nBonus Damage: |cffffcc00" + I2S(250*bonus[id]) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -62,7 +62,7 @@ scope SakuraBlade
             local thistype self
     
             if not HasStartedTimer(id) then
-                set self = thistype.new()
+                set self = thistype.allocate(0)
                 set self.unit = u
                 set self.index = id
                 set self.group = CreateGroup()
@@ -77,7 +77,7 @@ scope SakuraBlade
         implement Periodic
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, 0, 0, 0, 0, 0)
+            call RegisterItem(allocate(code), 0, 0, 0, 0, 0)
         endmethod
     endstruct
 endscope

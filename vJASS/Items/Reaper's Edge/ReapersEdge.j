@@ -20,8 +20,8 @@ scope ReapersEdge
         real spellPower = 400
         real intelligence = 200
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc00200|r All Stats\n+ |cffffcc00400|r Spell Power\n\n|cff00ff00Passive|r|cffffcc00: Soul Reaper|r: Every |cffffcc002|r enemy units killed, |cffff0000Strength|r,|cff00ff00 Agility |rand |cff00ffffIntelligence|r are increased by |cffffcc001|r and|cff008080 Spell Power|r is incresed by |cffffcc000.5|r permanently. Killing a enemy Hero increases all stats by |cffffcc0020|r and|cff008080 Spell Power|r by|cffffcc00 5|r.\n\nSpell Power Bonus: |cff008080" + R2SW(spell[id], 1, 1) + "|r\nStats Bonus: |cffffcc00" + I2S(stats[id]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives|r:\n+ |cffffcc00200|r All Stats\n+ |cffffcc00400|r Spell Power\n\n|cff00ff00Passive|r|cffffcc00: Soul Reaper|r: Every |cffffcc002|r enemy units killed, |cffff0000Strength|r,|cff00ff00 Agility |rand |cff00ffffIntelligence|r are increased by |cffffcc001|r and|cff008080 Spell Power|r is incresed by |cffffcc000.5|r permanently. Killing a enemy Hero increases all stats by |cffffcc0020|r and|cff008080 Spell Power|r by|cffffcc00 5|r.\n\nSpell Power Bonus: |cff008080" + N2S(spell[id], 1) + "|r\nStats Bonus: |cffffcc00" + I2S(stats[id]) + "|r"
         endmethod
 
         static method add takes unit target, boolean hero returns nothing
@@ -39,7 +39,7 @@ scope ReapersEdge
 
             set ReapersEdge.spell[index] = ReapersEdge.spell[index] + spell
             set ReapersEdge.stats[index] = ReapersEdge.stats[index] + stats
-            call UnitAddSpellPowerFlat(target, spell)
+            call AddUnitBonus(target, BONUS_SPELL_POWER, spell)
             call UnitAddStat(target, stats, stats, stats)
         endmethod
 
@@ -104,7 +104,7 @@ scope ReapersEdge
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, SoulScyther.code, SphereOfPower.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SoulScyther.code, SphereOfPower.code, 0, 0, 0)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
         endmethod
     endstruct

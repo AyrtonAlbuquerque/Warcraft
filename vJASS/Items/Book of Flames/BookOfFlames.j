@@ -36,7 +36,7 @@ scope BookOfFlames
         private static method onInit takes nothing returns nothing
             call RegisterSpellEffectEvent(ability, function thistype.onCast)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
-            call thistype.allocate(code, SummoningBook.code, SphereOfFire.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SummoningBook.code, SphereOfFire.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

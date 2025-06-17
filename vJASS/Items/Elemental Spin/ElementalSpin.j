@@ -10,11 +10,11 @@ scope ElementalSpin
                     elseif type == 3 then
                         call AddUnitBonusTimed(hit, BONUS_ARMOR, -10, 10)
                     elseif type == 4 then
-                        call UnitAddMoveSpeedBonus(hit, -0.5, 0, 5.00)
+                        call AddUnitBonusTimed(hit, BONUS_MOVEMENT_SPEED, -0.5*GetUnitMoveSpeed(hit), 5.00)
                     endif
                 elseif type == 2 and IsUnitAlly(hit, owner) then
-                    call SetWidgetLife(hit, (GetWidgetLife(hit) + GetSpellDamage(1000, source)))
-                    call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(GetSpellDamage(1000, source))), hit)
+                    call SetWidgetLife(hit, (GetWidgetLife(hit) + 1000))
+                    call ArcingTextTag.create(("|cff32cd32" + "+" + N2S(1000, 0)), hit)
                 endif
             endif
 
@@ -30,8 +30,8 @@ scope ElementalSpin
         real healthRegen = 125
         real spellPower = 400
         
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00125|r Health Regeneration\n+ |cffffcc00125|r Mana Regeneration\n+ |cffffcc00400|r Spell Power\n+ |cffffcc00250|r Intelligence\n\n|cff00ff00Passive|r: |cffffcc00Elemental Waves|r: Every attack has |cffffcc0020%%|r chance to spawn an elemental wave at target location damaging an applying an special effect on the wave type. When proccing this effect there is |cffffcc0025%%|r chance of creating either a |cffffcc00Holy|r, |cffff0000Fire|r, |cff00ff00Poison|r or |cff8080ffWater|r wave. A |cffffcc00Holy Wave|r will damage enemys and heal allies for |cff00ffff" + AbilitySpellDamageEx(1000, u) + " Magic|r damage. A |cffff0000Fire Wave|r damage enemys for |cff00ffff" + AbilitySpellDamageEx(500, u) + " Magic|r damage and apply a |cffff0000Burn|r effect dealing |cff00ffff" + AbilitySpellDamageEx(100, u) + " Magic|r damage per second for |cffffcc005|r seconds. |cff00ff00Poison Wave|r damage enemys for |cff00ffff" + AbilitySpellDamageEx(1000, u) + " Magic|r damage and reduce their armor by |cffffcc0010|r  for |cffffcc0010|r seconds. Finnaly the |cff8080ffWater Wave|r damage enemys for |cff00ffff" + AbilitySpellDamageEx(1000, u) + " Magic|r damage and reduce their movement speed by |cffffcc0050%%|r for |cffffcc005|r seconds.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc00125|r Health Regeneration\n+ |cffffcc00125|r Mana Regeneration\n+ |cffffcc00400|r Spell Power\n+ |cffffcc00250|r Intelligence\n\n|cff00ff00Passive|r: |cffffcc00Elemental Waves|r: Every attack has |cffffcc0020%%|r chance to spawn an elemental wave at target location damaging an applying an special effect on the wave type. When proccing this effect there is |cffffcc0025%%|r chance of creating either a |cffffcc00Holy|r, |cffff0000Fire|r, |cff00ff00Poison|r or |cff8080ffWater|r wave. A |cffffcc00Holy Wave|r will damage enemys and heal allies for |cff00ffff" + N2S(1000, 0) + " Magic|r damage. A |cffff0000Fire Wave|r damage enemys for |cff00ffff" + N2S(500, 0) + " Magic|r damage and apply a |cffff0000Burn|r effect dealing |cff00ffff" + N2S(100, 0) + " Magic|r damage per second for |cffffcc005|r seconds. |cff00ff00Poison Wave|r damage enemys for |cff00ffff" + N2S(1000, 0) + " Magic|r damage and reduce their armor by |cffffcc0010|r  for |cffffcc0010|r seconds. Finnaly the |cff8080ffWater Wave|r damage enemys for |cff00ffff" + N2S(1000, 0) + " Magic|r damage and reduce their movement speed by |cffffcc0050%%|r for |cffffcc005|r seconds."
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -72,7 +72,7 @@ scope ElementalSpin
 
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, OrbOfFire.code, OrbOfWater.code, OrbOfVenom.code, OrbOfLight.code, 0)
+            call RegisterItem(allocate(code), OrbOfFire.code, OrbOfWater.code, OrbOfVenom.code, OrbOfLight.code, 0)
         endmethod
     endstruct
 endscope

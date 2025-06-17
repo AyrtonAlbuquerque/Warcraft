@@ -8,8 +8,8 @@ scope MoonchantRing
         real manaRegen = 500
         real intelligence = 350
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0020000|r Mana\n+ |cffffcc0010000|r Health\n+ |cffffcc00500|r Mana Regeneration\n+ |cffffcc00350|r Intelligence\n\n|cff00ff00Passive|r: |cffffcc00Moonchant Wisdom|r: Whenever your Hero, allied unit or enemy unit casts a spell within |cffffcc00800 AoE|r, |cffffcc00Moonchant Ring|r gains |cffffcc00|cffffcc00|r1|r charge.\n\n|cff00ff00Active|r: |cffffcc00Moonchant Well|r: When activated, all |cffffcc00Moonchant Ring|r charges are consumed, recovering |cffffcc00" + I2S(500 * charges[id]) + "|r |cffff0000Health|r and |cff00ffffMana|r.\n\nCharges: |cffffcc00" + I2S(charges[id]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives|r:\n+ |cffffcc0020000|r Mana\n+ |cffffcc0010000|r Health\n+ |cffffcc00500|r Mana Regeneration\n+ |cffffcc00350|r Intelligence\n\n|cff00ff00Passive|r: |cffffcc00Moonchant Wisdom|r: Whenever your Hero, allied unit or enemy unit casts a spell within |cffffcc00800 AoE|r, |cffffcc00Moonchant Ring|r gains |cffffcc00|cffffcc00|r1|r charge.\n\n|cff00ff00Active|r: |cffffcc00Moonchant Well|r: When activated, all |cffffcc00Moonchant Ring|r charges are consumed, recovering |cffffcc00" + I2S(500 * charges[id]) + "|r |cffff0000Health|r and |cff00ffffMana|r.\n\nCharges: |cffffcc00" + I2S(charges[id]) + "|r"
         endmethod
 
         private static method onCast takes nothing returns nothing
@@ -51,7 +51,7 @@ scope MoonchantRing
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, FusionCrystal.code, RingOfConversion.code, 0, 0, 0)
+            call RegisterItem(allocate(code), FusionCrystal.code, RingOfConversion.code, 0, 0, 0)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCast)
         endmethod
     endstruct

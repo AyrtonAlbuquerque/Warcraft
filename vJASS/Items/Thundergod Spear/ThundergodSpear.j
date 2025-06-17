@@ -8,8 +8,8 @@ scope ThundergodSpear
         real attackSpeed = 1.5
         real spellPower = 500
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00150%%|r Attack Speed\n+ |cffffcc00500|r Damage\n+ |cffffcc00500|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Chain Lightning|r: Every attack has |cffffcc0020%%|r chance to release chain lightning, dealing |cff00ffff" + AbilitySpellDamageEx(500, u) + " Magical|r damage up to |cffffcc005|r nearby enemies.\n\n|cff00ff00Active|r: |cffffcc00Lightning Fury|r: When activated |cffffcc00Thundergod Spear|r has |cffffcc00100%%|r chance of creating a |cffffcc00Chain Lightning|r dealing |cff00ffff" + AbilitySpellDamageEx(2000, u) + " Magical|r damage up to |cffffcc005|r nearby enemies and drainning |cff8080ff500 Mana|r per proc.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc00150%%|r Attack Speed\n+ |cffffcc00500|r Damage\n+ |cffffcc00500|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Chain Lightning|r: Every attack has |cffffcc0020%%|r chance to release chain lightning, dealing |cff00ffff" + N2S(500, 0) + " Magical|r damage up to |cffffcc005|r nearby enemies.\n\n|cff00ff00Active|r: |cffffcc00Lightning Fury|r: When activated |cffffcc00Thundergod Spear|r has |cffffcc00100%%|r chance of creating a |cffffcc00Chain Lightning|r dealing |cff00ffff" + N2S(2000, 0) + " Magical|r damage up to |cffffcc005|r nearby enemies and drainning |cff8080ff500 Mana|r per proc."
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -50,7 +50,7 @@ scope ThundergodSpear
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterSpellEffectEvent(ability, function thistype.onCast)
-            call thistype.allocate(code, LightningSpear.code, SphereOfLightning.code, 0, 0, 0)
+            call RegisterItem(allocate(code), LightningSpear.code, SphereOfLightning.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

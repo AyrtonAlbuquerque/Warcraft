@@ -33,7 +33,7 @@ scope EnflamedBow
             set effect = null
             set table[sourceId][targetId] = 0
 
-            call super.destroy()
+            call deallocate()
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -57,7 +57,7 @@ scope EnflamedBow
 
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure and not (GetEventDamage() > GetWidgetLife(Damage.target.unit)) then
                 if table[Damage.source.handle][Damage.target.handle] == 0 then
-					set this = thistype.new()
+					set this = thistype.allocate(0)
 					set source = Damage.source.unit
                     set target = Damage.target.unit
                     set effect = AddSpecialEffectTarget("Ember Red.mdx", Damage.target.unit, "chest")
@@ -86,7 +86,7 @@ scope EnflamedBow
             set table = HashTable.create()
 
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, HolyBow.code, SphereOfFire.code, 0, 0, 0)
+            call RegisterItem(allocate(code), HolyBow.code, SphereOfFire.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

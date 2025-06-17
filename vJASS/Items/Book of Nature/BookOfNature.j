@@ -22,7 +22,7 @@ scope BookOfNature
 
         private static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, SummoningBook.code, SphereOfNature.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SummoningBook.code, SphereOfNature.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

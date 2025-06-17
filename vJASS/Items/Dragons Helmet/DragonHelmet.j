@@ -8,8 +8,8 @@ scope DragonHelmet
         real strength = 100
         real healthRegen = 100
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc00100|r Strength\n+ |cffffcc00100|r Health Regeneration\n+ |cffffcc007500|r Health\n\n|cff00ff00Passive|r: |cffffcc00Dragon Endurance|r: Every|cffffcc00 5|r units killed wilhe this item is equipped grants |cffffcc001|r bonus |cff00ff00Health Regeneration|r permanently. |cffffcc00Hero|r kills grants |cffffcc005|r bonus|cff00ff00 health regeneration|r.\n\n|cff00ff00Active|r: |cffffcc00Dragon's Bless|r: When activated, the |cff00ff00Health Regeneration|r granted by this item passive effect is|cffffcc00 doubled|r for |cffffcc0020|r seconds.\n\n90 seconds cooldown.\n\nHealth Regeneration Bonus: |cff00ff00" + R2SW(bonus[id], 1, 1) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives|r:\n+ |cffffcc00100|r Strength\n+ |cffffcc00100|r Health Regeneration\n+ |cffffcc007500|r Health\n\n|cff00ff00Passive|r: |cffffcc00Dragon Endurance|r: Every|cffffcc00 5|r units killed wilhe this item is equipped grants |cffffcc001|r bonus |cff00ff00Health Regeneration|r permanently. |cffffcc00Hero|r kills grants |cffffcc005|r bonus|cff00ff00 health regeneration|r.\n\n|cff00ff00Active|r: |cffffcc00Dragon's Bless|r: When activated, the |cff00ff00Health Regeneration|r granted by this item passive effect is|cffffcc00 doubled|r for |cffffcc0020|r seconds.\n\n90 seconds cooldown.\n\nHealth Regeneration Bonus: |cff00ff00" + R2SW(bonus[id], 1, 1) + "|r"
         endmethod
 
         private static method onDeath takes nothing returns nothing
@@ -41,7 +41,7 @@ scope DragonHelmet
         private static method onInit takes nothing returns nothing
             call RegisterSpellEffectEvent(ability, function thistype.onCast)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
-            call thistype.allocate(code, WarriorHelmet.code, EternityStone.code, 0, 0, 0)
+            call RegisterItem(allocate(code), WarriorHelmet.code, EternityStone.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

@@ -33,8 +33,8 @@ scope EntityScythe
             call UnitAddStat(target, amount, amount, amount)
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc00375|r All Stats\n+ |cffffcc00500|r Spell Power\n+ |cffffcc0050|r Movement Speed\n\n|cff00ff00Passive|r: |cffffcc00Gather of Souls|r: For every enemy unit killed, |cffff0000Strength|r,|cff00ff00 Agility|r ,|cff00ffffIntelligence|r and |cff00ffffSpell Power|r are incresed by |cffffcc001|r permanently. Killing a enemy Hero increases |cff00ff00A|r|cff00ff1el|r|cff00ff3el|r|cff00ff5e |r|cff00ff7eS|r|cff00ff9et|r|cff00ffbea|r|cff00ffdet|r|cff00fffes|r and |cff00ffffSpell Power|r by |cffffcc0025|r.\n\nStats Bonus: |cffffcc00" + I2S(bonus[id]) + "|r\nSpell Power Bonus: |cffffcc00" + I2S(bonus[id]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives|r:\n+ |cffffcc00375|r All Stats\n+ |cffffcc00500|r Spell Power\n+ |cffffcc0050|r Movement Speed\n\n|cff00ff00Passive|r: |cffffcc00Gather of Souls|r: For every enemy unit killed, |cffff0000Strength|r,|cff00ff00 Agility|r ,|cff00ffffIntelligence|r and |cff00ffffSpell Power|r are incresed by |cffffcc001|r permanently. Killing a enemy Hero increases |cff00ff00A|r|cff00ff1el|r|cff00ff3el|r|cff00ff5e |r|cff00ff7eS|r|cff00ff9et|r|cff00ffbea|r|cff00ffdet|r|cff00fffes|r and |cff00ffffSpell Power|r by |cffffcc0025|r.\n\nStats Bonus: |cffffcc00" + I2S(bonus[id]) + "|r\nSpell Power Bonus: |cffffcc00" + I2S(bonus[id]) + "|r"
         endmethod
 
         private static method onDeath takes nothing returns nothing
@@ -71,7 +71,7 @@ scope EntityScythe
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, SoulSword.code, ReapersEdge.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SoulSword.code, ReapersEdge.code, 0, 0, 0)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
         endmethod
     endstruct

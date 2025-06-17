@@ -8,7 +8,7 @@ scope MageStaff
         real spellPower = 25
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, BraceletOfIntelligence.code, FusedLifeCrystals.code, MageStick.code, 0, 0)
+            call RegisterItem(allocate(code), BraceletOfIntelligence.code, FusedLifeCrystals.code, MageStick.code, 0, 0)
         endmethod
     endstruct
 endscope

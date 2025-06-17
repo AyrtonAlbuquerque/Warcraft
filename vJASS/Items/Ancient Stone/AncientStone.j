@@ -9,7 +9,7 @@ scope AncientStone
         real healthRegen = 10
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, WizardStone.code, 0, 0, 0, 0)
+            call RegisterItem(allocate(code), WizardStone.code, 0, 0, 0, 0)
         endmethod
     endstruct
 endscope

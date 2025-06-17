@@ -17,7 +17,7 @@ scope NatureGoddessStaff
 
         method destroy takes nothing returns nothing
             call DestroyGroup(group)
-            call super.destroy()
+            call deallocate()
 
             set unit = null
             set tornado = null
@@ -25,8 +25,8 @@ scope NatureGoddessStaff
             set player = null
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0020%%|r Spell Damage\n+ |cffffcc00500|r Intelligence\n+ |cffffcc0010000|r Health\n\n|cff00ff00Passive|r: |cffffcc00Thorned Rose|r: Provides |cffffcc00Thorn Aura|r within |cffffcc00600 AoE|r that returns |cffffcc0035%%|r of damage taken.\n\n|cff00ff00Active|r: |cffffcc00Nature's Wrath|r: Creates a |cffffcc00Nature Tornado|r that slows enemy units within |cffffcc00600 AoE|r and deals |cff00ffff" + AbilitySpellDamageEx(1000, u) + "Magic|r to enemy units within |cffffcc00400 AoE|r. When expired the |cffffcc00Nature Tornado|r explodes, healing all allies within |cffffcc00600 AoE|r for |cffffcc0020000|r |cffff0000Health|r and |cff00ffffMana|r and damaging enemies for |cffffcc0010000|r |cff808080Pure|r damage.\n\nLasts for 30 seconds.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0020%%|r Spell Damage\n+ |cffffcc00500|r Intelligence\n+ |cffffcc0010000|r Health\n\n|cff00ff00Passive|r: |cffffcc00Thorned Rose|r: Provides |cffffcc00Thorn Aura|r within |cffffcc00600 AoE|r that returns |cffffcc0035%%|r of damage taken.\n\n|cff00ff00Active|r: |cffffcc00Nature's Wrath|r: Creates a |cffffcc00Nature Tornado|r that slows enemy units within |cffffcc00600 AoE|r and deals |cff00ffff" + N2S(1000, 0) + "Magic|r to enemy units within |cffffcc00400 AoE|r. When expired the |cffffcc00Nature Tornado|r explodes, healing all allies within |cffffcc00600 AoE|r for |cffffcc0020000|r |cffff0000Health|r and |cff00ffffMana|r and damaging enemies for |cffffcc0010000|r |cff808080Pure|r damage.\n\nLasts for 30 seconds."
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -89,7 +89,7 @@ scope NatureGoddessStaff
         endmethod
 
         private static method onCast takes nothing returns nothing
-            local thistype this = thistype.new()
+            local thistype this = thistype.allocate(0)
 
             set unit = Spell.source.unit
             set player = Spell.source.player
@@ -107,7 +107,7 @@ scope NatureGoddessStaff
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterSpellEffectEvent(ability, function thistype.onCast)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
-            call thistype.allocate(code, SphereOfNature.code, NatureStaff.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SphereOfNature.code, NatureStaff.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

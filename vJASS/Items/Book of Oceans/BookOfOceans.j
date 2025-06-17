@@ -6,7 +6,7 @@ scope BookOfOceans
             if IsUnitEnemy(hit, owner) and UnitAlive(hit) and not IsUnitType(hit, UNIT_TYPE_STRUCTURE) and hit != unit then
                 call UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_PIERCE, DAMAGE_TYPE_MAGIC, null)
                 call DestroyEffectTimed(AddSpecialEffectTarget("WaterBreathDamage.mdx", hit, "chest"), 3)
-                call UnitAddMoveSpeedBonus(hit, 0, -50, 3.00)
+                call AddUnitBonusTimed(hit, BONUS_MOVEMENT_SPEED, -50, 3.00)
             endif
 
             return false
@@ -55,7 +55,7 @@ scope BookOfOceans
 
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, SummoningBook.code, SphereOfWater.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SummoningBook.code, SphereOfWater.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

@@ -14,7 +14,7 @@ scope HelmetOfEternity
 	
 		method destroy takes nothing returns nothing
 			call DestroyEffect(effect)
-			call super.destroy()
+			call deallocate()
 
 			set unit = null
 			set effect = null
@@ -69,7 +69,7 @@ scope HelmetOfEternity
 			local thistype self
 	
 			if not HasStartedTimer(id) then
-				set self = thistype.new()
+				set self = thistype.allocate(0)
 				set self.unit = u
 				set self.type = 0
 				set self.effect = AddSpecialEffectTarget("Radiance_Royal.mdx", u, "chest")
@@ -81,7 +81,7 @@ scope HelmetOfEternity
 		implement Periodic
 
 		private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, EternityStone.code, RadiantHelmet.code, 0, 0, 0)
+            call RegisterItem(allocate(code), EternityStone.code, RadiantHelmet.code, 0, 0, 0)
 		endmethod
 	endstruct
 endscope

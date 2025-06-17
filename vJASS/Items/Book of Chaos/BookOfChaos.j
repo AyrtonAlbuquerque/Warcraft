@@ -94,7 +94,7 @@ scope BookOfChaos
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterSpellEffectEvent(ability, function thistype.onCast)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function thistype.onAttack)
-            call thistype.allocate(code, SummoningBook.code, SphereOfDarkness.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SummoningBook.code, SphereOfDarkness.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

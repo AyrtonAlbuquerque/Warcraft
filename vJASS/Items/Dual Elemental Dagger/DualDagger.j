@@ -31,7 +31,6 @@ scope DualDagger
             else
                 set freeze_instance[targetId] = 0
 
-                call UnitAddMoveSpeedBonus(target, 0.5, 0, 0)
                 call AddUnitBonus(target, BONUS_ATTACK_SPEED, 0.50)
             endif
 
@@ -39,11 +38,11 @@ scope DualDagger
             set target = null
             set effect = null
 
-            call super.destroy()
+            call deallocate()
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc00500|r Damage\n+ |cffffcc00250|r Spell Power\n+ |cffffcc0025%%|r Evasion\n+ |cffffcc0025%%|r Life Steal\n\n|cff00ff00Active|r: |cffffcc00Dual Wield|r: When used, the |cffffcc00Dual Elemental Dagger|r switch between |cffff0000Burning|r and |cff8080ffFreezing|r Mode.\n\n|cff00ff00Passive|r: |cffffcc00Burn or Freeze|r: When |cffffcc00Dual Elemental Dagger|r is in |cffff0000Burning|r mode, all attacked enemy units take |cff00ffff" + AbilitySpellDamageEx(amount[id], u) + " Magic|r damage per second for |cffffcc003|r seconds. When its in |cff8080ffFreezing|r mode, all attacked enemy units have theirs |cffffcc00Movement Speed and Attack Speed|r reduced by |cffffcc0050%%|r for |cffffcc005|r seconds.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives|r:\n+ |cffffcc00500|r Damage\n+ |cffffcc00250|r Spell Power\n+ |cffffcc0025%%|r Evasion\n+ |cffffcc0025%%|r Life Steal\n\n|cff00ff00Active|r: |cffffcc00Dual Wield|r: When used, the |cffffcc00Dual Elemental Dagger|r switch between |cffff0000Burning|r and |cff8080ffFreezing|r Mode.\n\n|cff00ff00Passive|r: |cffffcc00Burn or Freeze|r: When |cffffcc00Dual Elemental Dagger|r is in |cffff0000Burning|r mode, all attacked enemy units take |cff00ffff" + N2S(amount[id], 0) + " Magic|r damage per second for |cffffcc003|r seconds. When its in |cff8080ffFreezing|r mode, all attacked enemy units have theirs |cffffcc00Movement Speed and Attack Speed|r reduced by |cffffcc0050%%|r for |cffffcc005|r seconds."
         endmethod
 
         private method onDrop takes unit u, item i returns nothing
@@ -74,7 +73,7 @@ scope DualDagger
                     if freeze_instance[Damage.target.id] != 0 then
                         set this = freeze_instance[Damage.target.id]
                     else
-                        set this = thistype.new()
+                        set this = thistype.allocate(0)
                         set source = Damage.source.unit
                         set target = Damage.target.unit
                         set targetId = Damage.target.id
@@ -84,7 +83,7 @@ scope DualDagger
                         set freeze_instance[Damage.target.id] = this
         
                         call StartTimer(1, true, this, -1)
-                        call UnitAddMoveSpeedBonus(Damage.target.unit, -0.5, 0, 0)
+                        call SlowUnit(Damage.target.unit, 0.5, 5, null, null, false)
                         call AddUnitBonus(Damage.target.unit, BONUS_ATTACK_SPEED, -0.5)
                     endif
         
@@ -93,7 +92,7 @@ scope DualDagger
                     if burn_instance[Damage.target.id] != 0 then
                         set this = burn_instance[Damage.target.id]
                     else
-                        set this = thistype.new()
+                        set this = thistype.allocate(0)
                         set source = Damage.source.unit
                         set target = Damage.target.unit
                         set targetId = Damage.target.id
@@ -125,7 +124,7 @@ scope DualDagger
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterSpellEffectEvent(ability, function thistype.onCast)
-            call thistype.allocate(code, RitualDagger.code, SphereOfFire.code, SphereOfWater.code, 0, 0)
+            call RegisterItem(allocate(code), RitualDagger.code, SphereOfFire.code, SphereOfWater.code, 0, 0)
         endmethod   
     endstruct
 endscope

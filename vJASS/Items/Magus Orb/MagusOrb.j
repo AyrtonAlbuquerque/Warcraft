@@ -26,7 +26,7 @@ scope MagusOrb
                 set table[handle].effect[1] = null
             endif
 
-            call super.destroy()
+            call deallocate()
 
             set unit = null
         endmethod
@@ -37,7 +37,7 @@ scope MagusOrb
             local thistype this
         
             if UnitHasItemOfType(Damage.source.unit, code) and damage > 0 and Damage.isEnemy and not HasStartedTimer(Damage.source.id) then
-                set this = thistype.new()
+                set this = thistype.allocate(0)
                 set unit = Damage.source.unit
                 set handle = Damage.source.handle
                 set Damage.amount = damage
@@ -59,7 +59,7 @@ scope MagusOrb
                         call DestroyEffectTimed(AddSpecialEffectTarget("Sweep_Black_Frost_Small.mdx", Damage.source.unit, "hand left"), 10)
                         call DestroyEffectTimed(AddSpecialEffectTarget("Sweep_Black_Frost_Small.mdx", Damage.source.unit, "hand right"), 10)
                     elseif bonus == 3 then //Earth
-                        call AddUnitBonusTimed(Damage.source.unit, BONUS_SPELL_POWER_FLAT, 1000, 10)
+                        call AddUnitBonusTimed(Damage.source.unit, BONUS_SPELL_POWER, 1000, 10)
                         call DestroyEffectTimed(AddSpecialEffectTarget("Sweep_Soul_Small.mdx", Damage.source.unit, "hand left"), 10)
                         call DestroyEffectTimed(AddSpecialEffectTarget("Sweep_Soul_Small.mdx", Damage.source.unit, "hand right"), 10)
                     elseif bonus == 4 then //Light
@@ -80,7 +80,7 @@ scope MagusOrb
             set table = HashTable.create()
 
             call RegisterSpellDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, ElementalSpin.code, AncientSphere.code, 0, 0, 0)
+            call RegisterItem(allocate(code), ElementalSpin.code, AncientSphere.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

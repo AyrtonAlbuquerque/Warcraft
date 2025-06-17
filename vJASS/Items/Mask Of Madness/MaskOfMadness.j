@@ -5,7 +5,7 @@ scope MaskOfMadness
         real lifeSteal = 0.1
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, MaskOfDeath.code, 0, 0, 0, 0)
+            call RegisterItem(allocate(code), MaskOfDeath.code, 0, 0, 0, 0)
         endmethod
     endstruct
 endscope

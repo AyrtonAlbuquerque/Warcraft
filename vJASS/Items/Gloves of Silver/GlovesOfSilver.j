@@ -5,7 +5,7 @@ scope GlovesOfSilver
         real attackSpeed = 0.5
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, GlovesOfSpeed.code, GlovesOfSpeed.code, 0, 0, 0)
+            call RegisterItem(allocate(code), GlovesOfSpeed.code, GlovesOfSpeed.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

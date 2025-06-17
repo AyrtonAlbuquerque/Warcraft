@@ -30,8 +30,8 @@ scope WizardStone
         real manaRegen = 5
         real healthRegen = 5
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00250|r Health\n+ |cffffcc00250|r Mana\n+ |cffffcc005|r Health Regeneration\n+ |cffffcc005|r Mana Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Magical Growth|r: Every time you cast an |cffffcc00active|r spell, the number of charges of Wizard Stone are increased by |cffffcc001|r and your Hero |cff0080ffSpell Power|r is increased by |cffffcc001|r. When the number of charges reach |cffffcc0050|r, the Wizard Stone transforms into |cffffcc00Ancient Stone|r, |cffffcc00doubling|r all the stats given and granting an extra |cffffcc0050|r |cff0080ffSpell Power|r.\n\nCharges: |cffffcc00" + I2S(WizardStone.table[GetHandleId(i)].integer[0]) + "|r\nSpell Power Bonus: |cff0080ff" + I2S(WizardStone.table[GetHandleId(i)].integer[1]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc00250|r Health\n+ |cffffcc00250|r Mana\n+ |cffffcc005|r Health Regeneration\n+ |cffffcc005|r Mana Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Magical Growth|r: Every time you cast an |cffffcc00active|r spell, the number of charges of Wizard Stone are increased by |cffffcc001|r and your Hero |cff0080ffSpell Power|r is increased by |cffffcc001|r. When the number of charges reach |cffffcc0050|r, the Wizard Stone transforms into |cffffcc00Ancient Stone|r, |cffffcc00doubling|r all the stats given and granting an extra |cffffcc0050|r |cff0080ffSpell Power|r.\n\nCharges: |cffffcc00" + I2S(WizardStone.table[GetHandleId(i)].integer[0]) + "|r\nSpell Power Bonus: |cff0080ff" + I2S(WizardStone.table[GetHandleId(i)].integer[1]) + "|r"
         endmethod
 
         private static method onCast takes nothing returns nothing
@@ -70,7 +70,7 @@ scope WizardStone
         private static method onInit takes nothing returns nothing
             set table = HashTable.create()
 
-            call thistype.allocate(code, ElementalShard.code, 0, 0, 0, 0)
+            call RegisterItem(allocate(code), ElementalShard.code, 0, 0, 0, 0)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCast)
         endmethod
     endstruct

@@ -22,15 +22,15 @@ scope LegendaryBladeIV
 			call DestroyEffect(table.effect[2])
 			call DestroyEffect(table.effect[3])
 			call table.destroy()
-			call super.destroy()
+			call deallocate()
 
 			set attack[index] = 0
 			set amount[index] = 0
 			set unit = null
 		endmethod
 	
-		private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc001750|r Damage\n+ |cffffcc001250|r Spell Power\n+ |cffffcc00200%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Flaming Blade|r: Every |cffffcc004|r attacks a fireball will strike the target dealing |cffffcc003x your last damage dealt over 2 seconds|r.\n\n|cff00ff00Passive|r: |cffffcc00Holy Blade|r: Every |cffffcc004|r attacks a lightball will strike the target dealing the same amount of damage of your last damage dealt by a basic attack and will heal the carrier by |cffffcc003x|r that amount.\n\n|cff00ff00Passive|r: |cffffcc00Water Blade|r: Every |cffffcc004|r attacks a water bolt will strike the target dealing |cff00ffff" + AbilitySpellDamageEx(1000, u) + " Magic|r damage and will slow the target by |cffffcc0030%|r for |cffffcc001,5|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Dark Blade|r: Every |cffffcc004|r attacks a dark bolt will strike the target reducing its armor by |cffffcc0050|r for |cffffcc005|r seconds.")
+		private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc001750|r Damage\n+ |cffffcc001250|r Spell Power\n+ |cffffcc00200%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Flaming Blade|r: Every |cffffcc004|r attacks a fireball will strike the target dealing |cffffcc003x your last damage dealt over 2 seconds|r.\n\n|cff00ff00Passive|r: |cffffcc00Holy Blade|r: Every |cffffcc004|r attacks a lightball will strike the target dealing the same amount of damage of your last damage dealt by a basic attack and will heal the carrier by |cffffcc003x|r that amount.\n\n|cff00ff00Passive|r: |cffffcc00Water Blade|r: Every |cffffcc004|r attacks a water bolt will strike the target dealing |cff00ffff" + N2S(1000, 0) + " Magic|r damage and will slow the target by |cffffcc0030%|r for |cffffcc001,5|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Dark Blade|r: Every |cffffcc004|r attacks a dark bolt will strike the target reducing its armor by |cffffcc0050|r for |cffffcc005|r seconds."
         endmethod
 
 		private method onPeriod takes nothing returns boolean
@@ -66,7 +66,7 @@ scope LegendaryBladeIV
 				set x = GetUnitX(u)
 				set y = GetUnitY(u)
 				set z = GetUnitZ(u) + 60
-				set self = thistype.new()
+				set self = thistype.allocate(0)
 				set self.table = Table.create()
 				set self.unit = u
 				set self.angle = 0.
@@ -143,7 +143,7 @@ scope LegendaryBladeIV
 
 		private static method onInit takes nothing returns nothing
 			call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, SphereOfDarkness.code, LegendaryBladeIII.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SphereOfDarkness.code, LegendaryBladeIII.code, 0, 0, 0)
 		endmethod
 	endstruct
 endscope

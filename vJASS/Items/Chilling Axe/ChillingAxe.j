@@ -40,7 +40,7 @@ scope ChillingAxe
 
         private static method onInit takes nothing returns nothing
             call RegisterCriticalStrikeEvent(function thistype.onCritical)
-            call thistype.allocate(code, OrbOfFrost.code, OrcishAxe.code, 0, 0, 0)
+            call RegisterItem(allocate(code), OrbOfFrost.code, OrcishAxe.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

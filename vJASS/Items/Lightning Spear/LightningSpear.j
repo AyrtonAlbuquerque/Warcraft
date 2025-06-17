@@ -27,8 +27,8 @@ scope LightningSpear
         real damage = 15
         real attackSpeed = 0.55
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0055%%|r Attack Speed\n+ |cffffcc0015|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Chain Lightning|r: Every attack has |cffffcc0020%%|r chance to release chain lightning, dealing |cff00ffff" + AbilitySpellDamageEx(GetDamage(), u) + " Magic|r damage up to |cffffcc004|r nearby enemies.")        
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0055%%|r Attack Speed\n+ |cffffcc0015|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Chain Lightning|r: Every attack has |cffffcc0020%%|r chance to release chain lightning, dealing |cff00ffff" + N2S(GetDamage(), 0) + " Magic|r damage up to |cffffcc004|r nearby enemies."        
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -39,7 +39,7 @@ scope LightningSpear
 
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, OrbOfLightning.code, GlovesOfSilver.code, 0, 0, 0)
+            call RegisterItem(allocate(code), OrbOfLightning.code, GlovesOfSilver.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

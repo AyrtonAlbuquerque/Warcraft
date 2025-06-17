@@ -20,7 +20,7 @@ scope LegendaryBladeII
 			call DestroyEffect(table.effect[0])
 			call DestroyEffect(table.effect[1])
 			call table.destroy()
-			call super.destroy()
+			call deallocate()
 
 			set attack[index] = 0
 			set amount[index] = 0
@@ -58,7 +58,7 @@ scope LegendaryBladeII
 				set x = GetUnitX(u)
 				set y = GetUnitY(u)
 				set z = GetUnitZ(u) + 60
-				set self = thistype.new()
+				set self = thistype.allocate(0)
 				set self.table = Table.create()
 				set self.unit = u
 				set self.angle = 0.
@@ -125,7 +125,7 @@ scope LegendaryBladeII
 
 		private static method onInit takes nothing returns nothing
 			call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, SphereOfDivinity.code, LegendaryBladeI.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SphereOfDivinity.code, LegendaryBladeI.code, 0, 0, 0)
 		endmethod
 	endstruct
 endscope

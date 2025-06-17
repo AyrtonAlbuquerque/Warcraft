@@ -15,11 +15,11 @@ scope Doombringer
         
         method destroy takes nothing returns nothing
             set bonus[index] = bonus[index] - 1250
-            call super.destroy()
+            call deallocate()
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc001250|r Damage\n+ |cffffcc0020%%|r Critical Strike Chance\n+ |cffffcc00200%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Death's Blow|r: Every |cffffcc00fifth|r attack is a guaranteed Critical Strike with |cffffcc00200%%|r Critical Damage Bonus within |cffffcc00400 AoE|r. If |cffffcc00Death's Blow|r kills the attacked enemy unit, damage is increased by |cffffcc001250|r for |cffffcc0010|r seconds.\n\nBonus Damage: |cffffcc00" + I2S(bonus[id]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc001250|r Damage\n+ |cffffcc0020%%|r Critical Strike Chance\n+ |cffffcc00200%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Death's Blow|r: Every |cffffcc00fifth|r attack is a guaranteed Critical Strike with |cffffcc00200%%|r Critical Damage Bonus within |cffffcc00400 AoE|r. If |cffffcc00Death's Blow|r kills the attacked enemy unit, damage is increased by |cffffcc001250|r for |cffffcc0010|r seconds.\n\nBonus Damage: |cffffcc00" + I2S(bonus[id]) + "|r"
         endmethod
 
         private static method onCritical takes nothing returns nothing
@@ -59,7 +59,7 @@ scope Doombringer
                 call DestroyGroup(g)
 
                 if damage > GetWidgetLife(target) then
-                    set this = thistype.new()
+                    set this = thistype.allocate(0)
                     set index = idx
                     set bonus[idx] = bonus[idx] + 1250
 
@@ -95,7 +95,7 @@ scope Doombringer
 
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterCriticalStrikeEvent(function thistype.onCritical)
-            call thistype.allocate(code, SphereOfFire.code, TriedgeSword.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SphereOfFire.code, TriedgeSword.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

@@ -1,5 +1,5 @@
 library BerserkerZone requires Ability, Periodic, Utilities, NewBonus
-    /* ---------------------- Bladestorm v1.0 by Chopinski ---------------------- */
+    /* --------------------- BerserkerZone v1.0 by Chopinski -------------------- */
     // Credits:
     //     Az - BladeZone model
     /* ----------------------------------- END ---------------------------------- */

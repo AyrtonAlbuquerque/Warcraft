@@ -31,7 +31,7 @@ scope HeavyBoots
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, BootsOfSpeed.code, HomecomingStone.code, RustySword.code, GlovesOfHaste.code, 0)
+            call RegisterItem(allocate(code), BootsOfSpeed.code, HomecomingStone.code, RustySword.code, GlovesOfHaste.code, 0)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
         endmethod
     endstruct

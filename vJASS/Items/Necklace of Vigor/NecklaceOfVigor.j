@@ -10,8 +10,8 @@ scope NecklaceOfVigor
         real health = 10000
         real spellPower = 750
         
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0010000|r Health\n+ |cffffcc0010000|r Mana\n+ |cffffcc00750|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Vigorous Strike|r: After casting an ability your next basic attack will deal |cffffcc00" + R2I2S(3 * GetUnitSpellPowerFlat(u)) + "|r as bonus |cffd45e19Pure|r damage to the target.\n\nStrikes Left: |cffffcc00" + I2S(strikes[id]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0010000|r Health\n+ |cffffcc0010000|r Mana\n+ |cffffcc00750|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Vigorous Strike|r: After casting an ability your next basic attack will deal |cffffcc00" + N2S(3 * GetUnitBonus(u, BONUS_SPELL_POWER), 0) + "|r as bonus |cffd45e19Pure|r damage to the target.\n\nStrikes Left: |cffffcc00" + I2S(strikes[id]) + "|r"
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -47,7 +47,7 @@ scope NecklaceOfVigor
         private static method onInit takes nothing returns nothing
             set table = HashTable.create()
 
-            call thistype.allocate(code, AncientStone.code, 0, 0, 0, 0)
+            call RegisterItem(allocate(code), AncientStone.code, 0, 0, 0, 0)
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCast)
         endmethod

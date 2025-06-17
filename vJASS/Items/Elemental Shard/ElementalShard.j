@@ -8,7 +8,7 @@ scope ElementalShard
         real healthRegen = 3
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, LifeCrystal.code, ManaCrystal.code, LifeEssenceCrystal.code, CrystalRing.code, 0)
+            call RegisterItem(allocate(code), LifeCrystal.code, ManaCrystal.code, LifeEssenceCrystal.code, CrystalRing.code, 0)
         endmethod
     endstruct
 endscope

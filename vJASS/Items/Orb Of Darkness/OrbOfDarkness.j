@@ -47,7 +47,7 @@ scope OrbOfDarkness
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, 0, 0, 0, 0, 0)
+            call RegisterItem(allocate(code), 0, 0, 0, 0, 0)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

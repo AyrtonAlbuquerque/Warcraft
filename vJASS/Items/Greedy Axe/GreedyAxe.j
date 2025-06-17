@@ -36,13 +36,13 @@ scope GreedyAxe
 
         method destroy takes nothing returns nothing
             call AddUnitBonus(unit, BONUS_ATTACK_SPEED, -GetAttackSpeedBonus())
-            call super.destroy()
+            call deallocate()
 
             set unit = null
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0045|r Damage\n+ |cffffcc0025%%|r Critical Strike Chance\n+ |cffffcc00100%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Pillage|r: After hitting a critical strike, for the next |cffffcc003 |rseconds, the Hero gains |cffffcc0050%% |rAttack Speed bonus and every attack grants |cffffcc00Gold|r equal to |cffffcc002.5%% (25%% against Heroes)|r of the damage dealt.\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0045|r Damage\n+ |cffffcc0025%%|r Critical Strike Chance\n+ |cffffcc00100%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Pillage|r: After hitting a critical strike, for the next |cffffcc003 |rseconds, the Hero gains |cffffcc0050%% |rAttack Speed bonus and every attack grants |cffffcc00Gold|r equal to |cffffcc002.5%% (25%% against Heroes)|r of the damage dealt.\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -59,7 +59,7 @@ scope GreedyAxe
 
             if UnitHasItemOfType(source, code) and IsUnitEnemy(target, GetOwningPlayer(source)) then
                 if this == 0 then
-                    set this = thistype.new()
+                    set this = thistype.allocate(0)
                     set unit = source
 
                     call StartTimer(0.25, true, this, id)
@@ -98,7 +98,7 @@ scope GreedyAxe
         private static  method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterCriticalStrikeEvent(function thistype.onCritical)
-            call thistype.allocate(code, OrcishAxe.code, OrcishAxe.code, 0, 0, 0) 
+            call RegisterItem(allocate(code), OrcishAxe.code, OrcishAxe.code, 0, 0, 0) 
         endmethod
     endstruct
 endscope

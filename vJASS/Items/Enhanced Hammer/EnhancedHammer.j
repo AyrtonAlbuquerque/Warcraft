@@ -50,7 +50,7 @@ scope EnhancedHammer
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, RustySword.code, HeavyHammer.code, HeavyHammer.code, 0, 0)
+            call RegisterItem(allocate(code), RustySword.code, HeavyHammer.code, HeavyHammer.code, 0, 0)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

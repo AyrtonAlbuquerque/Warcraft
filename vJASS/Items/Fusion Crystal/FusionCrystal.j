@@ -25,8 +25,8 @@ scope FusionCrystal
         real mana = 500
         real health = 500
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00500|r Mana\n+ |cffffcc00500|r Health\n\n|cff00ff00Passive|r: |cffffcc00Charge|r: When killing a unit the number of charges of Fusion Crystal are increased by |cffffcc001|r.\n\n|cff00ff00Active|r: |cffffcc00Energy Release|r: When activated, all charges are consumed and for |cffffcc0010|r seconds, |cffff0000Health|r and |cff80ffffMana|r Regeneration are increased by |cffffcc00" + R2SW(GetMultiplier() * FusionCrystal.charge[id], 1, 1) + "|r.\n\n90 seconds Cooldown\n\nCharges: |cffffcc00" + I2S(FusionCrystal.charge[id]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc00500|r Mana\n+ |cffffcc00500|r Health\n\n|cff00ff00Passive|r: |cffffcc00Charge|r: When killing a unit the number of charges of Fusion Crystal are increased by |cffffcc001|r.\n\n|cff00ff00Active|r: |cffffcc00Energy Release|r: When activated, all charges are consumed and for |cffffcc0010|r seconds, |cffff0000Health|r and |cff80ffffMana|r Regeneration are increased by |cffffcc00" + R2SW(GetMultiplier() * FusionCrystal.charge[id], 1, 1) + "|r.\n\n90 seconds Cooldown\n\nCharges: |cffffcc00" + I2S(FusionCrystal.charge[id]) + "|r"
         endmethod
 
         private static method onDeath takes nothing returns nothing
@@ -53,7 +53,7 @@ scope FusionCrystal
         private static method onInit takes nothing returns nothing
             call RegisterSpellEffectEvent(ability, function thistype.onCast)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
-            call thistype.allocate(code, FusedLifeCrystals.code, InfusedManaCrystal.code, 0, 0, 0)
+            call RegisterItem(allocate(code), FusedLifeCrystals.code, InfusedManaCrystal.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

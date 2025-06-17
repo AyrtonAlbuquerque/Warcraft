@@ -17,20 +17,20 @@ scope CrownOfRightouesness
 
         method destroy takes nothing returns nothing
             call DestroyTextTag(texttag)
-            call super.destroy()
+            call deallocate()
 
             set shield[index] = 0
             set unit = null
             set texttag = null
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0010000|r Mana\n+ |cffffcc00250|r Mana Regeneration\n+ |cffffcc00600|r Spell Power\n\n|cff00ff00Acitve|r: |cffffcc00Light Shield|r: When activated, creates a light barrier around the Hero, blocking up to |cffffcc00" + R2I2S(5000 + (5 * GetUnitSpellPowerFlat(u))) + "|r damage or until its duration is over. Lasts |cffffcc0030|r seconds.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0010000|r Mana\n+ |cffffcc00250|r Mana Regeneration\n+ |cffffcc00600|r Spell Power\n\n|cff00ff00Acitve|r: |cffffcc00Light Shield|r: When activated, creates a light barrier around the Hero, blocking up to |cffffcc00" + N2S(5000 + (5 * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + "|r damage or until its duration is over. Lasts |cffffcc0030|r seconds."
         endmethod
             
         private method onPeriod takes nothing returns boolean
             if GetUnitAbilityLevel(unit, buff) > 0 and shield[index] > 0 then
-                call SetTextTagText(texttag, R2I2S(shield[index]), 0.015)
+                call SetTextTagText(texttag, N2S(shield[index], 0), 0.015)
                 call SetTextTagPos(texttag, (GetUnitX(unit) - 40), GetUnitY(unit), 200)
                 call SetTextTagColor(texttag, 255, 255, 255, 255)
                 call SetTextTagPermanent(texttag, false)
@@ -59,7 +59,7 @@ scope CrownOfRightouesness
             local thistype this = GetTimerInstance(Spell.source.id)
         
             if this == 0 then
-                set this = thistype.new()
+                set this = thistype.allocate(0)
                 set unit = Spell.source.unit
                 set texttag = CreateTextTag()
                 set index = Spell.source.id
@@ -71,7 +71,7 @@ scope CrownOfRightouesness
                 set texttag = CreateTextTag()
             endif
 
-            set shield[index] = shield[index] + (5000 + 5*GetUnitSpellPowerFlat(unit))
+            set shield[index] = shield[index] + (5000 + 5*GetUnitBonus(unit, BONUS_SPELL_POWER))
         endmethod
 
         implement Periodic
@@ -79,7 +79,7 @@ scope CrownOfRightouesness
         private static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterSpellEffectEvent(ability, function thistype.onCast)
-            call thistype.allocate(code, DesertRing.code, SphereOfDivinity.code, 0, 0, 0)
+            call RegisterItem(allocate(code), DesertRing.code, SphereOfDivinity.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

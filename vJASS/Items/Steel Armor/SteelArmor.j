@@ -22,7 +22,7 @@ scope SteelArmor
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, FusedLifeCrystals.code, GoldenPlatemail.code, 0, 0, 0)
+            call RegisterItem(allocate(code), FusedLifeCrystals.code, GoldenPlatemail.code, 0, 0, 0)
             call RegisterAnyDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

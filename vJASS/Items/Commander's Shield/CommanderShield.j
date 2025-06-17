@@ -17,7 +17,7 @@ scope CommanderShield
 
         method destroy takes nothing returns nothing
             call DestroyEffect(effect)
-            call super.destroy()
+            call deallocate()
 
             set source = null
             set target = null
@@ -43,7 +43,7 @@ scope CommanderShield
             local thistype this
         
             if UnitHasItemOfType(Damage.target.unit, code) and Damage.amount > 0 and GetRandomInt(1, 100) <= 33 then
-                set this = thistype.new()
+                set this = thistype.allocate(0)
                 set duration = 16
                 set source = Damage.source.unit
                 set target = Damage.target.unit
@@ -64,7 +64,7 @@ scope CommanderShield
 
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, FusedLifeCrystals.code, WarriorShield.code, 0, 0, 0)
+            call RegisterItem(allocate(code), FusedLifeCrystals.code, WarriorShield.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

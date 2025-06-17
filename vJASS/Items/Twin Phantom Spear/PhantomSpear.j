@@ -18,7 +18,7 @@ scope PhantomSpear
 
         method destroy takes nothing returns nothing
             call DestroyGroup(group)
-            call super.destroy()
+            call deallocate()
 
             set prev = null
             set next = null
@@ -27,8 +27,8 @@ scope PhantomSpear
             set player = null
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00250%%|r Attack Speed\n+ |cffffcc00750|r Damage\n+ |cffffcc00750|r Spell Power\n+ |cffffcc0075|r Movement Speed\n\n|cff00ff00Active|r: |cffffcc00Thunder Wrath|r: When in |cffffcc00Thunder Wrath|r Mode, every attack has |cffffcc00100%%|r chance to release |cffffcc00Chain Lightning|r, dealing |cff00ffff" + AbilitySpellDamageEx(1000, u) + " Magical|r damage up to |cffffcc003|r nearby enemies.\n\n|cff00ff00Active|r: |cffffcc00Lightning Fury|r: When in |cffffcc00Lightning Fury|r Mode, every attack has |cffffcc0020%%|r chance of creating a |cffffcc00Chain Lightning|r that will bounce indefinitly to the closest enemy unit within |cffffcc00350 AoE|r dealing |cff00ffff" + AbilitySpellDamageEx(250, u) + " Magical|r damage.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc00250%%|r Attack Speed\n+ |cffffcc00750|r Damage\n+ |cffffcc00750|r Spell Power\n+ |cffffcc0075|r Movement Speed\n\n|cff00ff00Active|r: |cffffcc00Thunder Wrath|r: When in |cffffcc00Thunder Wrath|r Mode, every attack has |cffffcc00100%%|r chance to release |cffffcc00Chain Lightning|r, dealing |cff00ffff" + N2S(1000, 0) + " Magical|r damage up to |cffffcc003|r nearby enemies.\n\n|cff00ff00Active|r: |cffffcc00Lightning Fury|r: When in |cffffcc00Lightning Fury|r Mode, every attack has |cffffcc0020%%|r chance of creating a |cffffcc00Chain Lightning|r that will bounce indefinitly to the closest enemy unit within |cffffcc00350 AoE|r dealing |cff00ffff" + N2S(250, 0) + " Magical|r damage."
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -98,7 +98,7 @@ scope PhantomSpear
                             call DestroyEffect(AddSpecialEffectTarget("Shock_Green.mdx", Damage.target.unit, "chest"))
                             call UnitDamageTarget(Damage.source.unit, Damage.target.unit, 250, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_LIGHTNING, null)
                         else
-                            set this = thistype.new()
+                            set this = thistype.allocate(0)
                             set prev = Damage.target.unit
                             set next = null
                             set unit = Damage.source.unit
@@ -121,7 +121,7 @@ scope PhantomSpear
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterSpellEffectEvent('A01F', function thistype.onCast)
-            call thistype.allocate(code, GlovesOfGold.code, ThundergodSpear.code, 0, 0, 0)
+            call RegisterItem(allocate(code), GlovesOfGold.code, ThundergodSpear.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

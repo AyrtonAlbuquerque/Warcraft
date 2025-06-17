@@ -34,11 +34,11 @@ scope WarriorHelmet
         private integer index
 
         method destroy takes nothing returns nothing
-            call super.destroy()
+            call deallocate()
         endmethod
 
-        method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc007|r Strength\n+ |cffffcc005|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Overheal|r: When Hero's life drops below |cffffcc0050%|r, |cff00ff00Health Regeneration|r is increased by |cffffcc0020 Hp/s|r for |cffffcc0015|r seconds.\n\nCooldown: |cffffcc00" + R2I2S(WarriorHelmet.cooldown[id]) + "|r") 
+        method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc007|r Strength\n+ |cffffcc005|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Overheal|r: When Hero's life drops below |cffffcc0050%|r, |cff00ff00Health Regeneration|r is increased by |cffffcc0020 Hp/s|r for |cffffcc0015|r seconds.\n\nCooldown: |cffffcc00" + R2I2S(WarriorHelmet.cooldown[id]) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -51,7 +51,7 @@ scope WarriorHelmet
             local thistype this
         
             if UnitHasItemOfType(Damage.target.unit, code) and GetWidgetLife(Damage.target.unit) < (BlzGetUnitMaxHP(Damage.target.unit)*GetHealthFactor()) and cooldown[Damage.target.id] == 0 then
-                set this = thistype.new()
+                set this = thistype.allocate(0)
                 set index = Damage.target.id
                 set cooldown[index] = GetCooldown()
                 
@@ -64,7 +64,7 @@ scope WarriorHelmet
         implement Periodic
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, GauntletOfStrength.code, LifeEssenceCrystal.code, LifeEssenceCrystal.code, 0, 0)
+            call RegisterItem(allocate(code), GauntletOfStrength.code, LifeEssenceCrystal.code, LifeEssenceCrystal.code, 0, 0)
             call RegisterAnyDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

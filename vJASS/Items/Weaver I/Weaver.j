@@ -32,7 +32,7 @@ scope Weaver
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, BookOfChaos.code, AncientSphere.code, 0, 0, 0)
+            call RegisterItem(allocate(code), BookOfChaos.code, AncientSphere.code, 0, 0, 0)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCast)
         endmethod
     endstruct

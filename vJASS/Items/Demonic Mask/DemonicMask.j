@@ -48,7 +48,7 @@ scope DemonicMask
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, OrbOfDarkness.code, MaskOfMadness.code, GoldenSword.code, 0, 0)
+            call RegisterItem(allocate(code), OrbOfDarkness.code, MaskOfMadness.code, GoldenSword.code, 0, 0)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

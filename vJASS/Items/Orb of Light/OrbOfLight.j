@@ -57,7 +57,7 @@ scope OrbOfLight
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, 0, 0, 0, 0, 0)
+            call RegisterItem(allocate(code), 0, 0, 0, 0, 0)
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterAttackDamageEvent(function thistype.onAttackDamage)
         endmethod

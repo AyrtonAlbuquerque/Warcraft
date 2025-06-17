@@ -30,8 +30,8 @@ scope RunicBoots
         real spellPower = 20
         real movementSpeed = 75
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r \n+ |cffffcc00150|r Health \n+ |cffffcc00150|r Mana \n+ |cffffcc0020|r Spell Power \n+ |cffffcc0075|r Movement Speed \n\n|cff80ff00Active:|r|cffffcc00 Restoration: |rHeals Health and Mana for |cffffcc00" + R2I2S(GetHealth() * GetHeroLevel(u)) + "|r. \n\nReaching level |cff80ff0015 |rgrants |cffff800025 All Stats|r. \n\n10 seconds cooldown.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r \n+ |cffffcc00150|r Health \n+ |cffffcc00150|r Mana \n+ |cffffcc0020|r Spell Power \n+ |cffffcc0075|r Movement Speed \n\n|cff80ff00Active:|r|cffffcc00 Restoration: |rHeals Health and Mana for |cffffcc00" + R2I2S(GetHealth() * GetHeroLevel(u)) + "|r. \n\nReaching level |cff80ff0015 |rgrants |cffff800025 All Stats|r. \n\n10 seconds cooldown."
         endmethod
 
         private static method onCast takes nothing returns nothing
@@ -50,7 +50,7 @@ scope RunicBoots
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, BootsOfSpeed.code, LifeCrystal.code, ManaCrystal.code, 0, 0)
+            call RegisterItem(allocate(code), BootsOfSpeed.code, LifeCrystal.code, ManaCrystal.code, 0, 0)
             call RegisterSpellEffectEvent(ability, function thistype.onCast)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
         endmethod

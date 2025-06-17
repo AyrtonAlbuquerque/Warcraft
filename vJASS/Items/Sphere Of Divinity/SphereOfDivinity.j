@@ -43,7 +43,7 @@ scope SphereOfDivinity
 
         method destroy takes nothing returns nothing
             set touch[index] = touch[index] - 1
-            call super.destroy()
+            call deallocate()
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -54,7 +54,7 @@ scope SphereOfDivinity
                 set Damage.amount = Damage.amount * GetAmplification()
 
                 if Damage.isEnemy and GetRandomReal(1, 100) <= GetChance() then
-                    set this = thistype.new()
+                    set this = thistype.allocate(0)
                     set index = Damage.target.id
                     set touch[index] = touch[index] + 1
 
@@ -87,7 +87,7 @@ scope SphereOfDivinity
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
-            call thistype.allocate(code, OrbOfLight.code, SphereOfPower.code, 0, 0, 0)
+            call RegisterItem(allocate(code), OrbOfLight.code, SphereOfPower.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

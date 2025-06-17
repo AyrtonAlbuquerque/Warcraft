@@ -7,7 +7,7 @@ scope OrcishAxe
         real criticalDamage = 0.3
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, IronAxe.code, GoldenSword.code, 0, 0, 0)
+            call RegisterItem(allocate(code), IronAxe.code, GoldenSword.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

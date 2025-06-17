@@ -7,8 +7,8 @@ scope AngelicShield
         real armor = 20
         real health = 50000
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0050000|r Health\n+ |cffffcc00500|r Damage Block\n+ |cffffcc0020|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Guardian Angel|r: |cffffcc00Damage Block|r increases by |cffffcc00100|r  for every |cffffcc0010%%|r of missing health. In addition, overblocked damage heals your Hero.\n\n|cff00ff00Active|r: |cffffcc00Sanctified Zone|r: When activated, all allied units within |cffffcc00800 AoE|r becomes immune to all damage, and all the damage your Hero takes during this time is evenly distributed amongst allied units within range. Lasts |cffffcc0015|r seconds.\n\nDamage Block: |cffffcc00" + R2I2S(500 + (10 * R2I(100 - GetUnitLifePercent(u)))) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0050000|r Health\n+ |cffffcc00500|r Damage Block\n+ |cffffcc0020|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Guardian Angel|r: |cffffcc00Damage Block|r increases by |cffffcc00100|r  for every |cffffcc0010%%|r of missing health. In addition, overblocked damage heals your Hero.\n\n|cff00ff00Active|r: |cffffcc00Sanctified Zone|r: When activated, all allied units within |cffffcc00800 AoE|r becomes immune to all damage, and all the damage your Hero takes during this time is evenly distributed amongst allied units within range. Lasts |cffffcc0015|r seconds.\n\nDamage Block: |cffffcc00" + R2I2S(500 + (10 * R2I(100 - GetUnitLifePercent(u)))) + "|r"
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -71,7 +71,7 @@ scope AngelicShield
         private static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterSpellEffectEvent('A01T', function thistype.onCast)
-            call thistype.allocate(code, SphereOfDivinity.code, BloodbourneShield.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SphereOfDivinity.code, BloodbourneShield.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

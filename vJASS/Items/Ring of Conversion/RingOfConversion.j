@@ -12,7 +12,7 @@ scope RingOfConversion
 
         method destroy takes nothing returns nothing
             set unit = null
-            call super.destroy()
+            call deallocate()
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -45,7 +45,7 @@ scope RingOfConversion
                 call UnitAddAbility(Spell.source.unit, ability)
                 call BlzUnitHideAbility(Spell.source.unit, ability, true)
 
-                set this = thistype.new()
+                set this = thistype.allocate(0)
                 set unit = Spell.source.unit
                 
                 call StartTimer(1, true, this, -1)
@@ -73,7 +73,7 @@ scope RingOfConversion
         private static method onInit takes nothing returns nothing
             call RegisterSpellEffectEvent(spell, function thistype.onCast)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
-            call thistype.allocate(code, DesertRing.code, SphereOfPower.code, SphereOfPower.code, 0, 0)
+            call RegisterItem(allocate(code), DesertRing.code, SphereOfPower.code, SphereOfPower.code, 0, 0)
         endmethod
     endstruct
 endscope

@@ -14,11 +14,11 @@ scope LightningSword
 			set unit = null
 			set player = null
 
-			call super.destroy()
+			call deallocate()
 		endmethod
 
-		private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc002500|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Quick as Lightning|r: |cffffcc00Base Attack Time|r is reduced by |cffffcc000.5|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Lightning Embodiment|r: Every |cffffcc000.5|r seconds, a |cffffcc00Lightning|r will emanate from your Hero and hit a random enemy unit within |cffffcc00800 AoE|r, dealing |cff00ffff" + AbilitySpellDamageEx(2500, u) + " Magic|r damage.")
+		private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives|r:\n+ |cffffcc002500|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Quick as Lightning|r: |cffffcc00Base Attack Time|r is reduced by |cffffcc000.5|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Lightning Embodiment|r: Every |cffffcc000.5|r seconds, a |cffffcc00Lightning|r will emanate from your Hero and hit a random enemy unit within |cffffcc00800 AoE|r, dealing |cff00ffff" + N2S(2500, 0) + " Magic|r damage."
         endmethod
 
 		private method onPeriod takes nothing returns boolean
@@ -57,7 +57,7 @@ scope LightningSword
 			local thistype self
 	
 			if not HasStartedTimer(id) then
-				set self = thistype.new()
+				set self = thistype.allocate(0)
 				set self.unit = u
 				set self.index = id
 				set self.player = GetOwningPlayer(u)
@@ -76,7 +76,7 @@ scope LightningSword
 		implement Periodic
 
 		private static method onInit takes nothing returns nothing
-			call thistype.allocate(code, 0, 0, 0, 0, 0)
+			call RegisterItem(allocate(code), 0, 0, 0, 0, 0)
 		endmethod
 	endstruct
 endscope

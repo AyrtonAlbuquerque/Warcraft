@@ -25,8 +25,8 @@ scope BlackNavaja
         real damage = 25
         real evasion = 0.12
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0025|r Damage\n+ |cffffcc0010%%|r Evasion\n\n|cff00ff00Passive|r: |cffffcc00Assassination:|r Every attack has |cffffcc0010%%|r chance to instantly kill |cffffcc00non-Hero|r targets and increase bounty of killed enemy by |cffffcc0025 gold|r.\n\nGold Granted: |cffffcc00" + I2S(BlackNavaja.gold[id]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0025|r Damage\n+ |cffffcc0010%%|r Evasion\n\n|cff00ff00Passive|r: |cffffcc00Assassination:|r Every attack has |cffffcc0010%%|r chance to instantly kill |cffffcc00non-Hero|r targets and increase bounty of killed enemy by |cffffcc0025 gold|r.\n\nGold Granted: |cffffcc00" + I2S(BlackNavaja.gold[id]) + "|r"
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -42,7 +42,7 @@ scope BlackNavaja
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, RustySword.code, RustySword.code, AssassinsDagger.code, 0, 0)
+            call RegisterItem(allocate(code), RustySword.code, RustySword.code, AssassinsDagger.code, 0, 0)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

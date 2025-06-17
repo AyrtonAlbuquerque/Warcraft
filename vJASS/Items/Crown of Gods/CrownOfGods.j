@@ -23,15 +23,15 @@ scope CrownOfGods
         method destroy takes nothing returns nothing
             call DestroyEffect(effect)
             call DestroyTextTag(texttag)            
-            call super.destroy()
+            call deallocate()
 
             set shield = 0
             set unit = null
             set effect = null
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0025000|r Mana\n+ |cffffcc0025000|r Health\n+ |cffffcc00750|r Mana Regeneration\n+ |cffffcc00750|r Intelligence\n+ |cffffcc00750|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Arcane Power|r: All |cff00ffffMagic|r damage dealt is amplified by |cff00ffff" + R2I2S((GetHeroInt(u, true) * multiplier[id])) + "|r.\n\n|cff00ff00Passive|r: |cffffcc00Divine Protection|r: |cffffcc00Crown of Gods|r provides a divine shield that grows by |cffffcc00100%%|r of your Hero total |cff00ffffIntelligence|r every second, blocking all damage taken. When depleted, |cffffcc00Divine Protection|r needs |cffffcc0020|r seconds to recharge, and while recharging, |cffffcc00Arcane Power|r effect is increased to |cffffcc00100%%|r of total |cff00ffffIntelligence|r amplification.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives|r:\n+ |cffffcc0025000|r Mana\n+ |cffffcc0025000|r Health\n+ |cffffcc00750|r Mana Regeneration\n+ |cffffcc00750|r Intelligence\n+ |cffffcc00750|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Arcane Power|r: All |cff00ffffMagic|r damage dealt is amplified by |cff00ffff" + N2S((GetHeroInt(u, true) * multiplier[id]), 0) + "|r.\n\n|cff00ff00Passive|r: |cffffcc00Divine Protection|r: |cffffcc00Crown of Gods|r provides a divine shield that grows by |cffffcc00100%%|r of your Hero total |cff00ffffIntelligence|r every second, blocking all damage taken. When depleted, |cffffcc00Divine Protection|r needs |cffffcc0020|r seconds to recharge, and while recharging, |cffffcc00Arcane Power|r effect is increased to |cffffcc00100%%|r of total |cff00ffffIntelligence|r amplification."
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -66,25 +66,24 @@ scope CrownOfGods
         endmethod
 
         private method onPickup takes unit u, item i returns nothing
-            local thistype self
             local integer id = GetUnitUserData(u)
 
             if not HasStartedTimer(id) then
-                set self = thistype.new()
-                set self.unit = u
-                set self.effect = AddSpecialEffectTarget("SacredShield.mdl", u, "origin")
-                set self.texttag = CreateTextTag()
-                set self.index = id
-                set self.amplify = false
-                set self.shield = 0
-                set self.recharging = false
+                set this = thistype.allocate(0)
+                set unit = u
+                set effect = AddSpecialEffectTarget("SacredShield.mdl", u, "origin")
+                set texttag = CreateTextTag()
+                set index = id
+                set amplify = false
+                set shield = 0
+                set recharging = false
                 set multiplier[id] = 0.5
 
-                call SetTextTagText(self.texttag, "0", 0.014)
-                call SetTextTagPos(self.texttag, (GetUnitX(u) - 40), GetUnitY(u), 200)
-                call SetTextTagColor(self.texttag, 255, 0, 0, 255)
-                call SetTextTagPermanent(self.texttag, true)
-                call StartTimer(0.03125, true, self, id)
+                call SetTextTagText(texttag, "0", 0.014)
+                call SetTextTagPos(texttag, (GetUnitX(u) - 40), GetUnitY(u), 200)
+                call SetTextTagColor(texttag, 255, 0, 0, 255)
+                call SetTextTagPermanent(texttag, true)
+                call StartTimer(0.03125, true, this, id)
             endif
         endmethod
 
@@ -119,7 +118,7 @@ scope CrownOfGods
 
         private static method onSpellDamage takes nothing returns nothing
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.amount > 0 then
-                set Damage.amount = damage + GetHeroInt(Damage.source.unit, true)*multiplier[Damage.source.id]
+                set Damage.amount = Damage.amount + GetHeroInt(Damage.source.unit, true)*multiplier[Damage.source.id]
             endif
         endmethod
 
@@ -128,7 +127,7 @@ scope CrownOfGods
         private static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterSpellDamageEvent(function thistype.onSpellDamage)
-            call thistype.allocate(code, CrownOfRightouesness.code, WarlockRing.code, 0, 0, 0)
+            call RegisterItem(allocate(code), CrownOfRightouesness.code, WarlockRing.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

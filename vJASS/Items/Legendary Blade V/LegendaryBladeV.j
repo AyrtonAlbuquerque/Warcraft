@@ -28,11 +28,11 @@ scope LegendaryBladeV
 			set amount[index] = 0
 			set unit = null
 
-			call super.destroy()
+			call deallocate()
 		endmethod	
 
-		private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc002000|r Damage\n+ |cffffcc001500|r Spell Power\n+ |cffffcc00250%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Flaming Blade|r: Every |cffffcc005|r attacks a fireball will strike the target dealing |cffffcc003x your last damage dealt over 2 seconds|r.\n\n|cff00ff00Passive|r: |cffffcc00Holy Blade|r: Every |cffffcc005|r attacks a lightball will strike the target dealing the same amount of damage of your last damage dealt by a basic attack and will heal the carrier by |cffffcc003x|r that amount.\n\n|cff00ff00Passive|r: |cffffcc00Water Blade|r: Every |cffffcc005|r attacks a water bolt will strike the target dealing |cff00ffff" + AbilitySpellDamageEx(1000, u) + " Magic|r damage and will slow the target by |cffffcc0030%|r for |cffffcc001,5|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Dark Blade|r: Every |cffffcc005|r attacks a dark bolt will strike the target reducing its armor by |cffffcc0050|r for |cffffcc005|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Air Blade|r: Every |cffffcc005|r attacks a wind bolt will strike the target and grant maximum movement speed for |cffffcc003|r seconds.")
+		private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc002000|r Damage\n+ |cffffcc001500|r Spell Power\n+ |cffffcc00250%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Flaming Blade|r: Every |cffffcc005|r attacks a fireball will strike the target dealing |cffffcc003x your last damage dealt over 2 seconds|r.\n\n|cff00ff00Passive|r: |cffffcc00Holy Blade|r: Every |cffffcc005|r attacks a lightball will strike the target dealing the same amount of damage of your last damage dealt by a basic attack and will heal the carrier by |cffffcc003x|r that amount.\n\n|cff00ff00Passive|r: |cffffcc00Water Blade|r: Every |cffffcc005|r attacks a water bolt will strike the target dealing |cff00ffff" + N2S(1000, 0) + " Magic|r damage and will slow the target by |cffffcc0030%|r for |cffffcc001,5|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Dark Blade|r: Every |cffffcc005|r attacks a dark bolt will strike the target reducing its armor by |cffffcc0050|r for |cffffcc005|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Air Blade|r: Every |cffffcc005|r attacks a wind bolt will strike the target and grant maximum movement speed for |cffffcc003|r seconds."
         endmethod
 
 		private method onPeriod takes nothing returns boolean
@@ -127,7 +127,7 @@ scope LegendaryBladeV
 				set x = GetUnitX(u)
 				set y = GetUnitY(u)
 				set z = GetUnitZ(u) + 60
-				set self = thistype.new()
+				set self = thistype.allocate(0)
 				set self.table = Table.create()
 				set self.unit = u
 				set self.angle = 0
@@ -151,7 +151,7 @@ scope LegendaryBladeV
 
 		private static method onInit takes nothing returns nothing
 			call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, SphereOfAir.code, LegendaryBladeIV.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SphereOfAir.code, LegendaryBladeIV.code, 0, 0, 0)
 		endmethod
 	endstruct
 endscope

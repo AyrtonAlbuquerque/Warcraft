@@ -27,8 +27,8 @@ scope SoulScyther
         real strength = 10
         real intelligence = 10
 
-        method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0010|r All Stats\n+ |cffffcc0010|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Soul Eater:|r Every |cffffcc0010|r enemy units killed, |cffff0000Strength|r, |cff00ff00Agility|r and |cff00ffffIntelligence|r are increased by |cffffcc001|r permanently. Killing a enemy Hero increases all stats by |cffffcc002|r.\n\nStats Bonus: |cffffcc00" + I2S(SoulScyther.stats[id]) + "|r")
+        method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0010|r All Stats\n+ |cffffcc0010|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Soul Eater:|r Every |cffffcc0010|r enemy units killed, |cffff0000Strength|r, |cff00ff00Agility|r and |cff00ffffIntelligence|r are increased by |cffffcc001|r permanently. Killing a enemy Hero increases all stats by |cffffcc002|r.\n\nStats Bonus: |cffffcc00" + I2S(SoulScyther.stats[id]) + "|r"
         endmethod
 
         static method onDeath takes nothing returns nothing
@@ -59,7 +59,7 @@ scope SoulScyther
         endmethod
         
         static method onInit takes nothing returns nothing
-            call thistype.allocate(code, RustySword.code, GlaiveScythe.code, 0, 0, 0)
+            call RegisterItem(allocate(code), RustySword.code, GlaiveScythe.code, 0, 0, 0)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
         endmethod
     endstruct

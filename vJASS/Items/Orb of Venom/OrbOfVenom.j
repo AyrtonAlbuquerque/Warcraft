@@ -25,8 +25,6 @@ scope OrbOfVenom
         private real duration
 
         method destroy takes nothing returns nothing
-            call super.destroy()
-            
             set unit = null
             set source = null
         endmethod
@@ -52,7 +50,7 @@ scope OrbOfVenom
             
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure then
                 if this == 0 then
-                    set this = thistype.new()
+                    set this = thistype.allocate(0)
                     set unit = Damage.target.unit
                     set source = Damage.source.unit
                     
@@ -66,7 +64,7 @@ scope OrbOfVenom
         implement Periodic
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, 0, 0, 0, 0, 0)
+            call RegisterItem(allocate(code), 0, 0, 0, 0, 0)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

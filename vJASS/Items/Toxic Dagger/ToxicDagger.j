@@ -24,14 +24,14 @@ scope ToxicDagger
         private real duration
 
         method destroy takes nothing returns nothing
-            call super.destroy()
+            call deallocate()
             
             set unit = null
             set source = null
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0030|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Toxic Blade|r: Attacking enemies poison them dealing |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) + " Magic|r damage per second.\n\nLasts for 5 seconds.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0030|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Toxic Blade|r: Attacking enemies poison them dealing |cff0080ff" + N2S(GetDamage(), 0) + " Magic|r damage per second.\n\nLasts for 5 seconds."
         endmethod
 
         private method onPickup takes unit u, item i returns nothing
@@ -55,7 +55,7 @@ scope ToxicDagger
         
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure then
                 if this == 0 then
-                    set this = thistype.new()
+                    set this = thistype.allocate(0)
                     set unit = Damage.target.unit
                     set source = Damage.source.unit
                     
@@ -70,7 +70,7 @@ scope ToxicDagger
 
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, OrbOfVenom.code, GoldenSword.code, 0, 0 ,0)
+            call RegisterItem(allocate(code), OrbOfVenom.code, GoldenSword.code, 0, 0 ,0)
         endmethod
     endstruct
 endscope

@@ -7,7 +7,7 @@ scope HardenedShield
         real health = 200
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, CommomShield.code, LifeCrystal.code, Platemail.code, 0, 0)
+            call RegisterItem(allocate(code), CommomShield.code, LifeCrystal.code, Platemail.code, 0, 0)
         endmethod
     endstruct
 endscope

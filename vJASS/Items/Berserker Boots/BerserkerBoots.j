@@ -40,13 +40,13 @@ scope BerserkerBoots
 
         method destroy takes nothing returns nothing
             call SetUnitPathing(unit, true)
-            call super.destroy()
+            call deallocate()
 
             set unit = null
         endmethod
 
         private static method onCast takes nothing returns nothing
-            local thistype this = thistype.new()
+            local thistype this = thistype.allocate(0)
             
             set unit = Spell.source.unit
 
@@ -54,7 +54,7 @@ scope BerserkerBoots
             call StartTimer(GetDuration(), false, this, -1)
             call UnitAddAbilityTimed(unit, buff, GetDuration(), 1, true)
             call AddUnitBonusTimed(unit, BONUS_ATTACK_SPEED, GetBonusAttackSpeed(), GetDuration())
-            call UnitAddMoveSpeedBonus(unit, GetBonusMovementSpeed(), 0, GetDuration())
+            call AddUnitBonusTimed(unit, BONUS_MOVEMENT_SPEED, GetUnitMoveSpeed(unit)*GetBonusMovementSpeed(), GetDuration())
         endmethod
 
         private static method onLevel takes nothing returns nothing
@@ -70,7 +70,7 @@ scope BerserkerBoots
         implement Periodic
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, BootsOfSpeed.code, GlovesOfHaste.code, GlovesOfHaste.code, AssassinsDagger.code, 0)
+            call RegisterItem(allocate(code), BootsOfSpeed.code, GlovesOfHaste.code, GlovesOfHaste.code, AssassinsDagger.code, 0)
             call RegisterSpellEffectEvent(ability, function thistype.onCast)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function thistype.onLevel)
         endmethod

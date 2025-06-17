@@ -62,7 +62,7 @@ scope HolyBow
         private static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterAttackDamageEvent(function thistype.onAttackDamage)
-            call thistype.allocate(code, OrbOfLight.code, SimpleBow.code, 0, 0, 0)
+            call RegisterItem(allocate(code), OrbOfLight.code, SimpleBow.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

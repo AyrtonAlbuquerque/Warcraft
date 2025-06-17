@@ -32,21 +32,21 @@ scope EmeraldShoulderPlate
 
         method destroy takes nothing returns nothing
             call ArcingTextTag.create(("|cffff0000-" + R2I2S(GetBonusStrength())), unit)
-            call super.destroy()
+            call deallocate()
 
             set amount[index] = amount[index] - GetBonusStrength()
             set unit = null
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc00375|r Health\n+ |cffffcc008|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Strong Arm:|r Every attack taken has |cffffcc0010%%|r chance to increase Hero |cffff0000Strength|r by |cffffcc001|r for 15 seconds.\n\nCurrent Strength Bonus: |cffff0000" + R2I2S(EmeraldShoulderPlate.amount[id]) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc00375|r Health\n+ |cffffcc008|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Strong Arm:|r Every attack taken has |cffffcc0010%%|r chance to increase Hero |cffff0000Strength|r by |cffffcc001|r for 15 seconds.\n\nCurrent Strength Bonus: |cffff0000" + N2S(EmeraldShoulderPlate.amount[id], 0) + "|r"
         endmethod
 
         private static method onDamage takes nothing returns nothing
             local thistype this
 
             if UnitHasItemOfType(Damage.target.unit, code) and GetRandomReal(1, 100) <= GetChance() then
-                set this = thistype.new()
+                set this = thistype.allocate(0)
                 set unit = Damage.target.unit
                 set index = Damage.target.id
                 set amount[index] = amount[index] + GetBonusStrength()
@@ -62,7 +62,7 @@ scope EmeraldShoulderPlate
 
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, GauntletOfStrength.code, GauntletOfStrength.code, FusedLifeCrystals.code, 0, 0)
+            call RegisterItem(allocate(code), GauntletOfStrength.code, GauntletOfStrength.code, FusedLifeCrystals.code, 0, 0)
         endmethod
     endstruct
 endscope

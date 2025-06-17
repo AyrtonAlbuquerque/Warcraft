@@ -33,7 +33,7 @@ scope WeaverII
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, Weaver.code, 0, 0, 0, 0)
+            call RegisterItem(allocate(code), Weaver.code, 0, 0, 0, 0)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCast)
         endmethod
     endstruct

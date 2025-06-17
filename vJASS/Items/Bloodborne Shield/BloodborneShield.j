@@ -21,7 +21,7 @@ scope BloodbourneShield
 
         private static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, CommanderShield.code, PhilosopherStone.code, 0, 0, 0)
+            call RegisterItem(allocate(code), CommanderShield.code, PhilosopherStone.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

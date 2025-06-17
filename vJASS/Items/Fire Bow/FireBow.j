@@ -32,7 +32,7 @@ scope FireBow
 			set source = null
 			set target = null
 
-			call super.destroy()
+			call deallocate()
 		endmethod
 	
 		private method onPeriod takes nothing returns boolean
@@ -58,7 +58,7 @@ scope FireBow
 	
 			if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure and Damage.amount < GetWidgetLife(Damage.target.unit) then
 				if table[Damage.target.handle][Damage.source.handle] == 0 then
-					set this = thistype.new()
+					set this = thistype.allocate(0)
 					set source = Damage.source.unit
 					set target = Damage.target.unit
 					set index = Damage.source.id
@@ -110,7 +110,7 @@ scope FireBow
 
 			call RegisterAttackDamageEvent(function thistype.onDamage)
 			call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
-            call thistype.allocate(code, SphereOfFire.code, EnflamedBow.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SphereOfFire.code, EnflamedBow.code, 0, 0, 0)
 		endmethod
 	endstruct
 endscope

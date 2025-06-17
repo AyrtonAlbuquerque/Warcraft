@@ -14,7 +14,7 @@ scope BookOfLight
 
         method destroy takes nothing returns nothing
             set burst[index] = 0
-            call super.destroy()
+            call deallocate()
         endmethod
 
         private static method onAttack takes nothing returns nothing
@@ -26,7 +26,7 @@ scope BookOfLight
                 if burst[id] == 0 then
                     call AddUnitBonus(attacker, BONUS_ATTACK_SPEED, 4)
                 elseif burst[id] == 11 then
-                    set this = thistype.new()
+                    set this = thistype.allocate(0)
                     set index = id
 
                     call StartTimer(30, false, this, -1)
@@ -54,7 +54,7 @@ scope BookOfLight
         private static method onInit takes nothing returns nothing
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function thistype.onAttack)
-            call thistype.allocate(code, SummoningBook.code, SphereOfDivinity.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SummoningBook.code, SphereOfDivinity.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

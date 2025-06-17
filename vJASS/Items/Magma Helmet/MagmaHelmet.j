@@ -49,7 +49,7 @@ scope MagmaHelmet
         method destroy takes nothing returns nothing
             call DestroyEffect(effect)
             call DestroyGroup(group)
-            call super.destroy()
+            call deallocate()
 
             set cooldown[index] = 0
             set duration = 0
@@ -59,8 +59,8 @@ scope MagmaHelmet
             set player = null
         endmethod
 
-        method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0010|r Strength\n+ |cffffcc007|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Purifying Flames:|r When your Hero's life drops below |cffffcc0025%%|r, |cff00ff00health regeneration|r is increased by |cffffcc0030 hp/s|r and all enemy units within |cffffcc00300|r AoE takes |cff00ffff" + AbilitySpellDamageEx(GetDamage(), u) +" Magic|r damage per second. Lasts |cffffcc0020|r seconds.\n\nCooldown: |cffffcc00" + R2I2S(MagmaHelmet.cooldown[id]) + "|r")
+        method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0010|r Strength\n+ |cffffcc007|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Purifying Flames:|r When your Hero's life drops below |cffffcc0025%%|r, |cff00ff00health regeneration|r is increased by |cffffcc0030 hp/s|r and all enemy units within |cffffcc00300|r AoE takes |cff00ffff" + N2S(GetDamage(), 0) +" Magic|r damage per second. Lasts |cffffcc0020|r seconds.\n\nCooldown: |cffffcc00" + N2S(MagmaHelmet.cooldown[id], 0) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -101,7 +101,7 @@ scope MagmaHelmet
             local thistype this
         
             if UnitHasItemOfType(Damage.target.unit, code) and GetWidgetLife(Damage.target.unit) < (BlzGetUnitMaxHP(Damage.target.unit)*GetHealthFactor()) and cooldown[Damage.target.id] == 0 then
-                set this = thistype.new()
+                set this = thistype.allocate(0)
                 set unit = Damage.target.unit
                 set effect = AddSpecialEffectTarget("Flame Shield.mdx", Damage.target.unit, "origin")
                 set player = Damage.target.player
@@ -117,7 +117,7 @@ scope MagmaHelmet
         implement Periodic
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, OrbOfFire.code, WarriorHelmet.code, 0, 0, 0)
+            call RegisterItem(allocate(code), OrbOfFire.code, WarriorHelmet.code, 0, 0, 0)
             call RegisterAnyDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

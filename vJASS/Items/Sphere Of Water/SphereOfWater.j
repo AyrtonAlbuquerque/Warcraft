@@ -34,8 +34,8 @@ scope SphereOfWater
 
         real spellPower = 50
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0050|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Damage Amplification|r: All |cffff0000physical damage|r is amplified by |cffffcc0018%%.|r\n\n|cff00ff00Passive|r: |cffffcc00Water Bubble|r: Every attack has |cffffcc0025%%|r chance to surronds the target in a water bubble. Attacking units affected by Water Bubble causes the bubble to splash bolts of water to enemy units behind the target, dealing |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) + "|r |cff0080fffMagic|r damage.\n\nLasts for 5 seconds.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0050|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Damage Amplification|r: All |cffff0000physical damage|r is amplified by |cffffcc0018%%.|r\n\n|cff00ff00Passive|r: |cffffcc00Water Bubble|r: Every attack has |cffffcc0025%%|r chance to surronds the target in a water bubble. Attacking units affected by Water Bubble causes the bubble to splash bolts of water to enemy units behind the target, dealing |cff0080ff" + N2S(GetDamage(), 0) + "|r |cff0080fffMagic|r damage.\n\nLasts for 5 seconds."
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -80,7 +80,7 @@ scope SphereOfWater
 
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, OrbOfWater.code, SphereOfPower.code, 0, 0, 0)
+            call RegisterItem(allocate(code), OrbOfWater.code, SphereOfPower.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

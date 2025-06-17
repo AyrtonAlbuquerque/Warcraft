@@ -22,7 +22,7 @@ scope HeatingCloak
         method destroy takes nothing returns nothing
             call DestroyEffect(effect)
             call BlzSetItemIconPath(item, "ReplaceableTextures\\CommandButtons\\BTNCloakOfFrost.blp")
-            call super.destroy()
+            call deallocate()
 
             set unit = null
             set item = null
@@ -31,8 +31,8 @@ scope HeatingCloak
             set player = null
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc005000|r Health\n+ |cffffcc005000|r Mana\n\n|cff00ff00Passive|r: |cffffcc00Immolation|r: Every second, all enemy units within |cffffcc00400 AoE|r take |cff00ffff" + AbilitySpellDamageEx(amount[id], u) + " Magic|r damage.\n\n|cff00ff00Passive|r: |cffffcc00Turn up the Heat|r: Every |cffffcc0060|r seconds |cffffcc00Heating Cloak|r charges up and the damage dealt by its immolation is increased by |cff00ffff500 Magic|r damage for |cffffcc0030|r seconds.\n\n" + state[id] + "|cffffcc00" + cd[id] + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives|r:\n+ |cffffcc005000|r Health\n+ |cffffcc005000|r Mana\n\n|cff00ff00Passive|r: |cffffcc00Immolation|r: Every second, all enemy units within |cffffcc00400 AoE|r take |cff00ffff" + N2S(amount[id], 0) + " Magic|r damage.\n\n|cff00ff00Passive|r: |cffffcc00Turn up the Heat|r: Every |cffffcc0060|r seconds |cffffcc00Heating Cloak|r charges up and the damage dealt by its immolation is increased by |cff00ffff500 Magic|r damage for |cffffcc0030|r seconds.\n\n" + state[id] + "|cffffcc00" + cd[id] + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -92,7 +92,7 @@ scope HeatingCloak
             local thistype self
 
             if not HasStartedTimer(id) then
-                set self = thistype.new()
+                set self = thistype.allocate(0)
                 set self.unit = u
                 set self.item = i
                 set self.effect = AddSpecialEffectTarget("EmberSnow.mdx", u, "chest")
@@ -111,7 +111,7 @@ scope HeatingCloak
         implement Periodic
 
         private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, OrbOfFire.code, OrbOfFrost.code, CloakOfFlames.code, 0, 0)
+            call RegisterItem(allocate(code), OrbOfFire.code, OrbOfFrost.code, CloakOfFlames.code, 0, 0)
         endmethod
     endstruct
 endscope

@@ -27,8 +27,8 @@ scope SoulSword
 
         real damage = 20
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0020|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Soul Steal|r: Every attack heals |cff00ff00" + R2SW(GetHeal() + SoulSword.bonus[id], 1, 1) + "|r Health and deals |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) +"|r bonus |cff0080ffMagic |rdamage. Killing an enemy unit, increases the on attack heal by |cffffcc000.2|r. Hero kills increases on attack heal by |cffffcc002|r.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0020|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Soul Steal|r: Every attack heals |cff00ff00" + N2S(GetHeal() + SoulSword.bonus[id], 1) + "|r Health and deals |cff0080ff" + N2S(GetDamage(), 0) +"|r bonus |cff0080ffMagic |rdamage. Killing an enemy unit, increases the on attack heal by |cffffcc000.2|r. Hero kills increases on attack heal by |cffffcc002|r."
         endmethod
 
         private method onPickup takes unit u, item i returns nothing
@@ -64,7 +64,7 @@ scope SoulSword
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
-            call thistype.allocate(code, OrbOfSouls.code, GoldenSword.code, 0, 0, 0)
+            call RegisterItem(allocate(code), OrbOfSouls.code, GoldenSword.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

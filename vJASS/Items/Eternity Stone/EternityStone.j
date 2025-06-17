@@ -33,11 +33,11 @@ scope EternityStone
             set healthBonus[index] = healthBonus[index] - GetHealthBonus()
             set regen[index] = regen[index] - GetRegenBonus()
 
-            call super.destroy()
+            call deallocate()
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc005|r Health Regeneration\n+ |cffffcc00400|r Health\n\n|cff00ff00Passive|r: |cffffcc00Eternal Youth|r: When killing a unit |cff00ff00Heatlh Regeneration|r is increased by |cffffcc000.2|r and |cffff0000Maximum Health|r is increased by |cffffcc005|r for |cffffcc0060|r seconds.\n\nHeath Bonus: |cffff0000" + I2S(EternityStone.healthBonus[id]) + "|r\nHealth Regeneration Bonus: |cff00ff00" + R2SW(EternityStone.regen[id], 1, 1) + "|r")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc005|r Health Regeneration\n+ |cffffcc00400|r Health\n\n|cff00ff00Passive|r: |cffffcc00Eternal Youth|r: When killing a unit |cff00ff00Heatlh Regeneration|r is increased by |cffffcc000.2|r and |cffff0000Maximum Health|r is increased by |cffffcc005|r for |cffffcc0060|r seconds.\n\nHeath Bonus: |cffff0000" + I2S(EternityStone.healthBonus[id]) + "|r\nHealth Regeneration Bonus: |cff00ff00" + N2S(EternityStone.regen[id], 1) + "|r"
         endmethod
 
         private static method onDeath takes nothing returns nothing
@@ -45,7 +45,7 @@ scope EternityStone
             local thistype this
         
             if UnitHasItemOfType(killer, code) then
-                set this = thistype.new()
+                set this = thistype.allocate(0)
                 set index = GetUnitUserData(killer)
                 set healthBonus[index] = healthBonus[index] + GetHealthBonus()
                 set regen[index] = regen[index] + GetRegenBonus()
@@ -62,7 +62,7 @@ scope EternityStone
 
         private static method onInit takes nothing returns nothing
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
-            call thistype.allocate(code, FusedLifeCrystals.code, LifeEssenceCrystal.code, 0, 0, 0)
+            call RegisterItem(allocate(code), FusedLifeCrystals.code, LifeEssenceCrystal.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

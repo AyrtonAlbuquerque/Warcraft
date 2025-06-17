@@ -11,7 +11,7 @@ scope ApocalypticMask
 		private integer duration
 	
 		method destroy takes nothing returns nothing
-			call super.destroy()
+			call deallocate()
 			set unit = null
 		endmethod
 	
@@ -32,7 +32,7 @@ scope ApocalypticMask
 				set this = GetTimerInstance(Damage.target.id)
 				
 				if this == 0 then
-					set this = thistype.new()
+					set this = thistype.allocate(0)
 					set unit = Damage.target.unit
 					set index = Damage.target.id
 	
@@ -48,7 +48,7 @@ scope ApocalypticMask
 
 		private static method onInit takes nothing returns nothing
 			call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, HellishMask.code, SphereOfDarkness.code, 0, 0, 0)
+            call RegisterItem(allocate(code), HellishMask.code, SphereOfDarkness.code, 0, 0, 0)
 		endmethod
 	endstruct
 endscope

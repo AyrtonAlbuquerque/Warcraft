@@ -38,8 +38,8 @@ scope RedemptionSword
             call missile.launch()
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc001500|r Damage\n+ |cffffcc0030%%|r Critical Strike Chance\n+ |cffffcc00300%%|r Critical Strike Damage\n+ |cffffcc00300|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Redemption Strike|r: Every |cffffcc00fourth|r attack or |cffffcc00Critical Strike|r a light wave will travel from attacked unit postion damaging enemy units in its path for |cffffcc00" + I2S(bonus[id]) + "|r damage and will heal your Hero for the same amount for every unit damaged.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc001500|r Damage\n+ |cffffcc0030%%|r Critical Strike Chance\n+ |cffffcc00300%%|r Critical Strike Damage\n+ |cffffcc00300|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Redemption Strike|r: Every |cffffcc00fourth|r attack or |cffffcc00Critical Strike|r a light wave will travel from attacked unit postion damaging enemy units in its path for |cffffcc00" + I2S(bonus[id]) + "|r damage and will heal your Hero for the same amount for every unit damaged."
         endmethod
 
         private static method onCritical takes nothing returns nothing
@@ -72,7 +72,7 @@ scope RedemptionSword
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterCriticalStrikeEvent(function thistype.onCritical)
-            call thistype.allocate(code, SphereOfDivinity.code, Doombringer.code, 0, 0, 0)
+            call RegisterItem(allocate(code), SphereOfDivinity.code, Doombringer.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

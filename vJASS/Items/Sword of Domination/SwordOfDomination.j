@@ -37,7 +37,7 @@ scope SwordOfDomination
 
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, RedemptionSword.code, 0, 0, 0, 0)
+            call RegisterItem(allocate(code), RedemptionSword.code, 0, 0, 0, 0)
         endmethod
     endstruct
 endscope

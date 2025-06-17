@@ -17,14 +17,14 @@ scope RadiantHelmet
 
         method destroy takes nothing returns nothing
 			call DestroyEffect(effect)
-			call super.destroy()
+			call deallocate()
 
 			set unit = null
 			set effect = null
 		endmethod
 	
-		private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives|r:\n+ |cffffcc0010000|r Mana\n+ |cffffcc0020000|r Health\n+ |cffffcc00500|r Health Regeneration\n+ |cffffcc00250|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Radiant Strength|r: |cff00ff00Health Regeneration|r is increased by |cffffcc00" + R2I2S(regen[id]) + "|r.\n\n|cff00ff00Passive|r: |cffffcc00Resilient Attempt|r: When your Hero life drops below |cffffcc0050%%|r, |cffffcc00Radiant Strength|r effect is amplified to |cffffcc00100%%|r for |cffffcc0020|r seconds. |cffffcc0090|r seconds cooldown.\n\nCooldown: |cffffcc00" + R2I2S(R2I(cooldown[id]/10)) + "|r")
+		private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives|r:\n+ |cffffcc0010000|r Mana\n+ |cffffcc0020000|r Health\n+ |cffffcc00500|r Health Regeneration\n+ |cffffcc00250|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Radiant Strength|r: |cff00ff00Health Regeneration|r is increased by |cffffcc00" + N2S(regen[id], 0) + "|r.\n\n|cff00ff00Passive|r: |cffffcc00Resilient Attempt|r: When your Hero life drops below |cffffcc0050%%|r, |cffffcc00Radiant Strength|r effect is amplified to |cffffcc00100%%|r for |cffffcc0020|r seconds. |cffffcc0090|r seconds cooldown.\n\nCooldown: |cffffcc00" + N2S(R2I(cooldown[id]/10), 0) + "|r"
         endmethod
 
 		private method onPeriod takes nothing returns boolean
@@ -63,7 +63,7 @@ scope RadiantHelmet
 			local thistype self
 	
 			if not HasStartedTimer(id) then
-				set self = thistype.new()
+				set self = thistype.allocate(0)
 				set self.unit = u
 				set self.index = id
 
@@ -74,7 +74,7 @@ scope RadiantHelmet
 		implement Periodic
 
 		private static method onInit takes nothing returns nothing
-            call thistype.allocate(code, DragonHelmet.code, PhilosopherStone.code, 0, 0, 0)
+            call RegisterItem(allocate(code), DragonHelmet.code, PhilosopherStone.code, 0, 0, 0)
 		endmethod
 	endstruct
 endscope

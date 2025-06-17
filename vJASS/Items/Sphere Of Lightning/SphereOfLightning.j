@@ -41,14 +41,14 @@ scope SphereOfLightning
 
         method destroy takes nothing returns nothing
             call DestroyGroup(group)
-            call super.destroy()
+            call deallocate()
 
             set unit = null
             set group = null
         endmethod
 
-        private method onTooltip takes unit u, item i, integer id returns nothing
-            call BlzSetItemExtendedTooltip(i, "|cffffcc00Gives:|r\n+ |cffffcc0050|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Thunder Bolt|r: Every attack has |cffffcc0020%%|r to call down thunder bolts on the target and up to |cffffcc004|r nearby enemy units within |cffffcc00500|r AoE, dealing |cff0080ff" + AbilitySpellDamageEx(GetDamage(), u) + "|r |cff0080ffMagic|r damage.")
+        private method onTooltip takes unit u, item i, integer id returns string
+            return "|cffffcc00Gives:|r\n+ |cffffcc0050|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Thunder Bolt|r: Every attack has |cffffcc0020%%|r to call down thunder bolts on the target and up to |cffffcc004|r nearby enemy units within |cffffcc00500|r AoE, dealing |cff0080ff" + N2S(GetDamage(), 0) + "|r |cff0080ffMagic|r damage."
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -77,7 +77,7 @@ scope SphereOfLightning
             local thistype this
 
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and GetRandomReal(1, 100) <= GetChance() then
-                set this = thistype.new()
+                set this = thistype.allocate(0)
                 set unit = Damage.source.unit
                 set group = GetEnemyUnitsInRange(Damage.source.player, Damage.target.x, Damage.target.y, GetAoE(), false, false)
                 set procs = GetCount()
@@ -93,7 +93,7 @@ scope SphereOfLightning
 
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, OrbOfLightning.code, SphereOfPower.code, 0, 0, 0)
+            call RegisterItem(allocate(code), OrbOfLightning.code, SphereOfPower.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

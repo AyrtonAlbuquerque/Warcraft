@@ -18,7 +18,7 @@ scope ArcTrinity
             call AddUnitBonus(unit, BONUS_LIFE_STEAL, -1)
             call AddUnitBonus(unit, BONUS_DAMAGE, -3000)
             call table.destroy()
-            call super.destroy()
+            call deallocate()
 
             set unit = null
         endmethod
@@ -37,7 +37,7 @@ scope ArcTrinity
 
             if UnitHasItemOfType(source, code) and IsUnitEnemy(target, GetOwningPlayer(source)) then
                 if this == 0 then
-                    set this = thistype.new()
+                    set this = thistype.allocate(0)
                     set table = Table.create()
                     set unit = source
                     set table.effect[0] = AddSpecialEffectTarget("Sweep_Black_Frost_Small.mdx", source, "hand left")
@@ -60,7 +60,7 @@ scope ArcTrinity
 
         private static method onInit takes nothing returns nothing
             call RegisterCriticalStrikeEvent(function thistype.onCritical)
-            call thistype.allocate(code, TriedgeSword.code, TriedgeSword.code, TriedgeSword.code, 0, 0)
+            call RegisterItem(allocate(code), TriedgeSword.code, TriedgeSword.code, TriedgeSword.code, 0, 0)
         endmethod
     endstruct
 endscope

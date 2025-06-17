@@ -24,7 +24,7 @@ scope HellishMask
                 set table[target].effect[0] = null
             endif
 
-            call super.destroy()
+            call deallocate()
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -32,7 +32,7 @@ scope HellishMask
 
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure then
                 if table[Damage.target.handle].integer[Damage.source.handle] < 25 then
-                    set this = thistype.new()
+                    set this = thistype.allocate(0)
                     set unit = Damage.target.unit
                     set index = Damage.target.id
                     set target = Damage.target.handle
@@ -56,7 +56,7 @@ scope HellishMask
             set table = HashTable.create()
 
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, DemonicMask.code, SphereOfDarkness.code, 0, 0, 0)
+            call RegisterItem(allocate(code), DemonicMask.code, SphereOfDarkness.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

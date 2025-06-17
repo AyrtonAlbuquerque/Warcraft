@@ -17,7 +17,7 @@ scope HolyScepter
         method destroy takes nothing returns nothing
             call DestroyEffect(effect)
             call DestroyTextTag(texttag)
-            call super.destroy()
+            call deallocate()
 
             set unit = null
             set effect = null
@@ -43,7 +43,7 @@ scope HolyScepter
             if Damage.amount > 0 then
                 if UnitHasItemOfType(Damage.source.unit, code) then
                     if this == 0 then
-                        set this = thistype.new()
+                        set this = thistype.allocate(0)
                         set unit = Damage.source.unit
                         set effect = AddSpecialEffectTarget("DivineBarrier.mdx", Damage.source.unit, "origin")
                         set texttag = CreateTextTag()
@@ -78,7 +78,7 @@ scope HolyScepter
         private static method onInit takes nothing returns nothing
             call RegisterSpellDamageEvent(function thistype.onSpellDamage)
             call RegisterAttackDamageEvent(function thistype.onAttackDamage)
-            call thistype.allocate(code, WizardStaff.code, CrownOfRightouesness.code, 0, 0, 0)
+            call RegisterItem(allocate(code), WizardStaff.code, CrownOfRightouesness.code, 0, 0, 0)
         endmethod
     endstruct
 endscope

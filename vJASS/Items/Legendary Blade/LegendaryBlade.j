@@ -11,11 +11,11 @@ scope LegendaryBladeI
 			elseif type == 2 then
 				call UnitDamageTarget(source, target, 1000, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_DIVINE, null)
 				call DestroyEffectTimed(AddSpecialEffectTarget("WaterBreathDamage.mdx", target, "chest"), 1.5)
-				call UnitAddMoveSpeedBonus(target, -0.3, 0, 1.5)
+				call AddUnitBonusTimed(target, BONUS_MOVEMENT_SPEED, -0.3*GetUnitMoveSpeed(target), 1.5)
 			elseif type == 3 then
 				call AddUnitBonusTimed(target, BONUS_ARMOR, -50, 5.0)
 			elseif type == 4 then
-				call UnitAddMoveSpeedBonus(source, 0, 522, 3)
+				call AddUnitBonusTimed(source, BONUS_MOVEMENT_SPEED, 522, 3)
 				call DestroyEffectTimed(AddSpecialEffectTarget("Abilities\\Spells\\Other\\Tornado\\Tornado_Target.mdl", source, "origin"), 3)
 			endif
 
@@ -43,7 +43,7 @@ scope LegendaryBladeI
         method destroy takes nothing returns nothing
 			call DestroyEffect(table.effect[0])
 			call table.destroy()
-			call super.destroy()
+			call deallocate()
 
 			set attack[index] = 0
 			set amount[index] = 0
@@ -73,7 +73,7 @@ scope LegendaryBladeI
 				set x = GetUnitX(u)
 				set y = GetUnitY(u)
 				set z = GetUnitZ(u) + 60
-				set self = thistype.new()
+				set self = thistype.allocate(0)
 				set self.table = Table.create()
 				set self.unit = u
 				set self.angle = 0
@@ -127,7 +127,7 @@ scope LegendaryBladeI
 
         private static method onInit takes nothing returns nothing
             call RegisterAttackDamageEvent(function thistype.onDamage)
-            call thistype.allocate(code, WarriorBlade.code, SphereOfFire.code, 0, 0, 0)
+            call RegisterItem(allocate(code), WarriorBlade.code, SphereOfFire.code, 0, 0, 0)
         endmethod
     endstruct
 endscope
