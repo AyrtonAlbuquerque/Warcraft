@@ -161,34 +161,24 @@ library Overkill requires Ability, RegisterPlayerUnitEvent, Missiles, Utilities,
             return false
         endmethod
 
-        private static method onOrder takes nothing returns nothing
-            local unit caster = GetOrderedUnit()
-            local integer order = GetIssuedOrderId()
-            local thistype this = GetTimerInstance(GetUnitUserData(caster))
-
-            if order == 852589 then
-                if this == 0 then
-                    set this = thistype.allocate()
-                    set unit = caster
-                    set id = GetUnitUserData(caster)
-                    set prevX = GetUnitX(caster)
-                    set prevY = GetUnitY(caster)
-                    set player = GetOwningPlayer(caster)
-
-                    call StartTimer(PERIOD, true, this, id)
-                endif
+        private method onCast takes nothing returns nothing
+            if not HasStartedTimer(Spell.source.id) then
+                set this = thistype.allocate()
+                set unit = Spell.source.unit
+                set id = Spell.source.id
+                set prevX = Spell.source.x
+                set prevY = Spell.source.y
+                set player = Spell.source.player
 
                 call UnitAddAbility(unit, 'Abun')
+                call StartTimer(PERIOD, true, this, id)
             endif
-
-            set caster = null
         endmethod
 
         implement Periodic
 
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)
         endmethod
     endstruct
 endlibrary

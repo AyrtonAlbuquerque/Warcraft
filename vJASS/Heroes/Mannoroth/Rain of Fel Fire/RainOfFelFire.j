@@ -51,7 +51,7 @@ library RainOfFelFire requires Missiles, Ability, Utilities, Periodic, optional 
 
     // The amount of damage dealt when the missile lands
     private function GetImpactDamage takes unit source, integer level returns real
-        static if NewBonus then
+        static if LIBRARY_NewBonus then
             return 25. * level + (0.8 + 0.05*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
             return 25. * level
@@ -60,7 +60,7 @@ library RainOfFelFire requires Missiles, Ability, Utilities, Periodic, optional 
 
     // The amount of damage over time dealt to units in range of the impact area
     private function GetDoTDamage takes unit source, integer level returns real
-        static if NewBonus then
+        static if LIBRARY_NewBonus then
             return 5. * level + (0.05 + 0.05*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
             return 5. * level

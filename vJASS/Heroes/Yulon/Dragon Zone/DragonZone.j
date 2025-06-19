@@ -27,7 +27,7 @@ library DragonZone requires Ability, Utilities, CrowdControl, Periodic optional 
 
     // The bonus regeneration
     private function GetBonusRegen takes unit source, integer level returns real
-        static if NewBonus then
+        static if LIBRARY_NewBonus then
             return 12.5 * level + (0.025 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
             return 12.5 * level
