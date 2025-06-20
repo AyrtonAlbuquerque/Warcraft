@@ -36,6 +36,16 @@ library BrillanceAura requires RegisterPlayerUnitEvent, Ability, Periodic, Utili
         private abilityreallevelfield field
 
         method destroy takes nothing returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i == levels
+                    call BlzSetAbilityRealLevelField(ability, field, i, BlzGetAbilityRealLevelField(ability, field, i) - bonus)
+                    call IncUnitAbilityLevel(unit, ABILITY)
+                    call DecUnitAbilityLevel(unit, ABILITY)
+                set i = i + 1
+            endloop
+
             set bonus = 0
             set unit = null
             set field = null
@@ -46,18 +56,6 @@ library BrillanceAura requires RegisterPlayerUnitEvent, Ability, Periodic, Utili
 
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Jaina|r gives additional |cff00ffff" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_MANA_REGENERATION_INCREASE, level - 1), 1) + "|r |cff00ffffMana Regeneration|r to nearby friendly units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + " AoE|r. When she casts an ability the bonus |cff00ffffMana Regeneration|r is increased by |cff00ffff" + N2S(GetBonusManaRegen(source, level), 1) + "|r for a |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds."
-        endmethod
-
-        private method onExpire takes nothing returns nothing
-            local integer i = 0
-
-            loop
-                exitwhen i == levels
-                    call BlzSetAbilityRealLevelField(ability, field, i, BlzGetAbilityRealLevelField(ability, field, i) - bonus)
-                    call IncUnitAbilityLevel(unit, ABILITY)
-                    call DecUnitAbilityLevel(unit, ABILITY)
-                set i = i + 1
-            endloop
         endmethod
 
         private static method onSpell takes nothing returns nothing
