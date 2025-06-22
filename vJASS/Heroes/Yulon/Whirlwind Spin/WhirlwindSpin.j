@@ -42,7 +42,7 @@ library WhirlwindSpin requires Ability, Utilities, CrowdControl, Periodic option
     
     // The caster time scale. Speed or slow down aniamtions.
     private function GetTimeScale takes unit source, integer level returns real
-        return 2.
+        return 3.
     endfunction
     
     // The amoount of time until time scale is reset
@@ -69,7 +69,7 @@ library WhirlwindSpin requires Ability, Utilities, CrowdControl, Periodic option
         endmethod
     
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Yu'lon|r violently spins around it's location creating an outward force that deals |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r Magic damage. and pushes all enemy units back."
+            return "|cffffcc00Yu'lon|r violently spins around it's location creating an outward force that deals |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r Magic damage. and pushes all enemy units back. Additionaly, |cffffcc00Whirlwind Spin|r resets |cffffcc00Dragon Dash|r cooldown."
         endmethod
 
         private method onCast takes nothing returns nothing
@@ -82,6 +82,10 @@ library WhirlwindSpin requires Ability, Utilities, CrowdControl, Periodic option
             local real damage = GetDamage(Spell.source.unit, Spell.level)
             local real aoe = GetAoE(Spell.source.unit, Spell.level)
             local real duration = GetKnockBackDuration(Spell.source.unit, Spell.level)
+
+            static if LIBRARY_DragonDash then
+                call ResetUnitAbilityCooldown(Spell.source.unit, DragonDash_ABILITY)
+            endif
 
             call DestroyEffect(AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, 0, SCALE))
             call GroupEnumUnitsInRange(g, Spell.source.x, Spell.source.y, aoe, null)

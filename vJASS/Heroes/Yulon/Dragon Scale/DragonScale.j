@@ -44,7 +44,7 @@ library DragonScale requires RegisterPlayerUnitEvent, DamageInterface, Ability o
         private static real array energy
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Yu'lon|r dragon scales reduced all damage taken by |cffffcc00" + N2S(GetDamageReduction(level) * 100, 0) + "%|r. All damage reduced is stored as |cff00ffffMagic|r energy. Whenever |cffffcc00Yu'lon|r deals |cff00ffffMagic|r damage, a portion of the energy stored is used to increased the damage dealt. Maximum |cff00ffff" + N2S(GetBonus(source, level), 0) + " Magic|r damage bonus per damage instance.\n\nAt levels |cffffcc005|r, |cffffcc0010|r, and |cffffcc0015|r, Dragon Scale level is increased by |cffffcc001|r.\n\nEnergy Stored: |cff00ffff" + N2S(energy[GetUnitUserData(source)], 0) + "|r"
+            return "|cffffcc00Yu'lon|r dragon scales reduced all damage taken by |cffffcc00" + N2S(GetDamageReduction(level) * 100, 0) + "%|r. All damage reduced is stored as |cff00ffffMagic|r energy. Whenever |cffffcc00Yu'lon|r deals |cff00ffffMagic|r damage, a portion of the energy stored is used to increase the damage dealt. Maximum |cff00ffff" + N2S(GetBonus(source, level), 0) + " Magic|r damage bonus per damage instance.\n\nEnergy Stored: |cff00ffff" + N2S(energy[GetUnitUserData(source)], 0) + "|r"
         endmethod
 
         private static method onSpellDamage takes nothing returns nothing

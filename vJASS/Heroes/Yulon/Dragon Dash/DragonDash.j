@@ -10,7 +10,7 @@ library DragonDash requires Ability, Missiles, Utilities
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY        = 'A002'
+        public constant integer ABILITY         = 'A002'
         // The Model
         private constant string  MODEL          = "DDash.mdl"
         // The model scale
