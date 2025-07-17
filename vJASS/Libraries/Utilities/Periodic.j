@@ -87,6 +87,12 @@ library Periodic requires Table, TimerUtils
             return struct.has(id)
         endmethod
 
+        static method SetTimerPeriod takes thistype this, real timeout returns nothing
+            if _timer != null and timeout >= 0 then
+                call TimerStart(_timer, timeout, true, function thistype.onPeriodic)
+            endif
+        endmethod
+
         static method GetTimerInstance takes integer id returns thistype
             return struct[id]
         endmethod
