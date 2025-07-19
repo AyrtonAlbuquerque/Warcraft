@@ -17,7 +17,7 @@ library ExplosiveRune requires Ability, Utilities optional Afterburner, Cooldown
         // The number of charges of the ability
         private constant integer    CHARGES_COUNT       = 4
         // The number of charges of the ability
-        private constant real       CHARGES_COOLDOWN    = 15.0
+        private constant real       CHARGES_COOLDOWN    = 10.0
         // The Explosion delay
         private constant real       EXPLOSION_DELAY     = 1.5
         // The Explosion effect path

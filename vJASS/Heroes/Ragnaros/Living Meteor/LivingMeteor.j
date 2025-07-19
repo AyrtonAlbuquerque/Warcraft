@@ -13,17 +13,17 @@ library LivingMeteor requires Ability, Missiles, MouseUtils, Utilities, Periodic
         // The raw code of the Living Meteor ability
         private constant integer    ABILITY             = 'A002'
         // The landing time of the falling meteor
-        private constant real       LANDING_TIME        = 2.5
+        private constant real       LANDING_TIME        = 0.75
         // The roll time of the rolling meteor
-        private constant real       ROLLING_TIME        = 2.5
+        private constant real       ROLLING_TIME        = 2.0
         // The damage interval of the rolling interval
-        private constant real       DAMAGE_INTERVAL     = 0.25
+        private constant real       DAMAGE_INTERVAL     = 0.1
         // The time the player has to move the mouse before the spell starts
         private constant real       DRAG_AND_DROP_TIME  = 0.05
         // The distance from the casting point from where the meteor spawns
-        private constant real       LAUNCH_OFFSET       = 4500
+        private constant real       LAUNCH_OFFSET       = 3000
         // The starting height fo the meteor
-        private constant real       START_HEIGHT        = 3000
+        private constant real       START_HEIGHT        = 2000
         // Meteor Model
         private constant string     METEOR_MODEL        = "LivingMeteor.mdl"
         // Meteor Impact effect model
@@ -61,9 +61,9 @@ library LivingMeteor requires Ability, Missiles, MouseUtils, Utilities, Periodic
     //will do this damage every DAMAGE_INTERVAL
     private function RollDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 25. * level * DAMAGE_INTERVAL + (1 + 0.25*level) * GetUnitBonus(source, BONUS_SPELL_POWER) * DAMAGE_INTERVAL
+            return 100. * level * DAMAGE_INTERVAL + (1 + 0.25*level) * GetUnitBonus(source, BONUS_SPELL_POWER) * DAMAGE_INTERVAL
         else
-            return 25. * level * DAMAGE_INTERVAL
+            return 100. * level * DAMAGE_INTERVAL
         endif
     endfunction
 
@@ -98,7 +98,7 @@ library LivingMeteor requires Ability, Missiles, MouseUtils, Utilities, Periodic
                 set i = i + 1
                 set j = j + 1
 
-                if j == 25 then
+                if j == 15 then
                     set j = 0
 
                     static if LIBRARY_Afterburner then

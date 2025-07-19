@@ -14,12 +14,12 @@ library SulfurasSmash requires Ability, Missiles, TimedHandles, Utilities, Crowd
         // The raw code of the Sulfuras Smash ability
         private constant integer    ABILITY             = 'A005'
         // The landing time of the falling sulfuras
-        private constant real       LANDING_TIME        = 1.25
+        private constant real       LANDING_TIME        = 0.75
         // The distance from the casting point from 
         // where the sulfuras spawns
-        private constant real       LAUNCH_OFFSET       = 4500
+        private constant real       LAUNCH_OFFSET       = 3000
         // The starting height of sufuras
-        private constant real       START_HEIGHT        = 3000
+        private constant real       START_HEIGHT        = 2000
         // Sufuras Model
         private constant string     SULFURAS_MODEL      = "Sulfuras.mdl"
         // Sulfuras Impact effect model
@@ -29,7 +29,7 @@ library SulfurasSmash requires Ability, Missiles, TimedHandles, Utilities, Crowd
         // the stun model attachment point
         private constant string     STUN_POINT          = "overhead"
         // Sufuras size
-        private constant real       SULFURAS_SCALE      = 3.
+        private constant real       SULFURAS_SCALE      = 1.5
         // Size of the impact model
         private constant real       IMPACT_SCALE        = 2.
         // How long will the impact model lasts
@@ -104,7 +104,7 @@ library SulfurasSmash requires Ability, Missiles, TimedHandles, Utilities, Crowd
 
             call DestroyGroup(g)
             call DestroyEffectTimed(AddSpecialEffectEx(IMPACT_MODEL, x, y, 0, IMPACT_SCALE), IMPACT_DURATION)
-            
+
             static if LIBRARY_Afterburner then
                 call Afterburn(x, y, source)
             endif
