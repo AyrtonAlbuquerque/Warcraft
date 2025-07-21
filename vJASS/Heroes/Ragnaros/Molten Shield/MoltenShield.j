@@ -1,4 +1,4 @@
-library MoltenShield requires RegisterPlayerUnitEvent, Ability, DamageInterface, NewBonus
+library MoltenShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, NewBonus
     /* --------------------- Molten Shield v1.6 by Chopinski -------------------- */
     // Credits:
     //     Power            - Shield model
@@ -51,7 +51,7 @@ library MoltenShield requires RegisterPlayerUnitEvent, Ability, DamageInterface,
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct MoltenShield extends Ability
+    private struct MoltenShield extends Spell
         private static real array stored
 
         private unit unit

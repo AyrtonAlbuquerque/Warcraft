@@ -1,4 +1,4 @@
-library ForsekenArrow requires Ability, Utilities, Missiles, CrowdControl optional BlackArrow optional NewBonus
+library ForsekenArrow requires Spell, Utilities, Missiles, CrowdControl optional BlackArrow optional NewBonus
     /* ------------------------------------- Forseken Arrow v1.4 ------------------------------------ */
     // Credits:
     //     Bribe          - SpellEffectEvent
@@ -145,7 +145,7 @@ library ForsekenArrow requires Ability, Utilities, Missiles, CrowdControl option
         endmethod
     endstruct
 
-    private struct ForsekenArrow extends Ability
+    private struct ForsekenArrow extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Sylvanas|r shoots a |cffffcc00Forsaken Arrow|r at the targeted area. On its path any enemy unit that comes in contact with it gets cursed and takes |cff00ffff" + N2S(GetCollisionDamage(source, level), 0) + "|r |cff00ffffMagic|r damage. When it reaches its destination the |cffffcc00Forsaken Arrow|r explodes, dealing |cff00ffff" + N2S(GetExplosionDamage(source, level), 0) + "|r |cff00ffffMagic|r damage, |cffffcc00fearing, silencing and slowing|r all enemies whithin |cffffcc00" + N2S(GetAoE(source, level), 0) + "|r AoE for |cffffcc005|r (|cffffcc002.5|r for Heroes) seconds."
         endmethod

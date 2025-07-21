@@ -1,4 +1,4 @@
-library WhirlwindSpin requires Ability, Utilities, CrowdControl, Periodic optional NewBonus
+library WhirlwindSpin requires Spell, Utilities, CrowdControl, Periodic optional NewBonus
     /* --------------------- WhirlwindSpin v1.3 by Chopinski -------------------- */
     // Credits:
     //     AnsonRuk    - Icon
@@ -58,7 +58,7 @@ library WhirlwindSpin requires Ability, Utilities, CrowdControl, Periodic option
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct WhirlwindSpin extends Ability
+    private struct WhirlwindSpin extends Spell
         private unit unit
     
         method destroy takes nothing returns nothing

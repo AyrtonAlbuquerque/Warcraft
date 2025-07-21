@@ -1,4 +1,4 @@
-library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Periodic, Ability
+library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Periodic, Spell
     /* ---------------------- Bullet Time v1.3 by Chopinski --------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -36,7 +36,7 @@ library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct BulletTime extends Ability
+    private struct BulletTime extends extends Ability
         private unit unit
         private real bonus
 

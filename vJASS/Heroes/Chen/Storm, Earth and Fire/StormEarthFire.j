@@ -1,4 +1,4 @@
-library StormEarthFire requires Ability, Zap, LightningAttack, Fissure, BreathOfFire, NewBonus, Utilities, Periodic
+library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFire, NewBonus, Utilities, Periodic
     /* ----------------- Storm, Earth and Fire v1.3 by Chopinski ---------------- */
     // Credits:
     //     Blizazrd    - Icon
@@ -75,7 +75,7 @@ library StormEarthFire requires Ability, Zap, LightningAttack, Fissure, BreathOf
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct StormEarthFire extends Ability
+    private struct StormEarthFire extends Spell
         private unit unit
         private group group
         private player player

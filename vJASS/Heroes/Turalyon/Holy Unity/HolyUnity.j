@@ -1,4 +1,4 @@
-library HolyUnity requires RegisterPlayerUnitEvent, Ability, Periodic
+library HolyUnity requires RegisterPlayerUnitEvent, Spell, Periodic
     /* ---------------------- Holy unity v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -37,7 +37,7 @@ library HolyUnity requires RegisterPlayerUnitEvent, Ability, Periodic
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct HolyUnity extends Ability
+    private struct HolyUnity extends Spell
         private unit unit
         private group group
         private player player

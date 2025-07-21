@@ -1,4 +1,4 @@
-library OdinIncinerate requires Ability, Missiles, Periodic, MouseUtils, DamageInterface, Utilities, optional Newbonus
+library OdinIncinerate requires Spell, Missiles, Periodic, MouseUtils, DamageInterface, Utilities, optional Newbonus
     /* -------------------- Odin Annihilate v1.3 by Chopinski ------------------- */
     // Credits:
     //     a-ravlik        - Icon
@@ -183,7 +183,7 @@ library OdinIncinerate requires Ability, Missiles, Periodic, MouseUtils, DamageI
         endmethod
     endstruct
 
-    private struct OdinIncinerate extends Ability
+    private struct OdinIncinerate extends Spell
         private real x
         private real y
         private real aoe

@@ -1,4 +1,4 @@
-library DragonZone requires Ability, Utilities, CrowdControl, Periodic optional NewBonus
+library DragonZone requires Spell, Utilities, CrowdControl, Periodic optional NewBonus
     /* ---------------------- Dragon Zone v1.3 by Chopinski --------------------- */
     // Credits:
     //     AZ             - Model
@@ -67,7 +67,7 @@ library DragonZone requires Ability, Utilities, CrowdControl, Periodic optional 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DragonZone extends Ability
+    private struct DragonZone extends Spell
         private real x
         private real y
         private real aoe

@@ -1,4 +1,4 @@
-library Misha requires RegisterPlayerUnitEvent, Ability, NewBonus, Periodic, Utilities
+library Misha requires RegisterPlayerUnitEvent, Spell, NewBonus, Periodic, Utilities
     /* ------------------------- Misha v1.1 by Chopinski ------------------------ */
     // Credits:
     //     Blizzard - Icon
@@ -32,7 +32,7 @@ library Misha requires RegisterPlayerUnitEvent, Ability, NewBonus, Periodic, Uti
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct Misha extends Ability
+    struct Misha extends Spell
         readonly static group array group
         readonly static integer array owner
         

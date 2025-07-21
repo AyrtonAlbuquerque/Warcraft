@@ -25,7 +25,7 @@ library WitheringFire requires RegisterPlayerUnitEvent, Ability
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct WitheringFire extends Ability
+    struct WitheringFire extends Spell
         static method setMissileArt takes unit source, boolean curse returns nothing
             if curse then
                 call UnitRemoveAbility(source, WITHERING_FIRE_NORMAL)

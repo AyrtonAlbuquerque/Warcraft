@@ -1,4 +1,4 @@
-library BlackArrow requires Ability, DamageInterface, RegisterPlayerUnitEvent, Utilities, NewBonus, Periodic optional RangerPrecision
+library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Utilities, NewBonus, Periodic optional RangerPrecision
     /* ---------------------- Black Arrow v1.4 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96 - RegisterPlayerUnitEvent
@@ -93,7 +93,7 @@ library BlackArrow requires Ability, DamageInterface, RegisterPlayerUnitEvent, U
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct BlackArrow extends Ability
+    struct BlackArrow extends Spell
         private static integer array elite
         private static integer array counter
         private static integer array skeletons

@@ -1,4 +1,4 @@
-library AutomatedTurrent requires Ability, DamageInterface, Missiles, Utilities, NewBonus optional ArsenalUpgrade
+library AutomatedTurrent requires Spell, DamageInterface, Missiles, Utilities, NewBonus optional ArsenalUpgrade
     /* ------------------- Automated Turrent v1.3 by Chipinski ------------------ */
     // Credits:
     //     NFWar        - Gun Fire Icon
@@ -116,7 +116,7 @@ library AutomatedTurrent requires Ability, DamageInterface, Missiles, Utilities,
         endmethod
     endstruct
 
-    private struct AutomatedTurrent extends Ability
+    private struct AutomatedTurrent extends Spell
         private static unit array owner
         private static integer array array
 

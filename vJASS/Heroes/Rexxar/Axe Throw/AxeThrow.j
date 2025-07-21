@@ -1,4 +1,4 @@
-library AxeThrow requires Ability, Missiles, Utilities, CrowdControl optional NewBonus
+library AxeThrow requires Spell, Missiles, Utilities, CrowdControl optional NewBonus
     /* ----------------------- Axe Throw v1.2 by Chopinski ---------------------- */
     // Credits:
     //     -Berz-          - Icon
@@ -108,7 +108,7 @@ library AxeThrow requires Ability, Missiles, Utilities, CrowdControl optional Ne
         endmethod
     endstruct
 
-    private struct AxeThrow extends Ability
+    private struct AxeThrow extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Rexxar|r thow his axes in an arc, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slowing enemy units hit by |cffffcc00" + N2S(GetSlowAmount(level) * 100, 0) + "%|r for |cffffcc00" + N2S(GetSlowDuration(level), 1) + "|r seconds. Upon reacinhg the targeted destination, the axes return to |cffffcc00Rexxar|r. Every unit killed by the axes reduces cooldown by |cffffcc00" + N2S(GetCooldownReduction(level), 1) + "|r seconds."
         endmethod

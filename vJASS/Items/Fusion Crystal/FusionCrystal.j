@@ -46,7 +46,7 @@ scope FusionCrystal
                 call AddUnitBonusTimed(Spell.source.unit, BONUS_MANA_REGEN, GetMultiplier()*charge[Spell.source.id], GetDuration())
                 set charge[Spell.source.id] = 0
             else
-                call ArcingTextTag.create(("|cff6495ed" + "No Charges"), Spell.source.unit)
+                call ArcingTextTag.create(("|cff6495ed" + "No Charges"), Spell.source.unit, 0.015)
             endif
         endmethod
 

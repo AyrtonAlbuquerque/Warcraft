@@ -1,4 +1,4 @@
-library SpellShield requires DamageInterface, Ability, Utilities, NewBonus, CrowdControl, Periodic optional Metamorphosis
+library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdControl, Periodic optional Metamorphosis
     /* --------------------- Spell Shield v1.4 by Chopinski --------------------- */
     // Credits:
     //     Darkfang        - Icon
@@ -63,7 +63,7 @@ library SpellShield requires DamageInterface, Ability, Utilities, NewBonus, Crow
         endmethod
     endstruct
 
-    private struct SpellShield extends Ability
+    private struct SpellShield extends Spell
         private static group group = CreateGroup()
 
         private real x

@@ -1,4 +1,4 @@
-library Fissure requires Spell, SpellEffectEvent, Missiles, Utilities, CrowdControl, optional NewBonus
+library Fissure requires Spell, Missiles, Utilities, CrowdControl, optional NewBonus
     /* ------------------------ Fissure v1.4 by CHopinski ----------------------- */
     // Credits:
     //     AnsonRuk    - Icon Darky29

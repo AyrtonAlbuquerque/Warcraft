@@ -1,4 +1,4 @@
-library ExplosiveRune requires Ability, Utilities optional Afterburner, CooldownReduction, NewBonus
+library ExplosiveRune requires Spell, Utilities optional Afterburner, CooldownReduction, NewBonus
     /* -------------------- Explosive Rune v1.6 by Chopinski -------------------- */
     // Credits:
     //     Mythic           - Conflagrate model
@@ -47,7 +47,7 @@ library ExplosiveRune requires Ability, Utilities optional Afterburner, Cooldown
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct ExplosiveRune extends Ability
+    private struct ExplosiveRune extends Spell
         private static integer array charges
 
         private real x

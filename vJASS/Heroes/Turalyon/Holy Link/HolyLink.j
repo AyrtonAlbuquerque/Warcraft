@@ -1,4 +1,4 @@
-library HolyLink requires Ability, Utilities, DamageInterface, NewBonus, Periodic optional LightInfusion
+library HolyLink requires Spell, Utilities, DamageInterface, NewBonus, Periodic optional LightInfusion
     /* ----------------------- Holy Link v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -51,7 +51,7 @@ library HolyLink requires Ability, Utilities, DamageInterface, NewBonus, Periodi
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct HolyLink extends Ability
+    private struct HolyLink extends Spell
         private static integer array reduce
 
         private unit unit

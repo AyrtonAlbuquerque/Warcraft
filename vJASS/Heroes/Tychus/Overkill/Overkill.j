@@ -1,4 +1,4 @@
-library Overkill requires Ability, RegisterPlayerUnitEvent, Missiles, Utilities, MouseUtils, NewBonus, Periodic optional ArsenalUpgrade
+library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, MouseUtils, NewBonus, Periodic optional ArsenalUpgrade
     /* ----------------------- Overkill v1.4 by Chopinski ----------------------- */
     // Credits:
     //     Blizzard         - Icon
@@ -88,7 +88,7 @@ library Overkill requires Ability, RegisterPlayerUnitEvent, Missiles, Utilities,
         endmethod
     endstruct
 
-    private struct Overkill extends Ability
+    private struct Overkill extends Spell
         private unit unit
         private integer id
         private real prevX

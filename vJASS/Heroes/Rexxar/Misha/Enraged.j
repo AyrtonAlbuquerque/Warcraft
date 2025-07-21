@@ -1,4 +1,4 @@
-library Enraged requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Indexer, Ability, Utilities
+library Enraged requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Indexer, Spell, Utilities
     /* ------------------------ Enraged v1.1 by Chopinski ----------------------- */
     // Credits:
     //     Nyx-Studio      - Icon
@@ -36,7 +36,7 @@ library Enraged requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Ind
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Enraged extends Ability
+    private struct Enraged extends Spell
         private static real array speed
         private static real array damage
         private static real array movement

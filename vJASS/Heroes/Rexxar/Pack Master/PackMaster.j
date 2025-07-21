@@ -1,4 +1,4 @@
-library PackMaster requires RegisterPlayerUnitEvent, Ability, TimerUtils, NewBonus, Periodic
+library PackMaster requires RegisterPlayerUnitEvent, Spell, TimerUtils, NewBonus, Periodic
     /* ---------------------- Pack Master v1.2 by Chopinski --------------------- */
     // Credits:
     //     Vexorian        - TimerUtils
@@ -218,7 +218,7 @@ library PackMaster requires RegisterPlayerUnitEvent, Ability, TimerUtils, NewBon
         endmethod
     endstruct
     
-    private struct PackMaster extends Ability
+    private struct PackMaster extends Spell
         static thistype array struct
         static boolean array holding
         static boolean array registered

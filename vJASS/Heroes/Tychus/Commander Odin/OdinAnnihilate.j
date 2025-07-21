@@ -1,4 +1,4 @@
-library OdinAnnihilate requires Ability, Missiles, Periodic, Utilities optional NewBonus
+library OdinAnnihilate requires Spell, Missiles, Periodic, Utilities optional NewBonus
     /* -------------------- Odin Annihilate v1.2 by Chopinski ------------------- */
     // Credits:
     //     a-ravlik        - Icon
@@ -95,7 +95,7 @@ library OdinAnnihilate requires Ability, Missiles, Periodic, Utilities optional 
         endmethod
     endstruct
 
-    private struct OdinAnnihilate extends Ability
+    private struct OdinAnnihilate extends Spell
         private real x
         private real y
         private real aoe

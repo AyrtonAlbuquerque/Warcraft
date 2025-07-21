@@ -13,8 +13,8 @@ scope SaphireShoulderPlate
         private integer index
 
         method destroy takes nothing returns nothing
-            call ArcingTextTag.create(("|cffff0000" + "-10"), unit)
-            call ArcingTextTag.create(("|cff32cd32" + "-10"), unit)
+            call ArcingTextTag.create(("|cffff0000" + "-10"), unit, 0.015)
+            call ArcingTextTag.create(("|cff32cd32" + "-10"), unit, 0.015)
             call deallocate()
 
             set str[index] = str[index] - 10
@@ -39,8 +39,8 @@ scope SaphireShoulderPlate
                 call DestroyEffectTimed(AddSpecialEffectTarget("Blue.mdx", Damage.target.unit, "chest"), 30)
                 call AddUnitBonusTimed(Damage.target.unit, BONUS_STRENGTH, 10, 30)
                 call AddUnitBonusTimed(Damage.target.unit, BONUS_AGILITY, 10, 30)
-                call ArcingTextTag.create(("|cffff0000" + "+10"), Damage.target.unit)
-                call ArcingTextTag.create(("|cff32cd32" + "+10"), Damage.target.unit)
+                call ArcingTextTag.create(("|cffff0000" + "+10"), Damage.target.unit, 0.015)
+                call ArcingTextTag.create(("|cff32cd32" + "+10"), Damage.target.unit, 0.015)
                 call StartTimer(30, false, this, -1)
             endif
         endmethod

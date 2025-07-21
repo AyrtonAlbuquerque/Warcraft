@@ -1,4 +1,4 @@
-library ArrowStorm requires Ability, Utilities, Missiles, optional BlackArrow optional NewBonus
+library ArrowStorm requires Spell, Utilities, Missiles, optional BlackArrow optional NewBonus
     /* ---------------------- ArrowStorm v1.4 by Chopinski ---------------------- */
     // Credits:
     //     Deathclaw24  - Arrow Storm Icon
@@ -93,7 +93,7 @@ library ArrowStorm requires Ability, Utilities, Missiles, optional BlackArrow op
         endmethod
     endstruct
 
-    private struct ArrowStorm extends Ability
+    private struct ArrowStorm extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Sylvanas|r lauches |cffffcc00" + N2S(GetArrowCount(level), 0) + "|r arrows into the air that will land within |cffffcc00" + N2S(GetAoE(source, level), 0) + "|r |cffffcc00AoE|r of targeted area in random spots, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage to enemy units hitted. If |cffffcc00Black Arrows|r is active, |cffffcc00Arrow Storm|r will curse enemy units hit."
         endmethod

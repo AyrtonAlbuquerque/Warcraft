@@ -1,4 +1,4 @@
-library ThunderClap requires Ability, TimedHandles, CrowdControl, Utilities optional Avatar optional NewBonus
+library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities optional Avatar optional NewBonus
     /* -------------------------------------- Thunder Clap v1.5 ------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -86,7 +86,7 @@ library ThunderClap requires Ability, TimedHandles, CrowdControl, Utilities opti
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct ThunderClap extends Ability
+    private struct ThunderClap extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r by |cffffcc00" + N2S(GetAttackSlowAmount(source, level) * 100, 0) + "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc002.5%|r (|cffffcc0010%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r"
         endmethod

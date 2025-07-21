@@ -1,4 +1,4 @@
-library Zap requires Ability, Missiles, Utilities optional NewBonus
+library Zap requires Spell, Missiles, Utilities optional NewBonus
     /* -------------------------- Zap v1.3 by Chopinski ------------------------- */
     // Credits:
     //     CRAZYRUSSIAN    - Icon
@@ -83,7 +83,7 @@ library Zap requires Ability, Missiles, Utilities optional NewBonus
         endmethod
     endstruct
 
-    private struct Zap extends Ability
+    private struct Zap extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string 
             return "|cffffcc00Storm|r transforms into a lightning, flying towards the targeted direction and dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage to enemy unit in his path. |cffffcc00Zap|r drains |cff00ffff" + N2S(GetManaDrain(level), 0) + " Mana|r per second."
         endmethod

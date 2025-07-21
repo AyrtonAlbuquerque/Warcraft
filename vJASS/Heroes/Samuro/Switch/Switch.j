@@ -1,4 +1,4 @@
-library Switch requires Ability, Periodic, MirrorImage
+library Switch requires Spell, Periodic, MirrorImage
     /* ------------------------ Switch v1.4 by Chopinski ------------------------ */
     // Credits:
     //     CheckeredFlag  - Icon
@@ -17,7 +17,7 @@ library Switch requires Ability, Periodic, MirrorImage
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Switch extends Ability
+    private struct Switch extends Spell
         private unit unit
         private group group
 

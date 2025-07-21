@@ -1,4 +1,4 @@
-library BrillanceAura requires RegisterPlayerUnitEvent, Ability, Periodic, Utilities
+library BrillanceAura requires RegisterPlayerUnitEvent, Spell, Periodic, Utilities
     /* -------------------- Brilliance Aure v1.2 by Chopinski ------------------- */
     // Credits
     //      Magtheridon96    - RegisterPlayerUnitEvent
@@ -27,7 +27,7 @@ library BrillanceAura requires RegisterPlayerUnitEvent, Ability, Periodic, Utili
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct BrillianceAura extends Ability
+    private struct BrillianceAura extends Spell
         private unit unit
         private integer id
         private real bonus

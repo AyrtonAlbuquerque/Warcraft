@@ -1,4 +1,4 @@
-library NimbleDash requires Ability, Missiles, Utilities, CrowdControl, NewBonus, optional Metamorphosis, optional CooldownReduction
+library NimbleDash requires Spell, Missiles, Utilities, CrowdControl, NewBonus, Evasion, optional Metamorphosis, optional CooldownReduction
     /* ---------------------- Nimble Dash v1.0 by Chopinski --------------------- */
     // Credits:
     //     Blizzard - Icon
@@ -130,7 +130,7 @@ library NimbleDash requires Ability, Missiles, Utilities, CrowdControl, NewBonus
         endmethod
     endstruct
 
-    private struct NimbleDash extends Ability
+    private struct NimbleDash extends Spell
         private static integer array charges
 
         private unit unit
@@ -187,9 +187,7 @@ library NimbleDash requires Ability, Missiles, Utilities, CrowdControl, NewBonus
                     static if LIBRARY_CooldownReduction then
                         call CalculateAbilityCooldown(Spell.source.unit, ABILITY, Spell.level, GetRemainingTime(GetTimerInstance(Spell.source.id)))
                     else
-                        call BlzSetAbilityRealLevelField(Spell.ability, ABILITY_RLF_COOLDOWN, Spell.level - 1, GetRemainingTime(GetTimerInstance(Spell.source.id)))
-                        call IncUnitAbilityLevel(Spell.source.unit, ABILITY)
-                        call DecUnitAbilityLevel(Spell.source.unit, ABILITY)
+                        set Spell.cooldown = GetRemainingTime(GetTimerInstance(Spell.source.id))
                     endif
                 endif
             endif

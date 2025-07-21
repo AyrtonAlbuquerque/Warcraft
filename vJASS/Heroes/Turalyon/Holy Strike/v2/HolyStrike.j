@@ -1,4 +1,4 @@
-library HolyStrike requires DamageInterface, Ability, NewBonus
+library HolyStrike requires DamageInterface, Spell, NewBonus
     /* ---------------------- Holy Strike v1.3 by Chopinski --------------------- */
     // Credits:
     //     AbstractCreativity - Icon
@@ -49,7 +49,7 @@ library HolyStrike requires DamageInterface, Ability, NewBonus
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct HolyStrike extends Ability
+    private struct HolyStrike extends Spell
         private unit unit
         private real aoe
         private group group

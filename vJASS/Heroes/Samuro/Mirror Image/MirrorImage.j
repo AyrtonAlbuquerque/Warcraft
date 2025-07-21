@@ -1,4 +1,4 @@
-library MirrorImage requires RegisterPlayerUnitEvent, Ability, NewBonus, Periodic, TimedHandles, Indexer, Utilities
+library MirrorImage requires RegisterPlayerUnitEvent, Spell, NewBonus, Periodic, TimedHandles, Indexer, Utilities
     /* ---------------------- MirrorImage v1.4 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96    - RegisterPlayerUnitEvent
@@ -58,7 +58,7 @@ library MirrorImage requires RegisterPlayerUnitEvent, Ability, NewBonus, Periodi
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct MirrorImage extends Ability
+    private struct MirrorImage extends Spell
         private static real array dealt
         private static real array taken
         private static group array group

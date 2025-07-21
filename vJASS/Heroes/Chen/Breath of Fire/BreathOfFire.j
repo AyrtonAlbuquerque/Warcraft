@@ -1,8 +1,7 @@
-library BreathOfFire requires Ability, NewBonus, Utilities, Missiles, Periodic optional KegSmash
+library BreathOfFire requires Spell, NewBonus, Utilities, Missiles, Periodic optional KegSmash
     /* -------------------- Breath of Fire v1.4 by Chopinski -------------------- */
     // Credits:
     //     Blizzard           - Icon
-    //     Bribe              - SpellEffectEvent
     //     AZ                 - Breth of Fire model
     /* ----------------------------------- END ---------------------------------- */
     
@@ -199,7 +198,7 @@ library BreathOfFire requires Ability, NewBonus, Utilities, Missiles, Periodic o
         endmethod
     endstruct
 
-    private struct BreathOfFire extends Ability
+    private struct BreathOfFire extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Chen|r breathes fire in a cone, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage to enemy units and setting them on fire, dealing |cff00ffff" + N2S(GetDoTDamage(source, level), 0) + "|r |cff00ffffMagic|r damage every |cffffcc00" + N2S(GetIgniteInterval(level), 1) + "|r second. If the unit is under the effect of |cffffcc00Drunken Haze|r, the |cffffcc00DoT|r damage is doubled and reduces the unit armor by |cffffcc00" + N2S(GetArmorReduction(level), 0) + "|r. In addition, if the fire wave comes in contact with a |cffffcc00Brew Cloud|r it will ignite it, setting the terrain on fire, dealing |cff00ffff" + N2S(GetIgniteDamage(source, level), 0) + "|r |cff00ffffMagic|r damage per second to enemy units within range.\n\nLasts |cffffcc00" + N2S(GetDuration(source, level), 0) + "|r seconds."
         endmethod

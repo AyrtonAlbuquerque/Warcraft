@@ -1,4 +1,4 @@
-library Afterburner requires Ability, Periodic, DamageInterface, Utilities, optional NewBonus
+library Afterburner requires Spell, Periodic, DamageInterface, Utilities, optional NewBonus
     /* ---------------------- Afterburner v1.6 by Chopinski --------------------- */
     // Credits:
     //     PrinceYaser - icon.
@@ -47,7 +47,7 @@ library Afterburner requires Ability, Periodic, DamageInterface, Utilities, opti
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Afterburner extends Ability
+    private struct Afterburner extends Spell
         private static integer array array
 
         private unit unit

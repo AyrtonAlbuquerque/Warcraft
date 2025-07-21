@@ -1,4 +1,4 @@
-library AdaptiveStrike requires RegisterPlayerUnitEvent, NewBonus, Ability, Utilities
+library AdaptiveStrike requires RegisterPlayerUnitEvent, NewBonus, Spell, Utilities
     /* -------------------- Adaptive Strike v1.3 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -40,7 +40,7 @@ library AdaptiveStrike requires RegisterPlayerUnitEvent, NewBonus, Ability, Util
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct AdaptiveStrike extends Ability
+    private struct AdaptiveStrike extends Spell
         private static integer array state
 
         private method onTooltip takes unit source, integer level, ability spell returns string

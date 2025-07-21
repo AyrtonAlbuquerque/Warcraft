@@ -31,7 +31,7 @@ scope EmeraldShoulderPlate
         private integer index
 
         method destroy takes nothing returns nothing
-            call ArcingTextTag.create(("|cffff0000-" + R2I2S(GetBonusStrength())), unit)
+            call ArcingTextTag.create(("|cffff0000-" + R2I2S(GetBonusStrength())), unit, 0.015)
             call deallocate()
 
             set amount[index] = amount[index] - GetBonusStrength()
@@ -54,7 +54,7 @@ scope EmeraldShoulderPlate
                 call StartTimer(GetDuration(), false, this, -1)
                 call DestroyEffect(AddSpecialEffectTarget(effect, Damage.target.unit, "origin"))
                 call AddUnitBonusTimed(Damage.target.unit, BONUS_STRENGTH, GetBonusStrength(), GetDuration())
-                call ArcingTextTag.create(("|cffff0000+" + R2I2S(GetBonusStrength())), Damage.target.unit)
+                call ArcingTextTag.create(("|cffff0000+" + R2I2S(GetBonusStrength())), Damage.target.unit, 0.015)
             endif
         endmethod
 

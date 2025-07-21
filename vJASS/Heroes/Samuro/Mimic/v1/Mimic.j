@@ -1,4 +1,4 @@
-library Mimic requires Ability, RegisterPlayerUnitEvent, MirrorImage, optional WindWalk, optional Bladestorm
+library Mimic requires Spell, RegisterPlayerUnitEvent, MirrorImage, optional WindWalk, optional Bladestorm
     /* ------------------------- Mimic v1.3 by Chopinski ------------------------ */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -51,7 +51,7 @@ library Mimic requires Ability, RegisterPlayerUnitEvent, MirrorImage, optional W
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Mimic extends Ability
+    private struct Mimic extends Spell
         private static method update takes unit source, integer id, abilityreallevelfield field returns nothing
             local integer i = 0
             local ability spell = BlzGetUnitAbility(source, id)

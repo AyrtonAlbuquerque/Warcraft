@@ -1,4 +1,4 @@
-library BlessedField requires Ability, Periodic, Utilities, optional LightInfusion
+library BlessedField requires Spell, Periodic, Utilities, optional LightInfusion
     /* --------------------- Blessed Field v1.3 by Chopinski -------------------- */
     // Credits:
     //     Darkfang - Icon
@@ -58,7 +58,7 @@ library BlessedField requires Ability, Periodic, Utilities, optional LightInfusi
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct BlessedField extends Ability
+    private struct BlessedField extends Spell
         private static integer array revive
 
         private real x

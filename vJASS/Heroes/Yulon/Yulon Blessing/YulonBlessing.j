@@ -1,4 +1,4 @@
-library YulonBlessing requires RegisterPlayerUnitEvent, Utilities, Ability, TimerUtils
+library YulonBlessing requires RegisterPlayerUnitEvent, Utilities, Spell, TimerUtils
     /* -------------------- Yulon Blessing v1.2 by Chopinski -------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -48,7 +48,7 @@ library YulonBlessing requires RegisterPlayerUnitEvent, Utilities, Ability, Time
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct YulonBlessing extends Ability
+    private struct YulonBlessing extends Spell
         private static integer array array
         private static boolean array active
     

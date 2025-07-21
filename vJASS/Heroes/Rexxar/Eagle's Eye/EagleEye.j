@@ -1,4 +1,4 @@
-library EagleEye requires Ability, Missiles, NewBonus, TimerUtils
+library EagleEye requires Spell, Missiles, NewBonus, TimerUtils
     /* ---------------------- Eagle's Eye v1.1 by Chopinksi --------------------- */
     // Credits: SkriK
     //     SkriK           - Icon
@@ -182,7 +182,7 @@ library EagleEye requires Ability, Missiles, NewBonus, TimerUtils
         endmethod
     endstruct
 
-    private struct EagleEye extends Ability
+    private struct EagleEye extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Rexxar|r sends an eagle to the targeted enemy |cff00ff00unit|r or |cff00ff00location|r. In its path the eagle reveals the surrounding area. Upon reaching the targeted unit, the eagle will blind it, reducing its sight range by |cffffcc00" + N2S(GetVisionReduction(source, level), 0) + "|r for |cffffcc00" + N2S(GetReductionDuraiton(source, level), 0) + "|r seconds and dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage. When reaching the targeted location the eagle will remain in its position for |cffffcc00" + N2S(GetDuration(source, level), 0) + "|r seconds , revealing |cffffcc00" + N2S(GetVisionRange(source, level), 0) + " AoE|r. When any enemy unit comes in range, the eagle will lunge towards it, dealing |cff00ffff" + N2S(GetAoEDamage(source, level), 0) + " Magic|r damage and blinding all enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r."
         endmethod

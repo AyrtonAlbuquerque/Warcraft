@@ -1,4 +1,4 @@
-library DraconicDischarge requires Ability, Utilities, LineSegmentEnumeration, CrowdControl optional NewBonus
+library DraconicDischarge requires Spell, Utilities, LineSegmentEnumeration, CrowdControl optional NewBonus
     /* ------------------ Draconic Discharge v1.4 by Chopinski ------------------ */
     // Credits:
     //     N-ix Studio      - Icon
@@ -56,7 +56,7 @@ library DraconicDischarge requires Ability, Utilities, LineSegmentEnumeration, C
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DraconicDischarge extends Ability
+    private struct DraconicDischarge extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Yu'lon|r discharges a powerful enegy blast towards the targeted direction, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r Magic|r damage and stunning enemy units caught in its radius for |cffffcc00" + N2S(GetStunDuration(source, level), 0) + "|r seconds. |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r, |cffffcc00" + N2S(GetRange(source, level), 0) + "|r blast range."
         endmethod

@@ -1,4 +1,4 @@
-library BreakingSlash requires Ability, Missiles
+library BreakingSlash requires Spell, Missiles
     /* -------------------- Breaking Slash v1.3 by Chopinski -------------------- */
     // Credits:
     //     PeeKay         - Icon
@@ -58,7 +58,7 @@ library BreakingSlash requires Ability, Missiles
         endmethod
     endstruct
 
-    private struct BreakingSlash extends Ability
+    private struct BreakingSlash extends Spell
         private static method slash takes unit source, unit target, real damage, integer level returns nothing
             local real x = GetUnitX(target)
             local real y = GetUnitY(target)

@@ -1,4 +1,4 @@
-library StormBolt requires Ability, Missiles, Utilities, CrowdControl optional ThunderClap optional NewBonus
+library StormBolt requires Spell, Missiles, Utilities, CrowdControl optional ThunderClap optional NewBonus
     /* --------------------------------------- Storm Bolt v1.5 -------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -120,7 +120,7 @@ library StormBolt requires Ability, Missiles, Utilities, CrowdControl optional T
         endmethod
     endstruct
 
-    struct StormBolt extends Ability
+    struct StormBolt extends Spell
         readonly static real array x
         readonly static real array y
 

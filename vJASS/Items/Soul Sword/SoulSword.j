@@ -39,7 +39,7 @@ scope SoulSword
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy then
                 call UnitDamageTarget(Damage.source.unit, Damage.target.unit, GetDamage(), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
                 call SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (GetHeal() + bonus[Damage.source.id])))
-                call ArcingTextTag.create(("|cff32cd32" + "+" + I2S(R2I(GetHeal() + bonus[Damage.source.id]))), Damage.source.unit)
+                call ArcingTextTag.create(("|cff32cd32" + "+" + I2S(R2I(GetHeal() + bonus[Damage.source.id]))), Damage.source.unit, 0.015)
                 call DestroyEffect(AddSpecialEffectTarget("SpellVampTarget.mdx", Damage.source.unit, "origin"))
             endif
         endmethod

@@ -1,4 +1,4 @@
-library Immolation requires Ability, RegisterPlayerUnitEvent, NewBonus, Periodic, Utilities
+library Immolation requires Spell, RegisterPlayerUnitEvent, NewBonus, Periodic, Utilities
     /* ---------------------- Immolation v1.2 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -49,7 +49,7 @@ library Immolation requires Ability, RegisterPlayerUnitEvent, NewBonus, Periodic
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Immolation extends Ability
+    private struct Immolation extends Spell
         private unit unit
         private group group
         private player player

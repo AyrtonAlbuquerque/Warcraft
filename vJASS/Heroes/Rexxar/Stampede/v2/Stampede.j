@@ -1,4 +1,4 @@
-library Stampede requires Ability, Missiles, Utilities, Periodic, CrowdControl, optional NewBonus
+library Stampede requires Spell, Missiles, Utilities, Periodic, CrowdControl, optional NewBonus
     /* ----------------------- Stampede v1.2 by Chopinski ----------------------- */
 
     /* -------------------------------------------------------------------------- */
@@ -75,7 +75,7 @@ library Stampede requires Ability, Missiles, Utilities, Periodic, CrowdControl, 
         endmethod
     endstruct
 
-    private struct Stampede extends Ability
+    private struct Stampede extends Spell
         private real aoe
         private real stun
         private unit unit

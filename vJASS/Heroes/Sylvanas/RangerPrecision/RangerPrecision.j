@@ -1,4 +1,4 @@
-library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBonus, Ability, Utilities
+library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBonus, Spell, Utilities
     /* ------------------- Ranger Precision v1.3 by Chopinski ------------------- */
     // Credits:
     //     Magtheridon96 - RegisterPlayerUnitEvent
@@ -40,7 +40,7 @@ library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBo
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct RangerPrecision extends Ability
+    struct RangerPrecision extends Spell
         private static integer array count
         readonly static boolean array enabled
 

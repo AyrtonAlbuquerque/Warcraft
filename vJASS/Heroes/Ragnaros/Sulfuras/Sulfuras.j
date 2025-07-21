@@ -1,4 +1,4 @@
-library Sulfuras requires RegisterPlayerUnitEvent, Ability, NewBonus, Utilities
+library Sulfuras requires RegisterPlayerUnitEvent, Spell, NewBonus, Utilities
     /* ---------------------------------------- Sulfuras v1.6 --------------------------------------- */
     // Credits: 
     //     Blizzard      - icon (Edited by me)
@@ -35,7 +35,7 @@ library Sulfuras requires RegisterPlayerUnitEvent, Ability, NewBonus, Utilities
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    struct Sulfuras extends Ability
+    struct Sulfuras extends Spell
         private static integer array count
         readonly static integer array stacks
 

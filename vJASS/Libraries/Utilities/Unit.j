@@ -1,5 +1,5 @@
-library Spell requires RegisterPlayerUnitEvent
-    private struct Unit
+library Unit
+    struct Unit
         private static location location = Location(0, 0)
 
         unit unit
@@ -94,74 +94,12 @@ library Spell requires RegisterPlayerUnitEvent
             return IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE)
         endmethod
 
-        static method create takes nothing returns thistype
-            return thistype.allocate()
+        static method create takes unit u returns thistype
+            local thistype this = thistype.allocate()
+
+            set unit = u
+
+            return this
         endmethod
-    endstruct
-
-    private module MSpell
-        private static method onInit takes nothing returns nothing
-            set source = Unit.create()
-            set target = Unit.create()
-            
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST, function thistype.onCast)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_FINISH, function thistype.onCast)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCast)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, function thistype.onCast)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, function thistype.onCast)
-        endmethod
-    endmodule
-
-    struct Spell extends array
-        readonly static Unit source
-        readonly static Unit target
-        readonly static location location = Location(0, 0)
-
-        static method operator x takes nothing returns real
-            return GetSpellTargetX()
-        endmethod
-
-        static method operator y takes nothing returns real
-            return GetSpellTargetY()
-        endmethod
-
-        static method operator z takes nothing returns real
-            call MoveLocation(location, x, y)
-
-            if target.unit != null then
-                return target.z
-            else
-                return GetLocationZ(location)
-            endif
-        endmethod
-
-        static method operator id takes nothing returns integer
-            return GetSpellAbilityId()
-        endmethod
-
-        static method operator level takes nothing returns integer
-            return GetUnitAbilityLevel(source.unit, id)
-        endmethod
-
-        static method operator ability takes nothing returns ability
-            return BlzGetUnitAbility(source.unit, id)
-        endmethod
-
-        static method operator isAlly takes nothing returns boolean
-            return IsUnitAlly(target.unit, source.player)
-        endmethod
-
-        static method operator isEnemy takes nothing returns boolean
-            return IsUnitEnemy(target.unit, source.player)
-        endmethod
-
-        private static method onCast takes nothing returns nothing
-            if GetUnitAbilityLevel(GetTriggerUnit(), 'Aloc') == 0 then
-                set source.unit = GetTriggerUnit()
-                set target.unit = GetSpellTargetUnit()
-            endif
-        endmethod
-
-        implement MSpell
     endstruct
 endlibrary

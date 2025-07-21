@@ -1,4 +1,4 @@
-library DragonDash requires Ability, Missiles, Utilities
+library DragonDash requires Spell, Missiles, Utilities
     /* ---------------------- Dragon Dash v1.2 by Chopinski --------------------- */
     // Credits:
     //     Zipfinator    - Icon
@@ -94,7 +94,7 @@ library DragonDash requires Ability, Missiles, Utilities
         endmethod
     endstruct
 
-    private struct DragonDash extends Ability
+    private struct DragonDash extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Yu'lon|r dashes up to |cffffcc00" + N2S(GetDistance(level), 0) + "|r range towards the targeted direction and with no collision. For each enemy unit |cffffcc00Yu'lon|r pass trough, |cffffcc00Dragon Dash|r cooldown is reduced by |cffffcc00" + N2S(GetCooldownReduction(level), 1) + "|r second."
         endmethod

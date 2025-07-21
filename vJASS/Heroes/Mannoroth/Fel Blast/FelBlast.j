@@ -1,4 +1,4 @@
-library FelBlast requires Ability, Periodic, Utilities optional FelBeam optional NewBonus
+library FelBlast requires Spell, Periodic, Utilities optional FelBeam optional NewBonus
     /* ----------------------- Fel Blast v1.5 by Chopinski ---------------------- */
     // Credits:
     //     Mythic   - Nther Blast model
@@ -45,7 +45,7 @@ library FelBlast requires Ability, Periodic, Utilities optional FelBeam optional
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct FelBlast extends Ability
+    private struct FelBlast extends Spell
         private real x
         private real y
         private unit unit

@@ -1,4 +1,4 @@
-library LightInfusion requires RegisterPlayerUnitEvent, Ability, Table, Utilities, NewBonus, Periodic
+library LightInfusion requires RegisterPlayerUnitEvent, Spell, Table, Utilities, NewBonus, Periodic
     /* -------------------- Light Infusion v1.3 by Chopinski -------------------- */
     // Credits:
     //     NO-Bloody-Name  - Icon
@@ -46,7 +46,7 @@ library LightInfusion requires RegisterPlayerUnitEvent, Ability, Table, Utilitie
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct LightInfusion extends Ability
+    struct LightInfusion extends Spell
         private static constant real CIRCLE = 2*bj_PI
         private static constant real STEP = 2.5*bj_DEGTORAD
 

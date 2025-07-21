@@ -1,4 +1,4 @@
-library PandaPower requires RegisterPlayerUnitEvent, NewBonus, Ability
+library PandaPower requires RegisterPlayerUnitEvent, NewBonus, Spell
     /* ---------------------- Panda Power v1.2 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -33,7 +33,7 @@ library PandaPower requires RegisterPlayerUnitEvent, NewBonus, Ability
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct PandaPower extends Ability
+    private struct PandaPower extends Spell
         private static method onLevelUp takes nothing returns nothing
             local unit u = GetTriggerUnit()
         

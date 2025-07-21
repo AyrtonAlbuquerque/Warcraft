@@ -1,6 +1,5 @@
 library ArcingFloatingText requires Table, Periodic
     globals
-        private constant real MIN_SIZE = 0.014
         private constant real BONUS_SIZE = 0.000
         private constant real LIFE_TIME = 1.0
         private constant real Z_OFFSET = 50
@@ -16,6 +15,7 @@ library ArcingFloatingText requires Table, Periodic
         private real y
         private real sin
         private real cos
+        private real size
         private real duration
         private string text
         private texttag texttag
@@ -41,18 +41,19 @@ library ArcingFloatingText requires Table, Periodic
                 set y = y + sin
 
                 call SetTextTagPos(texttag, x, y, Z_OFFSET + Z_OFFSET_BONUS * height)
-                call SetTextTagText(texttag, text, MIN_SIZE + BONUS_SIZE * height)
+                call SetTextTagText(texttag, text, size + BONUS_SIZE * height)
             endif
 
             return duration > 0
         endmethod
         
-        public static method create takes string value, unit u returns thistype
+        public static method create takes string value, unit u, real size returns thistype
             local thistype this = thistype.allocate()
             local real angle = GetRandomReal(0, 2 * bj_PI)
             
             set x = GetUnitX(u)
             set y = GetUnitY(u)
+            set .size = size
             set sin = Sin(angle) * VELOCITY
             set cos = Cos(angle) * VELOCITY
             set text = value
@@ -68,7 +69,7 @@ library ArcingFloatingText requires Table, Periodic
                 call SetTextTagPermanent(texttag, true)
             endif
 
-            call SetTextTagText(texttag, text, MIN_SIZE)
+            call SetTextTagText(texttag, text, size)
             call SetTextTagPos(texttag, x, y, Z_OFFSET)
             call StartTimer(0.03125, true, this, -1)
             

@@ -40,7 +40,7 @@ library HolyStrike requires DamageInterface, Ability
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct HolyStrike extends Ability
+    private struct HolyStrike extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Turalyon|r provides to all nearby allied units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + " AoE|r the ability to |cffffcc00Holy Strike|r, healing |cffffcc00" + N2S(GetHeal(level, false), 0) + "|r health with every auto attack. Healing halved for range attacks."
         endmethod

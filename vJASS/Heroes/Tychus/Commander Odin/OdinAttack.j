@@ -1,4 +1,4 @@
-library OdinAttack requires RegisterPlayerUnitEvent, Ability, Missiles, Utilities, NewBonus
+library OdinAttack requires RegisterPlayerUnitEvent, Spell, Missiles, Utilities, NewBonus
     /* ---------------------- Odin Attack v1.3 by Chopinski --------------------- */
     // Credits:
     //     a-ravlik        - Icon
@@ -102,7 +102,7 @@ library OdinAttack requires RegisterPlayerUnitEvent, Ability, Missiles, Utilitie
         endmethod
     endstruct
 
-    private struct OdinAttack extends Ability
+    private struct OdinAttack extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Odin|r attacks shots |cffffcc00" + N2S(GetMissileCount(level), 0) + "|r rockets to a location nearby the primary target location, dealing |cffffcc00" + N2S(GetDamage(source, level), 0) + "|r damage to all nearby enemy units within |cffffcc00" + N2S(GetAoE(level), 0) + "|r AoE."
         endmethod

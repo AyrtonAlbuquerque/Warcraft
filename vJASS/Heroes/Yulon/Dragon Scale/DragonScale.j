@@ -40,7 +40,7 @@ library DragonScale requires RegisterPlayerUnitEvent, DamageInterface, Ability o
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DragonScale extends Ability
+    private struct DragonScale extends Spell
         private static real array energy
 
         private method onTooltip takes unit source, integer level, ability spell returns string

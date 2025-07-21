@@ -1,4 +1,4 @@
-library DrunkenBrawler requires Ability, NewBonus, Utilities
+library DrunkenBrawler requires Spell, NewBonus, Utilities
     /* -------------------- Drunken Brawler v1.3 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -30,7 +30,7 @@ library DrunkenBrawler requires Ability, NewBonus, Utilities
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DrunkenBrawler extends Ability
+    private struct DrunkenBrawler extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Chen|r has |cffffcc00" + N2S(GetEvasionBonus(level) * 100 * level, 1) + "%|r chance to dodge attacks and have increased |cffffcc00" + N2S(GetCriticalChanceBonus(level) * 100 * level, 1) + "%|r |cffffcc00Critical Strike Chance|r and |cffffcc00" + N2S(GetCriticalDamageBonus(level) * 100 * level, 1) + "%|r |cffffcc00Critical Strike Damage|r."
         endmethod

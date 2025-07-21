@@ -1,4 +1,4 @@
-library DivineSmite requires Ability, Utilities, Periodic optional LightInfusion optional NewBonus
+library DivineSmite requires Spell, Utilities, Periodic optional LightInfusion optional NewBonus
     /* --------------------- Divine Smite v1.3 by Chopinski --------------------- */
     // Credits:
     //     CRAZYRUSSIAN    - Icon
@@ -72,7 +72,7 @@ library DivineSmite requires Ability, Utilities, Periodic optional LightInfusion
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DivineSmite extends Ability
+    private struct DivineSmite extends Spell
         private real x
         private real y
         private real aoe

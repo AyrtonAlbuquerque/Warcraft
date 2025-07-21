@@ -27,7 +27,7 @@ scope OrbOfSouls
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy then
                 if UnitDamageTarget(Damage.source.unit, Damage.target.unit, GetDamage(), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                     call SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + GetHeal()))
-                    call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(GetHeal())), Damage.source.unit)
+                    call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(GetHeal())), Damage.source.unit, 0.015)
                     call DestroyEffect(AddSpecialEffectTarget(effect, Damage.source.unit, "origin"))
                 endif
             endif

@@ -1,4 +1,4 @@
-library RunAndGun requires Ability, RegisterPlayerUnitEvent, NewBonus, TimedHandles, optional ArsenalUpgrade
+library RunAndGun requires Spell, RegisterPlayerUnitEvent, NewBonus, TimedHandles, optional ArsenalUpgrade
     /* ---------------------- Run And Gun v1.3 by Chopinski --------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -44,7 +44,7 @@ library RunAndGun requires Ability, RegisterPlayerUnitEvent, NewBonus, TimedHand
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct RunAndGun extends Ability
+    private struct RunAndGun extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "When killing an enemy unit |cffffcc00Tychus|r gains |cffffcc00" + N2S(5 * level, 0) + "|r (|cffffcc00" + N2S(20 * level, 0) + "|r for Heroes) bonus |cffffff00Movement Speed|r for |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds."
         endmethod

@@ -1,4 +1,4 @@
-library RainOfFelFire requires Missiles, Ability, Utilities, Periodic, optional NewBonus
+library RainOfFelFire requires Missiles, Spell, Utilities, Periodic, optional NewBonus
     /* ------------------- Rain of Fel Fire v1.5 by Chopinski ------------------- */
     // Credits:
     //     The Panda - InfernalShower icon

@@ -1,4 +1,4 @@
-library WaterShield requires RegisterPlayerUnitEvent, Ability, DamageInterface, Missiles, Utilities, Periodic optional NewBonus
+library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Missiles, Utilities, Periodic optional NewBonus
     /* --------------------- Water Shield v1.2 by Chopinski --------------------- */
     // Credits:
     //     Darkfang        - Icon
@@ -83,7 +83,7 @@ library WaterShield requires RegisterPlayerUnitEvent, Ability, DamageInterface, 
         endmethod
     endstruct
     
-    private struct WaterShield extends Ability
+    private struct WaterShield extends Spell
         private static effect array effect
         private static thistype array defense
         private static thistype array offense

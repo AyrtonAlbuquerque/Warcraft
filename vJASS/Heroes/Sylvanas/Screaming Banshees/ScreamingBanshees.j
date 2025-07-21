@@ -1,4 +1,4 @@
-library ScreamingBanshees requires Ability, NewBonus, Missiles, Utilities
+library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities
     /* ------------------ Screaming Banshees v1.3 by Chopinski ------------------ */
     // Credits:
     //     4eNNightmare - Icon
@@ -71,7 +71,7 @@ library ScreamingBanshees requires Ability, NewBonus, Missiles, Utilities
         endmethod
     endstruct
 
-    private struct ScreamingBanshees extends Ability
+    private struct ScreamingBanshees extends Spell
         private static Banshee array array
 
         private method onTooltip takes unit source, integer level, ability spell returns string

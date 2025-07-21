@@ -1,4 +1,4 @@
-library CommanderOdin requires Ability, Periodic, optional FragGranade, optional AutomatedTurrent, optional Overkill, optional RunAndGun, optional OdinAttack, optional OdinAnnihilate, optional OdinIncinerate
+library CommanderOdin requires Spell, Periodic, optional FragGranade, optional AutomatedTurrent, optional Overkill, optional RunAndGun, optional OdinAttack, optional OdinAnnihilate, optional OdinIncinerate
     /* -------------------- Commander Odin v1.3 by Chopinski -------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -15,7 +15,7 @@ library CommanderOdin requires Ability, Periodic, optional FragGranade, optional
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    struct CommanderOdin extends Ability
+    struct CommanderOdin extends Spell
         readonly static boolean array morphed
 
         private unit unit

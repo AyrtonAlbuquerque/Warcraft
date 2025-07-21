@@ -1,4 +1,4 @@
-library Reanimation requires RegisterPlayerUnitEvent, Ability, TimerUtils
+library Reanimation requires RegisterPlayerUnitEvent, Spell, TimerUtils
     /* --------------------- Reanimation v1.5 by Chopinski -------------------- */
     // Credits:
     //     Henry         - Reanimated Mannoroth model
@@ -31,7 +31,7 @@ library Reanimation requires RegisterPlayerUnitEvent, Ability, TimerUtils
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Reanimate extends Ability
+    private struct Reanimate extends Spell
         private static boolean array reanimated
 
         private unit unit

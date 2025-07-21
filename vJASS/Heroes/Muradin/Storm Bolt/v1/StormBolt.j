@@ -1,4 +1,4 @@
-library StormBolt requires Ability, Missiles, Utilities, TimedHandles, CrowdControl, NewBonus optional Avatar
+library StormBolt requires Spell, Missiles, Utilities, TimedHandles, CrowdControl, NewBonus optional Avatar
     /* --------------------------------------- Storm Bolt v1.4 -------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -99,7 +99,7 @@ library StormBolt requires Ability, Missiles, Utilities, TimedHandles, CrowdCont
         endmethod
     endstruct
 
-    struct StormBolt extends Ability
+    struct StormBolt extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Muradin|r throw his hammer at an enemy unit, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and stunning the target for |cffffcc003|r seconds (|cffffcc001|r on |cffffcc00Heroes|r). If the target is already stunned, |cffffcc00Storm Bolt|r will do |cffffcc00" + N2S(GetBonusDamage(level), 0) + "%|r bonus damage. In addintion, if |cffffcc00Storm Bolt|r kills the target, |cffffcc0050%|r of its mana cost is refunded."
         endmethod

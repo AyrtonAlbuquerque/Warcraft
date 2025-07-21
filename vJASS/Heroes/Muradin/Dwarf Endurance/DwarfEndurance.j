@@ -1,4 +1,4 @@
-library DwarfEndurance requires Ability, DamageInterface, Periodic, Utilities
+library DwarfEndurance requires Spell, DamageInterface, Periodic, Utilities
     /* -------------------- Dwarf Endurance v1.3 by Chopinski ------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -32,7 +32,7 @@ library DwarfEndurance requires Ability, DamageInterface, Periodic, Utilities
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DwarfEndurance extends Ability
+    private struct DwarfEndurance extends Spell
         private unit unit
         private integer id
         private real cooldown

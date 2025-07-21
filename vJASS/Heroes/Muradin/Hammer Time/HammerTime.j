@@ -1,4 +1,4 @@
-library HammerTime requires Ability, DamageInterface, Utilities optional StormBolt, optional ThunderClap, optional Avatar
+library HammerTime requires Spell, DamageInterface, Utilities optional StormBolt, optional ThunderClap, optional Avatar
     /* ---------------------- HammerTime v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -35,7 +35,7 @@ library HammerTime requires Ability, DamageInterface, Utilities optional StormBo
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct HammerTime extends Ability
+    private struct HammerTime extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Muradin|r basic attacks against enemy units reduce the cooldown of |cffffcc00Storm Bolt|r by |cffffcc00" + N2S(GetStormBoltCooldown(level), 1) + "|r seconds and |cffffcc00Thunder Clap|r by |cffffcc00" + N2S(GetThunderClapCooldown(level), 1) + "|r seconds and |cffffcc00Avatar|r cooldown by |cffffcc00" + N2S(GetAvatarCooldown(level), 1) +"|r second."
         endmethod

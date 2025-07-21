@@ -1,4 +1,4 @@
-library DoomCurse requires DamageInterface, TimerUtils, Ability, NewBonus
+library DoomCurse requires DamageInterface, TimerUtils, Spell, NewBonus
     /* ---------------------- Doom Curse v1.5 by Chopinski --------------------- */
     // Credits:
     //     marilynmonroe - Pit Infernal model
@@ -66,7 +66,7 @@ library DoomCurse requires DamageInterface, TimerUtils, Ability, NewBonus
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DoomCurse extends Ability
+    private struct DoomCurse extends Spell
         private static unit array source
 
         private integer id

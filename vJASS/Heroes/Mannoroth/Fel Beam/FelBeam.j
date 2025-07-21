@@ -1,4 +1,4 @@
-library FelBeam requires Missiles, Ability, Periodic, NewBonus, Utilities
+library FelBeam requires Missiles, Spell, Periodic, NewBonus, Utilities
     /* ----------------------- Fel Beam v1.5 by Chopinski ----------------------- */
     // Credits:
     //     BPower    - Missile Library
@@ -127,7 +127,7 @@ library FelBeam requires Missiles, Ability, Periodic, NewBonus, Utilities
         endmethod
     endstruct
 
-    struct FelBeam extends Ability
+    struct FelBeam extends Spell
         static unit array source
 
         static method launch takes Beam beam, unit caster, unit target, integer level returns nothing

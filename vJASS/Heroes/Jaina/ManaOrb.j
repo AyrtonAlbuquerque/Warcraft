@@ -1,4 +1,4 @@
-library ManaOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageInterface, Ability, Periodic
+library ManaOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageInterface, Spell, Periodic
     /* ------------------------ Mana Orb v1.1 by Chopinski ---------------------- */
     // Credits:
     //     Darkfang             - Icon
@@ -101,7 +101,7 @@ library ManaOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageInt
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct ManaOrb extends Ability
+    private struct ManaOrb extends Spell
         private static integer array buff
 
         private real x

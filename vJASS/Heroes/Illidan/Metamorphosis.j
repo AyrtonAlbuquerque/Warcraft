@@ -1,4 +1,4 @@
-library Metamorphosis requires DamageInterface, Ability, Utilities, NewBonus, CrowdControl, Periodic
+library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, CrowdControl, Periodic
     /* ------------------------------------- Metamorphosis v1.4 ------------------------------------- */
     // Credits:
     //     BLazeKraze      - Icon
@@ -72,7 +72,7 @@ library Metamorphosis requires DamageInterface, Ability, Utilities, NewBonus, Cr
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct Metamorphosis extends Ability
+    private struct Metamorphosis extends Spell
         private unit unit
         private group group
         private player player

@@ -67,7 +67,7 @@ scope SphereOfDivinity
                 set Damage.amount = Damage.amount * GetHealFactor()
 
                 call SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + Damage.amount))
-                call ArcingTextTag.create(("|cff32cd32" + "+" + I2S(R2I(Damage.amount))), Damage.source.unit)
+                call ArcingTextTag.create(("|cff32cd32" + "+" + I2S(R2I(Damage.amount))), Damage.source.unit, 0.015)
             endif
         endmethod
 

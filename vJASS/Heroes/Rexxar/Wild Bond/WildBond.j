@@ -29,7 +29,7 @@ library WildBond requires RegisterPlayerUnitEvent, Periodic, Indexer, NewBonus, 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct WildBond extends Ability
+    private struct WildBond extends Spell
         private unit unit
         private real bonus
         private group group

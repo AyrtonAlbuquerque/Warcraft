@@ -1,4 +1,4 @@
-library FeralRoar requires Ability, NewBonus, Utilities, CrowdControl optional Misha
+library FeralRoar requires Spell, NewBonus, Utilities, CrowdControl optional Misha
     /* ---------------------- Feral Roar v1.2 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -54,7 +54,7 @@ library FeralRoar requires Ability, NewBonus, Utilities, CrowdControl optional M
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct FeralRoar extends Ability
+    private struct FeralRoar extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Rexxar|r roars in fury, increasing the damage of nearby allies by |cffffcc00" + N2S(GetBonusDamage(source, level) * 100, 0) + "%|r of base damage, armor by |cffffcc00" + N2S(GetBonusArmor(source, level), 0) + "|r and fearing enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r for |cffffcc00" + N2S(GetFearDuration(level), 2) + "|r seconds. If |cffffcc00Misha|r is summoned she will also roar granting the same effects and gainning |cff00ff00" + N2S(GetBonusRegeneration(level), 1) + " Health Regeneration|r.\n\nLasts for |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_NORMAL, level - 1), 0) + "|r seconds."
         endmethod

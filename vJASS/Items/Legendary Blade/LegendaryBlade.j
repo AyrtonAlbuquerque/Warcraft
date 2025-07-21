@@ -6,7 +6,7 @@ scope LegendaryBladeI
 			elseif type == 1 then
 				call UnitDamageTarget(source, target, damage/3, true, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_DIVINE, null)
 				call SetWidgetLife(source, GetWidgetLife(source) + damage)
-				call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage)), source)
+				call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage)), source, 0.015)
 				call DestroyEffect(AddSpecialEffectTarget("HolyLight.mdx", source, "origin"))
 			elseif type == 2 then
 				call UnitDamageTarget(source, target, 1000, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_DIVINE, null)

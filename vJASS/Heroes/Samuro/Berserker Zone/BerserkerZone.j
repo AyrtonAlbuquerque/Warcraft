@@ -1,4 +1,4 @@
-library BerserkerZone requires Ability, Periodic, Utilities, NewBonus
+library BerserkerZone requires Spell, Periodic, Utilities, NewBonus
     /* --------------------- BerserkerZone v1.0 by Chopinski -------------------- */
     // Credits:
     //     Az - BladeZone model
@@ -53,7 +53,7 @@ library BerserkerZone requires Ability, Periodic, Utilities, NewBonus
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct BerserkerZone extends Ability
+    private struct BerserkerZone extends Spell
         private real x
         private real y
         private real aoe

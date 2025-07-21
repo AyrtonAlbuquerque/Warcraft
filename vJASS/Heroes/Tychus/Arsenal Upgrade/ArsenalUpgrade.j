@@ -20,7 +20,7 @@ library ArsenalUpgrade requires RegisterPlayerUnitEvent, Ability
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct ArsenalUpgrade extends Ability
+    private struct ArsenalUpgrade extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Tychus|r non ultimate abilities are upgraded.\n\n|cffffcc00Frag Granade|r - Enemy units cought in the explosion radius are stunned for |cffffcc001.5|r seconds.\n\n|cffffcc00Automated Turrent|r - Reduces the number of attacks necessary to the turrents to release a missile by |cffffcc004|r.\n\n|cffffcc00Overkill|r - The mana cost per bullet is halved.\n\n|cffffcc00Run and Gun|r - Doubles the duration of the movement speed bonus."
         endmethod

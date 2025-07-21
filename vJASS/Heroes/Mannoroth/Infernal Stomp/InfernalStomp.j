@@ -1,4 +1,4 @@
-library InfernalStomp requires Ability, CrowdControl, optional NewBonus
+library InfernalStomp requires Spell, CrowdControl, optional NewBonus
     /* ------------------------------------- Infernal Stomp v1.1 ------------------------------------ */
     // Credits:
     //     Bribe         - SpellEffectEvent
@@ -43,7 +43,7 @@ library InfernalStomp requires Ability, CrowdControl, optional NewBonus
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct InfernalStomp extends Ability
+    private struct InfernalStomp extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "Slams the ground, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage to nearby enemy land units and stunning them for |cffffcc00" + N2S(GetDuration(source, level), 0) + "|r second."
         endmethod

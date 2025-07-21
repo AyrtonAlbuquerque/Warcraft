@@ -1,4 +1,4 @@
-library LivingMeteor requires Ability, Missiles, MouseUtils, Utilities, Periodic optional Afterburner, NewBonus
+library LivingMeteor requires Spell, Missiles, MouseUtils, Utilities, Periodic optional Afterburner, NewBonus
     /* --------------------- Living Meteor v1.6 by Chopinski -------------------- */
     // Credits:
     //     Blizzard         - icon (Edited by me)
@@ -134,7 +134,7 @@ library LivingMeteor requires Ability, Missiles, MouseUtils, Utilities, Periodic
         endmethod
     endstruct
     
-    private struct LivingMeteor extends Ability
+    private struct LivingMeteor extends Spell
         private real x
         private real y
         private unit unit

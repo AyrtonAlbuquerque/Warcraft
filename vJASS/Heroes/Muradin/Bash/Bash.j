@@ -1,4 +1,4 @@
-library Bash requires Ability, DamageInterface, CrowdControl, Utilities optional NewBonus
+library Bash requires Spell, DamageInterface, CrowdControl, Utilities optional NewBonus
     /* ------------------------------------------ Bash v1.1 ----------------------------------------- */
     // Credits:
     //     PrinceYaser - Icon
@@ -47,7 +47,7 @@ library Bash requires Ability, DamageInterface, CrowdControl, Utilities optional
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct Bash extends Ability
+    private struct Bash extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "Gives a |cffffcc00" + N2S(GetChance(source, level), 0) + "%|r chance that an attack will do |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r bonus |cff00ffffMagic|r damage and stun an opponent for |cffffcc001|r (|cffffcc000.5|r for |cffffcc00Heroes|r) second."
         endmethod

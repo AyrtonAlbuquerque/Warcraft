@@ -1,4 +1,4 @@
-library LavaElemental requires Ability, RegisterPlayerUnitEvent, NewBonus, Utilities optional Sulfuras
+library LavaElemental requires Spell, RegisterPlayerUnitEvent, NewBonus, Utilities optional Sulfuras
     /* -------------------- Lava Elemental v1.6 by Chopinski -------------------- */
     // Credits:
     //     Henry         - Lava Elemental model (warcraft3undergorund.com)
@@ -49,7 +49,7 @@ library LavaElemental requires Ability, RegisterPlayerUnitEvent, NewBonus, Utili
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct LavaElemental extends Ability
+    private struct LavaElemental extends Spell
         private static integer array array
 
         private unit unit

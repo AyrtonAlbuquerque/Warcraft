@@ -1,8 +1,7 @@
-library FortifyingBrew requires DamageInterface, Ability, NewBonus, Utilities
+library FortifyingBrew requires DamageInterface, Spell, NewBonus, Utilities
     /* -------------------- Fortifying Brew v1.4 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
-    //     Bribe           - SpellEffectEvent
     /* ----------------------------------- END ---------------------------------- */
     
     /* -------------------------------------------------------------------------- */
@@ -45,7 +44,7 @@ library FortifyingBrew requires DamageInterface, Ability, NewBonus, Utilities
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct FortifyingBrew extends Ability
+    private struct FortifyingBrew extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "Whenever |cffffcc00Chen|r uses an ability he drinks from his keg, increasing his |cff00ff00Health Regeneration|r by |cff00ff00" + N2S(GetHealthRegen(level), 1) + "|r, |cff00ffffMana Regeneration|r by |cff00ffff" + N2S(GetManaRegen(level), 1) + "|r and takes |cffffcc00" + N2S(GetDamageReduction(level) * 100, 1) + "%|r reduced damage from auto attacks for |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds. Regeneration stacks with each cast."
         endmethod

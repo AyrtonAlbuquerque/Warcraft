@@ -1,4 +1,4 @@
-library DragonBurst requires Ability, Utilities, CrowdControl optional NewBonus
+library DragonBurst requires Spell, Utilities, CrowdControl optional NewBonus
     /* --------------------- Dragon Burst v1.3 by Chopinski --------------------- */
     // Credits:
     //     Blizzard, TheKaldorei - Icon
@@ -63,7 +63,7 @@ library DragonBurst requires Ability, Utilities, CrowdControl optional NewBonus
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct DragonBurst extends Ability
+    private struct DragonBurst extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Yu'lon|r creates an eruption at the target location, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r damage to all nearby enemy units. Units at the center of the eruption are |cffffcc00Knocked Up|r for |cffffcc00" + N2S(GetKnockUpDuration(source, level), 2) + "|r seconds and units further away from the center are |cffffcc00Knocked Back|r away from the center."
         endmethod

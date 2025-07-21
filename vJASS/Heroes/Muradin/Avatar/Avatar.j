@@ -1,4 +1,4 @@
-library Avatar requires Ability, NewBonus, Utilities
+library Avatar requires Spell, NewBonus, Utilities
     /* ------------------------ Avatar v1.3 by Chopinski ------------------------ */
     // Credits:
     //     Blizzard - Icon
@@ -32,7 +32,7 @@ library Avatar requires Ability, NewBonus, Utilities
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Avatar extends Ability
+    private struct Avatar extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "When activated, |cffffcc00Muradin|r gains |cffff0000" + N2S(GetBonusDamage(level), 0) + " Damage|r, |cff00ff00" + N2S(GetBonusHealth(level), 0) + " Health|r, |cff808080" + N2S(GetBonusArmor(level), 0) + " Armor|r and becomes immune to |cff00ffffMagic|r. While in |cffffcc00Avatar|r form, |cffffcc00Double Thunder|r has |cffffcc00100%|r of occuring, and |cffffcc00Storm Bolt|r and |cffffcc00Thunder Clap|r got enhanced. If |cffffcc00Storm Bolt|r kills the target unit its cooldown is reset. The second |cffffcc00Thunder Clap|r stuns enemy units instead."
         endmethod   

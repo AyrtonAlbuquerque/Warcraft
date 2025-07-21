@@ -1,4 +1,4 @@
-library BansheeCry requires Ability, Utilities, CrowdControl
+library BansheeCry requires Spell, Utilities, CrowdControl
     /* -------------------------------- Cry of the Banshee Queen v1.4 ------------------------------- */
     // Credits:
     //     Darkfang      - Void Curse Icon
@@ -52,7 +52,7 @@ library BansheeCry requires Ability, Utilities, CrowdControl
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct BansheeCry extends Ability
+    private struct BansheeCry extends Spell
         private method onCast takes nothing returns nothing
             local group g = CreateGroup()
             local unit u

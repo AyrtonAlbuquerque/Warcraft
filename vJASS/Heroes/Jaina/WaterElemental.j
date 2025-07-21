@@ -1,8 +1,7 @@
-library WaterElemental requires Ability, NewBonus, Indexer, Utilities
+library WaterElemental requires Spell, NewBonus, Indexer, Utilities
     /* -------------------- Water Elemental v1.2 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
-    //     Bribe           - SpellEffectEvent
     /* ----------------------------------- END ---------------------------------- */
 
     /* -------------------------------------------------------------------------- */
@@ -163,7 +162,7 @@ library WaterElemental requires Ability, NewBonus, Indexer, Utilities
         endmethod
     endstruct
     
-    private struct WaterElemental extends Ability
+    private struct WaterElemental extends Spell
         private static thistype array struct
 
         private integer id

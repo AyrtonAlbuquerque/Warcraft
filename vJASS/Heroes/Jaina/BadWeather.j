@@ -1,4 +1,4 @@
-library BadWeather requires RegisterPlayerUnitEvent, Ability, Periodic, Utilities, DamageInterface
+library BadWeather requires RegisterPlayerUnitEvent, Spell, Periodic, Utilities, DamageInterface
     /* ---------------------- Bad Weather v1.1 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96        - RegisterPlayerUnitEvent
@@ -43,7 +43,7 @@ library BadWeather requires RegisterPlayerUnitEvent, Ability, Periodic, Utilitie
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct BadWeather extends Ability
+    private struct BadWeather extends Spell
         private unit unit
         private effect effect
 

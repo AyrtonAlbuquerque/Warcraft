@@ -1,4 +1,4 @@
-library LightningAttack requires DamageInterface, Utilities, Ability, Utilities optional NewBonus
+library LightningAttack requires DamageInterface, Utilities, Spell, Utilities optional NewBonus
     /* ------------------- Lightning Attack v1.3 by Chopinski ------------------- */
     // Credits:
     //     CRAZYRUSSIAN    - Icon
@@ -40,7 +40,7 @@ library LightningAttack requires DamageInterface, Utilities, Ability, Utilities 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct LightningAttack extends Ability
+    private struct LightningAttack extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Storm|r attacks creates a |cffffcc00Chain Lightning|r, bouncing up to |cffffcc00" + N2S(GetBounces(level), 0) + "|r targets and dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage to each."
         endmethod

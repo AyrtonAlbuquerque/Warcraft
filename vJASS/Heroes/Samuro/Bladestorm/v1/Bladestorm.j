@@ -1,4 +1,4 @@
-library Bladestorm requires Ability, Periodic optional NewBonus
+library Bladestorm requires Spell, Periodic optional NewBonus
     /* ---------------------- Bladestorm v1.3 by Chopinski ---------------------- */
     // Credits:
     //     zbc - Icon
@@ -19,7 +19,7 @@ library Bladestorm requires Ability, Periodic optional NewBonus
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Bladestorm extends Ability
+    private struct Bladestorm extends Spell
         private unit unit
         private real duration
 

@@ -1,4 +1,4 @@
-library Mimic requires Ability, RegisterPlayerUnitEvent, MirrorImage, NewBonus, Periodic, Utilities optional Bladestorm
+library Mimic requires Spell, RegisterPlayerUnitEvent, MirrorImage, NewBonus, Periodic, Utilities optional Bladestorm
     /* ------------------------- Mimic v1.3 by Chopinski ------------------------ */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -26,7 +26,7 @@ library Mimic requires Ability, RegisterPlayerUnitEvent, MirrorImage, NewBonus, 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Mimic extends Ability
+    private struct Mimic extends Spell
         private unit unit
         private group group
 

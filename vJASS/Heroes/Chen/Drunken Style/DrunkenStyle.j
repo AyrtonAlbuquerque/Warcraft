@@ -1,4 +1,4 @@
-library DrunkenStyle requires Ability, Utilities, Missiles, MouseUtils, NewBonus, CrowdControl, Periodic
+library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, CrowdControl, Periodic
     /* --------------------- Drunken Style v1.4 by Chopinski -------------------- */
     // Credits:
     //     Blizzard - Icon
@@ -113,7 +113,7 @@ library DrunkenStyle requires Ability, Utilities, Missiles, MouseUtils, NewBonus
         endmethod
     endstruct
     
-    private struct DrunkenStyle extends Ability
+    private struct DrunkenStyle extends Spell
         private static integer array type
 
         private integer id

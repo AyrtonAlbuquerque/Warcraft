@@ -1,4 +1,4 @@
-library CrushingWave requires Ability, Missiles, Utilities, CrowdControl optional WaterElemental, optional NewBonus
+library CrushingWave requires Spell, Missiles, Utilities, CrowdControl optional WaterElemental, optional NewBonus
     /* --------------------- Crushing Wave v1.2 by Chopinski -------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -95,7 +95,7 @@ library CrushingWave requires Ability, Missiles, Utilities, CrowdControl optiona
         endmethod
     endstruct
 
-    private struct CrushingWave extends Ability
+    private struct CrushingWave extends Spell
         private static method launch takes real x, real y, real z, real tx, real ty, real tz, unit source, player owner, integer level, unit elemental returns nothing
             local Wave wave = Wave.create(x, y, z, tx, ty, tz)
             

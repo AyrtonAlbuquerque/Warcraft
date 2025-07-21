@@ -1,4 +1,4 @@
-library LightBurst requires Ability, NewBonus, Utilities, CrowdControl optional LightInfusion
+library LightBurst requires Spell, NewBonus, Utilities, CrowdControl optional LightInfusion
     /* -------------------------------------- Light Burst v1.4 -------------------------------------- */
     // Credits:
     //     Redeemer59         - Icon
@@ -107,7 +107,7 @@ library LightBurst requires Ability, NewBonus, Utilities, CrowdControl optional 
         endmethod
     endstruct
 
-    private struct LightBurst extends Ability
+    private struct LightBurst extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Turalyon|r thrusts his light sword releasing a |cffffcc00Light Burst|r towards the targeted direction. Upon arrival it explodes, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage and slowing all enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r by |cffffcc00" + N2S(GetSlow(level) * 100, 0) + "%|r.\n\n|cffffcc00Light Infused|r: |cffffcc00Light Burst|r increases the |cffffff00Movement Speed|r of any allied unit within its explosion range by |cffffcc00" + I2S(GetBonus(level)) + "|r and |cffff0000Disarms|r enemy units for |cffffcc00" + N2S(GetDuration(level), 1) + "|r seconds."
 

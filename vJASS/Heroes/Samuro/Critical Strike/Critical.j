@@ -1,4 +1,4 @@
-library Critical requires Ability, NewBonus, DamageInterface, Missiles, Utilities
+library Critical requires Spell, NewBonus, CriticalStrike, DamageInterface, Missiles, Utilities
     /* ----------------------- Critical v1.3 by Chopinski ----------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -70,7 +70,7 @@ library Critical requires Ability, NewBonus, DamageInterface, Missiles, Utilitie
         endmethod
     endstruct
     
-    private struct CriticalStrike extends Ability
+    private struct CriticalStrike extends Spell
         private static method slash takes unit source, unit target, real damage, integer level returns nothing
             local real x = GetUnitX(target)
             local real y = GetUnitY(target)

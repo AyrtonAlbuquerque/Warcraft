@@ -1,4 +1,4 @@
-library LivingTide requires Ability, Missiles, Utilities, MouseUtils, Periodic optional NewBonus
+library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Periodic optional NewBonus
     /* ---------------------- Living Tide v1.1 by Chopinski --------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -81,7 +81,7 @@ library LivingTide requires Ability, Missiles, Utilities, MouseUtils, Periodic o
         endmethod
     endstruct
 
-    private struct LivingTide extends Ability
+    private struct LivingTide extends Spell
         private static thistype array struct
 
         private Tide tide

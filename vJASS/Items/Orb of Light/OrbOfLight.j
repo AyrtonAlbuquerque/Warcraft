@@ -35,10 +35,10 @@ scope OrbOfLight
             if GetUnitAbilityLevel(Damage.source.unit, buff) > 0 and not (Damage.target.unit == Damage.source.unit) and damage > 0 then
                 if Damage.source.isHero then
                     call BlzSetEventDamage(-damage*GetHeroHealFactor())
-                    call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage*GetHeroHealFactor())), Damage.target.unit)
+                    call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage*GetHeroHealFactor())), Damage.target.unit, 0.015)
                 else
                     call BlzSetEventDamage(-damage)
-                    call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage)), Damage.target.unit)
+                    call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage)), Damage.target.unit, 0.015)
                 endif        
             endif
         endmethod
@@ -49,7 +49,7 @@ scope OrbOfLight
             if UnitHasItemOfType(Damage.source.unit, code) and damage > 0 then
                 if Damage.isAlly then
                     call BlzSetEventDamage(-damage*GetAllyHealFactor())
-                    call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage*GetAllyHealFactor())), Damage.target.unit)
+                    call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage*GetAllyHealFactor())), Damage.target.unit, 0.015)
                 elseif GetRandomReal(1, 100) <= GetChance() then
                     call CastAbilityTarget(Damage.target.unit, ability, order, 1)
                 endif

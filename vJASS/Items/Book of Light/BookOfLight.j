@@ -44,7 +44,7 @@ scope BookOfLight
                 set Damage.amount = 0
 
                 call SetWidgetLife(Damage.target.unit, GetWidgetLife(Damage.target.unit) + damage)
-                call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage)), Damage.target.unit)
+                call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage)), Damage.target.unit, 0.015)
                 call DestroyEffect(AddSpecialEffectTarget("HolyLight.mdx", Damage.target.unit, "origin"))
             endif
         endmethod

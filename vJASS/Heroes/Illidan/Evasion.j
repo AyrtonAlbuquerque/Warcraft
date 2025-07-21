@@ -1,4 +1,4 @@
-library Evade requires Ability, NewBonus, Utilities
+library Evade requires Spell, NewBonus, Evasion, Utilities
     /* ------------------------- Evade v1.3 by Chopinski ------------------------ */
     // Credits:
     //     Blizzard - Icon
@@ -31,7 +31,7 @@ library Evade requires Ability, NewBonus, Utilities
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Evasion extends Ability
+    private struct Evasion extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Illidan|r has |cffffcc00" + N2S(5 + 5 * level, 0) + "%|r passively increased chance to avoid enemy attacks. When activated his |cffffcc00Evasion|r chance is increased by |cffffcc00" + N2S(GetActiveBonus(level) * 100, 0) + "%|r for |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, level - 1), 1) + "|r seconds."
         endmethod

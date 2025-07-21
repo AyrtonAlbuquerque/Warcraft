@@ -14,7 +14,7 @@ scope ElementalSpin
                     endif
                 elseif type == 2 and IsUnitAlly(hit, owner) then
                     call SetWidgetLife(hit, (GetWidgetLife(hit) + 1000))
-                    call ArcingTextTag.create(("|cff32cd32" + "+" + N2S(1000, 0)), hit)
+                    call ArcingTextTag.create(("|cff32cd32" + "+" + N2S(1000, 0)), hit, 0.015)
                 endif
             endif
 
