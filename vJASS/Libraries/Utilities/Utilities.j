@@ -166,6 +166,25 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
         return result
     endfunction
 
+    // Ascii to String
+    function A2S takes integer id returns string
+        local string chars = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+        local string s = ""
+        local integer min = ' '
+        local integer i
+
+        if id >= min then
+            loop
+                exitwhen id == 0
+                    set i = ModuloInteger(id, 256) - min
+                    set s = SubString(chars, i, i + 1) + s
+                set id = id / 256
+            endloop
+        endif
+
+        return s
+    endfunction
+
     // Spams the specified effect model at a location with the given interval for the number of times count
     function SpamEffect takes string model, real x, real y, real z, real scale, real interval, integer count returns nothing
         call EffectSpam.spam(null, model, "", x, y, z, scale, interval, count)

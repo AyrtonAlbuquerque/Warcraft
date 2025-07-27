@@ -427,7 +427,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         endmethod
 
         static method create takes real x, real y, real width, real height, framehandle parent, boolean gold returns thistype
-            local thistype this = thistype.allocate(x, y, width, height, parent, "Leaderboard")
+            local thistype this = thistype.allocate(x, y, width, height, parent, "Leaderboard", false)
 
             if gold then
                 set image = Backdrop.create(GOLD_ICON_X, GOLD_ICON_Y, GOLD_ICON_WIDTH, GOLD_ICON_HEIGHT, frame, GOLD_ICON_TEXTURE)
@@ -480,7 +480,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
 
         static method create takes real x, real y, real width, real height, framehandle parent returns thistype
             local integer i = 0
-            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop")
+            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop", false)
 
             set left = CheckBox.create(MINIMAP_CHECK_LEFT_X, MINIMAP_CHECK_LEFT_Y, MINIMAP_CHECK_LEFT_WIDTH, MINIMAP_CHECK_LEFT_HEIGHT, frame, "QuestCheckBox")
             set left.onCheck = function thistype.onChecked
@@ -637,7 +637,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         endmethod
 
         static method create takes real x, real y, real width, real height, framehandle parent returns thistype
-            local thistype this = thistype.allocate(x, y, width, height, parent, true)
+            local thistype this = thistype.allocate(x, y, width, height, parent, true, false)
 
             set texture = OPEN_MENU_TEXTURE
             set tooltip.text = "Open Menu"
@@ -725,7 +725,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         endmethod
 
         static method create takes real x, real y, real width, real height, framehandle parent returns thistype
-            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop")
+            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop", false)
             local integer i = 0
             local integer j = 0
             local integer k = 0
@@ -899,7 +899,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
 
         static method create takes real x, real y, real width, real height, framehandle parent returns thistype
             local integer i = 0
-            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop")
+            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop", false)
 
             set mana = StatusBar.create(MANA_X, MANA_Y, MANA_WIDTH, MANA_HEIGHT, frame, MANA_TEXTURE)
             set mana.alpha = MANA_TRANSPARENCY
@@ -991,7 +991,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         endmethod
 
         static method create takes real x, real y, real width, real height, framehandle parent returns thistype
-            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop")
+            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop", false)
             local integer i = 0
 
             loop
@@ -999,7 +999,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                     set slot[i] = Backdrop.create(ABILITY_SLOT_X + (i*ABILITY_SLOT_GAP), ABILITY_SLOT_Y, ABILITY_SLOT_WIDTH, ABILITY_SLOT_HEIGHT, frame, ABILITY_SLOT_TEXTURE)
 
                     static if SEPARATE_LEVELUP then
-                        set levelup[i] = Button.create(slot[i].width/2 - SEPARATE_LEVELUP_WIDTH/2, slot[i].y + 2*SEPARATE_LEVELUP_HEIGHT, SEPARATE_LEVELUP_WIDTH, SEPARATE_LEVELUP_HEIGHT, slot[i].frame, true)
+                        set levelup[i] = Button.create(slot[i].width/2 - SEPARATE_LEVELUP_WIDTH/2, slot[i].y + 2*SEPARATE_LEVELUP_HEIGHT, SEPARATE_LEVELUP_WIDTH, SEPARATE_LEVELUP_HEIGHT, slot[i].frame, true, false)
                         set levelup[i].texture = SEPARATE_LEVELUP_TEXTURE
                         set levelup[i].tooltip.visible = false
                         set levelup[i].onEnter = function thistype.onHover
@@ -1062,7 +1062,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         endmethod
 
         static method create takes real x, real y, real width, real height, framehandle parent returns thistype
-            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop")
+            local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop", false)
             local integer i = 0
 
             loop
@@ -1129,14 +1129,14 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                 set point = FRAMEPOINT_TOPRIGHT
             endif
             
-            set this = thistype.allocate(x, y, width, height, parent, true)
+            set this = thistype.allocate(x, y, width, height, parent, true, false)
             set key = key + 1
             set array[key] = this
             set this.id = key
             set this.texture = texture
             set this.tooltip.text = tooltip
             set value = Text.create(ATTRIBUTES_TEXT_X, ATTRIBUTES_TEXT_Y, ATTRIBUTES_TEXT_WIDTH, ATTRIBUTES_TEXT_HEIGHT, ATTRIBUTES_TEXT_SCALE, false, frame, null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            set button = Button.create(ATTRIBUTES_BUTTON_X + ((ATTRIBUTES_BUTTON_WIDTH + ATTRIBUTES_BUTTON_GAP) * ModuloInteger(key, ATTRIBUTES_COLUMNS)), - (ATTRIBUTES_BUTTON_Y + ((ATTRIBUTES_BUTTON_HEIGHT + ATTRIBUTES_BUTTON_GAP) * R2I(key/ATTRIBUTES_COLUMNS))), ATTRIBUTES_BUTTON_WIDTH, ATTRIBUTES_BUTTON_HEIGHT, panel.frame, true)
+            set button = Button.create(ATTRIBUTES_BUTTON_X + ((ATTRIBUTES_BUTTON_WIDTH + ATTRIBUTES_BUTTON_GAP) * ModuloInteger(key, ATTRIBUTES_COLUMNS)), - (ATTRIBUTES_BUTTON_Y + ((ATTRIBUTES_BUTTON_HEIGHT + ATTRIBUTES_BUTTON_GAP) * R2I(key/ATTRIBUTES_COLUMNS))), ATTRIBUTES_BUTTON_WIDTH, ATTRIBUTES_BUTTON_HEIGHT, panel.frame, true, false)
             set button.texture = texture
             set button.tooltip.text = tooltip
             set button.onClick = function thistype.onClicked
@@ -1199,11 +1199,11 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
 
         private static method onInit takes nothing returns nothing
             set table = Table.create()
-            set menu = Button.create(INFO_X + INFO_WIDTH/2 - ATTRIBUTES_TOGGLE_WIDTH/2, INFO_Y - 0.004, ATTRIBUTES_TOGGLE_WIDTH, ATTRIBUTES_TOGGLE_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), true)
+            set menu = Button.create(INFO_X + INFO_WIDTH/2 - ATTRIBUTES_TOGGLE_WIDTH/2, INFO_Y - 0.004, ATTRIBUTES_TOGGLE_WIDTH, ATTRIBUTES_TOGGLE_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), true, false)
             set menu.texture = ATTRIBUTES_TOGGLE_OPEN
             set menu.tooltip.text = "Open Attribute Menu"
             set menu.onClick = function thistype.onClicked
-            set panel = Panel.create(0, 0, 0.03, 0.03, menu.frame, "Leaderboard")
+            set panel = Panel.create(0, 0, 0.03, 0.03, menu.frame, "Leaderboard", false)
             set panel.visible = false
 
             call panel.setPoint(FRAMEPOINT_BOTTOM, FRAMEPOINT_TOP, 0, BUFF_Y)

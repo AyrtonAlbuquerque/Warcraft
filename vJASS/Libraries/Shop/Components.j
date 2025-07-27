@@ -396,6 +396,10 @@ library Components requires Table
             else
                 call BlzFrameSetVisible(frame, false)
             endif
+
+            if parent != null and parent != CONSOLE and parent != WORLD then
+                call BlzFrameSetAllPoints(frame, parent)
+            endif
         endmethod
 
         method operator texture takes nothing returns string
@@ -602,7 +606,11 @@ library Components requires Table
         method operator text= takes string value returns nothing
             set .value = value
 
-            call BlzFrameSetText(frame, value)
+            if value != null then
+                call BlzFrameSetText(frame, value)
+            else
+                call BlzFrameSetText(frame, "")
+            endif
         endmethod
 
         method operator text takes nothing returns string
@@ -722,6 +730,7 @@ library Components requires Table
 
         private Backdrop image
         private boolean isActive = true
+        private boolean inherit
         private trigger exited
         private trigger entered
         private trigger clicked
@@ -865,7 +874,7 @@ library Components requires Table
             return array[GetPlayerId(GetTriggerPlayer())]
         endmethod
 
-        static method create takes real x, real y, real width, real height, framehandle parent, string frameType, string template returns thistype
+        static method create takes real x, real y, real width, real height, framehandle parent, string frameType, string template, boolean inheritEvents returns thistype
             local thistype this = thistype.allocate()
 
             if parent == null then
@@ -881,11 +890,13 @@ library Components requires Table
             set .width = width
             set .height = height
             set .parent = parent
+            set inherit = inheritEvents
             set frame = BlzCreateFrame(template, parent, 0, 0)
             set listener = BlzCreateFrame(frameType, frame, 0, 0)
             set button = BlzFrameGetChild(listener, 0)
             set image = Backdrop.create(0, 0, width, height, listener, null)
             set image.visible = false
+            set table[GetHandleId(frame)] = this
             set table[GetHandleId(listener)] = this
             set table[GetHandleId(button)] = this
 
@@ -906,10 +917,19 @@ library Components requires Table
 
         private static method onScrolled takes nothing returns nothing
             local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
+            local thistype owner
 
             if this != 0 then
+                set owner = table[GetHandleId(parent)]
+
                 if onScroll.exists then
                     call onScroll()
+                endif
+
+                if owner != 0 then
+                    if owner.onScroll.exists and inherit then
+                        call owner.onScroll()
+                    endif
                 endif
 
                 if scrolled != null then
@@ -921,8 +941,11 @@ library Components requires Table
         private static method onClicked takes nothing returns nothing
             local integer id = GetPlayerId(GetTriggerPlayer())
             local thistype this = array[id]
+            local thistype owner
 
             if this != 0 then
+                set owner = table[GetHandleId(parent)]
+
                 if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_LEFT then
                     set time[id].real[this] = TimerGetElapsed(DOUBLE)
 
@@ -931,6 +954,12 @@ library Components requires Table
     
                     if onClick.exists then
                         call onClick()
+                    endif
+
+                    if owner != 0 then
+                        if owner.onClick.exists and inherit then
+                            call owner.onClick()
+                        endif
                     endif
 
                     if clicked != null then
@@ -942,6 +971,12 @@ library Components requires Table
     
                         if onDoubleClick.exists then
                             call onDoubleClick()
+                        endif
+
+                        if owner != 0 then
+                            if owner.onDoubleClick.exists and inherit then
+                                call owner.onDoubleClick()
+                            endif
                         endif
 
                         if doubleClicked != null then
@@ -957,6 +992,12 @@ library Components requires Table
                         call onRightClick()
                     endif
 
+                    if owner != 0 then
+                        if owner.onRightClick.exists and inherit then
+                            call owner.onRightClick()
+                        endif
+                    endif
+
                     if rightClicked != null then
                         call TriggerEvaluate(rightClicked)
                     endif
@@ -965,6 +1006,12 @@ library Components requires Table
                 if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_MIDDLE then
                     if onMiddleClick.exists then
                         call onMiddleClick()
+                    endif
+
+                    if owner != 0 then
+                        if owner.onMiddleClick.exists and inherit then
+                            call owner.onMiddleClick()
+                        endif
                     endif
 
                     if middleClicked != null then
@@ -976,12 +1023,21 @@ library Components requires Table
 
         private static method onEntered takes nothing returns nothing
             local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
+            local thistype owner
 
             set array[GetPlayerId(GetTriggerPlayer())] = this
 
             if this != 0 then
+                set owner = table[GetHandleId(parent)]
+
                 if onEnter.exists then
                     call onEnter()
+                endif
+
+                if owner != 0 then
+                    if owner.onEnter.exists and inherit then
+                        call owner.onEnter()
+                    endif
                 endif
 
                 if entered != null then
@@ -992,12 +1048,21 @@ library Components requires Table
 
         private static method onExited takes nothing returns nothing
             local thistype this = table[GetHandleId(BlzGetTriggerFrame())]
+            local thistype owner
 
             set array[GetPlayerId(GetTriggerPlayer())] = 0
 
             if this != 0 then
+                set owner = table[GetHandleId(parent)]
+
                 if onLeave.exists then
                     call onLeave()
+                endif
+
+                if owner != 0 then
+                    if owner.onLeave.exists and inherit then
+                        call owner.onLeave()
+                    endif
                 endif
 
                 if exited != null then
@@ -1488,8 +1553,8 @@ library Components requires Table
             endif
         endmethod
 
-        static method create takes real x, real y, real width, real height, framehandle parent, boolean simpleTooltip returns thistype
-            local thistype this = thistype.allocate(x, y, width, height, parent, "ComponentFrame", null)
+        static method create takes real x, real y, real width, real height, framehandle parent, boolean simpleTooltip, boolean inheritEvents returns thistype
+            local thistype this = thistype.allocate(x, y, width, height, parent, "ComponentFrame", null, inheritEvents)
 
             set check = Backdrop.create(0, 0, width, height, frame, CHECKED_BUTTON)
             set block = Backdrop.create(0, 0, width, height, frame, UNAVAILABLE_BUTTON)
@@ -1516,8 +1581,8 @@ library Components requires Table
             call super.destroy()
         endmethod
 
-        static method create takes real x, real y, real width, real height, framehandle parent, string template returns thistype
-            return thistype.allocate(x, y, width, height, parent, "PanelFrame", template)
+        static method create takes real x, real y, real width, real height, framehandle parent, string template, boolean inheritEvents returns thistype
+            return thistype.allocate(x, y, width, height, parent, "PanelFrame", template, inheritEvents)
         endmethod
     endstruct
 

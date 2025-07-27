@@ -1,4 +1,4 @@
-library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
+library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilities
     /* --------------------------------------- Shop v1.2 --------------------------------------- */
     // Credits:
     //      Taysen: FDF file and A2S function
@@ -126,24 +126,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
 
     function ShopFilter takes unit u, player owner, unit shop returns boolean
         return IsUnitOwnedByPlayer(u, owner) and UnitInventorySize(u) > 0 and not IsUnitType(u, UNIT_TYPE_DEAD) and not IsUnitPaused(u) and not IsUnitIllusion(u) and not IsUnitHidden(u)
-    endfunction
-
-    function A2S takes integer id returns string
-        local string chars = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
-        local string s = ""
-        local integer min = ' '
-        local integer i
-
-        if id >= min then
-            loop
-                exitwhen id == 0
-                    set i = ModuloInteger(id, 256) - min
-                    set s = SubString(chars, i, i + 1) + s
-                set id = id / 256
-            endloop
-        endif
-
-        return s
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */
@@ -512,7 +494,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
 
                         loop
                             exitwhen j == INVENTORY_COUNT
-                                set button[i][j] = Button.create(0.0033700 + INVENTORY_GAP*j, - 0.0037500, INVENTORY_SIZE, INVENTORY_SIZE, frame, false)
+                                set button[i][j] = Button.create(0.0033700 + INVENTORY_GAP*j, - 0.0037500, INVENTORY_SIZE, INVENTORY_SIZE, frame, false, false)
                                 set Button(button[i][j]).tooltip.point = FRAMEPOINT_BOTTOM
                                 set Button(button[i][j]).onClick = function thistype.onClick
                                 set Button(button[i][j]).onDoubleClick = function thistype.onDoubleClick
@@ -638,7 +620,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         static method create takes Shop shop, Item i, real x, real y, framehandle parent returns thistype
-            local thistype this = thistype.allocate(x, y, ITEM_SIZE, ITEM_SIZE, parent, false)
+            local thistype this = thistype.allocate(x, y, ITEM_SIZE, ITEM_SIZE, parent, false, false)
 
             set .x = x
             set .y = y
@@ -1009,7 +991,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         static method create takes Shop shop returns thistype
-            local thistype this = thistype.allocate(WIDTH - DETAIL_WIDTH, 0, DETAIL_WIDTH, DETAIL_HEIGHT, shop.frame, "EscMenuBackdrop")
+            local thistype this = thistype.allocate(WIDTH - DETAIL_WIDTH, 0, DETAIL_WIDTH, DETAIL_HEIGHT, shop.frame, "EscMenuBackdrop", false)
             local integer i = 0
             local integer j = 0
 
@@ -1029,19 +1011,19 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set horizontal.visible = false
             set vertical = Line.create(0.13725 + ITEM_SIZE/2, - 0.08, 0.001, 0.01, frame, "replaceabletextures\\teamcolor\\teamcolor08")
             set vertical.visible = false
-            set uses = Panel.create(0.0225, - 0.3155,  0.2675, 0.061, frame, "TransparentBackdrop")
+            set uses = Panel.create(0.0225, - 0.3155,  0.2675, 0.061, frame, "TransparentBackdrop", false)
             set uses.onScroll = function thistype.onScrolled
             set separator = Line.create(0, 0, uses.width, 0.001, uses.frame, "replaceabletextures\\teamcolor\\teamcolor08")
             set usedText = Text.create(0.115, - 0.0025, 0.04, 0.012, 1, false, uses.frame, "|cffFFCC00 Used in|r", TEXT_JUSTIFY_TOP, TEXT_JUSTIFY_LEFT)
-            set close = Button.create(0.26676, - 0.025, DETAIL_CLOSE_BUTTON_SIZE, DETAIL_CLOSE_BUTTON_SIZE, frame, true)
+            set close = Button.create(0.26676, - 0.025, DETAIL_CLOSE_BUTTON_SIZE, DETAIL_CLOSE_BUTTON_SIZE, frame, true, false)
             set close.texture = CLOSE_ICON
             set close.tooltip.text = "Close"
             set close.onClick = function thistype.onClicked
-            set left = Button.create(0.005, - 0.0025, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, uses.frame, true)
+            set left = Button.create(0.005, - 0.0025, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, uses.frame, true, false)
             set left.texture = USED_LEFT
             set left.tooltip.text = "Scroll Left"
             set left.onClick = function thistype.onClicked
-            set right = Button.create(0.248, - 0.0025, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, uses.frame, true)
+            set right = Button.create(0.248, - 0.0025, DETAIL_SHIFT_BUTTON_SIZE, DETAIL_SHIFT_BUTTON_SIZE, uses.frame, true, false)
             set right.texture = USED_RIGHT
             set right.tooltip.text = "Scroll Right"
             set right.onClick = function thistype.onClicked
@@ -1071,7 +1053,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
 
                         loop
                             exitwhen j == DETAIL_USED_COUNT
-                                set button[i][j] = Button.create(0.0050000 + DETAIL_BUTTON_GAP*j, - 0.019500, DETAIL_BUTTON_SIZE, DETAIL_BUTTON_SIZE, uses.frame, false)
+                                set button[i][j] = Button.create(0.0050000 + DETAIL_BUTTON_GAP*j, - 0.019500, DETAIL_BUTTON_SIZE, DETAIL_BUTTON_SIZE, uses.frame, false, false)
                                 set Button(button[i][j]).visible = false
                                 set Button(button[i][j]).tooltip.point = FRAMEPOINT_BOTTOMRIGHT
                                 set Button(button[i][j]).onClick = function thistype.onClicked
@@ -1419,7 +1401,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         static method create takes Shop shop returns thistype
-            local thistype this = thistype.allocate(WIDTH/2 - BUYER_WIDTH/2, HEIGHT/2 - 0.015, BUYER_WIDTH, BUYER_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "EscMenuBackdrop")
+            local thistype this = thistype.allocate(WIDTH/2 - BUYER_WIDTH/2, HEIGHT/2 - 0.015, BUYER_WIDTH, BUYER_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "EscMenuBackdrop", false)
             local integer i = 0
             local integer j = 0
 
@@ -1431,11 +1413,11 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set button = HashTable.create()
             set unit = HashTable.create()
             set inventory = Inventory.create(shop)
-            set left = Button.create(0.027500, - 0.032500, BUYER_SHIFT_BUTTON_SIZE, BUYER_SHIFT_BUTTON_SIZE, frame, true)
+            set left = Button.create(0.027500, - 0.032500, BUYER_SHIFT_BUTTON_SIZE, BUYER_SHIFT_BUTTON_SIZE, frame, true, false)
             set left.texture = BUYER_LEFT
             set left.tooltip.text = "Scroll Left"
             set left.onClick = function thistype.onClicked
-            set right = Button.create(0.36350, - 0.032500, BUYER_SHIFT_BUTTON_SIZE, BUYER_SHIFT_BUTTON_SIZE, frame, true)
+            set right = Button.create(0.36350, - 0.032500, BUYER_SHIFT_BUTTON_SIZE, BUYER_SHIFT_BUTTON_SIZE, frame, true, false)
             set right.texture = BUYER_RIGHT
             set right.tooltip.text = "Scroll Right"
             set right.onClick = function thistype.onClicked
@@ -1449,7 +1431,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
 
                         loop
                             exitwhen j == BUYER_COUNT
-                                set button[i][j] = Button.create(0.045000 + BUYER_GAP*j, - 0.023000, BUYER_SIZE, BUYER_SIZE, frame, true)
+                                set button[i][j] = Button.create(0.045000 + BUYER_GAP*j, - 0.023000, BUYER_SIZE, BUYER_SIZE, frame, true, false)
                                 set Button(button[i][j]).visible = false
                                 set Button(button[i][j]).onClick = function thistype.onClicked
                                 set Button(button[i][j]).onScroll = function thistype.onScrolled
@@ -1672,7 +1654,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         static method create takes Shop shop returns thistype
-            local thistype this = thistype.allocate(X + (WIDTH - 0.027), 0, SIDE_WIDTH, SIDE_HEIGHT, shop.frame, "EscMenuBackdrop")
+            local thistype this = thistype.allocate(X + (WIDTH - 0.027), 0, SIDE_WIDTH, SIDE_HEIGHT, shop.frame, "EscMenuBackdrop", false)
             local integer i = 0
             local integer j
             
@@ -1680,7 +1662,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             set count = Table.create()
             set item = HashTable.create()
             set button = HashTable.create()
-            set clear = Button.create(0.027, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
+            set clear = Button.create(0.027, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true, false)
             set clear.texture = CLEAR_ICON
             set clear.tooltip.text = "Clear"
             set clear.onClick = function thistype.onClear
@@ -1694,7 +1676,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
 
                         loop
                             exitwhen j == CATEGORY_COUNT
-                                set button[i][j] = Button.create(0.023750, - (0.021500 + CATEGORY_SIZE*j + CATEGORY_GAP), CATEGORY_SIZE, CATEGORY_SIZE, frame, false)
+                                set button[i][j] = Button.create(0.023750, - (0.021500 + CATEGORY_SIZE*j + CATEGORY_GAP), CATEGORY_SIZE, CATEGORY_SIZE, frame, false, false)
                                 set Button(button[i][j]).visible = false
                                 set Button(button[i][j]).tooltip.point = FRAMEPOINT_TOPRIGHT
                                 set Button(button[i][j]).onClick = function thistype.onClicked
@@ -1805,7 +1787,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             if count < CATEGORY_COUNT then
                 set count = count + 1
                 set value[count] = R2I(Pow(2, count))
-                set button[count] = Button.create(0.023750, - (0.021500 + CATEGORY_SIZE*count + CATEGORY_GAP), CATEGORY_SIZE, CATEGORY_SIZE, frame, true)
+                set button[count] = Button.create(0.023750, - (0.021500 + CATEGORY_SIZE*count + CATEGORY_GAP), CATEGORY_SIZE, CATEGORY_SIZE, frame, true, false)
                 set button[count].texture = icon
                 set button[count].active = false
                 set button[count].tooltip.text = description
@@ -1822,17 +1804,17 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
         endmethod
 
         static method create takes Shop shop returns thistype
-            local thistype this = thistype.allocate(X - 0.048, 0, SIDE_WIDTH, SIDE_HEIGHT, shop.frame, "EscMenuBackdrop")
+            local thistype this = thistype.allocate(X - 0.048, 0, SIDE_WIDTH, SIDE_HEIGHT, shop.frame, "EscMenuBackdrop", false)
 
             set count = -1
             set active = 0
             set .shop = shop
             set andLogic = true
-            set clear = Button.create(0.028, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
+            set clear = Button.create(0.028, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true, false)
             set clear.texture = CLEAR_ICON
             set clear.tooltip.text = "Clear"
             set clear.onClick = function thistype.onClear
-            set logic = Button.create(X + 0.048, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
+            set logic = Button.create(X + 0.048, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true, false)
             set logic.texture = LOGIC_ICON
             set logic.active = false
             set logic.tooltip.text = "AND"
@@ -2323,7 +2305,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
             local integer i = 0
 
             if not table[id].has(0) then
-                set this = thistype.allocate(X, Y, WIDTH, HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0), "EscMenuBackdrop")
+                set this = thistype.allocate(X, Y, WIDTH, HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0), "EscMenuBackdrop", false)
                 set .id = id
                 set .aoe = aoe
                 set .tax = tax
@@ -2344,15 +2326,15 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item
                 set favorites = Favorites.create(this)
                 set edit = EditBox.create(0.021, 0.02, EDIT_WIDTH, EDIT_HEIGHT, frame, "EscMenuEditBoxTemplate")
                 set edit.onText = function thistype.onSearch
-                set close = Button.create((WIDTH - 2*TOOLBAR_BUTTON_SIZE), 0.015000, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
+                set close = Button.create((WIDTH - 2*TOOLBAR_BUTTON_SIZE), 0.015000, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true, false)
                 set close.texture = CLOSE_ICON
                 set close.tooltip.text = "Close"
                 set close.onClick = function thistype.onClose
-                set break = Button.create((WIDTH - 2*TOOLBAR_BUTTON_SIZE - 0.0205), 0.015000, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
+                set break = Button.create((WIDTH - 2*TOOLBAR_BUTTON_SIZE - 0.0205), 0.015000, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true, false)
                 set break.texture = DISMANTLE_ICON
                 set break.tooltip.text = "Dismantle"
                 set break.onClick = function thistype.onDismantle
-                set revert = Button.create((WIDTH - 2*TOOLBAR_BUTTON_SIZE - 0.0410), 0.015000, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true)
+                set revert = Button.create((WIDTH - 2*TOOLBAR_BUTTON_SIZE - 0.0410), 0.015000, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true, false)
                 set revert.texture = UNDO_ICON
                 set revert.tooltip.text = "Undo"
                 set revert.onClick = function thistype.onUndo
