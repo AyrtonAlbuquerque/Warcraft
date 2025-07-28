@@ -382,32 +382,40 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             return unitpool[id].string[23]
         endmethod
 
+        method operator unique= takes boolean value returns nothing
+            set unitpool[id].boolean[24] = value
+        endmethod
+
+        method operator unique takes nothing returns boolean
+            return unitpool[id].boolean[24]
+        endmethod
+
         method operator ability takes nothing returns Table
             return abilities[id]
         endmethod
 
         method operator isHero= takes boolean value returns nothing
-            set unitpool[id].boolean[24] = value
-        endmethod
-
-        method operator isHero takes nothing returns boolean
-            return unitpool[id].boolean[24]
-        endmethod
-
-        method operator isMelee= takes boolean value returns nothing
             set unitpool[id].boolean[25] = value
         endmethod
 
-        method operator isMelee takes nothing returns boolean
+        method operator isHero takes nothing returns boolean
             return unitpool[id].boolean[25]
         endmethod
 
-        method operator isRanged= takes boolean value returns nothing
+        method operator isMelee= takes boolean value returns nothing
             set unitpool[id].boolean[26] = value
         endmethod
 
-        method operator isRanged takes nothing returns boolean
+        method operator isMelee takes nothing returns boolean
             return unitpool[id].boolean[26]
+        endmethod
+
+        method operator isRanged= takes boolean value returns nothing
+            set unitpool[id].boolean[27] = value
+        endmethod
+
+        method operator isRanged takes nothing returns boolean
+            return unitpool[id].boolean[27]
         endmethod
 
         static method operator [] takes integer id returns thistype
@@ -799,13 +807,17 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
 
             if unit != 0 then
                 set button.texture = unit.icon
-                set button.tooltip.text = unit.tooltip
+                set button.tooltip.text = unit.tooltip + "\n\n|cffFFCC00Double or Right click to buy|r"
                 set button.tooltip.name = unit.name
                 set button.tooltip.icon = unit.icon
                 set name.text = unit.name
                 set goldText.text = "|cffFFCC00" + I2S(unit.gold) + "|r"
                 set woodText.text = "|cff265526" + I2S(unit.wood) + "|r"
                 set foodText.text = "|cff742b2b" + I2S(unit.food) + "|r"
+
+                if u.unique then
+                    set button.tooltip.text = button.tooltip.text + "\n\n|cffFFCC00Unique|r"
+                endif
             endif
 
             return this
@@ -830,18 +842,30 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
         endmethod
 
         private method onDoubleClick takes nothing returns nothing
-            if picker.buy(unit, GetTriggerPlayer()) then
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    call button.play(SPRITE_MODEL, SPRITE_SCALE, 0)
+            if button.active then
+                if picker.buy(unit, GetTriggerPlayer()) then
+                    set button.active = not unit.unique
+
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        call button.play(SPRITE_MODEL, SPRITE_SCALE, 0)
+                    endif
                 endif
+            else
+                call Sound.error(GetTriggerPlayer())
             endif
         endmethod
 
         private method onRightClick takes nothing returns nothing
-            if picker.buy(unit, GetTriggerPlayer()) then
-                if GetLocalPlayer() == GetTriggerPlayer() then
-                    call button.play(SPRITE_MODEL, SPRITE_SCALE, 0)
+            if button.active then
+                if picker.buy(unit, GetTriggerPlayer()) then
+                    set button.active = not unit.unique
+
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        call button.play(SPRITE_MODEL, SPRITE_SCALE, 0)
+                    endif
                 endif
+            else
+                call Sound.error(GetTriggerPlayer())
             endif
         endmethod
     endstruct
@@ -1340,7 +1364,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             return category.add(icon, description)
         endmethod
 
-        method add takes integer id, string texture, real ratio, integer categories returns nothing
+        method add takes integer id, boolean unique, string texture, real ratio, integer categories returns nothing
             local Slot slot
             local Unit u
 
@@ -1351,6 +1375,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
                     set size = size + 1
                     set index = index + 1
                     set u.ratio = ratio
+                    set u.unique = unique
                     set u.texture = texture
                     set u.categories = categories
                     set slot = Slot.create(this, u, 0, 0, frame)
@@ -1529,8 +1554,8 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
         return picker.addCategory(icon, description)
     endfunction
 
-    function UnitPickerAddUnit takes UnitPicker picker, integer id, string texture, real ratio, integer categories returns nothing
-        call picker.add(id, texture, ratio, categories)
+    function UnitPickerAddUnit takes UnitPicker picker, integer id, boolean unique, string texture, real ratio, integer categories returns nothing
+        call picker.add(id, unique, texture, ratio, categories)
     endfunction
 
     function UnitAddAbilities takes integer id, integer a1, integer a2, integer a3, integer a4, integer a5, integer a6 returns nothing
