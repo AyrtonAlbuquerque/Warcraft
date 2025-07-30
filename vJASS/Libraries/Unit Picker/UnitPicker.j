@@ -97,9 +97,6 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
         // Scroll
         private constant real SCROLL_DELAY              = 0.075
 
-        // Update time
-        private constant real UPDATE_PERIOD             = 0.33
-
         // Buy / Sell sound, model and scale
         private constant string SPRITE_MODEL            = "UI\\Feedback\\GoldCredit\\GoldCredit.mdl"
         private constant real SPRITE_SCALE              = 0.0005
@@ -687,6 +684,10 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             return value.text
         endmethod
 
+        method destroy takes nothing returns nothing
+            call value.destroy()
+        endmethod
+
         static method create takes string texture, string tooltip, framehandle parent, textaligntype alignment returns thistype
             local thistype this = thistype.allocate(0, 0, ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, parent, true, false)
 
@@ -715,6 +716,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
         Text woodText
         Backdrop food
         Text foodText
+        boolean array drafted[32]
 
         thistype next
         thistype prev
@@ -744,6 +746,14 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
 
         method operator column takes nothing returns integer
             return current_column
+        endmethod
+
+        method operator available= takes boolean flag returns nothing
+            set button.available = flag
+        endmethod
+
+        method operator available takes nothing returns boolean
+            return button.available
         endmethod
 
         method destroy takes nothing returns nothing
@@ -842,7 +852,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
         endmethod
 
         private method onDoubleClick takes nothing returns nothing
-            if button.active then
+            if button.active and button.available then
                 if picker.buy(unit, GetTriggerPlayer()) then
                     set button.active = not unit.unique
 
@@ -856,7 +866,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
         endmethod
 
         private method onRightClick takes nothing returns nothing
-            if button.active then
+            if button.active and button.available then
                 if picker.buy(unit, GetTriggerPlayer()) then
                     set button.active = not unit.unique
 
@@ -889,6 +899,45 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
         private Attribute regeneration
         private HashTable ability
         // private Sprite unit
+
+        method destroy takes nothing returns nothing
+            local integer i = 0
+            local integer j = 0
+
+            loop
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                        set j = 0
+
+                        loop
+                            exitwhen j == ABILITY_COUNT
+                                call table.remove(ability[i][j])
+                                call Button(ability[i][j]).destroy()
+                            set j = j + 1
+                        endloop
+
+                        call ability.remove(i)
+                    endif
+                set i = i + 1
+            endloop
+
+            call name.destroy()
+            call unit.destroy()
+            call abilities.destroy()
+            call selected.destroy()
+            call description.destroy()
+            call damage.destroy()
+            call armor.destroy()
+            call health.destroy()
+            call mana.destroy()
+            call movement.destroy()
+            call agility.destroy()
+            call strength.destroy()
+            call intelligence.destroy()
+            call range.destroy()
+            call regeneration.destroy()
+            call ability.destroy()
+        endmethod
 
         method show takes Unit u, player p returns nothing
             local integer id = GetPlayerId(p)
@@ -1137,15 +1186,20 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
     endstruct
     
     struct UnitPicker extends Panel
-        private static integer count = -1
         private static HashTable unitpool
+        private static integer array bans
         private static thistype array array
 
+        private timer timer
         private boolean isVisible
+        private boolean keepOpen
 
         readonly real x
         readonly real y
+        readonly real timeout
+        readonly integer banCount
         readonly integer size
+        readonly integer drafts
         readonly integer index
         readonly integer rows
         readonly integer columns
@@ -1154,20 +1208,21 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
         readonly Slot head
         readonly Slot tail
         readonly EditBox edit
+        readonly Text banText
+        readonly Button ban
         readonly Button close
         readonly Button clear
         readonly Button logic
         readonly Detail details
         readonly Category category
         readonly HashTable scrolls
-        readonly HashTable selected
 
         method operator visible= takes boolean visibility returns nothing
             local integer id = GetPlayerId(GetLocalPlayer())
 
-            set isVisible = visibility
+            set isVisible = visibility or keepOpen
 
-            if not visibility then
+            if not isVisible then
                 set array[id] = 0
             else
                 set array[id] = this
@@ -1179,11 +1234,45 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
                 endif
             endif
             
-            call BlzFrameSetVisible(frame, visibility)
+            call BlzFrameSetVisible(frame, isVisible)
         endmethod
 
         method operator visible takes nothing returns boolean
             return isVisible
+        endmethod
+
+        method operator keepOpened= takes boolean flag returns nothing
+            set keepOpen = flag
+
+            if not visible and keepOpen then
+                set visible = true
+            endif
+        endmethod
+
+        method operator keepOpened takes nothing returns boolean
+            return keepOpen
+        endmethod
+
+        method destroy takes nothing returns nothing
+            local integer i = 0
+            local Slot slot = unitpool[this][0]
+
+            loop
+                exitwhen slot == 0
+                    call slot.destroy()
+                set slot = slot.next
+            endloop
+
+            call table.remove(this)
+            call unitpool.remove(this)
+            call ban.destroy()
+            call edit.destroy()
+            call close.destroy()
+            call clear.destroy()
+            call logic.destroy()
+            call banText.destroy()
+            call details.destroy()
+            call category.destroy()
         endmethod
 
         method buy takes Unit u, player p returns boolean
@@ -1194,7 +1283,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             local integer food = cap - GetPlayerState(p, PLAYER_STATE_RESOURCE_FOOD_USED)
             local unit new
 
-            if u.gold <= gold and u.wood <= lumber and (u.food <= food or cap == 0) then
+            if u.gold <= gold and u.wood <= lumber and (u.food <= food or cap == 0) and not ban.visible then
                 set new = CreateUnit(p, u.id, x, y, 0)
 
                 if new != null then
@@ -1210,14 +1299,18 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
 
                 return true
             else
-                if u.gold > gold then
-                    call Sound.gold(p)
-                elseif u.wood > lumber then
-                    call Sound.wood(p)
-                elseif u.food > food and cap != 0 then
-                    call Sound.food(p)
-                else
+                if ban.visible then
                     call Sound.error(p)
+                else
+                    if u.gold > gold then
+                        call Sound.gold(p)
+                    elseif u.wood > lumber then
+                        call Sound.wood(p)
+                    elseif u.food > food and cap != 0 then
+                        call Sound.food(p)
+                    else
+                        call Sound.error(p)
+                    endif
                 endif
 
                 return false
@@ -1268,6 +1361,61 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             endif
         endmethod
 
+        method draft takes nothing returns nothing
+            local Table used = Table.create()
+            local integer i = 0
+            local integer j = 0
+            local integer k = 0
+            local integer tries
+            local boolean reused = false
+            local Slot slot
+
+            if drafts > 0 and drafts < index then
+                loop
+                    exitwhen i >= bj_MAX_PLAYER_SLOTS
+                        if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                            set j = 0
+
+                            loop
+                                exitwhen j >= drafts
+                                    set tries = 0
+                                    set k = GetRandomInt(0, index)
+                                    set slot = Slot(unitpool[this][k])
+
+                                    loop
+                                        exitwhen tries > index
+                                            if slot != 0 and not used.has(slot) then
+                                                set used[slot] = 1
+                                                set slot.drafted[i] = true
+
+                                                if reused then
+                                                    set slot.unit.unique = false
+                                                endif
+
+                                                exitwhen true
+                                            endif
+
+                                            set k = ModuloInteger(k + 1, index)
+                                            set slot = Slot(unitpool[this][k])
+                                        set tries = tries + 1
+                                    endloop
+
+                                    if tries > index then
+                                        set reused = true
+                                        call used.flush()
+                                    endif
+                                set j = j + 1
+                            endloop
+                        endif
+                    set i = i + 1
+                endloop
+            endif
+
+            call used.flush()
+            call used.destroy()
+            call category.reset()
+        endmethod
+
         method filter takes integer categories, boolean andLogic returns nothing
             local Slot slot = unitpool[this][0]
             local boolean process
@@ -1290,6 +1438,8 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
                     if edit.text != "" and edit.text != null then
                         set process = process and find(StringCase(slot.unit.name, false), StringCase(edit.text, false))
                     endif
+
+                    set process = process and (slot.drafted[GetPlayerId(GetLocalPlayer())] or banCount > 0)
 
                     if process then
                         set i = i + 1
@@ -1381,6 +1531,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
                     set slot = Slot.create(this, u, 0, 0, frame)
                     set slot.row = R2I(index/COLUMNS)
                     set slot.column = ModuloInteger(index, COLUMNS)
+                    set slot.drafted[GetPlayerId(GetLocalPlayer())] = not (drafts > 0)
                     set slot.visible = slot.row >= 0 and slot.row <= ROWS - 1 and slot.column >= 0 and slot.column <= COLUMNS - 1
 
                     if index > 0 then
@@ -1408,8 +1559,9 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             endif
         endmethod
 
-        static method create takes real spawnX, real spawnY returns thistype
+        static method create takes real spawnX, real spawnY, integer bansPerPlayer, real banTimeout, integer draftCount, boolean showPicks returns thistype
             local thistype this = thistype.allocate(X, Y, WIDTH, HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0), "EscMenuBackdrop", false)
+            local integer i = 0
 
             set x = spawnX
             set y = spawnY
@@ -1419,12 +1571,20 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             set tail = 0
             set size = 0
             set index = -1
+            set banCount = 0
+            set drafts = draftCount
+            set timeout = banTimeout
+            set keepOpen = false
             set rows = ROWS
             set columns = COLUMNS
-            set count = count + 1
+            set timer = NewTimerEx(this)
             set scrolls = HashTable.create()
             set details = Detail.create(this)
             set category = Category.create(this)
+            set ban = Component.create(0, 0, 0.1, 0.03, frame, "ComponentFrame", "ScriptDialogButton", false)
+            set ban.visible = bansPerPlayer > 0
+            set ban.onClick = function thistype.onBan
+            set banText = Text.create(0, 0, ban.width, ban.height, 1, false, ban.frame, "Ban (" + I2S(bansPerPlayer) + "): " + N2S(timeout, 0), TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_CENTER)
             set close = Button.create(0, 0, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true, false)
             set close.texture = CLOSE_ICON
             set close.tooltip.text = "Close"
@@ -1440,15 +1600,35 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             set logic.onClick = function thistype.onLogic
             set edit = EditBox.create(0, 0, EDIT_WIDTH, EDIT_HEIGHT, logic.frame, "EscMenuEditBoxTemplate")
             set edit.onText = function thistype.onSearch
+            set table[ban][0] = this
             set table[edit][0] = this
             set table[close][0] = this
             set table[clear][0] = this
             set table[logic][0] = this
 
+            call ban.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, 0.007)
+            call banText.setPoint(FRAMEPOINT_CENTER, FRAMEPOINT_CENTER, 0, 0)
             call close.setPoint(FRAMEPOINT_BOTTOMRIGHT, FRAMEPOINT_TOPRIGHT, -0.005, -0.0025)
             call clear.setPoint(FRAMEPOINT_RIGHT, FRAMEPOINT_LEFT, 0, 0)
             call logic.setPoint(FRAMEPOINT_RIGHT, FRAMEPOINT_LEFT, 0, 0)
             call edit.setPoint(FRAMEPOINT_RIGHT, FRAMEPOINT_LEFT, 0, 0)
+
+            if bansPerPlayer > 0 then
+                loop
+                    exitwhen i >= bj_MAX_PLAYER_SLOTS
+                        if GetPlayerController(Player(i)) == MAP_CONTROL_USER and GetPlayerSlotState(Player(i)) == PLAYER_SLOT_STATE_PLAYING then
+                            set bans[i] = bansPerPlayer
+                            set banCount = banCount + bansPerPlayer
+                        endif
+                    set i = i + 1
+                endloop
+
+                call TimerStart(timer, 1, true, function thistype.onPeriod)
+            else
+                if drafts > 0 then
+                    call TimerStart(NewTimerEx(this), 1, false, function thistype.onDraft)
+                endif
+            endif
 
             set visible = false
 
@@ -1472,6 +1652,54 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
                 else
                     call scroll(direction < 0)
                 endif
+            endif
+        endmethod
+
+        private static method onPeriod takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
+
+            if this != 0 then
+                set timeout = timeout - 1
+                set banText.text = "Ban (" + I2S(bans[GetPlayerId(GetLocalPlayer())]) + "): " + N2S(timeout, 0)
+
+                if banCount <= 0 or timeout <= 0 then
+                    set banCount = 0
+                    set ban.visible = false
+
+                    call draft()
+                    call ReleaseTimer(GetExpiredTimer())
+                endif
+            endif
+        endmethod
+
+        private static method onBan takes nothing returns nothing
+            local thistype this = table[GetTriggerComponent()][0]
+            local integer id = GetPlayerId(GetTriggerPlayer())
+            local Slot slot
+            
+            if this != 0 then
+                set slot = Slot(table[this][id])
+
+                if slot != 0 and bans[id] > 0 then
+                    if slot.available then
+                        set slot.available = false
+                        set bans[id] = bans[id] - 1
+                        set banCount = banCount - 1
+                    else
+                        call Sound.error(GetTriggerPlayer())
+                    endif
+                else
+                    call Sound.error(GetTriggerPlayer())
+                endif
+            endif
+        endmethod
+
+        private static method onDraft takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
+
+            if this != 0 then
+                call draft()
+                call ReleaseTimer(GetExpiredTimer())
             endif
         endmethod
 
@@ -1546,8 +1774,8 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function CreateUnitPicker takes real spawnX, real spawnY returns UnitPicker
-        return UnitPicker.create(spawnX, spawnY)
+    function CreateUnitPicker takes real spawnX, real spawnY, integer bansPerPlayer, real banTimeout, integer draftCount, boolean showPicks returns UnitPicker
+        return UnitPicker.create(spawnX, spawnY, bansPerPlayer, banTimeout, draftCount, showPicks)
     endfunction
     
     function UnitPickerAddCategory takes UnitPicker picker, string icon, string description returns integer
@@ -1560,5 +1788,17 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
 
     function UnitAddAbilities takes integer id, integer a1, integer a2, integer a3, integer a4, integer a5, integer a6 returns nothing
         call Unit.addAbilities(id, a1, a2, a3, a4, a5, a6)
+    endfunction
+
+    function ShowUnitPicker takes UnitPicker picker, player p, boolean flag returns nothing
+        if GetLocalPlayer() == p and picker != 0 then
+            set picker.visible = flag
+        endif
+    endfunction
+
+    function UnitPickerKeepOpened takes UnitPicker picker, player p, boolean flag returns nothing
+        if GetLocalPlayer() == p and picker != 0 then
+            set picker.keepOpened = flag
+        endif
     endfunction
 endlibrary
