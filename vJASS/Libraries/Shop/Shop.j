@@ -93,7 +93,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         private constant real TAG_YOFFSET               = -0.0048
 
         // Scroll
-        private constant real SCROLL_DELAY              = 0.075
+        private constant real SCROLL_DELAY              = 0.03
 
         // Update time
         private constant real UPDATE_PERIOD             = 0.33
@@ -2371,9 +2371,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             endif
 
             if GetLocalPlayer() == GetTriggerPlayer() then
-                if scrolls[id][1] == 1 then
+                if scrolls[id][1] == 1 and SCROLL_DELAY > 0 then
                     call scroll(direction < 0)
-                else
+                elseif SCROLL_DELAY <= 0 then
                     call scroll(direction < 0)
                 endif
             endif

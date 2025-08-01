@@ -9,11 +9,13 @@ library Components requires Table
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
     globals
-        private constant real TOOLTIP_SIZE          = 0.2
-        private constant real DOUBLE_CLICK_DELAY    = 0.25
-        private constant string HIGHLIGHT           = "UI\\Widgets\\Glues\\GlueScreen-Button-KeyboardHighlight"
-        private constant string CHECKED_BUTTON      = "UI\\Widgets\\EscMenu\\Human\\checkbox-check.blp"
-        private constant string UNAVAILABLE_BUTTON  = "ui\\widgets\\battlenet\\chaticons\\bnet-squelch"
+        private constant real TOOLTIP_SIZE              = 0.2
+        private constant real DOUBLE_CLICK_DELAY        = 0.25
+        private constant string HIGHLIGHT               = "UI\\Widgets\\Glues\\GlueScreen-Button-KeyboardHighlight"
+        private constant string CHECKED_BUTTON          = "UI\\Widgets\\EscMenu\\Human\\checkbox-check.blp"
+        private constant string UNAVAILABLE_BUTTON      = "ui\\widgets\\battlenet\\chaticons\\bnet-squelch"
+        private constant string CLICK_SOUND             = "Sound\\Interface\\MouseClick1.wav"
+        private constant integer CLICK_SOUND_DURATION   = 239
 
         private timer DOUBLE = CreateTimer()
         private framehandle CONSOLE
@@ -57,6 +59,8 @@ library Components requires Table
     endinterface
 
     private module Operators
+        readonly static sound sound
+
         private real _x
         private real _y
         private real _scale
@@ -219,7 +223,9 @@ library Components requires Table
         private static method onInit takes nothing returns nothing
             set CONSOLE = BlzGetFrameByName("ConsoleUIBackdrop", 0)
             set WORLD = BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0)
+            set sound = CreateSound(CLICK_SOUND, false, false, false, 10, 10, "")
 
+            call SetSoundDuration(sound, CLICK_SOUND_DURATION)
             call BlzLoadTOCFile("Components.toc")
             call TimerStart(DOUBLE, 9999999999, false, null)
         endmethod
@@ -946,6 +952,8 @@ library Components requires Table
             if this != 0 then
                 set owner = table[GetHandleId(parent)]
 
+                call StartSoundForPlayerBJ(GetTriggerPlayer(), sound)
+
                 if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_LEFT then
                     set time[id].real[this] = TimerGetElapsed(DOUBLE)
 
@@ -1509,6 +1517,10 @@ library Components requires Table
             return isHighlighted
         endmethod
 
+        method operator tagged takes nothing returns boolean
+            return tagger.visible
+        endmethod
+
         method destroy takes nothing returns nothing
             call check.destroy()
             call block.destroy()
@@ -1566,6 +1578,7 @@ library Components requires Table
             set checked = false
             set available = true
             set highlighted = false
+            set tagger.visible = false
 
             call BlzFrameSetTooltip(actor, tooltip.frame)
             call BlzFrameSetPoint(highlight, FRAMEPOINT_TOPLEFT, frame, FRAMEPOINT_TOPLEFT, - 0.004, 0.0045)
