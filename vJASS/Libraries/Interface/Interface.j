@@ -206,90 +206,20 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real MENU_FRAME_WIDTH = 0.40
         private constant real MENU_FRAME_HEIGHT = 0.23
         /* -------------------------------------- Menu Options ------------------------------------- */
-        // The initial position of the move minimap to the right check box (relative to the menu frame)
-        private constant real MINIMAP_CHECK_RIGHT_X = 0.04
-        private constant real MINIMAP_CHECK_RIGHT_Y = -0.025
-        // The size of the move minimap to the right check box
-        private constant real MINIMAP_CHECK_RIGHT_WIDTH = 0.015
-        private constant real MINIMAP_CHECK_RIGHT_HEIGHT = 0.015
-        // The initial position of the move minimap to the right text (relative to the move minimap to the right check box)
-        private constant real MINIMAP_CHECK_RIGHT_TEXT_X = 0.02
-        private constant real MINIMAP_CHECK_RIGHT_TEXT_Y = 0.0
-        // The size of the move minimap to the right text
-        private constant real MINIMAP_CHECK_RIGHT_TEXT_WIDTH = 0.15
-        private constant real MINIMAP_CHECK_RIGHT_TEXT_HEIGHT = 0.015
-        // The initial position of the move minimap to the left check box (relative to the menu frame)
-        private constant real MINIMAP_CHECK_LEFT_X = 0.04
-        private constant real MINIMAP_CHECK_LEFT_Y = -0.045
-        // The size of the move minimap to the left check box
-        private constant real MINIMAP_CHECK_LEFT_WIDTH = 0.015
-        private constant real MINIMAP_CHECK_LEFT_HEIGHT = 0.015
-        // The initial position of the move minimap to the left text (relative to the move minimap to the left check box)
-        private constant real MINIMAP_CHECK_LEFT_TEXT_X = 0.02
-        private constant real MINIMAP_CHECK_LEFT_TEXT_Y = 0.0
-        // The size of the move minimap to the left text
-        private constant real MINIMAP_CHECK_LEFT_TEXT_WIDTH = 0.15
-        private constant real MINIMAP_CHECK_LEFT_TEXT_HEIGHT = 0.015
-        // The initial position of the minimap toggle enable check box (relative to the menu frame)
-        private constant real MINIMAP_CHECK_TOGGLE_X = 0.04
-        private constant real MINIMAP_CHECK_TOGGLE_Y = -0.065
-        // The size of the minimap toggle enable check box
-        private constant real MINIMAP_CHECK_TOGGLE_WIDTH = 0.015
-        private constant real MINIMAP_CHECK_TOGGLE_HEIGHT = 0.015
-        // The initial position of the minimap toggle enable text (relative to the minimap toggle enable check box)
-        private constant real MINIMAP_CHECK_TOGGLE_TEXT_X = 0.02
-        private constant real MINIMAP_CHECK_TOGGLE_TEXT_Y = 0.0
-        // The size of the minimap toggle enable text
-        private constant real MINIMAP_CHECK_TOGGLE_TEXT_WIDTH = 0.175
-        private constant real MINIMAP_CHECK_TOGGLE_TEXT_HEIGHT = 0.015
-        // The initial position of the show heroes bar check box (relative to the menu frame)
-        private constant real HEROES_BAR_CHECK_X = 0.04
-        private constant real HEROES_BAR_CHECK_Y = -0.085
-        // The size of the show heroes bar check box
-        private constant real HEROES_BAR_CHECK_WIDTH = 0.015
-        private constant real HEROES_BAR_CHECK_HEIGHT = 0.015
-        // The initial position of the show heroes bar text (relative to the show heroes bar check box)
-        private constant real HEROES_BAR_CHECK_TEXT_X = 0.02
-        private constant real HEROES_BAR_CHECK_TEXT_Y = 0.0
-        // The size of the show heroes bar text
-        private constant real HEROES_BAR_CHECK_TEXT_WIDTH = 0.15
-        private constant real HEROES_BAR_CHECK_TEXT_HEIGHT = 0.015
-        // The initial position of the show default menu check box (relative to the menu frame)
-        private constant real DEFAULT_MENU_CHECK_X = 0.04
-        private constant real DEFAULT_MENU_CHECK_Y = -0.105
-        // The size of the show default menu check box
-        private constant real DEFAULT_MENU_CHECK_WIDTH = 0.015
-        private constant real DEFAULT_MENU_CHECK_HEIGHT = 0.015
-        // The initial position of the show default menu text (relative to the show default menu check box)
-        private constant real DEFAULT_MENU_CHECK_TEXT_X = 0.02
-        private constant real DEFAULT_MENU_CHECK_TEXT_Y = 0.0
-        // The size of the show default menu text
-        private constant real DEFAULT_MENU_CHECK_TEXT_WIDTH = 0.15
-        private constant real DEFAULT_MENU_CHECK_TEXT_HEIGHT = 0.015
-        // The initial position of the minimap transparency slider (relative to the menu frame)
-        private constant real MINIMAP_SLIDER_X = 0.05
-        private constant real MINIMAP_SLIDER_Y = -0.145
-        // The size of the minimap transparency slider
-        private constant real MINIMAP_SLIDER_WIDTH = 0.30
-        private constant real MINIMAP_SLIDER_HEIGHT = 0.015
-        // The initial position of the minimap transparency text (relative to the minimap transparency slider)
-        private constant real MINIMAP_SLIDER_TEXT_X = 0.075
-        private constant real MINIMAP_SLIDER_TEXT_Y = 0.02
-        // The size of the minimap transparency text
-        private constant real MINIMAP_SLIDER_TEXT_WIDTH = 0.15
-        private constant real MINIMAP_SLIDER_TEXT_HEIGHT = 0.015
-        // The initial position of the portrait shader slider (relative to the menu frame)
-        private constant real SHADER_SLIDER_X = 0.05
-        private constant real SHADER_SLIDER_Y = -0.185
-        // The size of the shader slider
-        private constant real SHADER_SLIDER_WIDTH = 0.30
-        private constant real SHADER_SLIDER_HEIGHT = 0.015
-        // The initial position of the shader text (relative to the shader slider)
-        private constant real SHADER_SLIDER_TEXT_X = 0.075
-        private constant real SHADER_SLIDER_TEXT_Y = 0.02
-        // The size of the minimap transparency text
-        private constant real SHADER_SLIDER_TEXT_WIDTH = 0.15
-        private constant real SHADER_SLIDER_TEXT_HEIGHT = 0.015
+        private constant real MENU_X_OFFSET = 0.04
+        private constant real MENU_Y_OFFSET = -0.025
+        private constant real MENU_Y_GAP = -0.005
+        private constant real CHECK_WIDTH = 0.015
+        private constant real CHECK_HEIGHT = 0.015
+        private constant real CHECK_TEXT_X = 0.002
+        private constant real CHECK_TEXT_Y = 0.0
+        private constant real CHECK_TEXT_WIDTH = 0.2
+        private constant real CHECK_TEXT_HEIGHT = 0.015
+        private constant real CHECK_TEXT_SCALE = 1
+        private constant real SLIDER_WIDTH = 0.30
+        private constant real SLIDER_HEIGHT = 0.015
+        private constant real SLIDER_TEXT_WIDTH = 0.15
+        private constant real SLIDER_TEXT_HEIGHT = 0.015
         /* ------------------------------------------ Gold ----------------------------------------- */
         // The initial position of the gold background (relative to the menu button)
         private constant real GOLD_BACKGROUND_X = 0.0165
@@ -445,8 +375,6 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private static trigger key = CreateTrigger()
         private static Table table
 
-        CheckBox left
-        Text leftText
         CheckBox right
         Text rightText
         CheckBox toggle
@@ -461,14 +389,12 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         Text shaderText
 
         method destroy takes nothing returns nothing
-            call left.destroy()
             call right.destroy()
             call toggle.destroy()
             call heroes.destroy()
             call slider.destroy()
             call shader.destroy()
             call default.destroy()
-            call leftText.destroy()
             call rightText.destroy()
             call toggleText.destroy()
             call heroesText.destroy()
@@ -482,43 +408,51 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             local integer i = 0
             local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop", false)
 
-            set left = CheckBox.create(MINIMAP_CHECK_LEFT_X, MINIMAP_CHECK_LEFT_Y, MINIMAP_CHECK_LEFT_WIDTH, MINIMAP_CHECK_LEFT_HEIGHT, frame, "QuestCheckBox")
-            set left.onCheck = function thistype.onChecked
-            set left.onUncheck = function thistype.onUnchecked
-            set leftText = Text.create(MINIMAP_CHECK_LEFT_TEXT_X, MINIMAP_CHECK_LEFT_TEXT_Y, MINIMAP_CHECK_LEFT_TEXT_WIDTH, MINIMAP_CHECK_LEFT_TEXT_HEIGHT, 1.00, false, left.frame, "|cffffffffShow Minimap on the Left|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            set right = CheckBox.create(MINIMAP_CHECK_RIGHT_X, MINIMAP_CHECK_RIGHT_Y, MINIMAP_CHECK_RIGHT_WIDTH, MINIMAP_CHECK_RIGHT_HEIGHT, frame, "QuestCheckBox")
+            set right = CheckBox.create(MENU_X_OFFSET, MENU_Y_OFFSET, CHECK_WIDTH, CHECK_HEIGHT, frame, "QuestCheckBox")
             set right.onCheck = function thistype.onChecked
             set right.onUncheck = function thistype.onUnchecked
-            set rightText = Text.create(MINIMAP_CHECK_RIGHT_TEXT_X, MINIMAP_CHECK_RIGHT_TEXT_Y, MINIMAP_CHECK_RIGHT_TEXT_WIDTH, MINIMAP_CHECK_RIGHT_TEXT_HEIGHT, 1.00, false, right.frame, "|cffffffffShow Minimap on the Right|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            set toggle = CheckBox.create(MINIMAP_CHECK_TOGGLE_X, MINIMAP_CHECK_TOGGLE_Y, MINIMAP_CHECK_TOGGLE_WIDTH, MINIMAP_CHECK_TOGGLE_HEIGHT, frame, "QuestCheckBox")
+            set rightText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, right.frame, "|cffffffffShow Minimap on the Right|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            set toggle = CheckBox.create(0, 0, CHECK_WIDTH, CHECK_HEIGHT, right.frame, "QuestCheckBox")
             set toggle.onCheck = function thistype.onChecked
             set toggle.onUncheck = function thistype.onUnchecked
-            set toggleText = Text.create(MINIMAP_CHECK_TOGGLE_TEXT_X, MINIMAP_CHECK_TOGGLE_TEXT_Y, MINIMAP_CHECK_TOGGLE_TEXT_WIDTH, MINIMAP_CHECK_TOGGLE_TEXT_HEIGHT, 1.00, false, toggle.frame, "|cffffffffEnable Minimap Toggle (Hold Tab)|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            set heroes = CheckBox.create(HEROES_BAR_CHECK_X, HEROES_BAR_CHECK_Y, HEROES_BAR_CHECK_WIDTH, HEROES_BAR_CHECK_HEIGHT, frame, "QuestCheckBox")
+            set toggleText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, toggle.frame, "|cffffffffEnable Minimap Toggle (Hold Tab)|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            set heroes = CheckBox.create(0, 0, CHECK_WIDTH, CHECK_HEIGHT, toggle.frame, "QuestCheckBox")
             set heroes.onCheck = function thistype.onChecked
             set heroes.onUncheck = function thistype.onUnchecked
-            set heroesText = Text.create(HEROES_BAR_CHECK_TEXT_X, HEROES_BAR_CHECK_TEXT_Y, HEROES_BAR_CHECK_TEXT_WIDTH, HEROES_BAR_CHECK_TEXT_HEIGHT, 1.00, false, heroes.frame, "|cffffffffShow Heroes Bar|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            set default = CheckBox.create(DEFAULT_MENU_CHECK_X, DEFAULT_MENU_CHECK_Y, DEFAULT_MENU_CHECK_WIDTH, DEFAULT_MENU_CHECK_HEIGHT, frame, "QuestCheckBox")
+            set heroesText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, heroes.frame, "|cffffffffShow Heroes Bar|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            set default = CheckBox.create(0, 0, CHECK_WIDTH, CHECK_HEIGHT, heroes.frame, "QuestCheckBox")
             set default.onCheck = function thistype.onChecked
             set default.onUncheck = function thistype.onUnchecked
-            set defaultText = Text.create(DEFAULT_MENU_CHECK_TEXT_X, DEFAULT_MENU_CHECK_TEXT_Y, DEFAULT_MENU_CHECK_TEXT_WIDTH, DEFAULT_MENU_CHECK_TEXT_HEIGHT, 1.00, false, default.frame, "|cffffffffShow Default Menu|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            set slider = Slider.create(MINIMAP_SLIDER_X, MINIMAP_SLIDER_Y, MINIMAP_SLIDER_WIDTH, MINIMAP_SLIDER_HEIGHT, frame, "EscMenuSliderTemplate")
+            set defaultText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, default.frame, "|cffffffffShow Default Menu|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            set sliderText = Text.create(0, 0, SLIDER_TEXT_WIDTH, SLIDER_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, default.frame, "|cffffffffMinimap Opacity: " + I2S(R2I((MAP_TRANSPARENCY*100)/255)) + "%|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            set slider = Slider.create(0, 0, SLIDER_WIDTH, SLIDER_HEIGHT, sliderText.frame, "EscMenuSliderTemplate")
             set slider.max = 255
             set slider.value = MAP_TRANSPARENCY
             set slider.onSlide = function thistype.onSlider
-            set sliderText = Text.create(MINIMAP_SLIDER_TEXT_X, MINIMAP_SLIDER_TEXT_Y, MINIMAP_SLIDER_TEXT_WIDTH, MINIMAP_SLIDER_TEXT_HEIGHT, 1.00, false, slider.frame, "|cffffffffMinimap Opacity: " + I2S(R2I((MAP_TRANSPARENCY*100)/255)) + "%|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
-            set shader = Slider.create(SHADER_SLIDER_X, SHADER_SLIDER_Y, SHADER_SLIDER_WIDTH, SHADER_SLIDER_HEIGHT, frame, "EscMenuSliderTemplate")
+            set shaderText = Text.create(0, 0, SLIDER_TEXT_WIDTH, SLIDER_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, slider.frame, "|cffffffffPortrait Opacity: " + I2S(R2I((PORTRAIT_DARKNESS*100)/255)) + "%|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            set shader = Slider.create(0, 0, SLIDER_WIDTH, SLIDER_HEIGHT, shaderText.frame, "EscMenuSliderTemplate")
             set shader.max = 255
             set shader.value = PORTRAIT_DARKNESS
             set shader.onSlide = function thistype.onSlider
-            set shaderText = Text.create(SHADER_SLIDER_TEXT_X, SHADER_SLIDER_TEXT_Y, SHADER_SLIDER_TEXT_WIDTH, SHADER_SLIDER_TEXT_HEIGHT, 1.00, false, shader.frame, "|cffffffffPortrait Opacity: " + I2S(R2I((PORTRAIT_DARKNESS*100)/255)) + "%|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
-            set table[left] = this
             set table[right] = this
             set table[toggle] = this
             set table[heroes] = this
             set table[shader] = this
             set table[slider] = this
             set table[default] = this
+
+            call right.setPoint(FRAMEPOINT_TOPLEFT, FRAMEPOINT_TOPLEFT, MENU_X_OFFSET, MENU_Y_OFFSET)
+            call rightText.setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
+            call toggle.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call toggleText.setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
+            call heroes.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call heroesText.setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
+            call default.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call defaultText.setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
+            call sliderText.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, width/2 - MENU_X_OFFSET - 0.0075, MENU_Y_GAP)
+            call slider.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call shaderText.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call shader.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
 
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
@@ -536,12 +470,16 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                 if toggle.checked then
                     if BlzGetTriggerPlayerIsKeyDown() then
                         if right.checked then
-                            call UI.showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
-                        elseif left.checked then
-                            call UI.showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
+                            set Interface.map.x = MINIMAP_RIGHT_X
+                            set Interface.map.y = MINIMAP_RIGHT_Y
+                            set Interface.map.visible = true
+                        else
+                            set Interface.map.x = MINIMAP_LEFT_X
+                            set Interface.map.y = MINIMAP_LEFT_Y
+                            set Interface.map.visible = true
                         endif
                     else
-                        call BlzFrameSetVisible(UI.minimap, false)
+                        set Interface.map.visible = false
                     endif
                 endif
             endif
@@ -554,10 +492,10 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
                 if slide == slider then
                     set sliderText.text = "|cffffffffMinimap Opacity: " + I2S(R2I((slider.value*100)/255)) + "%|r"
-                    call BlzFrameSetAlpha(UI.minimap, R2I(slider.value))
+                    set Interface.map.opacity = R2I(slider.value)
                 elseif slide == shader then
                     set shaderText.text = "|cffffffffPortrait Opacity: " + I2S(R2I((shader.value*100)/255)) + "%|r"
-                    set UI.portrait.opacity = R2I(shader.value)
+                    set Interface.portrait.opacity = R2I(shader.value)
                 endif
             endif
         endmethod
@@ -567,16 +505,16 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             local thistype this = table[check]
 
             if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == left and not toggle.checked then
-                    call UI.showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
-                elseif check == right and not toggle.checked then
-                    call UI.showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
+                if check == right and not toggle.checked then
+                    set Interface.map.x = MINIMAP_RIGHT_X
+                    set Interface.map.y = MINIMAP_RIGHT_Y
+                    set Interface.map.visible = true
                 elseif check == toggle then
-                    call BlzFrameSetVisible(UI.minimap, false)
+                    set Interface.map.visible = false
                 elseif check == heroes then
-                    call UI.showHeroes(true)
+                    set Interface.heroes= true
                 elseif check == default then
-                    call BlzFrameSetVisible(UI.default, true)
+                    call BlzFrameSetVisible(Interface.default, true)
                 endif
             endif
         endmethod
@@ -586,28 +524,28 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             local thistype this = table[check]
 
             if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == left then
-                    if not toggle.checked and right.checked then
-                        call UI.showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
+                if check == right then
+                    if not toggle.checked then
+                        set Interface.map.x = MINIMAP_LEFT_X
+                        set Interface.map.y = MINIMAP_LEFT_Y
+                        set Interface.map.visible = true
                     else
-                        call BlzFrameSetVisible(UI.minimap, false)
-                    endif
-                elseif check == right then
-                    if not toggle.checked and left.checked then
-                        call UI.showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
-                    else
-                        call BlzFrameSetVisible(UI.minimap, false)
+                        set Interface.map.visible = false
                     endif
                 elseif check == toggle then
                     if right.checked then
-                        call UI.showMinimap(MINIMAP_RIGHT_X, MINIMAP_RIGHT_Y)
-                    elseif left.checked then
-                        call UI.showMinimap(MINIMAP_LEFT_X, MINIMAP_LEFT_Y)
+                        set Interface.map.x = MINIMAP_RIGHT_X
+                        set Interface.map.y = MINIMAP_RIGHT_Y
+                        set Interface.map.visible = true
+                    else
+                        set Interface.map.x = MINIMAP_LEFT_X
+                        set Interface.map.y = MINIMAP_LEFT_Y
+                        set Interface.map.visible = true
                     endif
                 elseif check == heroes then
-                    call UI.showHeroes(false)
+                    set Interface.heroes = false
                 elseif check == default then
-                    call BlzFrameSetVisible(UI.default, false)
+                    call BlzFrameSetVisible(Interface.default, false)
                 endif
             endif
         endmethod
@@ -1078,6 +1016,40 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         endmethod
     endstruct
 
+    private struct Minimap extends Panel
+        readonly static framehandle minimap
+
+        private Panel helper
+
+        method destroy takes nothing returns nothing
+            call BlzFrameSetParent(minimap, parent)
+            call helper.destroy()
+            call deallocate()
+        endmethod
+
+        method operator opacity= takes integer value returns nothing
+            call BlzFrameSetAlpha(minimap, value)
+        endmethod
+
+        static method create takes real x, real y, real width, real height, framehandle parent returns thistype
+            local thistype this = thistype.allocate(x, y, width, height, parent, "Leaderboard", false)
+            
+            set helper = Panel.create(x, y, width - 0.01, height - 0.01, frame, "TransparentBackdrop", false)
+
+            call helper.setPoint(FRAMEPOINT_CENTER, FRAMEPOINT_CENTER, 0, 0)
+            call BlzFrameSetParent(minimap, helper.frame)
+            call BlzFrameSetAlpha(minimap, R2I(MAP_TRANSPARENCY))
+            call BlzFrameSetAllPoints(minimap, helper.frame)
+            call BlzFrameSetVisible(minimap, true)
+
+            return this
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            set minimap = BlzGetFrameByName("MiniMapFrame", 0)
+        endmethod
+    endstruct
+
     struct Attribute extends Button
         private static timer timer = CreateTimer()
         private static integer key = -1
@@ -1210,12 +1182,13 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         endmethod
     endstruct
 
-    struct UI
+    struct Interface
         private static framehandle array hero
         private static framehandle array highlight
 
         readonly static Menu menu
         readonly static Grid grid
+        readonly static Minimap map
         readonly static Resource gold
         readonly static Resource lumber
         readonly static Portrait portrait
@@ -1228,7 +1201,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         readonly static framehandle minimap
         readonly static framehandle default
 
-        static method showHeroes takes boolean show returns nothing
+        static method operator heroes= takes boolean show returns nothing
             local integer i = 0
 
             if show then
@@ -1246,12 +1219,6 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                     set i = i + 1
                 endloop
             endif
-        endmethod
-
-        static method showMinimap takes real x, real y returns nothing
-            call BlzFrameSetAbsPoint(minimap, FRAMEPOINT_TOPLEFT, x, y)
-            call BlzFrameSetAbsPoint(minimap, FRAMEPOINT_BOTTOMRIGHT, x + MINIMAP_WIDTH, y - MINIMAP_HEIGHT)
-            call BlzFrameSetVisible(minimap, true)
         endmethod
 
         private static method onPeriod takes nothing returns nothing
@@ -1304,9 +1271,9 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
 
             set coin = BlzGetFrameByName("ResourceBarGoldText" , 0) 
             set wood = BlzGetFrameByName("ResourceBarLumberText" , 0)
-            set minimap = BlzGetFrameByName("MiniMapFrame", 0)
             set default = BlzGetFrameByName("UpperButtonBarFrame", 0)
             set tooltip = BlzGetOriginFrame(ORIGIN_FRAME_UBERTOOLTIP , 0)
+            set map = Minimap.create(MINIMAP_LEFT_X, MINIMAP_LEFT_Y, MINIMAP_WIDTH, MINIMAP_HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0))
             set menu = Menu.create(MENU_X, MENU_Y, MENU_WIDTH, MENU_HEIGHT, null)
             set portrait = Portrait.create(INFO_X, INFO_Y, INFO_WIDTH, INFO_HEIGHT, null)
             set grid = Grid.create(SHOP_PANEL_X, SHOP_PANEL_Y, SHOP_COLUMNS*SHOP_SLOT_WIDTH + 0.032, SHOP_SLOT_HEIGHT*SHOP_ROWS + 0.034, null)
@@ -1335,13 +1302,8 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             endloop
 
             call BlzEnableUIAutoPosition(false)
-
             call BlzFrameSetParent(tooltip, BlzGetFrameByName("ConsoleUI", 0))
-            call BlzFrameSetParent(minimap, BlzGetFrameByName("ConsoleUIBackdrop", 0))
-
-            call BlzFrameSetAlpha(minimap, R2I(MAP_TRANSPARENCY))
             call BlzFrameSetAlpha(BlzGetFrameByName("SimpleInventoryCover", 0), 0)
-
             call BlzFrameSetScale(BlzGetFrameByName("InventoryText", 0), 0.0001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleNameValue", 0), 0.00001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleClassValue", 0), 0.00001)
@@ -1353,12 +1315,9 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             call BlzFrameSetScale(BlzGetFrameByName("SimpleItemDescriptionValue", 3), 0.00001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleDestructableNameValue", 4), 0.00001)
             call BlzFrameSetScale(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR_LABEL, 0), 0.00001)
-            
             call BlzFrameSetVisible(default, false)
-            call BlzFrameSetVisible(minimap, false)
             call BlzFrameSetVisible(BlzFrameGetChild(BlzGetFrameByName("ConsoleBottomBar", 0), 3), false)
             call BlzFrameSetVisible(BlzFrameGetChild(BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 5),0), false)
-
             call BlzFrameSetPoint(tooltip, FRAMEPOINT_BOTTOM, portrait.frame, FRAMEPOINT_TOP, 0, BUFF_Y)
             call BlzFrameSetAbsPoint(BlzGetFrameByName("ConsoleUI", 0), FRAMEPOINT_TOPLEFT, 0.0, 0.633)
             call BlzFrameSetAbsPoint(BlzGetFrameByName("ResourceBarFrame", 0), FRAMEPOINT_TOPLEFT, 999, 999)
@@ -1375,7 +1334,6 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_MSG, 0), FRAMEPOINT_BOTTOMRIGHT, CHAT_X + CHAT_WIDTH, CHAT_Y - CHAT_HEIGHT)
             call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR, 0), FRAMEPOINT_TOPLEFT, INFO_X + BUFF_X, INFO_Y + BUFF_Y)
             call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR, 0), FRAMEPOINT_BOTTOMRIGHT, INFO_X + BUFF_X + BUFF_WIDTH, INFO_Y + BUFF_Y - BUFF_HEIGHT)
-
             call TimerStart(CreateTimer(), 0.1, true, function thistype.onPeriod)
 
             set frame = null
