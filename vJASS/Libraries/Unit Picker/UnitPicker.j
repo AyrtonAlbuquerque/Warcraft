@@ -444,7 +444,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             set u = null
         endmethod
 
-        static method addAbilities takes integer id, integer a1, integer a2, integer a3, integer a4, integer a5, integer a6 returns nothing
+        static method register takes integer id, integer a1, integer a2, integer a3, integer a4, integer a5, integer a6 returns nothing
             local thistype this = Unit[id]
 
             if this != 0 then
@@ -1347,6 +1347,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
         readonly real x
         readonly real y
         readonly real timeout
+        readonly real discount
         readonly integer banCount
         readonly integer size
         readonly integer drafts
@@ -1539,6 +1540,9 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
                         if slot.available and slot.button.active and slot.drafted[id] then
                             if buy(slot.unit, p) then
                                 set slot.button.active = not slot.unit.unique
+
+                                call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) + R2I(slot.unit.gold * discount))
+                                call SetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER) - R2I(slot.unit.wood * discount))
                             else
                                 call Sound.error(p)
                             endif
@@ -1762,7 +1766,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             endif
         endmethod
 
-        static method create takes real spawnX, real spawnY, integer bansPerPlayer, real banTimeout, integer draftCount, boolean showPicks returns thistype
+        static method create takes real spawnX, real spawnY, real randomDiscount, integer bansPerPlayer, real banTimeout, integer draftCount, boolean showPicks returns thistype
             local thistype this = thistype.allocate(X, Y, WIDTH, HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0), "EscMenuBackdrop", false)
             local integer i = 0
 
@@ -1780,6 +1784,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             set timeout = banTimeout
             set keepOpen = false
             set .showPicks = showPicks
+            set discount = randomDiscount
             set rows = ROWS
             set columns = COLUMNS
             set timer = NewTimerEx(this)
@@ -1805,7 +1810,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             set logic.onClick = function thistype.onLogic
             set randomize = Button.create(0, 0, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, logic.frame, true, false)
             set randomize.texture = RANDOM_ICON
-            set randomize.tooltip.text = "Random"
+            set randomize.tooltip.text = "Random (" + I2S(R2I(discount * 100)) + "% Discount)"
             set randomize.onClick = function thistype.onRandom
             set edit = EditBox.create(0, 0, EDIT_WIDTH, EDIT_HEIGHT, randomize.frame, "EscMenuEditBoxTemplate")
             set edit.onText = function thistype.onSearch
@@ -2038,8 +2043,8 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function CreateUnitPicker takes real spawnX, real spawnY, integer bansPerPlayer, real banTimeout, integer draftCount, boolean showPicks returns UnitPicker
-        return UnitPicker.create(spawnX, spawnY, bansPerPlayer, banTimeout, draftCount, showPicks)
+    function CreateUnitPicker takes real spawnX, real spawnY, real randomDiscount, integer bansPerPlayer, real banTimeout, integer draftCount, boolean showPicks returns UnitPicker
+        return UnitPicker.create(spawnX, spawnY, randomDiscount, bansPerPlayer, banTimeout, draftCount, showPicks)
     endfunction
     
     function UnitPickerAddCategory takes UnitPicker picker, string icon, string description returns integer
@@ -2050,8 +2055,8 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
         call picker.add(id, unique, texture, ratio, categories)
     endfunction
 
-    function UnitAddAbilities takes integer id, integer a1, integer a2, integer a3, integer a4, integer a5, integer a6 returns nothing
-        call Unit.addAbilities(id, a1, a2, a3, a4, a5, a6)
+    function UnitPickerRegisterUnit takes integer id, integer a1, integer a2, integer a3, integer a4, integer a5, integer a6 returns nothing
+        call Unit.register(id, a1, a2, a3, a4, a5, a6)
     endfunction
 
     function ShowUnitPicker takes UnitPicker picker, player p, boolean flag returns nothing
