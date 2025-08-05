@@ -83,6 +83,14 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
             return itempool[id][1]
         endmethod
 
+        private method operator wood= takes integer value returns nothing
+            set itempool[id][8] = value
+        endmethod
+
+        method operator wood takes nothing returns integer
+            return itempool[id][8]
+        endmethod
+
         private method operator charges= takes integer value returns nothing
             if value <= 0 then
                 set itempool[id][2] = 1
@@ -147,14 +155,22 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
             return relations[id]
         endmethod
 
-        method operator recipe takes nothing returns integer
+        method recipe takes boolean lumber returns integer
             local integer i = 0
             local integer amount = gold
+
+            if lumber then
+                set amount = wood
+            endif
 
             if components > 0 then
                 loop
                     exitwhen i == components
-                        set amount = amount - get(component[i]).gold
+                        if lumber then
+                            set amount = amount - get(component[i]).wood
+                        else
+                            set amount = amount - get(component[i]).gold
+                        endif
                     set i = i + 1
                 endloop
 
@@ -164,13 +180,17 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
             return 0
         endmethod
 
-        method cost takes unit u returns integer
+        method cost takes unit u, boolean lumber returns integer
             local integer amount
             local integer i = 0
             local Table owned = Table.create()
 
             if u == null then
-                set amount = gold
+                if lumber then
+                    set amount = wood
+                else
+                    set amount = gold
+                endif
             else
                 loop
                     exitwhen i == UnitInventorySize(u)
@@ -178,7 +198,7 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                     set i = i + 1
                 endloop
 
-                set amount = calculate(owned)
+                set amount = calculate(owned, lumber)
             endif
 
             call owned.destroy()
@@ -205,15 +225,19 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
             return i - 1
         endmethod
 
-        private method calculate takes Table owned returns integer
+        private method calculate takes Table owned, boolean lumber returns integer
             local thistype piece
             local integer amount
             local integer i = 0
 
             if components <= 0 then
+                if lumber then
+                    return wood
+                endif
+
                 return gold
             else
-                set amount = recipe
+                set amount = recipe(lumber)
 
                 loop
                     exitwhen i == components
@@ -222,13 +246,30 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                         if owned.integer[piece.id] > 0 then
                             set owned[piece.id] = owned[piece.id] - 1
                         else
-                            set amount = amount + piece.calculate(owned)
+                            set amount = amount + piece.calculate(owned, lumber)
                         endif
                     set i = i + 1
                 endloop
 
                 return amount
             endif
+        endmethod
+
+        method costs takes integer id returns nothing
+            local integer coin
+            local integer lumber
+
+            call AddItemToStock(shop, id, 1, 1)
+            call SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, 9999999)
+            call SetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER, 9999999)
+            set coin = GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD)
+            set lumber = GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER)
+            call IssueNeutralImmediateOrderById(player, shop, id)
+            call RemoveItemFromStock(shop, id)
+            call EnumItemsInRect(rect, null, function thistype.clear)
+
+            set gold = coin - GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD)
+            set wood = lumber - GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER)
         endmethod
 
         static method get takes integer id returns thistype
@@ -258,19 +299,6 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                 call save(id, d)
                 call save(id, e)
             endif
-        endmethod
-
-        static method totalCost takes integer id returns integer
-            local integer old
-
-            call AddItemToStock(shop, id, 1, 1)
-            call SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, 9999999)
-            set old = GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD)
-            call IssueNeutralImmediateOrderById(player, shop, id)
-            call RemoveItemFromStock(shop, id)
-            call EnumItemsInRect(rect, null, function thistype.clear)
-
-            return old - GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD)
         endmethod
 
         static method hasType takes unit u, integer id returns boolean
@@ -306,9 +334,9 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                     set icon = BlzGetItemIconPath(i)
                     set tooltip = BlzGetItemExtendedTooltip(i)
                     set charges = GetItemCharges(i)
-                    set gold = totalCost(id)
                     set itempool[id][0] = this
 
+                    call costs(id)
                     call RemoveItem(i)
 
                     set i = null

@@ -79,6 +79,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         private constant real SLOT_GAP_X                = 0.018
         private constant real SLOT_GAP_Y                = 0.022
         private constant string GOLD_ICON               = "UI\\Feedback\\Resources\\ResourceGold.blp"
+        private constant string WOOD_ICON               = "UI\\Feedback\\Resources\\ResourceLumber.blp"
 
         // Selected item highlight
         private constant string ITEM_HIGHLIGHT          = "neon_sprite.mdx"
@@ -135,10 +136,17 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         private static sound success_sound
         private static sound error_sound
         private static sound array noGold
+        private static sound array noWood
 
         static method gold takes player p returns nothing
             if not GetSoundIsPlaying(noGold[GetHandleId(GetPlayerRace(p))]) then
                 call StartSoundForPlayerBJ(p, noGold[GetHandleId(GetPlayerRace(p))])
+            endif
+        endmethod
+
+        static method wood takes player p returns nothing
+            if not GetSoundIsPlaying(noWood[GetHandleId(GetPlayerRace(p))]) then
+                call StartSoundForPlayerBJ(p, noWood[GetHandleId(GetPlayerRace(p))])
             endif
         endmethod
 
@@ -159,28 +167,49 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
             set success_sound = CreateSound(SUCCESS_SOUND, false, false, false, 10, 10, "")
             call SetSoundDuration(success_sound, 1600)
+
             set error_sound = CreateSound(ERROR_SOUND, false, false, false, 10, 10, "")
             call SetSoundDuration(error_sound, 614)
+
             set id = GetHandleId(RACE_HUMAN)
             set noGold[id] = CreateSound("Sound\\Interface\\Warning\\Human\\KnightNoGold1.wav", false, false, false, 10, 10, "")
             call SetSoundParamsFromLabel(noGold[id], "NoGoldHuman")
             call SetSoundDuration(noGold[id], 1618)
+            set noWood[id] = CreateSound("Sound\\Interface\\Warning\\Human\\KnightNoLumber1.wav", false, false, false, 10, 10, "")
+            call SetSoundParamsFromLabel(noWood[id], "NoLumberHuman")
+            call SetSoundDuration(noWood[id], 1863)
+
             set id = GetHandleId(RACE_ORC)
             set noGold[id] = CreateSound("Sound\\Interface\\Warning\\Orc\\GruntNoGold1.wav", false, false, false, 10, 10, "")
             call SetSoundParamsFromLabel(noGold[id], "NoGoldOrc")
             call SetSoundDuration(noGold[id], 1450)
+            set noWood[id] = CreateSound("Sound\\Interface\\Warning\\Orc\\GruntNoLumber1.wav", false, false, false, 10, 10, "")
+            call SetSoundParamsFromLabel(noWood[id], "NoLumberOrc")
+            call SetSoundDuration(noWood[id], 1602)
+
             set id = GetHandleId(RACE_NIGHTELF)
             set noGold[id] = CreateSound("Sound\\Interface\\Warning\\NightElf\\SentinelNoGold1.wav", false, false, false, 10, 10, "")
             call SetSoundParamsFromLabel(noGold[id], "NoGoldNightElf")
             call SetSoundDuration(noGold[id], 1229)
+            set noWood[id] = CreateSound("Sound\\Interface\\Warning\\NightElf\\SentinelNoLumber1.wav", false, false, false, 10, 10, "")
+            call SetSoundParamsFromLabel(noWood[id], "NoLumberNightElf")
+            call SetSoundDuration(noWood[id], 1500)
+
             set id = GetHandleId(RACE_UNDEAD)
             set noGold[id] = CreateSound("Sound\\Interface\\Warning\\Undead\\NecromancerNoGold1.wav", false, false, false, 10, 10, "")
             call SetSoundParamsFromLabel(noGold[id], "NoGoldUndead")
             call SetSoundDuration(noGold[id], 2005)
+            set noWood[id] = CreateSound("Sound\\Interface\\Warning\\Undead\\NecromancerNoLumber1.wav", false, false, false, 10, 10, "")
+            call SetSoundParamsFromLabel(noWood[id], "NoLumberUndead")
+            call SetSoundDuration(noWood[id], 1903)
+
             set id = GetHandleId(ConvertRace(11))
             set noGold[id] = CreateSound("Sound\\Interface\\Warning\\Naga\\NagaNoGold1.wav", false, false, false, 10, 10, "")
             call SetSoundParamsFromLabel(noGold[id], "NoGoldNaga")
             call SetSoundDuration(noGold[id], 2690)
+            set noWood[id] = CreateSound("Sound\\Interface\\Warning\\Naga\\NagaNoLumber1.wav", false, false, false, 10, 10, "")
+            call SetSoundParamsFromLabel(noWood[id], "NoLumberNaga")
+            call SetSoundDuration(noWood[id], 1576)
         endmethod
     endstruct
     
@@ -196,6 +225,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         string type
         integer id
         integer gold
+        integer wood
         player player
         Table component
 
@@ -232,6 +262,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                         endloop
 
                         call SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) + gold)
+                        call SetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER) + wood)
                         call Sound.success(player)
                     else
                         call Sound.error(player)
@@ -239,6 +270,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                 elseif type == "sell" then
                     call UnitAddItemById(unit, item.id)
                     call SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) - gold)
+                    call SetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER) - wood)
                     call Sound.success(player)
                 else
                     loop
@@ -300,13 +332,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             call Table(transactions[shop][id]).flush()
         endmethod
 
-        static method create takes Shop shop, unit u, Item i, integer gold, string transaction returns thistype
+        static method create takes Shop shop, unit u, Item i, integer gold, integer wood, string transaction returns thistype
             local thistype this = thistype.allocate()
 
             set item = i
             set unit = u
             set .shop = shop
             set .gold = gold
+            set .wood = wood
             set type = transaction
             set index = 0
             set player = GetOwningPlayer(u)
@@ -565,7 +598,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         Shop shop
         Item item
         Text cost
+        Text wood
         Backdrop gold
+        Backdrop lumber
 
         thistype next
         thistype prev
@@ -600,6 +635,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         method destroy takes nothing returns nothing
             call cost.destroy()
             call gold.destroy()
+            call wood.destroy()
+            call lumber.destroy()
         endmethod
 
         method update takes nothing returns nothing
@@ -633,6 +670,11 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             set tooltip.point = FRAMEPOINT_TOPRIGHT
             set gold = Backdrop.create(0, - 0.04, GOLD_SIZE, GOLD_SIZE, frame, GOLD_ICON)
             set cost = Text.create(0.01325, - 0.00193, COST_WIDTH, COST_HEIGHT, COST_SCALE, false, gold.frame, null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+            set lumber = Backdrop.create(0, 0, GOLD_SIZE, GOLD_SIZE, gold.frame, WOOD_ICON)
+            set wood = Text.create(0, 0, COST_WIDTH, COST_HEIGHT, COST_SCALE, false, lumber.frame, null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
+
+            call lumber.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, 0)
+            call wood.setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, 0, 0)
 
             if item != 0 then
                 set texture = item.icon
@@ -640,6 +682,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                 set tooltip.name = item.name
                 set tooltip.icon = item.icon
                 set cost.text = "|cffFFCC00" + I2S(item.gold) + "|r"
+                set lumber.visible = item.wood > 0
+                set wood.text = "|cff238b3d" + I2S(item.wood) + "|r"
             endif
 
             return this
@@ -873,11 +917,13 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             local integer id = GetPlayerId(p)
             local integer j = 0
             local integer cost
+            local integer wood
             local Item component
             local Slot slot
 
             if i != 0 then
                 set cost = i.gold
+                set wood = i.wood
                 set Slot(main[id]).item = i
                 set Slot(main[id]).texture = i.icon
                 set Slot(main[id]).tooltip.text = i.tooltip
@@ -905,7 +951,9 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                     set description[1].visible = uses.visible and i.components == 0
                     set description[2].visible = not uses.visible and i.components > 0
                     set description[3].visible = not uses.visible and i.components == 0
-                    set Slot(main[id]).cost.text = "|cffFFCC00" + I2S(i.cost(shop.buyer[id])) + "|r"
+                    set Slot(main[id]).lumber.visible = i.wood > 0
+                    set Slot(main[id]).cost.text = "|cffFFCC00" + I2S(i.cost(shop.buyer[id], false)) + "|r"
+                    set Slot(main[id]).wood.text = "|cff238b3d" + I2S(i.cost(shop.buyer[id], true)) + "|r"
                 endif
 
                 if i.components > 0 then
@@ -938,8 +986,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                                 set slot.tooltip.name = component.name
                                 set slot.tooltip.icon = component.icon
                                 set slot.available = shop.has(component.id)
-                                set slot.cost.text = "|cffFFCC00" + I2S(component.cost(shop.buyer[id])) + "|r"
-                                
+                                set slot.lumber.visible = component.wood > 0
+                                set slot.cost.text = "|cffFFCC00" + I2S(component.cost(shop.buyer[id], false)) + "|r"
+                                set slot.wood.text = "|cff238b3d" + I2S(component.cost(shop.buyer[id], true)) + "|r"
+
                                 if shop.buyer[id] != null then
                                     if UnitHasItemOfType(shop.buyer[id], component.id) then
                                         if UnitCountItemOfType(shop.buyer[id], component.id) >= i.count(component.id) then
@@ -957,6 +1007,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
                                 if slot.checked then
                                     set cost = cost - component.gold
+                                    set wood = wood - component.wood
                                 endif
                             else
                                 if GetLocalPlayer() == p then
@@ -1969,13 +2020,14 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
         method buy takes Item i, player p returns boolean
             local integer id = GetPlayerId(p)
-            local integer cost = i.cost(buyer[id])
+            local integer cost = i.cost(buyer[id], false)
+            local integer wood = i.cost(buyer[id], true)
             local item new
-            
-            if canBuy(i, p) and cost <= GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) then
+
+            if canBuy(i, p) and cost <= GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) and wood <= GetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER) then
                 set new = CreateItem(i.id, GetUnitX(buyer[id]), GetUnitY(buyer[id]))
 
-                call buyer.inventory.removeComponents(i, Transaction.create(this, buyer[id], i, cost, "buy"))
+                call buyer.inventory.removeComponents(i, Transaction.create(this, buyer[id], i, cost, wood, "buy"))
 
                 if not UnitAddItem(buyer[id], new) then
                     call IssueTargetItemOrder(buyer[id], "smart", new)
@@ -1984,6 +2036,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                 call buyer.inventory.show(buyer[id])
                 call details.refresh(p)
                 call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) - cost)
+                call SetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER) - wood)
                 call Sound.success(p)
 
                 set new = null
@@ -1992,6 +2045,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             else
                 if cost > GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) then
                     call Sound.gold(p)
+                elseif wood > GetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER) then
+                    call Sound.wood(p)
                 else
                     call Sound.error(p)
                 endif
@@ -2005,6 +2060,8 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         method sell takes Item i, player p, integer slot returns boolean
             local integer cost
             local integer gold
+            local integer wood
+            local integer lumber
             local integer charges
             local integer id = GetPlayerId(p)
             local boolean sold = false
@@ -2017,14 +2074,17 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                 endif
 
                 set gold = GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD)
+                set lumber = GetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER)
                 set cost = R2I(R2I(i.gold / i.charges) * charges * tax)
+                set wood = R2I(R2I(i.wood / i.charges) * charges * tax)
 
                 if GetItemTypeId(UnitItemInSlot(buyer[id], slot)) == i.id then
                     set sold = true
 
-                    call Transaction.create(this, buyer[id], i, cost, "sell")
+                    call Transaction.create(this, buyer[id], i, cost, wood, "sell")
                     call RemoveItem(UnitItemInSlot(buyer[id], slot))
                     call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, gold + cost)
+                    call SetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER, lumber + wood)
                     call buyer.inventory.show(buyer[id])
                     call details.refresh(p)
                 endif
@@ -2055,7 +2115,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                     if (slots + 1) >= i.components then
                         set j = 0
 
-                        call Transaction.create(this, buyer[id], i, 0, "dismantle")
+                        call Transaction.create(this, buyer[id], i, 0, 0, "dismantle")
                         call RemoveItem(UnitItemInSlot(buyer[id], slot))
 
                         loop
