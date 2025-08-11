@@ -80,4 +80,33 @@ library Alloc
             set thistype(0).recycle = this
         endmethod
     endmodule
+
+    module Allocator
+		private static Table recycler
+		private static integer instanceCount = 0
+		private static integer recyclerCount = 0
+
+		static method allocate takes nothing returns thistype
+			local thistype this
+			
+			if (recyclerCount == 0) then
+				set this = instanceCount + 1
+				set instanceCount = this
+			else
+				set recyclerCount = recyclerCount - 1
+				set this = recycler[recyclerCount]
+			endif
+            
+			return this
+		endmethod
+		
+		method deallocate takes nothing returns nothing
+			set recycler[recyclerCount] = this
+			set recyclerCount = recyclerCount + 1
+		endmethod
+
+		private static method onInit takes nothing returns nothing
+			set recycler = Table.create()
+		endmethod
+	endmodule
 endlibrary
