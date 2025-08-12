@@ -1,7 +1,3 @@
-
-
-
-
 library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
     globals
         // The size of each cell in the grid
@@ -43,7 +39,6 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
 
         private static HashTable table
 
-        private Table cells
         private Table indexes
         private integer index
         private integer minI
@@ -53,6 +48,7 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         private boolean isVisible
         private boolean isTrackable
 
+        readonly Table cells
         readonly integer id
         readonly real size
 
@@ -271,10 +267,13 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
     endstruct
 
     struct Cell
+        readonly static integer loaded = 0
+        readonly static thistype array load
+
         private Table objects
         private Table indexes
-        private Table lightning
-        private boolean highlighted = false
+        private integer index
+        private boolean indexed
 
         readonly integer i
         readonly integer j
@@ -282,37 +281,23 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         readonly real minY
         readonly real maxX
         readonly real maxY
+        readonly real centerX
+        readonly real centerY
         readonly integer size
 
-        method operator highlight= takes boolean flag returns nothing
-            if flag and not highlighted then
-                set highlighted = true
-
-                if not lightning.has(0) then
-                    set lightning.lightning[0] = AddLightning("DRAM", false, maxX, minY, maxX, maxY)
-                    set lightning.lightning[1] = AddLightning("DRAM", false, maxX, maxY, minX, maxY)
-                    set lightning.lightning[2] = AddLightning("DRAM", false, minX, maxY, minX, minY)
-                    set lightning.lightning[3] = AddLightning("DRAM", false, minX, minY, maxX, minY)
-                endif
-            elseif not flag and highlighted then
-                set highlighted = false
-
-                call DestroyLightning(lightning.lightning[0])
-                call DestroyLightning(lightning.lightning[1])
-                call DestroyLightning(lightning.lightning[2])
-                call DestroyLightning(lightning.lightning[3])
-                call lightning.flush()
-            endif
-        endmethod
+        effect effect
 
         method operator [] takes integer index returns Object
             return Object(objects[index])
         endmethod
 
         method destroy takes nothing returns nothing
+            call DestroyEffect(effect)
             call objects.destroy()
             call indexes.destroy()
             call deallocate()
+
+            set effect = null
         endmethod
 
         method insert takes Object object returns nothing
@@ -320,7 +305,13 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                 set objects[size] = object
                 set indexes[object] = size
                 set size = size + 1
-                set highlight = size > 0
+
+                if not indexed then
+                    set indexed = true
+                    set index = loaded
+                    set load[index] = this
+                    set loaded = loaded + 1
+                endif
             endif
         endmethod
 
@@ -330,12 +321,21 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                 set objects[indexes[object]] = objects[size]
                 set indexes[objects[size]] = indexes[object]
 
+                if size <= 0 then
+                    set indexed = false
+                    set loaded = loaded - 1
+                    set load[index] = load[loaded]
+                    set load[index].index = index
+
+                    if effect != null then
+                        call BlzSetSpecialEffectZ(effect, -5)
+                        call DestroyEffect(effect)
+                        set effect = null
+                    endif
+                endif
+
                 call indexes.remove(object)
                 call objects.remove(size)
-
-                if size == 0 then
-                    set highlight = false
-                endif
             endif
         endmethod
 
@@ -349,28 +349,34 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
             set this.i = i
             set this.j = j
             set this.size = 0
+            set this.index = 0
+            set this.indexed = false
             set this.objects = Table.create()
             set this.indexes = Table.create()
-            set this.lightning = Table.create()
             set this.minX = Map.minX + (i * 1.0) / Enumerable.width * Map.width
             set this.minY = Map.minY + (j * 1.0) / Enumerable.height * Map.height
             set this.maxX = Map.minX + ((i + 1) * 1.0) / Enumerable.width * Map.width
             set this.maxY = Map.minY + ((j + 1) * 1.0) / Enumerable.height * Map.height
+            set this.centerX = (minX + maxX) * 0.5
+            set this.centerY = (minY + maxY) * 0.5
 
             return this
         endmethod
     endstruct
 
     struct Enumerable extends array
+        private static trigger death = CreateTrigger()
         private static integer array index
         private static boolean array tracked
         private static Object array trackable
         private static integer count
         private static rect rect
+        private static item item
 
         readonly static HashTable cell
         readonly static integer width
         readonly static integer height
+        readonly static integer cellSize
 
         static method hookX takes agent a, real x returns nothing
             call Object[a].update()
@@ -476,17 +482,20 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         private static method onItem takes nothing returns nothing
             if not Object.registered(GetEnumItem()) then
                 call Object.create(GetEnumItem()).update()
+                call TriggerRegisterDeathEvent(death, GetEnumItem())
             endif
         endmethod
 
         private static method onDestructable takes nothing returns nothing
             if not Object.registered(GetEnumDestructable()) then
                 call Object.create(GetEnumDestructable()).update()
+                call TriggerRegisterDeathEvent(death, GetEnumDestructable())
             endif
         endmethod
 
         private static method onDrop takes nothing returns nothing
-            call Object[GetManipulatedItem()].update()
+            set item = GetManipulatedItem()
+            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewItem)
         endmethod
 
         private static method onPickup takes nothing returns nothing
@@ -506,12 +515,20 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                 endif
             elseif GetDyingDestructable() != null then
                 call remove(Object[GetDyingDestructable()])
+            elseif GetTriggerWidget() != null then
+                call remove(Object[GetTriggerWidget()])
             endif
         endmethod
 
         private static method onNewItem takes nothing returns nothing
             call DestroyTimer(GetExpiredTimer())
-            call EnumItemsInRect(rect, null, function thistype.onItem)
+
+            if item != null then
+                call Object[item].update()
+                set item = null
+            else
+                call EnumItemsInRect(rect, null, function thistype.onItem)
+            endif
         endmethod
 
         private static method onNewDestructable takes nothing returns nothing
@@ -532,10 +549,10 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         private static method onInit takes nothing returns nothing
             local integer i = 0
             local integer j = 0
-            local trigger tree = CreateTrigger()
             local integer minimum = R2I(SquareRoot((Map.width * Map.height) / 8190))
 
             set count = 0
+            set cellSize = CELL_SIZE
             set cell = HashTable.create()
             set width = R2I(Map.width / CELL_SIZE)
             set height = R2I(Map.height / CELL_SIZE)
@@ -548,6 +565,7 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
 
                 set width = R2I(Map.width / minimum)
                 set height = R2I(Map.height / minimum)
+                set cellSize = minimum
             endif
 
             loop
@@ -567,8 +585,7 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
             call EnumDestructablesInRect(GetPlayableMapRect(), null, function thistype.onDestructable)
             call TriggerRegisterEnterRegion(CreateTrigger(), Map.region, Filter(function thistype.onUnit))
             call TimerStart(CreateTimer(), UPDATE_PERIOD, true, function thistype.onPeriod)
-            call TriggerRegisterDestDeathInRegionEvent(tree, GetPlayableMapRect())
-            call TriggerAddAction(tree, function thistype.onDeath)
+            call TriggerAddAction(death, function thistype.onDeath)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
             // call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_LOADED, function thistype.onLoaded)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function thistype.onDrop)
