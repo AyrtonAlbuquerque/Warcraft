@@ -10,7 +10,73 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         private constant real    UPDATE_PERIOD      = 0.2
     endglobals
 
-    struct Map
+    private module Hooks
+        static method hookX takes agent a, real x returns nothing
+            call Object[a].update()
+        endmethod
+
+        static method hookY takes agent a, real x returns nothing
+            call Object[a].update()
+        endmethod
+
+        static method hookRemove takes agent a returns nothing
+            if Object.registered(a) then
+                call remove(Object[a])
+            endif
+        endmethod
+
+        static method hookPosition takes agent a, real x, real y returns nothing
+            call Object[a].update()
+        endmethod
+
+        static method hookLocation takes agent a, location l returns nothing
+            call Object[a].update()
+        endmethod
+
+        static method hookVisibility takes agent a, boolean visible returns nothing
+            local Object object = Object[a]
+            
+            set object.visible = visible
+
+            if not visible then
+                call untrack(object)
+            else
+                call track(object)
+            endif
+        endmethod
+
+        static method hookCreate takes integer id, real x, real y returns nothing
+            call MoveRectTo(rect, x, y)
+            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewItem)
+        endmethod
+
+        static method hookCreateLocation takes integer id, location l returns nothing
+            call MoveRectTo(rect, GetLocationX(l), GetLocationY(l))
+            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewItem)
+        endmethod
+        
+        static method hookCreateDestructable takes integer id, real x, real y, real face, real scale, integer variation returns nothing
+            call MoveRectTo(rect, x, y)
+            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewDestructable)
+        endmethod
+
+        static method hookCreateDestructableZ takes integer id, real x, real y, real z, real face, real scale, integer variation returns nothing
+            call MoveRectTo(rect, x, y)
+            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewDestructable)
+        endmethod 
+
+        static method hookCreateDestructableSkin takes integer id, real x, real y, real face, real scale, integer variation, integer skinId returns nothing
+            call MoveRectTo(rect, x, y)
+            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewDestructable)
+        endmethod
+
+        static method hookCreateDestructableZSkin takes integer id, real x, real y, real z, real face, real scale, integer variation, integer skinId returns nothing
+            call MoveRectTo(rect, x, y)
+            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewDestructable)
+        endmethod
+    endmodule
+
+    struct Map extends array
         readonly static rect rect
         readonly static real minX
         readonly static real minY
@@ -328,7 +394,6 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                     set load[index].index = index
 
                     if effect != null then
-                        call BlzSetSpecialEffectZ(effect, -5)
                         call DestroyEffect(effect)
                         set effect = null
                     endif
@@ -378,69 +443,7 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         readonly static integer height
         readonly static integer cellSize
 
-        static method hookX takes agent a, real x returns nothing
-            call Object[a].update()
-        endmethod
-
-        static method hookY takes agent a, real x returns nothing
-            call Object[a].update()
-        endmethod
-
-        static method hookRemove takes agent a returns nothing
-            if Object.registered(a) then
-                call remove(Object[a])
-            endif
-        endmethod
-
-        static method hookPosition takes agent a, real x, real y returns nothing
-            call Object[a].update()
-        endmethod
-
-        static method hookLocation takes agent a, location l returns nothing
-            call Object[a].update()
-        endmethod
-
-        static method hookVisibility takes agent a, boolean visible returns nothing
-            local Object object = Object[a]
-            
-            set object.visible = visible
-
-            if not visible then
-                call untrack(object)
-            else
-                call track(object)
-            endif
-        endmethod
-
-        static method hookCreate takes integer id, real x, real y returns nothing
-            call MoveRectTo(rect, x, y)
-            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewItem)
-        endmethod
-
-        static method hookCreateLocation takes integer id, location l returns nothing
-            call MoveRectTo(rect, GetLocationX(l), GetLocationY(l))
-            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewItem)
-        endmethod
-        
-        static method hookCreateDestructable takes integer id, real x, real y, real face, real scale, integer variation returns nothing
-            call MoveRectTo(rect, x, y)
-            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewDestructable)
-        endmethod
-
-        static method hookCreateDestructableZ takes integer id, real x, real y, real z, real face, real scale, integer variation returns nothing
-            call MoveRectTo(rect, x, y)
-            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewDestructable)
-        endmethod 
-
-        static method hookCreateDestructableSkin takes integer id, real x, real y, real face, real scale, integer variation, integer skinId returns nothing
-            call MoveRectTo(rect, x, y)
-            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewDestructable)
-        endmethod
-
-        static method hookCreateDestructableZSkin takes integer id, real x, real y, real z, real face, real scale, integer variation, integer skinId returns nothing
-            call MoveRectTo(rect, x, y)
-            call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewDestructable)
-        endmethod
+        implement Hooks
 
         static method track takes Object object returns nothing
             if object != 0 then
