@@ -10,6 +10,8 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         private constant real    UPDATE_PERIOD      = 0.2
     endglobals
 
+    function interface onCollision takes Object object returns nothing
+
     private module Hooks
         static method hookX takes agent a, real x returns nothing
             call Object[a].update()
@@ -104,26 +106,52 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         implement Alloc
 
         private static HashTable table
-
+        
+        private real customX
+        private real customY
         private Table indexes
         private integer index
         private integer minI
         private integer minJ
         private integer maxI
         private integer maxJ
+        private boolean custom
         private boolean isVisible
         private boolean isTrackable
+        private onCollision collide
 
         readonly Table cells
         readonly integer id
         readonly real size
 
         method operator x takes nothing returns real
+            if custom then
+                return customX
+            endif
+
             return GetWidgetX(table[id].widget[1])
         endmethod
 
         method operator y takes nothing returns real
+            if custom then
+                return customY
+            endif
+
             return GetWidgetY(table[id].widget[1])
+        endmethod
+
+        method operator x= takes real value returns nothing
+            if custom then
+                set customX = value
+                call update()
+            endif
+        endmethod
+
+        method operator y= takes real value returns nothing
+            if custom then
+                set customY = value
+                call update()
+            endif
         endmethod
 
         method operator unit takes nothing returns unit
@@ -164,6 +192,10 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
             return size
         endmethod
 
+        method operator onCollide= takes onCollision callback returns nothing
+            set collide = callback
+        endmethod
+
         method operator isUnit takes nothing returns boolean
             return unit != null
         endmethod
@@ -173,7 +205,7 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         endmethod
 
         method operator isCustom takes nothing returns boolean
-            return not isUnit and not isItem and not isDestructable
+            return custom
         endmethod
 
         method operator isDestructable takes nothing returns boolean
@@ -227,39 +259,41 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                 set i = minX
                 set j = minY
 
-                if minI == minX and minJ == minY and maxI == maxX and maxJ == maxY then
-                    return
+                if minI != minX or minJ != minY or maxI != maxX or maxJ != maxY then
+                    loop
+                        exitwhen i > maxX
+                            set j = minY
+
+                            loop
+                                exitwhen j > maxY
+                                    call insert(Enumerable.cell[i][j])
+                                set j = j + 1
+                            endloop
+                        set i = i + 1
+                    endloop
+
+                    set i = 0
+
+                    loop
+                        exitwhen i >= index
+                            set cell = cells[i]
+
+                            if cell.i < minX or cell.i > maxX or cell.j < minY or cell.j > maxY then
+                                set i = i - 1
+                                call remove(cell)
+                            endif
+                        set i = i + 1
+                    endloop
+
+                    set minI = minX
+                    set minJ = minY
+                    set maxI = maxX
+                    set maxJ = maxY
                 endif
 
-                loop
-                    exitwhen i > maxX
-                        set j = minY
-
-                        loop
-                            exitwhen j > maxY
-                                call insert(Enumerable.cell[i][j])
-                            set j = j + 1
-                        endloop
-                    set i = i + 1
-                endloop
-
-                set i = 0
-
-                loop
-                    exitwhen i >= index
-                        set cell = cells[i]
-
-                        if cell.i < minX or cell.i > maxX or cell.j < minY or cell.j > maxY then
-                            set i = i - 1
-                            call remove(cell)
-                        endif
-                    set i = i + 1
-                endloop
-
-                set minI = minX
-                set minJ = minY
-                set maxI = maxX
-                set maxJ = maxY
+                if collide != 0 and size > 0 then
+                    // collision callback
+                endif
             endif
         endmethod
 
@@ -303,13 +337,17 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                 set maxI = 0
                 set maxJ = 0
                 set index = 0
+                set customX = 0
+                set customY = 0
                 set this.id = id
+                set collide = 0
                 set visible = true
                 set table[id][0] = this
                 set table[id].agent[1] = a
                 set cells = Table.create()
                 set indexes = Table.create()
-                set trackable = isCustom or (isUnit and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_DEAD))
+                set custom = not isUnit and not isItem and not isDestructable
+                set trackable = custom or (isUnit and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_DEAD))
 
                 if isUnit then
                     set size = BlzGetUnitCollisionSize(unit)
