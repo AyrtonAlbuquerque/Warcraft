@@ -10,29 +10,13 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         private constant real    UPDATE_PERIOD      = 0.2
     endglobals
 
-    function interface onCollision takes Object object returns nothing
+    function interface onCollision takes Object colisor, Object collided returns nothing
 
     private module Hooks
-        static method hookX takes agent a, real x returns nothing
-            call Object[a].update()
-        endmethod
-
-        static method hookY takes agent a, real x returns nothing
-            call Object[a].update()
-        endmethod
-
         static method hookRemove takes agent a returns nothing
             if Object.registered(a) then
                 call remove(Object[a])
             endif
-        endmethod
-
-        static method hookPosition takes agent a, real x, real y returns nothing
-            call Object[a].update()
-        endmethod
-
-        static method hookLocation takes agent a, location l returns nothing
-            call Object[a].update()
         endmethod
 
         static method hookVisibility takes agent a, boolean visible returns nothing
@@ -87,10 +71,12 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         readonly static real width
         readonly static real height
         readonly static region region
+        readonly static rect playable
 
         private static method onInit takes nothing returns nothing
             set rect = GetWorldBounds()
             set region = CreateRegion()
+            set playable = GetPlayableMapRect()
             set minX = GetRectMinX(rect)
             set minY = GetRectMinY(rect)
             set maxX = GetRectMaxX(rect)
@@ -106,23 +92,25 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         implement Alloc
 
         private static HashTable table
+        private static integer visit = 0
+        private static integer array visited
         
         private real customX
         private real customY
-        private Table indexes
-        private integer index
         private integer minI
         private integer minJ
         private integer maxI
         private integer maxJ
+        private integer index
+        private Table indexes
         private boolean custom
         private boolean isVisible
         private boolean isTrackable
         private onCollision collide
 
-        readonly Table cells
-        readonly integer id
         readonly real size
+        readonly integer id
+        readonly Table cells
 
         method operator x takes nothing returns real
             if custom then
@@ -141,17 +129,11 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         endmethod
 
         method operator x= takes real value returns nothing
-            if custom then
-                set customX = value
-                call update()
-            endif
+            set customX = value
         endmethod
 
         method operator y= takes real value returns nothing
-            if custom then
-                set customY = value
-                call update()
-            endif
+            set customY = value
         endmethod
 
         method operator unit takes nothing returns unit
@@ -244,12 +226,19 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
 
         method update takes nothing returns nothing
             local Cell cell
+            local real dx
+            local real dy
             local integer i
             local integer j
             local integer minX
             local integer maxX 
             local integer minY
             local integer maxY
+            local thistype that
+            local real x = this.x
+            local real y = this.y
+
+            set visit = visit + 1
 
             if visible then
                 set minX = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - size - Map.minX) * Enumerable.width  / Map.width)))
@@ -292,7 +281,32 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                 endif
 
                 if collide != 0 and size > 0 then
-                    // collision callback
+                    set i = 0
+
+                    loop
+                        exitwhen i >= index
+                            set j = 0
+                            set cell = cells[i]
+
+                            loop
+                                exitwhen j >= cell.size
+                                    set that = cell[j]
+                                            
+                                    if that != this and that.visible then
+                                        if visited[that] != visit then
+                                            set dx = that.x - x
+                                            set dy = that.y - y
+                                            set visited[that] = visit
+
+                                            if dx*dx + dy*dy <= (that.size + size)*(that.size + size) then
+                                                call collide.evaluate(this, that)
+                                            endif
+                                        endif
+                                    endif
+                                set j = j + 1
+                            endloop
+                        set i = i + 1
+                    endloop
                 endif
             endif
         endmethod
@@ -621,9 +635,9 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                 set i = i + 1
             endloop
 
-            call EnumItemsInRect(GetPlayableMapRect(), null, function thistype.onItem)
-            call GroupEnumUnitsInRect(bj_lastCreatedGroup, GetPlayableMapRect(), Filter(function thistype.onUnit))
-            call EnumDestructablesInRect(GetPlayableMapRect(), null, function thistype.onDestructable)
+            call EnumItemsInRect(Map.playable, null, function thistype.onItem)
+            call GroupEnumUnitsInRect(bj_lastCreatedGroup, Map.playable, Filter(function thistype.onUnit))
+            call EnumDestructablesInRect(Map.playable, null, function thistype.onDestructable)
             call TriggerRegisterEnterRegion(CreateTrigger(), Map.region, Filter(function thistype.onUnit))
             call TimerStart(CreateTimer(), UPDATE_PERIOD, true, function thistype.onPeriod)
             call TriggerAddAction(death, function thistype.onDeath)
@@ -635,12 +649,6 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         endmethod
     endstruct
 
-    hook SetUnitX Enumerable.hookX
-    hook SetUnitY Enumerable.hookY
-    hook SetUnitPosition Enumerable.hookPosition
-    hook SetItemPosition Enumerable.hookPosition
-    hook SetUnitPositionLoc Enumerable.hookLocation
-    hook SetItemPositionLoc Enumerable.hookLocation
     hook CreateItem Enumerable.hookCreate
     hook CreateItemLoc Enumerable.hookCreateLocation
     hook CreateDestructable Enumerable.hookCreateDestructable
