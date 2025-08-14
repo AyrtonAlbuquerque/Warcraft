@@ -10,8 +10,26 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         private constant real    UPDATE_PERIOD      = 0.2
     endglobals
 
+    /* ----------------------------------------------------------------------------------------- */
+    /*                                          JASS API                                         */
+    /* ----------------------------------------------------------------------------------------- */
+    // When you want to set a collision callback function for a object declare a static method or function
+    // with these paramenters and set object.onCollide = your_function
     function interface onCollision takes Object colisor, Object collided returns nothing
+    
+    // When you use the Enum... functions you can declare a static method or function with this parameters
+    // and pass the function as a parameter. The data parameter you can use to pass additional information
+    // like an struct instance or whatever.
+    function interface onEnumeration takes Object object, integer data returns nothing
 
+    // Enum functions return a Table which you can loop through. Dont forget to destroy the returned table afterwards
+    function EnumObjectsInRange takes real x, real y, real range, integer data, onEnumeration callback returns Table
+        return Enumerable.enum(x, y, range, data, callback)
+    endfunction
+
+    /* ----------------------------------------------------------------------------------------- */
+    /*                                           System                                          */
+    /* ----------------------------------------------------------------------------------------- */
     private module Hooks
         static method hookRemove takes agent a returns nothing
             if Object.registered(a) then
@@ -489,6 +507,8 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         private static integer count
         private static rect rect
         private static item item
+        private static integer enums = 1
+        private static integer array visited
 
         readonly static HashTable cell
         readonly static integer width
@@ -496,6 +516,79 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         readonly static integer cellSize
 
         implement Hooks
+
+        static method enum takes real x, real y, real range, integer data, onEnumeration callback returns Table
+            local real dx
+            local real dy
+            local integer i
+            local integer j
+            local integer k
+            local integer l
+            local integer minX
+            local integer maxX 
+            local integer minY
+            local integer maxY
+            local Cell grid
+            local real radius
+            local Object object
+            local Table result = 0
+            
+            if range > 0 then
+                set minX = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
+                set maxX = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
+                set minY = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
+                set maxY = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minX
+                set j = minY
+                set l = 0
+
+                if callback == 0 then
+                    set result = Table.create()
+                endif
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxX
+                        set j = minY
+
+                        loop
+                            exitwhen j > maxY
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.visible and visited[object] != enums then
+                                            set dx = object.x - x
+                                            set dy = object.y - y
+                                            set visited[object] = enums
+                                            set radius = range + object.size
+
+                                             if dx*dx + dy*dy <= radius*radius then
+                                                if callback != 0 then
+                                                    call callback.evaluate(object, data)
+                                                else
+                                                    set result[l] = object
+                                                    set l = l + 1
+                                                endif
+                                             endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return result
+        endmethod
 
         static method track takes Object object returns nothing
             if object != 0 then
