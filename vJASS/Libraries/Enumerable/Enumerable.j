@@ -17,18 +17,136 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
     // with these paramenters and set object.onCollide = your_function
     function interface onCollision takes Object colisor, Object collided returns nothing
     
-    // When you use the Enum... functions you can declare a static method or function with this parameters
+    // When you use the Enum... functions you can declare a static method or function with these parameters
     // and pass the function as a parameter. The data parameter you can use to pass additional information
     // like an struct instance or whatever.
     function interface onEnumeration takes Object object, integer data returns nothing
 
+    /* -------------------------------------- Enumeration -------------------------------------- */
     // Enum functions return a Table which you can loop through. Dont forget to destroy the returned table afterwards
     function EnumObjectsInRange takes real x, real y, real range, integer data, onEnumeration callback returns Table
         return Enumerable.enum(x, y, range, data, callback)
     endfunction
 
+    function EnumUnitsInRange takes real x, real y, real range, integer data, onEnumeration callback returns Table
+        return Enumerable.enumUnits(x, y, range, data, callback)
+    endfunction
+
+    function EnumItemsInRange takes real x, real y, real range, integer data, onEnumeration callback returns Table
+        return Enumerable.enumItems(x, y, range, data, callback)
+    endfunction
+
+    function EnumCustomsInRange takes real x, real y, real range, integer data, onEnumeration callback returns Table
+        return Enumerable.enumCustoms(x, y, range, data, callback)
+    endfunction
+
+    function EnumDestructablesInRange takes real x, real y, real range, integer data, onEnumeration callback returns Table
+        return Enumerable.enumDestructables(x, y, range, data, callback)
+    endfunction
+
     function EnumObjectsInRect takes rect r, integer data, onEnumeration callback returns Table
         return Enumerable.enumInRect(r, data, callback)
+    endfunction
+
+    function EnumUnitsInRect takes rect r, integer data, onEnumeration callback returns Table
+        return Enumerable.enumUnitsInRect(r, data, callback)
+    endfunction
+
+    function EnumItemsInRectEx takes rect r, integer data, onEnumeration callback returns Table
+        return Enumerable.enumItemsInRect(r, data, callback)
+    endfunction
+
+    function EnumCustomsInRect takes rect r, integer data, onEnumeration callback returns Table
+        return Enumerable.enumCustomsInRect(r, data, callback)
+    endfunction
+
+    function EnumDestructablesInRectEx takes rect r, integer data, onEnumeration callback returns Table
+        return Enumerable.enumDestructablesInRect(r, data, callback)
+    endfunction
+
+    /* ---------------------------------------- Objects ---------------------------------------- */
+    function IsObjectUnit takes Object object returns boolean
+        return object.isUnit
+    endfunction
+
+    function IsObjectItem takes Object object returns boolean
+        return object.isItem
+    endfunction
+
+    function IsObjectCustom takes Object object returns boolean
+        return object.isCustom
+    endfunction
+
+    function IsObjectDestructable takes Object object returns boolean
+        return object.isDestructable
+    endfunction
+
+    function IsObjectVisible takes Object object returns boolean
+        return object.visible
+    endfunction
+
+    function IsObjectTrackable takes Object object returns boolean
+        return object.trackable
+    endfunction
+
+    function GetObjectX takes Object object returns real
+        return object.x
+    endfunction
+
+    function GetObjectY takes Object object returns real
+        return object.y
+    endfunction
+
+    function GetObjectZ takes Object object returns real
+        return object.z
+    endfunction
+
+    function GetObjectCollision takes Object object returns real
+        return object.collision
+    endfunction
+
+    function GetObjectCollisionCallback takes Object object returns onCollision
+        return object.onCollide
+    endfunction
+
+    function SetObjectX takes Object object, real x returns nothing
+        set object.x = x
+    endfunction
+
+    function SetObjectY takes Object object, real y returns nothing
+        set object.y = y
+    endfunction
+
+    function SetObjectZ takes Object object, real z returns nothing
+        set object.z = z
+    endfunction
+
+    function SetObjectVisible takes Object object, boolean visible returns nothing
+        set object.visible = visible
+    endfunction
+
+    function SetObjectTrackable takes Object object, boolean flag returns nothing
+        set object.trackable = flag
+    endfunction
+
+    function SetObjectCollision takes Object object, real size returns nothing
+        set object.collision = size
+    endfunction
+
+    function SetObjectCollisionCallback takes Object object, onCollision callback returns nothing
+        set object.onCollide = callback
+    endfunction
+
+    function TrackObject takes Object object returns nothing
+        call Enumerable.track(object)
+    endfunction
+
+    function UntrackObject takes Object object returns nothing
+        call Enumerable.untrack(object)
+    endfunction
+
+    function RemoveObject takes Object object returns nothing
+        call Enumerable.remove(object)
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */
@@ -161,6 +279,298 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
             return result
         endmethod
 
+        static method enumUnits takes real x, real y, real range, integer data, onEnumeration callback returns Table
+            local real dx
+            local real dy
+            local integer i
+            local integer j
+            local integer k
+            local integer l
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local real radius
+            local Object object
+            local Table result = 0
+            
+            if range > 0 then
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+                set l = 0
+
+                if callback == 0 then
+                    set result = Table.create()
+                endif
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.isUnit and object.visible and visited[object] != enums then
+                                            set dx = object.x - x
+                                            set dy = object.y - y
+                                            set visited[object] = enums
+                                            set radius = range + object.size
+
+                                            if dx*dx + dy*dy <= radius*radius then
+                                                if callback != 0 then
+                                                    call callback.evaluate(object, data)
+                                                else
+                                                    set result[l] = object
+                                                    set l = l + 1
+                                                endif
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return result
+        endmethod
+
+        static method enumItems takes real x, real y, real range, integer data, onEnumeration callback returns Table
+            local real dx
+            local real dy
+            local integer i
+            local integer j
+            local integer k
+            local integer l
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local real radius
+            local Object object
+            local Table result = 0
+            
+            if range > 0 then
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+                set l = 0
+
+                if callback == 0 then
+                    set result = Table.create()
+                endif
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.isItem and object.visible and visited[object] != enums then
+                                            set dx = object.x - x
+                                            set dy = object.y - y
+                                            set visited[object] = enums
+                                            set radius = range + object.size
+
+                                            if dx*dx + dy*dy <= radius*radius then
+                                                if callback != 0 then
+                                                    call callback.evaluate(object, data)
+                                                else
+                                                    set result[l] = object
+                                                    set l = l + 1
+                                                endif
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return result
+        endmethod
+
+        static method enumCustoms takes real x, real y, real range, integer data, onEnumeration callback returns Table
+            local real dx
+            local real dy
+            local integer i
+            local integer j
+            local integer k
+            local integer l
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local real radius
+            local Object object
+            local Table result = 0
+            
+            if range > 0 then
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+                set l = 0
+
+                if callback == 0 then
+                    set result = Table.create()
+                endif
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.isCustom and object.visible and visited[object] != enums then
+                                            set dx = object.x - x
+                                            set dy = object.y - y
+                                            set visited[object] = enums
+                                            set radius = range + object.size
+
+                                            if dx*dx + dy*dy <= radius*radius then
+                                                if callback != 0 then
+                                                    call callback.evaluate(object, data)
+                                                else
+                                                    set result[l] = object
+                                                    set l = l + 1
+                                                endif
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return result
+        endmethod
+
+        static method enumDestructables takes real x, real y, real range, integer data, onEnumeration callback returns Table
+            local real dx
+            local real dy
+            local integer i
+            local integer j
+            local integer k
+            local integer l
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local real radius
+            local Object object
+            local Table result = 0
+            
+            if range > 0 then
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+                set l = 0
+
+                if callback == 0 then
+                    set result = Table.create()
+                endif
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.isDestructable and object.visible and visited[object] != enums then
+                                            set dx = object.x - x
+                                            set dy = object.y - y
+                                            set visited[object] = enums
+                                            set radius = range + object.size
+
+                                            if dx*dx + dy*dy <= radius*radius then
+                                                if callback != 0 then
+                                                    call callback.evaluate(object, data)
+                                                else
+                                                    set result[l] = object
+                                                    set l = l + 1
+                                                endif
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return result
+        endmethod
+
         static method enumInRect takes rect r, integer data, onEnumeration callback returns Table
             local integer i
             local integer j
@@ -235,6 +645,306 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
 
             return result
         endmethod
+
+        static method enumUnitsInRect takes rect r, integer data, onEnumeration callback returns Table
+            local integer i
+            local integer j
+            local integer k
+            local integer l
+            local real minX
+            local real maxX
+            local real minY
+            local real maxY
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local Object object
+            local Table result = 0
+
+            if r != null then
+                set minX = GetRectMinX(r)
+                set maxX = GetRectMaxX(r)
+                set minY = GetRectMinY(r)
+                set maxY = GetRectMaxY(r)
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((minX - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((maxX - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((minY - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((maxY - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+                set l = 0
+
+                if callback == 0 then
+                    set result = Table.create()
+                endif
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.visible and visited[object] != enums then
+                                            set visited[object] = enums
+
+                                            if object.isUnit and object.x >= minX and object.x <= maxX and object.y >= minY and object.y <= maxY then
+                                                if callback != 0 then
+                                                    call callback.evaluate(object, data)
+                                                else
+                                                    set result[l] = object
+                                                    set l = l + 1
+                                                endif
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return result
+        endmethod
+
+        static method enumItemsInRect takes rect r, integer data, onEnumeration callback returns Table
+            local integer i
+            local integer j
+            local integer k
+            local integer l
+            local real minX
+            local real maxX
+            local real minY
+            local real maxY
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local Object object
+            local Table result = 0
+
+            if r != null then
+                set minX = GetRectMinX(r)
+                set maxX = GetRectMaxX(r)
+                set minY = GetRectMinY(r)
+                set maxY = GetRectMaxY(r)
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((minX - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((maxX - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((minY - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((maxY - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+                set l = 0
+
+                if callback == 0 then
+                    set result = Table.create()
+                endif
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.visible and visited[object] != enums then
+                                            set visited[object] = enums
+
+                                            if object.isItem and object.x >= minX and object.x <= maxX and object.y >= minY and object.y <= maxY then
+                                                if callback != 0 then
+                                                    call callback.evaluate(object, data)
+                                                else
+                                                    set result[l] = object
+                                                    set l = l + 1
+                                                endif
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return result
+        endmethod
+
+        static method enumCustomsInRect takes rect r, integer data, onEnumeration callback returns Table
+            local integer i
+            local integer j
+            local integer k
+            local integer l
+            local real minX
+            local real maxX
+            local real minY
+            local real maxY
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local Object object
+            local Table result = 0
+
+            if r != null then
+                set minX = GetRectMinX(r)
+                set maxX = GetRectMaxX(r)
+                set minY = GetRectMinY(r)
+                set maxY = GetRectMaxY(r)
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((minX - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((maxX - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((minY - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((maxY - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+                set l = 0
+
+                if callback == 0 then
+                    set result = Table.create()
+                endif
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.visible and visited[object] != enums then
+                                            set visited[object] = enums
+
+                                            if object.isCustom and object.x >= minX and object.x <= maxX and object.y >= minY and object.y <= maxY then
+                                                if callback != 0 then
+                                                    call callback.evaluate(object, data)
+                                                else
+                                                    set result[l] = object
+                                                    set l = l + 1
+                                                endif
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return result
+        endmethod
+
+        static method enumDestructablesInRect takes rect r, integer data, onEnumeration callback returns Table
+            local integer i
+            local integer j
+            local integer k
+            local integer l
+            local real minX
+            local real maxX
+            local real minY
+            local real maxY
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local Object object
+            local Table result = 0
+
+            if r != null then
+                set minX = GetRectMinX(r)
+                set maxX = GetRectMaxX(r)
+                set minY = GetRectMinY(r)
+                set maxY = GetRectMaxY(r)
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((minX - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((maxX - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((minY - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((maxY - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+                set l = 0
+
+                if callback == 0 then
+                    set result = Table.create()
+                endif
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.visible and visited[object] != enums then
+                                            set visited[object] = enums
+
+                                            if object.isDestructable and object.x >= minX and object.x <= maxX and object.y >= minY and object.y <= maxY then
+                                                if callback != 0 then
+                                                    call callback.evaluate(object, data)
+                                                else
+                                                    set result[l] = object
+                                                    set l = l + 1
+                                                endif
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return result
+        endmethod
     endmodule
 
     struct Map extends array
@@ -277,45 +987,24 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         private integer index
         private widget widget
         private Table indexes
-        private boolean custom
-        private boolean isVisible
-        private boolean isTrackable
-        private onCollision collide
 
+        readonly unit unit
+        readonly item item
         readonly real size
         readonly integer id
         readonly Table cells
+        readonly boolean isUnit
+        readonly boolean isItem
+        readonly boolean isCustom
+        readonly boolean isDestructable
+        readonly destructable destructable
 
         real x
         real y
-
-        method operator unit takes nothing returns unit
-            return table[id].unit[1]
-        endmethod
-
-        method operator item takes nothing returns item
-            return table[id].item[1]
-        endmethod
-
-        method operator destructable takes nothing returns destructable
-            return table[id].destructable[1]
-        endmethod
-
-        method operator trackable= takes boolean flag returns nothing
-            set isTrackable = flag
-        endmethod
-
-        method operator trackable takes nothing returns boolean
-            return isTrackable
-        endmethod
-
-        method operator visible= takes boolean flag returns nothing
-            set isVisible = flag
-        endmethod
-
-        method operator visible takes nothing returns boolean
-            return isVisible
-        endmethod
+        real z
+        boolean visible
+        boolean trackable
+        onCollision onCollide
 
         method operator collision= takes real value returns nothing
             set size = value
@@ -327,32 +1016,17 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
             return size
         endmethod
 
-        method operator onCollide= takes onCollision callback returns nothing
-            set collide = callback
-        endmethod
-
-        method operator isUnit takes nothing returns boolean
-            return unit != null
-        endmethod
-
-        method operator isItem takes nothing returns boolean
-            return item != null
-        endmethod
-
-        method operator isCustom takes nothing returns boolean
-            return custom
-        endmethod
-
-        method operator isDestructable takes nothing returns boolean
-            return destructable != null
-        endmethod
-
         method destroy takes nothing returns nothing
             call clear()
             call table[id].flush()
             call indexes.destroy()
             call cells.destroy()
             call deallocate()
+
+            set unit = null
+            set item = null
+            set widget = null
+            set destructable = null
         endmethod
 
         method insert takes Cell cell returns nothing
@@ -395,6 +1069,10 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                 if not isCustom then
                     set x = GetWidgetX(widget)
                     set y = GetWidgetY(widget)
+
+                    if isUnit then
+                        set z = BlzGetUnitZ(unit)
+                    endif
                 endif
 
                 set minX = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - size - Map.minX) * Enumerable.width  / Map.width)))
@@ -436,7 +1114,7 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                     set maxJ = maxY
                 endif
 
-                if collide != 0 and size > 0 then
+                if onCollide != 0 and size > 0 then
                     set i = 0
 
                     loop
@@ -455,7 +1133,7 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                                             set visited[that] = visit
 
                                             if dx*dx + dy*dy <= (that.size + size)*(that.size + size) then
-                                                call collide.evaluate(this, that)
+                                                call onCollide.evaluate(this, that)
                                             endif
                                         endif
                                     endif
@@ -504,28 +1182,36 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                 set this = thistype.allocate()
                 set x = 0
                 set y = 0
+                set z = 0
                 set minI = 0
                 set minJ = 0
                 set maxI = 0
                 set maxJ = 0
                 set index = 0
                 set this.id = id
-                set collide = 0
+                set onCollide = 0
                 set visible = true
                 set table[id][0] = this
                 set table[id].agent[1] = a
+                set unit = table[id].unit[1]
+                set item = table[id].item[1]
+                set widget = table[id].widget[1]
+                set destructable = table[id].destructable[1]
+                set isUnit = unit != null
+                set isItem = item != null
+                set isDestructable = destructable != null
                 set cells = Table.create()
                 set indexes = Table.create()
-                set custom = not isUnit and not isItem and not isDestructable
-                set trackable = custom or (isUnit and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_DEAD))
+                set isCustom = not isUnit and not isItem and not isDestructable
+                set trackable = isCustom or (isUnit and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_DEAD))
 
-                if not custom then
-                    set widget = table[id].widget[1]
+                if not isCustom then
                     set x = GetWidgetX(widget)
                     set y = GetWidgetY(widget)
                 endif
 
                 if isUnit then
+                    set z = BlzGetUnitZ(unit)
                     set size = BlzGetUnitCollisionSize(unit)
                 elseif isItem then
                     set size = ITEM_SIZE
