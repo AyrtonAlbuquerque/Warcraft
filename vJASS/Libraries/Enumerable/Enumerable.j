@@ -27,6 +27,10 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         return Enumerable.enum(x, y, range, data, callback)
     endfunction
 
+    function EnumObjectsInRect takes rect r, integer data, onEnumeration callback returns Table
+        return Enumerable.enumInRect(r, data, callback)
+    endfunction
+
     /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
@@ -113,13 +117,12 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         private static integer visit = 0
         private static integer array visited
         
-        private real customX
-        private real customY
         private integer minI
         private integer minJ
         private integer maxI
         private integer maxJ
         private integer index
+        private widget widget
         private Table indexes
         private boolean custom
         private boolean isVisible
@@ -130,29 +133,8 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         readonly integer id
         readonly Table cells
 
-        method operator x takes nothing returns real
-            if custom then
-                return customX
-            endif
-
-            return GetWidgetX(table[id].widget[1])
-        endmethod
-
-        method operator y takes nothing returns real
-            if custom then
-                return customY
-            endif
-
-            return GetWidgetY(table[id].widget[1])
-        endmethod
-
-        method operator x= takes real value returns nothing
-            set customX = value
-        endmethod
-
-        method operator y= takes real value returns nothing
-            set customY = value
-        endmethod
+        real x
+        real y
 
         method operator unit takes nothing returns unit
             return table[id].unit[1]
@@ -253,12 +235,15 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
             local integer minY
             local integer maxY
             local thistype that
-            local real x = this.x
-            local real y = this.y
 
             set visit = visit + 1
 
             if visible then
+                if not isCustom then
+                    set x = GetWidgetX(widget)
+                    set y = GetWidgetY(widget)
+                endif
+
                 set minX = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - size - Map.minX) * Enumerable.width  / Map.width)))
                 set maxX = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + size - Map.minX) * Enumerable.width  / Map.width)))
                 set minY = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - size - Map.minY) * Enumerable.height / Map.height)))
@@ -364,13 +349,13 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
 
             if not table[id].has(0) then
                 set this = thistype.allocate()
+                set x = 0
+                set y = 0
                 set minI = 0
                 set minJ = 0
                 set maxI = 0
                 set maxJ = 0
                 set index = 0
-                set customX = 0
-                set customY = 0
                 set this.id = id
                 set collide = 0
                 set visible = true
@@ -380,6 +365,12 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                 set indexes = Table.create()
                 set custom = not isUnit and not isItem and not isDestructable
                 set trackable = custom or (isUnit and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_DEAD))
+
+                if not custom then
+                    set widget = table[id].widget[1]
+                    set x = GetWidgetX(widget)
+                    set y = GetWidgetY(widget)
+                endif
 
                 if isUnit then
                     set size = BlzGetUnitCollisionSize(unit)
@@ -411,14 +402,14 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         private integer index
         private boolean indexed
 
+        readonly real x
+        readonly real y
         readonly integer i
         readonly integer j
         readonly real minX
         readonly real minY
         readonly real maxX
         readonly real maxY
-        readonly real centerX
-        readonly real centerY
         readonly integer size
 
         effect effect
@@ -492,8 +483,8 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
             set this.minY = Map.minY + (j * 1.0) / Enumerable.height * Map.height
             set this.maxX = Map.minX + ((i + 1) * 1.0) / Enumerable.width * Map.width
             set this.maxY = Map.minY + ((j + 1) * 1.0) / Enumerable.height * Map.height
-            set this.centerX = (minX + maxX) * 0.5
-            set this.centerY = (minY + maxY) * 0.5
+            set this.x = (minX + maxX) * 0.5
+            set this.y = (minY + maxY) * 0.5
 
             return this
         endmethod
@@ -517,30 +508,35 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
 
         implement Hooks
 
-        static method enum takes real x, real y, real range, integer data, onEnumeration callback returns Table
-            local real dx
-            local real dy
+        static method enumInRect takes rect r, integer data, onEnumeration callback returns Table
             local integer i
             local integer j
             local integer k
             local integer l
-            local integer minX
-            local integer maxX 
-            local integer minY
-            local integer maxY
+            local real minX
+            local real maxX
+            local real minY
+            local real maxY
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
             local Cell grid
-            local real radius
             local Object object
             local Table result = 0
-            
-            if range > 0 then
-                set minX = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
-                set maxX = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
-                set minY = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
-                set maxY = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+
+            if r != null then
+                set minX = GetRectMinX(r)
+                set maxX = GetRectMaxX(r)
+                set minY = GetRectMinY(r)
+                set maxY = GetRectMaxY(r)
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((minX - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((maxX - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((minY - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((maxY - Map.minY) * Enumerable.height / Map.height)))
                 set enums = enums + 1
-                set i = minX
-                set j = minY
+                set i = minI
+                set j = minJ
                 set l = 0
 
                 if callback == 0 then
@@ -552,11 +548,81 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                 endif
 
                 loop
-                    exitwhen i > maxX
-                        set j = minY
+                    exitwhen i > maxI
+                        set j = minJ
 
                         loop
-                            exitwhen j > maxY
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.visible and visited[object] != enums then
+                                            set visited[object] = enums
+
+                                            if object.x >= minX and object.x <= maxX and object.y >= minY and object.y <= maxY then
+                                                if callback != 0 then
+                                                    call callback.evaluate(object, data)
+                                                else
+                                                    set result[l] = object
+                                                    set l = l + 1
+                                                endif
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return result
+        endmethod
+
+        static method enum takes real x, real y, real range, integer data, onEnumeration callback returns Table
+            local real dx
+            local real dy
+            local integer i
+            local integer j
+            local integer k
+            local integer l
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local real radius
+            local Object object
+            local Table result = 0
+            
+            if range > 0 then
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+                set l = 0
+
+                if callback == 0 then
+                    set result = Table.create()
+                endif
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
                                 set k = 0
                                 set grid = cell[i][j]
 
@@ -570,14 +636,14 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
                                             set visited[object] = enums
                                             set radius = range + object.size
 
-                                             if dx*dx + dy*dy <= radius*radius then
+                                            if dx*dx + dy*dy <= radius*radius then
                                                 if callback != 0 then
                                                     call callback.evaluate(object, data)
                                                 else
                                                     set result[l] = object
                                                     set l = l + 1
                                                 endif
-                                             endif
+                                            endif
                                         endif
                                     set k = k + 1
                                 endloop
