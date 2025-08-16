@@ -101,12 +101,44 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         return object.z
     endfunction
 
+    function GetObjectUnit takes Object object returns unit
+        return object.unit
+    endfunction
+
+    function GetObjectItem takes Object object returns item
+        return object.item
+    endfunction
+
+    function GetObjectDestructable takes Object object returns destructable
+        return object.destructable
+    endfunction
+
     function GetObjectCollision takes Object object returns real
         return object.collision
     endfunction
 
     function GetObjectCollisionCallback takes Object object returns onCollision
         return object.onCollide
+    endfunction
+
+    function GetClosestObject takes real x, real y, real range returns Object
+        return Enumerable.closest(x, y, range)
+    endfunction
+
+    function GetClosestUnit takes real x, real y, real range returns unit
+        return Enumerable.closestUnit(x, y, range)
+    endfunction
+
+    function GetClosestItem takes real x, real y, real range returns item
+        return Enumerable.closestItem(x, y, range)
+    endfunction
+
+    function GetClosestCustom takes real x, real y, real range returns Object
+        return Enumerable.closestCustom(x, y, range)
+    endfunction
+
+    function GetClosestDestructable takes real x, real y, real range returns destructable
+        return Enumerable.closestDestructable(x, y, range)
     endfunction
 
     function SetObjectX takes Object object, real x returns nothing
@@ -944,6 +976,326 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
             endif
 
             return result
+        endmethod
+
+        static method closest takes real x, real y, real range returns Object
+            local real dx
+            local real dy
+            local integer i
+            local integer j
+            local integer k
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local Object o = 0
+            local Object object
+            local real distance
+            local real closest = range * range
+            
+            if range > 0 then
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.visible and visited[object] != enums then
+                                            set dx = object.x - x
+                                            set dy = object.y - y
+                                            set visited[object] = enums
+                                            set distance = dx*dx + dy*dy
+
+                                            if distance <= closest then
+                                                set o = object
+                                                set closest = distance
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return o
+        endmethod
+
+        static method closestUnit takes real x, real y, real range returns unit
+            local unit u = null
+            local real dx
+            local real dy
+            local integer i
+            local integer j
+            local integer k
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local Object object
+            local real distance
+            local real closest = range * range
+            
+            if range > 0 then
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.isUnit and object.visible and visited[object] != enums then
+                                            set dx = object.x - x
+                                            set dy = object.y - y
+                                            set visited[object] = enums
+                                            set distance = dx*dx + dy*dy
+
+                                            if distance <= closest then
+                                                set u = object.unit
+                                                set closest = distance
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return u
+        endmethod
+
+        static method closestItem takes real x, real y, real range returns item
+            local item it = null
+            local real dx
+            local real dy
+            local integer i
+            local integer j
+            local integer k
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local Object object
+            local real distance
+            local real closest = range * range
+            
+            if range > 0 then
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.isItem and object.visible and visited[object] != enums then
+                                            set dx = object.x - x
+                                            set dy = object.y - y
+                                            set visited[object] = enums
+                                            set distance = dx*dx + dy*dy
+
+                                            if distance <= closest then
+                                                set it = object.item
+                                                set closest = distance
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return it
+        endmethod
+
+        static method closestCustom takes real x, real y, real range returns Object
+            local real dx
+            local real dy
+            local integer i
+            local integer j
+            local integer k
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local Object o = 0
+            local Object object
+            local real distance
+            local real closest = range * range
+            
+            if range > 0 then
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.isCustom and object.visible and visited[object] != enums then
+                                            set dx = object.x - x
+                                            set dy = object.y - y
+                                            set visited[object] = enums
+                                            set distance = dx*dx + dy*dy
+
+                                            if distance <= closest then
+                                                set o = object
+                                                set closest = distance
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return o
+        endmethod
+
+        static method closestDestructable takes real x, real y, real range returns destructable
+            local destructable d = null
+            local real dx
+            local real dy
+            local integer i
+            local integer j
+            local integer k
+            local integer minI
+            local integer maxI 
+            local integer minJ
+            local integer maxJ
+            local Cell grid
+            local Object object
+            local real distance
+            local real closest = range * range
+            
+            if range > 0 then
+                set minI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x - range - Map.minX) * Enumerable.width  / Map.width)))
+                set maxI = IMaxBJ(0, IMinBJ(Enumerable.width - 1, R2I((x + range - Map.minX) * Enumerable.width  / Map.width)))
+                set minJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y - range - Map.minY) * Enumerable.height / Map.height)))
+                set maxJ = IMaxBJ(0, IMinBJ(Enumerable.height - 1, R2I((y + range - Map.minY) * Enumerable.height / Map.height)))
+                set enums = enums + 1
+                set i = minI
+                set j = minJ
+
+                if enums <= 0 then
+                    set enums = 1
+                endif
+
+                loop
+                    exitwhen i > maxI
+                        set j = minJ
+
+                        loop
+                            exitwhen j > maxJ
+                                set k = 0
+                                set grid = cell[i][j]
+
+                                loop
+                                    exitwhen k >= grid.size
+                                        set object = grid[k]
+
+                                        if object != 0 and object.isDestructable and object.visible and visited[object] != enums then
+                                            set dx = object.x - x
+                                            set dy = object.y - y
+                                            set visited[object] = enums
+                                            set distance = dx*dx + dy*dy
+
+                                            if distance <= closest then
+                                                set d = object.destructable
+                                                set closest = distance
+                                            endif
+                                        endif
+                                    set k = k + 1
+                                endloop
+                            set j = j + 1
+                        endloop
+                    set i = i + 1
+                endloop
+            endif
+
+            return d
         endmethod
     endmodule
 
