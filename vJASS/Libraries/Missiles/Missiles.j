@@ -1,5 +1,5 @@
-library Missiles requires MissileEffect, TimerUtils, WorldBounds
-    /* ---------------------------------------- Missiles v2.8 --------------------------------------- */
+library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
+    /* ---------------------------------------- Missiles v3.0 --------------------------------------- */
     // Thanks and Credits to BPower, Dirac and Vexorian for the Missile Library's at which i based
     // this Missiles library. Credits and thanks to AGD and for the effect orientation ideas.
     // This version of Missiles requires patch 1.31+
@@ -8,9 +8,6 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds
     //     1 - Copy this, MissileEffect and optionaly the MissileUtils libraries to your map
     /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
-    /* ---------------------------------------------------------------------------------------------- */
-    /*                                             System                                             */
-    /* ---------------------------------------------------------------------------------------------- */
     globals
         // The update period of the system
         public  constant real    PERIOD             = 1./40.
@@ -28,23 +25,391 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds
         // Needed, don't touch.
         private location         LOC                = Location(0., 0.)
     endglobals
-
-    private interface MissileEvents
-        method onHit takes unit hit returns boolean defaults false
-        method onMissile takes Missiles missile returns boolean defaults false
-        method onDestructable takes destructable dest returns boolean defaults false
-        method onItem takes item i returns boolean defaults false
-        method onCliff takes nothing returns boolean defaults false
-        method onTerrain takes nothing returns boolean defaults false
-        method onTileset takes integer tileset returns boolean defaults false
-        method onPeriod takes nothing returns boolean defaults false
-        method onFinish takes nothing returns boolean defaults false
-        method onBoundaries takes nothing returns boolean defaults false
-        method onPause takes nothing returns boolean defaults false
-        method onResume takes nothing returns boolean defaults false
-        method onRemove takes nothing returns nothing defaults nothing
-    endinterface
     
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                            JASS API                                            */
+    /* ---------------------------------------------------------------------------------------------- */
+    function CreateMissileGroup takes nothing returns MissileGroup
+        return MissileGroup.create()
+    endfunction
+    
+    function DestroyMissileGroup takes MissileGroup missiles returns nothing
+        if missiles != 0 then
+            call missiles.destroy()
+        endif
+    endfunction
+    
+    function MissileGroupGetSize takes MissileGroup missiles returns integer
+        if missiles != 0 then
+            return missiles.size
+        else
+            return 0
+        endif
+    endfunction
+    
+    function GroupMissileAt takes MissileGroup missiles, integer position returns Missiles
+        if missiles != 0 then
+            return missiles.missileAt(position)
+        else
+            return 0
+        endif
+    endfunction
+    
+    function ClearMissileGroup takes MissileGroup missiles returns nothing
+        if missiles != 0 then
+            call missiles.clear()
+        endif
+    endfunction
+    
+    function IsMissileInGroup takes Missiles missile, MissileGroup missiles returns boolean
+        if missiles != 0 and missile != 0 then
+            if missiles.size > 0 then
+                return missiles.contains(missile)
+            else
+                return false
+            endif
+        else
+            return false
+        endif
+    endfunction
+    
+    function GroupRemoveMissile takes MissileGroup missiles, Missiles missile returns nothing
+        if missiles != 0 and missile != 0 then
+            if missiles.size > 0 then
+                call missiles.remove(missile)
+            endif
+        endif
+    endfunction
+    
+    function GroupAddMissile takes MissileGroup missiles, Missiles missile returns nothing
+        if missiles != 0 and missile != 0 then
+            if not missiles.contains(missile) then
+                call missiles.insert(missile)
+            endif
+        endif
+    endfunction
+    
+    function GroupPickRandomMissile takes MissileGroup missiles returns Missiles
+        if missiles != 0 then
+            if missiles.size > 0 then
+                return missiles.missileAt(GetRandomInt(0, missiles.size - 1))
+            else
+                return 0
+            endif
+        else
+            return 0
+        endif
+    endfunction
+    
+    function FirstOfMissileGroup takes MissileGroup missiles returns Missiles
+        if missiles != 0 then
+            if missiles.size > 0 then
+                return missiles.group.next.data
+            else
+                return 0
+            endif
+        else
+            return 0
+        endif
+    endfunction
+    
+    function GroupAddMissileGroup takes MissileGroup source, MissileGroup target returns nothing
+        if source != 0 and target != 0 then
+            if source.size > 0 and source != target then
+                call target.addGroup(source)
+            endif
+        endif
+    endfunction
+    
+    function GroupRemoveMissileGroup takes MissileGroup source, MissileGroup target returns nothing
+        if source != 0 and target != 0 then
+            if source == target then
+                call source.clear()
+            elseif source.size > 0 then
+                call target.removeGroup(source)
+            endif
+        endif
+    endfunction
+    
+    function GroupEnumMissilesOfType takes MissileGroup missiles, integer whichType returns nothing
+        local integer i
+        local Missiles missile
+        
+        if missiles != 0 then
+            if Missiles.count > -1 then
+                set i = 0
+                
+                if missiles.size > 0 then
+                    call missiles.clear()
+                endif
+                
+                loop
+                    exitwhen i > Missiles.count
+                        set missile = Missiles.collection[i]
+                        
+                        if missile.type == whichType then
+                            call missiles.insert(missile)
+                        endif
+                    set i = i + 1
+                endloop
+            endif
+        endif
+    endfunction
+    
+    function GroupEnumMissilesOfTypeCounted takes MissileGroup missiles, integer whichType, integer amount returns nothing
+        local integer i
+        local integer j = amount
+        local Missiles missile
+        
+        if missiles != 0 then
+            if Missiles.count > -1 then
+                set i = 0
+                
+                if missiles.size > 0 then
+                    call missiles.clear()
+                endif
+                
+                loop
+                    exitwhen i > Missiles.count or j == 0
+                        set missile = Missiles.collection[i]
+                        
+                        if missile.type == whichType then
+                            call missiles.insert(missile)
+                        endif
+                        set j = j - 1
+                    set i = i + 1
+                endloop
+            endif
+        endif
+    endfunction
+    
+    function GroupEnumMissilesOfPlayer takes MissileGroup missiles, player p returns nothing
+        local integer i
+        local Missiles missile
+        
+        if missiles != 0 then
+            if Missiles.count > -1 then
+                set i = 0
+                
+                if missiles.size > 0 then
+                    call missiles.clear()
+                endif
+                
+                loop
+                    exitwhen i > Missiles.count
+                        set missile = Missiles.collection[i]
+                        
+                        if missile.owner == p then
+                            call missiles.insert(missile)
+                        endif
+                    set i = i + 1
+                endloop
+            endif
+        endif
+    endfunction
+    
+    function GroupEnumMissilesOfPlayerCounted takes MissileGroup missiles, player p, integer amount returns nothing
+        local integer i
+        local integer j = amount
+        local Missiles missile
+        
+        if missiles != 0 then
+            if Missiles.count > -1 then
+                set i = 0
+                
+                if missiles.size > 0 then
+                    call missiles.clear()
+                endif
+                
+                loop
+                    exitwhen i > Missiles.count or j == 0
+                        set missile = Missiles.collection[i]
+                        
+                        if missile.owner == p then
+                            call missiles.insert(missile)
+                        endif
+                        set j = j - 1
+                    set i = i + 1
+                endloop
+            endif
+        endif
+    endfunction
+    
+    function GroupEnumMissilesInRect takes MissileGroup missiles, rect r returns nothing
+        local integer i
+        local Missiles missile
+        
+        if missiles != 0 and r != null then
+            if Missiles.count > -1 then
+                set i = 0
+                
+                if missiles.size > 0 then
+                    call missiles.clear()
+                endif
+                
+                loop
+                    exitwhen i > Missiles.count
+                        set missile = Missiles.collection[i]
+                        
+                        if GetRectMinX(r) <= missile.x and missile.x <= GetRectMaxX(r) and GetRectMinY(r) <= missile.y and missile.y <= GetRectMaxY(r) then
+                            call missiles.insert(missile)
+                        endif
+                    set i = i + 1
+                endloop
+            endif
+        endif
+    endfunction
+    
+    function GroupEnumMissilesInRectCounted takes MissileGroup missiles, rect r, integer amount returns nothing
+        local integer i
+        local integer j = amount
+        local Missiles missile
+        
+        if missiles != 0 and r != null then
+            if Missiles.count > -1 then
+                set i = 0
+                
+                if missiles.size > 0 then
+                    call missiles.clear()
+                endif
+                
+                loop
+                    exitwhen i > Missiles.count or j == 0
+                        set missile = Missiles.collection[i]
+                        
+                        if GetRectMinX(r) <= missile.x and missile.x <= GetRectMaxX(r) and GetRectMinY(r) <= missile.y and missile.y <= GetRectMaxY(r) then
+                            call missiles.insert(missile)
+                        endif
+                        set j = j - 1
+                    set i = i + 1
+                endloop
+            endif
+        endif
+    endfunction
+    
+    function GroupEnumMissilesInRangeOfLoc takes MissileGroup missiles, location loc, real radius returns nothing
+        local real dx
+        local real dy
+        local integer i
+        local Missiles missile
+    
+        if missiles != 0 and radius > 0 and loc != null then
+            if Missiles.count > -1 then
+                set i = 0
+                
+                if missiles.size > 0 then
+                    call missiles.clear()
+                endif
+                
+                loop
+                    exitwhen i > Missiles.count
+                        set missile = Missiles.collection[i]
+                        set dx = missile.x - GetLocationX(loc)
+                        set dy = missile.y - GetLocationY(loc)
+                        
+                        if SquareRoot(dx*dx + dy*dy) <= radius then
+                            call missiles.insert(missile)
+                        endif
+                    set i = i + 1
+                endloop
+            endif
+        endif
+    endfunction
+    
+    function GroupEnumMissilesInRangeOfLocCounted takes MissileGroup missiles, location loc, real radius, integer amount returns nothing
+        local real dx
+        local real dy
+        local integer i
+        local integer j = amount
+        local Missiles missile
+    
+        if missiles != 0 and radius > 0 and loc != null then
+            if Missiles.count > -1 then
+                set i = 0
+                
+                if missiles.size > 0 then
+                    call missiles.clear()
+                endif
+                
+                loop
+                    exitwhen i > Missiles.count or j == 0
+                        set missile = Missiles.collection[i]
+                        set dx = missile.x - GetLocationX(loc)
+                        set dy = missile.y - GetLocationY(loc)
+                        
+                        if SquareRoot(dx*dx + dy*dy) <= radius then
+                            call missiles.insert(missile)
+                        endif
+                        set j = j - 1
+                    set i = i + 1
+                endloop
+            endif
+        endif
+    endfunction
+    
+    function GroupEnumMissilesInRange takes MissileGroup missiles, real x, real y, real radius returns nothing
+        local real dx
+        local real dy
+        local integer i
+        local Missiles missile
+    
+        if missiles != 0 and radius > 0 then
+            if Missiles.count > -1 then
+                set i = 0
+                
+                if missiles.size > 0 then
+                    call missiles.clear()
+                endif
+                
+                loop
+                    exitwhen i > Missiles.count
+                        set missile = Missiles.collection[i]
+                        set dx = missile.x - x
+                        set dy = missile.y - y
+                        
+                        if SquareRoot(dx*dx + dy*dy) <= radius then
+                            call missiles.insert(missile)
+                        endif
+                    set i = i + 1
+                endloop
+            endif
+        endif
+    endfunction
+    
+    function GroupEnumMissilesInRangeCounted takes MissileGroup missiles, real x, real y, real radius, integer amount returns nothing
+        local real dx
+        local real dy
+        local integer i
+        local integer j = amount
+        local Missiles missile
+    
+        if missiles != 0 and radius > 0 then
+            if Missiles.count > -1 then
+                set i = 0
+                
+                if missiles.size > 0 then
+                    call missiles.clear()
+                endif
+                
+                loop
+                    exitwhen i > Missiles.count or j == 0
+                        set missile = Missiles.collection[i]
+                        set dx = missile.x - x
+                        set dy = missile.y - y
+                        
+                        if SquareRoot(dx*dx + dy*dy) <= radius then
+                            call missiles.insert(missile)
+                        endif
+                        set j = j - 1
+                    set i = i + 1
+                endloop
+            endif
+        endif
+    endfunction
+
+    /* ----------------------------------------------------------------------------------------- */
+    /*                                           System                                          */
+    /* ----------------------------------------------------------------------------------------- */
     private function GetLocZ takes real x, real y returns real
         call MoveLocation(LOC, x, y)
         return GetLocationZ(LOC)
@@ -61,157 +426,7 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds
     private function GetMapCliffLevel takes nothing returns integer
         return GetTerrainCliffLevel(WorldBounds.maxX, WorldBounds.maxY)
     endfunction
-
-    private struct Pool
-        private static player player = Player(PLAYER_NEUTRAL_PASSIVE)
-        private static group  group  = CreateGroup()
-
-        timer timer
-        unit  unit
-
-        static method recycle takes unit dummy returns nothing
-            if GetUnitTypeId(dummy) == DUMMY then
-                call GroupAddUnit(group, dummy)
-                call SetUnitX(dummy, WorldBounds.maxX)
-                call SetUnitY(dummy, WorldBounds.maxY)
-                call SetUnitOwner(dummy, player, false)
-                call PauseUnit(dummy, true)
-            endif
-        endmethod
-
-        static method retrieve takes real x, real y, real z, real face returns unit
-            if BlzGroupGetSize(group) > 0 then
-                set bj_lastCreatedUnit = FirstOfGroup(group)
-                call PauseUnit(bj_lastCreatedUnit, false)
-                call GroupRemoveUnit(group, bj_lastCreatedUnit)
-                call SetUnitX(bj_lastCreatedUnit, x)
-                call SetUnitY(bj_lastCreatedUnit, y)
-                call SetUnitZ(bj_lastCreatedUnit, z)
-                call BlzSetUnitFacingEx(bj_lastCreatedUnit, face)
-            else
-                set bj_lastCreatedUnit = CreateUnit(player, DUMMY, x, y, face)
-                call SetUnitZ(bj_lastCreatedUnit, z)
-                call UnitRemoveAbility(bj_lastCreatedUnit, 'Amrf')
-            endif
-
-            return bj_lastCreatedUnit
-        endmethod
-
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            call recycle(unit)
-            call ReleaseTimer(timer)
-            
-            set timer = null
-            set unit  = null
-
-            call deallocate()
-        endmethod
-
-        static method recycleTimed takes unit dummy, real delay returns nothing
-            local thistype this
-
-            if GetUnitTypeId(dummy) != DUMMY then
-                debug call BJDebugMsg("[DummyPool] Error: Trying to recycle a non dummy unit")
-            else
-                set this = thistype.allocate()
-
-                set timer = NewTimerEx(this)
-                set unit  = dummy
-                
-                call TimerStart(timer, delay, false, function thistype.onExpire)
-            endif
-        endmethod
-
-        private static method onInit takes nothing returns nothing
-            local integer i = 0
-            local unit u
-
-            loop
-                exitwhen i == SWEET_SPOT
-                    set u = CreateUnit(player, DUMMY, WorldBounds.maxX, WorldBounds.maxY, 0)
-                    call PauseUnit(u, false)
-                    call GroupAddUnit(group, u)
-                    call UnitRemoveAbility(u, 'Amrf')
-                set i = i + 1
-            endloop
-
-            set u = null
-        endmethod
-    endstruct
-
-    private struct Coordinates
-        readonly real x
-        readonly real y
-        readonly real z
-        readonly real angle
-        readonly real distance
-        readonly real square
-        readonly real slope
-        readonly real alpha
-
-        // Creates an origin - impact link.
-        private thistype ref
-
-        private static method math takes thistype a, thistype b returns nothing
-            local real dx
-            local real dy
-            loop
-                set dx = b.x - a.x
-                set dy = b.y - a.y
-                set dx = dx*dx + dy*dy
-                set dy = SquareRoot(dx)
-                exitwhen dx != 0. and dy != 0.
-                set b.x = b.x + .01
-                set b.z = b.z - GetLocZ(b.x -.01, b.y) + GetLocZ(b.x, b.y)
-            endloop
-
-            set a.square   = dx
-            set a.distance = dy
-            set a.angle    = Atan2(b.y - a.y, b.x - a.x)
-            set a.slope    = (b.z - a.z)/dy
-            set a.alpha    = Atan(a.slope)
-            // Set b.
-            if b.ref == a then
-                set b.angle     = a.angle + bj_PI
-                set b.distance  = dy
-                set b.slope     = -a.slope
-                set b.alpha     = -a.alpha
-                set b.square    = dx
-            endif
-        endmethod
-
-        static method link takes thistype a, thistype b returns nothing
-            set a.ref = b
-            set b.ref = a
-            call math(a, b)
-        endmethod
-
-        method move takes real toX, real toY, real toZ returns nothing
-            set x = toX
-            set y = toY
-            set z = toZ + GetLocZ(toX, toY)
-            if ref != this then
-                call math(this, ref)
-            endif
-        endmethod
-
-        method destroy takes nothing returns nothing
-            call .deallocate()
-        endmethod
-
-        static method create takes real x, real y, real z returns Coordinates
-            local thistype this = thistype.allocate()
-            set ref = this
-            call move(x, y, z)
-            return this
-        endmethod
-    endstruct
-        
-    /* -------------------------------------------------------------------------- */
-    /*                                   System                                   */
-    /* -------------------------------------------------------------------------- */
+    
     private module OnHit
         set o = origin
         set h = height
@@ -432,382 +647,254 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds
             endif
         endif
     endmodule
-    
-    private module OnPause
-        set pid = pid + 1
-        set pkey = pid
-        set frozen[pid] = this
-        
-        if .onPause.exists then
-            if allocated and .onPause() then
-                call terminate()
-            endif
-        endif
-    endmodule
-    
-    private module OnResume
-        local thistype aux
-        
-        set paused = flag
-        if not paused and pkey != -1 then
-            set id = id + 1
-            set missiles[id] = this
-            set aux = frozen[pid]
-            set aux.pkey = pkey
-            set frozen[pkey] = frozen[pid]
-            set pid = pid - 1
-            set pkey = -1
 
-            if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
-                set dilation = (id + 1)/SWEET_SPOT
+    interface IMissile
+        method onHit takes unit hit returns boolean defaults false
+        method onMissile takes Missiles missile returns boolean defaults false
+        method onDestructable takes destructable dest returns boolean defaults false
+        method onItem takes item i returns boolean defaults false
+        method onCliff takes nothing returns boolean defaults false
+        method onTerrain takes nothing returns boolean defaults false
+        method onTileset takes integer tileset returns boolean defaults false
+        method onPeriod takes nothing returns boolean defaults false
+        method onFinish takes nothing returns boolean defaults false
+        method onBoundaries takes nothing returns boolean defaults false
+        method onPause takes nothing returns boolean defaults false
+        method onResume takes nothing returns boolean defaults false
+        method onRemove takes nothing returns nothing defaults nothing
+    endinterface
+
+    struct MissileGroup
+        readonly List group
+        
+        method operator size takes nothing returns integer
+            return group.size
+        endmethod
+
+        method destroy takes nothing returns nothing
+            call group.destroy()
+            call deallocate()
+        endmethod
+        
+        method missileAt takes integer i returns Missiles
+            local List node = group.next
+            local integer j = 0
+        
+            if size > 0 and i <= size - 1 then
+                loop
+                    exitwhen j == i
+                        set node = node.next
+                    set j = j + 1
+                endloop
+                
+                return node.data
             else
-                set dilation = 1.
+                return 0
             endif
-
-            if id == 0 then
-                call TimerStart(timer, PERIOD, true, function thistype.move)
-            endif
-            
-            if .onResume.exists then
-                if allocated and .onResume() then
-                    call terminate()
-                else
-                    if finished then
-                        call terminate()
+        endmethod
+        
+        method remove takes Missiles missile returns nothing
+            call group.remove(missile)
+        endmethod
+        
+        method insert takes Missiles missile returns nothing
+            call group.insert(missile)
+        endmethod
+        
+        method clear takes nothing returns nothing
+            call group.clear()
+        endmethod
+        
+        method contains takes Missiles missile returns boolean
+            return group.has(missile)
+        endmethod
+        
+        method addGroup takes thistype source returns nothing
+            local List node = source.group.next
+        
+            loop
+                exitwhen node == source.group
+                    if not contains(node.data) then
+                        call insert(node.data)
                     endif
-                endif
+                set node = node.next
+            endloop
+        endmethod
+        
+        method removeGroup takes thistype source returns nothing
+            local List node = source.group.next
+        
+            loop
+                exitwhen node == source.group
+                    if contains(node.data) then
+                        call remove(node.data)
+                    endif
+                set node = node.next
+            endloop
+        endmethod
+        
+        static method create takes nothing returns thistype
+            local thistype this = thistype.allocate()
+            
+            set group = List.create()
+            
+            return this
+        endmethod
+    endstruct
+
+    private struct Pool
+        private static player player = Player(PLAYER_NEUTRAL_PASSIVE)
+        private static group  group  = CreateGroup()
+
+        timer timer
+        unit  unit
+
+        static method recycle takes unit dummy returns nothing
+            if GetUnitTypeId(dummy) == DUMMY then
+                call GroupAddUnit(group, dummy)
+                call SetUnitX(dummy, WorldBounds.maxX)
+                call SetUnitY(dummy, WorldBounds.maxY)
+                call SetUnitOwner(dummy, player, false)
+                call PauseUnit(dummy, true)
+            endif
+        endmethod
+
+        static method retrieve takes real x, real y, real z, real face returns unit
+            if BlzGroupGetSize(group) > 0 then
+                set bj_lastCreatedUnit = FirstOfGroup(group)
+                call PauseUnit(bj_lastCreatedUnit, false)
+                call GroupRemoveUnit(group, bj_lastCreatedUnit)
+                call SetUnitX(bj_lastCreatedUnit, x)
+                call SetUnitY(bj_lastCreatedUnit, y)
+                call SetUnitZ(bj_lastCreatedUnit, z)
+                call BlzSetUnitFacingEx(bj_lastCreatedUnit, face)
             else
-                if finished then
-                    call terminate()
-                endif
+                set bj_lastCreatedUnit = CreateUnit(player, DUMMY, x, y, face)
+                call SetUnitZ(bj_lastCreatedUnit, z)
+                call UnitRemoveAbility(bj_lastCreatedUnit, 'Amrf')
             endif
-        endif
-    endmodule
-    
-    private module OnRemove
-        local thistype aux
-    
-        if allocated and launched then
-            set allocated = false
+
+            return bj_lastCreatedUnit
+        endmethod
+
+        private static method onExpire takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
+
+            call recycle(unit)
+            call ReleaseTimer(timer)
             
-            if pkey != -1 then
-                set aux = frozen[pid]
-                set aux.pkey = pkey
-                set frozen[pkey] = frozen[pid]
-                set pid = pid - 1
-                set pkey = -1
-            endif
-            
-            if .onRemove.exists then
-                call .onRemove()
-            endif
-            
-            if dummy != null then
-                call Pool.recycle(dummy)
-            endif
-            
-            set aux = collection[count]
-            set aux.index = index
-            set collection[index] = collection[count]
-            set count = count - 1
-            set index = -1
-            
-            call origin.destroy()
-            call impact.destroy()
-            call effect.destroy()
-            call reset()
-            call FlushChildHashtable(table, this)
-        endif
-    endmodule
-    
-    private module Operators
-        /* -------------------------- Model of the missile -------------------------- */
-        method operator model= takes string fx returns nothing
-            call DestroyEffect(effect.effect)
-            set effect.path = fx
-            set effect.effect = AddSpecialEffect(fx, origin.x, origin.y)
-            call BlzSetSpecialEffectZ(effect.effect, origin.z)
-            call BlzSetSpecialEffectYaw(effect.effect, cA)
+            set timer = null
+            set unit  = null
+
+            call deallocate()
         endmethod
 
-        method operator model takes nothing returns string
-            return effect.path
-        endmethod
-        
-        /* ----------------------------- Curved movement ---------------------------- */
-        method operator curve= takes real value returns nothing
-            set open = Tan(value*bj_DEGTORAD)*origin.distance
-        endmethod
-        
-        method operator curve takes nothing returns real
-            return Atan(open/origin.distance)*bj_RADTODEG
-        endmethod
-        
-        /* ----------------------------- Arced Movement ----------------------------- */
-        method operator arc= takes real value returns nothing
-            set height = Tan(value*bj_DEGTORAD)*origin.distance/4
-        endmethod
-        
-        method operator arc takes nothing returns real
-            return Atan(4*height/origin.distance)*bj_RADTODEG
-        endmethod
-        
-        /* ------------------------------ Effect scale ------------------------------ */
-        method operator scale= takes real value returns nothing
-            set effect.size = value
-            call effect.scale(effect.effect, value)
-        endmethod
+        static method recycleTimed takes unit dummy, real delay returns nothing
+            local thistype this
 
-        method operator scale takes nothing returns real
-            return effect.size
-        endmethod
-
-        /* ------------------------------ Missile Speed ----------------------------- */
-        method operator speed= takes real newspeed returns nothing
-            local real d = origin.distance
-            local real s
-            local real vel
-        
-            set veloc = newspeed*PERIOD
-            set vel = veloc*dilation
-            set s = travel + vel
-            set nextX = x + vel*Cos(cA)
-            set nextY = y + vel*Sin(cA)
-
-            if height != 0 or origin.slope != 0 then
-                set nextZ = 4*height*s*(d-s)/(d*d) + origin.slope*s + origin.z
-                set z = nextZ
-            endif
-        endmethod
-
-        method operator speed takes nothing returns real
-            return veloc/PERIOD
-        endmethod
-
-        /* ------------------------------- Flight Time ------------------------------ */
-        method operator duration= takes real flightTime returns nothing
-            local real d = origin.distance
-            local real s
-            local real vel
-        
-            set veloc = RMaxBJ(0.00000001, (origin.distance - travel)*PERIOD/RMaxBJ(0.00000001, flightTime))
-            set time = flightTime
-            set vel = veloc*dilation
-            set s = travel + vel
-            set nextX = x + vel*Cos(cA)
-            set nextY = y + vel*Sin(cA)
-
-            if height != 0 or origin.slope != 0 then
-                set nextZ = 4*height*s*(d-s)/(d*d) + origin.slope*s + origin.z
-                set z = nextZ
-            endif
-        endmethod
-        
-        method operator duration takes nothing returns real
-            return time
-        endmethod
-        
-        /* ------------------------------- Sight Range ------------------------------ */
-        method operator vision= takes real sightRange returns nothing
-            set sight = sightRange
-            
-            if dummy == null then
-                if owner == null then
-                    if source != null then
-                        set dummy = Pool.retrieve(x, y, z, 0)
-                        call SetUnitOwner(dummy, GetOwningPlayer(source), false)
-                        call BlzSetUnitRealField(dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
-                    endif
-                else
-                    set dummy = Pool.retrieve(x, y, z, 0)
-                    call SetUnitOwner(dummy, owner, false)
-                    call BlzSetUnitRealField(dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
-                endif
+            if GetUnitTypeId(dummy) != DUMMY then
+                debug call BJDebugMsg("[DummyPool] Error: Trying to recycle a non dummy unit")
             else
-                call SetUnitOwner(dummy, owner, false)
-                call BlzSetUnitRealField(dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
+                set this = thistype.allocate()
+
+                set timer = NewTimerEx(this)
+                set unit  = dummy
+                
+                call TimerStart(timer, delay, false, function thistype.onExpire)
             endif
         endmethod
-        
-        method operator vision takes nothing returns real
-            return sight
+
+        private static method onInit takes nothing returns nothing
+            local integer i = 0
+            local unit u
+
+            loop
+                exitwhen i == SWEET_SPOT
+                    set u = CreateUnit(player, DUMMY, WorldBounds.maxX, WorldBounds.maxY, 0)
+                    call PauseUnit(u, false)
+                    call GroupAddUnit(group, u)
+                    call UnitRemoveAbility(u, 'Amrf')
+                set i = i + 1
+            endloop
+
+            set u = null
+        endmethod
+    endstruct
+
+    private struct Coordinates
+        readonly real x
+        readonly real y
+        readonly real z
+        readonly real slope
+        readonly real alpha
+        readonly real angle
+        readonly real square
+        readonly real distance
+
+        private thistype ref
+
+        method destroy takes nothing returns nothing
+            call deallocate()
         endmethod
 
-        /* ------------------------------- Time Scale ------------------------------- */
-        method operator timeScale= takes real newTimeScale returns nothing
-            set effect.timeScale = newTimeScale
-        endmethod
-        
-        method operator timeScale takes nothing returns real
-            return effect.timeScale
+        method move takes real toX, real toY, real toZ returns nothing
+            set x = toX
+            set y = toY
+            set z = toZ + GetLocZ(toX, toY)
+
+            if ref != this then
+                call math(this, ref)
+            endif
         endmethod
 
-        /* ---------------------------------- Alpha --------------------------------- */
-        method operator alpha= takes integer newAlpha returns nothing
-            set effect.alpha = newAlpha
+        static method link takes thistype a, thistype b returns nothing
+            set a.ref = b
+            set b.ref = a
+
+            call math(a, b)
         endmethod
 
-        method operator alpha takes nothing returns integer
-            return effect.alpha
-        endmethod
+        private static method math takes thistype a, thistype b returns nothing
+            local real dx
+            local real dy
 
-        /* ------------------------------ Player Color ------------------------------ */
-        method operator playerColor= takes integer playerId returns nothing
-            set effect.playerColor = playerId
-        endmethod
+            loop
+                set dx = b.x - a.x
+                set dy = b.y - a.y
+                set dx = dx*dx + dy*dy
+                set dy = SquareRoot(dx)
+                exitwhen dx != 0. and dy != 0.
+                set b.x = b.x + .01
+                set b.z = b.z - GetLocZ(b.x -.01, b.y) + GetLocZ(b.x, b.y)
+            endloop
 
-        method operator playerColor takes nothing returns integer
-            return effect.playerColor
-        endmethod
-
-        /* -------------------------------- Animation ------------------------------- */
-        method operator animation= takes integer animType returns nothing
-            set effect.animation = animType
-        endmethod
-
-        method operator animation takes nothing returns integer
-            return effect.animation
-        endmethod
-    endmodule
-    
-    private module Methods
-        /* --------------------------- Bounce and Deflect --------------------------- */
-        method bounce takes nothing returns nothing
-            call origin.move(x, y, z - GetLocZ(x, y))
+            set a.square = dx
+            set a.distance = dy
+            set a.angle = Atan2(b.y - a.y, b.x - a.x)
+            set a.slope = (b.z - a.z) / dy
+            set a.alpha = Atan(a.slope)
             
-            set travel = 0
-            set finished = false
-        endmethod
-
-        method deflect takes real tx, real ty, real tz returns nothing
-            local real locZ = GetLocZ(x, y)
-            
-            set target = null
-            set toZ = tz
-            
-            if z < locZ and .onTerrain.exists then
-                set nextX = prevX
-                set nextY = prevY
-                set nextZ = prevZ
-            endif
-            
-            call impact.move(tx, ty, tz)
-            call origin.move(x, y, z - locZ)
-            
-            set travel = 0
-            set finished = false
-        endmethod
-        
-        method deflectTarget takes unit u returns nothing
-            call deflect(GetUnitX(u), GetUnitY(u), toZ)
-            set target = u
-        endmethod
-
-        /* ---------------------------- Flush hit targets --------------------------- */
-        method flushAll takes nothing returns nothing
-            call FlushChildHashtable(table, this)
-        endmethod
-
-        method flush takes widget w returns nothing
-            if w != null then
-                call RemoveSavedBoolean(table, this, GetHandleId(w))
+            if b.ref == a then
+                set b.angle = a.angle + bj_PI
+                set b.distance = dy
+                set b.slope = -a.slope
+                set b.alpha = -a.alpha
+                set b.square = dx
             endif
         endmethod
 
-        method hitted takes widget w returns boolean
-            return HaveSavedBoolean(table, this, GetHandleId(w))
+        static method create takes real x, real y, real z returns Coordinates
+            local thistype this = thistype.allocate()
+
+            set ref = this
+
+            call move(x, y, z)
+
+            return this
         endmethod
+    endstruct
 
-        /* ----------------------- Missile attachment methods ----------------------- */
-        method attach takes string model, real dx, real dy, real dz, real scale returns effect
-            return effect.attach(model, dx, dy, dz, scale)
-        endmethod
-
-        method detach takes effect attachment returns nothing
-            if attachment != null then
-                call effect.detach(attachment)
-            endif
-        endmethod
-
-        /* ------------------------------ Missile Pause ----------------------------- */
-        method pause takes boolean flag returns nothing
-            implement OnResume
-        endmethod
-
-        /* ---------------------------------- Color --------------------------------- */
-        method color takes integer red, integer green, integer blue returns nothing
-            call effect.setColor(red, green, blue)
-        endmethod
-        
-        /* ---------------------- Destructable collision method --------------------- */
-        static method onDest takes nothing returns nothing
-            local thistype this  = temp
-            local destructable d = GetEnumDestructable()
-            local real dz
-            local real tz
-
-            if not HaveSavedBoolean(table, this, GetHandleId(d)) then
-                if collideZ then
-                    set dz = GetLocZ(GetWidgetX(d), GetWidgetY(d))
-                    set tz = GetDestructableOccluderHeight(d)
-                    if dz + tz >= z - collision and dz <= z + collision then
-                        call SaveBoolean(table, this, GetHandleId(d), true)
-                        if allocated and .onDestructable(d) then
-                            set d = null
-                            call terminate()
-                            return
-                        endif
-                    endif
-                else
-                    call SaveBoolean(table, this, GetHandleId(d), true)
-                    if allocated and .onDestructable(d) then
-                        set d = null
-                        call terminate()
-                        return
-                    endif
-                endif
-            endif
-
-            set d = null
-        endmethod
-
-        /* -------------------------- Item collision method ------------------------- */
-        static method onItems takes nothing returns nothing
-            local thistype this  = temp
-            local item i = GetEnumItem()
-            local real dz
-
-            if not HaveSavedBoolean(table, this, GetHandleId(i)) then
-                if collideZ then
-                    set dz = GetLocZ(GetItemX(i), GetItemY(i))
-                    if dz + ITEM_SIZE >= z - collision and dz <= z + collision then
-                        call SaveBoolean(table, this, GetHandleId(i), true)
-                        if allocated and .onItem(i) then
-                            set i = null
-                            call terminate()
-                            return
-                        endif
-                    endif
-                else
-                    call SaveBoolean(table, this, GetHandleId(i), true)
-                    if allocated and .onItem(i) then
-                        set i = null
-                        call terminate()
-                        return
-                    endif
-                endif
-            endif
-
-            set i = null
-        endmethod
-
-        /* -------------------------------- Terminate ------------------------------- */
-        method terminate takes nothing returns nothing
-            implement OnRemove
-        endmethod
-    endmodule
-
-    struct Missiles extends MissileEvents
+    struct Missiles extends IMissile
         private static timer timer = CreateTimer()
         private static group group = CreateGroup()
         private static rect rect = Rect(0., 0., 0., 0.)
@@ -865,11 +952,300 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds
         integer          data
         integer          type
         boolean          roll
-        
-        implement Operators
-        implement Methods
 
-        /* ------------------------------ Reset members ----------------------------- */
+        method operator arc= takes real value returns nothing
+            set height = Tan(value*bj_DEGTORAD)*origin.distance/4
+        endmethod
+        
+        method operator arc takes nothing returns real
+            return Atan(4*height/origin.distance)*bj_RADTODEG
+        endmethod
+
+        method operator model= takes string fx returns nothing
+            call DestroyEffect(effect.effect)
+            set effect.path = fx
+            set effect.effect = AddSpecialEffect(fx, origin.x, origin.y)
+            call BlzSetSpecialEffectZ(effect.effect, origin.z)
+            call BlzSetSpecialEffectYaw(effect.effect, cA)
+        endmethod
+
+        method operator model takes nothing returns string
+            return effect.path
+        endmethod
+        
+        method operator curve= takes real value returns nothing
+            set open = Tan(value*bj_DEGTORAD)*origin.distance
+        endmethod
+        
+        method operator curve takes nothing returns real
+            return Atan(open/origin.distance)*bj_RADTODEG
+        endmethod
+        
+        method operator scale= takes real value returns nothing
+            set effect.size = value
+            call effect.scale(effect.effect, value)
+        endmethod
+
+        method operator scale takes nothing returns real
+            return effect.size
+        endmethod
+
+        method operator speed= takes real newspeed returns nothing
+            local real d = origin.distance
+            local real s
+            local real vel
+        
+            set veloc = newspeed*PERIOD
+            set vel = veloc*dilation
+            set s = travel + vel
+            set nextX = x + vel*Cos(cA)
+            set nextY = y + vel*Sin(cA)
+
+            if height != 0 or origin.slope != 0 then
+                set nextZ = 4*height*s*(d-s)/(d*d) + origin.slope*s + origin.z
+                set z = nextZ
+            endif
+        endmethod
+
+        method operator speed takes nothing returns real
+            return veloc/PERIOD
+        endmethod
+
+        method operator alpha= takes integer newAlpha returns nothing
+            set effect.alpha = newAlpha
+        endmethod
+
+        method operator alpha takes nothing returns integer
+            return effect.alpha
+        endmethod
+
+        method operator vision= takes real sightRange returns nothing
+            set sight = sightRange
+            
+            if dummy == null then
+                if owner == null then
+                    if source != null then
+                        set dummy = Pool.retrieve(x, y, z, 0)
+                        call SetUnitOwner(dummy, GetOwningPlayer(source), false)
+                        call BlzSetUnitRealField(dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
+                    endif
+                else
+                    set dummy = Pool.retrieve(x, y, z, 0)
+                    call SetUnitOwner(dummy, owner, false)
+                    call BlzSetUnitRealField(dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
+                endif
+            else
+                call SetUnitOwner(dummy, owner, false)
+                call BlzSetUnitRealField(dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
+            endif
+        endmethod
+        
+        method operator vision takes nothing returns real
+            return sight
+        endmethod
+
+        method operator duration= takes real flightTime returns nothing
+            local real d = origin.distance
+            local real s
+            local real vel
+        
+            set veloc = RMaxBJ(0.00000001, (origin.distance - travel)*PERIOD/RMaxBJ(0.00000001, flightTime))
+            set time = flightTime
+            set vel = veloc*dilation
+            set s = travel + vel
+            set nextX = x + vel*Cos(cA)
+            set nextY = y + vel*Sin(cA)
+
+            if height != 0 or origin.slope != 0 then
+                set nextZ = 4*height*s*(d-s)/(d*d) + origin.slope*s + origin.z
+                set z = nextZ
+            endif
+        endmethod
+        
+        method operator duration takes nothing returns real
+            return time
+        endmethod
+
+        method operator animation= takes integer animType returns nothing
+            set effect.animation = animType
+        endmethod
+
+        method operator animation takes nothing returns integer
+            return effect.animation
+        endmethod
+
+        method operator timeScale= takes real newTimeScale returns nothing
+            set effect.timeScale = newTimeScale
+        endmethod
+        
+        method operator timeScale takes nothing returns real
+            return effect.timeScale
+        endmethod
+
+        method operator playerColor= takes integer playerId returns nothing
+            set effect.playerColor = playerId
+        endmethod
+
+        method operator playerColor takes nothing returns integer
+            return effect.playerColor
+        endmethod
+
+        method bounce takes nothing returns nothing
+            call origin.move(x, y, z - GetLocZ(x, y))
+            
+            set travel = 0
+            set finished = false
+        endmethod
+
+        method deflect takes real tx, real ty, real tz returns nothing
+            local real locZ = GetLocZ(x, y)
+            
+            set target = null
+            set toZ = tz
+            
+            if z < locZ and .onTerrain.exists then
+                set nextX = prevX
+                set nextY = prevY
+                set nextZ = prevZ
+            endif
+            
+            call impact.move(tx, ty, tz)
+            call origin.move(x, y, z - locZ)
+            
+            set travel = 0
+            set finished = false
+        endmethod
+        
+        method deflectTarget takes unit u returns nothing
+            call deflect(GetUnitX(u), GetUnitY(u), toZ)
+            set target = u
+        endmethod
+
+        method flushAll takes nothing returns nothing
+            call FlushChildHashtable(table, this)
+        endmethod
+
+        method flush takes widget w returns nothing
+            if w != null then
+                call RemoveSavedBoolean(table, this, GetHandleId(w))
+            endif
+        endmethod
+
+        method hitted takes widget w returns boolean
+            return HaveSavedBoolean(table, this, GetHandleId(w))
+        endmethod
+
+        method attach takes string model, real dx, real dy, real dz, real scale returns effect
+            return effect.attach(model, dx, dy, dz, scale)
+        endmethod
+
+        method detach takes effect attachment returns nothing
+            if attachment != null then
+                call effect.detach(attachment)
+            endif
+        endmethod
+
+        method pause takes boolean flag returns nothing
+            local thistype aux
+        
+            set paused = flag
+            
+            if not paused and pkey != -1 then
+                set id = id + 1
+                set missiles[id] = this
+                set aux = frozen[pid]
+                set aux.pkey = pkey
+                set frozen[pkey] = frozen[pid]
+                set pid = pid - 1
+                set pkey = -1
+
+                if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
+                    set dilation = (id + 1)/SWEET_SPOT
+                else
+                    set dilation = 1.
+                endif
+
+                if id == 0 then
+                    call TimerStart(timer, PERIOD, true, function thistype.move)
+                endif
+                
+                if .onResume.exists then
+                    if allocated and .onResume() then
+                        call terminate()
+                    else
+                        if finished then
+                            call terminate()
+                        endif
+                    endif
+                else
+                    if finished then
+                        call terminate()
+                    endif
+                endif
+            endif
+        endmethod
+
+        method color takes integer red, integer green, integer blue returns nothing
+            call effect.setColor(red, green, blue)
+        endmethod
+
+        method terminate takes nothing returns nothing
+            local thistype aux
+    
+            if allocated and launched then
+                set allocated = false
+                
+                if pkey != -1 then
+                    set aux = frozen[pid]
+                    set aux.pkey = pkey
+                    set frozen[pkey] = frozen[pid]
+                    set pid = pid - 1
+                    set pkey = -1
+                endif
+                
+                if .onRemove.exists then
+                    call .onRemove()
+                endif
+                
+                if dummy != null then
+                    call Pool.recycle(dummy)
+                endif
+                
+                set aux = collection[count]
+                set aux.index = index
+                set collection[index] = collection[count]
+                set count = count - 1
+                set index = -1
+                
+                call origin.destroy()
+                call impact.destroy()
+                call effect.destroy()
+                call reset()
+                call FlushChildHashtable(table, this)
+            endif
+        endmethod
+
+        method launch takes nothing returns nothing
+            if not launched and allocated then
+                set launched = true
+                set id = id + 1
+                set missiles[id] = this
+                set count = count + 1
+                set index = count
+                set collection[count] = this
+                
+                if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
+                    set dilation = (id + 1)/SWEET_SPOT
+                else
+                    set dilation = 1.
+                endif
+
+                if id == 0 then
+                    call TimerStart(timer, PERIOD, true, function thistype.move)
+                endif
+            endif
+        endmethod
+
         private method reset takes nothing returns nothing
             set launched     = false
             set finished     = false
@@ -897,12 +1273,19 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds
             set index        = -1
         endmethod
 
-        /* -------------------------- Destroys the missile -------------------------- */
         private method remove takes integer i returns integer
             if paused then
-                implement OnPause
+                set pid = pid + 1
+                set pkey = pid
+                set frozen[pid] = this
+                
+                if .onPause.exists then
+                    if allocated and .onPause() then
+                        call terminate()
+                    endif
+                endif
             else
-                implement OnRemove
+                call terminate()
             endif
             
             set missiles[i] = missiles[id]
@@ -925,7 +1308,6 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds
             return i - 1
         endmethod
         
-        /* ---------------------------- Missiles movement --------------------------- */
         private static method move takes nothing returns nothing
             local integer     j = 0
             local integer     i
@@ -982,30 +1364,67 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds
 
             set u = null
         endmethod
-        
-        /* --------------------------- Launch the Missile --------------------------- */
-        method launch takes nothing returns nothing
-            if not launched and allocated then
-                set launched = true
-                set id = id + 1
-                set missiles[id] = this
-                set count = count + 1
-                set index = count
-                set collection[count] = this
-                
-                if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
-                    set dilation = (id + 1)/SWEET_SPOT
-                else
-                    set dilation = 1.
-                endif
 
-                if id == 0 then
-                    call TimerStart(timer, PERIOD, true, function thistype.move)
+        private static method onDest takes nothing returns nothing
+            local thistype this  = temp
+            local destructable d = GetEnumDestructable()
+            local real dz
+            local real tz
+
+            if not HaveSavedBoolean(table, this, GetHandleId(d)) then
+                if collideZ then
+                    set dz = GetLocZ(GetWidgetX(d), GetWidgetY(d))
+                    set tz = GetDestructableOccluderHeight(d)
+                    if dz + tz >= z - collision and dz <= z + collision then
+                        call SaveBoolean(table, this, GetHandleId(d), true)
+                        if allocated and .onDestructable(d) then
+                            set d = null
+                            call terminate()
+                            return
+                        endif
+                    endif
+                else
+                    call SaveBoolean(table, this, GetHandleId(d), true)
+                    if allocated and .onDestructable(d) then
+                        set d = null
+                        call terminate()
+                        return
+                    endif
                 endif
             endif
+
+            set d = null
         endmethod
 
-        /* --------------------------- Main Creator method -------------------------- */
+        private static method onItems takes nothing returns nothing
+            local thistype this  = temp
+            local item i = GetEnumItem()
+            local real dz
+
+            if not HaveSavedBoolean(table, this, GetHandleId(i)) then
+                if collideZ then
+                    set dz = GetLocZ(GetItemX(i), GetItemY(i))
+                    if dz + ITEM_SIZE >= z - collision and dz <= z + collision then
+                        call SaveBoolean(table, this, GetHandleId(i), true)
+                        if allocated and .onItem(i) then
+                            set i = null
+                            call terminate()
+                            return
+                        endif
+                    endif
+                else
+                    call SaveBoolean(table, this, GetHandleId(i), true)
+                    if allocated and .onItem(i) then
+                        set i = null
+                        call terminate()
+                        return
+                    endif
+                endif
+            endif
+
+            set i = null
+        endmethod
+
         static method create takes real x, real y, real z, real toX, real toY, real toZ returns thistype
             local thistype this  = thistype.allocate()
 

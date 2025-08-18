@@ -1,5 +1,5 @@
-library MissileEffect requires WorldBounds, Alloc
-    /* ------------------------------------- Missile Effect v2.8 ------------------------------------ */
+library MissileEffect requires WorldBounds, Modules
+    /* ------------------------------------- Missile Effect v3.0 ------------------------------------ */
     // This is a simple helper library for the Relativistic Missiles system.
     // Credits:
     //     Sevion for the Alloc module

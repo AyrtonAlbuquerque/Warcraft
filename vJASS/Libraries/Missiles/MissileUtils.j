@@ -1,9 +1,6 @@
-library MissileUtils requires Missiles, Alloc
-    /* ------------------------------------- Missile Utils v2.8 ------------------------------------- */
+library MissileUtils requires Missiles, Modules
+    /* ------------------------------------- Missile Utils v3.0 ------------------------------------- */
     // This is a simple Utils library for the Relativistic Missiles system.
-    // Credits:
-    //     Sevion for the Alloc module
-    //         - www.hiveworkshop.com/threads/snippet-alloc.192348/
     /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
     /* ---------------------------------------------------------------------------------------------- */
@@ -15,7 +12,6 @@ library MissileUtils requires Missiles, Alloc
     
     function DestroyMissileGroup takes MissileGroup missiles returns nothing
         if missiles != 0 then
-            call missiles.clear()
             call missiles.destroy()
         endif
     endfunction
@@ -85,7 +81,7 @@ library MissileUtils requires Missiles, Alloc
     function FirstOfMissileGroup takes MissileGroup missiles returns Missiles
         if missiles != 0 then
             if missiles.size > 0 then
-                return missiles.group.next.missile
+                return missiles.group.next.data
             else
                 return 0
             endif
@@ -94,20 +90,20 @@ library MissileUtils requires Missiles, Alloc
         endif
     endfunction
     
-    function GroupAddMissileGroup takes MissileGroup source, MissileGroup destiny returns nothing
-        if source != 0 and destiny != 0 then
-            if source.size > 0 and source != destiny then
-                call destiny.addGroup(source)
+    function GroupAddMissileGroup takes MissileGroup source, MissileGroup target returns nothing
+        if source != 0 and target != 0 then
+            if source.size > 0 and source != target then
+                call target.addGroup(source)
             endif
         endif
     endfunction
     
-    function GroupRemoveMissileGroup takes MissileGroup source, MissileGroup destiny returns nothing
-        if source != 0 and destiny != 0 then
-            if source == destiny then
+    function GroupRemoveMissileGroup takes MissileGroup source, MissileGroup target returns nothing
+        if source != 0 and target != 0 then
+            if source == target then
                 call source.clear()
             elseif source.size > 0 then
-                call destiny.removeGroup(source)
+                call target.removeGroup(source)
             endif
         endif
     endfunction
@@ -391,76 +387,20 @@ library MissileUtils requires Missiles, Alloc
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private module LinkedList
-        readonly thistype next
-        readonly thistype prev
-
-        method init takes nothing returns thistype
-            set next = this
-            set prev = this
-
-            return this
-        endmethod
-
-        method pushBack takes thistype node returns thistype
-            set node.prev = prev
-            set node.next = this
-            set prev.next = node
-            set prev = node
-
-            return node
-        endmethod
-
-        method pushFront takes thistype node returns thistype
-            set node.prev = this
-            set node.next = next
-            set next.prev = node
-            set next = node
-
-            return node
-        endmethod
-
-        method pop takes nothing returns nothing
-            set prev.next = next
-            set next.prev = prev
-        endmethod
-    endmodule
-
-    private struct MGroup extends array
-        implement LinkedList
-        implement Alloc
-        
-        Missiles missile
-        
-        method remove takes nothing returns nothing
-            call pop()
-            call deallocate()
-        endmethod
-
-        method insert takes Missiles m returns thistype
-            local thistype node = pushBack(allocate())
-
-            set node.missile = m
-
-            return node
-        endmethod
-        
-        static method create takes nothing returns thistype
-            return thistype(allocate()).init()
-        endmethod
-    endstruct
-
     struct MissileGroup
-        MGroup group
-        integer size
+        readonly List group
         
+        method operator size takes nothing returns integer
+            return group.size
+        endmethod
+
         method destroy takes nothing returns nothing
-            call group.deallocate()
+            call group.destroy()
             call deallocate()
         endmethod
         
         method missileAt takes integer i returns Missiles
-            local MGroup node = group.next
+            local List node = group.next
             local integer j = 0
         
             if size > 0 and i <= size - 1 then
@@ -470,78 +410,47 @@ library MissileUtils requires Missiles, Alloc
                     set j = j + 1
                 endloop
                 
-                return node.missile
+                return node.data
             else
                 return 0
             endif
         endmethod
         
         method remove takes Missiles missile returns nothing
-            local MGroup node = group.next
-        
-            loop
-                exitwhen node == group
-                    if node.missile == missile then
-                        set size = size - 1
-                        call node.remove()
-                        exitwhen true
-                    endif
-                set node = node.next
-            endloop
+            call group.remove(missile)
         endmethod
         
         method insert takes Missiles missile returns nothing
-            set size = size + 1
             call group.insert(missile)
         endmethod
         
         method clear takes nothing returns nothing
-            local MGroup node = group.next
-            
-            loop
-                exitwhen node == group
-                    call node.remove()
-                set node = node.next
-            endloop
-            
-            set size = 0
+            call group.clear()
         endmethod
         
         method contains takes Missiles missile returns boolean
-            local MGroup node = group.next
-            local boolean found = false
-        
-            loop
-                exitwhen node == group
-                    if node.missile == missile then
-                        set found = true
-                        exitwhen true
-                    endif
-                set node = node.next
-            endloop
-            
-            return found
+            return group.has(missile)
         endmethod
         
-        method addGroup takes MissileGroup source returns nothing
-            local MGroup node = source.group.next
+        method addGroup takes thistype source returns nothing
+            local List node = source.group.next
         
             loop
                 exitwhen node == source.group
-                    if not contains(node.missile) then
-                        call insert(node.missile)
+                    if not contains(node.data) then
+                        call insert(node.data)
                     endif
                 set node = node.next
             endloop
         endmethod
         
-        method removeGroup takes MissileGroup source returns nothing
-            local MGroup node = source.group.next
+        method removeGroup takes thistype source returns nothing
+            local List node = source.group.next
         
             loop
                 exitwhen node == source.group
-                    if contains(node.missile) then
-                        call remove(node.missile)
+                    if contains(node.data) then
+                        call remove(node.data)
                     endif
                 set node = node.next
             endloop
@@ -550,8 +459,7 @@ library MissileUtils requires Missiles, Alloc
         static method create takes nothing returns thistype
             local thistype this = thistype.allocate()
             
-            set group = MGroup.create()
-            set size = 0
+            set group = List.create()
             
             return this
         endmethod

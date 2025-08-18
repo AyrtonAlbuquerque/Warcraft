@@ -1,4 +1,4 @@
-library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
+library Enumerable requires Table, Modules, RegisterPlayerUnitEvent
     globals
         // The size of each cell in the grid
         private constant integer CELL_SIZE          = 256
@@ -121,23 +121,23 @@ library Enumerable requires Table, Alloc, RegisterPlayerUnitEvent
         return object.onCollide
     endfunction
 
-    function GetClosestObject takes real x, real y, real range returns Object
+    function GetClosestObjectInRange takes real x, real y, real range returns Object
         return Enumerable.closest(x, y, range)
     endfunction
 
-    function GetClosestUnit takes real x, real y, real range returns unit
+    function GetClosestUnitInRange takes real x, real y, real range returns unit
         return Enumerable.closestUnit(x, y, range)
     endfunction
 
-    function GetClosestItem takes real x, real y, real range returns item
+    function GetClosestItemInRange takes real x, real y, real range returns item
         return Enumerable.closestItem(x, y, range)
     endfunction
 
-    function GetClosestCustom takes real x, real y, real range returns Object
+    function GetClosestCustomInRange takes real x, real y, real range returns Object
         return Enumerable.closestCustom(x, y, range)
     endfunction
 
-    function GetClosestDestructable takes real x, real y, real range returns destructable
+    function GetClosestDestructableInRange takes real x, real y, real range returns destructable
         return Enumerable.closestDestructable(x, y, range)
     endfunction
 
