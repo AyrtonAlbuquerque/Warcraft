@@ -1,4 +1,4 @@
-library Missiles requires Effect, Modules, TimerUtils, WorldBounds
+library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBounds
     /* ---------------------------------------- Missiles v3.0 --------------------------------------- */
     // Thanks and Credits to BPower, Dirac and Vexorian for the Missile Library's at which i based
     // this Missiles library. Credits and thanks to AGD and for the effect orientation ideas.
@@ -17,10 +17,6 @@ library Missiles requires Effect, Modules, TimerUtils, WorldBounds
         private constant real    COLLISION_SIZE     = 128.
         // item size used in z collision
         private constant real    ITEM_SIZE          = 16.
-        // Raw code of the dummy unit used for vision
-        private constant integer DUMMY              = 'dumi'
-        // Needed, don't touch.
-        private location         LOC                = Location(0., 0.)
     endglobals
     
     /* ---------------------------------------------------------------------------------------------- */
@@ -407,23 +403,6 @@ library Missiles requires Effect, Modules, TimerUtils, WorldBounds
     /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
-    private function GetLocZ takes real x, real y returns real
-        call MoveLocation(LOC, x, y)
-        return GetLocationZ(LOC)
-    endfunction
-    
-    private function GetUnitZ takes unit u returns real
-        return GetLocZ(GetUnitX(u), GetUnitY(u)) + GetUnitFlyHeight(u)
-    endfunction
-    
-    private function SetUnitZ takes unit u, real z returns nothing
-        call SetUnitFlyHeight(u, z - GetLocZ(GetUnitX(u), GetUnitY(u)), 0)
-    endfunction
-    
-    private function GetMapCliffLevel takes nothing returns integer
-        return GetTerrainCliffLevel(WorldBounds.maxX, WorldBounds.maxY)
-    endfunction
-    
     private module OnMove
         if target != null and GetUnitTypeId(target) != 0 then
             call impact.move(GetUnitX(target), GetUnitY(target), GetUnitFlyHeight(target) + toZ)
@@ -554,7 +533,7 @@ library Missiles requires Effect, Modules, TimerUtils, WorldBounds
         if .onCliff.exists then
             set k = GetTerrainCliffLevel(x, y)
 
-            if cliff < k and z < (k - GetMapCliffLevel())*bj_CLIFFHEIGHT then
+            if cliff < k and z < (k - GetTerrainCliffLevel(WorldBounds.maxX, WorldBounds.maxY))*bj_CLIFFHEIGHT then
                 if allocated and .onCliff() then
                     call terminate()
                 endif
@@ -727,85 +706,6 @@ library Missiles requires Effect, Modules, TimerUtils, WorldBounds
         endmethod
     endstruct
 
-    private struct Pool
-        private static player player = Player(PLAYER_NEUTRAL_PASSIVE)
-        private static group  group  = CreateGroup()
-
-        timer timer
-        unit  unit
-
-        static method recycle takes unit dummy returns nothing
-            if GetUnitTypeId(dummy) == DUMMY then
-                call GroupAddUnit(group, dummy)
-                call SetUnitX(dummy, WorldBounds.maxX)
-                call SetUnitY(dummy, WorldBounds.maxY)
-                call SetUnitOwner(dummy, player, false)
-                call PauseUnit(dummy, true)
-            endif
-        endmethod
-
-        static method retrieve takes real x, real y, real z, real face returns unit
-            if BlzGroupGetSize(group) > 0 then
-                set bj_lastCreatedUnit = FirstOfGroup(group)
-                call PauseUnit(bj_lastCreatedUnit, false)
-                call GroupRemoveUnit(group, bj_lastCreatedUnit)
-                call SetUnitX(bj_lastCreatedUnit, x)
-                call SetUnitY(bj_lastCreatedUnit, y)
-                call SetUnitZ(bj_lastCreatedUnit, z)
-                call BlzSetUnitFacingEx(bj_lastCreatedUnit, face)
-            else
-                set bj_lastCreatedUnit = CreateUnit(player, DUMMY, x, y, face)
-                call SetUnitZ(bj_lastCreatedUnit, z)
-                call UnitRemoveAbility(bj_lastCreatedUnit, 'Amrf')
-            endif
-
-            return bj_lastCreatedUnit
-        endmethod
-
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            call recycle(unit)
-            call ReleaseTimer(timer)
-            
-            set timer = null
-            set unit  = null
-
-            call deallocate()
-        endmethod
-
-        static method recycleTimed takes unit dummy, real delay returns nothing
-            local thistype this
-
-            if GetUnitTypeId(dummy) != DUMMY then
-                debug call BJDebugMsg("[DummyPool] Error: Trying to recycle a non dummy unit")
-            else
-                set this = thistype.allocate()
-
-                set timer = NewTimerEx(this)
-                set unit  = dummy
-                
-                call TimerStart(timer, delay, false, function thistype.onExpire)
-            endif
-        endmethod
-
-        private static method onInit takes nothing returns nothing
-            local integer i = 0
-            local unit u
-
-            loop
-                exitwhen i == SWEET_SPOT
-                    set u = CreateUnit(player, DUMMY, WorldBounds.maxX, WorldBounds.maxY, 0)
-                    call PauseUnit(u, false)
-                    call GroupAddUnit(group, u)
-                    call UnitRemoveAbility(u, 'Amrf')
-                set i = i + 1
-            endloop
-
-            set u = null
-        endmethod
-    endstruct
-
     private struct Coordinates
         readonly real x
         readonly real y
@@ -909,7 +809,6 @@ library Missiles requires Effect, Modules, TimerUtils, WorldBounds
         readonly real x
         readonly real y
         readonly real z
-        readonly real turn
         readonly real traveled
         readonly real velocity
         readonly Effect effect
@@ -921,6 +820,7 @@ library Missiles requires Effect, Modules, TimerUtils, WorldBounds
         readonly Coordinates impact
         readonly Coordinates origin
         
+        real turn
         unit source
         unit target
         real damage
@@ -986,13 +886,11 @@ library Missiles requires Effect, Modules, TimerUtils, WorldBounds
             if dummy == null then
                 if owner == null then
                     if source != null then
-                        set dummy = Pool.retrieve(x, y, z, 0)
-                        call SetUnitOwner(dummy, GetOwningPlayer(source), false)
+                        set dummy = DummyRetrieve(GetOwningPlayer(source), x, y, z, 0)
                         call BlzSetUnitRealField(dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
                     endif
                 else
-                    set dummy = Pool.retrieve(x, y, z, 0)
-                    call SetUnitOwner(dummy, owner, false)
+                    set dummy = DummyRetrieve(owner, x, y, z, 0)
                     call BlzSetUnitRealField(dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
                 endif
             else
@@ -1147,7 +1045,7 @@ library Missiles requires Effect, Modules, TimerUtils, WorldBounds
                 endif
                 
                 if dummy != null then
-                    call Pool.recycle(dummy)
+                    call DummyRecycle(dummy)
                 endif
                 
                 set aux = collection[count]

@@ -1,5 +1,5 @@
-library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnitEvent
-    /* --------------------------------------- Utilities v2.0 --------------------------------------- */
+library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPlayerUnitEvent
+    /* --------------------------------------- Utilities v2.1 --------------------------------------- */
     // How to Import:
     // 1 - Copy this library into your map
     // 2 - Copy the dummy unit in object editor and match its raw code below
@@ -13,16 +13,14 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
     /*                                          Configuration                                         */
     /* ---------------------------------------------------------------------------------------------- */
     globals
-        // The dummy caster unit id 
-        public  constant integer DUMMY     = 'dumi'
         // Update period
-        private constant real    PERIOD    = 0.031250000
+        private constant real PERIOD = 0.03125
         // location z
-        private location         LOCZ      = Location(0,0)
+        private location locationZ    = Location(0, 0)
         // One hashtable to rule them all
-        private hashtable        table     = InitHashtable()
+        private hashtable table      = InitHashtable()
         // Closest Unit
-        private unit             bj_closestUnitGroup
+        private unit bj_closestUnitGroup
     endglobals
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -33,8 +31,8 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
 
     // Returns the terrain Z value (Desync safe)
     function GetLocZ takes real x, real y returns real
-        call MoveLocation(LOCZ, x, y)
-        return GetLocationZ(LOCZ)
+        call MoveLocation(locationZ, x, y)
+        return GetLocationZ(locationZ)
     endfunction
     
     // Similar to GetUnitX and GetUnitY but for Z axis
@@ -390,21 +388,6 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
     // Add health regeneration to the unit base value
     function UnitAddHealthRegen takes unit whichUnit, real regen returns nothing
         call BlzSetUnitRealField(whichUnit, UNIT_RF_HIT_POINTS_REGENERATION_RATE, BlzGetUnitRealField(whichUnit, UNIT_RF_HIT_POINTS_REGENERATION_RATE) + regen)
-    endfunction
-
-    // Retrieves a dummy from the pool. Facing angle in radians
-    function DummyRetrieve takes player owner, real x, real y, real z, real face returns unit
-        return DummyPool.retrieve(owner, x, y, z, face)
-    endfunction
-
-    // Recycles a dummy unit type, putting it back into the pool.
-    function DummyRecycle takes unit dummy returns nothing
-        call DummyPool.recycle(dummy)
-    endfunction
-
-    // Recycles a dummy with a delay.
-    function DummyRecycleTimed takes unit dummy, real delay returns nothing
-        call DummyPool.recycleTimed(dummy, delay)
     endfunction
 
     // Casts an ability in the target unit. Must have no casting time
@@ -834,89 +817,6 @@ library Utilities requires TimerUtils, Indexer, TimedHandles, RegisterPlayerUnit
             set g = null
 
             return this
-        endmethod
-    endstruct
-
-    /* ----------------------------------------- Dummy Pool ----------------------------------------- */
-    struct DummyPool
-        private static player player = Player(PLAYER_NEUTRAL_PASSIVE)
-        private static group  group  = CreateGroup()
-
-        timer timer
-        unit  unit
-
-        static method recycle takes unit dummy returns nothing
-            if GetUnitTypeId(dummy) != DUMMY then
-                debug call BJDebugMsg("[DummyPool] Error: Trying to recycle a non dummy unit")
-            else
-                call GroupAddUnit(group, dummy)
-                call SetUnitX(dummy, WorldBounds.maxX)
-                call SetUnitY(dummy, WorldBounds.maxY)
-                call SetUnitOwner(dummy, player, false)
-                call ShowUnit(dummy, false)
-                call BlzPauseUnitEx(dummy, true)
-            endif
-        endmethod
-
-        static method retrieve takes player owner, real x, real y, real z, real face returns unit
-            if BlzGroupGetSize(group) > 0 then
-                set bj_lastCreatedUnit = FirstOfGroup(group)
-                call BlzPauseUnitEx(bj_lastCreatedUnit, false)
-                call ShowUnit(bj_lastCreatedUnit, true)
-                call GroupRemoveUnit(group, bj_lastCreatedUnit)
-                call SetUnitX(bj_lastCreatedUnit, x)
-                call SetUnitY(bj_lastCreatedUnit, y)
-                call SetUnitFlyHeight(bj_lastCreatedUnit, z, 0)
-                call BlzSetUnitFacingEx(bj_lastCreatedUnit, face*bj_RADTODEG)
-                call SetUnitOwner(bj_lastCreatedUnit, owner, false)
-            else
-                set bj_lastCreatedUnit = CreateUnit(owner, DUMMY, x, y, face*bj_RADTODEG)
-                call SetUnitFlyHeight(bj_lastCreatedUnit, z, 0)
-            endif
-
-            return bj_lastCreatedUnit
-        endmethod
-
-        private static method onExpire takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
-
-            call recycle(unit)
-            call ReleaseTimer(timer)
-            
-            set timer = null
-            set unit  = null
-
-            call deallocate()
-        endmethod
-
-        static method recycleTimed takes unit dummy, real delay returns nothing
-            local thistype this
-
-            if GetUnitTypeId(dummy) != DUMMY then
-                debug call BJDebugMsg("[DummyPool] Error: Trying to recycle a non dummy unit")
-            else
-                set this = thistype.allocate()
-
-                set timer = NewTimerEx(this)
-                set unit  = dummy
-                
-                call TimerStart(timer, delay, false, function thistype.onExpire)
-            endif
-        endmethod
-
-        private static method onInit takes nothing returns nothing
-            local integer i = 0
-            local unit    u
-
-            loop
-                exitwhen i == 20
-                    set u = CreateUnit(player, DUMMY, WorldBounds.maxX, WorldBounds.maxY, 0)
-                    call BlzPauseUnitEx(u, false)
-                    call GroupAddUnit(group, u)
-                set i = i + 1
-            endloop
-
-            set u = null
         endmethod
     endstruct
 
