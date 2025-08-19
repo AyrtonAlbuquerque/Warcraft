@@ -1,16 +1,13 @@
-library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
+library Missiles requires Effect, Modules, TimerUtils, WorldBounds
     /* ---------------------------------------- Missiles v3.0 --------------------------------------- */
     // Thanks and Credits to BPower, Dirac and Vexorian for the Missile Library's at which i based
     // this Missiles library. Credits and thanks to AGD and for the effect orientation ideas.
     // This version of Missiles requires patch 1.31+
-    
-    // How to Import:
-    //     1 - Copy this, MissileEffect and optionaly the MissileUtils libraries to your map
     /* ---------------------------------------- By Chopinski ---------------------------------------- */
     
     globals
         // The update period of the system
-        public  constant real    PERIOD             = 1./40.
+        public  constant real    PERIOD             = 1./30.
         // The max amount of Missiles processed in a PERIOD
         // You can play around with both these values to find
         // your sweet spot. If equal to 0, the system will
@@ -427,12 +424,53 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
         return GetTerrainCliffLevel(WorldBounds.maxX, WorldBounds.maxY)
     endfunction
     
-    private module OnHit
-        set o = origin
-        set h = height
-        set c = open
-        set d = o.distance
-    
+    private module OnMove
+        if target != null and GetUnitTypeId(target) != 0 then
+            call impact.move(GetUnitX(target), GetUnitY(target), GetUnitFlyHeight(target) + toZ)
+
+            set dx = impact.x - x
+            set dy = impact.y - y
+            set angle = Atan2(dy, dx)
+            set traveled = origin.distance - SquareRoot(dx*dx + dy*dy)
+        else
+            set angle = origin.angle
+            set target = null
+        endif
+        
+        if turn != 0 and not (Cos(curvature - angle) >= Cos(turn)) then
+            if Sin(angle - curvature) >= 0 then
+                set curvature = curvature + turn
+            else
+                set curvature = curvature - turn
+            endif
+        else
+            set curvature = angle
+        endif
+
+        set yaw = curvature
+        set pitch = origin.alpha
+        set traveled = traveled + velocity * dilation
+        set velocity = velocity + acceleration
+        set x = x + velocity * dilation * Cos(yaw)
+        set y = y + velocity * dilation * Sin(yaw)
+        set px = x
+        set py = y
+
+        if height != 0 or origin.slope != 0 then
+            set z = 4 * height * traveled * (origin.distance - traveled)/(origin.square) + origin.slope * traveled + origin.z
+            set pitch = pitch - Atan(((4 * height) * (2 * traveled - origin.distance))/(origin.square))
+        endif
+        
+        if bend != 0 then
+            set dx = 4 * bend * traveled * (origin.distance - traveled)/(origin.square)
+            set angle = yaw + bj_PI/2
+            set x = x + dx * Cos(angle)
+            set y = y + dx * Sin(angle)
+            set yaw = yaw + Atan(-((4 * bend) * (2 * traveled - origin.distance))/(origin.square))
+        endif
+    endmodule
+
+    private module OnUnit    
         if .onHit.exists then
             if allocated and collision > 0 then
                 call GroupEnumUnitsInRange(group, x, y, collision + COLLISION_SIZE, null)
@@ -497,7 +535,7 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
             if allocated and collision > 0 then
                 set dx = collision
                 call SetRect(rect, x - dx, y - dx, x + dx, y + dx)
-                call EnumDestructablesInRect(rect, null, function thistype.onDest)
+                call EnumDestructablesInRect(rect, null, function thistype.onDestrutables)
             endif
         endif
     endmodule
@@ -514,13 +552,15 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
        
     private module OnCliff
         if .onCliff.exists then
-            set dx = GetTerrainCliffLevel(nextX, nextY)
-            set dy = GetTerrainCliffLevel(x, y) 
-            if dy < dx and z  < (dx - GetMapCliffLevel())*bj_CLIFFHEIGHT then
+            set k = GetTerrainCliffLevel(x, y)
+
+            if cliff < k and z < (k - GetMapCliffLevel())*bj_CLIFFHEIGHT then
                 if allocated and .onCliff() then
                     call terminate()
                 endif
             endif
+
+            set cliff = k
         endif
     endmodule
        
@@ -554,70 +594,15 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
         endif
     endmodule
     
-    private module OnOrient
-        // Homing or not
-        set u = target
-        if u != null and GetUnitTypeId(u) != 0 then
-            call impact.move(GetUnitX(u), GetUnitY(u), GetUnitFlyHeight(u) + toZ)
-            set dx = impact.x - nextX
-            set dy = impact.y - nextY
-            set a = Atan2(dy, dx)
-            set travel = o.distance - SquareRoot(dx*dx + dy*dy)
-        else
-            set a = o.angle
-            set target = null
-        endif
-        
-        // turn rate
-        if turn != 0 and not (Cos(cA-a) >= Cos(turn)) then
-            if Sin(a-cA) >= 0 then
-                set cA = cA + turn
-            else
-                set cA = cA - turn
-            endif
-        else
-            set cA = a
-        endif
-
-        set vel = veloc*dilation
-        set yaw = cA
-        set s = travel + vel
-        set veloc = veloc + acceleration
-        set travel = s
-        set pitch = o.alpha
-        set prevX = x
-        set prevY = y
-        set prevZ = z
-        set x = nextX
-        set y = nextY
-        set z = nextZ
-        set nextX = x + vel*Cos(yaw)
-        set nextY = y + vel*Sin(yaw)
-
-        // arc calculation
-        if h != 0 or o.slope != 0 then
-            set nextZ = 4*h*s*(d-s)/(d*d) + o.slope*s + o.z
-            set pitch = pitch - Atan(((4*h)*(2*s - d))/(d*d))
-        endif
-        
-        // curve calculation
-        if c != 0 then
-            set dx = 4*c*s*(d-s)/(d*d)
-            set a = yaw + bj_PI/2
-            set x = x + dx*Cos(a)
-            set y = y + dx*Sin(a)
-            set yaw = yaw + Atan(-((4*c)*(2*s - d))/(d*d))
-        endif
-    endmodule
-    
     private module OnFinish
-        if s >= d - 0.0001 then
+        if traveled >= origin.distance - 0.0001 then
             set finished = true
+
             if .onFinish.exists then
                 if allocated and .onFinish() then
                     call terminate()
                 else
-                    if travel > 0 and not paused then
+                    if traveled > 0 and not paused then
                         call terminate()
                     endif
                 endif
@@ -628,11 +613,11 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
             if not roll then
                 call effect.orient(yaw, -pitch, 0)
             else
-                call effect.orient(yaw, -pitch, Atan2(c, h))
+                call effect.orient(yaw, -pitch, Atan2(bend, height))
             endif
         endif
     endmodule
-    
+
     private module OnBoundaries
         if not effect.move(x, y, z) then
             if .onBoundaries.exists then
@@ -831,7 +816,14 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
         readonly real square
         readonly real distance
 
-        private thistype ref
+        private thistype linked
+
+        method operator link= takes thistype that returns nothing
+            set linked = that
+            set that.linked = this
+
+            call math(this, that)
+        endmethod
 
         method destroy takes nothing returns nothing
             call deallocate()
@@ -842,16 +834,9 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
             set y = toY
             set z = toZ + GetLocZ(toX, toY)
 
-            if ref != this then
-                call math(this, ref)
+            if linked != this then
+                call math(this, linked)
             endif
-        endmethod
-
-        static method link takes thistype a, thistype b returns nothing
-            set a.ref = b
-            set b.ref = a
-
-            call math(a, b)
         endmethod
 
         private static method math takes thistype a, thistype b returns nothing
@@ -874,7 +859,7 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
             set a.slope = (b.z - a.z) / dy
             set a.alpha = Atan(a.slope)
             
-            if b.ref == a then
+            if b.linked == a then
                 set b.angle = a.angle + bj_PI
                 set b.distance = dy
                 set b.slope = -a.slope
@@ -886,7 +871,7 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
         static method create takes real x, real y, real z returns Coordinates
             local thistype this = thistype.allocate()
 
-            set ref = this
+            set linked = this
 
             call move(x, y, z)
 
@@ -895,120 +880,96 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
     endstruct
 
     struct Missiles extends IMissile
-        private static timer timer = CreateTimer()
-        private static group group = CreateGroup()
-        private static rect rect = Rect(0., 0., 0., 0.)
-        private static hashtable table = InitHashtable()
         private static integer last = 0 
-        private static thistype temp = 0
         private static integer id = -1
         private static integer pid = -1
-        private static thistype array missiles
-        private static thistype array frozen
+        private static thistype temp = 0
         private static real dilation = 1
+        private static thistype array frozen
+        private static thistype array missiles
+        private static timer timer = CreateTimer()
+        private static group group = CreateGroup()
+        private static rect rect = Rect(0, 0, 0, 0)
+        private static hashtable table = InitHashtable()
         
-        readonly static thistype array collection
         readonly static integer count = -1
+        readonly static thistype array collection
         
-        private real     cA
-        private real     height
-        private real     open
-        private real     toZ
-        private real     time
-        private real     sight
-        private unit     dummy
-        private integer  pkey
-        private integer  index
+        private real toZ
+        private real time
+        private real bend
+        private real sight
+        private real height
+        private real curvature
+        private unit dummy
+        private integer pkey
+        private integer cliff
+        private integer index
         
-        Coordinates      impact
-        Coordinates      origin
-        MissileEffect    effect
-        
-        readonly real    x
-        readonly real    y
-        readonly real    z
-        readonly real    prevX
-        readonly real    prevY
-        readonly real    prevZ
-        readonly real    nextX
-        readonly real    nextY
-        readonly real    nextZ
-        readonly real    turn
-        readonly real    veloc
-        readonly real    travel
-        readonly boolean launched
-        readonly boolean allocated
-        readonly boolean finished
-        readonly boolean paused
+        readonly real x
+        readonly real y
+        readonly real z
+        readonly real turn
+        readonly real traveled
+        readonly real velocity
+        readonly Effect effect
         readonly integer tileset
+        readonly boolean paused
+        readonly boolean launched
+        readonly boolean finished
+        readonly boolean allocated
+        readonly Coordinates impact
+        readonly Coordinates origin
         
-        unit             source
-        unit             target
-        player           owner
-        boolean          collideZ
-        real             collision
-        real             damage
-        real             acceleration
-        integer          data
-        integer          type
-        boolean          roll
+        unit source
+        unit target
+        real damage
+        integer data
+        integer type
+        boolean roll
+        player owner
+        real collision
+        boolean collideZ
+        real acceleration
 
         method operator arc= takes real value returns nothing
-            set height = Tan(value*bj_DEGTORAD)*origin.distance/4
+            set height = Tan(value) * origin.distance / 4
         endmethod
         
         method operator arc takes nothing returns real
-            return Atan(4*height/origin.distance)*bj_RADTODEG
+            return Atan(4 * height / origin.distance)
         endmethod
 
-        method operator model= takes string fx returns nothing
-            call DestroyEffect(effect.effect)
-            set effect.path = fx
-            set effect.effect = AddSpecialEffect(fx, origin.x, origin.y)
-            call BlzSetSpecialEffectZ(effect.effect, origin.z)
-            call BlzSetSpecialEffectYaw(effect.effect, cA)
-        endmethod
-
-        method operator model takes nothing returns string
-            return effect.path
-        endmethod
-        
         method operator curve= takes real value returns nothing
-            set open = Tan(value*bj_DEGTORAD)*origin.distance
+            set bend = Tan(value) * origin.distance
         endmethod
         
         method operator curve takes nothing returns real
-            return Atan(open/origin.distance)*bj_RADTODEG
+            return Atan(bend / origin.distance)
+        endmethod
+
+        method operator model= takes string fx returns nothing
+            set effect.model = fx
+        endmethod
+
+        method operator model takes nothing returns string
+            return effect.model
         endmethod
         
         method operator scale= takes real value returns nothing
-            set effect.size = value
-            call effect.scale(effect.effect, value)
+            set effect.scale = value
         endmethod
 
         method operator scale takes nothing returns real
-            return effect.size
+            return effect.scale
         endmethod
 
         method operator speed= takes real newspeed returns nothing
-            local real d = origin.distance
-            local real s
-            local real vel
-        
-            set veloc = newspeed*PERIOD
-            set vel = veloc*dilation
-            set s = travel + vel
-            set nextX = x + vel*Cos(cA)
-            set nextY = y + vel*Sin(cA)
-
-            if height != 0 or origin.slope != 0 then
-                set nextZ = 4*height*s*(d-s)/(d*d) + origin.slope*s + origin.z
-                set z = nextZ
-            endif
+            set velocity = newspeed*PERIOD
         endmethod
 
         method operator speed takes nothing returns real
-            return veloc/PERIOD
+            return velocity/PERIOD
         endmethod
 
         method operator alpha= takes integer newAlpha returns nothing
@@ -1045,21 +1006,8 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
         endmethod
 
         method operator duration= takes real flightTime returns nothing
-            local real d = origin.distance
-            local real s
-            local real vel
-        
-            set veloc = RMaxBJ(0.00000001, (origin.distance - travel)*PERIOD/RMaxBJ(0.00000001, flightTime))
+            set velocity = RMaxBJ(0.00000001, (origin.distance - traveled)*PERIOD/RMaxBJ(0.00000001, flightTime))
             set time = flightTime
-            set vel = veloc*dilation
-            set s = travel + vel
-            set nextX = x + vel*Cos(cA)
-            set nextY = y + vel*Sin(cA)
-
-            if height != 0 or origin.slope != 0 then
-                set nextZ = 4*height*s*(d-s)/(d*d) + origin.slope*s + origin.z
-                set z = nextZ
-            endif
         endmethod
         
         method operator duration takes nothing returns real
@@ -1082,38 +1030,29 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
             return effect.timeScale
         endmethod
 
-        method operator playerColor= takes integer playerId returns nothing
-            set effect.playerColor = playerId
+        method operator playercolor= takes integer playerId returns nothing
+            set effect.playercolor = playerId
         endmethod
 
-        method operator playerColor takes nothing returns integer
-            return effect.playerColor
+        method operator playercolor takes nothing returns integer
+            return effect.playercolor
         endmethod
 
         method bounce takes nothing returns nothing
-            call origin.move(x, y, z - GetLocZ(x, y))
-            
-            set travel = 0
+            set traveled = 0
             set finished = false
+
+            call origin.move(x, y, z - GetLocZ(x, y))
         endmethod
 
         method deflect takes real tx, real ty, real tz returns nothing
-            local real locZ = GetLocZ(x, y)
-            
-            set target = null
             set toZ = tz
-            
-            if z < locZ and .onTerrain.exists then
-                set nextX = prevX
-                set nextY = prevY
-                set nextZ = prevZ
-            endif
+            set traveled = 0
+            set target = null
+            set finished = false
             
             call impact.move(tx, ty, tz)
-            call origin.move(x, y, z - locZ)
-            
-            set travel = 0
-            set finished = false
+            call origin.move(x, y, z - GetLocZ(x, y))
         endmethod
         
         method deflectTarget takes unit u returns nothing
@@ -1135,12 +1074,12 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
             return HaveSavedBoolean(table, this, GetHandleId(w))
         endmethod
 
-        method attach takes string model, real dx, real dy, real dz, real scale returns effect
+        method attach takes string model, real dx, real dy, real dz, real scale returns Effect
             return effect.attach(model, dx, dy, dz, scale)
         endmethod
 
-        method detach takes effect attachment returns nothing
-            if attachment != null then
+        method detach takes Effect attachment returns nothing
+            if attachment != 0 then
                 call effect.detach(attachment)
             endif
         endmethod
@@ -1160,9 +1099,9 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
                 set pkey = -1
 
                 if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
-                    set dilation = (id + 1)/SWEET_SPOT
+                    set dilation = (id + 1) / SWEET_SPOT
                 else
-                    set dilation = 1.
+                    set dilation = 1
                 endif
 
                 if id == 0 then
@@ -1186,7 +1125,7 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
         endmethod
 
         method color takes integer red, integer green, integer blue returns nothing
-            call effect.setColor(red, green, blue)
+            call effect.color(red, green, blue)
         endmethod
 
         method terminate takes nothing returns nothing
@@ -1247,30 +1186,30 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
         endmethod
 
         private method reset takes nothing returns nothing
-            set launched     = false
-            set finished     = false
-            set collideZ     = false
-            set paused       = false
-            set roll         = false
-            set source       = null
-            set target       = null
-            set owner        = null
-            set dummy        = null
-            set open         = 0.
-            set height       = 0.
-            set veloc        = 0.
-            set acceleration = 0.
-            set collision    = 0.
-            set damage       = 0.
-            set travel       = 0.
-            set turn         = 0.
-            set time         = 0.
-            set sight        = 0.
-            set data         = 0
-            set type         = 0
-            set tileset      = 0
-            set pkey         = -1
-            set index        = -1
+            set turn = 0
+            set time = 0
+            set data = 0
+            set type = 0
+            set bend = 0
+            set sight = 0
+            set pkey = -1
+            set index = -1
+            set height = 0
+            set damage = 0
+            set tileset = 0
+            set velocity = 0
+            set traveled = 0
+            set roll = false
+            set owner = null
+            set dummy = null
+            set source = null
+            set target = null
+            set collision = 0
+            set paused = false
+            set acceleration = 0
+            set launched = false
+            set finished = false
+            set collideZ = false
         endmethod
 
         private method remove takes integer i returns integer
@@ -1309,36 +1248,32 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
         endmethod
         
         private static method move takes nothing returns nothing
-            local integer     j = 0
-            local integer     i
-            local integer     k
-            local unit        u
-            local real        a
-            local real        d
-            local real        s
-            local real        h
-            local real        c
-            local real        dx
-            local real        dy
-            local real        vel
-            local real        yaw
-            local real        pitch
-            local Missiles    missile
-            local Coordinates o
-            local thistype    this
+            local integer i = 0
+            local integer j = 0
+            local integer k
+            local unit u
+            local real dx
+            local real dy
+            local real px
+            local real py
+            local real yaw
+            local real pitch
+            local real angle
+            local thistype this
+            local thistype missile
 
             if SWEET_SPOT > 0 then
                 set i = last
-            else
-                set i = 0
             endif
             
             loop
                 exitwhen ((j >= SWEET_SPOT and SWEET_SPOT > 0) or j > id)
                     set this = missiles[i]
                     set temp = this
+
                     if allocated and not paused then
-                        implement OnHit
+                        implement OnMove
+                        implement OnUnit
                         implement OnMissile
                         implement OnDestructable
                         implement OnItem
@@ -1346,9 +1281,11 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
                         implement OnTerrain
                         implement OnTileset
                         implement OnPeriod
-                        implement OnOrient
                         implement OnFinish
                         implement OnBoundaries
+
+                        set x = px
+                        set y = py
                     else
                         set i = remove(i)
                         set j = j - 1
@@ -1360,52 +1297,23 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
                     set i = 0
                 endif
             endloop
-            set last = i
 
+            set last = i
             set u = null
         endmethod
 
-        private static method onDest takes nothing returns nothing
-            local thistype this  = temp
-            local destructable d = GetEnumDestructable()
-            local real dz
-            local real tz
-
-            if not HaveSavedBoolean(table, this, GetHandleId(d)) then
-                if collideZ then
-                    set dz = GetLocZ(GetWidgetX(d), GetWidgetY(d))
-                    set tz = GetDestructableOccluderHeight(d)
-                    if dz + tz >= z - collision and dz <= z + collision then
-                        call SaveBoolean(table, this, GetHandleId(d), true)
-                        if allocated and .onDestructable(d) then
-                            set d = null
-                            call terminate()
-                            return
-                        endif
-                    endif
-                else
-                    call SaveBoolean(table, this, GetHandleId(d), true)
-                    if allocated and .onDestructable(d) then
-                        set d = null
-                        call terminate()
-                        return
-                    endif
-                endif
-            endif
-
-            set d = null
-        endmethod
-
         private static method onItems takes nothing returns nothing
-            local thistype this  = temp
             local item i = GetEnumItem()
+            local thistype this = temp
             local real dz
 
             if not HaveSavedBoolean(table, this, GetHandleId(i)) then
                 if collideZ then
                     set dz = GetLocZ(GetItemX(i), GetItemY(i))
+
                     if dz + ITEM_SIZE >= z - collision and dz <= z + collision then
                         call SaveBoolean(table, this, GetHandleId(i), true)
+
                         if allocated and .onItem(i) then
                             set i = null
                             call terminate()
@@ -1414,6 +1322,7 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
                     endif
                 else
                     call SaveBoolean(table, this, GetHandleId(i), true)
+
                     if allocated and .onItem(i) then
                         set i = null
                         call terminate()
@@ -1425,26 +1334,56 @@ library Missiles requires MissileEffect, TimerUtils, WorldBounds, Modules
             set i = null
         endmethod
 
+        private static method onDestrutables takes nothing returns nothing
+            local destructable d = GetEnumDestructable()
+            local thistype this = temp
+            local real dz
+            local real tz
+
+            if not HaveSavedBoolean(table, this, GetHandleId(d)) then
+                if collideZ then
+                    set dz = GetLocZ(GetWidgetX(d), GetWidgetY(d))
+                    set tz = GetDestructableOccluderHeight(d)
+
+                    if dz + tz >= z - collision and dz <= z + collision then
+                        call SaveBoolean(table, this, GetHandleId(d), true)
+
+                        if allocated and .onDestructable(d) then
+                            set d = null
+                            call terminate()
+                            return
+                        endif
+                    endif
+                else
+                    call SaveBoolean(table, this, GetHandleId(d), true)
+                    
+                    if allocated and .onDestructable(d) then
+                        set d = null
+                        call terminate()
+                        return
+                    endif
+                endif
+            endif
+
+            set d = null
+        endmethod
+
         static method create takes real x, real y, real z, real toX, real toY, real toZ returns thistype
             local thistype this  = thistype.allocate()
 
-            call .reset()
-            set .origin = Coordinates.create(x, y, z)
-            set .impact = Coordinates.create(toX, toY, toZ)
-            set .effect = MissileEffect.create(x, y, origin.z)
-            call Coordinates.link(origin, impact)
-            set .allocated = true
-            set .cA = origin.angle
-            set .x = x
-            set .y = y
-            set .z = impact.z
-            set .prevX = x
-            set .prevY = y
-            set .prevZ = impact.z
-            set .nextX = x
-            set .nextY = y
-            set .nextZ = impact.z
-            set .toZ = toZ
+            call reset()
+
+            set allocated = true
+            set origin = Coordinates.create(x, y, z)
+            set impact = Coordinates.create(toX, toY, toZ)
+            set effect = Effect.create("", x, y, origin.z, 1)
+            set origin.link = impact
+            set curvature = origin.angle
+            set this.x = x
+            set this.y = y
+            set this.z = impact.z
+            set this.toZ = toZ
+            set cliff = GetTerrainCliffLevel(x, y)
             
             return this
         endmethod
