@@ -22,6 +22,443 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     /* ---------------------------------------------------------------------------------------------- */
     /*                                            JASS API                                            */
     /* ---------------------------------------------------------------------------------------------- */
+    function CreateMissile takes real x, real y, real z, real toX, real toY, real toZ returns Missiles
+        return Missiles.create(x, y, z, toX, toY, toZ)
+    endfunction
+
+    function DestroyMissile takes Missiles missile returns nothing
+        if missile != 0 then
+            call missile.terminate()
+        endif
+    endfunction
+
+    function LaunchMissile takes Missiles missile returns nothing
+        if missile != 0 then
+            call missile.launch()
+        endif
+    endfunction
+
+    function GetMissileX takes Missiles missile returns real
+        if missile != 0 then
+            return missile.x
+        endif
+
+        return 0.
+    endfunction
+
+    function GetMissileY takes Missiles missile returns real
+        if missile != 0 then
+            return missile.y
+        endif
+
+        return 0.
+    endfunction
+
+    function GetMissileZ takes Missiles missile returns real
+        if missile != 0 then
+            return missile.z
+        endif
+
+        return 0.
+    endfunction
+
+    function GetMissileTileset takes Missiles missile returns integer
+        if missile != 0 then
+            return missile.tileset
+        endif
+
+        return 0
+    endfunction
+
+    function GetMissileTraveledDistance takes Missiles missile returns real
+        if missile != 0 then
+            return missile.traveled
+        endif
+
+        return 0.
+    endfunction
+
+    function PauseMissile takes Missiles missile, boolean flag returns nothing
+        if missile != 0 then
+            call missile.pause(flag)
+        endif
+    endfunction
+
+    function IsMissilePaused takes Missiles missile returns boolean
+        if missile != 0 then
+            return missile.paused
+        endif
+
+        return false
+    endfunction
+
+    function BounceMissile takes Missiles missile returns nothing
+        if missile != 0 then
+            call missile.bounce()
+        endif
+    endfunction
+
+    function DeflectMissile takes Missiles missile, real tx, real ty, real tz returns nothing
+        if missile != 0 then
+            call missile.deflect(tx, ty, tz)
+        endif
+    endfunction
+
+    function DeflectMissileTarget takes Missiles missile, unit target returns nothing
+        if missile != 0 then
+            call missile.deflectTarget(target)
+        endif
+    endfunction
+
+    function SetMissileColor takes Missiles missile, integer red, integer green, integer blue returns nothing
+        if missile != 0 then
+            call missile.color(red, green, blue)
+        endif
+    endfunction
+
+    function MissileCollided takes Missiles missile, agent a returns boolean
+        if missile != 0 and a != null then
+            return missile.hitted(a)
+        endif
+
+        return false
+    endfunction
+
+    function MissileResetCollision takes Missiles missile, agent a returns nothing
+        if missile != 0 and a != null then
+            call missile.flush(a)
+        endif
+    endfunction
+
+    function MissileClearCollisions takes Missiles missile returns nothing
+        if missile != 0 then
+            call missile.flushAll()
+        endif
+    endfunction
+
+    function MissileAttachEffect takes Missiles missile, string model, real dx, real dy, real dz, real scale returns Effect
+        if missile != 0 then
+            return missile.attach(model, dx, dy, dz, scale)
+        endif
+
+        return 0
+    endfunction
+
+    function MissileDetachEffect takes Missiles missile, Effect e returns nothing
+        if missile != 0 and e != 0 then
+            call missile.detach(e)
+        endif
+    endfunction
+
+    function SetMissileSource takes Missiles missile, unit source returns nothing
+        if missile != 0 then
+            set missile.source = source
+        endif
+    endfunction
+
+    function GetMissileSource takes Missiles missile returns unit
+        if missile != 0 then
+            return missile.source
+        endif
+
+        return null
+    endfunction
+
+    function SetMissileTarget takes Missiles missile, unit target returns nothing
+        if missile != 0 then
+            set missile.target = target
+        endif
+    endfunction
+
+    function GetMissileTarget takes Missiles missile returns unit
+        if missile != 0 then
+            return missile.target
+        endif
+
+        return null
+    endfunction
+
+    function SetMissileDamage takes Missiles missile, real damage returns nothing
+        if missile != 0 then
+            set missile.damage = damage
+        endif
+    endfunction
+
+    function GetMissileDamage takes Missiles missile returns real
+        if missile != 0 then
+            return missile.damage
+        endif
+
+        return 0.
+    endfunction
+
+    function SetMissilePlayer takes Missiles missile, player p returns nothing
+        if missile != 0 then
+            set missile.owner = p
+        endif
+    endfunction
+
+    function GetMissilePlayer takes Missiles missile returns player
+        if missile != 0 then
+            return missile.owner
+        endif
+
+        return null
+    endfunction
+
+    function SetMissileCollision takes Missiles missile, real collision returns nothing
+        if missile != 0 then
+            set missile.collision = collision
+        endif
+    endfunction
+
+    function GetMissileCollision takes Missiles missile returns real
+        if missile != 0 then
+            return missile.collision
+        endif
+
+        return 0.
+    endfunction
+
+    function SetMissileType takes Missiles missile, integer t returns nothing
+        if missile != 0 then
+            set missile.type = t
+        endif
+    endfunction
+
+    function GetMissileType takes Missiles missile returns integer
+        if missile != 0 then
+            return missile.type
+        endif
+
+        return 0
+    endfunction
+
+    function SetMissileTurnRate takes Missiles missile, real turn returns nothing
+        if missile != 0 then
+            set missile.turn = turn
+        endif
+    endfunction
+
+    function GetMissileTurnRate takes Missiles missile returns real
+        if missile != 0 then
+            return missile.turn
+        endif
+
+        return 0.
+    endfunction
+
+    function SetMissileAcceleration takes Missiles missile, real acceleration returns nothing
+        if missile != 0 then
+            set missile.acceleration = acceleration
+        endif
+    endfunction
+
+    function GetMissileAcceleration takes Missiles missile returns real
+        if missile != 0 then
+            return missile.acceleration
+        endif
+
+        return 0.
+    endfunction
+
+    function SetMissileCollideZ takes Missiles missile, boolean flag returns nothing
+        if missile != 0 then
+            set missile.collideZ = flag
+        endif
+    endfunction
+
+    function DoMissileCollideZ takes Missiles missile returns boolean
+        if missile != 0 then
+            return missile.collideZ
+        endif
+
+        return false
+    endfunction
+
+    function SetMissileAutoRoll takes Missiles missile, boolean flag returns nothing
+        if missile != 0 then
+            set missile.autoroll = flag
+        endif
+    endfunction
+
+    function DoMissileAutoRoll takes Missiles missile returns boolean
+        if missile != 0 then
+            return missile.autoroll
+        endif
+
+        return false
+    endfunction
+
+    function SetMissileData takes Missiles missile, integer data returns nothing
+        if missile != 0 then
+            set missile.data = data
+        endif
+    endfunction
+
+    function GetMissileData takes Missiles missile returns integer
+        if missile != 0 then
+            return missile.data
+        endif
+
+        return 0
+    endfunction
+
+    function SetMissileArc takes Missiles missile, real arc returns nothing
+        if missile != 0 then
+            set missile.arc = arc
+        endif
+    endfunction
+
+    function GetMissileArc takes Missiles missile returns real
+        if missile != 0 then
+            return missile.arc
+        endif
+
+        return 0.
+    endfunction
+
+    function SetMissileCurve takes Missiles missile, real curve returns nothing
+        if missile != 0 then
+            set missile.curve = curve
+        endif
+    endfunction
+
+    function GetMissileCurve takes Missiles missile returns real
+        if missile != 0 then
+            return missile.curve
+        endif
+
+        return 0.
+    endfunction
+
+    function SetMissileModel takes Missiles missile, string model returns nothing
+        if missile != 0 then
+            set missile.model = model
+        endif
+    endfunction
+
+    function GetMissileModel takes Missiles missile returns string
+        if missile != 0 then
+            return missile.model
+        endif
+
+        return null
+    endfunction
+
+    function SetMissileScale takes Missiles missile, real scale returns nothing
+        if missile != 0 then
+            set missile.scale = scale
+        endif
+    endfunction
+
+    function GetMissileScale takes Missiles missile returns real
+        if missile != 0 then
+            return missile.scale
+        endif
+
+        return 0.
+    endfunction
+
+    function SetMissileSpeed takes Missiles missile, real speed returns nothing
+        if missile != 0 then
+            set missile.speed = speed
+        endif
+    endfunction
+
+    function GetMissileSpeed takes Missiles missile returns real
+        if missile != 0 then
+            return missile.speed
+        endif
+
+        return 0.
+    endfunction
+
+    function SetMissileDuration takes Missiles missile, real duration returns nothing
+        if missile != 0 then
+            set missile.duration = duration
+        endif
+    endfunction
+
+    function GetMissileDuration takes Missiles missile returns real
+        if missile != 0 then
+            return missile.duration
+        endif
+
+        return 0.
+    endfunction
+
+    function SetMissileAlpha takes Missiles missile, integer alpha returns nothing
+        if missile != 0 then
+            set missile.alpha = alpha
+        endif
+    endfunction
+
+    function GetMissileAlpha takes Missiles missile returns integer
+        if missile != 0 then
+            return missile.alpha
+        endif
+
+        return 0
+    endfunction
+
+    function SetMissileSightRange takes Missiles missile, real sightRange returns nothing
+        if missile != 0 then
+            set missile.vision = sightRange
+        endif
+    endfunction
+
+    function GetMissileSightRange takes Missiles missile returns real
+        if missile != 0 then
+            return missile.vision
+        endif
+
+        return 0.
+    endfunction
+
+    function SetMissileAnimation takes Missiles missile, integer animation returns nothing
+        if missile != 0 then
+            set missile.animation = animation
+        endif
+    endfunction
+
+    function GetMissileAnimation takes Missiles missile returns integer
+        if missile != 0 then
+            return missile.animation
+        endif
+
+        return 0
+    endfunction
+
+    function SetMissileTimeScale takes Missiles missile, real timeScale returns nothing
+        if missile != 0 then
+            set missile.timeScale = timeScale
+        endif
+    endfunction
+
+    function GetMissileTimeScale takes Missiles missile returns real
+        if missile != 0 then
+            return missile.timeScale
+        endif
+
+        return 0.
+    endfunction
+
+    function SetMissilePlayerColor takes Missiles missile, integer playerId returns nothing
+        if missile != 0 then
+            set missile.playercolor = playerId
+        endif
+    endfunction
+
+    function GetMissilePlayerColor takes Missiles missile returns integer
+        if missile != 0 then
+            return missile.playercolor
+        endif
+
+        return 0
+    endfunction
+
+    /* ------------------------------------- Missile Groups ------------------------------------ */
     function CreateMissileGroup takes nothing returns MissileGroup
         return MissileGroup.create()
     endfunction
@@ -167,9 +604,9 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                         set missile = Missiles.collection[i]
                         
                         if missile.type == whichType then
+                            set j = j - 1
                             call missiles.insert(missile)
                         endif
-                        set j = j - 1
                     set i = i + 1
                 endloop
             endif
@@ -219,9 +656,9 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                         set missile = Missiles.collection[i]
                         
                         if missile.owner == p then
+                            set j = j - 1
                             call missiles.insert(missile)
                         endif
-                        set j = j - 1
                     set i = i + 1
                 endloop
             endif
@@ -230,12 +667,20 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     
     function GroupEnumMissilesInRect takes MissileGroup missiles, rect r returns nothing
         local integer i
+        local real minx
+        local real miny
+        local real maxx
+        local real maxy
         local Missiles missile
         
         if missiles != 0 and r != null then
             if Missiles.count > -1 then
                 set i = 0
-                
+                set minx = GetRectMinX(r)
+                set miny = GetRectMinY(r)
+                set maxx = GetRectMaxX(r)
+                set maxy = GetRectMaxY(r)
+
                 if missiles.size > 0 then
                     call missiles.clear()
                 endif
@@ -243,8 +688,8 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 loop
                     exitwhen i > Missiles.count
                         set missile = Missiles.collection[i]
-                        
-                        if GetRectMinX(r) <= missile.x and missile.x <= GetRectMaxX(r) and GetRectMinY(r) <= missile.y and missile.y <= GetRectMaxY(r) then
+
+                        if minx <= missile.x and missile.x <= maxx and miny <= missile.y and missile.y <= maxy then
                             call missiles.insert(missile)
                         endif
                     set i = i + 1
@@ -255,13 +700,21 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     
     function GroupEnumMissilesInRectCounted takes MissileGroup missiles, rect r, integer amount returns nothing
         local integer i
+        local real minx
+        local real miny
+        local real maxx
+        local real maxy
         local integer j = amount
         local Missiles missile
         
         if missiles != 0 and r != null then
             if Missiles.count > -1 then
                 set i = 0
-                
+                set minx = GetRectMinX(r)
+                set miny = GetRectMinY(r)
+                set maxx = GetRectMaxX(r)
+                set maxy = GetRectMaxY(r)
+
                 if missiles.size > 0 then
                     call missiles.clear()
                 endif
@@ -269,11 +722,11 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 loop
                     exitwhen i > Missiles.count or j == 0
                         set missile = Missiles.collection[i]
-                        
-                        if GetRectMinX(r) <= missile.x and missile.x <= GetRectMaxX(r) and GetRectMinY(r) <= missile.y and missile.y <= GetRectMaxY(r) then
+
+                        if minx <= missile.x and missile.x <= maxx and miny <= missile.y and missile.y <= maxy then
+                            set j = j - 1
                             call missiles.insert(missile)
                         endif
-                        set j = j - 1
                     set i = i + 1
                 endloop
             endif
@@ -281,15 +734,20 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     endfunction
     
     function GroupEnumMissilesInRangeOfLoc takes MissileGroup missiles, location loc, real radius returns nothing
+        local real x
+        local real y
         local real dx
         local real dy
         local integer i
         local Missiles missile
-    
-        if missiles != 0 and radius > 0 and loc != null then
+        local real range = radius * radius
+
+        if missiles != 0 and range > 0 and loc != null then
             if Missiles.count > -1 then
                 set i = 0
-                
+                set x = GetLocationX(loc)
+                set y = GetLocationY(loc)
+
                 if missiles.size > 0 then
                     call missiles.clear()
                 endif
@@ -297,10 +755,10 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 loop
                     exitwhen i > Missiles.count
                         set missile = Missiles.collection[i]
-                        set dx = missile.x - GetLocationX(loc)
-                        set dy = missile.y - GetLocationY(loc)
-                        
-                        if SquareRoot(dx*dx + dy*dy) <= radius then
+                        set dx = missile.x - x
+                        set dy = missile.y - y
+
+                        if dx*dx + dy*dy <= range then
                             call missiles.insert(missile)
                         endif
                     set i = i + 1
@@ -310,16 +768,21 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     endfunction
     
     function GroupEnumMissilesInRangeOfLocCounted takes MissileGroup missiles, location loc, real radius, integer amount returns nothing
+        local real x
+        local real y
         local real dx
         local real dy
         local integer i
         local integer j = amount
         local Missiles missile
+        local real range = radius * radius
     
-        if missiles != 0 and radius > 0 and loc != null then
+        if missiles != 0 and range > 0 and loc != null then
             if Missiles.count > -1 then
                 set i = 0
-                
+                set x = GetLocationX(loc)
+                set y = GetLocationY(loc)
+
                 if missiles.size > 0 then
                     call missiles.clear()
                 endif
@@ -327,13 +790,13 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 loop
                     exitwhen i > Missiles.count or j == 0
                         set missile = Missiles.collection[i]
-                        set dx = missile.x - GetLocationX(loc)
-                        set dy = missile.y - GetLocationY(loc)
+                        set dx = missile.x - x
+                        set dy = missile.y - y
                         
-                        if SquareRoot(dx*dx + dy*dy) <= radius then
+                        if dx*dx + dy*dy <= range then
+                            set j = j - 1
                             call missiles.insert(missile)
                         endif
-                        set j = j - 1
                     set i = i + 1
                 endloop
             endif
@@ -345,8 +808,9 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         local real dy
         local integer i
         local Missiles missile
+        local real range = radius * radius
     
-        if missiles != 0 and radius > 0 then
+        if missiles != 0 and range > 0 then
             if Missiles.count > -1 then
                 set i = 0
                 
@@ -360,7 +824,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                         set dx = missile.x - x
                         set dy = missile.y - y
                         
-                        if SquareRoot(dx*dx + dy*dy) <= radius then
+                        if dx*dx + dy*dy <= range then
                             call missiles.insert(missile)
                         endif
                     set i = i + 1
@@ -375,8 +839,9 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         local integer i
         local integer j = amount
         local Missiles missile
+        local real range = radius * radius
     
-        if missiles != 0 and radius > 0 then
+        if missiles != 0 and range > 0 then
             if Missiles.count > -1 then
                 set i = 0
                 
@@ -390,10 +855,10 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                         set dx = missile.x - x
                         set dy = missile.y - y
                         
-                        if SquareRoot(dx*dx + dy*dy) <= radius then
+                        if dx*dx + dy*dy <= range then
+                            set j = j - 1
                             call missiles.insert(missile)
                         endif
-                        set j = j - 1
                     set i = i + 1
                 endloop
             endif
@@ -450,9 +915,10 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     endmodule
 
     private module OnUnit    
-        if .onHit.exists then
+        if .onUnit.exists then
             if allocated and collision > 0 then
                 call GroupEnumUnitsInRange(group, x, y, collision + COLLISION_SIZE, null)
+
                 loop
                     set u = FirstOfGroup(group)
                     exitwhen u == null
@@ -461,16 +927,19 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                                 if collideZ then
                                     set dx = GetLocZ(GetUnitX(u), GetUnitY(u)) + GetUnitFlyHeight(u)
                                     set dy = BlzGetUnitCollisionSize(u)
+
                                     if dx + dy >= z - collision and dx <= z + collision then
                                         call SaveBoolean(table, this, GetHandleId(u), true)
-                                        if allocated and .onHit(u) then
+
+                                        if allocated and .onUnit(u) then
                                             call terminate()
                                             exitwhen true
                                         endif
                                     endif
                                 else
                                     call SaveBoolean(table, this, GetHandleId(u), true)
-                                    if allocated and .onHit(u) then
+
+                                    if allocated and .onUnit(u) then
                                         call terminate()
                                         exitwhen true
                                     endif
@@ -483,19 +952,34 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         endif
     endmodule
     
+    private module OnItem
+        if .onItem.exists then
+            if allocated and collision > 0 then
+                set dx = collision
+
+                call SetRect(rect, x - dx, y - dx, x + dx, y + dx)
+                call EnumItemsInRect(rect, null, function thistype.onItems)
+            endif
+        endif
+    endmodule
+
     private module OnMissile
         if .onMissile.exists then
             if allocated and collision > 0 then
                 set k = 0
+
                 loop
                     exitwhen k > count
                         set missile = collection[k]
+
                         if missile != this then
                             if not HaveSavedBoolean(table, this, missile) then
                                 set dx = missile.x - x
                                 set dy = missile.y - y
-                                if SquareRoot(dx*dx + dy*dy) <= collision then
+
+                                if dx*dx + dy*dy <= collision*collision then
                                     call SaveBoolean(table, this, missile, true)
+
                                     if allocated and .onMissile(missile) then
                                         call terminate()
                                         exitwhen true
@@ -513,18 +997,9 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         if .onDestructable.exists then
             if allocated and collision > 0 then
                 set dx = collision
-                call SetRect(rect, x - dx, y - dx, x + dx, y + dx)
-                call EnumDestructablesInRect(rect, null, function thistype.onDestrutables)
-            endif
-        endif
-    endmodule
 
-    private module OnItem
-        if .onItem.exists then
-            if allocated and collision > 0 then
-                set dx = collision
                 call SetRect(rect, x - dx, y - dx, x + dx, y + dx)
-                call EnumItemsInRect(rect, null, function thistype.onItems)
+                call EnumDestructablesInRect(rect, null, function thistype.onDestructables)
             endif
         endif
     endmodule
@@ -556,11 +1031,13 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     private module OnTileset
         if .onTileset.exists then
             set k = GetTerrainType(x, y)
+
             if k != tileset then
                 if allocated and .onTileset(k) then
                     call terminate()
                 endif
             endif
+
             set tileset = k
         endif
     endmodule
@@ -589,8 +1066,8 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 call terminate()
             endif
         else
-            if not roll then
-                call effect.orient(yaw, -pitch, 0)
+            if not autoroll then
+                call effect.orient(yaw, -pitch, roll)
             else
                 call effect.orient(yaw, -pitch, Atan2(bend, height))
             endif
@@ -613,9 +1090,9 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     endmodule
 
     interface IMissile
-        method onHit takes unit hit returns boolean defaults false
+        method onUnit takes unit u returns boolean defaults false
         method onMissile takes Missiles missile returns boolean defaults false
-        method onDestructable takes destructable dest returns boolean defaults false
+        method onDestructable takes destructable d returns boolean defaults false
         method onItem takes item i returns boolean defaults false
         method onCliff takes nothing returns boolean defaults false
         method onTerrain takes nothing returns boolean defaults false
@@ -780,8 +1257,8 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     endstruct
 
     struct Missiles extends IMissile
-        private static integer last = 0 
         private static integer id = -1
+        private static integer last = 0 
         private static integer pid = -1
         private static thistype temp = 0
         private static real dilation = 1
@@ -820,15 +1297,18 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         readonly Coordinates impact
         readonly Coordinates origin
         
+        real yaw
+        real roll
         real turn
+        real pitch
         unit source
         unit target
         real damage
         integer data
         integer type
-        boolean roll
         player owner
         real collision
+        boolean autoroll
         boolean collideZ
         real acceleration
 
@@ -962,14 +1442,14 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             call FlushChildHashtable(table, this)
         endmethod
 
-        method flush takes widget w returns nothing
-            if w != null then
-                call RemoveSavedBoolean(table, this, GetHandleId(w))
+        method flush takes agent a returns nothing
+            if a != null then
+                call RemoveSavedBoolean(table, this, GetHandleId(a))
             endif
         endmethod
 
-        method hitted takes widget w returns boolean
-            return HaveSavedBoolean(table, this, GetHandleId(w))
+        method hitted takes agent a returns boolean
+            return HaveSavedBoolean(table, this, GetHandleId(a))
         endmethod
 
         method attach takes string model, real dx, real dy, real dz, real scale returns Effect
@@ -1074,7 +1554,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
                     set dilation = (id + 1)/SWEET_SPOT
                 else
-                    set dilation = 1.
+                    set dilation = 1
                 endif
 
                 if id == 0 then
@@ -1084,11 +1564,14 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         endmethod
 
         private method reset takes nothing returns nothing
+            set yaw = 0
+            set roll = 0
             set turn = 0
             set time = 0
             set data = 0
             set type = 0
             set bend = 0
+            set pitch = 0
             set sight = 0
             set pkey = -1
             set index = -1
@@ -1097,7 +1580,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set tileset = 0
             set velocity = 0
             set traveled = 0
-            set roll = false
             set owner = null
             set dummy = null
             set source = null
@@ -1105,6 +1587,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set collision = 0
             set paused = false
             set acceleration = 0
+            set autoroll = false
             set launched = false
             set finished = false
             set collideZ = false
@@ -1146,17 +1629,15 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         endmethod
         
         private static method move takes nothing returns nothing
-            local integer i = 0
-            local integer j = 0
-            local integer k
             local unit u
             local real dx
             local real dy
             local real px
             local real py
-            local real yaw
-            local real pitch
             local real angle
+            local integer i = 0
+            local integer j = 0
+            local integer k = 0
             local thistype this
             local thistype missile
 
@@ -1232,7 +1713,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set i = null
         endmethod
 
-        private static method onDestrutables takes nothing returns nothing
+        private static method onDestructables takes nothing returns nothing
             local destructable d = GetEnumDestructable()
             local thistype this = temp
             local real dz
