@@ -1,5 +1,8 @@
 library Effect requires Modules, WorldBounds
     struct Effect
+        private real dx
+        private real dy
+        private real dz
         private real xPos
         private real yPos
         private real zPos
@@ -278,7 +281,7 @@ library Effect requires Modules, WorldBounds
                 loop
                     exitwhen node == attachments
                         set attachment = Effect(node.data)
-                        call attachment.move(x - attachment.x, y - attachment.y, z - attachment.z)
+                        call attachment.move(x - attachment.dx, y - attachment.dy, z - attachment.dz)
                     set node = node.next
                 endloop
 
@@ -289,7 +292,13 @@ library Effect requires Modules, WorldBounds
         endmethod
 
         method attach takes string model, real dx, real dy, real dz, real scale returns thistype
-            return attachments.insert(create(model, x - dx, y - dy, z - dz, scale)).data
+            local thistype attachment = attachments.insert(create(model, x - dx, y - dy, z - dz, scale)).data
+            
+            set attachment.dx = dx
+            set attachment.dy = dy
+            set attachment.dz = dz
+
+            return attachment
         endmethod
 
         method detach takes thistype attachment returns nothing

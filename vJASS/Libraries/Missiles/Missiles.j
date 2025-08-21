@@ -869,7 +869,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
     private module OnMove
-        if target != null and GetUnitTypeId(target) != 0 then
+        if target != null and GetUnitTypeId(target) != 0 and UnitAlive(target) then
             call impact.move(GetUnitX(target), GetUnitY(target), GetUnitFlyHeight(target) + toZ)
 
             set dx = impact.x - x
@@ -880,37 +880,43 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set angle = origin.angle
             set target = null
         endif
-        
-        if turn != 0 and not (Cos(curvature - angle) >= Cos(turn)) then
-            if Sin(angle - curvature) >= 0 then
-                set curvature = curvature + turn
+
+        set ds = speed * PERIOD * dilation
+        set speed = speed + acceleration
+        set traveled = traveled + ds
+
+        if not .onMove.exists then
+            if turn != 0 and not (Cos(curvature - angle) >= Cos(turn)) then
+                if Sin(angle - curvature) >= 0 then
+                    set curvature = curvature + turn
+                else
+                    set curvature = curvature - turn
+                endif
             else
-                set curvature = curvature - turn
+                set curvature = angle
+            endif
+
+            set yaw = curvature
+            set pitch = origin.alpha
+            set x = x + ds * Cos(yaw)
+            set y = y + ds * Sin(yaw)
+            set px = x
+            set py = y
+
+            if height != 0 or origin.slope != 0 then
+                set z = 4 * height * traveled * (origin.distance - traveled)/(origin.square) + origin.slope * traveled + origin.z
+                set pitch = pitch - Atan(((4 * height) * (2 * traveled - origin.distance))/(origin.square))
+            endif
+            
+            if bend != 0 then
+                set dx = 4 * bend * traveled * (origin.distance - traveled)/(origin.square)
+                set angle = yaw + bj_PI/2
+                set x = x + dx * Cos(angle)
+                set y = y + dx * Sin(angle)
+                set yaw = yaw + Atan(-((4 * bend) * (2 * traveled - origin.distance))/(origin.square))
             endif
         else
-            set curvature = angle
-        endif
-
-        set yaw = curvature
-        set pitch = origin.alpha
-        set traveled = traveled + velocity * dilation
-        set velocity = velocity + acceleration
-        set x = x + velocity * dilation * Cos(yaw)
-        set y = y + velocity * dilation * Sin(yaw)
-        set px = x
-        set py = y
-
-        if height != 0 or origin.slope != 0 then
-            set z = 4 * height * traveled * (origin.distance - traveled)/(origin.square) + origin.slope * traveled + origin.z
-            set pitch = pitch - Atan(((4 * height) * (2 * traveled - origin.distance))/(origin.square))
-        endif
-        
-        if bend != 0 then
-            set dx = 4 * bend * traveled * (origin.distance - traveled)/(origin.square)
-            set angle = yaw + bj_PI/2
-            set x = x + dx * Cos(angle)
-            set y = y + dx * Sin(angle)
-            set yaw = yaw + Atan(-((4 * bend) * (2 * traveled - origin.distance))/(origin.square))
+            call .onMove()
         endif
     endmodule
 
@@ -1090,6 +1096,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     endmodule
 
     interface IMissile
+        method onMove takes nothing returns nothing defaults nothing
         method onUnit takes unit u returns boolean defaults false
         method onMissile takes Missiles missile returns boolean defaults false
         method onDestructable takes destructable d returns boolean defaults false
@@ -1269,6 +1276,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         private static rect rect = Rect(0, 0, 0, 0)
         private static hashtable table = InitHashtable()
         
+        readonly static real period = PERIOD
         readonly static integer count = -1
         readonly static thistype array collection
         
@@ -1283,11 +1291,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         private integer cliff
         private integer index
         
-        readonly real x
-        readonly real y
-        readonly real z
         readonly real traveled
-        readonly real velocity
         readonly Effect effect
         readonly integer tileset
         readonly boolean paused
@@ -1296,11 +1300,15 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         readonly boolean allocated
         readonly Coordinates impact
         readonly Coordinates origin
-        
+
+        real x
+        real y
+        real z
         real yaw
         real roll
         real turn
         real pitch
+        real speed
         unit source
         unit target
         real damage
@@ -1344,14 +1352,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             return effect.scale
         endmethod
 
-        method operator speed= takes real newspeed returns nothing
-            set velocity = newspeed*PERIOD
-        endmethod
-
-        method operator speed takes nothing returns real
-            return velocity/PERIOD
-        endmethod
-
         method operator alpha= takes integer newAlpha returns nothing
             set effect.alpha = newAlpha
         endmethod
@@ -1384,7 +1384,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         endmethod
 
         method operator duration= takes real flightTime returns nothing
-            set velocity = RMaxBJ(0.00000001, (origin.distance - traveled)*PERIOD/RMaxBJ(0.00000001, flightTime))
+            set speed = RMaxBJ(0.00000001, (origin.distance - traveled)/RMaxBJ(0.00000001, flightTime))
             set time = flightTime
         endmethod
         
@@ -1459,6 +1459,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         method detach takes Effect attachment returns nothing
             if attachment != 0 then
                 call effect.detach(attachment)
+                call attachment.destroy()
             endif
         endmethod
 
@@ -1573,12 +1574,12 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set bend = 0
             set pitch = 0
             set sight = 0
+            set speed = 0
             set pkey = -1
             set index = -1
             set height = 0
             set damage = 0
             set tileset = 0
-            set velocity = 0
             set traveled = 0
             set owner = null
             set dummy = null
@@ -1632,6 +1633,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             local unit u
             local real dx
             local real dy
+            local real ds
             local real px
             local real py
             local real angle
@@ -1663,8 +1665,10 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                         implement OnFinish
                         implement OnBoundaries
 
-                        set x = px
-                        set y = py
+                        if not .onMove.exists then
+                            set x = px
+                            set y = py
+                        endif
                     else
                         set i = remove(i)
                         set j = j - 1
