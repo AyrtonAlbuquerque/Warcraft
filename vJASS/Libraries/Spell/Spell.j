@@ -1,4 +1,4 @@
-library Spell requires Table, RegisterPlayerUnitEvent
+library Spell requires Unit, Table, RegisterPlayerUnitEvent
     private interface ISpell
         method onEnd takes nothing returns nothing defaults nothing
         method onCast takes nothing returns nothing defaults nothing

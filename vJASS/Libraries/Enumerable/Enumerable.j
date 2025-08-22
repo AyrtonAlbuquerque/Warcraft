@@ -101,6 +101,10 @@ library Enumerable requires Table, Modules, RegisterPlayerUnitEvent
         return object.z
     endfunction
 
+    function GetObjectData takes Object object returns integer
+        return object.data
+    endfunction
+
     function GetObjectUnit takes Object object returns unit
         return object.unit
     endfunction
@@ -151,6 +155,10 @@ library Enumerable requires Table, Modules, RegisterPlayerUnitEvent
 
     function SetObjectZ takes Object object, real z returns nothing
         set object.z = z
+    endfunction
+
+    function SetObjectData takes Object object, integer data returns nothing
+        set object.data = data
     endfunction
 
     function SetObjectVisible takes Object object, boolean visible returns nothing
@@ -206,6 +214,13 @@ library Enumerable requires Table, Modules, RegisterPlayerUnitEvent
         static method hookCreate takes integer id, real x, real y returns nothing
             call MoveRectTo(rect, x, y)
             call TimerStart(CreateTimer(), 0.00, false, function thistype.onNewItem)
+        endmethod
+
+        static method hookRestore takes destructable d, real life, boolean birth returns nothing
+            if not Object.registered(d) and life > 0 then
+                call Object.create(d).update()
+                call TriggerRegisterDeathEvent(death, d)
+            endif
         endmethod
 
         static method hookCreateLocation takes integer id, location l returns nothing
@@ -1354,6 +1369,7 @@ library Enumerable requires Table, Modules, RegisterPlayerUnitEvent
         real x
         real y
         real z
+        integer data
         boolean visible
         boolean trackable
         onCollision onCollide
@@ -1375,6 +1391,7 @@ library Enumerable requires Table, Modules, RegisterPlayerUnitEvent
             call cells.destroy()
             call deallocate()
 
+            set data = 0
             set unit = null
             set item = null
             set widget = null
@@ -1856,6 +1873,7 @@ library Enumerable requires Table, Modules, RegisterPlayerUnitEvent
     hook CreateDestructableZ Enumerable.hookCreateDestructableZ
     hook BlzCreateDestructableWithSkin Enumerable.hookCreateDestructableSkin
     hook BlzCreateDestructableZWithSkin Enumerable.hookCreateDestructableZSkin
+    hook DestructableRestoreLife Enumerable.hookRestore
     hook RemoveUnit Enumerable.hookRemove
     hook RemoveItem Enumerable.hookRemove
     hook RemoveDestructable Enumerable.hookRemove

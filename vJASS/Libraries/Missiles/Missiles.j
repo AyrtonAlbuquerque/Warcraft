@@ -1,4 +1,4 @@
-library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBounds
+library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBounds, optional Enumerable
     /* ---------------------------------------- Missiles v3.0 --------------------------------------- */
     // Thanks and Credits to BPower, Dirac and Vexorian for their Missile Libraries from which i based
     // this Missiles library. Credits and thanks to AGD for the effect orientation ideas.
@@ -17,6 +17,8 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         private constant real    COLLISION_SIZE     = 128.
         // item size used in z collision
         private constant real    ITEM_SIZE          = 16.
+        // If you want Missiles the Enumerable library
+        private constant boolean USE_ENUMERABLE     = true
     endglobals
     
     /* ---------------------------------------------------------------------------------------------- */
@@ -1329,6 +1331,12 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 endif
             endif
         else
+            static if LIBRARY_Enumerable and USE_ENUMERABLE then
+                set object.x = x
+                set object.y = y
+                set object.z = z
+            endif
+
             if dummy != null then
                 call SetUnitX(dummy, x)
                 call SetUnitY(dummy, y)
@@ -1528,6 +1536,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         readonly static thistype array collection
         
         private real toZ
+        private real size
         private real time
         private real bend
         private real sight
@@ -1537,6 +1546,10 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         private integer pkey
         private integer cliff
         private integer index
+
+        static if LIBRARY_Enumerable and USE_ENUMERABLE then
+            private Object object
+        endif
         
         readonly real traveled
         readonly Effect effect
@@ -1563,7 +1576,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         integer data
         integer type
         player owner
-        real collision
         boolean autoroll
         boolean collideZ
         real acceleration
@@ -1600,6 +1612,19 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
 
         method operator model= takes string fx returns nothing
             set effect.model = fx
+
+            static if LIBRARY_Enumerable and USE_ENUMERABLE then
+                call Enumerable.remove(object)
+
+                set object = Object[effect.effect]
+                set object.x = x
+                set object.y = y
+                set object.z = z
+                set object.data = this
+                set object.onCollide = thistype.onCollide
+
+                call Enumerable.track(object)
+            endif
         endmethod
 
         method operator model takes nothing returns string
@@ -1660,6 +1685,18 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
 
         method operator animation takes nothing returns integer
             return effect.animation
+        endmethod
+
+        method operator collision= takes real value returns nothing
+            set size = value
+
+            static if LIBRARY_Enumerable and USE_ENUMERABLE then
+                set object.collision = value
+            endif
+        endmethod
+
+        method operator collision takes nothing returns real
+            return size
         endmethod
 
         method operator timeScale= takes real newTimeScale returns nothing
@@ -1811,6 +1848,10 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 set count = count - 1
                 set index = -1
                 
+                static if LIBRARY_Enumerable and USE_ENUMERABLE then
+                    call Enumerable.remove(object)
+                endif
+
                 call origin.destroy()
                 call impact.destroy()
                 call effect.destroy()
@@ -1846,6 +1887,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set turn = 0
             set time = 0
             set data = 0
+            set size = 0
             set type = 0
             set bend = 0
             set pitch = 0
@@ -1862,7 +1904,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set dummy = null
             set source = null
             set target = null
-            set collision = 0
             set paused = false
             set acceleration = 0
             set autoroll = false
@@ -1951,10 +1992,15 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
 
                     if allocated and not paused then
                         implement MOnMove
-                        implement MOnUnit
-                        implement MOnItem
-                        implement MOnMissile
-                        implement MOnDestructable
+
+                        static if LIBRARY_Enumerable and USE_ENUMERABLE then
+                        else
+                            implement MOnUnit
+                            implement MOnItem
+                            implement MOnMissile
+                            implement MOnDestructable
+                        endif
+
                         implement MOnCliff
                         implement MOnTerrain
                         implement MOnTileset
@@ -1981,6 +2027,141 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set last = i
             set u = null
         endmethod
+
+        static if LIBRARY_Enumerable and USE_ENUMERABLE then
+            private static method onCollide takes Object colisor, Object collided returns nothing
+                local real dx
+                local real dy
+                local real dz
+                local real tz
+                local thistype this = colisor.data
+                local thistype missile = collided.data
+
+                if this != 0 and launched and allocated then
+                    if collided.isUnit and (.onUnit.exists or OnUnit != 0) then
+                        if not HaveSavedBoolean(table, this, GetHandleId(collided.unit)) then
+                            if collideZ then
+                                set dx = GetUnitZ(collided.unit)
+                                set dy = collided.collision
+
+                                if dx + dy >= z - collision and dx <= z + collision then
+                                    call SaveBoolean(table, this, GetHandleId(collided.unit), true)
+
+                                    if .onUnit.exists then
+                                        if allocated and .onUnit(collided.unit) then
+                                            call terminate()
+                                        endif
+                                    else
+                                        if allocated and OnUnit.evaluate(this, collided.unit) then
+                                            call terminate()
+                                        endif
+                                    endif
+                                endif
+                            else
+                                call SaveBoolean(table, this, GetHandleId(collided.unit), true)
+
+                                if .onUnit.exists then
+                                    if allocated and .onUnit(collided.unit) then
+                                        call terminate()
+                                    endif
+                                else
+                                    if allocated and OnUnit.evaluate(this, collided.unit) then
+                                        call terminate()
+                                    endif
+                                endif
+                            endif
+                        endif
+                    elseif collided.isItem and (.onItem.exists or OnItem != 0) then
+                        if not HaveSavedBoolean(table, this, GetHandleId(collided.item)) then
+                            if collideZ then
+                                set dz = GetLocZ(collided.x, collided.y)
+
+                                if dz + ITEM_SIZE >= z - collision and dz <= z + collision then
+                                    call SaveBoolean(table, this, GetHandleId(collided.item), true)
+
+                                    if .onItem.exists then
+                                        if allocated and .onItem(collided.item) then
+                                            call terminate()
+                                            return
+                                        endif
+                                    else
+                                        if allocated and OnItem.evaluate(this, collided.item) then
+                                            call terminate()
+                                            return
+                                        endif
+                                    endif
+                                endif
+                            else
+                                call SaveBoolean(table, this, GetHandleId(collided.item), true)
+
+                                if .onItem.exists then
+                                    if allocated and .onItem(collided.item) then
+                                        call terminate()
+                                        return
+                                    endif
+                                else
+                                    if allocated and OnItem.evaluate(this, collided.item) then
+                                        call terminate()
+                                        return
+                                    endif
+                                endif
+                            endif
+                        endif
+                    elseif collided.isDestructable and (.onDestructable.exists or OnDestructable != 0) then
+                        if not HaveSavedBoolean(table, this, GetHandleId(collided.destructable)) then
+                            if collideZ then
+                                set dz = GetLocZ(collided.x, collided.y)
+                                set tz = GetDestructableOccluderHeight(collided.destructable)
+
+                                if dz + tz >= z - collision and dz <= z + collision then
+                                    call SaveBoolean(table, this, GetHandleId(collided.destructable), true)
+
+                                    if .onDestructable.exists then
+                                        if allocated and .onDestructable(collided.destructable) then
+                                            call terminate()
+                                            return
+                                        endif
+                                    else
+                                        if allocated and OnDestructable.evaluate(this, collided.destructable) then
+                                            call terminate()
+                                            return
+                                        endif
+                                    endif
+                                endif
+                            else
+                                call SaveBoolean(table, this, GetHandleId(collided.destructable), true)
+                                
+                                if .onDestructable.exists then
+                                    if allocated and .onDestructable(collided.destructable) then
+                                        call terminate()
+                                        return
+                                    endif
+                                else
+                                    if allocated and OnDestructable.evaluate(this, collided.destructable) then
+                                        call terminate()
+                                        return
+                                    endif
+                                endif
+                            endif
+                        endif
+                    elseif missile != 0 and (.onMissile.exists or OnMissile != 0) then
+                        if not HaveSavedBoolean(table, this, missile) then
+                            call SaveBoolean(table, this, missile, true)
+
+                            if .onMissile.exists then
+                                if allocated and .onMissile(missile) then
+                                    call terminate()
+                                endif
+                            else
+                                if allocated and OnMissile.evaluate(this, missile) then
+                                    call terminate()
+                                endif
+                            endif
+                        endif
+                    endif
+                endif
+            endmethod
+        endif
 
         private static method onItems takes nothing returns nothing
             local item i = GetEnumItem()
@@ -2096,6 +2277,17 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set this.z = impact.z
             set this.toZ = toZ
             set cliff = GetTerrainCliffLevel(x, y)
+
+            static if LIBRARY_Enumerable and USE_ENUMERABLE then
+                set object = Object[effect.effect]
+                set object.x = x
+                set object.y = y
+                set object.z = z
+                set object.data = this
+                set object.onCollide = thistype.onCollide
+
+                call Enumerable.track(object)
+            endif
             
             return this
         endmethod
