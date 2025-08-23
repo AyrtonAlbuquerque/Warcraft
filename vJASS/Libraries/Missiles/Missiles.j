@@ -551,6 +551,19 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
 
                                     if allocated and .onMissile(missile) then
                                         call terminate()
+
+                                        if missile.allocated and missile.collision > 0 and missile.onMissile.exists then
+                                            if not HaveSavedBoolean(table, missile, this) then
+                                                if dx*dx + dy*dy <= missile.collision * missile.collision then
+                                                    call SaveBoolean(table, missile, this, true)
+
+                                                    if missile.allocated and missile.onMissile(this) then
+                                                        call missile.terminate()
+                                                    endif
+                                                endif
+                                            endif
+                                        endif
+
                                         exitwhen true
                                     endif
                                 endif

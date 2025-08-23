@@ -24,17 +24,10 @@ library Effect requires Modules, WorldBounds
         endmethod
 
         method operator x= takes real value returns nothing
-            local List node = attachments.next
-
             set xPos = value
 
             call BlzSetSpecialEffectX(effect, value)
-
-            loop
-                exitwhen node == attachments
-                    set Effect(node.data).x = value - Effect(node.data).x
-                set node = node.next
-            endloop
+            call update()
         endmethod
 
         method operator y takes nothing returns real
@@ -42,17 +35,10 @@ library Effect requires Modules, WorldBounds
         endmethod
 
         method operator y= takes real value returns nothing
-            local List node = attachments.next
-
             set yPos = value
 
             call BlzSetSpecialEffectY(effect, value)
-
-            loop
-                exitwhen node == attachments
-                    set Effect(node.data).y = value - Effect(node.data).y
-                set node = node.next
-            endloop
+            call update()
         endmethod
 
         method operator z takes nothing returns real
@@ -60,17 +46,10 @@ library Effect requires Modules, WorldBounds
         endmethod
 
         method operator z= takes real value returns nothing
-            local List node = attachments.next
-
             set zPos = value
 
             call BlzSetSpecialEffectZ(effect, value)
-
-            loop
-                exitwhen node == attachments
-                    set Effect(node.data).z = value - Effect(node.data).z
-                set node = node.next
-            endloop
+            call update()
         endmethod
 
         method operator yaw takes nothing returns real
@@ -78,17 +57,10 @@ library Effect requires Modules, WorldBounds
         endmethod
 
         method operator yaw= takes real value returns nothing
-            local List node = attachments.next
-
             set view = value
 
             call BlzSetSpecialEffectYaw(effect, value)
-
-            loop
-                exitwhen node == attachments
-                    set Effect(node.data).yaw = value
-                set node = node.next
-            endloop
+            call update()
         endmethod
 
         method operator pitch takes nothing returns real
@@ -96,17 +68,10 @@ library Effect requires Modules, WorldBounds
         endmethod
 
         method operator pitch= takes real value returns nothing
-            local List node = attachments.next
-
             set angle = value
 
             call BlzSetSpecialEffectPitch(effect, value)
-
-            loop
-                exitwhen node == attachments
-                    set Effect(node.data).pitch = value
-                set node = node.next
-            endloop
+            call update()
         endmethod
 
         method operator roll takes nothing returns real
@@ -114,17 +79,10 @@ library Effect requires Modules, WorldBounds
         endmethod
 
         method operator roll= takes real value returns nothing
-            local List node = attachments.next
-
             set rotation = value
 
             call BlzSetSpecialEffectRoll(effect, value)
-
-            loop
-                exitwhen node == attachments
-                    set Effect(node.data).roll = value
-                set node = node.next
-            endloop
+            call update()
         endmethod
 
         method operator model takes nothing returns string
@@ -140,6 +98,7 @@ library Effect requires Modules, WorldBounds
 
                 call BlzSetSpecialEffectPosition(effect, x, y, z)
                 call BlzSetSpecialEffectOrientation(effect, yaw, pitch, roll)
+                call BlzSetSpecialEffectScale(effect, size)
             endif
         endmethod
 
@@ -250,40 +209,22 @@ library Effect requires Modules, WorldBounds
         endmethod
 
         method orient takes real yaw, real pitch, real roll returns nothing
-            local List node = attachments.next
-
             set view = yaw
             set angle = pitch
             set rotation = roll
 
             call BlzSetSpecialEffectOrientation(effect, yaw, pitch, roll)
-
-            loop
-                exitwhen node == attachments
-                    set Effect(node.data).yaw = yaw
-                    set Effect(node.data).roll = roll
-                    set Effect(node.data).pitch = pitch
-                set node = node.next
-            endloop
+            call update()
         endmethod
 
         method move takes real x, real y, real z returns boolean
-            local List node = attachments.next
-            local thistype attachment
-
             if not (x > WorldBounds.maxX or x < WorldBounds.minX or y > WorldBounds.maxY or y < WorldBounds.minY) then
                 set xPos = x
                 set yPos = y
                 set zPos = z
                 
                 call BlzSetSpecialEffectPosition(effect, x, y, z)
-
-                loop
-                    exitwhen node == attachments
-                        set attachment = Effect(node.data)
-                        call attachment.move(x - attachment.dx, y - attachment.dy, z - attachment.dz)
-                    set node = node.next
-                endloop
+                call update()
 
                 return true
             endif
@@ -292,17 +233,56 @@ library Effect requires Modules, WorldBounds
         endmethod
 
         method attach takes string model, real dx, real dy, real dz, real scale returns thistype
-            local thistype attachment = attachments.insert(create(model, x - dx, y - dy, z - dz, scale)).data
+            local thistype attachment = attachments.insert(create(model, x + dx, y + dy, z + dz, scale)).data
             
             set attachment.dx = dx
             set attachment.dy = dy
             set attachment.dz = dz
+
+            call update()
 
             return attachment
         endmethod
 
         method detach takes thistype attachment returns nothing
             call attachments.remove(attachment)
+        endmethod
+
+        method update takes nothing returns nothing
+            local real dx
+            local real dy
+            local real dz
+            local real x1
+            local real y1
+            local real z1
+            local real x2
+            local real y2
+            local real z2
+            local thistype attachment
+            local List node = attachments.next
+
+            loop
+                exitwhen node == attachments
+                    set attachment = Effect(node.data)
+                    set dx = attachment.dx
+                    set dy = attachment.dy
+                    set dz = attachment.dz
+                    set x1 = dx * Cos(view) - dy * Sin(view)
+                    set y1 = dx * Sin(view) + dy * Cos(view)
+                    set z1 = dz
+                    set x2 = x1 * Cos(angle) + z1 * Sin(angle)
+                    set y2 = y1
+                    set z2 = -x1 * Sin(angle) + z1 * Cos(angle)
+                    set dx = x2
+                    set dy = y2 * Cos(rotation) - z2 * Sin(rotation)
+                    set dz = y2 * Sin(rotation) + z2 * Cos(rotation)
+                    set attachment.yaw = view
+                    set attachment.pitch = angle
+                    set attachment.roll = rotation
+
+                    call attachment.move(xPos + dx, yPos + dy, zPos + dz)
+                set node = node.next
+            endloop
         endmethod
 
         method color takes integer red, integer green, integer blue returns nothing
