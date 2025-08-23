@@ -1,4 +1,4 @@
-library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBounds, optional Enumerable
+library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBounds
     /* ---------------------------------------- Missiles v3.0 --------------------------------------- */
     // Thanks and Credits to BPower, Dirac and Vexorian for their Missile Libraries from which i based
     // this Missiles library. Credits and thanks to AGD for the effect orientation ideas.
@@ -17,628 +17,11 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         private constant real    COLLISION_SIZE     = 128.
         // item size used in z collision
         private constant real    ITEM_SIZE          = 16.
-        // If you want Missiles the Enumerable library
-        private constant boolean USE_ENUMERABLE     = true
     endglobals
     
     /* ---------------------------------------------------------------------------------------------- */
     /*                                            JASS API                                            */
     /* ---------------------------------------------------------------------------------------------- */
-    // For those who are not so well versed in JASS structs, you can use the missile API together with
-    // these function interfaces to set up your missiles. Simply create functions that have the same 
-    // arguments as one of these and then call the corresponding SetMissileOn...Callback functions,
-    // passing the function name you created as an argument. 
-    function interface OnMoveEvent takes Missile missile returns nothing
-    function interface OnUnitEvent takes Missile missile, unit u returns boolean
-    function interface OnItemEvent takes Missile missile, item i returns boolean
-    function interface OnMissileEvent takes Missile missile, Missile m returns boolean
-    function interface OnDestructableEvent takes Missile missile, destructable d returns boolean
-    function interface OnCliffEvent takes Missile missile returns boolean
-    function interface OnTerrainEvent takes Missile missile returns boolean
-    function interface OnTilesetEvent takes Missile missile, integer tileset returns boolean
-    function interface OnPeriodEvent takes Missile missile returns boolean
-    function interface OnFinishEvent takes Missile missile returns boolean
-    function interface OnBoundariesEvent takes Missile missile returns boolean
-    function interface OnPauseEvent takes Missile missile returns boolean
-    function interface OnResumeEvent takes Missile missile returns boolean
-    function interface OnRemoveEvent takes Missile missile returns nothing
-    
-    /* ---------------------------------------- Missiles --------------------------------------- */
-    function CreateMissile takes real x, real y, real z, real toX, real toY, real toZ returns Missile
-        return Missile.create(x, y, z, toX, toY, toZ)
-    endfunction
-
-    function DestroyMissile takes Missile missile returns nothing
-        if missile != 0 then
-            call missile.terminate()
-        endif
-    endfunction
-
-    function LaunchMissile takes Missile missile returns nothing
-        if missile != 0 then
-            call missile.launch()
-        endif
-    endfunction
-
-    function SetMissileOnMoveCallback takes Missile missile, OnMoveEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnMove = callback
-        endif
-    endfunction
-
-    function SetMissileOnUnitCallback takes Missile missile, OnUnitEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnUnit = callback
-        endif
-    endfunction
-
-    function SetMissileOnItemCallback takes Missile missile, OnItemEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnItem = callback
-        endif
-    endfunction
-
-    function SetMissileOnMissileCallback takes Missile missile, OnMissileEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnMissile = callback
-        endif
-    endfunction
-
-    function SetMissileOnDestructableCallback takes Missile missile, OnDestructableEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnDestructable = callback
-        endif
-    endfunction
-
-    function SetMissileOnCliffCallback takes Missile missile, OnCliffEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnCliff = callback
-        endif
-    endfunction
-
-    function SetMissileOnTerrainCallback takes Missile missile, OnTerrainEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnTerrain = callback
-        endif
-    endfunction
-
-    function SetMissileOnTilesetCallback takes Missile missile, OnTilesetEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnTileset = callback
-        endif
-    endfunction
-
-    function SetMissileOnPeriodCallback takes Missile missile, OnPeriodEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnPeriod = callback
-        endif
-    endfunction
-
-    function SetMissileOnFinishCallback takes Missile missile, OnFinishEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnFinish = callback
-        endif
-    endfunction
-
-    function SetMissileOnBoundariesCallback takes Missile missile, OnBoundariesEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnBoundaries = callback
-        endif
-    endfunction
-
-    function SetMissileOnPauseCallback takes Missile missile, OnPauseEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnPause = callback
-        endif
-    endfunction
-
-    function SetMissileOnResumeCallback takes Missile missile, OnResumeEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnResume = callback
-        endif
-    endfunction
-
-    function SetMissileOnRemoveCallback takes Missile missile, OnRemoveEvent callback returns nothing
-        if missile != 0 then
-            set missile.OnRemove = callback
-        endif
-    endfunction
-
-    function SetMissileX takes Missile missile, real x returns nothing
-        if missile != 0 then
-            set missile.x = x
-        endif
-    endfunction
-
-    function GetMissileX takes Missile missile returns real
-        if missile != 0 then
-            return missile.x
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileY takes Missile missile, real y returns nothing
-        if missile != 0 then
-            set missile.y = y
-        endif
-    endfunction
-
-    function GetMissileY takes Missile missile returns real
-        if missile != 0 then
-            return missile.y
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileZ takes Missile missile, real z returns nothing
-        if missile != 0 then
-            set missile.z = z
-        endif
-    endfunction
-
-    function GetMissileZ takes Missile missile returns real
-        if missile != 0 then
-            return missile.z
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileYaw takes Missile missile, real yaw returns nothing
-        if missile != 0 then
-            set missile.yaw = yaw
-        endif
-    endfunction
-
-    function GetMissileYaw takes Missile missile returns real
-        if missile != 0 then
-            return missile.yaw
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileRoll takes Missile missile, real roll returns nothing
-        if missile != 0 then
-            set missile.roll = roll
-        endif
-    endfunction
-
-    function GetMissileRoll takes Missile missile returns real
-        if missile != 0 then
-            return missile.roll
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissilePitch takes Missile missile, real pitch returns nothing
-        if missile != 0 then
-            set missile.pitch = pitch
-        endif
-    endfunction
-
-    function GetMissilePitch takes Missile missile returns real
-        if missile != 0 then
-            return missile.pitch
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileUnit takes Missile missile, unit u returns nothing
-        if missile != 0 then
-            set missile.unit = u
-        endif
-    endfunction
-
-    function GetMissileUnit takes Missile missile returns unit
-        if missile != 0 then
-            return missile.unit
-        endif
-
-        return null
-    endfunction
-
-    function GetMissileTileset takes Missile missile returns integer
-        if missile != 0 then
-            return missile.tileset
-        endif
-
-        return 0
-    endfunction
-
-    function GetMissileTraveledDistance takes Missile missile returns real
-        if missile != 0 then
-            return missile.traveled
-        endif
-
-        return 0.
-    endfunction
-
-    function PauseMissile takes Missile missile, boolean flag returns nothing
-        if missile != 0 then
-            call missile.pause(flag)
-        endif
-    endfunction
-
-    function IsMissilePaused takes Missile missile returns boolean
-        if missile != 0 then
-            return missile.paused
-        endif
-
-        return false
-    endfunction
-
-    function BounceMissile takes Missile missile returns nothing
-        if missile != 0 then
-            call missile.bounce()
-        endif
-    endfunction
-
-    function DeflectMissile takes Missile missile, real tx, real ty, real tz returns nothing
-        if missile != 0 then
-            call missile.deflect(tx, ty, tz)
-        endif
-    endfunction
-
-    function DeflectMissileTarget takes Missile missile, unit target returns nothing
-        if missile != 0 then
-            call missile.deflectTarget(target)
-        endif
-    endfunction
-
-    function SetMissileColor takes Missile missile, integer red, integer green, integer blue returns nothing
-        if missile != 0 then
-            call missile.color(red, green, blue)
-        endif
-    endfunction
-
-    function MissileCollided takes Missile missile, agent a returns boolean
-        if missile != 0 and a != null then
-            return missile.hitted(a)
-        endif
-
-        return false
-    endfunction
-
-    function MissileResetCollision takes Missile missile, agent a returns nothing
-        if missile != 0 and a != null then
-            call missile.flush(a)
-        endif
-    endfunction
-
-    function MissileClearCollisions takes Missile missile returns nothing
-        if missile != 0 then
-            call missile.flushAll()
-        endif
-    endfunction
-
-    function MissileAttachEffect takes Missile missile, string model, real dx, real dy, real dz, real scale returns Effect
-        if missile != 0 then
-            return missile.attach(model, dx, dy, dz, scale)
-        endif
-
-        return 0
-    endfunction
-
-    function MissileDetachEffect takes Missile missile, Effect e returns nothing
-        if missile != 0 and e != 0 then
-            call missile.detach(e)
-        endif
-    endfunction
-
-    function SetMissileSource takes Missile missile, unit source returns nothing
-        if missile != 0 then
-            set missile.source = source
-        endif
-    endfunction
-
-    function GetMissileSource takes Missile missile returns unit
-        if missile != 0 then
-            return missile.source
-        endif
-
-        return null
-    endfunction
-
-    function SetMissileTarget takes Missile missile, unit target returns nothing
-        if missile != 0 then
-            set missile.target = target
-        endif
-    endfunction
-
-    function GetMissileTarget takes Missile missile returns unit
-        if missile != 0 then
-            return missile.target
-        endif
-
-        return null
-    endfunction
-
-    function SetMissileDamage takes Missile missile, real damage returns nothing
-        if missile != 0 then
-            set missile.damage = damage
-        endif
-    endfunction
-
-    function GetMissileDamage takes Missile missile returns real
-        if missile != 0 then
-            return missile.damage
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissilePlayer takes Missile missile, player p returns nothing
-        if missile != 0 then
-            set missile.owner = p
-        endif
-    endfunction
-
-    function GetMissilePlayer takes Missile missile returns player
-        if missile != 0 then
-            return missile.owner
-        endif
-
-        return null
-    endfunction
-
-    function SetMissileCollision takes Missile missile, real collision returns nothing
-        if missile != 0 then
-            set missile.collision = collision
-        endif
-    endfunction
-
-    function GetMissileCollision takes Missile missile returns real
-        if missile != 0 then
-            return missile.collision
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileType takes Missile missile, integer t returns nothing
-        if missile != 0 then
-            set missile.type = t
-        endif
-    endfunction
-
-    function GetMissileType takes Missile missile returns integer
-        if missile != 0 then
-            return missile.type
-        endif
-
-        return 0
-    endfunction
-
-    function SetMissileTurnRate takes Missile missile, real turn returns nothing
-        if missile != 0 then
-            set missile.turn = turn
-        endif
-    endfunction
-
-    function GetMissileTurnRate takes Missile missile returns real
-        if missile != 0 then
-            return missile.turn
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileAcceleration takes Missile missile, real acceleration returns nothing
-        if missile != 0 then
-            set missile.acceleration = acceleration
-        endif
-    endfunction
-
-    function GetMissileAcceleration takes Missile missile returns real
-        if missile != 0 then
-            return missile.acceleration
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileCollideZ takes Missile missile, boolean flag returns nothing
-        if missile != 0 then
-            set missile.collideZ = flag
-        endif
-    endfunction
-
-    function DoMissileCollideZ takes Missile missile returns boolean
-        if missile != 0 then
-            return missile.collideZ
-        endif
-
-        return false
-    endfunction
-
-    function SetMissileAutoRoll takes Missile missile, boolean flag returns nothing
-        if missile != 0 then
-            set missile.autoroll = flag
-        endif
-    endfunction
-
-    function DoMissileAutoRoll takes Missile missile returns boolean
-        if missile != 0 then
-            return missile.autoroll
-        endif
-
-        return false
-    endfunction
-
-    function SetMissileData takes Missile missile, integer data returns nothing
-        if missile != 0 then
-            set missile.data = data
-        endif
-    endfunction
-
-    function GetMissileData takes Missile missile returns integer
-        if missile != 0 then
-            return missile.data
-        endif
-
-        return 0
-    endfunction
-
-    function SetMissileArc takes Missile missile, real arc returns nothing
-        if missile != 0 then
-            set missile.arc = arc
-        endif
-    endfunction
-
-    function GetMissileArc takes Missile missile returns real
-        if missile != 0 then
-            return missile.arc
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileCurve takes Missile missile, real curve returns nothing
-        if missile != 0 then
-            set missile.curve = curve
-        endif
-    endfunction
-
-    function GetMissileCurve takes Missile missile returns real
-        if missile != 0 then
-            return missile.curve
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileModel takes Missile missile, string model returns nothing
-        if missile != 0 then
-            set missile.model = model
-        endif
-    endfunction
-
-    function GetMissileModel takes Missile missile returns string
-        if missile != 0 then
-            return missile.model
-        endif
-
-        return null
-    endfunction
-
-    function SetMissileScale takes Missile missile, real scale returns nothing
-        if missile != 0 then
-            set missile.scale = scale
-        endif
-    endfunction
-
-    function GetMissileScale takes Missile missile returns real
-        if missile != 0 then
-            return missile.scale
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileSpeed takes Missile missile, real speed returns nothing
-        if missile != 0 then
-            set missile.speed = speed
-        endif
-    endfunction
-
-    function GetMissileSpeed takes Missile missile returns real
-        if missile != 0 then
-            return missile.speed
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileDuration takes Missile missile, real duration returns nothing
-        if missile != 0 then
-            set missile.duration = duration
-        endif
-    endfunction
-
-    function GetMissileDuration takes Missile missile returns real
-        if missile != 0 then
-            return missile.duration
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileAlpha takes Missile missile, integer alpha returns nothing
-        if missile != 0 then
-            set missile.alpha = alpha
-        endif
-    endfunction
-
-    function GetMissileAlpha takes Missile missile returns integer
-        if missile != 0 then
-            return missile.alpha
-        endif
-
-        return 0
-    endfunction
-
-    function SetMissileSightRange takes Missile missile, real sightRange returns nothing
-        if missile != 0 then
-            set missile.vision = sightRange
-        endif
-    endfunction
-
-    function GetMissileSightRange takes Missile missile returns real
-        if missile != 0 then
-            return missile.vision
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissileAnimation takes Missile missile, integer animation returns nothing
-        if missile != 0 then
-            set missile.animation = animation
-        endif
-    endfunction
-
-    function GetMissileAnimation takes Missile missile returns integer
-        if missile != 0 then
-            return missile.animation
-        endif
-
-        return 0
-    endfunction
-
-    function SetMissileTimeScale takes Missile missile, real timeScale returns nothing
-        if missile != 0 then
-            set missile.timeScale = timeScale
-        endif
-    endfunction
-
-    function GetMissileTimeScale takes Missile missile returns real
-        if missile != 0 then
-            return missile.timeScale
-        endif
-
-        return 0.
-    endfunction
-
-    function SetMissilePlayerColor takes Missile missile, integer playerId returns nothing
-        if missile != 0 then
-            set missile.playercolor = playerId
-        endif
-    endfunction
-
-    function GetMissilePlayerColor takes Missile missile returns integer
-        if missile != 0 then
-            return missile.playercolor
-        endif
-
-        return 0
-    endfunction
-
-    /* ------------------------------------- Missile Groups ------------------------------------ */
     function CreateMissileGroup takes nothing returns MissileGroup
         return MissileGroup.create()
     endfunction
@@ -1048,7 +431,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
     /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
-    private module MOnMove
+    private module OnMove
         if target != null and GetUnitTypeId(target) != 0 and UnitAlive(target) then
             call impact.move(GetUnitX(target), GetUnitY(target), GetUnitFlyHeight(target) + toZ)
 
@@ -1065,7 +448,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         set speed = speed + acceleration
         set traveled = traveled + ds
 
-        if not .onMove.exists and OnMove == 0 then
+        if not .onMove.exists then
             if turn != 0 and not (Cos(curvature - angle) >= Cos(turn)) then
                 if Sin(angle - curvature) >= 0 then
                     set curvature = curvature + turn
@@ -1095,15 +478,13 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 set y = y + dx * Sin(angle)
                 set yaw = yaw + Atan(-((4 * bend) * (2 * traveled - origin.distance))/(origin.square))
             endif
-        elseif .onMove.exists then
+        else
             call .onMove()
-        elseif OnMove != 0 then
-            call OnMove.evaluate(this)
         endif
     endmodule
 
-    private module MOnUnit    
-        if .onUnit.exists or OnUnit != 0 then
+    private module OnUnit    
+        if .onUnit.exists then
             if allocated and collision > 0 then
                 call GroupEnumUnitsInRange(group, x, y, collision + COLLISION_SIZE, null)
 
@@ -1113,37 +494,23 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                         if not HaveSavedBoolean(table, this, GetHandleId(u)) then
                             if IsUnitInRangeXY(u, x, y, collision) then
                                 if collideZ then
-                                    set dx = GetLocZ(GetUnitX(u), GetUnitY(u)) + GetUnitFlyHeight(u)
+                                    set dx = GetUnitZ(u)
                                     set dy = BlzGetUnitCollisionSize(u)
 
                                     if dx + dy >= z - collision and dx <= z + collision then
                                         call SaveBoolean(table, this, GetHandleId(u), true)
 
-                                        if .onUnit.exists then
-                                            if allocated and .onUnit(u) then
-                                                call terminate()
-                                                exitwhen true
-                                            endif
-                                        else
-                                            if allocated and OnUnit.evaluate(this, u) then
-                                                call terminate()
-                                                exitwhen true
-                                            endif
+                                        if allocated and .onUnit(u) then
+                                            call terminate()
+                                            exitwhen true
                                         endif
                                     endif
                                 else
                                     call SaveBoolean(table, this, GetHandleId(u), true)
 
-                                    if .onUnit.exists then
-                                        if allocated and .onUnit(u) then
-                                            call terminate()
-                                            exitwhen true
-                                        endif
-                                    else
-                                        if allocated and OnUnit.evaluate(this, u) then
-                                            call terminate()
-                                            exitwhen true
-                                        endif
+                                    if allocated and .onUnit(u) then
+                                        call terminate()
+                                        exitwhen true
                                     endif
                                 endif
                             endif
@@ -1154,8 +521,8 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         endif
     endmodule
     
-    private module MOnItem
-        if .onItem.exists or OnItem != 0 then
+    private module OnItem
+        if .onItem.exists then
             if allocated and collision > 0 then
                 set dx = collision
 
@@ -1165,8 +532,8 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         endif
     endmodule
 
-    private module MOnMissile
-        if .onMissile.exists or OnMissile != 0 then
+    private module OnMissile
+        if .onMissile.exists then
             if allocated and collision > 0 then
                 set k = 0
 
@@ -1182,16 +549,9 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                                 if dx*dx + dy*dy <= collision*collision then
                                     call SaveBoolean(table, this, missile, true)
 
-                                    if .onMissile.exists then
-                                        if allocated and .onMissile(missile) then
-                                            call terminate()
-                                            exitwhen true
-                                        endif
-                                    else
-                                        if allocated and OnMissile.evaluate(this, missile) then
-                                            call terminate()
-                                            exitwhen true
-                                        endif
+                                    if allocated and .onMissile(missile) then
+                                        call terminate()
+                                        exitwhen true
                                     endif
                                 endif
                             endif
@@ -1202,8 +562,8 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         endif
     endmodule
 
-    private module MOnDestructable
-        if .onDestructable.exists or OnDestructable != 0 then
+    private module OnDestructable
+        if .onDestructable.exists then
             if allocated and collision > 0 then
                 set dx = collision
 
@@ -1212,20 +572,14 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             endif
         endif
     endmodule
-       
-    private module MOnCliff
-        if .onCliff.exists or OnCliff != 0 then
+
+    private module OnCliff
+        if .onCliff.exists then
             set k = GetTerrainCliffLevel(x, y)
 
             if cliff < k and z < (k - GetTerrainCliffLevel(WorldBounds.maxX, WorldBounds.maxY))*bj_CLIFFHEIGHT then
-                if .onCliff.exists then
-                    if allocated and .onCliff() then
-                        call terminate()
-                    endif
-                else
-                    if allocated and OnCliff.evaluate(this) then
-                        call terminate()
-                    endif
+                if allocated and .onCliff() then
+                    call terminate()
                 endif
             endif
 
@@ -1233,35 +587,23 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         endif
     endmodule
        
-    private module MOnTerrain
-        if .onTerrain.exists or OnTerrain != 0 then
+    private module OnTerrain
+        if .onTerrain.exists then
             if GetLocZ(x, y) > z then
-                if .onTerrain.exists then
-                    if allocated and .onTerrain() then
-                        call terminate()
-                    endif
-                else
-                    if allocated and OnTerrain.evaluate(this) then
-                        call terminate()
-                    endif
+                if allocated and .onTerrain() then
+                    call terminate()
                 endif
             endif
         endif
     endmodule
     
-    private module MOnTileset
-        if .onTileset.exists or OnTileset != 0 then
+    private module OnTileset
+        if .onTileset.exists then
             set k = GetTerrainType(x, y)
 
             if k != tileset then
-                if .onTileset.exists then
-                    if allocated and .onTileset(k) then
-                        call terminate()
-                    endif
-                else
-                    if allocated and OnTileset.evaluate(this, k) then
-                        call terminate()
-                    endif
+                if allocated and .onTileset(k) then
+                    call terminate()
                 endif
             endif
 
@@ -1269,40 +611,24 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         endif
     endmodule
     
-    private module MOnPeriod
-        if .onPeriod.exists or OnPeriod != 0 then
-            if .onPeriod.exists then
-                if allocated and .onPeriod() then
-                    call terminate()
-                endif
-            else
-                if allocated and OnPeriod.evaluate(this) then
-                    call terminate()
-                endif
+    private module OnPeriod
+        if .onPeriod.exists then
+            if allocated and .onPeriod() then
+                call terminate()
             endif
         endif
     endmodule
     
-    private module MOnFinish
+    private module OnFinish
         if traveled >= origin.distance - 0.0001 then
             set finished = true
 
-            if .onFinish.exists or OnFinish != 0 then
-                if .onFinish.exists then
-                    if allocated and .onFinish() then
-                        call terminate()
-                    else
-                        if traveled > 0 and not paused then
-                            call terminate()
-                        endif
-                    endif
+            if .onFinish.exists then
+                if allocated and .onFinish() then
+                    call terminate()
                 else
-                    if allocated and OnFinish.evaluate(this) then
+                    if traveled > 0 and not paused then
                         call terminate()
-                    else
-                        if traveled > 0 and not paused then
-                            call terminate()
-                        endif
                     endif
                 endif
             else
@@ -1317,26 +643,14 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         endif
     endmodule
 
-    private module MOnBoundaries
+    private module OnBoundaries
         if not effect.move(x, y, z) then
-            if .onBoundaries.exists or OnBoundaries != 0 then
-                if .onBoundaries.exists then
-                    if allocated and .onBoundaries() then
-                        call terminate()
-                    endif
-                else
-                    if allocated and OnBoundaries.evaluate(this) then
-                        call terminate()
-                    endif
+            if .onBoundaries.exists then
+                if allocated and .onBoundaries() then
+                    call terminate()
                 endif
             endif
         else
-            static if LIBRARY_Enumerable and USE_ENUMERABLE then
-                set object.x = x
-                set object.y = y
-                set object.z = z
-            endif
-
             if dummy != null then
                 call SetUnitX(dummy, x)
                 call SetUnitY(dummy, y)
@@ -1536,7 +850,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         readonly static thistype array collection
         
         private real toZ
-        private real size
         private real time
         private real bend
         private real sight
@@ -1546,10 +859,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         private integer pkey
         private integer cliff
         private integer index
-
-        static if LIBRARY_Enumerable and USE_ENUMERABLE then
-            private Object object
-        endif
         
         readonly real traveled
         readonly Effect effect
@@ -1576,23 +885,10 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         integer data
         integer type
         player owner
+        real collision
         boolean autoroll
         boolean collideZ
         real acceleration
-        OnMoveEvent OnMove
-        OnUnitEvent OnUnit
-        OnItemEvent OnItem
-        OnPauseEvent OnPause
-        OnCliffEvent OnCliff
-        OnResumeEvent OnResume
-        OnPeriodEvent OnPeriod
-        OnFinishEvent OnFinish
-        OnRemoveEvent OnRemove
-        OnTerrainEvent OnTerrain
-        OnTilesetEvent OnTileset
-        OnMissileEvent OnMissile
-        OnBoundariesEvent OnBoundaries
-        OnDestructableEvent OnDestructable
 
         method operator arc= takes real value returns nothing
             set height = Tan(value) * origin.distance / 4
@@ -1612,19 +908,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
 
         method operator model= takes string fx returns nothing
             set effect.model = fx
-
-            static if LIBRARY_Enumerable and USE_ENUMERABLE then
-                call Enumerable.remove(object)
-
-                set object = Object[effect.effect]
-                set object.x = x
-                set object.y = y
-                set object.z = z
-                set object.data = this
-                set object.onCollide = thistype.onCollide
-
-                call Enumerable.track(object)
-            endif
         endmethod
 
         method operator model takes nothing returns string
@@ -1685,18 +968,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
 
         method operator animation takes nothing returns integer
             return effect.animation
-        endmethod
-
-        method operator collision= takes real value returns nothing
-            set size = value
-
-            static if LIBRARY_Enumerable and USE_ENUMERABLE then
-                set object.collision = value
-            endif
-        endmethod
-
-        method operator collision takes nothing returns real
-            return size
         endmethod
 
         method operator timeScale= takes real newTimeScale returns nothing
@@ -1786,22 +1057,12 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                     call TimerStart(timer, PERIOD, true, function thistype.move)
                 endif
 
-                if .onResume.exists or OnResume != 0 then
-                    if .onResume.exists then
-                        if allocated and .onResume() then
-                            call terminate()
-                        else
-                            if finished then
-                                call terminate()
-                            endif
-                        endif
+                if .onResume.exists then
+                    if allocated and .onResume() then
+                        call terminate()
                     else
-                        if allocated and OnResume.evaluate(this) then
+                        if finished then
                             call terminate()
-                        else
-                            if finished then
-                                call terminate()
-                            endif
                         endif
                     endif
                 else
@@ -1830,12 +1091,8 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                     set pkey = -1
                 endif
 
-                if .onRemove.exists or OnRemove != 0 then
-                    if .onRemove.exists then
-                        call .onRemove()
-                    else
-                        call OnRemove.evaluate(this)
-                    endif
+                if .onRemove.exists then
+                    call .onRemove()
                 endif
                 
                 if dummy != null then
@@ -1847,10 +1104,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 set collection[index] = collection[count]
                 set count = count - 1
                 set index = -1
-                
-                static if LIBRARY_Enumerable and USE_ENUMERABLE then
-                    call Enumerable.remove(object)
-                endif
 
                 call origin.destroy()
                 call impact.destroy()
@@ -1887,7 +1140,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set turn = 0
             set time = 0
             set data = 0
-            set size = 0
             set type = 0
             set bend = 0
             set pitch = 0
@@ -1902,6 +1154,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set traveled = 0
             set owner = null
             set dummy = null
+            set collision = 0
             set source = null
             set target = null
             set paused = false
@@ -1910,20 +1163,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set launched = false
             set finished = false
             set collideZ = false
-            set OnMove = 0
-            set OnUnit = 0
-            set OnItem = 0
-            set OnMissile = 0
-            set OnDestructable = 0
-            set OnCliff = 0
-            set OnTerrain = 0
-            set OnTileset = 0
-            set OnPeriod = 0
-            set OnFinish = 0
-            set OnBoundaries = 0
-            set OnPause = 0
-            set OnResume = 0
-            set OnRemove = 0
         endmethod
 
         private method remove takes integer i returns integer
@@ -1932,15 +1171,9 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 set pkey = pid
                 set frozen[pid] = this
                 
-                if .onPause.exists or OnPause != 0 then
-                    if .onPause.exists then
-                        if allocated and .onPause() then
-                            call terminate()
-                        endif
-                    else
-                        if allocated and OnPause.evaluate(this) then
-                            call terminate()
-                        endif
+                if .onPause.exists then
+                    if allocated and .onPause() then
+                        call terminate()
                     endif
                 endif
             else
@@ -1991,24 +1224,19 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                     set temp = this
 
                     if allocated and not paused then
-                        implement MOnMove
+                        implement OnMove
+                        implement OnUnit
+                        implement OnItem
+                        implement OnMissile
+                        implement OnDestructable
+                        implement OnCliff
+                        implement OnTerrain
+                        implement OnTileset
+                        implement OnPeriod
+                        implement OnFinish
+                        implement OnBoundaries
 
-                        static if LIBRARY_Enumerable and USE_ENUMERABLE then
-                        else
-                            implement MOnUnit
-                            implement MOnItem
-                            implement MOnMissile
-                            implement MOnDestructable
-                        endif
-
-                        implement MOnCliff
-                        implement MOnTerrain
-                        implement MOnTileset
-                        implement MOnPeriod
-                        implement MOnFinish
-                        implement MOnBoundaries
-
-                        if not .onMove.exists and OnMove == 0 then
+                        if not .onMove.exists then
                             set x = px
                             set y = py
                         endif
@@ -2028,141 +1256,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set u = null
         endmethod
 
-        static if LIBRARY_Enumerable and USE_ENUMERABLE then
-            private static method onCollide takes Object colisor, Object collided returns nothing
-                local real dx
-                local real dy
-                local real dz
-                local real tz
-                local thistype this = colisor.data
-                local thistype missile = collided.data
-
-                if this != 0 and launched and allocated then
-                    if collided.isUnit and (.onUnit.exists or OnUnit != 0) then
-                        if not HaveSavedBoolean(table, this, GetHandleId(collided.unit)) then
-                            if collideZ then
-                                set dx = GetUnitZ(collided.unit)
-                                set dy = collided.collision
-
-                                if dx + dy >= z - collision and dx <= z + collision then
-                                    call SaveBoolean(table, this, GetHandleId(collided.unit), true)
-
-                                    if .onUnit.exists then
-                                        if allocated and .onUnit(collided.unit) then
-                                            call terminate()
-                                        endif
-                                    else
-                                        if allocated and OnUnit.evaluate(this, collided.unit) then
-                                            call terminate()
-                                        endif
-                                    endif
-                                endif
-                            else
-                                call SaveBoolean(table, this, GetHandleId(collided.unit), true)
-
-                                if .onUnit.exists then
-                                    if allocated and .onUnit(collided.unit) then
-                                        call terminate()
-                                    endif
-                                else
-                                    if allocated and OnUnit.evaluate(this, collided.unit) then
-                                        call terminate()
-                                    endif
-                                endif
-                            endif
-                        endif
-                    elseif collided.isItem and (.onItem.exists or OnItem != 0) then
-                        if not HaveSavedBoolean(table, this, GetHandleId(collided.item)) then
-                            if collideZ then
-                                set dz = GetLocZ(collided.x, collided.y)
-
-                                if dz + ITEM_SIZE >= z - collision and dz <= z + collision then
-                                    call SaveBoolean(table, this, GetHandleId(collided.item), true)
-
-                                    if .onItem.exists then
-                                        if allocated and .onItem(collided.item) then
-                                            call terminate()
-                                            return
-                                        endif
-                                    else
-                                        if allocated and OnItem.evaluate(this, collided.item) then
-                                            call terminate()
-                                            return
-                                        endif
-                                    endif
-                                endif
-                            else
-                                call SaveBoolean(table, this, GetHandleId(collided.item), true)
-
-                                if .onItem.exists then
-                                    if allocated and .onItem(collided.item) then
-                                        call terminate()
-                                        return
-                                    endif
-                                else
-                                    if allocated and OnItem.evaluate(this, collided.item) then
-                                        call terminate()
-                                        return
-                                    endif
-                                endif
-                            endif
-                        endif
-                    elseif collided.isDestructable and (.onDestructable.exists or OnDestructable != 0) then
-                        if not HaveSavedBoolean(table, this, GetHandleId(collided.destructable)) then
-                            if collideZ then
-                                set dz = GetLocZ(collided.x, collided.y)
-                                set tz = GetDestructableOccluderHeight(collided.destructable)
-
-                                if dz + tz >= z - collision and dz <= z + collision then
-                                    call SaveBoolean(table, this, GetHandleId(collided.destructable), true)
-
-                                    if .onDestructable.exists then
-                                        if allocated and .onDestructable(collided.destructable) then
-                                            call terminate()
-                                            return
-                                        endif
-                                    else
-                                        if allocated and OnDestructable.evaluate(this, collided.destructable) then
-                                            call terminate()
-                                            return
-                                        endif
-                                    endif
-                                endif
-                            else
-                                call SaveBoolean(table, this, GetHandleId(collided.destructable), true)
-                                
-                                if .onDestructable.exists then
-                                    if allocated and .onDestructable(collided.destructable) then
-                                        call terminate()
-                                        return
-                                    endif
-                                else
-                                    if allocated and OnDestructable.evaluate(this, collided.destructable) then
-                                        call terminate()
-                                        return
-                                    endif
-                                endif
-                            endif
-                        endif
-                    elseif missile != 0 and (.onMissile.exists or OnMissile != 0) then
-                        if not HaveSavedBoolean(table, this, missile) then
-                            call SaveBoolean(table, this, missile, true)
-
-                            if .onMissile.exists then
-                                if allocated and .onMissile(missile) then
-                                    call terminate()
-                                endif
-                            else
-                                if allocated and OnMissile.evaluate(this, missile) then
-                                    call terminate()
-                                endif
-                            endif
-                        endif
-                    endif
-                endif
-            endmethod
-        endif
-
         private static method onItems takes nothing returns nothing
             local item i = GetEnumItem()
             local thistype this = temp
@@ -2175,35 +1268,19 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                     if dz + ITEM_SIZE >= z - collision and dz <= z + collision then
                         call SaveBoolean(table, this, GetHandleId(i), true)
 
-                        if .onItem.exists then
-                            if allocated and .onItem(i) then
-                                set i = null
-                                call terminate()
-                                return
-                            endif
-                        else
-                            if allocated and OnItem.evaluate(this, i) then
-                                set i = null
-                                call terminate()
-                                return
-                            endif
-                        endif
-                    endif
-                else
-                    call SaveBoolean(table, this, GetHandleId(i), true)
-
-                    if .onItem.exists then
                         if allocated and .onItem(i) then
                             set i = null
                             call terminate()
                             return
                         endif
-                    else
-                        if allocated and OnItem.evaluate(this, i) then
-                            set i = null
-                            call terminate()
-                            return
-                        endif
+                    endif
+                else
+                    call SaveBoolean(table, this, GetHandleId(i), true)
+
+                    if allocated and .onItem(i) then
+                        set i = null
+                        call terminate()
+                        return
                     endif
                 endif
             endif
@@ -2225,35 +1302,19 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                     if dz + tz >= z - collision and dz <= z + collision then
                         call SaveBoolean(table, this, GetHandleId(d), true)
 
-                        if .onDestructable.exists then
-                            if allocated and .onDestructable(d) then
-                                set d = null
-                                call terminate()
-                                return
-                            endif
-                        else
-                            if allocated and OnDestructable.evaluate(this, d) then
-                                set d = null
-                                call terminate()
-                                return
-                            endif
-                        endif
-                    endif
-                else
-                    call SaveBoolean(table, this, GetHandleId(d), true)
-                    
-                    if .onDestructable.exists then
                         if allocated and .onDestructable(d) then
                             set d = null
                             call terminate()
                             return
                         endif
-                    else
-                        if allocated and OnDestructable.evaluate(this, d) then
-                            set d = null
-                            call terminate()
-                            return
-                        endif
+                    endif
+                else
+                    call SaveBoolean(table, this, GetHandleId(d), true)
+                    
+                    if allocated and .onDestructable(d) then
+                        set d = null
+                        call terminate()
+                        return
                     endif
                 endif
             endif
@@ -2277,17 +1338,6 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set this.z = impact.z
             set this.toZ = toZ
             set cliff = GetTerrainCliffLevel(x, y)
-
-            static if LIBRARY_Enumerable and USE_ENUMERABLE then
-                set object = Object[effect.effect]
-                set object.x = x
-                set object.y = y
-                set object.z = z
-                set object.data = this
-                set object.onCollide = thistype.onCollide
-
-                call Enumerable.track(object)
-            endif
             
             return this
         endmethod

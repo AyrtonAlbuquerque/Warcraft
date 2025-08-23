@@ -38,7 +38,7 @@ library Dummy requires TimerUtils, WorldBounds
                 call SetUnitY(dummy, WorldBounds.maxY)
                 call SetUnitOwner(dummy, player, false)
                 call ShowUnit(dummy, false)
-                call BlzPauseUnitEx(dummy, true)
+                call PauseUnit(dummy, true)
             endif
         endmethod
 
@@ -46,14 +46,14 @@ library Dummy requires TimerUtils, WorldBounds
             if BlzGroupGetSize(group) > 0 then
                 set bj_lastCreatedUnit = FirstOfGroup(group)
 
-                call BlzPauseUnitEx(bj_lastCreatedUnit, false)
+                call PauseUnit(bj_lastCreatedUnit, false)
                 call ShowUnit(bj_lastCreatedUnit, true)
                 call GroupRemoveUnit(group, bj_lastCreatedUnit)
                 call SetUnitX(bj_lastCreatedUnit, x)
                 call SetUnitY(bj_lastCreatedUnit, y)
                 call MoveLocation(location, x, y)
                 call SetUnitFlyHeight(bj_lastCreatedUnit, z - GetLocationZ(location), 0)
-                call BlzSetUnitFacingEx(bj_lastCreatedUnit, face*bj_RADTODEG)
+                call SetUnitFacing(bj_lastCreatedUnit, face*bj_RADTODEG)
                 call SetUnitOwner(bj_lastCreatedUnit, owner, false)
             else
                 set bj_lastCreatedUnit = CreateUnit(owner, DUMMY, x, y, face*bj_RADTODEG)
@@ -98,7 +98,7 @@ library Dummy requires TimerUtils, WorldBounds
                 exitwhen i == 150
                     set u = CreateUnit(player, DUMMY, WorldBounds.maxX, WorldBounds.maxY, 0)
 
-                    call BlzPauseUnitEx(u, false)
+                    call PauseUnit(u, false)
                     call GroupAddUnit(group, u)
                 set i = i + 1
             endloop
