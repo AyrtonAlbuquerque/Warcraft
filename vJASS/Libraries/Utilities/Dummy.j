@@ -30,24 +30,26 @@ library Dummy requires TimerUtils, WorldBounds
         timer timer
 
         static method recycle takes unit dummy returns nothing
-            if GetUnitTypeId(dummy) != DUMMY then
-                debug call BJDebugMsg("[Dummy] Error: Trying to recycle a non dummy unit")
-            else
+            if GetUnitTypeId(dummy) == DUMMY then
                 call GroupAddUnit(group, dummy)
                 call SetUnitX(dummy, WorldBounds.maxX)
                 call SetUnitY(dummy, WorldBounds.maxY)
                 call SetUnitOwner(dummy, player, false)
-                call ShowUnit(dummy, false)
+                call SetUnitScale(dummy, 1, 1, 1)
+                call SetUnitTimeScale(dummy, 1)
                 call PauseUnit(dummy, true)
             endif
         endmethod
 
         static method retrieve takes player owner, real x, real y, real z, real face returns unit
+            if owner == null then
+                set owner = player
+            endif
+            
             if BlzGroupGetSize(group) > 0 then
                 set bj_lastCreatedUnit = FirstOfGroup(group)
 
                 call PauseUnit(bj_lastCreatedUnit, false)
-                call ShowUnit(bj_lastCreatedUnit, true)
                 call GroupRemoveUnit(group, bj_lastCreatedUnit)
                 call SetUnitX(bj_lastCreatedUnit, x)
                 call SetUnitY(bj_lastCreatedUnit, y)
@@ -57,7 +59,10 @@ library Dummy requires TimerUtils, WorldBounds
                 call SetUnitOwner(bj_lastCreatedUnit, owner, false)
             else
                 set bj_lastCreatedUnit = CreateUnit(owner, DUMMY, x, y, face*bj_RADTODEG)
-                call SetUnitFlyHeight(bj_lastCreatedUnit, z, 0)
+
+                call MoveLocation(location, x, y)
+                call SetUnitFlyHeight(bj_lastCreatedUnit, z - GetLocationZ(location), 0)
+                call UnitRemoveAbility(bj_lastCreatedUnit, 'Amrf')
             endif
 
             return bj_lastCreatedUnit
@@ -79,7 +84,7 @@ library Dummy requires TimerUtils, WorldBounds
             local thistype this
 
             if GetUnitTypeId(dummy) != DUMMY then
-                debug call BJDebugMsg("[Dummy] Error: Trying to recycle a non dummy unit")
+                debug call BJDebugMsg("[DummyPool] Error: Trying to recycle a non dummy unit")
             else
                 set this = thistype.allocate()
 
@@ -100,6 +105,7 @@ library Dummy requires TimerUtils, WorldBounds
 
                     call PauseUnit(u, false)
                     call GroupAddUnit(group, u)
+                    call UnitRemoveAbility(u, 'Amrf')
                 set i = i + 1
             endloop
 
