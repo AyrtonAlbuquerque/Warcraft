@@ -1,4 +1,4 @@
-library NewBonus requires Table, Periodic
+library NewBonus requires Table, Modules
     /* ---------------------------------------- NewBonus v3.0 --------------------------------------- */
     // Credits to Earth Fury for the original Bonus idea
     /* ---------------------------------------- By Chopinski ---------------------------------------- */

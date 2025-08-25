@@ -1,5 +1,5 @@
-library CooldownReduction requires RegisterPlayerUnitEvent, Table, Alloc, Indexer
-    /* ------------------ Cooldown Reduction v2.0 by Chopinski ------------------ */
+library CooldownReduction requires RegisterPlayerUnitEvent, Table, Modules, Indexer
+    /* ------------------ Cooldown Reduction v2.1 by Chopinski ------------------ */
         // Intro
         //     This library intension in to introduce to warcraft an easy way to 
         //     manipulate abilities cooldowns based on a cooldown reduction value that

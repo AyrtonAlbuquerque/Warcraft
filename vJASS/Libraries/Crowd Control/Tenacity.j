@@ -1,5 +1,5 @@
-library Tenacity requires Indexer, Alloc
-    /* ---------------------------------------- Tenacity v1.1 --------------------------------------- */
+library Tenacity requires Indexer, Modules
+    /* ---------------------------------------- Tenacity v1.2 --------------------------------------- */
     // Intro
     //      This library intension in to introduce to warcraft an easy way to 
     //      manipulate the duration of crowd control on units.

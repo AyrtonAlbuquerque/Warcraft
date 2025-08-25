@@ -1,14 +1,15 @@
-library CrowdControl requires Utilities, WorldBounds, Indexer, TimerUtils, RegisterPlayerUnitEvent, optional Tenacity
-    /* ------------------------------------- Crowd Control v1.0 ------------------------------------- */
+library CrowdControl requires Dummy, Utilities, WorldBounds, Indexer, TimerUtils, RegisterPlayerUnitEvent, optional Tenacity
+    /* ------------------------------------- Crowd Control v1.1 ------------------------------------- */
     // How to Import:
     // 1 - Copy the Utilities library over to your map and follow its install instructions
-    // 2 - Copy the WorldBounds library over to your map and follow its install instructions
-    // 3 - Copy the Indexer library over to your map and follow its install instructions
-    // 4 - Copy the TimerUtils library over to your map and follow its install instructions
-    // 5 - Copy the RegisterPlayerUnitEvent library over to your map and follow its install instructions
-    // 6 - Copy the Tenacity library over to your map and follow its install instructions
-    // 7 - Copy this library into your map
-    // 8 - Copy the 14 buffs and 15 abilities with the CC prefix and match their raw code below.
+    // 2 - Copy the Dummy library over to your map and follow its install instructions
+    // 3 - Copy the WorldBounds library over to your map and follow its install instructions
+    // 4 - Copy the Indexer library over to your map and follow its install instructions
+    // 5 - Copy the TimerUtils library over to your map and follow its install instructions
+    // 6 - Copy the RegisterPlayerUnitEvent library over to your map and follow its install instructions
+    // 7 - Copy the Tenacity library over to your map and follow its install instructions
+    // 8 - Copy this library into your map
+    // 9 - Copy the 14 buffs and 15 abilities with the CC prefix and match their raw code below.
     /* ---------------------------------------- By Chopinski ---------------------------------------- */
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -757,8 +758,8 @@ library CrowdControl requires Utilities, WorldBounds, Indexer, TimerUtils, Regis
         readonly static unit array source
 
         unit unit
-        effect effect
         integer id
+        effect effect
         boolean selected
 
         static method taunted takes unit target returns boolean
@@ -940,229 +941,6 @@ library CrowdControl requires Utilities, WorldBounds, Indexer, TimerUtils, Regis
         static boolean array agent 
         static integer array type
 
-        private static method onInit takes nothing returns nothing
-            set dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetRectCenterX(GetWorldBounds()), GetRectCenterY(GetWorldBounds()), 0, 0)   
-            
-            call UnitAddAbility(dummy, SILENCE)
-            call UnitAddAbility(dummy, STUN)
-            call UnitAddAbility(dummy, ATTACK_SLOW)
-            call UnitAddAbility(dummy, MOVEMENT_SLOW)
-            call UnitAddAbility(dummy, BANISH)
-            call UnitAddAbility(dummy, ENSNARE)
-            call UnitAddAbility(dummy, PURGE)
-            call UnitAddAbility(dummy, HEX)
-            call UnitAddAbility(dummy, SLEEP)
-            call UnitAddAbility(dummy, CYCLONE)
-            call UnitAddAbility(dummy, ENTANGLE)
-            call UnitAddAbility(dummy, DISARM)
-            call UnitAddAbility(dummy, TRUE_SIGHT)
-
-            call BlzUnitDisableAbility(dummy, SILENCE, true, true)
-            call BlzUnitDisableAbility(dummy, STUN, true, true)
-            call BlzUnitDisableAbility(dummy, ATTACK_SLOW, true, true)
-            call BlzUnitDisableAbility(dummy, MOVEMENT_SLOW, true, true)
-            call BlzUnitDisableAbility(dummy, BANISH, true, true)
-            call BlzUnitDisableAbility(dummy, ENSNARE, true, true)
-            call BlzUnitDisableAbility(dummy, PURGE, true, true)
-            call BlzUnitDisableAbility(dummy, HEX, true, true)
-            call BlzUnitDisableAbility(dummy, SLEEP, true, true)
-            call BlzUnitDisableAbility(dummy, CYCLONE, true, true)
-            call BlzUnitDisableAbility(dummy, ENTANGLE, true, true)
-            call BlzUnitDisableAbility(dummy, DISARM, true, true)
-
-            set ability[CROWD_CONTROL_SILENCE] = SILENCE
-            set ability[CROWD_CONTROL_STUN] = STUN
-            set ability[CROWD_CONTROL_SLOW] = MOVEMENT_SLOW
-            set ability[CROWD_CONTROL_SLOW_ATTACK] = ATTACK_SLOW
-            set ability[CROWD_CONTROL_BANISH] = BANISH
-            set ability[CROWD_CONTROL_ENSNARE] = ENSNARE
-            set ability[CROWD_CONTROL_PURGE] = PURGE
-            set ability[CROWD_CONTROL_HEX] = HEX
-            set ability[CROWD_CONTROL_SLEEP] = SLEEP
-            set ability[CROWD_CONTROL_CYCLONE] = CYCLONE
-            set ability[CROWD_CONTROL_ENTANGLE] = ENTANGLE
-            set ability[CROWD_CONTROL_DISARM] = DISARM
-            set ability[CROWD_CONTROL_FEAR] = FEAR
-            set ability[CROWD_CONTROL_TAUNT] = TAUNT
-
-            set buff[CROWD_CONTROL_SILENCE] = SILENCE_BUFF
-            set buff[CROWD_CONTROL_STUN] = STUN_BUFF
-            set buff[CROWD_CONTROL_SLOW] = MOVEMENT_SLOW_BUFF
-            set buff[CROWD_CONTROL_SLOW_ATTACK] = ATTACK_SLOW_BUFF
-            set buff[CROWD_CONTROL_BANISH] = BANISH_BUFF
-            set buff[CROWD_CONTROL_ENSNARE] = ENSNARE_BUFF
-            set buff[CROWD_CONTROL_PURGE] = PURGE_BUFF
-            set buff[CROWD_CONTROL_HEX] = HEX_BUFF
-            set buff[CROWD_CONTROL_SLEEP] = SLEEP_BUFF
-            set buff[CROWD_CONTROL_CYCLONE] = CYCLONE_BUFF
-            set buff[CROWD_CONTROL_ENTANGLE] = ENTANGLE_BUFF
-            set buff[CROWD_CONTROL_DISARM] = DISARM_BUFF
-            set buff[CROWD_CONTROL_FEAR] = FEAR_BUFF
-            set buff[CROWD_CONTROL_TAUNT] = TAUNT_BUFF
-
-            set order[CROWD_CONTROL_SILENCE] = "drunkenhaze"
-            set order[CROWD_CONTROL_STUN] = "thunderbolt"
-            set order[CROWD_CONTROL_SLOW] = "cripple"
-            set order[CROWD_CONTROL_SLOW_ATTACK] = "cripple"
-            set order[CROWD_CONTROL_BANISH] = "banish"
-            set order[CROWD_CONTROL_ENSNARE] = "ensnare"
-            set order[CROWD_CONTROL_PURGE] = "purge"
-            set order[CROWD_CONTROL_HEX] = "hex"
-            set order[CROWD_CONTROL_SLEEP] = "sleep"
-            set order[CROWD_CONTROL_CYCLONE] = "cyclone"
-            set order[CROWD_CONTROL_ENTANGLE] = "entanglingroots"
-            set order[CROWD_CONTROL_DISARM] = "drunkenhaze"
-        endmethod
-
-        private static method onExpire takes nothing returns nothing
-            local timer t = GetExpiredTimer()
-
-            call RemoveSavedHandle(timer, GetHandleId(LoadUnitHandle(timer, GetHandleId(t), 0)), LoadInteger(timer, GetHandleId(t), 1))
-            call FlushChildHashtable(timer, GetHandleId(t))
-            call DestroyTimer(t)
-
-            set t = null
-        endmethod
-
-        private static method onEvent takes integer key returns nothing
-            local integer i = 0
-            local integer next = -1
-            local integer prev = -2
-
-            set count = count + 1
-
-            if count - CROWD_CONTROL_KNOCKUP < RECURSION_LIMIT then
-                loop
-                    exitwhen type[key] == next or (i - CROWD_CONTROL_KNOCKUP > RECURSION_LIMIT)
-                        set next = type[key]
-    
-                        if event[next] != null then
-                            call TriggerEvaluate(event[next])
-                        endif
-
-                        if type[key] != next then
-                            set i = i + 1
-                        else
-                            if next != prev then
-                                call TriggerEvaluate(trigger)
-
-                                if type[key] != next then
-                                    set i = i + 1
-                                    set prev = next
-                                endif
-                            endif
-                        endif
-                endloop
-            endif
-            
-            set count = count - 1
-            set .key = key
-        endmethod
-
-        private static method cast takes unit source, unit target, real amount, real angle, real distance, real height, real duration, string model, string point, boolean stack, boolean onCliff, boolean onDestructable, boolean onUnit, integer id returns nothing
-            local ability spell
-            local timer t
-    
-            if not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE) and UnitAlive(target) and duration > 0 then
-                set key = key + 1
-                set .unit[key] = target
-                set .source[key] = source
-                set .amount[key] = amount
-                set .angle[key] = angle
-                set .distance[key] = distance
-                set .height[key] = height
-                set .duration[key] = duration
-                set .model[key] = model
-                set .point[key] = point
-                set .stack[key] = stack
-                set .cliff[key] = onCliff
-                set .destructable[key] = onDestructable
-                set .agent[key] = onUnit
-                set .type[key] = id
-
-                call onEvent(key)
-        
-                static if LIBRARY_Tenacity then
-                    set .duration[key] = GetTenacityDuration(unit[key], .duration[key])
-                endif
-
-                if .duration[key] > 0 and UnitAlive(unit[key]) then
-                    if not HaveSavedHandle(timer, GetHandleId(unit[key]), type[key]) then
-                        set t = CreateTimer()
-                        call SaveTimerHandle(timer, GetHandleId(unit[key]), type[key], t)
-                        call SaveUnitHandle(timer, GetHandleId(t), 0, unit[key])
-                        call SaveInteger(timer, GetHandleId(t), 1, type[key])
-                    endif
-
-                    if .stack[key] then
-                        if type[key] != CROWD_CONTROL_TAUNT then
-                            set .duration[key] = .duration[key] + TimerGetRemaining(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]))
-                        else
-                            if Taunt.source[GetUnitUserData(unit[key])] == .source[key] then
-                                set .duration[key] = .duration[key] + TimerGetRemaining(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]))
-                            endif
-                        endif
-                    endif
-
-                    if type[key] != CROWD_CONTROL_FEAR and type[key] != CROWD_CONTROL_TAUNT and type[key] != CROWD_CONTROL_KNOCKBACK and type[key] != CROWD_CONTROL_KNOCKUP then
-                        set spell = BlzGetUnitAbility(dummy, ability[type[key]])
-
-                        call BlzUnitDisableAbility(dummy, ability[type[key]], false, false)
-                        call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_NORMAL, 0, .duration[key])
-                        call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, 0, .duration[key])
-
-                        if type[key] == CROWD_CONTROL_SLOW then
-                            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_MOVEMENT_SPEED_REDUCTION_PERCENT_CRI1, 0, .amount[key])
-                        elseif type[key] == CROWD_CONTROL_SLOW_ATTACK then
-                            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_ATTACK_SPEED_REDUCTION_PERCENT_CRI2, 0, .amount[key])
-                        endif
-
-                        call IncUnitAbilityLevel(dummy, ability[type[key]])
-                        call DecUnitAbilityLevel(dummy, ability[type[key]])
-
-                        if IssueTargetOrder(dummy, order[type[key]], unit[key]) then
-                            call UnitRemoveAbility(unit[key], buff[type[key]])
-                            call IssueTargetOrder(dummy, order[type[key]], unit[key])
-                            call TimerStart(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]), .duration[key], false, function thistype.onExpire)
-
-                            if .model[key] != null and .model[key] != "" then
-                                if .point[key] != null and .point[key] != "" then
-                                    call LinkEffectToBuff(unit[key], buff[type[key]], .model[key], .point[key])
-                                else
-                                    call DestroyEffect(AddSpecialEffect(.model[key], GetUnitX(unit[key]), GetUnitY(unit[key])))
-                                endif
-                            endif
-                        else
-                            call RemoveSavedHandle(timer, GetHandleId(unit[key]), type[key])
-                            call FlushChildHashtable(timer, GetHandleId(t))
-                            call DestroyTimer(t)
-                        endif
-
-                        call BlzUnitDisableAbility(dummy, ability[type[key]], true, true)
-                    else
-                        if type[key] == CROWD_CONTROL_FEAR then
-                            call Fear.apply(unit[key], .duration[key], .model[key], .point[key])
-                        elseif type[key] == CROWD_CONTROL_TAUNT then
-                            call Taunt.apply(.source[key], unit[key], .duration[key], .model[key], .point[key])
-                        elseif type[key] == CROWD_CONTROL_KNOCKBACK then
-                            call Knockback.apply(unit[key], .angle[key], .distance[key], .duration[key], .model[key], .point[key], .cliff[key], .destructable[key], .agent[key])
-                        elseif type[key] == CROWD_CONTROL_KNOCKUP then
-                            call Knockup.apply(unit[key], .duration[key], .height[key], .model[key], .point[key])
-                        endif
-
-                        call TimerStart(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]), .duration[key], false, function thistype.onExpire)
-                    endif
-                endif
-    
-                if key > -1 then
-                    set key = key - 1
-                endif
-            endif
-    
-            set t = null
-            set spell = null
-        endmethod
-
         static method silence takes unit target, real duration, string model, string point, boolean stack returns nothing
             call cast(null, target, 0, 0, 0, 0, duration, model, point, stack, false, false, false, CROWD_CONTROL_SILENCE)
         endmethod
@@ -1299,6 +1077,7 @@ library CrowdControl requires Utilities, WorldBounds, Indexer, TimerUtils, Regis
 
                 if HaveSavedHandle(timer, GetHandleId(target), id) then
                     set t = LoadTimerHandle(timer, GetHandleId(target), id)
+
                     call RemoveSavedHandle(timer, GetHandleId(target), id)
                     call FlushChildHashtable(timer, GetHandleId(t))
                     call DestroyTimer(t)
@@ -1334,10 +1113,235 @@ library CrowdControl requires Utilities, WorldBounds, Indexer, TimerUtils, Regis
                 if event[id] == null then
                     set event[id] = CreateTrigger()
                 endif
+
                 call TriggerAddCondition(event[id], Filter(c))
             else
                 call TriggerAddCondition(trigger, Filter(c))
             endif
+        endmethod
+
+        private static method cast takes unit source, unit target, real amount, real angle, real distance, real height, real duration, string model, string point, boolean stack, boolean onCliff, boolean onDestructable, boolean onUnit, integer id returns nothing
+            local ability spell
+            local timer t
+    
+            if not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE) and UnitAlive(target) and duration > 0 then
+                set key = key + 1
+                set .unit[key] = target
+                set .source[key] = source
+                set .amount[key] = amount
+                set .angle[key] = angle
+                set .distance[key] = distance
+                set .height[key] = height
+                set .duration[key] = duration
+                set .model[key] = model
+                set .point[key] = point
+                set .stack[key] = stack
+                set .cliff[key] = onCliff
+                set .destructable[key] = onDestructable
+                set .agent[key] = onUnit
+                set .type[key] = id
+
+                call onEvent(key)
+        
+                static if LIBRARY_Tenacity then
+                    set .duration[key] = GetTenacityDuration(unit[key], .duration[key])
+                endif
+
+                if .duration[key] > 0 and UnitAlive(unit[key]) then
+                    if not HaveSavedHandle(timer, GetHandleId(unit[key]), type[key]) then
+                        set t = CreateTimer()
+                        
+                        call SaveTimerHandle(timer, GetHandleId(unit[key]), type[key], t)
+                        call SaveUnitHandle(timer, GetHandleId(t), 0, unit[key])
+                        call SaveInteger(timer, GetHandleId(t), 1, type[key])
+                    endif
+
+                    if .stack[key] then
+                        if type[key] != CROWD_CONTROL_TAUNT then
+                            set .duration[key] = .duration[key] + TimerGetRemaining(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]))
+                        else
+                            if Taunt.source[GetUnitUserData(unit[key])] == .source[key] then
+                                set .duration[key] = .duration[key] + TimerGetRemaining(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]))
+                            endif
+                        endif
+                    endif
+
+                    if type[key] != CROWD_CONTROL_FEAR and type[key] != CROWD_CONTROL_TAUNT and type[key] != CROWD_CONTROL_KNOCKBACK and type[key] != CROWD_CONTROL_KNOCKUP then
+                        set spell = BlzGetUnitAbility(dummy, ability[type[key]])
+
+                        call BlzUnitDisableAbility(dummy, ability[type[key]], false, false)
+                        call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_NORMAL, 0, .duration[key])
+                        call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, 0, .duration[key])
+
+                        if type[key] == CROWD_CONTROL_SLOW then
+                            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_MOVEMENT_SPEED_REDUCTION_PERCENT_CRI1, 0, .amount[key])
+                        elseif type[key] == CROWD_CONTROL_SLOW_ATTACK then
+                            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_ATTACK_SPEED_REDUCTION_PERCENT_CRI2, 0, .amount[key])
+                        endif
+
+                        call IncUnitAbilityLevel(dummy, ability[type[key]])
+                        call DecUnitAbilityLevel(dummy, ability[type[key]])
+
+                        if IssueTargetOrder(dummy, order[type[key]], unit[key]) then
+                            call UnitRemoveAbility(unit[key], buff[type[key]])
+                            call IssueTargetOrder(dummy, order[type[key]], unit[key])
+                            call TimerStart(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]), .duration[key], false, function thistype.onExpire)
+
+                            if .model[key] != null and .model[key] != "" then
+                                if .point[key] != null and .point[key] != "" then
+                                    call LinkEffectToBuff(unit[key], buff[type[key]], .model[key], .point[key])
+                                else
+                                    call DestroyEffect(AddSpecialEffect(.model[key], GetUnitX(unit[key]), GetUnitY(unit[key])))
+                                endif
+                            endif
+                        else
+                            call RemoveSavedHandle(timer, GetHandleId(unit[key]), type[key])
+                            call FlushChildHashtable(timer, GetHandleId(t))
+                            call DestroyTimer(t)
+                        endif
+
+                        call BlzUnitDisableAbility(dummy, ability[type[key]], true, true)
+                    else
+                        if type[key] == CROWD_CONTROL_FEAR then
+                            call Fear.apply(unit[key], .duration[key], .model[key], .point[key])
+                        elseif type[key] == CROWD_CONTROL_TAUNT then
+                            call Taunt.apply(.source[key], unit[key], .duration[key], .model[key], .point[key])
+                        elseif type[key] == CROWD_CONTROL_KNOCKBACK then
+                            call Knockback.apply(unit[key], .angle[key], .distance[key], .duration[key], .model[key], .point[key], .cliff[key], .destructable[key], .agent[key])
+                        elseif type[key] == CROWD_CONTROL_KNOCKUP then
+                            call Knockup.apply(unit[key], .duration[key], .height[key], .model[key], .point[key])
+                        endif
+
+                        call TimerStart(LoadTimerHandle(timer, GetHandleId(unit[key]), type[key]), .duration[key], false, function thistype.onExpire)
+                    endif
+                endif
+    
+                if key > -1 then
+                    set key = key - 1
+                endif
+            endif
+    
+            set t = null
+            set spell = null
+        endmethod
+
+        private static method onExpire takes nothing returns nothing
+            local timer t = GetExpiredTimer()
+
+            call RemoveSavedHandle(timer, GetHandleId(LoadUnitHandle(timer, GetHandleId(t), 0)), LoadInteger(timer, GetHandleId(t), 1))
+            call FlushChildHashtable(timer, GetHandleId(t))
+            call DestroyTimer(t)
+
+            set t = null
+        endmethod
+
+        private static method onEvent takes integer key returns nothing
+            local integer i = 0
+            local integer next = -1
+            local integer prev = -2
+
+            set count = count + 1
+
+            if count - CROWD_CONTROL_KNOCKUP < RECURSION_LIMIT then
+                loop
+                    exitwhen type[key] == next or (i - CROWD_CONTROL_KNOCKUP > RECURSION_LIMIT)
+                        set next = type[key]
+    
+                        if event[next] != null then
+                            call TriggerEvaluate(event[next])
+                        endif
+
+                        if type[key] != next then
+                            set i = i + 1
+                        else
+                            if next != prev then
+                                call TriggerEvaluate(trigger)
+
+                                if type[key] != next then
+                                    set i = i + 1
+                                    set prev = next
+                                endif
+                            endif
+                        endif
+                endloop
+            endif
+            
+            set count = count - 1
+            set .key = key
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            set dummy = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), GetRectCenterX(GetWorldBounds()), GetRectCenterY(GetWorldBounds()), 0, 0)   
+            
+            call UnitAddAbility(dummy, SILENCE)
+            call UnitAddAbility(dummy, STUN)
+            call UnitAddAbility(dummy, ATTACK_SLOW)
+            call UnitAddAbility(dummy, MOVEMENT_SLOW)
+            call UnitAddAbility(dummy, BANISH)
+            call UnitAddAbility(dummy, ENSNARE)
+            call UnitAddAbility(dummy, PURGE)
+            call UnitAddAbility(dummy, HEX)
+            call UnitAddAbility(dummy, SLEEP)
+            call UnitAddAbility(dummy, CYCLONE)
+            call UnitAddAbility(dummy, ENTANGLE)
+            call UnitAddAbility(dummy, DISARM)
+            call UnitAddAbility(dummy, TRUE_SIGHT)
+
+            call BlzUnitDisableAbility(dummy, SILENCE, true, true)
+            call BlzUnitDisableAbility(dummy, STUN, true, true)
+            call BlzUnitDisableAbility(dummy, ATTACK_SLOW, true, true)
+            call BlzUnitDisableAbility(dummy, MOVEMENT_SLOW, true, true)
+            call BlzUnitDisableAbility(dummy, BANISH, true, true)
+            call BlzUnitDisableAbility(dummy, ENSNARE, true, true)
+            call BlzUnitDisableAbility(dummy, PURGE, true, true)
+            call BlzUnitDisableAbility(dummy, HEX, true, true)
+            call BlzUnitDisableAbility(dummy, SLEEP, true, true)
+            call BlzUnitDisableAbility(dummy, CYCLONE, true, true)
+            call BlzUnitDisableAbility(dummy, ENTANGLE, true, true)
+            call BlzUnitDisableAbility(dummy, DISARM, true, true)
+
+            set ability[CROWD_CONTROL_SILENCE] = SILENCE
+            set ability[CROWD_CONTROL_STUN] = STUN
+            set ability[CROWD_CONTROL_SLOW] = MOVEMENT_SLOW
+            set ability[CROWD_CONTROL_SLOW_ATTACK] = ATTACK_SLOW
+            set ability[CROWD_CONTROL_BANISH] = BANISH
+            set ability[CROWD_CONTROL_ENSNARE] = ENSNARE
+            set ability[CROWD_CONTROL_PURGE] = PURGE
+            set ability[CROWD_CONTROL_HEX] = HEX
+            set ability[CROWD_CONTROL_SLEEP] = SLEEP
+            set ability[CROWD_CONTROL_CYCLONE] = CYCLONE
+            set ability[CROWD_CONTROL_ENTANGLE] = ENTANGLE
+            set ability[CROWD_CONTROL_DISARM] = DISARM
+            set ability[CROWD_CONTROL_FEAR] = FEAR
+            set ability[CROWD_CONTROL_TAUNT] = TAUNT
+
+            set buff[CROWD_CONTROL_SILENCE] = SILENCE_BUFF
+            set buff[CROWD_CONTROL_STUN] = STUN_BUFF
+            set buff[CROWD_CONTROL_SLOW] = MOVEMENT_SLOW_BUFF
+            set buff[CROWD_CONTROL_SLOW_ATTACK] = ATTACK_SLOW_BUFF
+            set buff[CROWD_CONTROL_BANISH] = BANISH_BUFF
+            set buff[CROWD_CONTROL_ENSNARE] = ENSNARE_BUFF
+            set buff[CROWD_CONTROL_PURGE] = PURGE_BUFF
+            set buff[CROWD_CONTROL_HEX] = HEX_BUFF
+            set buff[CROWD_CONTROL_SLEEP] = SLEEP_BUFF
+            set buff[CROWD_CONTROL_CYCLONE] = CYCLONE_BUFF
+            set buff[CROWD_CONTROL_ENTANGLE] = ENTANGLE_BUFF
+            set buff[CROWD_CONTROL_DISARM] = DISARM_BUFF
+            set buff[CROWD_CONTROL_FEAR] = FEAR_BUFF
+            set buff[CROWD_CONTROL_TAUNT] = TAUNT_BUFF
+
+            set order[CROWD_CONTROL_SILENCE] = "drunkenhaze"
+            set order[CROWD_CONTROL_STUN] = "thunderbolt"
+            set order[CROWD_CONTROL_SLOW] = "cripple"
+            set order[CROWD_CONTROL_SLOW_ATTACK] = "cripple"
+            set order[CROWD_CONTROL_BANISH] = "banish"
+            set order[CROWD_CONTROL_ENSNARE] = "ensnare"
+            set order[CROWD_CONTROL_PURGE] = "purge"
+            set order[CROWD_CONTROL_HEX] = "hex"
+            set order[CROWD_CONTROL_SLEEP] = "sleep"
+            set order[CROWD_CONTROL_CYCLONE] = "cyclone"
+            set order[CROWD_CONTROL_ENTANGLE] = "entanglingroots"
+            set order[CROWD_CONTROL_DISARM] = "drunkenhaze"
         endmethod
     endstruct
 endlibrary

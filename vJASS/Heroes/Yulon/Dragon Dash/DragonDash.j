@@ -48,7 +48,7 @@ library DragonDash requires Spell, Missiles, Utilities
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Dash extends Missiles
+    private struct Dash extends Missile
         real theta
         effect dash
         effect wind
@@ -69,6 +69,7 @@ library DragonDash requires Spell, Missiles, Utilities
             
             if UnitFilter(owner, u) then
                 set cooldown = BlzGetUnitAbilityCooldownRemaining(source, ABILITY)
+                
                 if reduction >= cooldown then
                     call ResetUnitAbilityCooldown(source, ABILITY)
                 else

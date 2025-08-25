@@ -1,4 +1,4 @@
-library ArcingFloatingText requires Table, Periodic
+library ArcingFloatingText requires Table, Modules
     globals
         private constant real BONUS_SIZE = 0.000
         private constant real LIFE_TIME = 1.0

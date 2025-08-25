@@ -1,4 +1,4 @@
-library DragonZone requires Spell, Utilities, CrowdControl, Periodic optional NewBonus
+library DragonZone requires Spell, Utilities, CrowdControl, Modules optional NewBonus
     /* ---------------------- Dragon Zone v1.3 by Chopinski --------------------- */
     // Credits:
     //     AZ             - Model

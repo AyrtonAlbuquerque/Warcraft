@@ -1,4 +1,4 @@
-library WhirlwindSpin requires Spell, Utilities, CrowdControl, Periodic optional NewBonus
+library WhirlwindSpin requires Spell, Utilities, CrowdControl, Modules optional NewBonus
     /* --------------------- WhirlwindSpin v1.3 by Chopinski -------------------- */
     // Credits:
     //     AnsonRuk    - Icon
