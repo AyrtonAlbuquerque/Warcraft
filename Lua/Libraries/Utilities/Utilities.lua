@@ -1,30 +1,69 @@
---[[ requires Indexer, TimedHandles, RegisterPlayerUnitEvent
-    -- --------------------------------------- Utilities v1.9 --------------------------------------- --
-    -- How to Import:
-    -- 1 - Copy this library into your map
-    -- 2 - Copy the dummy unit in object editor and match its raw code below
-    -- 3 - Copy the Indexer library over to your map and follow its install instructions
-    -- 4 - Copy the TimedHandles library over to your map and follow its install instructions
-    -- 5 - Copy the RegisterPlayerUnitEvent library over to your map and follow its install instructions
-    -- ---------------------------------------- By Chopinski ---------------------------------------- --
-]]--
+OnInit("Utilities", function(requires)
+    requires "Class"
+    requires "Dummy"
+    requires "Indexer"
+    requires "TimedHandles"
+    requires "RegisterPlayerUnitEvent"
 
-do
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                          Configuration                                         --
-    -- ---------------------------------------------------------------------------------------------- --
-    -- The dummy caster unit id
-    local DUMMY     = FourCC('dumi')
     -- Update period
-    local PERIOD    = 0.031250000
+    local PERIOD = 0.03125
     -- location z
-    local location  = Location(0,0)
+    local location = Location(0,0)
     -- Closest Unit
     local bj_closestUnitGroup
 
     -- ---------------------------------------------------------------------------------------------- --
-    --                                             LUA API                                            --
+    --                                             Lua API                                            --
     -- ---------------------------------------------------------------------------------------------- --
+    -- String to Ascii
+    S2A = FourCC
+    
+    -- Ascii to String
+    function A2S(id)
+        local a = (id >> 24) & 0xFF
+        local b = (id >> 16) & 0xFF
+        local c = (id >>  8) & 0xFF
+        local d =  id        & 0xFF
+
+        return string.char(a, b, c, d)
+    end
+
+    -- Workaround for patch 2.0 R2S bug
+    function N2S(value,  precision)
+        local digit
+        local result
+        local sign = ""
+    
+        if value < 0 then
+            sign = "-"
+            value = RAbsBJ(value)
+        end
+    
+        result = sign .. I2S(R2I(value))
+    
+        if precision <= 0 then
+            return result
+        end
+    
+        result = result .. "."
+        value = value - R2I(value)
+
+        while precision > 0 do
+            value = value * 10
+            digit = R2I(value)
+            result = result .. I2S(digit)
+            value = value - digit
+            precision = precision - 1
+        end
+    
+        return result
+    end
+
+    -- Real to Integer to String
+    function R2I2S(real)
+        return I2S(R2I(real))
+    end
+    
     -- Returns the terrain Z value
     function GetLocZ(x, y)
         MoveLocation(location, x, y)
@@ -65,12 +104,15 @@ do
         local unit
 
         GroupEnumUnitsInRange(g, x, y, aoe, nil)
+
         for i = 0, BlzGroupGetSize(g) - 1 do
             unit = BlzGroupUnitAt(g, i)
+
             if IsUnitEnemy(unit, player) and UnitAlive(unit) and (structures or (not IsUnitType(unit, UNIT_TYPE_STRUCTURE))) and (magicImmune or (not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE))) then
                 GroupAddUnit(group, unit)
             end
         end
+
         DestroyGroup(g)
 
         return group
@@ -86,6 +128,7 @@ do
         bj_closestUnitGroup = nil
         for i = 0, BlzGroupGetSize(group) - 1 do
             unit = BlzGroupUnitAt(group, i)
+
             if UnitAlive(unit) then
                 dx = GetUnitX(unit) - x
                 dy = GetUnitY(unit) - y
@@ -102,12 +145,12 @@ do
 
     -- Link an effect to a unit buff or ability
     function LinkEffectToBuff(unit, buffId, model, attach)
-        EffectLink:buff(unit, buffId, model, attach)
+        EffectLink.buff(unit, buffId, model, attach)
     end
 
     -- Link an effect to an unit item.
     function LinkEffectToItem(unit, i, model, attach)
-        EffectLink:item(unit, i, model, attach)
+        EffectLink.item(unit, i, model, attach)
     end
 
     -- Spams the specified effect model at a location with the given interval for the number of times count
@@ -121,6 +164,7 @@ do
                 PauseTimer(timer)
                 DestroyTimer(timer)
             end
+
             count = count - 1
         end)
     end
@@ -136,13 +180,14 @@ do
                 PauseTimer(timer)
                 DestroyTimer(timer)
             end
+
             count = count - 1
         end)
     end
 
     -- Add the specified ability to the specified unit for the given duration. Use hide to show or not the ability button.
     function UnitAddAbilityTimed(unit, ability, duration, level, hide)
-        TimedAbility:add(unit, ability, duration, level, hide)
+        TimedAbility.add(unit, ability, duration, level, hide)
     end
 
     -- Resets the specified unit ability cooldown
@@ -171,12 +216,15 @@ do
 
         GroupEnumUnitsInRange(group, x, y, aoe, nil)
         GroupRemoveUnit(group, unit)
+
         for i = 0, BlzGroupGetSize(group) - 1 do
             local u = BlzGroupUnitAt(group, i)
+
             if UnitAlive(u) and (allies or IsUnitEnemy(u, player)) and (structures or (not IsUnitType(u, UNIT_TYPE_STRUCTURE))) and (magicImmune or (not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE))) then
                 UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, nil)
             end
         end
+
         DestroyGroup(group)
     end
 
@@ -184,6 +232,7 @@ do
     function UnitDamageGroup(unit, group, damage, attacktype, damagetype, effect, attach, destroy)
         for i = 0, BlzGroupGetSize(group) - 1 do
             local u = BlzGroupUnitAt(group, i)
+
             UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, nil)
 
             if effect and attach then
@@ -228,13 +277,15 @@ do
         for i = 0, bj_MAX_INVENTORY do
             local item = UnitItemInSlot(source, i)
             local j = GetItemCharges(item)
+
             item = CreateItem(GetItemTypeId(item), GetUnitX(target), GetUnitY(target))
+
             SetItemCharges(item, j)
             UnitAddItem(target, item)
 
             if isIllusion then
-                if GetItemTypeId(item) == FourCC('ankh') then
-                    BlzItemRemoveAbility(item, FourCC('AIrc'))
+                if GetItemTypeId(item) == S2A('ankh') then
+                    BlzItemRemoveAbility(item, S2A('AIrc'))
                 end
 
                 BlzSetItemBooleanField(item, ITEM_BF_ACTIVELY_USED, false)
@@ -272,6 +323,7 @@ do
         GroupEnumUnitsInRect(group, bj_mapInitialPlayableArea, boolexpr)
         for i = 0, BlzGroupGetSize(group) - 1 do
             local unit = BlzGroupUnitAt(group, i)
+
             if UnitAlive(unit) then
                 local dx = GetUnitX(unit) - x
                 local dy = GetUnitY(unit) - y
@@ -282,6 +334,7 @@ do
                 end
             end
         end
+
         DestroyGroup(group)
         DestroyBoolExpr(boolexpr)
 
@@ -313,6 +366,7 @@ do
                 DestroyGroup(group)
                 if bounces > 0 then
                     group = GetEnemyUnitsInRange(player, GetUnitX(this), GetUnitY(this), aoe, false, false)
+
                     GroupRemoveUnit(group, this)
 
                     if not rebounce then
@@ -338,6 +392,7 @@ do
                             GroupAddUnit(damaged, next)
                             UnitDamageTarget(source, next, damage, false, false, attacktype, damagetype, nil)
                             DestroyGroup(group)
+
                             prev = this
                             this = next
                             next = nil
@@ -354,9 +409,11 @@ do
                     DestroyGroup(group)
                     DestroyGroup(damaged)
                 end
+
                 bounces = bounces - 1
             end)
         end
+
         DestroyGroup(group)
     end
 
@@ -380,21 +437,6 @@ do
     -- Add health regeneration to the unit base value
     function UnitAddHealthRegen(unit, regen)
         BlzSetUnitRealField(unit, UNIT_RF_HIT_POINTS_REGENERATION_RATE, BlzGetUnitRealField(unit, UNIT_RF_HIT_POINTS_REGENERATION_RATE) + regen)
-    end
-
-    -- Retrieves a dummy from the pool. Facing angle in radians
-    function DummyRetrieve(player, x, y, z, face)
-        return DummyPool:retrieve(player, x, y, z, face)
-    end
-
-    -- Recycles a dummy unit type, putting it back into the pool.
-    function DummyRecycle(unit)
-        DummyPool:recycle(unit)
-    end
-
-    -- Recycles a dummy with a delay.
-    function DummyRecycleTimed(unit, delay)
-        DummyPool:timed(unit, delay)
     end
 
     -- Casts an ability in the target unit. Must have no casting time
@@ -449,14 +491,17 @@ do
 
         GroupEnumUnitsInRange(group, x, y, aoe, nil)
         GroupRemoveUnit(group, unit)
+
         for i = 0, BlzGroupGetSize(group) - 1 do
             local u = BlzGroupUnitAt(group, i)
+
             if UnitAlive(u) and IsUnitInCone(u, x, y, aoe, face, fov) then
                 if (allies or IsUnitEnemy(u, player)) and (structures or (not IsUnitType(u, UNIT_TYPE_STRUCTURE))) and (magicImmune or (not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE))) then
                     UnitDamageTarget(unit, u, damage, true, false, attacktype, damagetype, nil)
                 end
             end
         end
+
         DestroyGroup(group)
     end
 
@@ -468,8 +513,10 @@ do
         GroupEnumUnitsInRange(group, x, y, aoe, nil)
         for i = 0, BlzGroupGetSize(group) - 1 do
             unit = BlzGroupUnitAt(group, i)
+
             if IsUnitAlly(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) then
                 SetWidgetLife(unit, GetWidgetLife(unit) + amount)
+
                 if effect ~= "" then
                     if attach ~= "" then
                         DestroyEffect(AddSpecialEffectTarget(effect, unit, attach))
@@ -479,12 +526,8 @@ do
                 end
             end
         end
-        DestroyGroup(group)
-    end
 
-    -- Pretty obvious.
-    function R2I2S(real)
-        return I2S(R2I(real))
+        DestroyGroup(group)
     end
 
     -- Returns an ability real level field as a string. Usefull for toolltip manipulation.
@@ -543,139 +586,53 @@ do
         end)
     end
 
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                             Systems                                            --
-    -- ---------------------------------------------------------------------------------------------- --
-    -- ----------------------------------------- Dummy Pool ----------------------------------------- --
+    -- -- ---------------------------------------------------------------------------------------------- --
+    -- --                                             Systems                                            --
+    -- -- ---------------------------------------------------------------------------------------------- --
+    -- -- ---------------------------------------- Timed Ability --------------------------------------- --
     do
-        local group  = CreateGroup()
-        local player = Player(PLAYER_NEUTRAL_PASSIVE)
+        TimedAbility = Class()
 
-        DummyPool = setmetatable({}, {})
-        local mt = getmetatable(DummyPool)
-        mt.__index = mt
-
-        function mt:recycle(unit)
-            if GetUnitTypeId(unit) ~= DUMMY then
-                print("[DummyPool] Error: Trying to recycle a non dummy unit")
-            else
-                GroupAddUnit(group, unit)
-                SetUnitX(unit, WorldBounds.maxX)
-                SetUnitY(unit, WorldBounds.maxY)
-                SetUnitOwner(unit, player, false)
-                ShowUnit(unit, false)
-                BlzPauseUnitEx(unit, true)
-            end
-        end
-
-        function mt:retrieve(owner, x, y, z, face)
-            if BlzGroupGetSize(group) > 0 then
-                bj_lastCreatedUnit = FirstOfGroup(group)
-                BlzPauseUnitEx(bj_lastCreatedUnit, false)
-                ShowUnit(bj_lastCreatedUnit, true)
-                GroupRemoveUnit(group, bj_lastCreatedUnit)
-                SetUnitX(bj_lastCreatedUnit, x)
-                SetUnitY(bj_lastCreatedUnit, y)
-                SetUnitFlyHeight(bj_lastCreatedUnit, z, 0)
-                BlzSetUnitFacingEx(bj_lastCreatedUnit, face*bj_RADTODEG)
-                SetUnitOwner(bj_lastCreatedUnit, owner, false)
-            else
-                bj_lastCreatedUnit = CreateUnit(owner, DUMMY, x, y, face*bj_RADTODEG)
-                SetUnitFlyHeight(bj_lastCreatedUnit, z, 0)
-            end
-
-            return bj_lastCreatedUnit
-        end
-
-        function mt:timed(unit, delay)
-            local timer = CreateTimer()
-
-            if GetUnitTypeId(unit) ~= DUMMY then
-                print("[DummyPool] Error: Trying to recycle a non dummy unit")
-            else
-                TimerStart(timer, delay, false, function()
-                    GroupAddUnit(group, unit)
-                    SetUnitX(unit, WorldBounds.maxX)
-                    SetUnitY(unit, WorldBounds.maxY)
-                    SetUnitOwner(unit, player, false)
-                    ShowUnit(unit, false)
-                    BlzPauseUnitEx(unit, true)
-                    PauseTimer(timer)
-                    DestroyTimer(timer)
-                end)
-            end
-        end
-
-        onInit(function()
-            local timer = CreateTimer()
-            local unit
-
-            TimerStart(timer, 0, false, function()
-                for i = 0, 20 do
-                    unit = CreateUnit(player, DUMMY, WorldBounds.maxX, WorldBounds.maxY, 0)
-                    BlzPauseUnitEx(unit, false)
-                    GroupAddUnit(group, unit)
-                end
-                PauseTimer(timer)
-                DestroyTimer(timer)
-            end)
-        end)
-    end
-
-    -- ---------------------------------------- Timed Ability --------------------------------------- --
-    do
-        TimedAbility = setmetatable({}, {})
-        local mt = getmetatable(TimedAbility)
-        mt.__index = mt
-
-        local timer = CreateTimer()
-        local ability = {}
         local array = {}
-        local key = 0
+        local ability = {}
+        local timer = CreateTimer()
 
-        function mt:destroy(i)
-            UnitRemoveAbility(self.unit, self.id)
-
-            array[i] = array[key]
-            key = key - 1
-            ability[self.unit][self.id] = nil
-            self = nil
-
-            if key == 0 then
-                PauseTimer(timer)
-            end
-
-            return i - 1
-        end
-
-        function mt:add(unit, id, duration, level, hide)
+        function TimedAbility.add(unit, id, duration, level, hide)
             if not ability[unit] then ability[unit] = {} end
 
             local this = ability[unit][id]
 
             if not this then
                 this = {}
-                setmetatable(this, mt)
 
-                this.unit = unit
                 this.id = id
-                key = key + 1
-                array[key] = this
+                this.unit = unit
                 ability[unit][id] = this
 
-                if key == 1 then
+                table.insert(array, this)
+
+                if #array == 1 then
                     TimerStart(timer, PERIOD, true, function()
-                        local i = 1
                         local this
 
-                        while i <= key do
+                        for i = #array, 1, -1 do
                             this = array[i]
+
+                            this.duration = this.duration - PERIOD
 
                             if this.duration <= 0 then
                                 i = this:destroy(i)
+
+                                UnitRemoveAbility(this.unit, this.id)
+
+                                ability[this.unit][this.id] = nil
+                                this = nil
+                                table.remove(array, i)
+
+                                if #array == 0 then
+                                    PauseTimer(timer)
+                                end
                             end
-                            this.duration = this.duration - PERIOD
-                            i = i + 1
                         end
                     end)
                 end
@@ -692,89 +649,72 @@ do
         end
     end
 
-    -- ----------------------------------------- Effect Link ---------------------------------------- --
+    -- -- ----------------------------------------- Effect Link ---------------------------------------- --
     do
-        EffectLink = setmetatable({}, {})
-        local mt = getmetatable(EffectLink)
-        mt.__index = mt
+        EffectLink = Class()
 
-        local timer = CreateTimer()
         local array = {}
         local items = {}
-        local key = 0
-        local k = 0
+        local timer = CreateTimer()
 
-        function mt:destroy(i, item)
-            DestroyEffect(self.effect)
-
-            if item then
-                items[i] = items[k]
-                k = k - 1
-            else
-                array[i] = array[key]
-                key = key - 1
-
-                if key == 0 then
-                    PauseTimer(timer)
-                end
-            end
-            self = nil
-
-            return i - 1
-        end
-
-        function mt:buff(unit, buffId, model, attach)
+        function EffectLink.buff(unit, id, model, attach)
             local this = {}
-            setmetatable(this, mt)
 
-            key = key + 1
-            array[key] = this
+            this.buff = id
             this.unit = unit
-            this.buff = buffId
             this.effect = AddSpecialEffectTarget(model, unit, attach)
 
-            if key == 1 then
+            table.insert(array, this)
+
+            if #array == 1 then
                 TimerStart(timer, PERIOD, true, function()
-                    local i = 1
                     local this
 
-                    while i <= key do
+                    for i = #array, 1, -1 do
                         this = array[i]
 
                         if GetUnitAbilityLevel(this.unit, this.buff) == 0 then
-                            i = this:destroy(i, false)
+                            DestroyEffect(this.effect)
+
+                            this = nil
+                            table.remove(array, i)
+
+                            if #array == 0 then
+                                PauseTimer(timer)
+                            end
                         end
-                        i = i + 1
                     end
                 end)
             end
         end
 
-        function mt:item(unit, i, model, attach)
+        function EffectLink.item(unit, i, model, attach)
             local this = {}
-            setmetatable(this, mt)
 
-            k = k + 1
-            items[k] = this
             this.item = i
             this.effect = AddSpecialEffectTarget(model, unit, attach)
+
+            table.insert(items, this)
         end
 
-        onInit(function()
-            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function()
-                local item = GetManipulatedItem()
-                local i = 1
-                local this
+        function EffectLink.onDrop()
+            local this
+            local item = GetManipulatedItem()
 
-                while i <= k do
-                    this = items[i]
+            for i = #items, 1, -1 do
+                this = items[i]
 
-                    if this.item == item then
-                        i = this:destroy(i, true)
-                    end
-                    i = i + 1
+                if this.item == item then
+                    DestroyEffect(this.effect)
+
+                    this = nil
+                    table.remove(items, i)
                 end
-            end)
-        end)
+            end
+        end
+
+        function EffectLink.onInit()
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, EffectLink.onDrop)
+        end
     end
-end
+end)

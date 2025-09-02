@@ -1,38 +1,4 @@
---[[
-/**************************************************************
-*
-*   RegisterPlayerUnitEvent
-*   v5.1.0.1
-*   By Magtheridon96
-*   Lua version by Chopinski
-*
-*   I would like to give a special thanks to Bribe, azlier
-*   and BBQ for improving this library. For modularity, it only 
-*   supports player unit events.
-*
-*   Functions passed to RegisterPlayerUnitEvent must either
-*   return a boolean (false) or nothing. (Which is a Pro)
-*
-*   Warning:
-*   --------
-*
-*       - Don't use TriggerSleepAction inside registered code.
-*       - Don't destroy a trigger unless you really know what you're doing.
-*
-*   API:
-*   ----
-*
-*       - function RegisterPlayerUnitEvent takes playerunitevent whichEvent, code whichFunction returns nothing
-*           - Registers code that will execute when an event fires.
-*       - function RegisterPlayerUnitEventForPlayer takes playerunitevent whichEvent, code whichFunction, player whichPlayer returns nothing
-*           - Registers code that will execute when an event fires for a certain player.
-*       - function GetPlayerUnitEventTrigger takes playerunitevent whichEvent returns trigger
-*           - Returns the trigger corresponding to ALL functions of a playerunitevent.
-*
-**************************************************************/
-]]--
-
-do
+OnInit("RegisterPlayerUnitEvent", function()
     local trigger = {}
     local f = {}
     local n = {}
@@ -86,4 +52,4 @@ do
     function GetPlayerUnitEventTrigger(playerunitevent)
         return trigger[GetHandleId(playerunitevent)]
     end
-end
+end)

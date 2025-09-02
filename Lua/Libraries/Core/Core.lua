@@ -21,153 +21,108 @@ OnInit("Class", function()
         end
     end
 
-    function Class:property(name, options)
-        self.__props[name] = {
-            get = options and options.get or nil,
-            set = options and options.set or nil,
-        }
+    setmetatable(Class, {
+        __call = function(self, parent)
+            local this = setmetatable({ super = parent, __operators = {} }, { 
+                __index = function(self, key)
+                    local operator = self.__operators[key]
+    
+                    if operator and operator.get then
+                        return operator.get(self)
+                    end
+    
+                    return parent and parent[key]
+                end,
+                __newindex = function(self, key, value)
+                    local operator = self.__operators[key]
+    
+                    if operator and operator.set then
+                        operator.set(self, value)
+                        return
+                    end
+    
+                    rawset(self, key, value)
+                end
+            })
+    
+            if parent and parent.__operators then
+                for key, value in pairs(parent.__operators) do
+                    this.__operators[key] = value
+                end
+            end
+    
+            function this:property(name, callback)
+                self.__operators[name] = callback
+            end
+    
+            function this.allocate(...)
+                local instance
+                local constructor
+                local class = this.super
 
-        return self
-    end
+                while not constructor and class do
+                    if class.create then
+                        constructor = class.create
+                    end
 
-    function Class:allocate(...)
-        local this = {}
-        local class = self
+                    class = class.super
+                end
 
-        setmetatable(this, {
-            __index = function(instance, key)
-                local value = rawget(instance, key)
-                local props = class.__props and class.__props[key]
+                if constructor then
+                    instance = constructor(...)
+                else
+                    instance = {}
+                end
 
-                if value ~= nil then
-                    return value
+                setmetatable(instance, this)
+
+                return instance
+            end
+    
+            this.__index = function(self, key)
+                local class = getmetatable(self)
+                local operator = class.__operators[key]
+
+                if operator and operator.get then
+                    return operator.get(self)
                 end
 
                 if key == "destroy" then
                     return function(self)
-                        if not self.__destroyed then
-                            self.__destroyed = true
-
-                            for i = #instance.__destructors, 1, -1 do
-                                rawget(instance.__destructors[i], "destroy")(self)
+                        local current = getmetatable(self)
+                        
+                        while current do
+                            if rawget(current, "destroy") then
+                                rawget(current, "destroy")(self)
                             end
-
-                            instance.__destructors = nil
-                            Class.deallocate(self)
+                            
+                            current = current.super
                         end
-                    end
-                end
 
-                if props and props.get then
-                    return props.get(instance)
+                        setmetatable(self, { __mode = "k" })
+                    end
                 end
 
                 return class[key]
-            end,
-            __newindex = function(instance, key, value)
-                local props = class.__props and class.__props[key]
+            end
+    
+            this.__newindex = function(self, key, value)
+                local class = getmetatable(self)
+                local operator = class.__operators[key]
 
-                if props and props.set then
-                    return props.set(instance, value)
+                if operator and operator.set then
+                    operator.set(self, value)
+                    return
                 end
 
-                rawset(instance, key, value)
+                rawset(self, key, value)
             end
-
-        })
-
-        return this
-    end
-
-    function Class.deallocate(self)
-        setmetatable(self, { __mode = "k" })
-    end
-
-    setmetatable(Class, {
-        __index = function(self, key)
-            local getter = rawget(self, "_getindex")
-            local props = rawget(self, "__props") and rawget(self, "__props")[key]
-
-            if getter then
-                return getter(self, key)
-            end
-
-            if props and props.get then
-                return props.get(self)
-            end
-
-            return rawget(Class, key)
-        end,
-        __newindex = function(self, key, value)
-            local setter = rawget(self, "_setindex")
-            local props = rawget(self, "__props") and rawget(self, "__props")[key]
-
-            if setter then
-                setter(self, key, value)
-                return
-            end
-
-            if props and props.set then
-                return props.set(self, value)
-            end
-
-            rawset(self, key, value)
-        end,
-        __call = function(self, parent)
-            local this
-
-            if parent then
-                this = setmetatable({ super = parent, __props = {} }, { __index = parent })
-
-                if parent.__props then
-                    for key, value in pairs(parent.__props) do
-                        this.__props[key] = value
-                    end
-                end
-
-                this.allocate = function(class, ...)
-                    local instance
-                    local current = class
-                    local destructors = {}
-                    local constructor = nil
-
-                    repeat
-                        if rawget(current, "destroy") then
-                            table.insert(destructors, 1, current)
-                        end
-
-                        if not constructor and current.super and rawget(current.super, "create") then
-                            constructor = current.super
-                        end
-
-                        current = current.super
-                    until not current
-
-                    if constructor then
-                        instance = constructor:create(...)
-                    else
-                        instance = Class.allocate(class, ...)
-                    end
-
-                    instance.__destroyed = false
-                    instance.__destructors = destructors
-
-                    return instance
-                end
-            else
-                this = { __props = {} }
-                this.__destroyed = false
-                this.__destructors = { this }
-            end
-
+    
             table.insert(initializers, this)
-            setmetatable(this, getmetatable(Class))
 
             return this
         end
     })
 
-    Class.create = Class.allocate
-    Class.destroy = Class.deallocate
     OnInit.trig(Initializer)
 end)

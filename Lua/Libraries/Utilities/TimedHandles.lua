@@ -1,95 +1,54 @@
---[[
-/**************************************************************
-*
-*   v1.0.5 by TriggerHappy
-*   ----------------------
-*   
-*   Use this to destroy a handle after X amount seconds.
-*
-*   It's useful for things like effects where you may
-*   want it to be temporary, but not have to worry
-*   about the cleaning memory leak. By default it supports
-*   effects, lightning, weathereffect, items, ubersplats, and units.
-*
-*   Installation
-    ----------------------
-*       1. Copy this script and over to your map inside a blank trigger.
-*
-*   API
-*   ----------------------
-*       call DestroyEffectTimed(AddSpecialEffect("effect.mdx", 0, 0), 5)
-*       call DestroyLightningTimed(AddLightning("CLPB", true, 0, 0, 100, 100), 5)
-*
-**************************************************************/
-]]--
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
-    local PERIOD = 0.05
+OnInit("TimedHandles", function(requires)
+    requires "Class"
     
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    Timed = setmetatable({}, {})
-    local mt = getmetatable(Timed)
-    mt.__index = mt
+    TimedHandles = Class()
 
-    local timer = CreateTimer()
     local array = {}
-    local key   = 0
+    local period = 0.05
+    local timer = CreateTimer()
     
-    function mt:destroy(i)
-        if self.flag == 0 then
-            DestroyEffect(self.type)
-        elseif self.flag == 1 then
-            DestroyLightning(self.type)
-        elseif self.flag == 2 then
-            RemoveWeatherEffect(self.type)
-        elseif self.flag == 3 then
-            RemoveItem(self.type)
-        elseif self.flag == 4 then
-            RemoveUnit(self.type)
-        elseif self.flag == 5 then
-            DestroyUbersplat(self.type)
-        elseif self.flag == 6 then
-            RemoveDestructable(self.type)
-        end
-
-        array[i] = array[key]
-        key      = key - 1
-        self     = nil
-
-        if key == 0 then
-            PauseTimer(timer)
-        end
-
-        return i - 1
-    end
-    
-    function mt:handle(type, duration, flag)
+    function TimedHandles.handle(object, duration, type)
         local this = {}
-        setmetatable(this, mt)
         
-        this.type   = type
-        this.flag   = flag
-        this.ticks  = duration/PERIOD
-        key         = key + 1
-        array[key]  = this
+        this.object = object
+        this.type = type
+        this.duration = duration
         
-        if key == 1 then
-            TimerStart(timer, PERIOD, true, function()
-                local i = 1
+        table.insert(array, this)
+        
+        if #array == 1 then
+            TimerStart(timer, period, true, function()
                 local this
                 
-                while i <= key do
+                for i = #array, 1, -1 do
                     this = array[i]
-                    
-                    if this.ticks <= 0 then
-                        i = this:destroy(i)
+
+                    this.duration = this.duration - period
+
+                    if this.duration <= 0 then
+                        if this.type == 0 then
+                            DestroyEffect(this.object)
+                        elseif this.type == 1 then
+                            DestroyLightning(this.object)
+                        elseif this.type == 2 then
+                            RemoveWeatherEffect(this.object)
+                        elseif this.type == 3 then
+                            RemoveItem(this.object)
+                        elseif this.type == 4 then
+                            RemoveUnit(this.object)
+                        elseif this.type == 5 then
+                            DestroyUbersplat(this.object)
+                        elseif this.type == 6 then
+                            RemoveDestructable(this.object)
+                        end
+
+                        this = nil
+                        table.remove(array, i)
+
+                        if #array == 0 then
+                            PauseTimer(timer)
+                        end
                     end
-                    this.ticks = this.ticks - 1
-                    i = i + 1
                 end
             end)
         end
@@ -99,30 +58,30 @@ do
     --                                   LUA API                                  --
     -- -------------------------------------------------------------------------- --
     function DestroyEffectTimed(effect, duration)
-        Timed:handle(effect, duration, 0)
+        TimedHandles.handle(effect, duration, 0)
     end
 
     function DestroyLightningTimed(lightning, duration)
-        Timed:handle(lightning, duration, 1)
+        TimedHandles.handle(lightning, duration, 1)
     end
     
     function RemoveWeatherEffectTimed(weathereffect, duration)
-        Timed:handle(weathereffect, duration, 2)
+        TimedHandles.handle(weathereffect, duration, 2)
     end
     
     function RemoveItemTimed(item, duration)
-        Timed:handle(item, duration, 3)
+        TimedHandles.handle(item, duration, 3)
     end
     
     function RemoveUnitTimed(unit, duration)
-        Timed:handle(unit, duration, 4)
+        TimedHandles.handle(unit, duration, 4)
     end
     
     function DestroyUbersplatTimed(ubersplat, duration)
-        Timed:handle(ubersplat, duration, 5)
+        TimedHandles.handle(ubersplat, duration, 5)
     end
     
     function RemoveDestructableTimed(destructable, duration)
-        Timed:handle(destructable, duration, 6)
+        TimedHandles.handle(destructable, duration, 6)
     end
-end
+end)

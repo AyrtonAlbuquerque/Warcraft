@@ -1,76 +1,76 @@
---[[
-    -- ------------------------ Indexer v1.1 by Chopinski ----------------------- --
-        Simple Unit Indexer for LUA.
-        Simply copya nd paste to import
-]]--
+OnInit("Indexer", function(requires)
+    requires "Class"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    local ability = FourCC('Adef')
+    local id = 0
     local onIndex = {}
     local onDeindex = {}
-    local id = 0
-    local source
-    
+    local ability = FourCC('Adef')
+    local rect = GetWorldBounds()
+    local region = CreateRegion()
+    local trigger = CreateTrigger()
     local SetUnitId = SetUnitUserData
+
     function SetUnitUserData(unit, id) end
-    
-    local function IndexUnit(unit)
+
+    Indexer = Class()
+
+    Indexer.source = nil
+
+    function Indexer.__index()
+        local unit = GetFilterUnit()
+
         if GetUnitUserData(unit) == 0 then
             id = id + 1
-            source = unit
+            Indexer.source = unit
     
             if GetUnitAbilityLevel(unit, ability) == 0 then
                 UnitAddAbility(unit, ability)
                 UnitMakeAbilityPermanent(unit, true, ability)
                 BlzUnitDisableAbility(unit, ability, true, true)
             end
+
             SetUnitId(unit, id)
-            
+
             for i = 1, #onIndex do
                 onIndex[i]()
             end
-            
-            source = nil
+
+            Indexer.source = nil
         end
     end
-    
-    onInit(function()
-        local trigger = CreateTrigger()
-        local region = CreateRegion()
-        local rect = GetWorldBounds()
-        
+
+    function Indexer.__deindex()
+        local unit = GetTriggerUnit()
+
+        if GetIssuedOrderId() == 852056 then
+            if GetUnitAbilityLevel(unit, ability) == 0 then
+                Indexer.source = unit
+
+                for i = 1, #onDeindex do
+                    onDeindex[i]()
+                end
+
+                Indexer.source = nil
+            end
+        end
+    end
+
+    function Indexer.onInit()
         RegionAddRect(region, rect)
         RemoveRect(rect)
-        
-        TriggerRegisterEnterRegion(CreateTrigger(), region, Filter(function()
-            IndexUnit(GetFilterUnit())
-        end))
-        
+
+        TriggerRegisterEnterRegion(CreateTrigger(), region, Filter(Indexer.__index))
+
         for i = 0, bj_MAX_PLAYER_SLOTS - 1 do
-            GroupEnumUnitsOfPlayer(bj_lastCreatedGroup, Player(i), Filter(function()
-                IndexUnit(GetFilterUnit())
-            end))
-            TriggerRegisterPlayerUnitEvent(trigger, Player(i), EVENT_PLAYER_UNIT_ISSUED_ORDER, null)
+            GroupEnumUnitsOfPlayer(bj_lastCreatedGroup, Player(i), Filter(Indexer.__index))
+            TriggerRegisterPlayerUnitEvent(trigger, Player(i), EVENT_PLAYER_UNIT_ISSUED_ORDER, nil)
         end
         
-        TriggerAddCondition(trigger, Filter(function()
-            if GetIssuedOrderId() == 852056 then
-                if GetUnitAbilityLevel(GetTriggerUnit(), ability) == 0 then
-                    source = GetTriggerUnit()
-                    for i = 1, #onDeindex do
-                        onDeindex[i]()
-                    end
-                    source = nil
-                end
-            end
-        end))
-    end)
+        TriggerAddCondition(trigger, Filter(Indexer.__deindex))
+    end
     
     -- -------------------------------------------------------------------------- --
-    --                                   LUA API                                  --
+    --                                   Lua API                                  --
     -- -------------------------------------------------------------------------- --
     function RegisterUnitIndexEvent(code)
         if type(code) == "function" then
@@ -85,6 +85,6 @@ do
     end
     
     function GetIndexUnit()
-        return source
+        return Indexer.source
     end
-end
+end)
