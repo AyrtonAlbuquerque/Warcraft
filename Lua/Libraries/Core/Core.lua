@@ -23,7 +23,49 @@ OnInit("Class", function()
 
     setmetatable(Class, {
         __call = function(self, parent)
-            local this = setmetatable({ super = parent, __operators = {} }, { 
+            local this = setmetatable(
+            {  
+                super = parent, 
+                __operators = {},
+                __index = function(self, key)
+                    local class = getmetatable(self)
+                    local operator = class.__operators[key]
+
+                    if operator and operator.get then
+                        return operator.get(self)
+                    end
+
+                    if key == "destroy" then
+                        return function(self)
+                            local current = getmetatable(self)
+                            
+                            while current do
+                                if rawget(current, "destroy") then
+                                    rawget(current, "destroy")(self)
+                                end
+                                
+                                current = current.super
+                            end
+
+                            setmetatable(self, { __mode = "k" })
+                        end
+                    end
+
+                    return class[key]
+                end,
+                __newindex = function(self, key, value)
+                    local class = getmetatable(self)
+                    local operator = class.__operators[key]
+
+                    if operator and operator.set then
+                        operator.set(self, value)
+                        return
+                    end
+
+                    rawset(self, key, value)
+                end
+            }, 
+            { 
                 __index = function(self, key)
                     local operator = self.__operators[key]
     
@@ -77,45 +119,6 @@ OnInit("Class", function()
                 setmetatable(instance, this)
 
                 return instance
-            end
-    
-            this.__index = function(self, key)
-                local class = getmetatable(self)
-                local operator = class.__operators[key]
-
-                if operator and operator.get then
-                    return operator.get(self)
-                end
-
-                if key == "destroy" then
-                    return function(self)
-                        local current = getmetatable(self)
-                        
-                        while current do
-                            if rawget(current, "destroy") then
-                                rawget(current, "destroy")(self)
-                            end
-                            
-                            current = current.super
-                        end
-
-                        setmetatable(self, { __mode = "k" })
-                    end
-                end
-
-                return class[key]
-            end
-    
-            this.__newindex = function(self, key, value)
-                local class = getmetatable(self)
-                local operator = class.__operators[key]
-
-                if operator and operator.set then
-                    operator.set(self, value)
-                    return
-                end
-
-                rawset(self, key, value)
             end
     
             table.insert(initializers, this)
