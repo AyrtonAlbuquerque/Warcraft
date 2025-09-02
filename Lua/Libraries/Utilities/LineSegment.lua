@@ -1,15 +1,6 @@
---[[ LineSegmentEnumeration v2.2a
+OnInit("LineSegment", function()
+    LineSegment = {}
 
-    API:
-
-        function LineSegment.EnumUnits(number: ax, number: ay, number: bx, number: by, number: offset, boolean: checkCollision)
-        function LineSegment.EnumDestructables(number: ax, number: ay, number: bx, number: by, number: offset)
-        function LineSegment.EnumItems(number: ax, number: ay, number: bx, number: by, number: offset)
-            - returns the enumerated widgets as a table
-
-]]--
-LineSegment = {}
-do
     local RECT = Rect(0, 0, 0, 0)
     local GROUP = CreateGroup()
 
@@ -74,6 +65,9 @@ do
         end
     end
 
+    -- ----------------------------------------------------------------------------------------- --
+    --                                          Lua API                                          --
+    -- ----------------------------------------------------------------------------------------- --
     function LineSegment.EnumUnits(ax, ay, bx, by, offset, checkCollision)
         prepare_rect(ax, ay, bx, by, offset)
         GroupEnumUnitsInRect(GROUP, RECT)
@@ -114,5 +108,4 @@ do
 
         return enumed
     end
-
-end
+end)

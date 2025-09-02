@@ -26,7 +26,7 @@ OnInit("Dummy", function(requires)
         if not owner then
             owner = player
         end
-        
+
         if BlzGroupGetSize(group) > 0 then
             bj_lastCreatedUnit = FirstOfGroup(group)
 

@@ -22,7 +22,7 @@ OnInit("Indexer", function(requires)
         if GetUnitUserData(unit) == 0 then
             id = id + 1
             Indexer.source = unit
-    
+
             if GetUnitAbilityLevel(unit, ability) == 0 then
                 UnitAddAbility(unit, ability)
                 UnitMakeAbilityPermanent(unit, true, ability)
@@ -65,10 +65,10 @@ OnInit("Indexer", function(requires)
             GroupEnumUnitsOfPlayer(bj_lastCreatedGroup, Player(i), Filter(Indexer.__index))
             TriggerRegisterPlayerUnitEvent(trigger, Player(i), EVENT_PLAYER_UNIT_ISSUED_ORDER, nil)
         end
-        
+
         TriggerAddCondition(trigger, Filter(Indexer.__deindex))
     end
-    
+
     -- -------------------------------------------------------------------------- --
     --                                   Lua API                                  --
     -- -------------------------------------------------------------------------- --
@@ -77,13 +77,13 @@ OnInit("Indexer", function(requires)
             table.insert(onIndex, code)
         end
     end
-    
+
     function RegisterUnitDeindexEvent(code)
         if type(code) == "function" then
             table.insert(onDeindex, code)
         end
     end
-    
+
     function GetIndexUnit()
         return Indexer.source
     end

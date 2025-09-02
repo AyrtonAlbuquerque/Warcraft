@@ -24,8 +24,8 @@ OnInit("Class", function()
     setmetatable(Class, {
         __call = function(self, parent)
             local this = setmetatable(
-            {  
-                super = parent, 
+            {
+                super = parent,
                 __operators = {},
                 __index = function(self, key)
                     local class = getmetatable(self)
@@ -38,12 +38,12 @@ OnInit("Class", function()
                     if key == "destroy" then
                         return function(self)
                             local current = getmetatable(self)
-                            
+
                             while current do
                                 if rawget(current, "destroy") then
                                     rawget(current, "destroy")(self)
                                 end
-                                
+
                                 current = current.super
                             end
 
@@ -64,39 +64,39 @@ OnInit("Class", function()
 
                     rawset(self, key, value)
                 end
-            }, 
-            { 
+            },
+            {
                 __index = function(self, key)
                     local operator = self.__operators[key]
-    
+
                     if operator and operator.get then
                         return operator.get(self)
                     end
-    
+
                     return parent and parent[key]
                 end,
                 __newindex = function(self, key, value)
                     local operator = self.__operators[key]
-    
+
                     if operator and operator.set then
                         operator.set(self, value)
                         return
                     end
-    
+
                     rawset(self, key, value)
                 end
             })
-    
+
             if parent and parent.__operators then
                 for key, value in pairs(parent.__operators) do
                     this.__operators[key] = value
                 end
             end
-    
+
             function this:property(name, callback)
                 self.__operators[name] = callback
             end
-    
+
             function this.allocate(...)
                 local instance
                 local constructor
@@ -120,7 +120,7 @@ OnInit("Class", function()
 
                 return instance
             end
-    
+
             table.insert(initializers, this)
 
             return this

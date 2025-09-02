@@ -17,7 +17,7 @@ OnInit("Utilities", function(requires)
     -- ---------------------------------------------------------------------------------------------- --
     -- String to Ascii
     S2A = FourCC
-    
+
     -- Ascii to String
     function A2S(id)
         local a = (id >> 24) & 0xFF
@@ -33,18 +33,18 @@ OnInit("Utilities", function(requires)
         local digit
         local result
         local sign = ""
-    
+
         if value < 0 then
             sign = "-"
             value = RAbsBJ(value)
         end
-    
+
         result = sign .. I2S(R2I(value))
-    
+
         if precision <= 0 then
             return result
         end
-    
+
         result = result .. "."
         value = value - R2I(value)
 
@@ -55,7 +55,7 @@ OnInit("Utilities", function(requires)
             value = value - digit
             precision = precision - 1
         end
-    
+
         return result
     end
 
@@ -63,7 +63,7 @@ OnInit("Utilities", function(requires)
     function R2I2S(real)
         return I2S(R2I(real))
     end
-    
+
     -- Returns the terrain Z value
     function GetLocZ(x, y)
         MoveLocation(location, x, y)
