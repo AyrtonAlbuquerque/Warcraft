@@ -1,126 +1,47 @@
---[[ requires MissileEffect, optional MissilesUtils
-    -- ---------------------------------------- Missiles v2.8 --------------------------------------- --
-    -- Thanks and Credits to BPower, Dirac and Vexorian for the Missile Library's at which i based
-    -- this Missiles library. Credits and thanks to AGD and for the effect orientation ideas.
-    -- This version of Missiles requires patch 1.31+. Thanks to Forsakn for the first translation
-    -- of the vJASS version of Missiles into LUA.
-    --
-    -- How to Import:
-    --     1 - Copy this, MissileEffect and optionaly the MissileUtils libraries into your map
-    -- ---------------------------------------- By Chopinski ---------------------------------------- --
-]]--
+OnInit("Missiles", function(requires)
+    requires "Class"
+    requires "Dummy"
+    requires "Effect"
+    requires "Utilities"
 
-do
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                          Configuration                                         --
-    -- ---------------------------------------------------------------------------------------------- --
     -- The update period of the system
-    local PERIOD = 1. / 40.
+    local PERIOD = 1. / 30.
     -- The max amount of Missiles processed in a PERIOD
     -- You can play around with both these values to find
     -- your sweet spot. If equal to 0, the system will
     -- process all missiles at once every period.
-    local SWEET_SPOT = 600
+    local SWEET_SPOT = 500
     -- the avarage collision size compensation when detecting collisions
     local COLLISION_SIZE = 128.
     -- item size used in z collision
     local ITEM_SIZE  = 16.
-    -- Raw code of the dummy unit used for vision
-    local DUMMY = FourCC('dumi')
-    -- Needed, dont touch. Seriously, dont touch!
-    local location = Location(0., 0.)
-    local rect = Rect(0., 0., 0., 0.)
 
-    local function GetLocZ(x, y)
-        MoveLocation(location, x, y)
-        return GetLocationZ(location)
-    end
-
-    local function GetUnitZ(unit)
-        return GetLocZ(GetUnitX(unit), GetUnitY(unit)) + GetUnitFlyHeight(unit)
-    end
-
-    local function SetUnitZ(unit, z)
-        SetUnitFlyHeight(unit, z - GetLocZ(GetUnitX(unit), GetUnitY(unit)), 0)
-    end
-
-    local function GetMapCliffLevel()
-        return GetTerrainCliffLevel(WorldBounds.maxX, WorldBounds.maxY)
-    end
-
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
     do
-        Pool = setmetatable({}, {})
-        local mt = getmetatable(Pool)
-        mt.__index = mt
+        Coordinates = Class()
 
-        local player = Player(PLAYER_NEUTRAL_PASSIVE)
-        local group = CreateGroup()
+        Coordinates:property("link", {
+            set = function(self, value)
+                self.linked = value
+                value.linked = self
 
-        function mt:recycle(unit)
-            if GetUnitTypeId(unit) == DUMMY then
-                GroupAddUnit(group, unit)
-                SetUnitX(unit, WorldBounds.maxX)
-                SetUnitY(unit, WorldBounds.maxY)
-                SetUnitOwner(unit, player, false)
-                PauseUnit(unit, true)
+                self:math(self, value)
+            end
+        })
+
+        function Coordinates:move(toX, toY, toZ)
+            self.x = toX
+            self.y = toY
+            self.z = toZ + GetLocZ(toX, toY)
+
+            if self.linked ~= self then
+                self:math(self, self.linked)
             end
         end
 
-        function mt:retrieve(x, y, z, face)
-            if BlzGroupGetSize(group) > 0 then
-                bj_lastCreatedUnit = FirstOfGroup(group)
-                PauseUnit(bj_lastCreatedUnit, false)
-                GroupRemoveUnit(group, bj_lastCreatedUnit)
-                SetUnitX(bj_lastCreatedUnit, x)
-                SetUnitY(bj_lastCreatedUnit, y)
-                SetUnitZ(bj_lastCreatedUnit, z)
-                BlzSetUnitFacingEx(bj_lastCreatedUnit, face)
-            else
-                bj_lastCreatedUnit = CreateUnit(player, DUMMY, x, y, face)
-                SetUnitZ(bj_lastCreatedUnit, z)
-                UnitRemoveAbility(bj_lastCreatedUnit, FourCC('Amrf'))
-            end
-
-            return bj_lastCreatedUnit
-        end
-
-        function mt:recycleTimed(unit, delay)
-            if GetUnitTypeId(unit) == DUMMY then
-                local timer = CreateTimer()
-                TimerStart(timer, delay, false, function()
-                    self:recycle(unit)
-                    PauseTimer(timer)
-                    DestroyTimer(timer)
-                end)
-            end
-        end
-
-        onInit(function()
-            local timer = CreateTimer()
-
-            TimerStart(timer, 0, false, function()
-                for i = 0, SWEET_SPOT do
-                    local unit = CreateUnit(player, DUMMY, WorldBounds.maxX, WorldBounds.maxY, 0)
-                    PauseUnit(unit, false)
-                    GroupAddUnit(group, unit)
-                    UnitRemoveAbility(unit, FourCC('Amrf'))
-                end
-                PauseTimer(timer)
-                DestroyTimer(timer)
-            end)
-        end)
-    end
-
-    do
-        Coordinates = setmetatable({}, {})
-        local mt = getmetatable(Coordinates)
-        mt.__index = mt
-
-        function mt:destroy()
-            self = nil
-        end
-
-        function mt:math(a, b)
+        function Coordinates:math(a, b)
             local dx
             local dy
 
@@ -128,7 +49,7 @@ do
                 dx = b.x - a.x
                 dy = b.y - a.y
                 dx = dx * dx + dy * dy
-                dy = SquareRoot(dx)
+                dy = math.sqrt(dx)
                 if dx ~= 0. and dy ~= 0. then
                     break
                 end
@@ -141,8 +62,8 @@ do
             a.angle = Atan2(b.y - a.y, b.x - a.x)
             a.slope = (b.z - a.z) / dy
             a.alpha = Atan(a.slope)
-            -- Set b.
-            if b.ref == a then
+
+            if b.linked == a then
                 b.angle = a.angle + bj_PI
                 b.distance = dy
                 b.slope = -a.slope
@@ -151,83 +72,198 @@ do
             end
         end
 
-        function mt:link(a, b)
-            a.ref = b
-            b.ref = a
-            self:math(a, b)
-        end
+        function Coordinates.create(x, y, z)
+            local this = Coordinates.allocate()
 
-        function mt:move(toX, toY, toZ)
-            self.x = toX
-            self.y = toY
-            self.z = toZ + GetLocZ(toX, toY)
-            if self.ref ~= self then
-                self:math(self, self.ref)
-            end
-        end
+            this.linked = this
 
-        function mt:create(x, y, z)
-            local c = {}
-            setmetatable(c, mt)
+            this:move(x, y, z)
 
-            c.ref = c
-            c:move(x, y, z)
-            return c
+            return this
         end
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                  Missiles                                  --
-    -- -------------------------------------------------------------------------- --
-    Missiles = setmetatable({}, {})
-    local mt = getmetatable(Missiles)
-    mt.__index = mt
+    Missile = Class()
 
-    Missiles.collection = {}
-    Missiles.count = -1
+    Missile.count = -1
+    Missile.period = PERIOD
+    Missile.collection = {}
 
-    local timer = CreateTimer()
-    local group = CreateGroup()
+    local px = 0
+    local py = 0
     local id = -1
     local pid = -1
     local last = 0
-    local dilation = 1
-    local array = {}
-    local missiles = {}
-    local frozen = {}
-    local keys = {}
     local index = 1
-    local yaw = 0
-    local pitch = 0
-    local travelled = 0
+    local dilation = 1
+    local keys = {}
+    local array = {}
+    local frozen = {}
+    local missiles = {}
+    local timer = CreateTimer()
+    local group = CreateGroup()
+    local rect = Rect(0, 0, 0, 0)
 
-    function mt:OnHit()
-        if self.onHit then
+    Missile:property("arc", {
+        get = function(self) return Atan(4 * self.height / self.origin.distance) end,
+        set = function(self, value) self.height = Tan(value) * self.origin.distance / 4 end
+    })
+
+    Missile:property("curve", {
+        get = function(self) return Atan(self.bend / self.origin.distance) end,
+        set = function(self, value) self.bend = Tan(value) * self.origin.distance end
+    })
+
+    Missile:property("model", {
+        get = function(self) return self.effect.model end,
+        set = function(self, value) self.effect.model = value end
+    })
+
+    Missile:property("scale", {
+        get = function(self) return self.effect.scale end,
+        set = function(self, value) self.effect.scale = value end
+    })
+
+    Missile:property("alpha", {
+        get = function(self) return self.effect.alpha end,
+        set = function(self, value) self.effect.alpha = value end
+    })
+
+    Missile:property("vision", {
+        get = function(self) return self.sight end,
+        set = function(self, value)
+            self.sight = value
+
+            if self.dummy then
+                SetUnitOwner(self.dummy, self.owner, false)
+                BlzSetUnitRealField(self.dummy, UNIT_RF_SIGHT_RADIUS, value)
+            else
+                if not self.owner then
+                    if self.source then
+                        self.dummy = Dummy.retrieve(GetOwningPlayer(self.source), self.x, self.y, self.z, 0)
+                        BlzSetUnitRealField(self.dummy, UNIT_RF_SIGHT_RADIUS, value)
+                    end
+                else
+                    self.dummy = Dummy.retrieve(self.owner, self.x, self.y, self.z, 0)
+                    BlzSetUnitRealField(self.dummy, UNIT_RF_SIGHT_RADIUS, value)
+                end
+            end
+        end
+    })
+
+    Missile:property("duration", {
+        get = function(self) return self.time end,
+        set = function(self, value)
+            self.time = value
+            self.speed = RMaxBJ(0.00000001, (self.origin.distance - self.traveled) / RMaxBJ(0.00000001, value))
+        end
+    })
+
+    Missile:property("animation", {
+        get = function(self) return self.effect.animation end,
+        set = function(self, value) self.effect.animation = value end
+    })
+
+    Missile:property("timeScale", {
+        get = function(self) return self.effect.timeScale end,
+        set = function(self, value) self.effect.timeScale = value end
+    })
+
+    Missile:property("playercolor", {
+        get = function(self) return self.effect.playercolor end,
+        set = function(self, value) self.effect.playercolor = value end
+    })
+
+    function Missile.__onMove(self)
+        local dx
+        local dy
+        local ds
+        local angle
+
+        if self.target and GetUnitTypeId(self.target) ~= 0 and UnitAlive(self.target) then
+            self.impact:move(GetUnitX(self.target), GetUnitY(self.target), GetUnitFlyHeight(self.target) + self.toZ)
+
+            dx = self.impact.x - self.x
+            dy = self.impact.y - self.y
+            angle = Atan2(dy, dx)
+            self.traveled = self.origin.distance - math.sqrt(dx*dx + dy*dy)
+        else
+            angle = self.origin.angle
+            self.target = nil
+        end
+
+        ds = self.speed * PERIOD * dilation
+        self.speed = self.speed + self.acceleration
+        self.traveled = self.traveled + ds
+
+        if not self.onMove then
+            if self.turn ~= 0 and not (math.cos(self.curvature - angle) >= math.cos(self.turn)) then
+                if math.sin(angle - self.curvature) >= 0 then
+                    self.curvature = self.curvature + self.turn
+                else
+                    self.curvature = self.curvature - self.turn
+                end
+            else
+                self.curvature = angle
+            end
+
+            self.yaw = self.curvature
+            self.pitch = self.origin.alpha
+            self.x = self.x + ds * math.cos(self.yaw)
+            self.y = self.y + ds * math.sin(self.yaw)
+            px = self.x
+            py = self.y
+
+            if self.height ~= 0 or self.origin.slope ~= 0 then
+                self.z = 4 * self.height * self.traveled * (self.origin.distance - self.traveled)/(self.origin.square) + self.origin.slope * self.traveled + self.origin.z
+                self.pitch = self.pitch - Atan(((4 * self.height) * (2 * self.traveled - self.origin.distance))/(self.origin.square))
+            end
+
+            if self.bend ~= 0 then
+                dx = 4 * self.bend * self.traveled * (self.origin.distance - self.traveled)/(self.origin.square)
+                angle = self.yaw + bj_PI/2
+                self.x = self.x + dx * math.cos(angle)
+                self.y = self.y + dx * math.sin(angle)
+                self.yaw = self.yaw + Atan(-((4 * self.bend) * (2 * self.traveled - self.origin.distance))/(self.origin.square))
+            end
+        else
+            self:onMove()
+        end
+    end
+
+    function Missile.__onUnit(self)
+        if self.onUnit then
             if self.allocated and self.collision > 0 then
                 GroupEnumUnitsInRange(group, self.x, self.y, self.collision + COLLISION_SIZE, nil)
+
                 local unit = FirstOfGroup(group)
+
                 while unit do
                     if array[self][unit] == nil then
                         if IsUnitInRangeXY(unit, self.x, self.y, self.collision) then
                             if self.collideZ then
                                 local dx = GetLocZ(GetUnitX(unit), GetUnitY(unit)) + GetUnitFlyHeight(unit)
                                 local dy = BlzGetUnitCollisionSize(unit)
+
                                 if dx + dy >= self.z - self.collision and dx <= self.z + self.collision then
                                     array[self][unit] = true
-                                    if self.allocated and self.onHit(unit) then
+
+                                    if self.allocated and self:onUnit(unit) then
                                         self:terminate()
                                         break
                                     end
                                 end
                             else
                                 array[self][unit] = true
-                                if self.allocated and self.onHit(unit) then
+
+                                if self.allocated and self:onUnit(unit) then
                                     self:terminate()
                                     break
                                 end
                             end
                         end
                     end
+
                     GroupRemoveUnit(group, unit)
                     unit = FirstOfGroup(group)
                 end
@@ -235,19 +271,70 @@ do
         end
     end
 
-    function mt:OnMissile()
+    function Missile.__onItem(self)
+        if self.onItem then
+            if self.allocated and self.collision > 0 then
+                local dx = self.collision
+
+                SetRect(rect, self.x - dx, self.y - dx, self.x + dx, self.y + dx)
+                EnumItemsInRect(rect, nil, function()
+                    local item = GetEnumItem()
+
+                    if array[self][item] == nil then
+                        if self.collideZ then
+                            local dz = GetLocZ(GetItemX(item), GetItemY(item))
+
+                            if dz + ITEM_SIZE >= self.z - self.collision and dz <= self.z + self.collision then
+                                array[self][item] = true
+
+                                if self.allocated and self:onItem(item) then
+                                    self:terminate()
+                                    return
+                                end
+                            end
+                        else
+                            array[self][item] = true
+
+                            if self.allocated and self:onItem(item) then
+                                self:terminate()
+                                return
+                            end
+                        end
+                    end
+                end)
+            end
+        end
+    end
+
+    function Missile.__onMissile(self)
         if self.onMissile then
             if self.allocated and self.collision > 0 then
-                for i = 0, Missiles.count do
-                    local missile = Missiles.collection[i]
+                for i = 0, Missile.count do
+                    local missile = Missile.collection[i]
+
                     if missile ~= self then
                         if array[self][missile] == nil then
                             local dx = missile.x - self.x
                             local dy = missile.y - self.y
-                            if SquareRoot(dx*dx + dy*dy) <= self.collision then
+
+                            if dx*dx + dy*dy <= self.collision*self.collision then
                                 array[self][missile] = true
-                                if self.allocated and self.onMissile(missile) then
+
+                                if self.allocated and self:onMissile(missile) then
                                     self:terminate()
+
+                                    if missile.allocated and missile.collision > 0 and missile.onMissile then
+                                        if array[missile][self] == nil then
+                                            if dx*dx + dy*dy <= missile.collision * missile.collision then
+                                                array[missile][self] = true
+
+                                                if missile.allocated and missile:onMissile(self) then
+                                                    missile:terminate()
+                                                end
+                                            end
+                                        end
+                                    end
+
                                     break
                                 end
                             end
@@ -258,27 +345,32 @@ do
         end
     end
 
-    function mt:OnDestructable()
+    function Missile.__onDestructable(self)
         if self.onDestructable then
             if self.allocated and self.collision > 0 then
                 local dx = self.collision
+
                 SetRect(rect, self.x - dx, self.y - dx, self.x + dx, self.y + dx)
                 EnumDestructablesInRect(rect, nil, function()
                     local destructable = GetEnumDestructable()
+
                     if array[self][destructable] == nil then
                         if self.collideZ then
                             local dz = GetLocZ(GetWidgetX(destructable), GetWidgetY(destructable))
                             local tz = GetDestructableOccluderHeight(destructable)
+
                             if dz + tz >= self.z - self.collision and dz <= self.z + self.collision then
                                 array[self][destructable] = true
-                                if self.allocated and self.onDestructable(destructable) then
+
+                                if self.allocated and self:onDestructable(destructable) then
                                     self:terminate()
                                     return
                                 end
                             end
                         else
                             array[self][destructable] = true
-                            if self.allocated and self.onDestructable(destructable) then
+
+                            if self.allocated and self:onDestructable(destructable) then
                                 self:terminate()
                                 return
                             end
@@ -289,147 +381,61 @@ do
         end
     end
 
-    function mt:OnItem()
-        if self.onItem then
-            if self.allocated and self.collision > 0 then
-                local dx = self.collision
-                SetRect(rect, self.x - dx, self.y - dx, self.x + dx, self.y + dx)
-                EnumItemsInRect(rect, nil, function()
-                    local item = GetEnumItem()
-                    if array[self][item] == nil then
-                        if self.collideZ then
-                            local dz = GetLocZ(GetItemX(item), GetItemY(item))
-                            if dz + ITEM_SIZE >= self.z - self.collision and dz <= self.z + self.collision then
-                                array[self][item] = true
-                                if self.allocated and self.onItem(item) then
-                                    self:terminate()
-                                    return
-                                end
-                            end
-                        else
-                            array[self][item] = true
-                            if self.allocated and self.onItem(item) then
-                                self:terminate()
-                                return
-                            end
-                        end
-                    end
-                end)
-            end
-        end
-    end
-
-    function mt:OnCliff()
+    function Missile.__onCliff(self)
         if self.onCliff then
-            local dx = GetTerrainCliffLevel(self.nextX, self.nextY)
-                local dy = GetTerrainCliffLevel(self.x, self.y)
-            if dy < dx and self.z  < (dx - GetMapCliffLevel())*bj_CLIFFHEIGHT then
-                if self.allocated and self.onCliff() then
+            local k = GetTerrainCliffLevel(self.x, self.y)
+
+            if self.cliff < k and self.z  < (k - GetTerrainCliffLevel(WorldBounds.maxX, WorldBounds.maxY))*bj_CLIFFHEIGHT then
+                if self.allocated and self:onCliff() then
                     self:terminate()
                 end
             end
+
+            self.cliff = k
         end
     end
 
-    function mt:OnTerrain()
+    function Missile.__onTerrain(self)
         if self.onTerrain then
             if GetLocZ(self.x, self.y) > self.z then
-                if self.allocated and self.onTerrain() then
+                if self.allocated and self:onTerrain() then
                     self:terminate()
                 end
             end
         end
     end
 
-    function mt:OnTileset()
+    function Missile.__onTileset(self)
         if self.onTileset then
             local type = GetTerrainType(self.x, self.y)
+
             if type ~= self.tileset then
-                if self.allocated and self.onTileset(type) then
+                if self.allocated and self:onTileset(type) then
                     self:terminate()
                 end
             end
+
             self.tileset = type
         end
     end
 
-    function mt:OnPeriod()
+    function Missile.__onPeriod(self)
         if self.onPeriod then
-            if self.allocated and self.onPeriod() then
+            if self.allocated and self:onPeriod() then
                 self:terminate()
             end
         end
     end
 
-    function mt:OnOrient()
-        local a
-
-        -- Homing or not
-        if self.target and GetUnitTypeId(self.target) ~= 0 then
-            self.impact:move(GetUnitX(self.target), GetUnitY(self.target), GetUnitFlyHeight(self.target) + self.toZ)
-            local dx = self.impact.x - self.nextX
-            local dy = self.impact.y - self.nextY
-            a = Atan2(dy, dx)
-            self.travel = self.origin.distance - SquareRoot(dx*dx + dy*dy)
-        else
-            a = self.origin.angle
-            self.target = nil
-        end
-
-        -- turn rate
-        if self.turn ~= 0 and not (Cos(self.cA - a) >= Cos(self.turn)) then
-            if Sin(a - self.cA) >= 0 then
-                self.cA = self.cA + self.turn
-            else
-                self.cA = self.cA - self.turn
-            end
-        else
-            self.cA = a
-        end
-
-        local vel = self.veloc*dilation
-        yaw = self.cA
-        travelled = self.travel + vel
-        self.veloc = self.veloc + self.acceleration
-        self.travel = travelled
-        pitch = self.origin.alpha
-        self.prevX = self.x
-        self.prevY = self.y
-        self.prevZ = self.z
-        self.x = self.nextX
-        self.y = self.nextY
-        self.z = self.nextZ
-        self.nextX = self.x + vel*Cos(yaw)
-        self.nextY = self.y + vel*Sin(yaw)
-
-        -- arc calculation
-        local s = travelled
-        local d = self.origin.distance
-        local h = self.height
-        if h ~= 0 or self.origin.slope ~= 0 then
-            self.nextZ = 4*h*s*(d-s)/(d*d) + self.origin.slope*s + self.origin.z
-            pitch = pitch - Atan(((4*h)*(2*s - d))/(d*d))
-        end
-
-        -- curve calculation
-        local c = self.open
-        if c ~= 0 then
-            local dx = 4 * c * s * (d - s) / (d * d)
-            a = yaw + bj_PI / 2
-            self.x = self.x + dx * Cos(a)
-            self.y = self.y + dx * Sin(a)
-            yaw = yaw + Atan(-((4 * c) * (2 * s - d)) / (d * d))
-        end
-    end
-
-    function mt:OnFinish()
-        if travelled >= self.origin.distance - 0.0001 then
+    function Missile.__onFinish(self)
+        if self.traveled >= self.origin.distance - 0.0001 then
             self.finished = true
+
             if self.onFinish then
-                if self.allocated and self.onFinish() then
+                if self.allocated and self:onFinish() then
                     self:terminate()
                 else
-                    if self.travel > 0 and not self.paused then
+                    if self.traveled > 0 and not self.paused then
                         self:terminate()
                     end
                 end
@@ -437,18 +443,18 @@ do
                 self:terminate()
             end
         else
-            if not self.roll then
-                self.effect:orient(yaw, -pitch, 0)
+            if not self.autoroll then
+                self.effect:orient(self.yaw, -self.pitch, self.roll)
             else
-                self.effect:orient(yaw, -pitch, Atan2(self.open, self.height))
+                self.effect:orient(self.yaw, -self.pitch, Atan2(self.bend, self.height))
             end
         end
     end
 
-    function mt:OnBoundaries()
+    function Missile.__onBoundaries(self)
         if not self.effect:move(self.x, self.y, self.z) then
             if self.onBoundaries then
-                if self.allocated and self.onBoundaries() then
+                if self.allocated and self:onBoundaries() then
                     self:terminate()
                 end
             end
@@ -457,25 +463,70 @@ do
                 SetUnitX(self.dummy, self.x)
                 SetUnitY(self.dummy, self.y)
             end
-        end
-    end
 
-    function mt:OnPause()
-        pid = pid + 1
-        self.pkey = pid
-        frozen[pid] = self
-
-        if self.onPause then
-            if self.allocated and self.onPause() then
-                self:terminate()
+            if self.unit then
+                SetUnitX(self.unit, self.x)
+                SetUnitY(self.unit, self.y)
+                SetUnitZ(self.unit, self.z)
+                BlzSetUnitFacingEx(self.unit, self.yaw * bj_RADTODEG)
             end
         end
     end
 
-    function mt:OnResume(flag)
+    function Missile:bounce()
+        self.traveled = 0
+        self.finished = false
+
+        self.origin:move(self.x, self.y, self.z - GetLocZ(self.x, self.y))
+    end
+
+    function Missile:deflect(tx, ty, tz)
+        self.toZ = tz
+        self.target = nil
+        self.traveled = 0
+        self.finished = false
+
+        self.impact:move(tx, ty, tz)
+        self.origin:move(self.x, self.y, self.z - GetLocZ(self.x, self.y))
+
+    end
+
+    function Missile:deflectTarget(unit)
+        self:deflect(GetUnitX(unit), GetUnitY(unit), self.toZ)
+        self.target = unit
+    end
+
+    function Missile:flushAll()
+        array[self] = nil
+        array[self] = {}
+    end
+
+    function Missile:flush(agent)
+        if agent then
+            array[self][agent] = nil
+        end
+    end
+
+    function Missile:hitted(agent)
+        return array[self][agent]
+    end
+
+    function Missile:attach(model, dx, dy, dz, scale)
+        return self.effect:attach(model, dx, dy, dz, scale)
+    end
+
+    function Missile:detach(attachment)
+        if attachment then
+            self.effect:detach(attachment)
+            attachment:destroy()
+        end
+    end
+
+    function Missile:pause(flag)
         local this
 
         self.paused = flag
+
         if not self.paused and self.pkey ~= -1 then
             id = id + 1
             missiles[id] = self
@@ -492,11 +543,11 @@ do
             end
 
             if id == 0 then
-                TimerStart(timer, PERIOD, true, function() Missiles:move() end)
+                TimerStart(timer, PERIOD, true, Missile.__move)
             end
 
             if self.onResume then
-                if self.allocated and self.onResume() then
+                if self.allocated and self:onResume() then
                     self:terminate()
                 else
                     if self.finished then
@@ -511,7 +562,11 @@ do
         end
     end
 
-    function mt:OnRemove()
+    function Missile:color(red, green, blue)
+        self.effect:color(red, green, blue)
+    end
+
+    function Missile:terminate()
         local this
 
         if self.allocated and self.launched then
@@ -526,267 +581,92 @@ do
             end
 
             if self.onRemove then
-                self.onRemove()
+                self:onRemove()
             end
 
             if self.dummy then
-                Pool:recycle(self.dummy)
+                Dummy.recycle(self.dummy)
             end
 
-            this = Missiles.collection[Missiles.count]
+            this = Missile.collection[Missile.count]
             this.index = self.index
-            Missiles.collection[self.index] = Missiles.collection[Missiles.count]
-            Missiles.count = Missiles.count - 1
+            Missile.collection[self.index] = Missile.collection[Missile.count]
+            Missile.count = Missile.count - 1
             self.index = -1
 
             self.origin:destroy()
             self.impact:destroy()
             self.effect:destroy()
-            self:reset()
+            self:__reset()
             array[self] = nil
         end
     end
 
-    -- -------------------------- Model of the missile -------------------------- --
-    function mt:model(effect)
-        DestroyEffect(self.effect.effect)
-        self.effect.path = effect
-        self.Model = effect
-        self.effect.effect = AddSpecialEffect(effect, self.origin.x, self.origin.y)
-        BlzSetSpecialEffectZ(self.effect.effect, self.origin.z)
-        BlzSetSpecialEffectYaw(self.effect.effect, self.cA)
-    end
+    function Missile:launch()
+        if not self.launched and self.allocated then
+            self.launched = true
+            id = id + 1
+            missiles[id] = self
+            Missile.count = Missile.count + 1
+            self.index = Missile.count
+            Missile.collection[Missile.count] = self
 
-    -- ----------------------------- Curved movement ---------------------------- --
-    function mt:curve(value)
-        self.open = Tan(value * bj_DEGTORAD) * self.origin.distance
-        self.Curve = value
-    end
-
-    -- ----------------------------- Arced Movement ----------------------------- --
-    function mt:arc(value)
-        self.height = Tan(value * bj_DEGTORAD) * self.origin.distance / 4
-        self.Arc = value
-    end
-
-    -- ------------------------------ Effect scale ------------------------------ --
-    function mt:scale(value)
-        self.effect.size = value
-        self.effect:scale(self.effect.effect, value)
-        self.Scale = value
-    end
-
-    -- ------------------------------ Missile Speed ----------------------------- --
-    function mt:speed(value)
-        self.veloc = value * PERIOD
-        self.Speed = value
-
-        local vel = self.veloc*dilation
-        local s = self.travel + vel
-        local d = self.origin.distance
-        self.nextX = self.x + vel*Cos(self.cA)
-        self.nextY = self.y + vel*Sin(self.cA)
-
-        if self.height ~= 0 or self.origin.slope ~= 0 then
-            self.nextZ = 4*self.height*s*(d-s)/(d*d) + self.origin.slope*s + self.origin.z
-            self.z = self.nextZ
-        end
-    end
-
-    -- ------------------------------- Flight Time ------------------------------ --
-    function mt:duration(value)
-        self.veloc = RMaxBJ(0.00000001, (self.origin.distance - self.travel) * PERIOD / RMaxBJ(0.00000001, value))
-        self.Duration = value
-
-        local vel = self.veloc*dilation
-        local s = self.travel + vel
-        local d = self.origin.distance
-        self.nextX = self.x + vel*Cos(self.cA)
-        self.nextY = self.y + vel*Sin(self.cA)
-
-        if self.height ~= 0 or self.origin.slope ~= 0 then
-            self.nextZ = 4*self.height*s*(d-s)/(d*d) + self.origin.slope*s + self.origin.z
-            self.z = self.nextZ
-        end
-    end
-
-    -- ------------------------------- Sight Range ------------------------------ --
-    function mt:vision(sightRange)
-        self.Vision = sightRange
-
-        if self.dummy then
-            SetUnitOwner(self.dummy, self.owner, false)
-            BlzSetUnitRealField(self.dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
-        else
-            if not self.owner then
-                if self.source then
-                    self.dummy = Pool:retrieve(self.x, self.y, self.z, 0)
-                    SetUnitOwner(self.dummy, GetOwningPlayer(self.source), false)
-                    BlzSetUnitRealField(self.dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
-                end
+            if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
+                dilation = (id + 1) / SWEET_SPOT
             else
-                self.dummy = Pool:retrieve(self.x, self.y, self.z, 0)
-                SetUnitOwner(self.dummy, self.owner, false)
-                BlzSetUnitRealField(self.dummy, UNIT_RF_SIGHT_RADIUS, sightRange)
+                dilation = 1.
+            end
+
+            if id == 0 then
+                TimerStart(timer, PERIOD, true, Missile.__move)
             end
         end
     end
 
-    -- ------------------------------- Time Scale ------------------------------- --
-    function mt:timeScale(real)
-        self.TimeScale = real
-        self.effect:timeScale(real)
-    end
-
-    -- ---------------------------------- Alpha --------------------------------- --
-    function mt:alpha(integer)
-        self.Alpha = integer
-        self.effect:alpha(integer)
-    end
-
-    -- ------------------------------ Player Color ------------------------------ --
-    function mt:playerColor(integer)
-        self.playercolor = integer
-        self.effect:playerColor(integer)
-    end
-
-    -- -------------------------------- Animation ------------------------------- --
-    function mt:animation(integer)
-        self.Animation = integer
-        self.effect:animation(integer)
-    end
-
-    -- --------------------------- Bounce and Deflect --------------------------- --
-    function mt:bounce()
-        self.origin:move(self.x, self.y, self.z - GetLocZ(self.x, self.y))
-
-        travelled = 0
-        self.travel = 0
-        self.finished = false
-    end
-
-    function mt:deflect(tx, ty, tz)
-        local locZ = GetLocZ(self.x, self.y)
-
-        if self.z < locZ and self.onTerrain then
-            self.nextX = self.prevX
-            self.nextY = self.prevY
-            self.nextZ = self.prevZ
-        end
-
-        self.toZ = tz
+    function Missile:__reset()
+        self.yaw = 0
+        self.roll = 0
+        self.turn = 0
+        self.time = 0
+        self.data = 0
+        self.type = 0
+        self.bend = 0
+        self.pitch = 0
+        self.sight = 0
+        self.speed = 0
+        self.pkey = -1
+        self.unit = nil
+        self.index = -1
+        self.height = 0
+        self.damage = 0
+        self.owner = nil
+        self.dummy = nil
+        self.tileset = 0
+        self.source = nil
         self.target = nil
-        self.impact:move(tx, ty, tz)
-        self.origin:move(self.x, self.y, self.z - locZ)
-
-        travelled = 0
-        self.travel = 0
-        self.finished = false
-    end
-
-    function mt:deflectTarget(unit)
-        self:deflect(GetUnitX(unit), GetUnitY(unit), self.toZ)
-        self.target = unit
-    end
-
-    -- ---------------------------- Flush hit targets --------------------------- --
-    function mt:flushAll()
-        array[self] = nil
-        array[self] = {}
-    end
-
-    function mt:flush(widget)
-        if widget then
-            array[self][widget] = nil
-        end
-    end
-
-    function mt:hitted(widget)
-        return array[self][widget]
-    end
-
-    -- ----------------------- Missile attachment methods ----------------------- --
-    function mt:attach(model, dx, dy, dz, scale)
-        return self.effect:attach(model, dx, dy, dz, scale)
-    end
-
-    function mt:detach(effect)
-        if effect then
-            self.effect:detach(effect)
-        end
-    end
-
-    -- ------------------------------ Missile Pause ----------------------------- --
-    function mt:pause(flag)
-        self:OnResume(flag)
-    end
-
-    -- ---------------------------------- Color --------------------------------- --
-    function mt:color(red, green, blue)
-        self.effect:setColor(red, green, blue)
-    end
-
-    -- ------------------------------ Reset members ----------------------------- --
-    function mt:reset()
+        self.traveled = 0
+        self.collision = 0
+        self.paused = false
+        self.autoroll = false
         self.launched = false
         self.collideZ = false
         self.finished = false
-        self.paused = false
-        self.roll = false
-        self.source = nil
-        self.target = nil
-        self.owner = nil
-        self.dummy = nil
-        self.open = 0.
-        self.height = 0.
-        self.veloc = 0.
-        self.acceleration = 0.
-        self.collision = 0.
-        self.damage = 0.
-        self.travel = 0.
-        self.turn = 0.
-        self.data = 0.
-        self.type = 0
-        self.tileset = 0
-        self.pkey = -1
-        self.index = -1
-        self.Model = ""
-        self.Duration = 0
-        self.Scale = 1
-        self.Speed = 0
-        self.Arc = 0
-        self.Curve = 0
-        self.Vision = 0
-        self.TimeScale = 0.
-        self.Alpha = 0
-        self.playercolor = 0
-        self.Animation = 0
-        self.onHit = nil
-        self.onMissile = nil
-        self.onDestructable = nil
-        self.onItem = nil
-        self.onCliff = nil
-        self.onTerrain = nil
-        self.onTileset = nil
-        self.onPeriod = nil
-        self.onFinish = nil
-        self.onBoundaries = nil
-        self.onPause = nil
-        self.onResume = nil
-        self.onRemove = nil
+        self.acceleration = 0
     end
 
-    -- -------------------------------- Terminate ------------------------------- --
-    function mt:terminate()
-        self:OnRemove()
-    end
-
-    -- -------------------------- Destroys the missile -------------------------- --
-    function mt:remove(i)
+    function Missile:__remove(i)
         if self.paused then
-            self:OnPause()
+            pid = pid + 1
+            self.pkey = pid
+            frozen[pid] = self
+
+            if self.onPause then
+                if self.allocated and self:onPause() then
+                    self:terminate()
+                end
+            end
         else
-            self:OnRemove()
+            self:terminate()
         end
 
         missiles[i] = missiles[id]
@@ -810,34 +690,36 @@ do
         return i - 1
     end
 
-    -- ---------------------------- Missiles movement --------------------------- --
-    function mt:move()
+    function Missile.__move()
         local i = 0
         local j = 0
 
         if SWEET_SPOT > 0 then
             i = last
-        else
-            i = 0
         end
 
         while not ((j >= SWEET_SPOT and SWEET_SPOT > 0) or j > id) do
             local this = missiles[i]
 
             if this.allocated and not this.paused then
-                this:OnHit()
-                this:OnMissile()
-                this:OnDestructable()
-                this:OnItem()
-                this:OnCliff()
-                this:OnTerrain()
-                this:OnTileset()
-                this:OnPeriod()
-                this:OnOrient()
-                this:OnFinish()
-                this:OnBoundaries()
+                Missile.__onMove(this)
+                Missile.__onUnit(this)
+                Missile.__onItem(this)
+                Missile.__onMissile(this)
+                Missile.__onDestructable(this)
+                Missile.__onCliff(this)
+                Missile.__onTerrain(this)
+                Missile.__onTileset(this)
+                Missile.__onPeriod(this)
+                Missile.__onFinish(this)
+                Missile.__onBoundaries(this)
+
+                if not this.onMove then
+                    this.x = px
+                    this.y = py
+                end
             else
-                i = this:remove(i)
+                i = this:__remove(i)
                 j = j - 1
             end
             i = i + 1
@@ -847,35 +729,13 @@ do
                 i = 0
             end
         end
+
         last = i
     end
 
-    -- --------------------------- Launch the Missile --------------------------- --
-    function mt:launch()
-        if not self.launched and self.allocated then
-            self.launched = true
-            id = id + 1
-            missiles[id] = self
-            Missiles.count = Missiles.count + 1
-            self.index = Missiles.count
-            Missiles.collection[Missiles.count] = self
+    function Missile.create(x, y, z, toX, toY, toZ)
+        local this = Missile.allocate()
 
-            if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
-                dilation = (id + 1) / SWEET_SPOT
-            else
-                dilation = 1.
-            end
-
-            if id == 0 then
-                TimerStart(timer, PERIOD, true, function() Missiles:move() end)
-            end
-        end
-    end
-
-    -- --------------------------- Main Creator method -------------------------- --
-    function mt:create(x, y, z, toX, toY, toZ)
-        local this = {}
-        setmetatable(this, mt)
         array[this] = {}
 
         if #keys > 0 then
@@ -886,24 +746,20 @@ do
             index = index + 1
         end
 
-        this:reset()
-        this.origin = Coordinates:create(x, y, z)
-        this.impact = Coordinates:create(toX, toY, toZ)
-        this.effect = MissileEffect:create(x, y, this.origin.z)
-        Coordinates:link(this.origin, this.impact)
+        this:__reset()
+
         this.allocated = true
-        this.cA = this.origin.angle
+        this.origin = Coordinates.create(x, y, z)
+        this.impact = Coordinates.create(toX, toY, toZ)
+        this.effect = Effect.create("", x, y, this.origin.z, 1)
+        this.origin.link = this.impact
+        this.curvature = this.origin.angle
         this.x = x
         this.y = y
         this.z = this.impact.z
-        this.prevX = x
-        this.prevY = y
-        this.prevZ = this.impact.z
-        this.nextX = x
-        this.nextY = y
-        this.nextZ = this.impact.z
         this.toZ = toZ
+        this.cliff = GetTerrainCliffLevel(x, y)
 
         return this
     end
-end
+end)

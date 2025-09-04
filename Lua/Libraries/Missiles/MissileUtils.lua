@@ -9,7 +9,7 @@ do
     --                                             LUA API                                            --
     -- ---------------------------------------------------------------------------------------------- --
     function CreateMissileGroup()
-        return MissileGroup:create()
+        return MissileGroup.create()
     end
 
     function DestroyMissileGroup(group)
@@ -20,7 +20,7 @@ do
 
     function MissileGroupGetSize(group)
         if group then
-            return #group.group
+            return group.size
         else
             return 0
         end
@@ -42,7 +42,7 @@ do
 
     function IsMissileInGroup(missile, group)
         if group and missile then
-            if #group.group > 0 then
+            if group.size > 0 then
                 return group:contains(missile)
             else
                 return false
@@ -54,7 +54,7 @@ do
 
     function GroupRemoveMissile(group, missile)
         if group and missile then
-            if #group.group > 0 then
+            if group.size > 0 then
                 group:remove(missile)
             end
         end
@@ -70,8 +70,8 @@ do
 
     function GroupPickRandomMissile(group)
         if group then
-            if #group.group > 0 then
-                return group:missileAt(GetRandomInt(0, #group.group - 1))
+            if group.size > 0 then
+                return group:missileAt(GetRandomInt(1, group.size))
             else
                 return nil
             end
@@ -82,8 +82,8 @@ do
 
     function FirstOfMissileGroup(group)
         if group then
-            if #group.group > 0 then
-                return group.group[1]
+            if group.size > 0 then
+                return group:at(1)
             else
                 return nil
             end
@@ -92,20 +92,20 @@ do
         end
     end
 
-    function GroupAddMissileGroup(source, destiny)
-        if source and destiny then
-            if #source.group > 0 and source ~= destiny then
-                destiny:addGroup(source)
+    function GroupAddMissileGroup(source, target)
+        if source and target then
+            if source.size > 0 and source ~= target then
+                target:addGroup(source)
             end
         end
     end
 
-    function GroupRemoveMissileGroup(source, destiny)
-        if source and destiny then
-            if source == destiny then
+    function GroupRemoveMissileGroup(source, target)
+        if source and target then
+            if source == target then
                 source:clear()
-            elseif #source.group > 0 then
-                destiny:removeGroup(source)
+            elseif source.size > 0 then
+                target:removeGroup(source)
             end
         end
     end
@@ -113,12 +113,13 @@ do
     function GroupEnumMissilesOfType(group, type)
         if group then
             if Missiles.count > -1 then
-                if #group.group > 0 then
+                if group.size > 0 then
                     group:clear()
                 end
 
                 for i = 0, Missiles.count do
                     local missile = Missiles.collection[i]
+
                     if missile.type == type then
                         group:insert(missile)
                     end
@@ -134,17 +135,18 @@ do
         if group then
             if Missiles.count > -1 then
 
-                if #group.group > 0 then
+                if group.size > 0 then
                     group:clear()
                 end
 
                 while i <= Missiles.count and j > 0 do
                     local missile = Missiles.collection[i]
+
                     if missile.type == type then
+                        j = j - 1
                         group:insert(missile)
                     end
 
-                    j = j - 1
                     i = i + 1
                 end
             end
@@ -154,12 +156,13 @@ do
     function GroupEnumMissilesOfPlayer(group, player)
         if group then
             if Missiles.count > -1 then
-                if #group.group > 0 then
+                if group.size > 0 then
                     group:clear()
                 end
 
                 for i = 0, Missiles.count do
                     local missile = Missiles.collection[i]
+
                     if missile.owner == player then
                         group:insert(missile)
                     end
@@ -175,17 +178,18 @@ do
         if group then
             if Missiles.count > -1 then
 
-                if #group.group > 0 then
+                if group.size > 0 then
                     group:clear()
                 end
 
                 while i <= Missiles.count and j > 0 do
                     local missile = Missiles.collection[i]
+
                     if missile.owner == player then
+                        j = j - 1
                         group:insert(missile)
                     end
 
-                    j = j - 1
                     i = i + 1
                 end
             end
@@ -195,13 +199,19 @@ do
     function GroupEnumMissilesInRect(group, rect)
         if group and rect then
             if Missiles.count > -1 then
-                if #group.group > 0 then
+                local minx = GetRectMinX(rect)
+                local miny = GetRectMinY(rect)
+                local maxx = GetRectMaxX(rect)
+                local maxy = GetRectMaxY(rect)
+
+                if group.size > 0 then
                     group:clear()
                 end
 
                 for i = 0, Missiles.count do
                     local missile = Missiles.collection[i]
-                    if GetRectMinX(rect) <= missile.x and missile.x <= GetRectMaxX(rect) and GetRectMinY(rect) <= missile.y and missile.y <= GetRectMaxY(rect) then
+
+                    if minx <= missile.x and missile.x <= maxx and miny <= missile.y and missile.y <= maxy then
                         group:insert(missile)
                     end
                 end
@@ -215,18 +225,23 @@ do
 
         if group and rect then
             if Missiles.count > -1 then
+                local minx = GetRectMinX(rect)
+                local miny = GetRectMinY(rect)
+                local maxx = GetRectMaxX(rect)
+                local maxy = GetRectMaxY(rect)
 
-                if #group.group > 0 then
+                if group.size > 0 then
                     group:clear()
                 end
 
                 while i <= Missiles.count and j > 0 do
                     local missile = Missiles.collection[i]
-                    if GetRectMinX(rect) <= missile.x and missile.x <= GetRectMaxX(rect) and GetRectMinY(rect) <= missile.y and missile.y <= GetRectMaxY(rect) then
+
+                    if minx <= missile.x and missile.x <= maxx and miny <= missile.y and missile.y <= maxy then
+                        j = j - 1
                         group:insert(missile)
                     end
 
-                    j = j - 1
                     i = i + 1
                 end
             end
@@ -236,16 +251,20 @@ do
     function GroupEnumMissilesInRangeOfLoc(group, location, radius)
         if group and location and radius > 0 then
             if Missiles.count > -1 then
-                if #group.group > 0 then
+                local x = GetLocationX(location)
+                local y = GetLocationY(location)
+                local range = radius * radius
+
+                if group.size > 0 then
                     group:clear()
                 end
 
                 for i = 0, Missiles.count do
                     local missile = Missiles.collection[i]
-                    local dx = missile.x - GetLocationX(location)
-                    local dy = missile.y - GetLocationY(location)
+                    local dx = missile.x - x
+                    local dy = missile.y - y
 
-                    if SquareRoot(dx*dx + dy*dy) <= radius then
+                    if dx*dx + dy*dy <= range then
                         group:insert(missile)
                     end
                 end
@@ -259,21 +278,24 @@ do
 
         if group and location and radius > 0 then
             if Missiles.count > -1 then
+                local x = GetLocationX(location)
+                local y = GetLocationY(location)
+                local range = radius * radius
 
-                if #group.group > 0 then
+                if group.size > 0 then
                     group:clear()
                 end
 
                 while i <= Missiles.count and j > 0 do
                     local missile = Missiles.collection[i]
-                    local dx = missile.x - GetLocationX(location)
-                    local dy = missile.y - GetLocationY(location)
+                    local dx = missile.x - x
+                    local dy = missile.y - y
 
-                    if SquareRoot(dx*dx + dy*dy) <= radius then
+                    if dx*dx + dy*dy <= range then
+                        j = j - 1
                         group:insert(missile)
                     end
 
-                    j = j - 1
                     i = i + 1
                 end
             end
@@ -283,7 +305,9 @@ do
     function GroupEnumMissilesInRange(group, x, y, radius)
         if group and radius > 0 then
             if Missiles.count > -1 then
-                if #group.group > 0 then
+                local range = radius * radius
+
+                if group.size > 0 then
                     group:clear()
                 end
 
@@ -292,7 +316,7 @@ do
                     local dx = missile.x - x
                     local dy = missile.y - y
 
-                    if SquareRoot(dx*dx + dy*dy) <= radius then
+                    if dx*dx + dy*dy <= range then
                         group:insert(missile)
                     end
                 end
@@ -306,8 +330,9 @@ do
 
         if group and radius > 0 then
             if Missiles.count > -1 then
+                local range = radius * radius
 
-                if #group.group > 0 then
+                if group.size > 0 then
                     group:clear()
                 end
 
@@ -316,11 +341,11 @@ do
                     local dx = missile.x - x
                     local dy = missile.y - y
 
-                    if SquareRoot(dx*dx + dy*dy) <= radius then
+                    if dx*dx + dy*dy <= range then
+                        j = j - 1
                         group:insert(missile)
                     end
 
-                    j = j - 1
                     i = i + 1
                 end
             end
@@ -330,75 +355,59 @@ do
     -- ---------------------------------------------------------------------------------------------- --
     --                                             System                                             --
     -- ---------------------------------------------------------------------------------------------- --
-    MissileGroup = setmetatable({}, {})
-    local mt = getmetatable(MissileGroup)
-    mt.__index = mt
-    
-    function mt:destroy()
-        self.group = nil
-        self.set = nil
-        self = nil
+    MissileGroup = Class()
+
+    MissileGroup:property("size", { get = function(self) return self.group.size end })
+
+    function MissileGroup:destroy()
+        self.group:destroy()
     end
-    
-    function mt:missileAt(i)
-        if #self.group > 0 and i <= #self.group - 1 then
-            return self.group[i + 1]
+
+    function MissileGroup:missileAt(i)
+        if self.size > 0 and i <= self.size and i > 0 then
+            return self.group:at(i)
         else
             return 0
         end
     end
-    
-    function mt:remove(missile)
-        for i = 1, #self.group do
-            if self.group[i] == missile then
-                self.set[missile] = nil
-                table.remove(self.group, i)
-                break
+
+    function MissileGroup:remove(missile)
+        self.group:remove(missile)
+    end
+
+    function MissileGroup:insert(missile)
+        self.group:insert(missile)
+    end
+
+    function MissileGroup:clear()
+        self.group:clear()
+    end
+
+    function MissileGroup:contains(missile)
+        return self.group:has(missile)
+    end
+
+    function MissileGroup:addGroup(source)
+        for _, missile in pairs(source.group) do
+            if not self:contains(missile) then
+                self:insert(missile)
             end
         end
     end
-    
-    function mt:insert(missile)
-        table.insert(self.group, missile)
-        self.set[missile] = missile
-    end
-    
-    function mt:clear()
-        local size = #self.group
-        
-        for i = 1, size do
-            self.set[i] = nil
-            self.group[i] = nil
-        end
-    end
-    
-    function mt:contains(missile)
-        return self.set[missile] ~= nil
-    end
-    
-    function mt:addGroup(this)
-        for i = 1, #this.group do
-            if not self:contains(this.group[i]) then
-                self:insert(this.group[i])
+
+    function MissileGroup:removeGroup(source)
+        for _, missile in pairs(source.group) do
+            if self:contains(missile) then
+                self:remove(missile)
             end
         end
     end
-    
-    function mt:removeGroup(this)
-        for i = 1, #this.group do
-            if self:contains(this.group[i]) then
-                self:remove(this.group[i])
-            end
-        end
-    end
-    
-    function mt:create()
-        local this = {}
-        setmetatable(this, mt)
-        
-        this.group = {}
-        this.set = {}
-        
+
+    function MissileGroup.create()
+        local this = MissileGroup.allocate()
+
+        this.group = List.create()
+
         return this
     end
 end

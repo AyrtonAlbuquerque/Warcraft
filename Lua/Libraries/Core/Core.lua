@@ -121,6 +121,8 @@ OnInit("Class", function()
                 return instance
             end
 
+            this.create = this.allocate
+
             table.insert(initializers, this)
 
             return this
