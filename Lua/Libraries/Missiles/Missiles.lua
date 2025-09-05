@@ -16,73 +16,356 @@ OnInit("Missiles", function(requires)
     -- item size used in z collision
     local ITEM_SIZE  = 16.
 
-    -- ----------------------------------------------------------------------------------------- --
-    --                                           System                                          --
-    -- ----------------------------------------------------------------------------------------- --
-    do
-        Coordinates = Class()
+    -- ---------------------------------------------------------------------------------------------- --
+    --                                             LUA API                                            --
+    -- ---------------------------------------------------------------------------------------------- --
+    function CreateMissileGroup()
+        return MissileGroup.create()
+    end
 
-        Coordinates:property("link", {
-            set = function(self, value)
-                self.linked = value
-                value.linked = self
-
-                self:math(self, value)
-            end
-        })
-
-        function Coordinates:move(toX, toY, toZ)
-            self.x = toX
-            self.y = toY
-            self.z = toZ + GetLocZ(toX, toY)
-
-            if self.linked ~= self then
-                self:math(self, self.linked)
-            end
-        end
-
-        function Coordinates:math(a, b)
-            local dx
-            local dy
-
-            while true do
-                dx = b.x - a.x
-                dy = b.y - a.y
-                dx = dx * dx + dy * dy
-                dy = math.sqrt(dx)
-                if dx ~= 0. and dy ~= 0. then
-                    break
-                end
-                b.x = b.x + .01
-                b.z = b.z - GetLocZ(b.x - .01, b.y) + GetLocZ(b.x, b.y)
-            end
-
-            a.square = dx
-            a.distance = dy
-            a.angle = Atan2(b.y - a.y, b.x - a.x)
-            a.slope = (b.z - a.z) / dy
-            a.alpha = Atan(a.slope)
-
-            if b.linked == a then
-                b.angle = a.angle + bj_PI
-                b.distance = dy
-                b.slope = -a.slope
-                b.alpha = -a.alpha
-                b.square = dx
-            end
-        end
-
-        function Coordinates.create(x, y, z)
-            local this = Coordinates.allocate()
-
-            this.linked = this
-
-            this:move(x, y, z)
-
-            return this
+    function DestroyMissileGroup(group)
+        if group then
+            group:destroy()
         end
     end
 
+    function MissileGroupGetSize(group)
+        if group then
+            return group.size
+        else
+            return 0
+        end
+    end
+
+    function GroupMissileAt(group, position)
+        if group then
+            return group:missileAt(position)
+        else
+            return nil
+        end
+    end
+
+    function ClearMissileGroup(group)
+        if group then
+            group:clear()
+        end
+    end
+
+    function IsMissileInGroup(missile, group)
+        if group and missile then
+            if group.size > 0 then
+                return group:contains(missile)
+            else
+                return false
+            end
+        else
+            return false
+        end
+    end
+
+    function GroupRemoveMissile(group, missile)
+        if group and missile then
+            if group.size > 0 then
+                group:remove(missile)
+            end
+        end
+    end
+
+    function GroupAddMissile(group, missile)
+        if group and missile then
+            if not group:contains(missile) then
+                group:insert(missile)
+            end
+        end
+    end
+
+    function GroupPickRandomMissile(group)
+        if group then
+            if group.size > 0 then
+                return group:missileAt(GetRandomInt(1, group.size))
+            else
+                return nil
+            end
+        else
+            return nil
+        end
+    end
+
+    function FirstOfMissileGroup(group)
+        if group then
+            if group.size > 0 then
+                return group:at(1)
+            else
+                return nil
+            end
+        else
+            return nil
+        end
+    end
+
+    function GroupAddMissileGroup(source, target)
+        if source and target then
+            if source.size > 0 and source ~= target then
+                target:addGroup(source)
+            end
+        end
+    end
+
+    function GroupRemoveMissileGroup(source, target)
+        if source and target then
+            if source == target then
+                source:clear()
+            elseif source.size > 0 then
+                target:removeGroup(source)
+            end
+        end
+    end
+
+    function GroupEnumMissilesOfType(group, type)
+        if group then
+            if Missile.count > -1 then
+                if group.size > 0 then
+                    group:clear()
+                end
+
+                for i = 0, Missile.count do
+                    local missile = Missile.collection[i]
+
+                    if missile.type == type then
+                        group:insert(missile)
+                    end
+                end
+            end
+        end
+    end
+
+    function GroupEnumMissilesOfTypeCounted(group, type, amount)
+        local i = 0
+        local j = amount
+
+        if group then
+            if Missile.count > -1 then
+
+                if group.size > 0 then
+                    group:clear()
+                end
+
+                while i <= Missile.count and j > 0 do
+                    local missile = Missile.collection[i]
+
+                    if missile.type == type then
+                        j = j - 1
+                        group:insert(missile)
+                    end
+
+                    i = i + 1
+                end
+            end
+        end
+    end
+
+    function GroupEnumMissilesOfPlayer(group, player)
+        if group then
+            if Missile.count > -1 then
+                if group.size > 0 then
+                    group:clear()
+                end
+
+                for i = 0, Missile.count do
+                    local missile = Missile.collection[i]
+
+                    if missile.owner == player then
+                        group:insert(missile)
+                    end
+                end
+            end
+        end
+    end
+
+    function GroupEnumMissilesOfPlayerCounted(group, player, amount)
+        local i = 0
+        local j = amount
+
+        if group then
+            if Missile.count > -1 then
+
+                if group.size > 0 then
+                    group:clear()
+                end
+
+                while i <= Missile.count and j > 0 do
+                    local missile = Missile.collection[i]
+
+                    if missile.owner == player then
+                        j = j - 1
+                        group:insert(missile)
+                    end
+
+                    i = i + 1
+                end
+            end
+        end
+    end
+
+    function GroupEnumMissilesInRect(group, rect)
+        if group and rect then
+            if Missile.count > -1 then
+                local minx = GetRectMinX(rect)
+                local miny = GetRectMinY(rect)
+                local maxx = GetRectMaxX(rect)
+                local maxy = GetRectMaxY(rect)
+
+                if group.size > 0 then
+                    group:clear()
+                end
+
+                for i = 0, Missile.count do
+                    local missile = Missile.collection[i]
+
+                    if minx <= missile.x and missile.x <= maxx and miny <= missile.y and missile.y <= maxy then
+                        group:insert(missile)
+                    end
+                end
+            end
+        end
+    end
+
+    function GroupEnumMissilesInRectCounted(group, rect, amount)
+        local i = 0
+        local j = amount
+
+        if group and rect then
+            if Missile.count > -1 then
+                local minx = GetRectMinX(rect)
+                local miny = GetRectMinY(rect)
+                local maxx = GetRectMaxX(rect)
+                local maxy = GetRectMaxY(rect)
+
+                if group.size > 0 then
+                    group:clear()
+                end
+
+                while i <= Missile.count and j > 0 do
+                    local missile = Missile.collection[i]
+
+                    if minx <= missile.x and missile.x <= maxx and miny <= missile.y and missile.y <= maxy then
+                        j = j - 1
+                        group:insert(missile)
+                    end
+
+                    i = i + 1
+                end
+            end
+        end
+    end
+
+    function GroupEnumMissilesInRangeOfLoc(group, location, radius)
+        if group and location and radius > 0 then
+            if Missile.count > -1 then
+                local x = GetLocationX(location)
+                local y = GetLocationY(location)
+                local range = radius * radius
+
+                if group.size > 0 then
+                    group:clear()
+                end
+
+                for i = 0, Missile.count do
+                    local missile = Missile.collection[i]
+                    local dx = missile.x - x
+                    local dy = missile.y - y
+
+                    if dx*dx + dy*dy <= range then
+                        group:insert(missile)
+                    end
+                end
+            end
+        end
+    end
+
+    function GroupEnumMissilesInRangeOfLocCounted(group, location, radius, amount)
+        local i = 0
+        local j = amount
+
+        if group and location and radius > 0 then
+            if Missile.count > -1 then
+                local x = GetLocationX(location)
+                local y = GetLocationY(location)
+                local range = radius * radius
+
+                if group.size > 0 then
+                    group:clear()
+                end
+
+                while i <= Missile.count and j > 0 do
+                    local missile = Missile.collection[i]
+                    local dx = missile.x - x
+                    local dy = missile.y - y
+
+                    if dx*dx + dy*dy <= range then
+                        j = j - 1
+                        group:insert(missile)
+                    end
+
+                    i = i + 1
+                end
+            end
+        end
+    end
+
+    function GroupEnumMissilesInRange(group, x, y, radius)
+        if group and radius > 0 then
+            if Missile.count > -1 then
+                local range = radius * radius
+
+                if group.size > 0 then
+                    group:clear()
+                end
+
+                for i = 0, Missile.count do
+                    local missile = Missile.collection[i]
+                    local dx = missile.x - x
+                    local dy = missile.y - y
+
+                    if dx*dx + dy*dy <= range then
+                        group:insert(missile)
+                    end
+                end
+            end
+        end
+    end
+
+    function GroupEnumMissilesInRangeCounted(group, x, y, radius, amount)
+        local i = 0
+        local j = amount
+
+        if group and radius > 0 then
+            if Missile.count > -1 then
+                local range = radius * radius
+
+                if group.size > 0 then
+                    group:clear()
+                end
+
+                while i <= Missile.count and j > 0 do
+                    local missile = Missile.collection[i]
+                    local dx = missile.x - x
+                    local dy = missile.y - y
+
+                    if dx*dx + dy*dy <= range then
+                        j = j - 1
+                        group:insert(missile)
+                    end
+
+                    i = i + 1
+                end
+            end
+        end
+    end
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
     Missile = Class()
 
     Missile.count = -1
@@ -174,6 +457,223 @@ OnInit("Missiles", function(requires)
         set = function(self, value) self.effect.playercolor = value end
     })
 
+    function Missile:bounce()
+        self.traveled = 0
+        self.finished = false
+
+        self.origin:move(self.x, self.y, self.z - GetLocZ(self.x, self.y))
+    end
+
+    function Missile:deflect(tx, ty, tz)
+        self.toZ = tz
+        self.target = nil
+        self.traveled = 0
+        self.finished = false
+
+        self.impact:move(tx, ty, tz)
+        self.origin:move(self.x, self.y, self.z - GetLocZ(self.x, self.y))
+
+    end
+
+    function Missile:deflectTarget(unit)
+        self:deflect(GetUnitX(unit), GetUnitY(unit), self.toZ)
+        self.target = unit
+    end
+
+    function Missile:flushAll()
+        array[self] = nil
+        array[self] = {}
+    end
+
+    function Missile:flush(agent)
+        if agent then
+            array[self][agent] = nil
+        end
+    end
+
+    function Missile:hitted(agent)
+        return array[self][agent]
+    end
+
+    function Missile:attach(model, dx, dy, dz, scale)
+        return self.effect:attach(model, dx, dy, dz, scale)
+    end
+
+    function Missile:detach(attachment)
+        if attachment then
+            self.effect:detach(attachment)
+            attachment:destroy()
+        end
+    end
+
+    function Missile:pause(flag)
+        local this
+
+        self.paused = flag
+
+        if not self.paused and self.pkey ~= -1 then
+            id = id + 1
+            missiles[id] = self
+            this = frozen[pid]
+            this.pkey = self.pkey
+            frozen[self.pkey] = frozen[pid]
+            pid = pid - 1
+            self.pkey = -1
+
+            if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
+                dilation = (id + 1)/SWEET_SPOT
+            else
+                dilation = 1.
+            end
+
+            if id == 0 then
+                TimerStart(timer, PERIOD, true, Missile.__move)
+            end
+
+            if self.onResume then
+                if self.allocated and self:onResume() then
+                    self:terminate()
+                else
+                    if self.finished then
+                        self:terminate()
+                    end
+                end
+            else
+                if self.finished then
+                    self:terminate()
+                end
+            end
+        end
+    end
+
+    function Missile:color(red, green, blue)
+        self.effect:color(red, green, blue)
+    end
+
+    function Missile:terminate()
+        local this
+
+        if self.allocated and self.launched then
+            self.allocated = false
+
+            if self.pkey ~= -1 then
+                this = frozen[pid]
+                this.pkey = self.pkey
+                frozen[self.pkey] = frozen[pid]
+                pid = pid - 1
+                self.pkey = -1
+            end
+
+            if self.onRemove then
+                self:onRemove()
+            end
+
+            if self.dummy then
+                Dummy.recycle(self.dummy)
+            end
+
+            this = Missile.collection[Missile.count]
+            this.index = self.index
+            Missile.collection[self.index] = Missile.collection[Missile.count]
+            Missile.count = Missile.count - 1
+            self.index = -1
+
+            self.origin:destroy()
+            self.impact:destroy()
+            self.effect:destroy()
+
+            array[self] = nil
+        end
+    end
+
+    function Missile:launch()
+        if not self.launched and self.allocated then
+            self.launched = true
+            id = id + 1
+            missiles[id] = self
+            Missile.count = Missile.count + 1
+            self.index = Missile.count
+            Missile.collection[Missile.count] = self
+
+            if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
+                dilation = (id + 1) / SWEET_SPOT
+            else
+                dilation = 1.
+            end
+
+            if id == 0 then
+                TimerStart(timer, PERIOD, true, Missile.__move)
+            end
+        end
+    end
+
+    function Missile:__reset()
+        self.yaw = 0
+        self.roll = 0
+        self.turn = 0
+        self.time = 0
+        self.data = 0
+        self.type = 0
+        self.bend = 0
+        self.pitch = 0
+        self.sight = 0
+        self.speed = 0
+        self.pkey = -1
+        self.unit = nil
+        self.index = -1
+        self.height = 0
+        self.damage = 0
+        self.owner = nil
+        self.dummy = nil
+        self.tileset = 0
+        self.source = nil
+        self.target = nil
+        self.traveled = 0
+        self.collision = 0
+        self.paused = false
+        self.autoroll = false
+        self.launched = false
+        self.collideZ = false
+        self.finished = false
+        self.acceleration = 0
+    end
+
+    function Missile:__remove(i)
+        if self.paused then
+            pid = pid + 1
+            self.pkey = pid
+            frozen[pid] = self
+
+            if self.onPause then
+                if self.allocated and self:onPause() then
+                    self:terminate()
+                end
+            end
+        else
+            self:terminate()
+        end
+
+        missiles[i] = missiles[id]
+        id = id - 1
+
+        if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
+            dilation = (id + 1) / SWEET_SPOT
+        else
+            dilation = 1
+        end
+
+        if id == -1 then
+            PauseTimer(timer)
+        end
+
+        if not self.allocated then
+            table.insert(keys, self.key)
+            self = nil
+        end
+
+        return i - 1
+    end
+
     function Missile.__onMove(self)
         local dx
         local dy
@@ -255,7 +755,6 @@ OnInit("Missiles", function(requires)
                                 end
                             else
                                 array[self][unit] = true
-
                                 if self.allocated and self:onUnit(unit) then
                                     self:terminate()
                                     break
@@ -473,223 +972,6 @@ OnInit("Missiles", function(requires)
         end
     end
 
-    function Missile:bounce()
-        self.traveled = 0
-        self.finished = false
-
-        self.origin:move(self.x, self.y, self.z - GetLocZ(self.x, self.y))
-    end
-
-    function Missile:deflect(tx, ty, tz)
-        self.toZ = tz
-        self.target = nil
-        self.traveled = 0
-        self.finished = false
-
-        self.impact:move(tx, ty, tz)
-        self.origin:move(self.x, self.y, self.z - GetLocZ(self.x, self.y))
-
-    end
-
-    function Missile:deflectTarget(unit)
-        self:deflect(GetUnitX(unit), GetUnitY(unit), self.toZ)
-        self.target = unit
-    end
-
-    function Missile:flushAll()
-        array[self] = nil
-        array[self] = {}
-    end
-
-    function Missile:flush(agent)
-        if agent then
-            array[self][agent] = nil
-        end
-    end
-
-    function Missile:hitted(agent)
-        return array[self][agent]
-    end
-
-    function Missile:attach(model, dx, dy, dz, scale)
-        return self.effect:attach(model, dx, dy, dz, scale)
-    end
-
-    function Missile:detach(attachment)
-        if attachment then
-            self.effect:detach(attachment)
-            attachment:destroy()
-        end
-    end
-
-    function Missile:pause(flag)
-        local this
-
-        self.paused = flag
-
-        if not self.paused and self.pkey ~= -1 then
-            id = id + 1
-            missiles[id] = self
-            this = frozen[pid]
-            this.pkey = self.pkey
-            frozen[self.pkey] = frozen[pid]
-            pid = pid - 1
-            self.pkey = -1
-
-            if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
-                dilation = (id + 1)/SWEET_SPOT
-            else
-                dilation = 1.
-            end
-
-            if id == 0 then
-                TimerStart(timer, PERIOD, true, Missile.__move)
-            end
-
-            if self.onResume then
-                if self.allocated and self:onResume() then
-                    self:terminate()
-                else
-                    if self.finished then
-                        self:terminate()
-                    end
-                end
-            else
-                if self.finished then
-                    self:terminate()
-                end
-            end
-        end
-    end
-
-    function Missile:color(red, green, blue)
-        self.effect:color(red, green, blue)
-    end
-
-    function Missile:terminate()
-        local this
-
-        if self.allocated and self.launched then
-            self.allocated = false
-
-            if self.pkey ~= -1 then
-                this = frozen[pid]
-                this.pkey = self.pkey
-                frozen[self.pkey] = frozen[pid]
-                pid = pid - 1
-                self.pkey = -1
-            end
-
-            if self.onRemove then
-                self:onRemove()
-            end
-
-            if self.dummy then
-                Dummy.recycle(self.dummy)
-            end
-
-            this = Missile.collection[Missile.count]
-            this.index = self.index
-            Missile.collection[self.index] = Missile.collection[Missile.count]
-            Missile.count = Missile.count - 1
-            self.index = -1
-
-            self.origin:destroy()
-            self.impact:destroy()
-            self.effect:destroy()
-            self:__reset()
-            array[self] = nil
-        end
-    end
-
-    function Missile:launch()
-        if not self.launched and self.allocated then
-            self.launched = true
-            id = id + 1
-            missiles[id] = self
-            Missile.count = Missile.count + 1
-            self.index = Missile.count
-            Missile.collection[Missile.count] = self
-
-            if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
-                dilation = (id + 1) / SWEET_SPOT
-            else
-                dilation = 1.
-            end
-
-            if id == 0 then
-                TimerStart(timer, PERIOD, true, Missile.__move)
-            end
-        end
-    end
-
-    function Missile:__reset()
-        self.yaw = 0
-        self.roll = 0
-        self.turn = 0
-        self.time = 0
-        self.data = 0
-        self.type = 0
-        self.bend = 0
-        self.pitch = 0
-        self.sight = 0
-        self.speed = 0
-        self.pkey = -1
-        self.unit = nil
-        self.index = -1
-        self.height = 0
-        self.damage = 0
-        self.owner = nil
-        self.dummy = nil
-        self.tileset = 0
-        self.source = nil
-        self.target = nil
-        self.traveled = 0
-        self.collision = 0
-        self.paused = false
-        self.autoroll = false
-        self.launched = false
-        self.collideZ = false
-        self.finished = false
-        self.acceleration = 0
-    end
-
-    function Missile:__remove(i)
-        if self.paused then
-            pid = pid + 1
-            self.pkey = pid
-            frozen[pid] = self
-
-            if self.onPause then
-                if self.allocated and self:onPause() then
-                    self:terminate()
-                end
-            end
-        else
-            self:terminate()
-        end
-
-        missiles[i] = missiles[id]
-        id = id - 1
-
-        if id + 1 > SWEET_SPOT and SWEET_SPOT > 0 then
-            dilation = (id + 1) / SWEET_SPOT
-        else
-            dilation = 1
-        end
-
-        if id == -1 then
-            PauseTimer(timer)
-        end
-
-        if not self.allocated then
-            table.insert(keys, self.key)
-            self = nil
-        end
-
-        return i - 1
-    end
-
     function Missile.__move()
         local i = 0
         local j = 0
@@ -761,5 +1043,131 @@ OnInit("Missiles", function(requires)
         this.cliff = GetTerrainCliffLevel(x, y)
 
         return this
+    end
+
+    do
+        Coordinates = Class()
+
+        Coordinates:property("link", {
+            set = function(self, value)
+                self.linked = value
+                value.linked = self
+
+                self:math(self, value)
+            end
+        })
+
+        function Coordinates:destroy()
+            self.linked = nil
+        end
+
+        function Coordinates:move(toX, toY, toZ)
+            self.x = toX
+            self.y = toY
+            self.z = toZ + GetLocZ(toX, toY)
+
+            if self.linked ~= self then
+                self:math(self, self.linked)
+            end
+        end
+
+        function Coordinates:math(a, b)
+            local dx
+            local dy
+
+            while true do
+                dx = b.x - a.x
+                dy = b.y - a.y
+                dx = dx * dx + dy * dy
+                dy = math.sqrt(dx)
+                if dx ~= 0. and dy ~= 0. then
+                    break
+                end
+                b.x = b.x + .01
+                b.z = b.z - GetLocZ(b.x - .01, b.y) + GetLocZ(b.x, b.y)
+            end
+
+            a.square = dx
+            a.distance = dy
+            a.angle = Atan2(b.y - a.y, b.x - a.x)
+            a.slope = (b.z - a.z) / dy
+            a.alpha = Atan(a.slope)
+
+            if b.linked == a then
+                b.angle = a.angle + bj_PI
+                b.distance = dy
+                b.slope = -a.slope
+                b.alpha = -a.alpha
+                b.square = dx
+            end
+        end
+
+        function Coordinates.create(x, y, z)
+            local this = Coordinates.allocate()
+
+            this.linked = this
+
+            this:move(x, y, z)
+
+            return this
+        end
+    end
+
+    do
+        MissileGroup = Class()
+
+        MissileGroup:property("size", { get = function(self) return self.group.size end })
+
+        function MissileGroup:destroy()
+            self.group:destroy()
+        end
+
+        function MissileGroup:missileAt(i)
+            if self.size > 0 and i <= self.size and i > 0 then
+                return self.group:at(i)
+            else
+                return 0
+            end
+        end
+
+        function MissileGroup:remove(missile)
+            self.group:remove(missile)
+        end
+
+        function MissileGroup:insert(missile)
+            self.group:insert(missile)
+        end
+
+        function MissileGroup:clear()
+            self.group:clear()
+        end
+
+        function MissileGroup:contains(missile)
+            return self.group:has(missile)
+        end
+
+        function MissileGroup:addGroup(source)
+            for _, missile in pairs(source.group) do
+                if not self:contains(missile) then
+                    self:insert(missile)
+                end
+            end
+        end
+
+        function MissileGroup:removeGroup(source)
+            for _, missile in pairs(source.group) do
+                if self:contains(missile) then
+                    self:remove(missile)
+                end
+            end
+        end
+
+        function MissileGroup.create()
+            local this = MissileGroup.allocate()
+
+            this.group = List.create()
+
+            return this
+        end
     end
 end)

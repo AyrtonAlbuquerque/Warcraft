@@ -46,8 +46,6 @@ OnInit("Class", function()
 
                                 current = current.super
                             end
-
-                            setmetatable(self, { __mode = "k" })
                         end
                     end
 

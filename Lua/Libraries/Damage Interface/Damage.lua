@@ -23,9 +23,9 @@ OnInit("Damage", function(requires)
     })
 
     Damage:property("amount", {
-        get = function(self) return Damage._event.amount end,
+        get = function(self) return Damage._event.damage end,
         set = function(self, value)
-            Damage._event.amount = value
+            Damage._event.damage = value
             BlzSetEventDamage(value)
         end
     })
@@ -38,7 +38,7 @@ OnInit("Damage", function(requires)
     })
 
     Damage:property("damagetype", {
-        get = function(self) return not Damage._event.damagetype end,
+        get = function(self) return Damage._event.damagetype end,
         set = function(self, value)
             Damage._event.damagetype = value
             BlzSetEventDamageType(value)
@@ -46,7 +46,7 @@ OnInit("Damage", function(requires)
     })
 
     Damage:property("attacktype", {
-        get = function(self) return not Damage._event.attacktype end,
+        get = function(self) return Damage._event.attacktype end,
         set = function(self, value)
             Damage._event.attacktype = value
             BlzSetEventAttackType(value)
@@ -54,7 +54,7 @@ OnInit("Damage", function(requires)
     })
 
     Damage:property("weapontype", {
-        get = function(self) return not Damage._event.weapontype end,
+        get = function(self) return Damage._event.weapontype end,
         set = function(self, value)
             Damage._event.weapontype = value
             BlzSetEventWeaponType(value)
@@ -89,8 +89,6 @@ OnInit("Damage", function(requires)
             attacktype = BlzGetEventAttackType(),
             damagetype = BlzGetEventDamageType(),
             weapontype = BlzGetEventWeaponType(),
-            _oSource = GetEventDamageSource(),
-            _oTarget = BlzGetEventDamageTarget()
         }
 
         table.insert(event, this)
@@ -104,6 +102,8 @@ OnInit("Damage", function(requires)
 
     function Damage.__pos()
         Damage._event = event[#event]
+        Damage._event.predamage = Damage._event.damage
+        Damage._event.damage = GetEventDamage()
     end
 
     function Damage.onInit()
@@ -117,10 +117,10 @@ OnInit("Damage", function(requires)
             if GetTriggerEventId() == EVENT_PLAYER_UNIT_DAMAGING then
                 Damage.__pre()
 
-                if Damage.process then
-                    if Damage.damagetype ~= DAMAGE_TYPE_UNKNOWN then
-                        local i = GetHandleId(Damage.attacktype) + 1
-                        local j = GetHandleId(Damage.damagetype) + 1
+                if not Damage._event.skip then
+                    if Damage._event.damagetype ~= DAMAGE_TYPE_UNKNOWN then
+                        local i = GetHandleId(Damage._event.attacktype) + 1
+                        local j = GetHandleId(Damage._event.damagetype) + 1
 
                         if before[i][1] then
                             for k = 1, #before[i][1] do
@@ -153,10 +153,10 @@ OnInit("Damage", function(requires)
             if GetTriggerEventId() == EVENT_PLAYER_UNIT_DAMAGED then
                 Damage.__pos()
 
-                if Damage.process then
-                    if Damage.damagetype ~= DAMAGE_TYPE_UNKNOWN then
-                        local i = GetHandleId(Damage.attacktype) + 1
-                        local j = GetHandleId(Damage.damagetype) + 1
+                if not Damage._event.skip then
+                    if Damage._event.damagetype ~= DAMAGE_TYPE_UNKNOWN then
+                        local i = GetHandleId(Damage._event.attacktype) + 1
+                        local j = GetHandleId(Damage._event.damagetype) + 1
 
                         if after[i][1] then
                             for k = 1, #after[i][1] do
@@ -181,7 +181,7 @@ OnInit("Damage", function(requires)
                         damage[k]()
                     end
 
-                    BlzSetEventDamage(Damage.amount)
+                    BlzSetEventDamage(Damage._event.damage)
 
                     if Damage._event.newSource or Damage._event.newTarget then
                         if Damage._event.newSource then
@@ -193,7 +193,7 @@ OnInit("Damage", function(requires)
                         end
 
                         BlzSetEventDamage(0)
-                        UnitDamageTarget(Damage.source.unit, Damage.target.unit, Damage.amount, false, false, Damage.attacktype, Damage.damagetype, Damage.weapontype)
+                        UnitDamageTarget(Damage._event.source.unit, Damage._event.target.unit, Damage._event.damage, false, false, Damage._event.attacktype, Damage._event.damagetype, Damage._event.weapontype)
                     end
                 end
 

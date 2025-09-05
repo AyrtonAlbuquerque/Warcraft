@@ -153,6 +153,8 @@ OnInit("Effect", function(requires)
 
         DestroyEffect(self.effect)
         self.attachments:destroy()
+
+        self.effect = nil
     end
 
     function Effect:orient(yaw, pitch, roll)
