@@ -1,78 +1,72 @@
---[[ requires Utilities, WorldBounds, Indexer, TimerUtils, RegisterPlayerUnitEvent, optional Tenacity
-    -- ------------------------------------- Crowd Control v1.0 ------------------------------------- --
-    -- How to Import:
-    -- 1 - Copy the Utilities library over to your map and follow its install instructions
-    -- 2 - Copy the WorldBounds library over to your map and follow its install instructions
-    -- 3 - Copy the Indexer library over to your map and follow its install instructions
-    -- 4 - Copy the RegisterPlayerUnitEvent library over to your map and follow its install instructions
-    -- 5 - Copy the Tenacity library over to your map and follow its install instructions
-    -- 6 - Copy this library into your map
-    -- 7 - Copy the 14 buffs and 15 abilities with the CC prefix and match their raw code below.
-    -- ---------------------------------------- By Chopinski ---------------------------------------- --
-]]--
+OnInit("CrowdControl", function(requires)
+    requires "Dummy"
+    requires "Indexer"
+    requires "Utilities"
+    requires "WorldBounds"
+    requires "RegisterPlayerUnitEvent"
+    requires.optional "Tenacity"
 
-do
     -- ---------------------------------------------------------------------------------------------- --
     --                                          Configuration                                         --
     -- ---------------------------------------------------------------------------------------------- --
     -- The raw code of the silence ability
-    local SILENCE            = FourCC('U000')
+    local SILENCE            = S2A('U000')
     -- The raw code of the stun ability
-    local STUN               = FourCC('U001')
+    local STUN               = S2A('U001')
     -- The raw code of the attack slow ability
-    local ATTACK_SLOW        = FourCC('U002')
+    local ATTACK_SLOW        = S2A('U002')
     -- The raw code of the movement slow ability
-    local MOVEMENT_SLOW      = FourCC('U003')
+    local MOVEMENT_SLOW      = S2A('U003')
     -- The raw code of the banish ability
-    local BANISH             = FourCC('U004')
+    local BANISH             = S2A('U004')
     -- The raw code of the ensnare ability
-    local ENSNARE            = FourCC('U005')
+    local ENSNARE            = S2A('U005')
     -- The raw code of the purge ability
-    local PURGE              = FourCC('U006')
+    local PURGE              = S2A('U006')
     -- The raw code of the hex ability
-    local HEX                = FourCC('U007')
+    local HEX                = S2A('U007')
     -- The raw code of the sleep ability
-    local SLEEP              = FourCC('U008')
+    local SLEEP              = S2A('U008')
     -- The raw code of the cyclone ability
-    local CYCLONE            = FourCC('U009')
+    local CYCLONE            = S2A('U009')
     -- The raw code of the entangle ability
-    local ENTANGLE           = FourCC('U010')
+    local ENTANGLE           = S2A('U010')
     -- The raw code of the disarm ability
-    local DISARM             = FourCC('U011')
+    local DISARM             = S2A('U011')
     -- The raw code of the fear ability
-    local FEAR               = FourCC('U012')
+    local FEAR               = S2A('U012')
     -- The raw code of the taunt ability
-    local TAUNT              = FourCC('U013')
+    local TAUNT              = S2A('U013')
     -- The raw code of the true sight ability
-    local TRUE_SIGHT         = FourCC('U014')
+    local TRUE_SIGHT         = S2A('U014')
     -- The raw code of the silence buff
-    local SILENCE_BUFF       = FourCC('BU00')
+    local SILENCE_BUFF       = S2A('BU00')
     -- The raw code of the stun buff
-    local STUN_BUFF          = FourCC('BU01')
+    local STUN_BUFF          = S2A('BU01')
     -- The raw code of the attack slow buff
-    local ATTACK_SLOW_BUFF   = FourCC('BU02')
+    local ATTACK_SLOW_BUFF   = S2A('BU02')
     -- The raw code of the movement slow buff
-    local MOVEMENT_SLOW_BUFF = FourCC('BU03')
+    local MOVEMENT_SLOW_BUFF = S2A('BU03')
     -- The raw code of the banish buff
-    local BANISH_BUFF        = FourCC('BU04')
+    local BANISH_BUFF        = S2A('BU04')
     -- The raw code of the ensnare buff
-    local ENSNARE_BUFF       = FourCC('BU05')
+    local ENSNARE_BUFF       = S2A('BU05')
     -- The raw code of the purge buff
-    local PURGE_BUFF         = FourCC('BU06')
+    local PURGE_BUFF         = S2A('BU06')
     -- The raw code of the hex buff
-    local HEX_BUFF           = FourCC('BU07')
+    local HEX_BUFF           = S2A('BU07')
     -- The raw code of the sleep buff
-    local SLEEP_BUFF         = FourCC('BU08')
+    local SLEEP_BUFF         = S2A('BU08')
     -- The raw code of the cyclone buff
-    local CYCLONE_BUFF       = FourCC('BU09')
+    local CYCLONE_BUFF       = S2A('BU09')
     -- The raw code of the entangle buff
-    local ENTANGLE_BUFF      = FourCC('BU10')
+    local ENTANGLE_BUFF      = S2A('BU10')
     -- The raw code of the disarm buff
-    local DISARM_BUFF        = FourCC('BU11')
+    local DISARM_BUFF        = S2A('BU11')
     -- The raw code of the fear buff
-    local FEAR_BUFF          = FourCC('BU12')
+    local FEAR_BUFF          = S2A('BU12')
     -- The raw code of the taunt buff
-    local TAUNT_BUFF         = FourCC('BU13')
+    local TAUNT_BUFF         = S2A('BU13')
 
     -- This is the maximum recursion limit allowed by the system.
     -- Its value must be greater than or equal to 0. When equal to 0
@@ -534,8 +528,8 @@ do
                     BlzPauseUnitEx(unit, true)
                 end
 
-                UnitAddAbility(unit, FourCC('Amrf'))
-                UnitRemoveAbility(unit, FourCC('Amrf'))
+                UnitAddAbility(unit, S2A('Amrf'))
+                UnitRemoveAbility(unit, S2A('Amrf'))
                 SetUnitFlyHeight(unit, (GetUnitDefaultFlyHeight(unit) + height), rate)
 
                 TimerStart(timer, duration/2, false, function()
@@ -670,7 +664,7 @@ do
             end
         end
 
-        onInit(function()
+        OnInit.final(function()
             RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function()
                 Fear:onOrder()
             end)
@@ -819,7 +813,7 @@ do
                     end
                 else
                     if GetOrderTargetUnit() ~= Taunt.source[unit] and GetOrderTargetUnit() ~= nil then
-                        if IsUnitVisible(source[id],  GetOwningPlayer(target)) then
+                        if IsUnitVisible(Taunt.source[unit],  GetOwningPlayer(unit)) then
                             IssueTargetOrderById(unit, 851983, Taunt.source[unit])
                         else
                             IssuePointOrderById(unit, 851986, GetUnitX(Taunt.source[unit]), GetUnitY(Taunt.source[unit]))
@@ -839,7 +833,7 @@ do
             end
         end
 
-        onInit(function()
+        OnInit.final(function()
             RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function()
                 Taunt:onOrder()
             end)
@@ -904,7 +898,7 @@ do
         local dummy
         local count = 0
 
-        onInit(function()
+        OnInit.final(function()
             local t = CreateTimer()
 
             TimerStart(t, 0, false, function()
@@ -1306,4 +1300,4 @@ do
             end
         end
     end
-end
+end)

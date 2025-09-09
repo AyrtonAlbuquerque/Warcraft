@@ -1,4 +1,4 @@
-library OrbWalking requires RegisterPlayerUnitEvent, Utilities, WorldBounds optional Missiles optional Indexer
+library OrbWalking requires RegisterPlayerUnitEvent, Utilities
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */

@@ -673,6 +673,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 call SetUnitX(unit, x)
                 call SetUnitY(unit, y)
                 call SetUnitZ(unit, z)
+                call BlzSetUnitFacingEx(unit, yaw * bj_RADTODEG)
             endif
         endif
     endmodule

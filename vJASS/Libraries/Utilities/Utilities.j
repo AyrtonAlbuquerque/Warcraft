@@ -133,7 +133,6 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
 
     // Workaround for patch 2.0 R2S bug
     function N2S takes real value, integer precision returns string
-        local integer i
         local integer digit
         local string result
         local string sign = ""

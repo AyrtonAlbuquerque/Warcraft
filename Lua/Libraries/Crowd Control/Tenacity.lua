@@ -1,29 +1,6 @@
---[[
-    -- ---------------------------------------- Tenacity v1.0 --------------------------------------- --
-    -- Intro
-    --      This library intension in to introduce to warcraft an easy way to 
-    --      manipulate the duration of crowd control on units.
-    --
-    -- How it Works?
-    --      Working in conjuction with the Crowd Control Library this library allows you to control the 
-    --      duration of disables provided in the Crowd Control library. It work similar to the Tenacity
-    --      status in League of Legends or the Status Resistence in Dota 2.
-    --
-    --      The are basically 3 types of tenacity: Normal (stacks multiplicatively), 
-    --      Flat and Offset (stacks additively).The formula for calculation is:
-    --          newDuration = (duration - Offset) * [(1 - value1)*(1 - value2)*...] * (1 - Flat)
-    --
-    --      The system also allow negative values for Tenacity, resulting in increased
-    --      crowd control duration. Also note that tenacity will only work on CC applied through
-    --      the Crowd Control API
-    --
-    -- How to Import
-    --      1. Copy the Indexer library into your map
-    --      2. Copy this library into your map and you are done 
-    -- ---------------------------------------- By Chopinski ---------------------------------------- --
-]]--
+OnInit("Tenacity", function(requires)
+    requires "Indexer"
 
-do
     -- ---------------------------------------------------------------------------------------------- --
     --                                             LUA API                                            --
     -- ---------------------------------------------------------------------------------------------- --
@@ -197,9 +174,9 @@ do
         return list[unit]
     end
 
-    onInit(function()
+    OnInit.final(function()
         RegisterUnitDeindexEvent(function()
             list[GetIndexUnit()] = nil
         end)
     end)
-end
+end)

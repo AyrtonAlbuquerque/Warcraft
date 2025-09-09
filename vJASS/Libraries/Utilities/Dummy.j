@@ -1,6 +1,6 @@
 library Dummy requires TimerUtils, WorldBounds
     globals
-        public  constant integer DUMMY = 'dumi'
+        public constant integer DUMMY = 'dumi'
     endglobals
     
     /* ----------------------------------------------------------------------------------------- */
@@ -25,6 +25,8 @@ library Dummy requires TimerUtils, WorldBounds
         private static group group = CreateGroup()
         private static location location = Location(0, 0)
         private static player player = Player(PLAYER_NEUTRAL_PASSIVE)
+
+        readonly static integer type = DUMMY
 
         unit unit
         timer timer

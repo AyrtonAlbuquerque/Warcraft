@@ -1,10 +1,6 @@
---[[ requires Tenacity
-    -- ------------------------------------- Tenacity Utils v1.0 ------------------------------------ --
-    -- Utility Library that include a few extra functions to deal with Tenacity
-    -- ---------------------------------------- By Chopinski ---------------------------------------- --
-]]--
+OnInit("TenacityUtils", function(requires)
+    requires "Tenacity"
 
-do
     -- ---------------------------------------------------------------------------------------------- --
     --                                             LUA API                                            --
     -- ---------------------------------------------------------------------------------------------- --
@@ -27,10 +23,10 @@ do
     local mt = getmetatable(TenacityUtils)
     mt.__index = mt
 
-    local array = {}
     local key = 0
+    local array = {}
+    local period = 0.03125
     local timer = CreateTimer()
-    local period = 0.03125000
 
     function mt:remove(i)
         if self.type == 0 then
@@ -81,4 +77,4 @@ do
             end)
         end
     end
-end
+end)
