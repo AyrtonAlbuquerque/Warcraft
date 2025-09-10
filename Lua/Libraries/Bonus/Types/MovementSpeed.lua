@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_MOVEMENT_SPEED = 0
-
     local MovementSpeed = Class(Bonus)
     local ability = FourCC('Z009')
     local field = ABILITY_ILF_MOVEMENT_SPEED_BONUS
@@ -44,7 +42,5 @@ OnInit(function(requires)
         end
     end
 
-    function MovementSpeed.onInit()
-        BONUS_MOVEMENT_SPEED = RegisterBonus(MovementSpeed.allocate())
-    end
+    BONUS_MOVEMENT_SPEED = RegisterBonus(MovementSpeed.allocate())
 end)

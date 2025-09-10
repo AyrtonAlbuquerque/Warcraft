@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_ATTACK_SPEED = 0
-
     local AttackSpeed = Class(Bonus)
     local ability = FourCC('Z008')
     local field = ABILITY_RLF_ATTACK_SPEED_INCREASE_ISX1
@@ -32,7 +30,5 @@ OnInit(function(requires)
         return value
     end
 
-    function AttackSpeed.onInit()
-        BONUS_ATTACK_SPEED = RegisterBonus(AttackSpeed.allocate())
-    end
+    BONUS_ATTACK_SPEED = RegisterBonus(AttackSpeed.allocate())
 end)

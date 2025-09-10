@@ -3,8 +3,6 @@ OnInit(function(requires)
     requires "Bonus"
     requires.optional "Damage"
 
-    BONUS_DAMAGE_BLOCK = 0
-
     local Block = Class(Bonus)
     local USE_DAMAGE = true
     local bonus = {}
@@ -58,10 +56,10 @@ OnInit(function(requires)
     end
 
     function Block.onInit()
-        BONUS_DAMAGE_BLOCK = RegisterBonus(Block.allocate())
-
         if Damage and USE_DAMAGE then
             RegisterAnyDamageEvent(Block.onDamage)
         end
     end
+
+    BONUS_DAMAGE_BLOCK = RegisterBonus(Block.allocate())
 end)

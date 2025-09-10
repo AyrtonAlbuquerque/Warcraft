@@ -4,8 +4,6 @@ OnInit("ArmorPenetration", function(requires)
     requires "Damage"
 
     ARMOR_MULTIPLIER = 0.06
-    BONUS_ARMOR_PENETRATION = 0
-    BONUS_ARMOR_PENETRATION_FLAT = 0
 
     local ArmorPenetration = Class(Bonus)
 
@@ -34,10 +32,10 @@ OnInit("ArmorPenetration", function(requires)
     end
 
     function ArmorPenetration.onInit()
-        BONUS_ARMOR_PENETRATION = RegisterBonus(ArmorPenetration.allocate())
-
         RegisterAttackDamageEvent(ArmorPenetration.onDamage)
     end
+
+    BONUS_ARMOR_PENETRATION = RegisterBonus(ArmorPenetration.allocate())
 
     local ArmorPenetrationFlat = Class(Bonus)
 
@@ -59,9 +57,7 @@ OnInit("ArmorPenetration", function(requires)
         return value
     end
 
-    function ArmorPenetrationFlat.onInit()
-        BONUS_ARMOR_PENETRATION_FLAT = RegisterBonus(ArmorPenetrationFlat.allocate())
-    end
+    BONUS_ARMOR_PENETRATION_FLAT = RegisterBonus(ArmorPenetrationFlat.allocate())
 
     -- ----------------------------------------------------------------------------------------- --
     --                                          Lua API                                          --

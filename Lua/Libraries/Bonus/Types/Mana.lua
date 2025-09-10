@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_MANA = 0
-
     local Mana = Class(Bonus)
     local ability = FourCC('Z005')
     local field = ABILITY_ILF_MAX_MANA_GAINED
@@ -55,7 +53,5 @@ OnInit(function(requires)
         end
     end
 
-    function Mana.onInit()
-        BONUS_MANA = RegisterBonus(Mana.allocate())
-    end
+    BONUS_MANA = RegisterBonus(Mana.allocate())
 end)

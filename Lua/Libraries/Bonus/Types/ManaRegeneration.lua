@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_MANA_REGEN = 0
-
     local ManaRegeneration = Class(Bonus)
     local ability = FourCC('Z007')
     local field = ABILITY_RLF_AMOUNT_REGENERATED
@@ -32,7 +30,5 @@ OnInit(function(requires)
         return value
     end
 
-    function ManaRegeneration.onInit()
-        BONUS_MANA_REGEN = RegisterBonus(ManaRegeneration.allocate())
-    end
+    BONUS_MANA_REGEN = RegisterBonus(ManaRegeneration.allocate())
 end)

@@ -3,8 +3,6 @@ OnInit(function(requires)
     requires "Bonus"
     requires "Damage"
 
-    BONUS_SPELL_VAMP = 0
-
     local SpellVamp = Class(Bonus)
     local bonus = {}
 
@@ -31,8 +29,8 @@ OnInit(function(requires)
     end
 
     function SpellVamp.onInit()
-        BONUS_SPELL_VAMP = RegisterBonus(SpellVamp.allocate())
-
         RegisterAnyDamageEvent(SpellVamp.onDamage)
     end
+
+    BONUS_SPELL_VAMP = RegisterBonus(SpellVamp.allocate())
 end)

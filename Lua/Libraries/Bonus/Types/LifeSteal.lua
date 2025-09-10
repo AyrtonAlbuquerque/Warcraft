@@ -3,8 +3,6 @@ OnInit(function(requires)
     requires "Bonus"
     requires.optional "Damage"
 
-    BONUS_LIFE_STEAL = 0
-
     local LifeSteal = Class(Bonus)
     local USE_DAMAGE = true
     local steal = {}
@@ -61,10 +59,10 @@ OnInit(function(requires)
     end
 
     function LifeSteal.onInit()
-        BONUS_LIFE_STEAL = RegisterBonus(LifeSteal.allocate())
-
         if Damage and USE_DAMAGE then
             RegisterAnyDamageEvent(LifeSteal.onDamage)
         end
     end
+
+    BONUS_LIFE_STEAL = RegisterBonus(LifeSteal.allocate())
 end)

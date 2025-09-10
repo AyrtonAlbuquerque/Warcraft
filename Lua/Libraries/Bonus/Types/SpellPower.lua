@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_SPELL_POWER = 0
-
     local SpellPower = Class(Bonus)
     local bonus = {}
 
@@ -23,7 +21,5 @@ OnInit(function(requires)
         return value
     end
 
-    function SpellPower.onInit()
-        BONUS_SPELL_POWER = RegisterBonus(SpellPower.allocate())
-    end
+    BONUS_SPELL_POWER = RegisterBonus(SpellPower.allocate())
 end)

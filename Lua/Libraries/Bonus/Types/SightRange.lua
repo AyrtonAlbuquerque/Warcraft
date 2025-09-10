@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_SIGHT_RANGE = 0
-
     local SightRange = Class(Bonus)
     local ability = FourCC('Z00A')
     local field = ABILITY_ILF_SIGHT_RANGE_BONUS
@@ -49,7 +47,5 @@ OnInit(function(requires)
         end
     end
 
-    function SightRange.onInit()
-        BONUS_SIGHT_RANGE = RegisterBonus(SightRange.allocate())
-    end
+    BONUS_SIGHT_RANGE = RegisterBonus(SightRange.allocate())
 end)

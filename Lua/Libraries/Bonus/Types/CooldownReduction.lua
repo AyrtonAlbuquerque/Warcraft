@@ -3,10 +3,6 @@ OnInit(function(requires)
     requires "Bonus"
     requires "CDR"
 
-    BONUS_COOLDOWN_OFFSET = 0
-    BONUS_COOLDOWN_REDUCTION = 0
-    BONUS_COOLDOWN_REDUCTION_FLAT = 0
-
     local CooldownOffset = Class(Bonus)
 
     function CooldownOffset:get(unit)
@@ -25,9 +21,7 @@ OnInit(function(requires)
         return value
     end
 
-    function CooldownOffset.onInit()
-        BONUS_COOLDOWN_OFFSET = RegisterBonus(CooldownOffset.allocate())
-    end
+    BONUS_COOLDOWN_OFFSET = RegisterBonus(CooldownOffset.allocate())
 
     local CooldownReduction = Class(Bonus)
 
@@ -49,9 +43,7 @@ OnInit(function(requires)
         return value
     end
 
-    function CooldownReduction.onInit()
-        BONUS_COOLDOWN_REDUCTION = RegisterBonus(CooldownReduction.allocate())
-    end
+    BONUS_COOLDOWN_REDUCTION = RegisterBonus(CooldownReduction.allocate())
 
     local CooldownReductionFlat = Class(Bonus)
 
@@ -71,7 +63,5 @@ OnInit(function(requires)
         return value
     end
 
-    function CooldownReductionFlat.onInit()
-        BONUS_COOLDOWN_REDUCTION_FLAT = RegisterBonus(CooldownReductionFlat.allocate())
-    end
+    BONUS_COOLDOWN_REDUCTION_FLAT = RegisterBonus(CooldownReductionFlat.allocate())
 end)

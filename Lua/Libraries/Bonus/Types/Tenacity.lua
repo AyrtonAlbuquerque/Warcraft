@@ -3,10 +3,6 @@ OnInit(function(requires)
     requires "Bonus"
     requires "Tenacity"
 
-    BONUS_TENACITY = 0
-    BONUS_TENACITY_FLAT = 0
-    BONUS_TENACITY_OFFSET = 0
-
     local TenacityBonus = Class(Bonus)
 
     function TenacityBonus:get(unit)
@@ -27,9 +23,7 @@ OnInit(function(requires)
         return value
     end
 
-    function TenacityBonus.onInit()
-        BONUS_TENACITY = RegisterBonus(TenacityBonus.allocate())
-    end
+    BONUS_TENACITY = RegisterBonus(TenacityBonus.allocate())
 
     local TenacityFlat = Class(Bonus)
 
@@ -49,9 +43,7 @@ OnInit(function(requires)
         return value
     end
 
-    function TenacityFlat.onInit()
-        BONUS_TENACITY_FLAT = RegisterBonus(TenacityFlat.allocate())
-    end
+    BONUS_TENACITY_FLAT = RegisterBonus(TenacityFlat.allocate())
 
     local TenacityOffset = Class(Bonus)
 
@@ -71,7 +63,5 @@ OnInit(function(requires)
         return value
     end
 
-    function TenacityOffset.onInit()
-        BONUS_TENACITY_OFFSET = RegisterBonus(TenacityOffset.allocate())
-    end
+    BONUS_TENACITY_OFFSET = RegisterBonus(TenacityOffset.allocate())
 end)

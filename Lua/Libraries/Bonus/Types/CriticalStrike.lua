@@ -5,9 +5,6 @@ OnInit("CriticalStrike", function(requires)
     requires.optional "Damage"
     requires.optional "ArcingFloatingText"
 
-    BONUS_CRITICAL_CHANCE = 0
-    BONUS_CRITICAL_DAMAGE = 0
-
     local TEXT_SIZE = 0.02
     local USE_DAMAGE = true
     local ability = FourCC('Z00C')
@@ -48,9 +45,7 @@ OnInit("CriticalStrike", function(requires)
         return value
     end
 
-    function CriticalChance.onInit()
-        BONUS_CRITICAL_CHANCE = RegisterBonus(CriticalChance.allocate())
-    end
+    BONUS_CRITICAL_CHANCE = RegisterBonus(CriticalChance.allocate())
 
     local CriticalDamage = Class(Bonus)
 
@@ -92,9 +87,7 @@ OnInit("CriticalStrike", function(requires)
         return value
     end
 
-    function CriticalDamage.onInit()
-        BONUS_CRITICAL_DAMAGE = RegisterBonus(CriticalDamage.allocate())
-    end
+    BONUS_CRITICAL_DAMAGE = RegisterBonus(CriticalDamage.allocate())
 
     Critical = Class()
 

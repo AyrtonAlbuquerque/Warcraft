@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_HEALTH = 0
-
     local Health = Class(Bonus)
     local ability = FourCC('Z004')
     local field = ABILITY_ILF_MAX_LIFE_GAINED
@@ -55,7 +53,5 @@ OnInit(function(requires)
         end
     end
 
-    function Health.onInit()
-        BONUS_HEALTH = RegisterBonus(Health.allocate())
-    end
+    BONUS_HEALTH = RegisterBonus(Health.allocate())
 end)

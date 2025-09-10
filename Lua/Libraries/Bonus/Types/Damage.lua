@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_DAMAGE = 0
-
     local DamageBonus = Class(Bonus)
     local ability = FourCC('Z001')
     local field = ABILITY_ILF_ATTACK_BONUS
@@ -44,7 +42,5 @@ OnInit(function(requires)
         end
     end
 
-    function DamageBonus.onInit()
-        BONUS_DAMAGE = RegisterBonus(DamageBonus.allocate())
-    end
+    BONUS_DAMAGE = RegisterBonus(DamageBonus.allocate())
 end)

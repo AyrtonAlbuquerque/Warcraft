@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_INTELLIGENCE = 0
-
     local Intelligence = Class(Bonus)
     local ability = FourCC('Z003')
     local field = ABILITY_ILF_INTELLIGENCE_BONUS
@@ -44,7 +42,5 @@ OnInit(function(requires)
         end
     end
 
-    function Intelligence.onInit()
-        BONUS_INTELLIGENCE = RegisterBonus(Intelligence.allocate())
-    end
+    BONUS_INTELLIGENCE = RegisterBonus(Intelligence.allocate())
 end)

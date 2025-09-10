@@ -5,10 +5,6 @@ OnInit("Evasion", function(requires)
     requires.optional "Damage"
     requires.optional "ArcingFloatingText"
 
-    BONUS_MISS_CHANCE = 0
-    BONUS_PIERCE_CHANCE = 0
-    BONUS_EVASION_CHANCE = 0
-
     local TEXT_SIZE = 0.016
     local USE_DAMAGE = true
     local ability = FourCC('Z00D')
@@ -30,9 +26,7 @@ OnInit("Evasion", function(requires)
         return value
     end
 
-    function Miss.onInit()
-        BONUS_MISS_CHANCE = RegisterBonus(Miss.allocate())
-    end
+    BONUS_MISS_CHANCE = RegisterBonus(Miss.allocate())
 
     local Pierce = Class(Bonus)
 
@@ -50,9 +44,7 @@ OnInit("Evasion", function(requires)
         return value
     end
 
-    function Pierce.onInit()
-        BONUS_PIERCE_CHANCE = RegisterBonus(Pierce.allocate())
-    end
+    BONUS_PIERCE_CHANCE = RegisterBonus(Pierce.allocate())
 
     Evasion = Class(Bonus)
 
@@ -159,12 +151,12 @@ OnInit("Evasion", function(requires)
     end
 
     function Evasion.onInit()
-        BONUS_EVASION_CHANCE = RegisterBonus(Evasion.allocate())
-
         if Damage and USE_DAMAGE then
             RegisterDamageConfigurationEvent(Evasion.onDamage)
         end
     end
+
+    BONUS_EVASION_CHANCE = RegisterBonus(Evasion.allocate())
 
     -- ----------------------------------------------------------------------------------------- --
     --                                          Lua API                                          --

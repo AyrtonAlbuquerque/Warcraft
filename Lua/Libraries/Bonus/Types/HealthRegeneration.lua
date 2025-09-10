@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_HEALTH_REGEN = 0
-
     local HealthRegeneration = Class(Bonus)
     local ability = FourCC('Z006')
     local field = ABILITY_RLF_AMOUNT_OF_HIT_POINTS_REGENERATED
@@ -32,7 +30,5 @@ OnInit(function(requires)
         return value
     end
 
-    function HealthRegeneration.onInit()
-        BONUS_HEALTH_REGEN = RegisterBonus(HealthRegeneration.allocate())
-    end
+    BONUS_HEALTH_REGEN = RegisterBonus(HealthRegeneration.allocate())
 end)

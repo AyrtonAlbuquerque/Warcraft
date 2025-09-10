@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_AGILITY = 0
-
     local Agility = Class(Bonus)
     local ability = FourCC('Z003')
     local field = ABILITY_ILF_AGILITY_BONUS
@@ -44,7 +42,5 @@ OnInit(function(requires)
         end
     end
 
-    function Agility.onInit()
-        BONUS_AGILITY = RegisterBonus(Agility.allocate())
-    end
+    BONUS_AGILITY = RegisterBonus(Agility.allocate())
 end)

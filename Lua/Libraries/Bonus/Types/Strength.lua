@@ -2,8 +2,6 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_STRENGTH = 0
-
     local Strength = Class(Bonus)
     local ability = FourCC('Z003')
     local field = ABILITY_ILF_STRENGTH_BONUS_ISTR
@@ -44,7 +42,5 @@ OnInit(function(requires)
         end
     end
 
-    function Strength.onInit()
-        BONUS_STRENGTH = RegisterBonus(Strength.allocate())
-    end
+    BONUS_STRENGTH = RegisterBonus(Strength.allocate())
 end)

@@ -2,7 +2,6 @@ OnInit("MagicResistance", function(requires)
     requires "Class"
     requires "Bonus"
 
-    BONUS_MAGIC_RESISTANCE = 0
     BASE_HERO_MAGIC_RESISTANCE = 5
 
     local MagicResistance = Class(Bonus)
@@ -49,9 +48,7 @@ OnInit("MagicResistance", function(requires)
         return value
     end
 
-    function MagicResistance.onInit()
-        BONUS_MAGIC_RESISTANCE = RegisterBonus(MagicResistance.allocate())
-    end
+    BONUS_MAGIC_RESISTANCE = RegisterBonus(MagicResistance.allocate())
 
     -- ----------------------------------------------------------------------------------------- --
     --                                          Lua API                                          --

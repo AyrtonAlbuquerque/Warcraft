@@ -5,8 +5,6 @@ OnInit("MagicPenetration", function(requires)
     requires "MagicResistance"
 
     MAGIC_MULTIPLIER = 0.06
-    BONUS_MAGIC_PENETRATION = 0
-    BONUS_MAGIC_PENETRATION_FLAT = 0
 
     local MagicPenetration = Class(Bonus)
 
@@ -35,10 +33,10 @@ OnInit("MagicPenetration", function(requires)
     end
 
     function MagicPenetration.onInit()
-        BONUS_MAGIC_PENETRATION = RegisterBonus(MagicPenetration.allocate())
-
         RegisterAttackDamageEvent(MagicPenetration.onDamage)
     end
+
+    BONUS_MAGIC_PENETRATION = RegisterBonus(MagicPenetration.allocate())
 
     local MagicPenetrationFlat = Class(Bonus)
 
@@ -60,9 +58,7 @@ OnInit("MagicPenetration", function(requires)
         return value
     end
 
-    function MagicPenetrationFlat.onInit()
-        BONUS_MAGIC_PENETRATION_FLAT = RegisterBonus(MagicPenetrationFlat.allocate())
-    end
+    BONUS_MAGIC_PENETRATION_FLAT = RegisterBonus(MagicPenetrationFlat.allocate())
 
     -- ----------------------------------------------------------------------------------------- --
     --                                          Lua API                                          --
