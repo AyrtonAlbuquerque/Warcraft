@@ -33,7 +33,7 @@ OnInit("MagicPenetration", function(requires)
     end
 
     function MagicPenetration.onInit()
-        RegisterAttackDamageEvent(MagicPenetration.onDamage)
+        RegisterSpellDamageEvent(MagicPenetration.onDamage)
     end
 
     BONUS_MAGIC_PENETRATION = RegisterBonus(MagicPenetration.allocate())
