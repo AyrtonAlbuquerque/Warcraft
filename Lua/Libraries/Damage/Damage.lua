@@ -76,7 +76,8 @@ OnInit("Damage", function(requires)
 
         this.source:destroy()
         this.target:destroy()
-        this = nil
+
+        Damage._event = event[#event]
     end
 
     function Damage.__pre()
