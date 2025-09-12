@@ -571,5 +571,684 @@ OnInit("Components", function(requires)
     end
 
     -- --------------------------------------- Component --------------------------------------- --
-    Component = Class(Operators)
+    do
+        Component = Class(Operators)
+
+        local time = {}
+        local array = {}
+        local current = {}
+        local doubleTime = {}
+        local click = CreateTrigger()
+        local enter = CreateTrigger()
+        local leave = CreateTrigger()
+        local scroll = CreateTrigger()
+
+        Component:property("texture", {
+            get = function(self) return self.image.texture end,
+            set = function(self, value) self.image.texture = value end
+        })
+
+        Component:property("active", {
+            get = function(self) return self.isActive or true end,
+            set = function(self, value)
+                self.isActive = value
+
+                if not value then
+                    if SubString(self.image.texture, 34, 35) == "\\" then
+                        self.image.texture = SubString(self.image.texture, 0, 34) .. "Disabled\\DIS" .. SubString(self.image.texture, 35, StringLength(self.image.texture))
+                    end
+                else
+                    if SubString(self.image.texture, 34, 46) == "Disabled\\DIS" then
+                        self.image.texture = SubString(self.image.texture, 0, 34) .. "\\" .. SubString(self.image.texture, 46, StringLength(self.image.texture))
+                    end
+                end
+            end
+        })
+
+        Component:property("actor", { get = function(self) return self.listener end })
+
+        Component:property("OnEnter", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.entered = {}
+                    table.insert(self.entered, value)
+                end
+            end
+        })
+
+        Component:property("OnLeave", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.exited = {}
+                    table.insert(self.exited, value)
+                end
+            end
+        })
+
+        Component:property("OnClick", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.clicked = {}
+                    table.insert(self.clicked, value)
+                end
+            end
+        })
+
+        Component:property("OnScroll", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.scrolled = {}
+                    table.insert(self.scrolled, value)
+                end
+            end
+        })
+
+        Component:property("OnRightClick", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.rightClicked = {}
+                    table.insert(self.rightClicked, value)
+                end
+            end
+        })
+
+        Component:property("OnDoubleClick", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.doubleClicked = {}
+                    table.insert(self.doubleClicked, value)
+                end
+            end
+        })
+
+        Component:property("OnMiddleClick", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.middleClicked = {}
+                    table.insert(self.middleClicked, value)
+                end
+            end
+        })
+
+        function Component:destroy()
+            self.image:destroy()
+            array[self.listener] = nil
+            array[self.button] = nil
+            BlzDestroyFrame(self.frame)
+            BlzDestroyFrame(self.listener)
+        end
+
+        function Component.get()
+            return current[GetTriggerPlayer()]
+        end
+
+        function Component.create(x, y, width, height, parent, frameType, template, inheritEvents)
+            local this = Component.allocate()
+
+            if not parent then
+                parent = CONSOLE
+            end
+
+            if template == "" or template == nil then
+                template = "TransparentBackdrop"
+            end
+
+            this.x = x
+            this.y = y
+            this.width = width
+            this.height = height
+            this.parent = parent
+            this.inherit = inheritEvents
+            this.frame = BlzCreateFrame(template, parent, 0, 0)
+            this.listener = BlzCreateFrame(frameType, this.frame, 0, 0)
+            this.button = BlzFrameGetChild(this.listener, 0)
+            this.image = Backdrop.create(0, 0, width, height, this.listener, nil)
+            this.image.visible = false
+            array[this.frame] = this
+            array[this.listener] = this
+            array[this.button] = this
+
+            if parent == CONSOLE or parent == WORLD then
+                BlzFrameSetAbsPoint(this.frame, this.point, x, y)
+            else
+                BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
+            end
+
+            BlzFrameSetSize(this.frame, width, height)
+            BlzFrameSetAllPoints(this.listener, this.frame)
+            BlzTriggerRegisterFrameEvent(enter, this.listener, FRAMEEVENT_MOUSE_ENTER)
+            BlzTriggerRegisterFrameEvent(leave, this.listener, FRAMEEVENT_MOUSE_LEAVE)
+            BlzTriggerRegisterFrameEvent(scroll, this.button, FRAMEEVENT_MOUSE_WHEEL)
+
+            return this
+        end
+
+        function Component.onScrolled()
+            local this = array[BlzGetTriggerFrame()]
+
+            if this then
+                local owner = array[this.parent]
+
+                if this.onScroll then
+                    this:onScroll()
+                end
+
+                if owner then
+                    if owner.onScroll and this.inherit then
+                        owner:onScroll()
+                    end
+                end
+
+                if this.scrolled then
+                    for i = 1, #this.scrolled do
+                        this.scrolled[i]()
+                    end
+                end
+            end
+        end
+
+        function Component.onClicked()
+            local player = GetTriggerPlayer()
+            local this = current[player]
+
+            if this then
+                local owner = array[this.parent]
+
+                if not time[player] then time[player] = {} end
+                if not doubleTime[player] then doubleTime[player] = {} end
+
+                StartSoundForPlayerBJ(player, sound)
+
+                if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_LEFT then
+                    time[player][this] = TimerGetElapsed(DOUBLE)
+
+                    BlzFrameSetEnable(this.listener, false)
+                    BlzFrameSetEnable(this.listener, true)
+
+                    if this.onClick then
+                        this:onClick()
+                    end
+
+                    if owner then
+                        if owner.onClick and this.inherit then
+                            owner:onClick()
+                        end
+                    end
+
+                    if this.clicked then
+                        for i = 1, #this.clicked do
+                            this.clicked[i]()
+                        end
+                    end
+
+                    if time[player][this] - (doubleTime[player][this] or 0) <= DOUBLE_CLICK_DELAY then
+                        doubleTime[player][this] = 0
+
+                        if this.onDoubleClick then
+                            this:onDoubleClick()
+                        end
+
+                        if owner then
+                            if owner.onDoubleClick and this.inherit then
+                                owner:onDoubleClick()
+                            end
+                        end
+
+                        if this.doubleClicked then
+                            for i = 1, #this.doubleClicked do
+                                this.doubleClicked[i]()
+                            end
+                        end
+                    else
+                        doubleTime[player][this] = time[player][this] or 0
+                    end
+                end
+
+                if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_RIGHT then
+                    if this.onRightClick then
+                        this:onRightClick()
+                    end
+
+                    if owner then
+                        if owner.onRightClick and this.inherit then
+                            owner:onRightClick()
+                        end
+                    end
+
+                    if this.rightClicked then
+                        for i = 1, #this.rightClicked do
+                            this.rightClicked[i]()
+                        end
+                    end
+                end
+
+                if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_MIDDLE then
+                    if this.onMiddleClick then
+                        this:onMiddleClick()
+                    end
+
+                    if owner then
+                        if owner.onMiddleClick and this.inherit then
+                            owner:onMiddleClick()
+                        end
+                    end
+
+                    if this.middleClicked then
+                        for i = 1, #this.middleClicked do
+                            this.middleClicked[i]()
+                        end
+                    end
+                end
+            end
+        end
+
+        function Component.onEntered()
+            local this = array[BlzGetTriggerFrame()]
+
+            current[GetTriggerPlayer()] = this
+
+            if this then
+                local owner = array[this.parent]
+
+                if this.onEnter then
+                    this:onEnter()
+                end
+
+                if owner then
+                    if owner.onEnter and this.inherit then
+                        owner:onEnter()
+                    end
+                end
+
+                if this.entered then
+                    for i = 1, #this.entered do
+                        this.entered[i]()
+                    end
+                end
+            end
+        end
+
+        function Component.onExited()
+            local this = array[BlzGetTriggerFrame()]
+
+            current[GetTriggerPlayer()] = nil
+
+            if this then
+                local owner = array[this.parent]
+
+                if this.onLeave then
+                    this:onLeave()
+                end
+
+                if owner then
+                    if owner.onLeave and this.inherit then
+                        owner:onLeave()
+                    end
+                end
+
+                if this.exited then
+                    for i = 1, #this.exited do
+                        this.exited[i]()
+                    end
+                end
+            end
+        end
+
+        function Component.onInit()
+            TriggerAddAction(leave, Component.onExited)
+            TriggerAddAction(enter, Component.onEntered)
+            TriggerAddAction(click, Component.onClicked)
+            TriggerAddAction(scroll, Component.onScrolled)
+
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    TriggerRegisterPlayerEvent(click, Player(i), EVENT_PLAYER_MOUSE_UP)
+                end
+            end
+        end
+    end
+
+    -- ---------------------------------------- EditBox ---------------------------------------- --
+    do
+        EditBox = Class(Operators)
+
+        local array = {}
+        local enter = CreateTrigger()
+        local typing = CreateTrigger()
+
+        EditBox:property("limit", {
+            get = function(self) return self.length end,
+            set = function(self, value)
+                self.length = value
+
+                BlzFrameSetTextSizeLimit(self.frame, value)
+            end
+        })
+
+        EditBox:property("text", {
+            get = function(self)
+                self._text = BlzFrameGetText(self.frame)
+                return self._text
+            end,
+            set = function(self, value)
+                self._text = value
+
+                BlzFrameSetText(self.frame, value)
+            end
+        })
+
+        EditBox:property("OnEnter", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.entered = {}
+                    table.insert(self.entered, value)
+                end
+            end
+        })
+
+        EditBox:property("OnText", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.typed = {}
+                    table.insert(self.typed, value)
+                end
+            end
+        })
+
+        function EditBox:destroy()
+            BlzDestroyFrame(self.frame)
+        end
+
+        function EditBox.get()
+            return array[BlzGetTriggerFrame()]
+        end
+
+        function EditBox.create(x, y, width, height, parent, template)
+            local this = EditBox.allocate()
+
+            if not parent then
+                parent = CONSOLE
+            end
+
+            if template == "" or template == nil then
+                template = "EscMenuEditBoxTemplate"
+            end
+
+            this.x = x
+            this.y = y
+            this.width = width
+            this.height = height
+            this.parent = parent
+            this.frame = BlzCreateFrame(template, parent, 0, 0)
+            array[this.frame] = this
+
+            if parent == CONSOLE or parent == WORLD then
+                BlzFrameSetAbsPoint(this.frame, this.point, x, y)
+            else
+                BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
+            end
+
+            BlzFrameSetSize(this.frame, width, height)
+            BlzTriggerRegisterFrameEvent(enter, this.frame, FRAMEEVENT_EDITBOX_ENTER)
+            BlzTriggerRegisterFrameEvent(typing, this.frame, FRAMEEVENT_EDITBOX_TEXT_CHANGED)
+
+            return this
+        end
+
+        function EditBox.onTyping()
+            local this = array[BlzGetTriggerFrame()]
+
+            if this then
+                this._text = BlzGetTriggerFrameText()
+
+                if this.onText then
+                    this:onText()
+                end
+
+                if this.typed then
+                    for i = 1, #this.typed do
+                        this.typed[i]()
+                    end
+                end
+            end
+        end
+
+        function EditBox.onEntered()
+            local this = array[BlzGetTriggerFrame()]
+
+            if this then
+                if this.onEnter then
+                    this:onEnter()
+                end
+
+                if this.entered then
+                    for i = 1, #this.entered do
+                        this.entered[i]()
+                    end
+                end
+            end
+        end
+
+        function EditBox.onInit()
+            TriggerAddAction(typing, EditBox.onTyping)
+            TriggerAddAction(enter, EditBox.onEntered)
+        end
+    end
+
+    -- ---------------------------------------- CheckBox --------------------------------------- --
+    do
+        CheckBox = Class(Operators)
+
+        local array = {}
+        local event = CreateTrigger()
+
+        CheckBox:property("checked", { get = function(self) return (self.isChecked and self.isChecked[GetLocalPlayer()]) or false end })
+
+        CheckBox:property("OnCheck", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.check = {}
+                    table.insert(self.check, value)
+                end
+            end
+        })
+
+        CheckBox:property("OnUncheck", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.uncheck = {}
+                    table.insert(self.uncheck, value)
+                end
+            end
+        })
+
+        function CheckBox:destroy()
+            BlzDestroyFrame(self.frame)
+        end
+
+        function CheckBox.get()
+            return array[BlzGetTriggerFrame()]
+        end
+
+        function CheckBox.create(x, y, width, height, parent, template)
+            local this = CheckBox.allocate()
+
+            if not parent then
+                parent = CONSOLE
+            end
+
+            if template == "" or template == nil then
+                template = "QuestCheckBox"
+            end
+
+            this.x = x
+            this.y = y
+            this.width = width
+            this.height = height
+            this.parent = parent
+            this.frame = BlzCreateFrame(template, parent, 0, 0)
+            array[this.frame] = this
+
+            if parent == CONSOLE or parent == WORLD then
+                BlzFrameSetAbsPoint(this.frame, this.point, x, y)
+            else
+                BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
+            end
+
+            BlzFrameSetSize(this.frame, width, height)
+            BlzTriggerRegisterFrameEvent(event, this.frame, FRAMEEVENT_CHECKBOX_CHECKED)
+            BlzTriggerRegisterFrameEvent(event, this.frame, FRAMEEVENT_CHECKBOX_UNCHECKED)
+
+            return this
+        end
+
+        function CheckBox.onChecked()
+            local this = array[BlzGetTriggerFrame()]
+
+            if this then
+                if not this.isChecked then this.isChecked = {} end
+
+                this.isChecked[GetTriggerPlayer()] = BlzGetTriggerFrameEvent() == FRAMEEVENT_CHECKBOX_CHECKED
+
+                if BlzGetTriggerFrameEvent() == FRAMEEVENT_CHECKBOX_CHECKED then
+                    if this.onCheck then
+                        this:onCheck()
+                    end
+
+                    if this.check then
+                        for i = 1, #this.check do
+                            this.check[i]()
+                        end
+                    end
+                else
+                    if this.onUncheck then
+                        this:onUncheck()
+                    end
+
+                    if this.uncheck then
+                        for i = 1, #this.uncheck do
+                            this.uncheck[i]()
+                        end
+                    end
+                end
+            end
+        end
+
+        function CheckBox.onInit()
+            TriggerAddAction(event, CheckBox.onChecked)
+        end
+    end
+
+    -- ----------------------------------------- Slider ---------------------------------------- --
+    do
+        Slider = Class(Operators)
+
+        local array = {}
+        local event = CreateTrigger()
+
+        Slider:property("min", {
+            get = function(self) return self.minimum or 0 end,
+            set = function(self, value)
+                self.minimum = value
+
+                BlzFrameSetMinMaxValue(self.frame, value, self.maximum)
+            end
+        })
+
+        Slider:property("max", {
+            get = function(self) return self.maximum or 100 end,
+            set = function(self, value)
+                self.maximum = value
+
+                BlzFrameSetMinMaxValue(self.frame, self.minimum, value)
+            end
+        })
+
+        Slider:property("step", {
+            get = function(self) return self.stepping or 1 end,
+            set = function(self, value)
+                self.stepping = value
+
+                BlzFrameSetStepSize(self.frame, value)
+            end
+        })
+
+        Slider:property("value", {
+            get = function(self) return BlzFrameGetValue(self.frame) end,
+            set = function(self, val) BlzFrameSetValue(self.frame, val) end
+        })
+
+        Slider:property("OnSlide", {
+            set = function(self, value)
+                if type(value) == "function" then
+                    self.slided = {}
+                    table.insert(self.slided, value)
+                end
+            end
+        })
+
+        function Slider:destroy()
+            BlzDestroyFrame(self.frame)
+        end
+
+        function Slider.get()
+            return array[BlzGetTriggerFrame()]
+        end
+
+        function Slider.create(x, y, width, height, parent, template)
+            local this = CheckBox.allocate()
+
+            if not parent then
+                parent = CONSOLE
+            end
+
+            if template == "" or template == nil then
+                template = "EscMenuSliderTemplate"
+            end
+
+            this.x = x
+            this.y = y
+            this.width = width
+            this.height = height
+            this.parent = parent
+            this.frame = BlzCreateFrame(template, parent, 0, 0)
+            array[this.frame] = this
+
+            if parent == CONSOLE or parent == WORLD then
+                BlzFrameSetAbsPoint(this.frame, this.point, x, y)
+            else
+                BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
+            end
+
+            BlzFrameSetSize(this.frame, width, height)
+            BlzFrameSetStepSize(this.frame, this.step)
+            BlzFrameSetMinMaxValue(this.frame, this.min, this.max)
+            BlzTriggerRegisterFrameEvent(event, this.frame, FRAMEEVENT_SLIDER_VALUE_CHANGED)
+
+            return this
+        end
+
+        function Slider.onSlided()
+            local this = array[BlzGetTriggerFrame()]
+
+            if this then
+                if this.onSlide then
+                    this:onSlide()
+                end
+
+                if this.slided then
+                    for i = 1, #this.slided do
+                        this.slided[i]()
+                    end
+                end
+            end
+        end
+
+        function Slider.onInit()
+            TriggerAddAction(event, Slider.onSlided)
+        end
+    end
+
+    -- ----------------------------------------- Button ---------------------------------------- --
+    Button = Class(Component)
 end)
