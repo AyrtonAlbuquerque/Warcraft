@@ -256,16 +256,17 @@ OnInit("Item", function(requires)
             local item = CreateItem(id, 0, 0)
 
             if item then
+                itempool[id] = {}
+                itemtype[id] = {}
+                counters[id] = {}
+                relations[id] = {}
+
                 this.id = id
                 this.components = 0
                 this.name = GetItemName(item)
                 this.icon = BlzGetItemIconPath(item)
                 this.tooltip  = BlzGetItemExtendedTooltip(item)
                 this.charges = GetItemCharges(item)
-                itempool[id] = {}
-                itemtype[id] = {}
-                counters[id] = {}
-                relations[id] = {}
                 itempool[id][0] = this
 
                 this:costs(id)
