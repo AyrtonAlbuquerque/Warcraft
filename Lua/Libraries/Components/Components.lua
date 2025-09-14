@@ -11,11 +11,10 @@ OnInit("Components", function(requires)
     local DOUBLE                    = CreateTimer()
     local CONSOLE                   = BlzGetFrameByName("ConsoleUIBackdrop", 0)
     local WORLD                     = BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0)
+    local SOUND                     = CreateSound(CLICK_SOUND, false, false, false, 10, 10, "")
 
     -- --------------------------------------- Operators --------------------------------------- --
     local Operators = Class()
-
-    local sound = CreateSound(CLICK_SOUND, false, false, false, 10, 10, "")
 
     Operators:property("x", {
         get = function(self) return self._x or 0 end,
@@ -23,9 +22,9 @@ OnInit("Components", function(requires)
             self._x = value
 
             if self.parent == CONSOLE or self.parent == WORLD then
-                BlzFrameSetAbsPoint(self.frame, self._point, self._x, self._y)
+                BlzFrameSetAbsPoint(self.frame, self.point, value, self.y)
             else
-                BlzFrameSetPoint(self.frame, self._point, self.parent, self._relative, self._x, self._y)
+                BlzFrameSetPoint(self.frame, self.point, self.parent, self.relative, value, self.y)
             end
         end
     })
@@ -36,9 +35,9 @@ OnInit("Components", function(requires)
             self._y = value
 
             if self.parent == CONSOLE or self.parent == WORLD then
-                BlzFrameSetAbsPoint(self.frame, self._point, self._x, self._y)
+                BlzFrameSetAbsPoint(self.frame, self.point, self.x, value)
             else
-                BlzFrameSetPoint(self.frame, self._point, self.parent, self._relative, self._x, self._y)
+                BlzFrameSetPoint(self.frame, self.point, self.parent, self.relative, self.x, value)
             end
         end
     })
@@ -51,9 +50,9 @@ OnInit("Components", function(requires)
             BlzFrameClearAllPoints(self.frame)
 
             if self.parent == CONSOLE or self.parent == WORLD then
-                BlzFrameSetAbsPoint(self.frame, self._point, self._x, self._y)
+                BlzFrameSetAbsPoint(self.frame, value, self.x, self.y)
             else
-                BlzFrameSetPoint(self.frame, self._point, self.parent, self._relative, self._x, self._y)
+                BlzFrameSetPoint(self.frame, value, self.parent, self.relative, self.x, self.y)
             end
         end
     })
@@ -66,9 +65,9 @@ OnInit("Components", function(requires)
             BlzFrameClearAllPoints(self.frame)
 
             if self.parent == CONSOLE or self.parent == WORLD then
-                BlzFrameSetAbsPoint(self.frame, self._point, self._x, self._y)
+                BlzFrameSetAbsPoint(self.frame, self.point, self.x, self.y)
             else
-                BlzFrameSetPoint(self.frame, self._point, self.parent, self._relative, self._x, self._y)
+                BlzFrameSetPoint(self.frame, self.point, self.parent, value, self.x, self.y)
             end
         end
     })
@@ -96,7 +95,7 @@ OnInit("Components", function(requires)
         set = function(self, value)
             self._width = value
 
-            BlzFrameSetSize(self.frame, value, self._height)
+            BlzFrameSetSize(self.frame, value, self.height)
         end
     })
 
@@ -105,7 +104,7 @@ OnInit("Components", function(requires)
         set = function(self, value)
             self._height = value
 
-            BlzFrameSetSize(self.frame, self._width, value)
+            BlzFrameSetSize(self.frame, self.width, value)
         end
     })
 
@@ -150,424 +149,437 @@ OnInit("Components", function(requires)
     end
 
     function Operators.onInit()
-        SetSoundDuration(sound, CLICK_SOUND_DURATION)
+        SetSoundDuration(SOUND, CLICK_SOUND_DURATION)
         BlzLoadTOCFile("Components.toc")
         TimerStart(DOUBLE, 9999999999, false, nil)
     end
 
     -- ---------------------------------------- Tooltip ---------------------------------------- --
-    Tooltip = Class()
+    do
+        Tooltip = Class()
 
-    Tooltip:property("parent", { get = function(self) return self.parentFrame end })
+        Tooltip:property("parent", { get = function(self) return self.parentFrame end })
 
-    Tooltip:property("text", {
-        get = function(self) return BlzFrameGetText(self.tooltip) end,
-        set = function(self, value) BlzFrameSetText(self.tooltip, value) end
-    })
+        Tooltip:property("text", {
+            get = function(self) return BlzFrameGetText(self.tooltip) end,
+            set = function(self, value) BlzFrameSetText(self.tooltip, value) end
+        })
 
-    Tooltip:property("name", {
-        get = function(self) return BlzFrameGetText(self.nameFrame) end,
-        set = function(self, value) BlzFrameSetText(self.nameFrame, value) end
-    })
+        Tooltip:property("name", {
+            get = function(self) return BlzFrameGetText(self.nameFrame) end,
+            set = function(self, value) BlzFrameSetText(self.nameFrame, value) end
+        })
 
-    Tooltip:property("icon", {
-        get = function(self) return self.texture end,
-        set = function(self, value)
-            self.texture = value
-            BlzFrameSetTexture(self.iconFrame, self.texture, 0, false)
-        end
-    })
+        Tooltip:property("icon", {
+            get = function(self) return self.texture or "" end,
+            set = function(self, value)
+                self.texture = value or ""
 
-    Tooltip:property("width", {
-        get = function(self) return self.widthSize end,
-        set = function(self, value)
-            self.widthSize = value
-
-            if not self.simple then
-                BlzFrameSetSize(self.tooltip, value, 0)
+                BlzFrameSetTexture(self.iconFrame, self.texture, 0, false)
             end
+        })
+
+        Tooltip:property("width", {
+            get = function(self) return self.widthSize or 0 end,
+            set = function(self, value)
+                self.widthSize = value
+
+                if not self.simple then
+                    BlzFrameSetSize(self.tooltip, value, 0)
+                end
+            end
+        })
+
+        Tooltip:property("point", {
+            get = function(self) return self.pointType end,
+            set = function(self, value)
+                self.pointType = value
+
+                BlzFrameClearAllPoints(self.tooltip)
+
+                if value == FRAMEPOINT_TOPLEFT then
+                    BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_TOPRIGHT, 0.005, -0.05)
+                elseif value == FRAMEPOINT_TOPRIGHT then
+                    BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_TOPLEFT, -0.005, -0.05)
+                elseif value == FRAMEPOINT_BOTTOMLEFT then
+                    BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_BOTTOMRIGHT, 0.005, 0.0)
+                elseif value == FRAMEPOINT_BOTTOM then
+                    BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_TOP, 0.0, 0.005)
+                elseif value == FRAMEPOINT_TOP then
+                    BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_BOTTOM, 0.0, -0.05)
+                else
+                    BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_BOTTOMLEFT, -0.005, 0.0)
+                end
+            end
+        })
+
+        Tooltip:property("visible", {
+            get = function(self) return self.isVisible or true end,
+            set = function(self, value)
+                self.isVisible = value
+
+                BlzFrameSetVisible(self.box, value)
+            end
+        })
+
+        function Tooltip:destroy()
+            BlzDestroyFrame(self.nameFrame)
+            BlzDestroyFrame(self.iconFrame)
+            BlzDestroyFrame(self.tooltip)
+            BlzDestroyFrame(self.line)
+            BlzDestroyFrame(self.box)
+            BlzDestroyFrame(self.frame)
         end
-    })
 
-    Tooltip:property("point", {
-        get = function(self) return self.pointType end,
-        set = function(self, value)
-            self.pointType = value
-
+        function Tooltip:setPoint(point, relative, x, y)
             BlzFrameClearAllPoints(self.tooltip)
-
-            if value == FRAMEPOINT_TOPLEFT then
-                BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_TOPRIGHT, 0.005, -0.05)
-            elseif value == FRAMEPOINT_TOPRIGHT then
-                BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_TOPLEFT, -0.005, -0.05)
-            elseif value == FRAMEPOINT_BOTTOMLEFT then
-                BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_BOTTOMRIGHT, 0.005, 0.0)
-            elseif value == FRAMEPOINT_BOTTOM then
-                BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_TOP, 0.0, 0.005)
-            elseif value == FRAMEPOINT_TOP then
-                BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_BOTTOM, 0.0, -0.05)
-            else
-                BlzFrameSetPoint(self.tooltip, value, self.parent, FRAMEPOINT_BOTTOMLEFT, -0.005, 0.0)
-            end
+            BlzFrameSetPoint(self.tooltip, point, self.parent, relative, x, y)
         end
-    })
 
-    Tooltip:property("visible", {
-        get = function(self) return self.isVisible end,
-        set = function(self, value)
-            self.isVisible = value
+        function Tooltip.create(owner, width, point, simpleTooltip)
+            local this = Tooltip.allocate()
 
-            BlzFrameSetVisible(self.box, value)
-        end
-    })
+            this.parentFrame = owner
+            this.simple = simpleTooltip
+            this.widthSize = width
+            this.pointType = point
+            this.isVisible = true
 
-    function Tooltip:destroy()
-        BlzDestroyFrame(self.nameFrame)
-        BlzDestroyFrame(self.iconFrame)
-        BlzDestroyFrame(self.tooltip)
-        BlzDestroyFrame(self.line)
-        BlzDestroyFrame(self.box)
-        BlzDestroyFrame(self.frame)
-    end
+            if simpleTooltip then
+                this.frame = BlzCreateFrameByType("FRAME", "", owner, "", 0)
+                this.box = BlzCreateFrame("Leaderboard", this.frame, 0, 0)
+                this.tooltip = BlzCreateFrameByType("TEXT", "", this.box, "", 0)
 
-    function Tooltip:setPoint(point, relative, x, y)
-        BlzFrameClearAllPoints(self.tooltip)
-        BlzFrameSetPoint(self.tooltip, point, self.parent, relative, x, y)
-    end
-
-    function Tooltip.create(owner, width, point, simpleTooltip)
-        local this = Tooltip.allocate()
-
-        this.parentFrame = owner
-        this.simple = simpleTooltip
-        this.widthSize = width
-        this.pointType = point
-        this.isVisible = true
-
-        if simpleTooltip then
-            this.frame = BlzCreateFrameByType("FRAME", "", owner, "", 0)
-            this.box = BlzCreateFrame("Leaderboard", this.frame, 0, 0)
-            this.tooltip = BlzCreateFrameByType("TEXT", "", this.box, "", 0)
-
-            BlzFrameSetPoint(this.tooltip, FRAMEPOINT_BOTTOM, owner, FRAMEPOINT_TOP, 0, 0.008)
-            BlzFrameSetPoint(this.box, FRAMEPOINT_TOPLEFT, this.tooltip, FRAMEPOINT_TOPLEFT, -0.008, 0.008)
-            BlzFrameSetPoint(this.box, FRAMEPOINT_BOTTOMRIGHT, this.tooltip, FRAMEPOINT_BOTTOMRIGHT, 0.008, -0.008)
-        else
-            this.frame = BlzCreateFrame("TooltipBoxFrame", owner, 0, 0)
-            this.box = BlzGetFrameByName("TooltipBox", 0)
-            this.line = BlzGetFrameByName("TooltipSeperator", 0)
-            this.tooltip = BlzGetFrameByName("TooltipText", 0)
-            this.iconFrame = BlzGetFrameByName("TooltipIcon", 0)
-            this.nameFrame = BlzGetFrameByName("TooltipName", 0)
-
-            if point == FRAMEPOINT_TOPLEFT then
-                BlzFrameSetPoint(this.tooltip, point, owner, FRAMEPOINT_TOPRIGHT, 0.005, -0.05)
-            elseif point == FRAMEPOINT_TOPRIGHT then
-                BlzFrameSetPoint(this.tooltip, point, owner, FRAMEPOINT_TOPLEFT, -0.005, -0.05)
-            elseif point == FRAMEPOINT_BOTTOMLEFT then
-                BlzFrameSetPoint(this.tooltip, point, owner, FRAMEPOINT_BOTTOMRIGHT, 0.005, 0.0)
+                BlzFrameSetPoint(this.tooltip, FRAMEPOINT_BOTTOM, owner, FRAMEPOINT_TOP, 0, 0.008)
+                BlzFrameSetPoint(this.box, FRAMEPOINT_TOPLEFT, this.tooltip, FRAMEPOINT_TOPLEFT, -0.008, 0.008)
+                BlzFrameSetPoint(this.box, FRAMEPOINT_BOTTOMRIGHT, this.tooltip, FRAMEPOINT_BOTTOMRIGHT, 0.008, -0.008)
             else
-                BlzFrameSetPoint(this.tooltip, point, owner, FRAMEPOINT_BOTTOMLEFT, -0.005, 0.0)
+                this.frame = BlzCreateFrame("TooltipBoxFrame", owner, 0, 0)
+                this.box = BlzGetFrameByName("TooltipBox", 0)
+                this.line = BlzGetFrameByName("TooltipSeperator", 0)
+                this.tooltip = BlzGetFrameByName("TooltipText", 0)
+                this.iconFrame = BlzGetFrameByName("TooltipIcon", 0)
+                this.nameFrame = BlzGetFrameByName("TooltipName", 0)
+
+                if point == FRAMEPOINT_TOPLEFT then
+                    BlzFrameSetPoint(this.tooltip, point, owner, FRAMEPOINT_TOPRIGHT, 0.005, -0.05)
+                elseif point == FRAMEPOINT_TOPRIGHT then
+                    BlzFrameSetPoint(this.tooltip, point, owner, FRAMEPOINT_TOPLEFT, -0.005, -0.05)
+                elseif point == FRAMEPOINT_BOTTOMLEFT then
+                    BlzFrameSetPoint(this.tooltip, point, owner, FRAMEPOINT_BOTTOMRIGHT, 0.005, 0.0)
+                else
+                    BlzFrameSetPoint(this.tooltip, point, owner, FRAMEPOINT_BOTTOMLEFT, -0.005, 0.0)
+                end
+
+                BlzFrameSetPoint(this.box, FRAMEPOINT_TOPLEFT, this.iconFrame, FRAMEPOINT_TOPLEFT, -0.005, 0.005)
+                BlzFrameSetPoint(this.box, FRAMEPOINT_BOTTOMRIGHT, this.tooltip, FRAMEPOINT_BOTTOMRIGHT, 0.005, -0.005)
+                BlzFrameSetSize(this.tooltip, width, 0)
             end
 
-            BlzFrameSetPoint(this.box, FRAMEPOINT_TOPLEFT, this.iconFrame, FRAMEPOINT_TOPLEFT, -0.005, 0.005)
-            BlzFrameSetPoint(this.box, FRAMEPOINT_BOTTOMRIGHT, this.tooltip, FRAMEPOINT_BOTTOMRIGHT, 0.005, -0.005)
-            BlzFrameSetSize(this.tooltip, width, 0)
+            return this
         end
-
-        return this
     end
 
     -- ---------------------------------------- Backdrop --------------------------------------- --
-    Backdrop = Class(Operators)
+    do
+        Backdrop = Class(Operators)
 
-    Backdrop:property("texture", {
-        get = function(self) return self._path end,
-        set = function(self, value)
-            self._path = value
+        Backdrop:property("texture", {
+            get = function(self) return self._path or "" end,
+            set = function(self, value)
+                self._path = value or ""
 
-            if value ~= "" and value ~= nil then
-                BlzFrameSetTexture(self.frame, value, 0, true)
-                BlzFrameSetVisible(self.frame, true)
+                if value ~= "" and value ~= nil then
+                    BlzFrameSetTexture(self.frame, value, 0, true)
+                    BlzFrameSetVisible(self.frame, true)
+                else
+                    BlzFrameSetVisible(self.frame, false)
+                end
+
+                if self.parent ~= nil and self.parent ~= CONSOLE and self.parent ~= WORLD then
+                    BlzFrameSetAllPoints(self.frame, self.parent)
+                end
+            end
+        })
+
+        function Backdrop:destroy()
+            BlzDestroyFrame(self.frame)
+        end
+
+        function Backdrop.create(x, y, width, height, parent, texture)
+            local this = Backdrop.allocate()
+
+            if not parent then
+                parent = CONSOLE
+            end
+
+            this.x = x
+            this.y = y
+            this.width = width
+            this.height = height
+            this.parent = parent
+            this.texture = texture
+            this.frame = BlzCreateFrameByType("BACKDROP", "", parent, "", 0)
+
+            if parent == CONSOLE or parent == WORLD then
+                BlzFrameSetAbsPoint(this.frame, this.point, x, y)
             else
-                BlzFrameSetVisible(self.frame, false)
+                BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
             end
 
-            if self.parent ~= nil and self.parent ~= CONSOLE and self.parent ~= WORLD then
-                BlzFrameSetAllPoints(self.frame, self.parent)
-            end
+            BlzFrameSetSize(this.frame, width, height)
+            BlzFrameSetTexture(this.frame, texture or "", 0, true)
+
+            return this
         end
-    })
-
-    function Backdrop:destroy()
-        BlzDestroyFrame(self.frame)
-    end
-
-    function Backdrop.create(x, y, width, height, parent, texture)
-        local this = Backdrop.allocate()
-
-        if not parent then
-            parent = CONSOLE
-        end
-
-        this.x = x
-        this.y = y
-        this.width = width
-        this.height = height
-        this.parent = parent
-        this.texture = texture
-        this.frame = BlzCreateFrameByType("BACKDROP", "", parent, "", 0)
-
-        if parent == CONSOLE or parent == WORLD then
-            BlzFrameSetAbsPoint(this.frame, this.point, x, y)
-        else
-            BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
-        end
-
-        BlzFrameSetSize(this.frame, width, height)
-        BlzFrameSetTexture(this.frame, texture, 0, true)
-
-        return this
     end
 
     -- ----------------------------------------- Sprite ---------------------------------------- --
-    Sprite = Class(Operators)
+    do
+        Sprite = Class(Operators)
 
-    Sprite:property("model", {
-        get = function(self) return self._path end,
-        set = function(self, value)
-            self._path = value
+        Sprite:property("model", {
+            get = function(self) return self._path end,
+            set = function(self, value)
+                self._path = value
 
-            BlzFrameSetModel(self.frame, value, self.camera)
-        end
-    })
+                BlzFrameSetModel(self.frame, value, self.camera)
+            end
+        })
 
-    Sprite:property("camera", {
-        get = function(self) return self._index or 0 end,
-        set = function(self, value)
-            self._index = value
+        Sprite:property("camera", {
+            get = function(self) return self._index or 0 end,
+            set = function(self, value)
+                self._index = value
 
-            BlzFrameSetModel(self.frame, self.model, value)
-        end
-    })
+                BlzFrameSetModel(self.frame, self.model, value)
+            end
+        })
 
-    Sprite:property("animation", {
-        get = function(self) return self._animation or 0 end,
-        set = function(self, value)
-            self._animation = value
+        Sprite:property("animation", {
+            get = function(self) return self._animation or 0 end,
+            set = function(self, value)
+                self._animation = value
 
-            BlzFrameSetSpriteAnimate(self.frame, value, 0)
-        end
-    })
+                BlzFrameSetSpriteAnimate(self.frame, value, 0)
+            end
+        })
 
-    function Sprite:destroy()
-        BlzDestroyFrame(self.frame)
-    end
-
-    function Sprite.create(x, y, width, height, parent, point, relative)
-        local this = Sprite.allocate()
-
-        if not parent then
-            parent = CONSOLE
+        function Sprite:destroy()
+            BlzDestroyFrame(self.frame)
         end
 
-        this.x = x
-        this.y = y
-        this.point = point
-        this.relative = relative
-        this.width = width
-        this.height = height
-        this.parent = parent
-        this.frame = BlzCreateFrameByType("SPRITE", "", parent, "", 0)
+        function Sprite.create(x, y, width, height, parent, point, relative)
+            local this = Sprite.allocate()
 
-        if parent == CONSOLE or parent == WORLD then
-            BlzFrameSetAbsPoint(this.frame, point, x, y)
-        else
-            BlzFrameSetPoint(this.frame, point, parent, relative, x, y)
+            if not parent then
+                parent = CONSOLE
+            end
+
+            this.x = x
+            this.y = y
+            this.point = point
+            this.relative = relative
+            this.width = width
+            this.height = height
+            this.parent = parent
+            this.frame = BlzCreateFrameByType("SPRITE", "", parent, "", 0)
+
+            if parent == CONSOLE or parent == WORLD then
+                BlzFrameSetAbsPoint(this.frame, point, x, y)
+            else
+                BlzFrameSetPoint(this.frame, point, parent, relative, x, y)
+            end
+
+            BlzFrameSetSize(this.frame, width, height)
+
+            return this
         end
-
-        BlzFrameSetSize(this.frame, width, height)
-
-        return this
     end
 
     -- ------------------------------------------ Text ----------------------------------------- --
-    Text = Class(Operators)
+    do
+        Text = Class(Operators)
 
-    Text:property("text", {
-        get = function(self) return self._text end,
-        set = function(self, value)
-            self._text = value
+        Text:property("text", {
+            get = function(self) return self._text end,
+            set = function(self, value)
+                self._text = value
 
-            BlzFrameSetText(self.frame, value)
-        end
-    })
+                BlzFrameSetText(self.frame, value)
+            end
+        })
 
-    Text:property("vertical", {
-        get = function(self) return self._vertical or TEXT_JUSTIFY_CENTER end,
-        set = function(self, value)
-            self._vertical = value
+        Text:property("vertical", {
+            get = function(self) return self._vertical or TEXT_JUSTIFY_CENTER end,
+            set = function(self, value)
+                self._vertical = value
 
-            BlzFrameSetTextAlignment(self.frame, value, self.horizontal)
-        end
-    })
+                BlzFrameSetTextAlignment(self.frame, value, self.horizontal)
+            end
+        })
 
-    Text:property("horizontal", {
-        get = function(self) return self._horizontal or TEXT_JUSTIFY_CENTER end,
-        set = function(self, value)
-            self._horizontal = value
+        Text:property("horizontal", {
+            get = function(self) return self._horizontal or TEXT_JUSTIFY_CENTER end,
+            set = function(self, value)
+                self._horizontal = value
 
-            BlzFrameSetTextAlignment(self.frame, self.vertical, value)
-        end
-    })
+                BlzFrameSetTextAlignment(self.frame, self.vertical, value)
+            end
+        })
 
-    function Text:destroy()
-        BlzDestroyFrame(self.frame)
-    end
-
-    function Text.create(x, y, width, height, scale, enabled, parent, value, vertical, horizontal)
-        local this = Text.allocate()
-
-        if not parent then
-            parent = CONSOLE
+        function Text:destroy()
+            BlzDestroyFrame(self.frame)
         end
 
-        if not vertical then
-            vertical = TEXT_JUSTIFY_CENTER
+        function Text.create(x, y, width, height, scale, enabled, parent, value, vertical, horizontal)
+            local this = Text.allocate()
+
+            if not parent then
+                parent = CONSOLE
+            end
+
+            if not vertical then
+                vertical = TEXT_JUSTIFY_CENTER
+            end
+
+            if not horizontal then
+                horizontal = TEXT_JUSTIFY_CENTER
+            end
+
+            this.x = x
+            this.y = y
+            this.text = value
+            this.scale = scale
+            this.width = width
+            this.height = height
+            this.enabled = enabled
+            this.parent = parent
+            this.vertical = vertical
+            this.horizontal = horizontal
+            this.frame = BlzCreateFrameByType("TEXT", "", parent, "", 0)
+
+            if parent == CONSOLE or parent == WORLD then
+                BlzFrameSetAbsPoint(this.frame, this.point, x, y)
+            else
+                BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
+            end
+
+            BlzFrameSetSize(this.frame, width, height)
+            BlzFrameSetText(this.frame, value)
+            BlzFrameSetEnable(this.frame, enabled)
+            BlzFrameSetScale(this.frame, scale)
+            BlzFrameSetTextAlignment(this.frame, vertical, horizontal)
+
+            return this
         end
-
-        if not horizontal then
-            horizontal = TEXT_JUSTIFY_CENTER
-        end
-
-        this.x = x
-        this.y = y
-        this.text = value
-        this.scale = scale
-        this.width = width
-        this.height = height
-        this.enabled = enabled
-        this.parent = parent
-        this.vertical = vertical
-        this.horizontal = horizontal
-        this.frame = BlzCreateFrameByType("TEXT", "", parent, "", 0)
-
-        if parent == CONSOLE or parent == WORLD then
-            BlzFrameSetAbsPoint(this.frame, this.point, x, y)
-        else
-            BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
-        end
-
-        BlzFrameSetSize(this.frame, width, height)
-        BlzFrameSetText(this.frame, value)
-        BlzFrameSetEnable(this.frame, enabled)
-        BlzFrameSetScale(this.frame, scale)
-        BlzFrameSetTextAlignment(this.frame, vertical, horizontal)
-
-        return this
     end
 
     -- ---------------------------------------- TextArea --------------------------------------- --
-    TextArea = Class(Operators)
+    do
+        TextArea = Class(Operators)
 
-    TextArea:property("text", {
-        get = function(self) return self._text end,
-        set = function(self, value)
-            self._text = value
+        TextArea:property("text", {
+            get = function(self) return self._text end,
+            set = function(self, value)
+                self._text = value
 
-            if value then
-                BlzFrameSetText(self.frame, value)
-            else
-                BlzFrameSetText(self.frame, "")
+                if value then
+                    BlzFrameSetText(self.frame, value)
+                else
+                    BlzFrameSetText(self.frame, "")
+                end
             end
-        end
-    })
+        })
 
-    function TextArea:destroy()
-        BlzDestroyFrame(self.frame)
-    end
-
-    function TextArea.create(x, y, width, height, parent, template)
-        local this = TextArea.allocate()
-
-        if not parent then
-            parent = CONSOLE
+        function TextArea:destroy()
+            BlzDestroyFrame(self.frame)
         end
 
-        if not template or template == "" then
-            template = "DescriptionArea"
+        function TextArea.create(x, y, width, height, parent, template)
+            local this = TextArea.allocate()
+
+            if not parent then
+                parent = CONSOLE
+            end
+
+            if not template or template == "" then
+                template = "DescriptionArea"
+            end
+
+            this.x = x
+            this.y = y
+            this.width = width
+            this.height = height
+            this.parent = parent
+            this.frame = BlzCreateFrame(template, parent, 0, 0)
+
+            if parent == CONSOLE or parent == WORLD then
+                BlzFrameSetAbsPoint(this.frame, this.point, x, y)
+            else
+                BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
+            end
+
+            BlzFrameSetSize(this.frame, width, height)
+
+            return this
         end
-
-        this.x = x
-        this.y = y
-        this.width = width
-        this.height = height
-        this.parent = parent
-        this.frame = BlzCreateFrame(template, parent, 0, 0)
-
-        if parent == CONSOLE or parent == WORLD then
-            BlzFrameSetAbsPoint(this.frame, this.point, x, y)
-        else
-            BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
-        end
-
-        BlzFrameSetSize(this.frame, width, height)
-
-        return this
     end
 
     -- --------------------------------------- StatusBar --------------------------------------- --
-    StatusBar = Class(Operators)
+    do
+        StatusBar = Class(Operators)
 
-    StatusBar:property("value", {
-        get = function(self) return BlzFrameGetValue(self.frame) end,
-        set = function(self, value) BlzFrameSetValue(self.frame, value) end
-    })
+        StatusBar:property("value", {
+            get = function(self) return BlzFrameGetValue(self.frame) end,
+            set = function(self, value) BlzFrameSetValue(self.frame, value) end
+        })
 
-    StatusBar:property("texture", {
-        get = function(self) return self._texture end,
-        set = function(self, value)
-            self._texture = value
+        StatusBar:property("texture", {
+            get = function(self) return self._texture or "" end,
+            set = function(self, value)
+                self._texture = value or ""
 
-            if value ~= "" and value ~= nil then
-                BlzFrameSetTexture(self.frame, value, 0, true)
-                BlzFrameSetVisible(self.frame, true)
-            else
-                BlzFrameSetVisible(self.frame, false)
+                if value ~= "" and value ~= nil then
+                    BlzFrameSetTexture(self.frame, value, 0, true)
+                    BlzFrameSetVisible(self.frame, true)
+                else
+                    BlzFrameSetVisible(self.frame, false)
+                end
             end
-        end
-    })
+        })
 
-    function StatusBar:destroy()
-        BlzDestroyFrame(self.frame)
-    end
-
-    function StatusBar.create(x, y, width, height, parent, texture)
-        local this = StatusBar.allocate()
-
-        if not parent then
-            parent = CONSOLE
+        function StatusBar:destroy()
+            BlzDestroyFrame(self.frame)
         end
 
-        this.x = x
-        this.y = y
-        this.width = width
-        this.height = height
-        this.parent = parent
-        this.texture = texture
-        this.frame = BlzCreateFrameByType("SIMPLESTATUSBAR", "", parent, "", 0)
+        function StatusBar.create(x, y, width, height, parent, texture)
+            local this = StatusBar.allocate()
 
-        if parent == CONSOLE or parent == WORLD then
-            BlzFrameSetAbsPoint(this.frame, this.point, x, y)
-        else
-            BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
+            if not parent then
+                parent = CONSOLE
+            end
+
+            this.x = x
+            this.y = y
+            this.width = width
+            this.height = height
+            this.parent = parent
+            this.texture = texture
+            this.frame = BlzCreateFrameByType("SIMPLESTATUSBAR", "", parent, "", 0)
+
+            if parent == CONSOLE or parent == WORLD then
+                BlzFrameSetAbsPoint(this.frame, this.point, x, y)
+            else
+                BlzFrameSetPoint(this.frame, this.point, parent, this.relative, x, y)
+            end
+
+            BlzFrameSetValue(this.frame, 0)
+            BlzFrameSetSize(this.frame, width, height)
+            BlzFrameSetTexture(this.frame, texture or "", 0, true)
+
+            return this
         end
-
-        BlzFrameSetValue(this.frame, 0)
-        BlzFrameSetSize(this.frame, width, height)
-        BlzFrameSetTexture(this.frame, texture, 0, true)
-
-        return this
     end
 
     -- --------------------------------------- Component --------------------------------------- --
@@ -757,7 +769,7 @@ OnInit("Components", function(requires)
                 if not time[player] then time[player] = {} end
                 if not doubleTime[player] then doubleTime[player] = {} end
 
-                StartSoundForPlayerBJ(player, sound)
+                StartSoundForPlayerBJ(player, SOUND)
 
                 if BlzGetTriggerPlayerMouseButton() == MOUSE_BUTTON_TYPE_LEFT then
                     time[player][this] = TimerGetElapsed(DOUBLE)
@@ -1250,5 +1262,129 @@ OnInit("Components", function(requires)
     end
 
     -- ----------------------------------------- Button ---------------------------------------- --
-    Button = Class(Component)
+    do
+        Button = Class(Component)
+
+        Button:property("available", {
+            get = function(self) return not self.block.visible end,
+            set = function(self, value) self.block.visible = not value end
+        })
+
+        Button:property("checked", {
+            get = function(self) return self.check.visible end,
+            set = function(self, value) self.check.visible = value end
+        })
+
+        Button:property("highlighted", {
+            get = function(self) return self.isHighlighted or false end,
+            set = function(self, value)
+                self.isHighlighted = value
+
+                BlzFrameSetVisible(self.highlight, value)
+            end
+        })
+
+        Button:property("tagged", { get = function(self) return self.tagger.visible end })
+
+        function Button:destroy()
+            self.check:destroy()
+            self.block:destroy()
+            self.tagger:destroy()
+            self.sprite:destroy()
+            self.player:destroy()
+            self.tooltip:destroy()
+
+            BlzDestroyFrame(self.highlight)
+        end
+
+        function Button:play(model, scale, animation)
+            if model ~= "" and model ~= nil then
+                self.sprite.scale = scale
+                self.sprite.model = model
+                self.sprite.animation = animation
+            end
+        end
+
+        function Button:display(model, scale, offsetX, offsetY)
+            self.player.visible = model ~= "" and model ~= nil
+
+            if self.player.visible then
+                self.player.x = offsetX
+                self.player.y = offsetY
+                self.player.scale = scale
+                self.player.model = model
+            end
+        end
+
+        function Button:tag(model, scale, offsetX, offsetY)
+            self.tagger.visible = model ~= "" and model ~= nil
+
+            if self.tagger.visible then
+                self.tagger.x = offsetX
+                self.tagger.y = offsetY
+                self.tagger.scale = scale
+                self.tagger.model = model
+            end
+        end
+
+        function Button.create(x, y, width, height, parent, simpleTooltip, inheritEvents)
+            local this = Button.allocate(x, y, width, height, parent, "ComponentFrame", nil, inheritEvents)
+
+            this.check = Backdrop.create(0, 0, width, height, this.frame, CHECKED_BUTTON)
+            this.block = Backdrop.create(0, 0, width, height, this.frame, UNAVAILABLE_BUTTON)
+            this.sprite = Sprite.create(0, 0, width, height, this.frame, FRAMEPOINT_CENTER, FRAMEPOINT_CENTER)
+            this.tagger = Sprite.create(0, 0, 0.00001, 0.00001, this.rame, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT)
+            this.player = Sprite.create(0, 0, 0.00001, 0.00001, this.frame, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT)
+            this.tooltip = Tooltip.create(this.frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT, simpleTooltip)
+            this.highlight = BlzCreateFrame("HighlightFrame", this.frame, 0, 0)
+            this.checked = false
+            this.available = true
+            this.highlighted = false
+            this.tagger.visible = false
+
+            BlzFrameSetTooltip(this.actor, this.tooltip.frame)
+            BlzFrameSetPoint(this.highlight, FRAMEPOINT_TOPLEFT, this.frame, FRAMEPOINT_TOPLEFT, - 0.004, 0.0045)
+            BlzFrameSetSize(this.highlight, width + 0.0085, height + 0.0085)
+            BlzFrameSetTexture(this.highlight, HIGHLIGHT, 0, true)
+
+            return this
+        end
+    end
+
+    -- ----------------------------------------- Panel ----------------------------------------- --
+    do
+        Panel = Class(Component)
+
+        function Panel.create(x, y, width, height, parent, template, inheritEvents)
+            return Panel.allocate(x, y, width, height, parent, "PanelFrame", template, inheritEvents)
+        end
+    end
+
+    -- ------------------------------------------ Line ----------------------------------------- --
+    do
+        Line = Class(Backdrop)
+
+        function Line.create(x, y, width, height, parent, texture)
+            return Line.allocate(x, y, width, height, parent, texture)
+        end
+    end
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                          Lua API                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    function GetTriggerComponent()
+        return Component.get()
+    end
+
+    function GetTriggerEditBox()
+        return EditBox.get()
+    end
+
+    function GetTriggerCheckBox()
+        return CheckBox.get()
+    end
+
+    function GetTriggerSlider()
+        return Slider.get()
+    end
 end)

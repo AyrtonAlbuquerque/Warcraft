@@ -1,6 +1,7 @@
 OnInit("Class", function()
     Class = {}
 
+    local initialized = {}
     local initializers = {}
 
     local function Initializer()
@@ -8,8 +9,10 @@ OnInit("Class", function()
             for i = 1, #initializers do
                 local this = initializers[i]
 
-                if this.onInit and type(this.onInit) == "function" then
+                if this.onInit and type(this.onInit) == "function" and not initialized[this.onInit] then
                     local ok, exception = pcall(this.onInit)
+
+                    initialized[this.onInit] = true
 
                     if not ok then
                         print("onInit Error: " .. tostring(exception))

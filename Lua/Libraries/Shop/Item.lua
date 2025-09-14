@@ -374,7 +374,7 @@ OnInit("Item", function(requires)
     end
 
     function Item.onInit()
-        shop = CreateUnit(player, 'hpea', 0, 0, 0)
+        shop = CreateUnit(player, FourCC('hpea'), 0, 0, 0)
 
         SetUnitUseFood(shop, false)
         UnitAddAbility(shop, FourCC('Asid'))
