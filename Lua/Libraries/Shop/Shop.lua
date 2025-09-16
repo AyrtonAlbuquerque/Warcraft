@@ -25,6 +25,24 @@ OnInit("Shop", function(requires)
     local UNDO_ICON                 = "ReplaceableTextures\\CommandButtons\\BTNReplay-Loop.blp"
     local DISMANTLE_ICON            = "UI\\Feedback\\Resources\\ResourceUpkeep.blp"
 
+    -- Buyer Panel
+    local BUYER_WIDTH               = WIDTH/2
+    local BUYER_HEIGHT              = 0.08
+    local BUYER_SIZE                = 0.032
+    local BUYER_GAP                 = 0.04
+    local BUYER_SHIFT_BUTTON_SIZE   = 0.012
+    local BUYER_COUNT               = 8
+    local BUYER_RIGHT               = "ReplaceableTextures\\CommandButtons\\BTNReplay-SpeedDown.blp"
+    local BUYER_LEFT                = "ReplaceableTextures\\CommandButtons\\BTNReplay-SpeedUp.blp"
+
+    -- Inventory Panel
+    local INVENTORY_WIDTH           = 0.23780
+    local INVENTORY_HEIGHT          = 0.03740
+    local INVENTORY_SIZE            = 0.031
+    local INVENTORY_GAP             = 0.04
+    local INVENTORY_COUNT           = 6
+    local INVENTORY_TEXTURE         = "Inventory.blp"
+
     -- Details window
     local DETAIL_WIDTH              = 0.3125
     local DETAIL_HEIGHT             = HEIGHT
@@ -42,6 +60,12 @@ OnInit("Shop", function(requires)
     local EDIT_WIDTH                = 0.15
     local EDIT_HEIGHT               = 0.0285
 
+    -- Category and Favorite buttons
+    local CATEGORY_COUNT            = 13
+    local CATEGORY_SIZE             = 0.02750
+    local CATEGORY_GAP              = 0.0
+
+    -- ItemTable slots
     local SLOT_WIDTH                = 0.04
     local SLOT_HEIGHT               = 0.05
     local ITEM_SIZE                 = 0.04
@@ -53,6 +77,18 @@ OnInit("Shop", function(requires)
     local SLOT_GAP_Y                = 0.022
     local GOLD_ICON                 = "UI\\Feedback\\Resources\\ResourceGold.blp"
     local WOOD_ICON                 = "UI\\Feedback\\Resources\\ResourceLumber.blp"
+
+    -- Selected item highlight
+    local ITEM_HIGHLIGHT            = "neon_sprite.mdx"
+    local HIGHLIGHT_SCALE           = 0.75
+    local HIGHLIGHT_XOFFSET         = -0.0052
+    local HIGHLIGHT_YOFFSET         = -0.0048
+
+    -- Tagged item highlight
+    local TAG_MODEL                 = "crystallid_sprite.mdx"
+    local TAG_SCALE                 = 0.75
+    local TAG_XOFFSET               = -0.0052
+    local TAG_YOFFSET               = -0.0048
 
     -- Scroll
     local SCROLL_DELAY              = 0.03
@@ -155,6 +191,185 @@ OnInit("Shop", function(requires)
             noWood[id] = CreateSound("Sound\\Interface\\Warning\\Naga\\NagaNoLumber1.wav", false, false, false, 10, 10, "")
             SetSoundParamsFromLabel(noWood[id], "NoLumberNaga")
             SetSoundDuration(noWood[id], 1576)
+        end
+    end
+
+    -- --------------------------------------- Inventory --------------------------------------- --
+    local Inventory = Class()
+
+    do
+        Inventory:property("visible", {
+            get = function(self) return self.isVisible or true end,
+            set = function(self, value) 
+                self.isVisible = value 
+                BlzFrameSetVisible(self.frame, value)
+            end
+        })
+
+        function Inventory:destroy()
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    for j = 0, INVENTORY_COUNT - 1 do
+                        self.button[i][j]:destroy()
+                    end
+                end
+            end
+
+            BlzDestroyFrame(self.frame)
+        end
+
+        function Inventory:get(id)
+            return self.selected[id]
+        end
+
+        function Inventory:has(id)
+            return self.selected[id] ~= nil
+        end
+
+        function Inventory:move(point, relative, relativePoint)
+            BlzFrameClearAllPoints(self.frame)
+            BlzFrameSetPoint(self.frame, point, relative, relativePoint, 0, 0)
+        end
+
+        function Inventory:show(unit)
+            local id = GetPlayerId(GetOwningPlayer(unit))
+
+            if unit then
+                for i = 0, INVENTORY_COUNT - 1 do
+                    local item = UnitItemInSlot(unit, i)
+
+                    if item then
+                        self.item[id][i] = Item.get(GetItemTypeId(item))
+
+                        if GetLocalPlayer() == GetOwningPlayer(unit) then
+                            self.button[id][i].texture = self.item[id][i].icon
+                            self.button[id][i].tooltip.text = self.item[id][i].tooltip
+                            self.button[id][i].tooltip.name = self.item[id][i].name
+                            self.button[id][i].tooltip.icon = self.item[id][i].icon
+                            self.button[id][i].visible = true
+                            self.button[id][i].highlighted = false
+                        end
+                    else
+                        self.item[id][i] = nil
+
+                        if GetLocalPlayer() == GetOwningPlayer(unit) then
+                            self.button[id][i].visible = false
+                            self.button[id][i].highlighted = false
+                        end
+                    end
+                end
+            else
+                for i = 0, INVENTORY_COUNT - 1 do
+                    self.item[id][i] = nil
+
+                    if GetLocalPlayer() == GetOwningPlayer(unit) then
+                        self.button[id][i].visible = false
+                        self.button[id][i].highlighted = false
+                    end
+                end
+            end
+        end
+
+        function Inventory:remove(id)
+            self.selected[id] = nil
+        end
+
+        function Inventory:removeComponents(item, transaction)
+            for i = 1, item.components do
+                local component = Item.get(item.components[i])
+
+                if UnitHasItemOfType(transaction.unit, component.id) then
+                    for j = 0, UnitInventorySize(transaction.unit) - 1 do
+                        if GetItemTypeId(UnitItemInSlot(transaction.unit, j) ) == component.id then
+                            RemoveItem(UnitItemInSlot(transaction.unit, j) )
+                            break
+                        end
+                    end
+
+                    transaction:add(component)
+                else
+                    self:removeComponents(component, transaction)
+                end
+            end
+        end
+
+        function Inventory.create(shop)
+            local this = Inventory.allocate()
+
+            this.shop = shop
+            this.item = {}
+            this.button = {}
+            this.selected = {}
+            this.isVisible = false
+            this.frame = BlzCreateFrameByType("BACKDROP", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
+
+            BlzFrameSetPoint(this.frame, FRAMEPOINT_TOPLEFT, shop.buyer.frame, FRAMEPOINT_TOPLEFT, 0, 0)
+            BlzFrameSetSize(this.frame, INVENTORY_WIDTH, INVENTORY_HEIGHT)
+            BlzFrameSetTexture(this.frame, INVENTORY_TEXTURE, 0, false)
+
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    this.item[i] = {}
+                    this.button[i] = {}
+
+                    for j = 0, INVENTORY_COUNT - 1 do
+                        this.button[i][j] = Button.create(0.0033700 + INVENTORY_GAP*j, - 0.0037500, INVENTORY_SIZE, INVENTORY_SIZE, this.frame, false, false)
+                        this.button[i][j].tooltip.point = FRAMEPOINT_BOTTOM
+                        this.button[i][j].OnClick = Inventory.onClick
+                        this.button[i][j].OnDoubleClick = Inventory.onDoubleClick
+                        this.button[i][j].OnRightClick = Inventory.onRightClick
+                        this.button[i][j].visible = false
+                        array[this.button[i][j]] = { this, j }
+                    end
+                end
+            end
+
+            return this
+        end
+
+        function Inventory.onClick()
+            local player = GetTriggerPlayer()
+            local button = GetTriggerComponent()
+            local id = GetPlayerId(player)
+            local this = array[button][1]
+            local i = array[button][2]
+
+            if this then
+                if GetLocalPlayer() == player and this.selected[id] then
+                    this.button[id][this.selected[id]].highlighted = false
+                    this.button[id][i].highlighted = true
+                end
+
+                this.selected[id] = i
+            end
+        end
+
+        function Inventory.onDoubleClick()
+            local player = GetTriggerPlayer()
+            local button = GetTriggerComponent()
+            local id = GetPlayerId(player)
+            local this = array[button][1]
+            local i = array[button][2]
+
+            if this then
+                if this.shop:sell(this.item[id][i], player, i) then
+                    this:show(this.shop.buyer:get(id))
+                end
+            end
+        end
+
+        function Inventory.onRightClick()
+            local player = GetTriggerPlayer()
+            local button = GetTriggerComponent()
+            local id = GetPlayerId(player)
+            local this = array[button][1]
+            local i = array[button][2]
+
+            if this then
+                if this.shop:sell(this.item[id][i], player, i) then
+                    this:show(this.shop.buyer:get(id))
+                end
+            end
         end
     end
 
@@ -327,7 +542,7 @@ OnInit("Shop", function(requires)
                             self.button[id][j].tooltip.text = self.used[id][j].tooltip
                             self.button[id][j].tooltip.name = self.used[id][j].name
                             self.button[id][j].tooltip.icon = self.used[id][j].icon
-                            self.button[id][j].available = shop:has(self.used[id][j].id)
+                            self.button[id][j].available = self.shop:has(self.used[id][j].id)
                             self.button[id][j].visible = true
                         end
                     end
@@ -344,7 +559,7 @@ OnInit("Shop", function(requires)
                             self.button[id][j].tooltip.text = item.tooltip
                             self.button[id][j].tooltip.name = item.name
                             self.button[id][j].tooltip.icon = item.icon
-                            self.button[id][j].available = shop:has(item.id)
+                            self.button[id][j].available = self.shop:has(item.id)
                             self.button[id][j].visible = true
                         end
                     end
@@ -359,7 +574,7 @@ OnInit("Shop", function(requires)
                             self.button[id][j].tooltip.text = self.used[id][j].tooltip
                             self.button[id][j].tooltip.name = self.used[id][j].name
                             self.button[id][j].tooltip.icon = self.used[id][j].icon
-                            self.button[id][j].available = shop:has(self.used[id][j].id)
+                            self.button[id][j].available = self.shop:has(self.used[id][j].id)
                             self.button[id][j].visible = true
                         end
                     end
@@ -376,8 +591,159 @@ OnInit("Shop", function(requires)
                             self.button[id][j].tooltip.text = item.tooltip
                             self.button[id][j].tooltip.name = item.name
                             self.button[id][j].tooltip.icon = item.icon
-                            self.button[id][j].available = shop:has(item.id)
+                            self.button[id][j].available = self.shop:has(item.id)
                             self.button[id][j].visible = true
+                        end
+                    end
+                end
+            end
+        end
+
+        function Detail:showUsed(player)
+            local id = GetPlayerId(player)
+
+            for i = 0, DETAIL_USED_COUNT do
+                local item = Item.get(self.item[id].relation[i])
+
+                if item and i < DETAIL_USED_COUNT then
+                    self.used[id][i] = item
+
+                    if player == GetLocalPlayer() then
+                        self.button[id][self.count[id]].texture = item.icon
+                        self.button[id][self.count[id]].tooltip.text = item.tooltip
+                        self.button[id][self.count[id]].tooltip.name = item.name
+                        self.button[id][self.count[id]].tooltip.icon = item.icon
+                        self.button[id][self.count[id]].available = self.shop:has(item.id)
+                        self.button[id][self.count[id]].visible = true
+                    end
+
+                    self.count[id] = self.count[id] + 1
+                else
+                    self.button[id][i].visible = false
+                end
+            end
+        end
+
+        function Detail:refresh(player)
+            local id = GetPlayerId(player)
+
+            if self.visible and self.item[id] then
+                self:show(self.item[id], player)
+            end
+        end
+
+        function Detail:show(item, player)
+            local counter = {}
+            local id = GetPlayerId(player)
+
+            if item then
+                local cost = item.cost
+                local wood = item.wood
+                self.main[id].item = item
+                self.main[id].texture = item.icon
+                self.main[id].tooltip.text = item.tooltip
+                self.main[id].tooltip.name = item.name
+                self.main[id].tooltip.icon = item.icon
+                self.main[id].available = self.shop:has(item.id)
+
+                if item ~= self.item[id] then
+                    self.item[id] = item
+                    self.count[id] = 0
+
+                    self:showUsed(player)
+                end
+
+                if player == GetLocalPlayer() then
+                    self.visible = true
+                    self.uses.visible = self.count[id] > 0
+                    self.vertical.visible = item.components > 0
+                    self.horizontal.visible = item.components > 1
+                    self.description[0].text = item.tooltip
+                    self.description[1].text = item.tooltip
+                    self.description[2].text = item.tooltip
+                    self.description[3].text = item.tooltip
+                    self.description[0].visible = self.uses.visible and item.components > 0
+                    self.description[1].visible = self.uses.visible and item.components == 0
+                    self.description[2].visible = not self.uses.visible and item.components > 0
+                    self.description[3].visible = not self.uses.visible and item.components == 0
+                    self.main[id].lumber.visible = item.wood > 0
+                    self.main[id].cost.text = "|cffFFCC00" .. I2S(item:cost(self.shop.buyer:get(id), false)) .. "|r"
+                    self.main[id].wood.text = "|cff238b3d" .. I2S(item:cost(self.shop.buyer:get(id), true)) .. "|r"
+                end
+
+                if item.components > 0 then
+                    for i = 0, 5 do
+                        local component = Item.get(item.components[i + 1])
+
+                        if component then
+                            local slot = self.components[id][i]
+
+                            if player == GetLocalPlayer() then
+                                if item.components == 1 then
+                                    slot.x = 0.13725
+                                elseif item.components == 2 then
+                                    slot.x = 0.08725 + 0.1*i
+                                elseif item.components == 3 then
+                                    slot.x = 0.03725 + 0.1*i
+                                elseif item.components == 4 then
+                                    slot.x = 0.03725 + 0.06525*i
+                                else
+                                    slot.x = 0.03725 + 0.05*i
+                                end
+
+                                slot.visible = true
+                            end
+
+                            slot.item = component
+                            slot.texture = component.icon
+                            slot.tooltip.text = component.tooltip
+                            slot.tooltip.name = component.name
+                            slot.tooltip.icon = component.icon
+                            slot.available = self.shop:has(component.id)
+                            slot.lumber.visible = component.wood > 0
+                            slot.cost.text = "|cffFFCC00" .. I2S(component:cost(self.shop.buyer:get(id), false)) .. "|r"
+                            slot.wood.text = "|cff238b3d" .. I2S(component:cost(self.shop.buyer:get(id), true)) .. "|r"
+
+                            if self.shop.buyer:get(id) then
+                                if UnitHasItemOfType(self.shop.buyer:get(id), component.id) then
+                                    if UnitCountItemOfType(self.shop.buyer:get(id), component.id) >= item:count(component.id) then
+                                        slot.checked = true
+                                    else
+                                        counter[component.id] = (counter[component.id] or 0) + 1
+                                        slot.checked = counter[component.id] <= UnitCountItemOfType(self.shop.buyer:get(id), component.id)
+                                    end
+                                else
+                                    slot.checked = false
+                                end
+                            else
+                                slot.checked = false
+                            end
+
+                            if slot.checked then
+                                cost = cost - component.gold
+                                wood = wood - component.wood
+                            end
+                        else
+                            if player == GetLocalPlayer() then
+                                self.components[id][i].visible = false
+                            end
+                        end
+                    end
+
+                    if player == GetLocalPlayer() then
+                        self.horizontal.width = 0.2
+                        self.horizontal.x = self.components[id][0].x + ITEM_SIZE/2
+
+                        if item.components == 2 then
+                            self.horizontal.width = 0.1
+                        elseif item.components == 4 then
+                            self.horizontal.width = 0.19575
+                        end
+                    end
+                else
+                    for i = 0, 5 do
+                        if player == GetLocalPlayer() then
+                            self.components[id][i].visible = false
                         end
                     end
                 end
@@ -429,13 +795,15 @@ OnInit("Shop", function(requires)
                 if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
                     local j = 0
 
+                    this.used[i] = {}
+                    this.count[i] = 0
+                    this.lines[i] = {}
+                    this.components[i] = {}
                     this.main[i] = Slot.create(shop, 0, 0.13725, - 0.03, this.frame)
                     this.main[i].visible = GetLocalPlayer() == Player(i)
                     array[this.main[i]] = { this }
 
                     while j < 5 do
-                        this.lines[i] = {}
-                        this.components[i] = {}
                         this.components[i][j] = Slot.create(shop, 0, 0.03725 + 0.05*j, - 0.1, this.frame)
                         this.lines[i][j] = Line.create(this.components[i][j].width/2, 0.01, 0.001, 0.01, this.components[i][j].frame, "replaceabletextures\\teamcolor\\teamcolor08")
                         this.components[i][j].visible = false
@@ -474,15 +842,16 @@ OnInit("Shop", function(requires)
         function Detail.onClicked()
             local button = GetTriggerComponent()
             local player = GetTriggerPlayer()
+            local id = GetPlayerId(player)
             local this = array[button][1]
 
             if this then
                 if button == this.close then
-                    -- this.shop:detail(nil, player)
+                    this.shop:detail(nil, player)
                 elseif button == this.left or button == this.right then
-                    -- this:shift(button == this.right, player)
+                    this:shift(button == this.right, player)
                 else
-                    -- this.shop:detail(this.used[player][array[button][2]], player)
+                    this.shop:detail(this.used[id][array[button][2]], player)
                 end
             end
         end
@@ -491,20 +860,21 @@ OnInit("Shop", function(requires)
             local this = array[GetTriggerComponent()][1]
 
             if this then
-                -- this:shift(BlzGetTriggerFrameValue() < 0, GetTriggerPlayer())
+                this:shift(BlzGetTriggerFrameValue() < 0, GetTriggerPlayer())
             end
         end
 
         function Detail.onMiddleClicked()
             local button = GetTriggerComponent()
             local player = GetTriggerPlayer()
+            local id = GetPlayerId(player)
             local this = array[button][1]
 
             if this then
-                -- if this.shop.favorites:has(this.used[player][array[button][2]].id, player) then
-                --     this.shop.favorites:remove(this.used[player][array[button][2]].id, player)
+                -- if this.shop.favorites:has(this.used[id][array[button][2]].id, player) then
+                --     this.shop.favorites:remove(this.used[id][array[button][2]].id, player)
                 -- else
-                --     this.shop.favorites:add(this.used[player][array[button][2]].id, player)
+                --     this.shop.favorites:add(this.used[id][array[button][2]].id, player)
                 -- end
             end
         end
@@ -516,11 +886,644 @@ OnInit("Shop", function(requires)
             local this = array[button][1]
 
             if this then
-                -- if this.shop:buy(this.used[player][array[button][2]].id, player) then
+                -- if this.shop:buy(this.used[id][array[button][2]].id, player) then
                 --     if GetLocalPlayer() == GetTriggerPlayer() then
                 --         this.button[id][array[button][2]]:play(SPRITE_MODEL, SPRITE_SCALE, 0)
                 --     end
                 -- end
+            end
+        end
+    end
+
+    -- ----------------------------------------- Buyer ----------------------------------------- --
+    local Buyer = Class(Panel)
+
+    do
+        local current = {}
+
+        Buyer:property("visible", {
+            get = function(self) return self.isVisible or true end,
+            set = function(self, value)
+                self.isVisible = value
+                self.inventory.visible = value
+
+                if value then
+                    local id = GetPlayerId(GetLocalPlayer())
+
+                    for i = 0, BUYER_COUNT - 1 do
+                        if self.unit[id][i] == self.selected[id] then
+                            self.inventory:move(FRAMEPOINT_TOP, self.button[id][i].frame, FRAMEPOINT_BOTTOM)
+                            break
+                        end
+                    end
+                end
+
+                BlzFrameSetVisible(self.frame, value)
+            end
+        })
+
+        function Buyer:get(id)
+            return self.selected[id]
+        end
+
+        function Buyer:destroy()
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    for j = 0, BUYER_COUNT - 1 do
+                        self.button[i][j]:destroy()
+                    end
+                end
+            end
+
+            self.left:destroy()
+            self.right:destroy()
+            self.inventory:destroy()
+        end
+
+        function Buyer:shift(left, player)
+            local flag = false
+            local id = GetPlayerId(player)
+
+            if left then
+                if ((self.index[id] or 0) + 1 + BUYER_COUNT) <= (self.size[id] or 0) and (self.size[id] or 0) > 0 then
+                    local i  = 0
+
+                    self.index[id] = (self.index[id] or 0) + 1
+
+                    while i < BUYER_COUNT - 1 do
+                        self.unit[id][i] = self.unit[id][i + 1]
+
+                        if player == GetLocalPlayer() then
+                            self.button[id][i].texture = self.button[id][i + 1].texture
+                            self.button[id][i].tooltip.text = self.button[id][i + 1].tooltip.text
+                            self.button[id][i].highlighted = self.selected[id] == self.unit[id][i]
+                            self.button[id][i].visible = true
+
+                            if self.button[id][i].highlighted then
+                                flag = true
+                                self.inventory:move(FRAMEPOINT_TOP, self.button[id][i].frame, FRAMEPOINT_BOTTOM)
+                            end
+                        end
+
+                        i = i + 1
+                    end
+
+                    local unit = BlzGroupUnitAt(self.shop.group[id], self.index[id] + BUYER_COUNT)
+
+                    if unit then
+                        self.unit[id][BUYER_COUNT - 1] = unit
+
+                        if player == GetLocalPlayer() then
+                            self.button[id][BUYER_COUNT - 1].texture = BlzGetAbilityIcon(GetUnitTypeId(unit))
+                            self.button[id][BUYER_COUNT - 1].tooltip.text = GetUnitName(unit)
+                            self.button[id][BUYER_COUNT - 1].highlighted = self.selected[id] == unit
+                            self.button[id][BUYER_COUNT - 1].visible = true
+
+                            if self.button[id][BUYER_COUNT - 1].highlighted then
+                                flag = true
+                                self.inventory:move(FRAMEPOINT_TOP, self.button[id][BUYER_COUNT - 1].frame, FRAMEPOINT_BOTTOM)
+                            end
+                        end
+                    end
+
+                    if player == GetLocalPlayer() then
+                        self.inventory.visible = flag
+                    end
+                end
+            else
+                if (self.index[id] or 0) - 1 >= 0 and (self.size[id] or 0) > 0 then
+                    local i = BUYER_COUNT - 1
+
+                    self.index[id] = (self.index[id] or 0) - 1
+
+                    while i > 0 do
+                        self.unit[id][i] = self.unit[id][i - 1]
+
+                        if player == GetLocalPlayer() then
+                            self.button[id][i].texture = self.button[id][i - 1].texture
+                            self.button[id][i].tooltip.text = self.button[id][i - 1].tooltip.text
+                            self.button[id][i].highlighted = self.selected[id] == self.unit[id][i]
+                            self.button[id][i].visible = true
+
+                            if self.button[id][i].highlighted then
+                                flag = true
+                                self.inventory:move(FRAMEPOINT_TOP, self.button[id][i].frame, FRAMEPOINT_BOTTOM)
+                            end
+                        end
+
+                        i = i - 1
+                    end
+
+                    local unit = BlzGroupUnitAt(self.shop.group[id], self.index[id])
+
+                    if unit then
+                        self.unit[id][0] = unit
+
+                        if player == GetLocalPlayer() then
+                            self.button[id][0].texture = BlzGetAbilityIcon(GetUnitTypeId(unit))
+                            self.button[id][0].tooltip.text = GetUnitName(unit)
+                            self.button[id][0].highlighted = self.selected[id] == unit
+                            self.button[id][0].visible = true
+
+                            if self.button[id][0].highlighted then
+                                flag = true
+                                self.inventory:move(FRAMEPOINT_TOP, self.button[id][0].frame, FRAMEPOINT_BOTTOM)
+                            end
+                        end
+                    end
+
+                    if player == GetLocalPlayer() then
+                        self.inventory.visible = flag
+                    end
+                end
+            end
+        end
+
+        function Buyer:update(group, id)
+            self.size[id] = BlzGroupGetSize(group)
+
+            if self.size[id] > 0 then
+                if ((self.index[id] or 0) + BUYER_COUNT) > self.size[id] then
+                    self.index[id] = 0
+                end
+
+                if not IsUnitInGroup(self.selected[id], group) then
+                    self.index[id] = 0
+                    current[self.selected[id]] = nil
+                    self.selected[id] = FirstOfGroup(group)
+                    current[self.selected[id]] = self
+                    IssueNeutralTargetOrder(Player(id), self.shop.unit[id], "smart", self.selected[id])
+                    self.inventory:show(self.selected[id])
+
+                    if Player(id) == GetLocalPlayer() then
+                        self.inventory:move(FRAMEPOINT_TOP, self.button[id][0].frame, FRAMEPOINT_BOTTOM)
+                        self.shop.details:refresh(Player(id))
+                    end
+                end
+
+                local j = self.index[id]
+
+                for i = 1, BUYER_COUNT - 1 do
+                    if j >= self.size[id] then
+                        self.unit[id][i] = nil
+
+                        if Player(id) == GetLocalPlayer() then
+                            self.button[id][i].visible = false
+                        end
+                    else
+                        local unit = BlzGroupUnitAt(group, j)
+
+                        self.unit[id][i] = unit
+
+                        if self.selected[id] == unit then
+                            self.last[id] = self.button[id][i]
+                        end
+
+                        if Player(id) == GetLocalPlayer() then
+                            self.button[id][i].texture = BlzGetAbilityIcon(GetUnitTypeId(unit))
+                            self.button[id][i].tooltip.text = GetUnitName(unit)
+                            self.button[id][i].highlighted = self.selected[id] == unit
+                            self.button[id][i].visible = true
+
+                            if self.button[id][i].highlighted then
+                                self.inventory.visible = true
+                                self.inventory:move(FRAMEPOINT_TOP, self.button[id][i].frame, FRAMEPOINT_BOTTOM)
+                            end
+                        end
+
+                        j = j + 1
+                    end
+                end
+            else
+                current[self.selected[id]] = nil
+                self.index[id] = 0
+                self.selected[id] = nil
+
+                if Player(id) == GetLocalPlayer() then
+                    self.inventory.visible = false
+
+                    for i = 0, BUYER_COUNT - 1 do
+                        self.unit[id][i] = nil
+                        self.button[id][i].visible = false
+                        self.button[id][i].highlighted = false
+                    end
+
+                    self.shop.details:refresh(Player(id))
+                end
+            end
+        end
+
+        function Buyer.create(shop)
+            local this = Buyer.allocate(WIDTH/2 - BUYER_WIDTH/2, HEIGHT/2 - 0.015, BUYER_WIDTH, BUYER_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "EscMenuBackdrop", false)
+
+            this.shop = shop
+            this.last = {}
+            this.size = {}
+            this.index = {}
+            this.unit = {}
+            this.button = {}
+            this.selected = {}
+            this.inventory = Inventory.create(shop)
+            this.left = Button.create(0.027500, - 0.032500, BUYER_SHIFT_BUTTON_SIZE, BUYER_SHIFT_BUTTON_SIZE, this.frame, true, false)
+            this.left.texture = BUYER_LEFT
+            this.left.tooltip.text = "Scroll Left"
+            this.left.OnClick = Buyer.onClicked
+            this.right = Button.create(0.36350, - 0.032500, BUYER_SHIFT_BUTTON_SIZE, BUYER_SHIFT_BUTTON_SIZE, this.frame, true, false)
+            this.right.texture = BUYER_RIGHT
+            this.right.tooltip.text = "Scroll Right"
+            this.right.OnClick = Buyer.onClicked
+            array[this.left] = { this }
+            array[this.right] = { this }
+
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    this.unit[i] = {}
+                    this.button[i] = {}
+
+                    for j = 0, BUYER_COUNT - 1 do
+                        this.button[i][j] = Button.create(0.045000 + BUYER_GAP*j, - 0.023000, BUYER_SIZE, BUYER_SIZE, this.frame, true, false)
+                        this.button[i][j].visible = false
+                        this.button[i][j].OnClick = Buyer.onClicked
+                        this.button[i][j].OnScroll = Buyer.onScrolled
+                        array[this.button[i][j]] = { this, j }
+
+                    end
+                end
+            end
+
+            this.visible = false
+
+            return this
+        end
+
+        function Buyer:onScroll()
+            self:shift(BlzGetTriggerFrameValue() < 0, GetTriggerPlayer())
+        end
+
+        function Buyer.onScrolled()
+            local this = array[GetTriggerComponent()][1]
+
+            if this then
+                this:shift(BlzGetTriggerFrameValue() < 0, GetTriggerPlayer())
+            end
+        end
+
+        function Buyer.onClicked()
+            local button = GetTriggerComponent()
+            local player = GetTriggerPlayer()
+            local id = GetPlayerId(player)
+            local this = array[button][1]
+
+            if this then
+                if button == this.left then
+                    this:shift(false, player)
+                elseif button == this.right then
+                    this:shift(true, player)
+                else
+                    current[this.selected[id]] = nil
+                    this.selected[id] = this.unit[id][array[button][2]]
+                    current[this.selected[id]] = this
+                    IssueNeutralTargetOrder(player, this.shop.unit[id], "smart", this.selected[id])
+                    this.inventory:show(this.selected[id])
+                    this.inventory:remove(id)
+
+                    if player == GetLocalPlayer() then
+                        this.last[id].highlighted = false
+                        this.button[id][array[button][2]].highlighted = true
+                        this.last[id] = this.button[id][array[button][2]]
+
+                        this.inventory:move(FRAMEPOINT_TOP, this.button[id][array[button][2]].frame, FRAMEPOINT_BOTTOM)
+                        this.shop.details:refresh(player)
+                    end
+                end
+            end
+        end
+
+        function Buyer.onPickup()
+            local unit = GetManipulatingUnit()
+            local id = GetPlayerId(GetOwningPlayer(unit))
+            local this = current[unit]
+
+            if this then
+                if this.shop.unit[id] then
+                    if this.selected[id] == unit and IsUnitInRange(unit, this.shop.unit[id], this.shop.aoe) then
+                        this.inventory:show(unit)
+                        this.shop.details:refresh(GetOwningPlayer(unit))
+                    end
+                end
+            end
+        end
+
+        function Buyer.onDrop()
+            local unit = GetManipulatingUnit()
+            local id = GetPlayerId(GetOwningPlayer(unit))
+            local this = current[unit]
+
+            if this then
+                if this.shop.unit[id] then
+                    if this.selected[id] == unit and IsUnitInRange(unit, this.shop.unit[id], this.shop.aoe) then
+                        this.shop.details:refresh(GetOwningPlayer(unit))
+                    end
+                end
+            end
+        end
+
+        function Buyer.onInit()
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, Buyer.onPickup)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, Buyer.onDrop)
+        end
+    end
+
+    -- --------------------------------------- Favorites --------------------------------------- --
+    local Favorites = Class(Panel)
+
+    do
+        function Favorites:destroy()
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    for j = 0, CATEGORY_COUNT - 1 do
+                        self.button[i][j]:destroy()
+                    end
+                end
+            end
+
+            self.clear:destroy()
+        end
+
+        function Favorites:has(id, player)
+            local pid = GetPlayerId(player)
+
+            for i = 0, self.count[pid] do
+                if self.item[pid][i] and self.item[pid][i].id == id then
+                    return true
+                end
+            end
+
+            return false
+        end
+
+        function Favorites:reset(player)
+            local id = GetPlayerId(player)
+
+            while self.count[id] > -1 do
+                if player == GetLocalPlayer() then
+                    self.button[id][self.count[id]].visible = false
+                    array[self.shop][self.item[id][self.count[id]].id]:tag(nil, 0, 0, 0)
+                end
+
+                self.count[id] = self.count[id] - 1
+            end
+        end
+
+        function Favorites:remove(item, player)
+            local id = GetPlayerId(player)
+
+            if self:has(item.id, player) then
+                for i = 0, self.count[id] do
+                    if self.item[id][i] and self.item[id][i].id == item.id then
+                        local j = i
+
+                        if player == GetLocalPlayer() then
+                            array[self.shop][item.id]:tag(nil, 0, 0, 0)
+                        end
+
+                        while j < self.count[id] do
+                            self.item[id][j] = self.item[id][j + 1]
+
+                            if player == GetLocalPlayer() then
+                                self.button[id][j].texture = self.item[id][j].icon
+                                self.button[id][j].tooltip.text = self.item[id][j].tooltip
+                                self.button[id][j].tooltip.name = self.item[id][j].name
+                                self.button[id][j].tooltip.icon = self.item[id][j].icon
+                            end
+
+                            j = j + 1
+                        end
+
+                        if player == GetLocalPlayer() then
+                            self.button[id][self.count[id]].visible = false
+                        end
+
+                        self.count[id] = self.count[id] - 1
+                        break
+                    end
+                end
+            end
+        end
+
+        function Favorites:add(item, player)
+            local id = GetPlayerId(player)
+
+            if self.count[id] < (CATEGORY_COUNT - 1) then
+                if not self:has(item.id, player) then
+                    self.count[id] = self.count[id] + 1
+                    self.item[id][self.count[id]] = item
+
+                    if player == GetLocalPlayer() then
+                        self.button[id][self.count[id]].texture = item.icon
+                        self.button[id][self.count[id]].tooltip.text = item.tooltip
+                        self.button[id][self.count[id]].tooltip.name = item.name
+                        self.button[id][self.count[id]].tooltip.icon = item.icon
+                        self.button[id][self.count[id]].visible = true
+                        array[self.shop][item.id]:tag(TAG_MODEL, TAG_SCALE, TAG_XOFFSET, TAG_YOFFSET)
+                    end
+                end
+            end
+        end
+
+        function Favorites.create(shop)
+            local this = Favorites.allocate(X + (WIDTH - 0.027), 0, SIDE_WIDTH, SIDE_HEIGHT, shop.frame, "EscMenuBackdrop", false)
+
+            this.shop = shop
+            this.count = {}
+            this.item = {}
+            this.button = {}
+            this.clear = Button.create(0.027, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true, false)
+            this.clear.texture = CLEAR_ICON
+            this.clear.tooltip.text = "Clear"
+            this.clear.OnClick = Favorites.onClear
+            array[this.clear] = { this }
+
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    this.count[i] = -1
+                    this.button[i] = {}
+
+                    for j = 0, CATEGORY_COUNT - 1 do
+                        this.button[i][j] = Button.create(0.023750, - (0.021500 + CATEGORY_SIZE*j + CATEGORY_GAP), CATEGORY_SIZE, CATEGORY_SIZE, frame, false, false)
+                        this.button[i][j].tooltip.point = FRAMEPOINT_TOPRIGHT
+                        this.button[i][j].OnClick = Favorites.onClicked
+                        this.button[i][j].OnRightClick = Favorites.onRightClicked
+                        this.button[i][j].OnMiddleClick = Favorites.onMiddleClicked
+                        this.button[i][j].OnDoubleClick = Favorites.onDoubleClicked
+                        array[this.button[i][j]] = { this, j }
+
+                        if j > 6 then
+                            this.button[i][j].tooltip.point = FRAMEPOINT_BOTTOMRIGHT
+                        end
+                    end
+                end
+            end
+
+            return this
+        end
+
+        function Favorites.onClear()
+            local this = array[GetTriggerComponent()][1]
+
+            if this then
+                this:reset(GetTriggerPlayer())
+            end
+        end
+
+        function Favorites.onClicked()
+            local this = array[GetTriggerComponent()][1]
+
+            if this then
+                this.shop:detail(this.item[GetPlayerId(GetTriggerPlayer())][array[GetTriggerComponent()][2]], GetTriggerPlayer())
+            end
+        end
+
+        function Favorites.onMiddleClicked()
+            local this = array[GetTriggerComponent()][1]
+
+            if this then
+                this:remove(this.item[GetPlayerId(GetTriggerPlayer())][array[GetTriggerComponent()][2]], GetTriggerPlayer())
+            end
+        end
+
+        function Favorites.onDoubleClicked()
+            local this = array[GetTriggerComponent()][1]
+
+            if this then
+                if this.shop:buy(this.item[GetPlayerId(GetTriggerPlayer())][array[GetTriggerComponent()][2]].id, GetTriggerPlayer()) then
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        this.button[GetPlayerId(GetTriggerPlayer())][array[GetTriggerComponent()][2]]:play(SPRITE_MODEL, SPRITE_SCALE, 0)
+                    end
+                end
+            end
+        end
+
+        function Favorites.onRightClicked()
+            local this = array[GetTriggerComponent()][1]
+
+            if this then
+                if this.shop:buy(this.item[GetPlayerId(GetTriggerPlayer())][array[GetTriggerComponent()][2]].id, GetTriggerPlayer()) then
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        this.button[GetPlayerId(GetTriggerPlayer())][array[GetTriggerComponent()][2]]:play(SPRITE_MODEL, SPRITE_SCALE, 0)
+                    end
+                end
+            end
+        end
+    end
+
+    -- ---------------------------------------- Category --------------------------------------- --
+    local Category = Class(Panel)
+
+    do
+        function Category:destroy()
+            for i = 0, CATEGORY_COUNT - 1 do
+                if self.button[i] then
+                    self.button[i]:destroy()
+                end
+            end
+
+            self.clear:destroy()
+            self.logic:destroy()
+        end
+
+        function Category:reset()
+            self.active = 0
+
+            for i = 0, CATEGORY_COUNT - 1 do
+                self.button[i].active = false
+            end
+
+            self.shop:filter(self.active, self.andLogic)
+        end
+
+        function Category:add(icon, description)
+            if self.count < CATEGORY_COUNT then
+                self.count = self.count + 1
+                self.value[self.count] = R2I(Pow(2, self.count))
+                self.button[self.count] = Button.create(0.023750, - (0.021500 + CATEGORY_SIZE*count + CATEGORY_GAP), CATEGORY_SIZE, CATEGORY_SIZE, self.frame, true, false)
+                self.button[self.count].texture = icon
+                self.button[self.count].active = false
+                self.button[self.count].tooltip.text = description
+                self.button[self.count].OnClick = Category.onClicked
+                array[self.button[self.count]] = { self, self.count }
+
+                return self.value[self.count]
+            else
+                print("Maximum number of categories reached.")
+            end
+
+            return 0
+        end
+
+        function Category.create(shop)
+            local this = Category.allocate(X - 0.048, 0, SIDE_WIDTH, SIDE_HEIGHT, shop.frame, "EscMenuBackdrop", false)
+
+            this.count = -1
+            this.active = 0
+            this.value = {}
+            this.button = {}
+            this.shop = shop
+            this.andLogic = true
+            this.clear = Button.create(0.028, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, this.frame, true, false)
+            this.clear.texture = CLEAR_ICON
+            this.clear.tooltip.text = "Clear"
+            this.clear.OnClick = Category.onClear
+            this.logic = Button.create(X + 0.048, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, this.frame, true, false)
+            this.logic.texture = LOGIC_ICON
+            this.logic.active = false
+            this.logic.tooltip.text = "AND"
+            this.logic.OnClick = Category.onLogic
+            array[this.clear] = { this }
+            array[this.logic] = { this }
+
+            return this
+        end
+
+        function Category.onClicked()
+            local category = GetTriggerComponent()
+            local this = array[category][1]
+
+            if this and GetLocalPlayer() == GetTriggerPlayer() then
+                category.active = not category.active
+
+                if category.active then
+                    this.active = this.active + this.value[array[category][2]]
+                else
+                    this.active = this.active - this.value[array[category][2]]
+                end
+
+                this.shop:filter(this.active, this.andLogic)
+            end
+        end
+
+        function Category.onClear()
+            local this = array[GetTriggerComponent()][1]
+
+            if this and GetLocalPlayer() == GetTriggerPlayer() then
+                this:reset()
+            end
+        end
+
+        function Category.onLogic()
+            local this = array[GetTriggerComponent()][1]
+
+            if this and GetLocalPlayer() == GetTriggerPlayer() then
+                this.logic.active = not this.logic.active
+                this.andLogic = not this.andLogic
+
+                if this.andLogic then
+                    this.logic.tooltip.text = "AND"
+                else
+                    this.logic.tooltip.text = "OR"
+                end
+
+                this.shop:filter(this.active, this.andLogic)
             end
         end
     end
@@ -600,12 +1603,10 @@ OnInit("Shop", function(requires)
 
                 for i = 0, bj_MAX_PLAYER_SLOTS do
                     if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
-                        local player = Player(i)
-
-                        array[player] = {}
-                        array[player][id] = this
-                        array[player][count] = id
-                        this.scrolls[player] = {}
+                        array[i] = {}
+                        array[i][id] = this
+                        array[i][count] = id
+                        this.scrolls[i] = {}
                     end
                 end
 
@@ -616,36 +1617,36 @@ OnInit("Shop", function(requires)
         end
 
         function Shop:onScroll()
-            local player = GetTriggerPlayer()
+            local id = GetPlayerId(GetTriggerPlayer())
             local direction = R2I(BlzGetTriggerFrameValue())
 
-            if (self.scrolls[player][0] or 0) ~= direction then
-                self.scrolls[player][0] = direction
-                self.scrolls[player][1] = 0
+            if (self.scrolls[id][0] or 0) ~= direction then
+                self.scrolls[id][0] = direction
+                self.scrolls[id][1] = 0
             else
-                self.scrolls[player][1] = (self.scrolls[player][1] or 0) + 1
+                self.scrolls[id][1] = (self.scrolls[id][1] or 0) + 1
             end
 
             if GetLocalPlayer() == GetTriggerPlayer() then
-                if self.scrolls[player][1] == 1 and SCROLL_DELAY > 0 then
-                    -- self:scroll(direction < 0)
+                if self.scrolls[id][1] == 1 and SCROLL_DELAY > 0 then
+                    self:scroll(direction < 0)
                 elseif SCROLL_DELAY <= 0 then
-                    -- self:scroll(direction < 0)
+                    self:scroll(direction < 0)
                 end
             end
         end
 
         function Shop.onExpire()
-            local player = GetLocalPlayer()
-            local this = array[GetUnitTypeId(Shop.unit[player])]
+            local id = GetPlayerId(GetTriggerPlayer())
+            local this = array[GetUnitTypeId(Shop.unit[id])]
 
             if this then
-                this.scrolls[player][1] = (this.scrolls[player][1] or 0) - 1
+                this.scrolls[id][1] = (this.scrolls[id][1] or 0) - 1
 
-                if this.scrolls[player][1] > 0 then
-                    -- this:scroll((this.scrolls[player][0] or 0) < 0)
+                if this.scrolls[id][1] > 0 then
+                    this:scroll((this.scrolls[id][0] or 0) < 0)
                 else
-                    this.scrolls[player][1] = 0
+                    this.scrolls[id][1] = 0
                 end
             end
         end
@@ -653,26 +1654,27 @@ OnInit("Shop", function(requires)
         function Shop.onPeriod()
             for i = 0, bj_MAX_PLAYER_SLOTS do
                 local player = Player(i)
+                local id = GetPlayerId(player)
                 local group = CreateGroup()
-                local shop = Shop.unit[player]
+                local shop = Shop.unit[id]
                 local this = array[shop and GetUnitTypeId(shop)]
 
                 if this then
-                    GroupClear(Shop.group[player])
+                    GroupClear(Shop.group[id])
                     GroupEnumUnitsInRange(group, GetUnitX(shop), GetUnitY(shop), this.aoe, nil)
 
                     local unit = FirstOfGroup(group)
 
                     while unit do
                         if ShopFilter(unit, Player(i), shop) then
-                            GroupAddUnit(Shop.group[player], unit)
+                            GroupAddUnit(Shop.group[id], unit)
                         end
 
                         GroupRemoveUnit(group, unit)
                         unit = FirstOfGroup(group)
                     end
 
-                    -- this.buyer:update(Shop.group[player], player)
+                    -- this.buyer:update(Shop.group[id], player)
                 end
 
                 DestroyGroup(group)
@@ -689,10 +1691,11 @@ OnInit("Shop", function(requires)
 
         function Shop.onClose()
             local player = GetTriggerPlayer()
+            local id = GetPlayerId(player)
             local this = array[GetTriggerComponent()]
 
             if this then
-                Shop.unit[player] = nil
+                Shop.unit[id] = nil
 
                 if player == GetLocalPlayer() then
                     this.visible = false
@@ -704,11 +1707,12 @@ OnInit("Shop", function(requires)
 
         function Shop.onDismantle()
             local player = GetTriggerPlayer()
+            local id = GetPlayerId(player)
             local this = array[GetTriggerComponent()]
 
             if this then
                 if this.buyer.inventory.has(player) then
-                    -- this:dismantle(this.buyer.inventory.item[player][this.buyer.inventory[player]], player, this.buyer.inventory[player])
+                    -- this:dismantle(this.buyer.inventory.item[id][this.buyer.inventory[id]], player, this.buyer.inventory[id])
                 else
                     Sound.error(player)
                 end
@@ -725,6 +1729,7 @@ OnInit("Shop", function(requires)
 
         function Shop.onSelect()
             local player = GetTriggerPlayer()
+            local id = GetPlayerId(player)
             local this = array[GetUnitTypeId(GetTriggerUnit())]
 
             if this then
@@ -733,10 +1738,10 @@ OnInit("Shop", function(requires)
                 end
 
                 if GetTriggerEventId() == EVENT_PLAYER_UNIT_SELECTED then
-                    Shop.unit[player] = GetTriggerUnit()
-                    -- this.buyer.inventory:show(buyer[player])
+                    Shop.unit[id] = GetTriggerUnit()
+                    -- this.buyer.inventory:show(this.buyer:get(id))
                 else
-                    Shop.unit[player] = nil
+                    Shop.unit[id] = nil
                     -- Transaction.clear(this, player)
                 end
             end
@@ -744,9 +1749,10 @@ OnInit("Shop", function(requires)
 
         function Shop.onEsc()
             local player = GetTriggerPlayer()
+            local id = GetPlayerId(player)
 
             for i = 1, count do
-                local this = array[player][array[player][i]]
+                local this = array[id][array[id][i]]
 
                 if this then
                     if player == GetLocalPlayer() then
@@ -763,7 +1769,7 @@ OnInit("Shop", function(requires)
 
             for i = 0, bj_MAX_PLAYER_SLOTS do
                 if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
-                    Shop.group[Player(i)] = CreateGroup()
+                    Shop.group[i] = CreateGroup()
                     TriggerRegisterPlayerEventEndCinematic(trigger, Player(i))
                 end
             end

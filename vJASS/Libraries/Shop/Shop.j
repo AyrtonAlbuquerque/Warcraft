@@ -1848,7 +1848,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
                 return value[count]
             else
-                call BJDebugMsg("Maximum number os categories reached.")
+                call BJDebugMsg("Maximum number of categories reached.")
             endif
 
             return 0
