@@ -162,12 +162,12 @@ OnInit("Components", function(requires)
 
         Tooltip:property("text", {
             get = function(self) return BlzFrameGetText(self.tooltip) end,
-            set = function(self, value) BlzFrameSetText(self.tooltip, value) end
+            set = function(self, value) BlzFrameSetText(self.tooltip, value or "") end
         })
 
         Tooltip:property("name", {
             get = function(self) return BlzFrameGetText(self.nameFrame) end,
-            set = function(self, value) BlzFrameSetText(self.nameFrame, value) end
+            set = function(self, value) BlzFrameSetText(self.nameFrame, value or "") end
         })
 
         Tooltip:property("icon", {
@@ -402,11 +402,11 @@ OnInit("Components", function(requires)
         Text = Class(Operators)
 
         Text:property("text", {
-            get = function(self) return self._text end,
+            get = function(self) return self._text or "" end,
             set = function(self, value)
-                self._text = value
+                self._text = value or ""
 
-                BlzFrameSetText(self.frame, value)
+                BlzFrameSetText(self.frame, self._text)
             end
         })
 
@@ -466,7 +466,7 @@ OnInit("Components", function(requires)
             end
 
             BlzFrameSetSize(this.frame, width, height)
-            BlzFrameSetText(this.frame, value)
+            BlzFrameSetText(this.frame, value or "")
             BlzFrameSetEnable(this.frame, enabled)
             BlzFrameSetScale(this.frame, scale)
             BlzFrameSetTextAlignment(this.frame, vertical, horizontal)
@@ -480,9 +480,9 @@ OnInit("Components", function(requires)
         TextArea = Class(Operators)
 
         TextArea:property("text", {
-            get = function(self) return self._text end,
+            get = function(self) return self._text or "" end,
             set = function(self, value)
-                self._text = value
+                self._text = value or ""
 
                 if value then
                     BlzFrameSetText(self.frame, value)
@@ -601,11 +601,11 @@ OnInit("Components", function(requires)
         })
 
         Component:property("active", {
-            get = function(self) return self.isActive or true end,
+            get = function(self) return self.isActive end,
             set = function(self, value)
                 self.isActive = value
 
-                if not value then
+                if not self.isActive then
                     if SubString(self.image.texture, 34, 35) == "\\" then
                         self.image.texture = SubString(self.image.texture, 0, 34) .. "Disabled\\DIS" .. SubString(self.image.texture, 35, StringLength(self.image.texture))
                     end
@@ -710,6 +710,7 @@ OnInit("Components", function(requires)
             this.width = width
             this.height = height
             this.parent = parent
+            this.isActive = true
             this.inherit = inheritEvents
             this.frame = BlzCreateFrame(template, parent, 0, 0)
             this.listener = BlzCreateFrame(frameType, this.frame, 0, 0)
@@ -943,9 +944,9 @@ OnInit("Components", function(requires)
                 return self._text
             end,
             set = function(self, value)
-                self._text = value
+                self._text = value or ""
 
-                BlzFrameSetText(self.frame, value)
+                BlzFrameSetText(self.frame, self._text)
             end
         })
 

@@ -194,14 +194,120 @@ OnInit("Shop", function(requires)
         end
     end
 
+    -- -------------------------------------- Transaction -------------------------------------- --
+    local Transaction = Class()
+
+    do
+        local counter = {}
+        local transactions = {}
+
+        function Transaction:rollback()
+            if IsUnitInGroup(self.unit, self.shop.group[self.id]) then
+                if self.type == "buy" then
+                    if UnitHasItemOfType(self.unit, self.item.id) then
+                        for i = 0, UnitInventorySize(self.unit) - 1 do
+                            if GetItemTypeId(UnitItemInSlot(self.unit, i)) == self.item.id then
+                                RemoveItem(UnitItemInSlot(self.unit, i))
+                                break
+                            end
+                        end
+
+                        for i = 0, self.index - 1 do
+                            UnitAddItemById(self.unit, self.component[i].id)
+                        end
+
+                        SetPlayerState(self.player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(self.player, PLAYER_STATE_RESOURCE_GOLD) + self.gold)
+                        SetPlayerState(self.player, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(self.player, PLAYER_STATE_RESOURCE_LUMBER) + self.wood)
+                        Sound.success(self.player)
+                    else
+                        Sound.error(self.player)
+                    end
+                elseif self.type == "sell" then
+                    UnitAddItemById(self.unit, self.item.id)
+                    SetPlayerState(self.player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(self.player, PLAYER_STATE_RESOURCE_GOLD) - self.gold)
+                    SetPlayerState(self.player, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(self.player, PLAYER_STATE_RESOURCE_LUMBER) - self.wood)
+                    Sound.success(self.player)
+                else
+                    for i = 1, self.components do
+                        for j = 0, UnitInventorySize(self.unit) - 1 do
+                            if GetItemTypeId(UnitItemInSlot(self.unit, j)) == self.component[i].id then
+                                RemoveItem(UnitItemInSlot(self.unit, j))
+                                break
+                            end
+                        end
+                    end
+
+                    UnitAddItemById(self.unit, self.item.id)
+                    Sound.success(self.player)
+                end
+            else
+                Sound.error(self.player)
+            end
+
+            counter[self.shop][self.id] = counter[self.shop][self.id] - 1
+            transactions[self.shop][self.id][counter[self.shop][self.id]] = nil
+        end
+
+        function Transaction:add(item)
+            if item then
+                self.component[self.index] = item
+                self.index = self.index + 1
+            end
+        end
+
+        function Transaction.last(shop, id)
+            if counter[shop][id] > 0 then
+                return transactions[shop][id][counter[shop][id] - 1]
+            end
+
+            return nil
+        end
+
+        function Transaction.count(shop, id)
+            return counter[shop][id] or 0
+        end
+
+        function Transaction.clear(shop, id)
+            counter[shop][id] = 0
+            transactions[shop][id] = {}
+        end
+
+        function Transaction.create(shop, unit, item, gold, wood, transaction)
+            local this = Transaction.allocate()
+
+            this.shop = shop
+            this.unit = unit
+            this.item = item
+            this.gold = gold
+            this.wood = wood
+            this.index = 0
+            this.component = {}
+            this.type = transaction
+            this.player = GetOwningPlayer(unit)
+            this.id = GetPlayerId(this.player)
+
+            if not transactions[shop] then
+                counter[shop] = {}
+                transactions[shop] = {}
+                counter[shop][this.id] = 0
+                transactions[shop][this.id] = {}
+            end
+
+            transactions[shop][this.id][counter[shop][this.id]] = this
+            counter[shop][this.id] = counter[shop][this.id] + 1
+
+            return this
+        end
+    end
+
     -- --------------------------------------- Inventory --------------------------------------- --
     local Inventory = Class()
 
     do
         Inventory:property("visible", {
             get = function(self) return self.isVisible or true end,
-            set = function(self, value) 
-                self.isVisible = value 
+            set = function(self, value)
+                self.isVisible = value
                 BlzFrameSetVisible(self.frame, value)
             end
         })
@@ -293,7 +399,7 @@ OnInit("Shop", function(requires)
             end
         end
 
-        function Inventory.create(shop)
+        function Inventory.create(shop, buyer)
             local this = Inventory.allocate()
 
             this.shop = shop
@@ -303,7 +409,7 @@ OnInit("Shop", function(requires)
             this.isVisible = false
             this.frame = BlzCreateFrameByType("BACKDROP", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
 
-            BlzFrameSetPoint(this.frame, FRAMEPOINT_TOPLEFT, shop.buyer.frame, FRAMEPOINT_TOPLEFT, 0, 0)
+            BlzFrameSetPoint(this.frame, FRAMEPOINT_TOPLEFT, buyer.frame, FRAMEPOINT_TOPLEFT, 0, 0)
             BlzFrameSetSize(this.frame, INVENTORY_WIDTH, INVENTORY_HEIGHT)
             BlzFrameSetTexture(this.frame, INVENTORY_TEXTURE, 0, false)
 
@@ -461,15 +567,15 @@ OnInit("Shop", function(requires)
         end
 
         function Slot:onClick()
-            -- self.shop:detail(self.item, GetTriggerPlayer())
+            self.shop:detail(self.item, GetTriggerPlayer())
         end
 
         function Slot:onMiddleClick()
-            -- if self.shop.favorites:has(self.item.id, GetTriggerPlayer()) then
-            --     self.shop.favorites:remove(self.item, GetTriggerPlayer())
-            -- else
-            --     self.shop.favorites:add(self.item, GetTriggerPlayer())
-            -- end
+            if self.shop.favorites:has(self.item.id, GetTriggerPlayer()) then
+                self.shop.favorites:remove(self.item, GetTriggerPlayer())
+            else
+                self.shop.favorites:add(self.item, GetTriggerPlayer())
+            end
         end
 
         function Slot:onDoubleClick()
@@ -757,7 +863,7 @@ OnInit("Shop", function(requires)
             this.item = {}
             this.main = {}
             this.used = {}
-            this.line = {}
+            this.lines = {}
             this.count = {}
             this.button = {}
             this.components = {}
@@ -799,12 +905,12 @@ OnInit("Shop", function(requires)
                     this.count[i] = 0
                     this.lines[i] = {}
                     this.components[i] = {}
-                    this.main[i] = Slot.create(shop, 0, 0.13725, - 0.03, this.frame)
+                    this.main[i] = Slot.create(shop, nil, 0.13725, - 0.03, this.frame)
                     this.main[i].visible = GetLocalPlayer() == Player(i)
                     array[this.main[i]] = { this }
 
                     while j < 5 do
-                        this.components[i][j] = Slot.create(shop, 0, 0.03725 + 0.05*j, - 0.1, this.frame)
+                        this.components[i][j] = Slot.create(shop, nil, 0.03725 + 0.05*j, - 0.1, this.frame)
                         this.lines[i][j] = Line.create(this.components[i][j].width/2, 0.01, 0.001, 0.01, this.components[i][j].frame, "replaceabletextures\\teamcolor\\teamcolor08")
                         this.components[i][j].visible = false
                         array[this.components[i][j]] = { this }
@@ -871,11 +977,11 @@ OnInit("Shop", function(requires)
             local this = array[button][1]
 
             if this then
-                -- if this.shop.favorites:has(this.used[id][array[button][2]].id, player) then
-                --     this.shop.favorites:remove(this.used[id][array[button][2]].id, player)
-                -- else
-                --     this.shop.favorites:add(this.used[id][array[button][2]].id, player)
-                -- end
+                if this.shop.favorites:has(this.used[id][array[button][2]].id, player) then
+                    this.shop.favorites:remove(this.used[id][array[button][2]].id, player)
+                else
+                    this.shop.favorites:add(this.used[id][array[button][2]].id, player)
+                end
             end
         end
 
@@ -886,11 +992,11 @@ OnInit("Shop", function(requires)
             local this = array[button][1]
 
             if this then
-                -- if this.shop:buy(this.used[id][array[button][2]].id, player) then
-                --     if GetLocalPlayer() == GetTriggerPlayer() then
-                --         this.button[id][array[button][2]]:play(SPRITE_MODEL, SPRITE_SCALE, 0)
-                --     end
-                -- end
+                if this.shop:buy(this.used[id][array[button][2]].id, player) then
+                    if GetLocalPlayer() == GetTriggerPlayer() then
+                        this.button[id][array[button][2]]:play(SPRITE_MODEL, SPRITE_SCALE, 0)
+                    end
+                end
             end
         end
     end
@@ -1123,7 +1229,7 @@ OnInit("Shop", function(requires)
             this.unit = {}
             this.button = {}
             this.selected = {}
-            this.inventory = Inventory.create(shop)
+            this.inventory = Inventory.create(shop, this)
             this.left = Button.create(0.027500, - 0.032500, BUYER_SHIFT_BUTTON_SIZE, BUYER_SHIFT_BUTTON_SIZE, this.frame, true, false)
             this.left.texture = BUYER_LEFT
             this.left.tooltip.text = "Scroll Left"
@@ -1338,7 +1444,7 @@ OnInit("Shop", function(requires)
             this.count = {}
             this.item = {}
             this.button = {}
-            this.clear = Button.create(0.027, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, frame, true, false)
+            this.clear = Button.create(0.027, 0.015, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, this.frame, true, false)
             this.clear.texture = CLEAR_ICON
             this.clear.tooltip.text = "Clear"
             this.clear.OnClick = Favorites.onClear
@@ -1350,7 +1456,8 @@ OnInit("Shop", function(requires)
                     this.button[i] = {}
 
                     for j = 0, CATEGORY_COUNT - 1 do
-                        this.button[i][j] = Button.create(0.023750, - (0.021500 + CATEGORY_SIZE*j + CATEGORY_GAP), CATEGORY_SIZE, CATEGORY_SIZE, frame, false, false)
+                        this.button[i][j] = Button.create(0.023750, - (0.021500 + CATEGORY_SIZE*j + CATEGORY_GAP), CATEGORY_SIZE, CATEGORY_SIZE, this.frame, false, false)
+                        this.button[i][j].visible = false
                         this.button[i][j].tooltip.point = FRAMEPOINT_TOPRIGHT
                         this.button[i][j].OnClick = Favorites.onClicked
                         this.button[i][j].OnRightClick = Favorites.onRightClicked
@@ -1446,7 +1553,7 @@ OnInit("Shop", function(requires)
             if self.count < CATEGORY_COUNT then
                 self.count = self.count + 1
                 self.value[self.count] = R2I(Pow(2, self.count))
-                self.button[self.count] = Button.create(0.023750, - (0.021500 + CATEGORY_SIZE*count + CATEGORY_GAP), CATEGORY_SIZE, CATEGORY_SIZE, self.frame, true, false)
+                self.button[self.count] = Button.create(0.023750, - (0.021500 + CATEGORY_SIZE*self.count + CATEGORY_GAP), CATEGORY_SIZE, CATEGORY_SIZE, self.frame, true, false)
                 self.button[self.count].texture = icon
                 self.button[self.count].active = false
                 self.button[self.count].tooltip.text = description
@@ -1542,14 +1649,14 @@ OnInit("Shop", function(requires)
             get = function(self) return self.isVisible or true end,
             set = function(self, value)
                 self.isVisible = value
-                -- self.buyer.visible = value
+                self.buyer.visible = value
 
                 if not value then
-                    -- self.buyer.index = 0
+                    self.buyer.index = 0
                 else
-                    -- if self.details.visible then
-                    --     self.details:refresh(GetLocalPlayer())
-                    -- end
+                    if self.details.visible then
+                        self.details:refresh(GetLocalPlayer())
+                    end
                 end
 
                 BlzFrameSetVisible(self.frame, value)
@@ -1557,10 +1664,368 @@ OnInit("Shop", function(requires)
         })
 
         function Shop:destroy()
+            local slot = itempool[self][0]
+
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    Transaction.clear(self, i)
+                end
+            end
+
+            while slot do
+                slot:destroy()
+                slot = slot.next
+            end
+
             self.edit:destroy()
             self.close:destroy()
             self.revert:destroy()
             self.breaker:destroy()
+            self.category:destroy()
+            self.favorites:destroy()
+            self.details:destroy()
+            self.buyer:destroy()
+        end
+
+        function Shop:canBuy(item, player)
+            local flag = true
+            local i = 1
+
+            if item and self:has(item.id) and self.buyer.get(GetPlayerId(player)) then
+                if item.components > 0 then
+                    while i <= item.components and flag do
+                        flag = self:canBuy(Item.get(item.component[i]), player)
+
+                        i = i + 1
+                    end
+                end
+
+                return flag
+            end
+
+            return false
+        end
+
+        function Shop:buy(item, player)
+            local id = GetPlayerId(player)
+            local cost = item:cost(self.buyer.get(id), false)
+            local wood = item:cost(self.buyer.get(id), true)
+
+            if self:canBuy(item, player) and cost <= GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) and wood <= GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER) then
+                local new = CreateItem(item.id, GetUnitX(self.buyer.get(id)), GetUnitY(self.buyer.get(id)))
+
+                self.buyer.inventory:removeComponents(item, Transaction.create(self, self.buyer.get(id), item, cost, wood, "buy"))
+
+                if not UnitAddItem(self.buyer.get(id), new) then
+                    IssueTargetItemOrder(self.buyer.get(id), "smart", new)
+                end
+
+                self.buyer.inventory:show(self.buyer.get(id))
+                self.details:refresh(player)
+                SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) - cost)
+                SetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER) - wood)
+                Sound.success(player)
+
+                return true
+            else
+                if cost > GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) then
+                    Sound.gold(player)
+                elseif wood > GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER) then
+                    Sound.wood(player)
+                else
+                    Sound.error(player)
+                end
+
+                return false
+            end
+
+            return false
+        end
+
+        function Shop:sell(item, player, slot)
+            local sold = false
+            local id = GetPlayerId(player)
+
+            if item and self.buyer.get(id) then
+                local charges = GetItemCharges(UnitItemInSlot(self.buyer.get(id), slot))
+
+                if charges == 0 then
+                    charges = 1
+                end
+
+                local gold = GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD)
+                local lumber = GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER)
+                local cost = R2I(R2I(item.gold / item.charges) * charges * self.tax)
+                local wood = R2I(R2I(item.wood / item.charges) * charges * self.tax)
+
+                if GetItemTypeId(UnitItemInSlot(self.buyer.get(id), slot)) == item.id then
+                    sold = true
+
+                    Transaction.create(self, self.buyer.get(id), item, cost, wood, "sell")
+                    RemoveItem(UnitItemInSlot(self.buyer.get(id), slot))
+                    SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, gold + cost)
+                    SetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER, lumber + wood)
+                    self.buyer.inventory:show(self.buyer.get(id))
+                    self.details:refresh(player)
+                end
+
+                Sound.success(player)
+            else
+                Sound.error(player)
+            end
+
+            return sold
+        end
+
+        function Shop:dismantle(item, player, slot)
+            local slots = 0
+            local id = GetPlayerId(player)
+
+            if item and self.buyer.get(id) then
+                if item.components > 0 then
+                    for i = 0, UnitInventorySize(self.buyer.get(id)) -1 do
+                        if UnitItemInSlot(self.buyer.get(id), i) ~= nil then
+                            slots = slots + 1
+                        end
+                    end
+
+                    if (slots + 1) >= item.components then
+                        Transaction.create(self, self.buyer.get(id), item, 0, 0, "dismantle")
+                        RemoveItem(UnitItemInSlot(self.buyer.get(id), slot))
+
+                        for i = 1, item.components do
+                            UnitAddItemById(self.buyer.get(id), Item.get(item.component[i]).id)
+                        end
+
+                        Sound.success(player)
+                        self.buyer.inventory:show(self.buyer.get(id))
+                        self.details:refresh(player)
+                    else
+                        Sound.error(player)
+                    end
+                else
+                    Sound.error(player)
+                end
+            else
+                Sound.error(player)
+            end
+        end
+
+        function Shop:undo(player)
+            local id = GetPlayerId(player)
+
+            if Transaction.count(self, id) > 0 then
+                Transaction.last(self, id):rollback()
+                self.buyer.inventory:show(self.buyer.get(id))
+                self.details:refresh(player)
+            else
+                Sound.error(player)
+            end
+        end
+
+        function Shop:scroll(down)
+            local slot = self.first
+
+            if (down and self.tail ~= self.last) or (not down and self.head ~= self.first) then
+                while slot do
+                    if down then
+                        slot:move(slot.row - 1, slot.column)
+                    else
+                        slot:move(slot.row + 1, slot.column)
+                    end
+
+                    slot.visible = slot.row >= 0 and slot.row <= self.rows - 1 and slot.column >= 0 and slot.column <= self.columns - 1
+
+                    if slot.row == 0 and slot.column == 0 then
+                        self.head = slot
+                    end
+
+                    if (slot.row == self.rows - 1 and slot.column == self.columns - 1) or (slot == self.last and slot.visible) then
+                        self.tail = slot
+                    end
+
+                    slot = slot.right
+                end
+
+                return true
+            end
+
+            return false
+        end
+
+        function Shop:scrollTo(item, player)
+            if item and player == GetLocalPlayer() then
+                local slot = array[self][item.id]
+
+                repeat until slot.visible or not self:scroll(true)
+            end
+        end
+
+        function Shop:filter(categories, andLogic)
+            local slot = itempool[self][0]
+            local process
+            local i = -1
+
+            self.size = 0
+            self.first = nil
+            self.last = nil
+            self.head = nil
+            self.tail = nil
+
+            while slot do
+                if andLogic then
+                    process = categories == 0 or BlzBitAnd(slot.item.categories, categories) >= categories
+                else
+                    process = categories == 0 or BlzBitAnd(slot.item.categories, categories) > 0
+                end
+
+                if self.edit.text ~= "" and self.edit.text ~= nil then
+                    process = process and self:find(StringCase(slot.item.name, false), StringCase(self.edit.text, false))
+                end
+
+                if process then
+                    i = i + 1
+                    self.size = self.size + 1
+                    slot:move(R2I(i/self.columns), ModuloInteger(i, self.columns))
+                    slot.visible = slot.row >= 0 and slot.row <= self.rows - 1 and slot.column >= 0 and slot.column <= self.columns - 1
+
+                    if i > 0 then
+                        slot.left = self.last
+                        self.last.right = slot
+                    else
+                        self.first = slot
+                        self.head = self.first
+                    end
+
+                    if slot.visible then
+                        self.tail = slot
+                    end
+
+                    self.last = slot
+                else
+                    slot.visible = false
+                end
+
+                slot = slot.next
+            end
+        end
+
+        function Shop:select(item, player)
+            local id = GetPlayerId(player)
+
+            if item and player == GetLocalPlayer() then
+                if array[self][id] then
+                    array[self][id]:display(nil, 0, 0, 0)
+                end
+
+                array[self][id] = array[self][item.id]
+                array[self][id]:display(ITEM_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
+            end
+        end
+
+        function Shop:detail(item, player)
+            if item then
+                if GetLocalPlayer() == player then
+                    self.rows = DETAILED_ROWS
+                    self.columns = DETAILED_COLUMNS
+
+                    if not self.detailed then
+                        self.detailed = true
+                        self.details:filter(self.category.active, self.category.andLogic)
+                    end
+                end
+
+                if not self.details.visible then
+                    self:scrollTo(item, player)
+                end
+
+                self:select(item, player)
+                self.details:show(item, player)
+            else
+                if GetLocalPlayer() == player then
+                    self.rows = ROWS
+                    self.columns = COLUMNS
+                    self.detailed = false
+                    self.details.visible = false
+                    self.details:filter(self.category.active, self.category.andLogic)
+                    self:scrollTo(array[self][GetPlayerId(player)].item, player)
+                end
+            end
+        end
+
+        function Shop:has(id)
+            return array[self][id] ~= nil
+        end
+
+        function Shop:find(source, target)
+            local sourceLength = StringLength(source)
+            local targetLength = StringLength(target)
+            local i = 0
+
+            if targetLength <= sourceLength then
+                while i <= sourceLength - targetLength do
+                    if SubString(source, i, i + targetLength) == target then
+                        return true
+                    end
+
+                    i = i + 1
+                end
+            end
+
+            return false
+        end
+
+        function Shop.addCategory(id, icon, description)
+            local this = array[id]
+
+            if this then
+                return this.category:add(icon, description)
+            end
+
+            return 0
+        end
+
+        function Shop.addItem(id, itemId, categories)
+            local this = array[id]
+            local slot
+
+            if this then
+                if not array[this][itemId] then
+                    local item = Item.get(itemId)
+
+                    if item then
+                        this.size = this.size + 1
+                        this.index = this.index + 1
+                        item.categories = categories or 0
+                        slot = Slot.create(this, item, 0, 0, this.frame)
+                        slot.row = R2I(this.index/COLUMNS)
+                        slot.column = ModuloInteger(this.index, COLUMNS)
+                        slot.visible = slot.row >= 0 and slot.row <= ROWS - 1 and slot.column >= 0 and slot.column <= COLUMNS - 1
+
+                        if this.index > 0 then
+                            slot.prev = this.last
+                            slot.left = this.last
+                            this.last.next = slot
+                            this.last.right = slot
+                        else
+                            this.first = slot
+                            this.head = slot
+                        end
+
+                        if slot.visible then
+                            this.tail = slot
+                        end
+
+                        this.last = slot
+                        array[this][itemId] = slot
+                        itempool[this][this.index] = slot
+                    else
+                        print("Invalid item code: " .. A2S(itemId))
+                    end
+                else
+                    print("The item " .. GetObjectName(itemId) .. " is already registered for the shop " .. GetObjectName(id))
+                end
+            end
         end
 
         function Shop.create(id, aoe, tax)
@@ -1576,11 +2041,16 @@ OnInit("Shop", function(requires)
                 this.head = nil
                 this.tail = nil
                 this.size = 0
+                this.index = -1
                 this.rows = ROWS
                 this.columns = COLUMNS
                 this.detailed = false
                 this.scrolls = {}
                 count = count + 1
+                this.buyer = Buyer.create(this)
+                this.details = Detail.create(this)
+                this.category = Category.create(this)
+                this.favorites = Favorites.create(this)
                 this.edit = EditBox.create(0.021, 0.02, EDIT_WIDTH, EDIT_HEIGHT, this.frame, "EscMenuEditBoxTemplate")
                 this.edit.onText = Shop.OnSearch
                 this.close = Button.create((WIDTH - 2*TOOLBAR_BUTTON_SIZE), 0.015000, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, this.frame, true, false)
@@ -1596,6 +2066,8 @@ OnInit("Shop", function(requires)
                 this.revert.tooltip.text = "Undo"
                 this.revert.OnClick = Shop.onUndo
                 array[id] = this
+                array[this] = {}
+                itempool[this] = {}
                 array[this.edit] = this
                 array[this.close] = this
                 array[this.breaker] = this
@@ -1674,7 +2146,7 @@ OnInit("Shop", function(requires)
                         unit = FirstOfGroup(group)
                     end
 
-                    -- this.buyer:update(Shop.group[id], player)
+                    this.buyer:update(Shop.group[id], player)
                 end
 
                 DestroyGroup(group)
@@ -1685,7 +2157,7 @@ OnInit("Shop", function(requires)
             local this = array[GetTriggerEditBox()]
 
             if this and GetLocalPlayer() == GetTriggerPlayer() then
-                -- this:filter(this.category.active, this.category.andLogic)
+                this:filter(this.category.active, this.category.andLogic)
             end
         end
 
@@ -1701,7 +2173,7 @@ OnInit("Shop", function(requires)
                     this.visible = false
                 end
 
-                -- Transaction.clear(this, player)
+                Transaction.clear(this, player)
             end
         end
 
@@ -1712,7 +2184,7 @@ OnInit("Shop", function(requires)
 
             if this then
                 if this.buyer.inventory.has(player) then
-                    -- this:dismantle(this.buyer.inventory.item[id][this.buyer.inventory[id]], player, this.buyer.inventory[id])
+                    this:dismantle(this.buyer.inventory.item[id][this.buyer.inventory:get(id)], player, this.buyer.inventory:get(id))
                 else
                     Sound.error(player)
                 end
@@ -1723,7 +2195,7 @@ OnInit("Shop", function(requires)
             local this = array[GetTriggerComponent()]
 
             if this then
-                -- this:undo(GetTriggerPlayer())
+                this:undo(GetTriggerPlayer())
             end
         end
 
@@ -1739,10 +2211,10 @@ OnInit("Shop", function(requires)
 
                 if GetTriggerEventId() == EVENT_PLAYER_UNIT_SELECTED then
                     Shop.unit[id] = GetTriggerUnit()
-                    -- this.buyer.inventory:show(this.buyer:get(id))
+                    this.buyer.inventory:show(this.buyer:get(id))
                 else
                     Shop.unit[id] = nil
-                    -- Transaction.clear(this, player)
+                    Transaction.clear(this, player)
                 end
             end
         end
@@ -1759,7 +2231,7 @@ OnInit("Shop", function(requires)
                         this.visible = false
                     end
 
-                    -- Transaction.clear(this, player)
+                    Transaction.clear(this, player)
                 end
             end
         end
