@@ -46,6 +46,8 @@ OnInit("Bonus", function(requires)
     function Bonus.setter(source, type, value)
         local this = struct[type]
 
+        value = value or 0
+
         if this then
             if this.set then
                 bonus[key] = type
@@ -69,6 +71,8 @@ OnInit("Bonus", function(requires)
 
     function Bonus.adder(source, type, value)
         local this = struct[type]
+
+        value = value or 0
 
         if this then
             if this.add then
