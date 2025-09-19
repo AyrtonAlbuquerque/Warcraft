@@ -1,3 +1,6 @@
+---@beginFile Shop
+---@debug
+---@diagnostic disable: need-check-nil
 OnInit("Shop", function(requires)
     requires "Class"
     requires "Item"
@@ -108,10 +111,26 @@ OnInit("Shop", function(requires)
     -- ----------------------------------------------------------------------------------------- --
     --                                          Lua API                                          --
     -- ----------------------------------------------------------------------------------------- --
+    function CreateShop(id, aoe, returnRate)
+        -- TriggerSleepAction(0) -- This is here to ensure that any Item inheritance is initialized before the Shop is created
+        return Shop.create(id, aoe, returnRate)
+    end
+
+    function ShopAddCategory(id, icon, description)
+        return Shop.addCategory(id, icon, description)
+    end
+
+    function ShopAddItem(id, itemId, categories)
+        Shop.addItem(id, itemId, categories)
+    end
+
     function ShopFilter(unit, player, shop)
         return IsUnitOwnedByPlayer(unit, player) and UnitInventorySize(unit) > 0 and not IsUnitType(unit, UNIT_TYPE_DEAD) and not IsUnitPaused(unit) and not IsUnitIllusion(unit) and not IsUnitHidden(unit)
     end
 
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
     -- ----------------------------------------- Sound ----------------------------------------- --
     local Sound = Class()
 
@@ -256,7 +275,7 @@ OnInit("Shop", function(requires)
         end
 
         function Transaction.last(shop, id)
-            if counter[shop][id] > 0 then
+            if counter[shop] and (counter[shop][id] or 0) > 0 then
                 return transactions[shop][id][counter[shop][id] - 1]
             end
 
@@ -264,12 +283,17 @@ OnInit("Shop", function(requires)
         end
 
         function Transaction.count(shop, id)
-            return counter[shop][id] or 0
+            return counter[shop] and counter[shop][id] or 0
         end
 
         function Transaction.clear(shop, id)
-            counter[shop][id] = 0
-            transactions[shop][id] = {}
+            if counter[shop] then
+                counter[shop][id] = 0
+            end
+
+            if transactions[shop] then
+                transactions[shop][id] = {}
+            end
         end
 
         function Transaction.create(shop, unit, item, gold, wood, transaction)
@@ -708,10 +732,10 @@ OnInit("Shop", function(requires)
         function Detail:showUsed(player)
             local id = GetPlayerId(player)
 
-            for i = 0, DETAIL_USED_COUNT do
+            for i = 0, DETAIL_USED_COUNT - 1 do
                 local item = Item.get(self.item[id].relation[i])
 
-                if item and i < DETAIL_USED_COUNT then
+                if item and i < DETAIL_USED_COUNT - 1 then
                     self.used[id][i] = item
 
                     if player == GetLocalPlayer() then
@@ -745,6 +769,7 @@ OnInit("Shop", function(requires)
             if item then
                 local cost = item.cost
                 local wood = item.wood
+
                 self.main[id].item = item
                 self.main[id].texture = item.icon
                 self.main[id].tooltip.text = item.tooltip
@@ -778,7 +803,7 @@ OnInit("Shop", function(requires)
                 end
 
                 if item.components > 0 then
-                    for i = 0, 5 do
+                    for i = 0, 4 do
                         local component = Item.get(item.components[i + 1])
 
                         if component then
@@ -847,7 +872,7 @@ OnInit("Shop", function(requires)
                         end
                     end
                 else
-                    for i = 0, 5 do
+                    for i = 0, 4 do
                         if player == GetLocalPlayer() then
                             self.components[id][i].visible = false
                         end
@@ -905,6 +930,7 @@ OnInit("Shop", function(requires)
                     this.count[i] = 0
                     this.lines[i] = {}
                     this.components[i] = {}
+                    this.button[i] = {}
                     this.main[i] = Slot.create(shop, nil, 0.13725, - 0.03, this.frame)
                     this.main[i].visible = GetLocalPlayer() == Player(i)
                     array[this.main[i]] = { this }
@@ -920,7 +946,6 @@ OnInit("Shop", function(requires)
                     j = 0
 
                     while j < DETAIL_USED_COUNT do
-                        this.button[i] = {}
                         this.button[i][j] = Button.create(0.0050000 + DETAIL_BUTTON_GAP*j, - 0.019500, DETAIL_BUTTON_SIZE, DETAIL_BUTTON_SIZE, this.uses.frame, false, false)
                         this.button[i][j].visible = false
                         this.button[i][j].tooltip.point = FRAMEPOINT_BOTTOMRIGHT
@@ -1155,10 +1180,10 @@ OnInit("Shop", function(requires)
 
                 if not IsUnitInGroup(self.selected[id], group) then
                     self.index[id] = 0
-                    current[self.selected[id]] = nil
+                    current[self.selected[id] or 0] = nil
                     self.selected[id] = FirstOfGroup(group)
                     current[self.selected[id]] = self
-                    IssueNeutralTargetOrder(Player(id), self.shop.unit[id], "smart", self.selected[id])
+                    IssueNeutralTargetOrder(Player(id), Shop.unit[id], "smart", self.selected[id])
                     self.inventory:show(self.selected[id])
 
                     if Player(id) == GetLocalPlayer() then
@@ -1169,7 +1194,7 @@ OnInit("Shop", function(requires)
 
                 local j = self.index[id]
 
-                for i = 1, BUYER_COUNT - 1 do
+                for i = 0, BUYER_COUNT - 1 do
                     if j >= self.size[id] then
                         self.unit[id][i] = nil
 
@@ -1201,7 +1226,7 @@ OnInit("Shop", function(requires)
                     end
                 end
             else
-                current[self.selected[id]] = nil
+                current[self.selected[id] or 0] = nil
                 self.index[id] = 0
                 self.selected[id] = nil
 
@@ -1286,10 +1311,10 @@ OnInit("Shop", function(requires)
                 elseif button == this.right then
                     this:shift(true, player)
                 else
-                    current[this.selected[id]] = nil
+                    current[this.selected[id] or 0] = nil
                     this.selected[id] = this.unit[id][array[button][2]]
                     current[this.selected[id]] = this
-                    IssueNeutralTargetOrder(player, this.shop.unit[id], "smart", this.selected[id])
+                    IssueNeutralTargetOrder(player, Shop.unit[id], "smart", this.selected[id])
                     this.inventory:show(this.selected[id])
                     this.inventory:remove(id)
 
@@ -1311,8 +1336,8 @@ OnInit("Shop", function(requires)
             local this = current[unit]
 
             if this then
-                if this.shop.unit[id] then
-                    if this.selected[id] == unit and IsUnitInRange(unit, this.shop.unit[id], this.shop.aoe) then
+                if Shop.unit[id] then
+                    if this.selected[id] == unit and IsUnitInRange(unit, Shop.unit[id], this.shop.aoe) then
                         this.inventory:show(unit)
                         this.shop.details:refresh(GetOwningPlayer(unit))
                     end
@@ -1326,8 +1351,8 @@ OnInit("Shop", function(requires)
             local this = current[unit]
 
             if this then
-                if this.shop.unit[id] then
-                    if this.selected[id] == unit and IsUnitInRange(unit, this.shop.unit[id], this.shop.aoe) then
+                if Shop.unit[id] then
+                    if this.selected[id] == unit and IsUnitInRange(unit, Shop.unit[id], this.shop.aoe) then
                         this.shop.details:refresh(GetOwningPlayer(unit))
                     end
                 end
@@ -1652,7 +1677,7 @@ OnInit("Shop", function(requires)
                 self.buyer.visible = value
 
                 if not value then
-                    self.buyer.index = 0
+                    self.buyer.index[GetPlayerId(GetLocalPlayer())] = 0
                 else
                     if self.details.visible then
                         self.details:refresh(GetLocalPlayer())
@@ -1691,7 +1716,7 @@ OnInit("Shop", function(requires)
             local flag = true
             local i = 1
 
-            if item and self:has(item.id) and self.buyer.get(GetPlayerId(player)) then
+            if item and self:has(item.id) and self.buyer:get(GetPlayerId(player)) then
                 if item.components > 0 then
                     while i <= item.components and flag do
                         flag = self:canBuy(Item.get(item.component[i]), player)
@@ -1708,19 +1733,19 @@ OnInit("Shop", function(requires)
 
         function Shop:buy(item, player)
             local id = GetPlayerId(player)
-            local cost = item:cost(self.buyer.get(id), false)
-            local wood = item:cost(self.buyer.get(id), true)
+            local cost = item:cost(self.buyer:get(id), false)
+            local wood = item:cost(self.buyer:get(id), true)
 
             if self:canBuy(item, player) and cost <= GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) and wood <= GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER) then
-                local new = CreateItem(item.id, GetUnitX(self.buyer.get(id)), GetUnitY(self.buyer.get(id)))
+                local new = CreateItem(item.id, GetUnitX(self.buyer:get(id)), GetUnitY(self.buyer:get(id)))
 
-                self.buyer.inventory:removeComponents(item, Transaction.create(self, self.buyer.get(id), item, cost, wood, "buy"))
+                self.buyer.inventory:removeComponents(item, Transaction.create(self, self.buyer:get(id), item, cost, wood, "buy"))
 
-                if not UnitAddItem(self.buyer.get(id), new) then
-                    IssueTargetItemOrder(self.buyer.get(id), "smart", new)
+                if not UnitAddItem(self.buyer:get(id), new) then
+                    IssueTargetItemOrder(self.buyer:get(id), "smart", new)
                 end
 
-                self.buyer.inventory:show(self.buyer.get(id))
+                self.buyer.inventory:show(self.buyer:get(id))
                 self.details:refresh(player)
                 SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) - cost)
                 SetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER) - wood)
@@ -1746,8 +1771,8 @@ OnInit("Shop", function(requires)
             local sold = false
             local id = GetPlayerId(player)
 
-            if item and self.buyer.get(id) then
-                local charges = GetItemCharges(UnitItemInSlot(self.buyer.get(id), slot))
+            if item and self.buyer:get(id) then
+                local charges = GetItemCharges(UnitItemInSlot(self.buyer:get(id), slot))
 
                 if charges == 0 then
                     charges = 1
@@ -1758,14 +1783,14 @@ OnInit("Shop", function(requires)
                 local cost = R2I(R2I(item.gold / item.charges) * charges * self.tax)
                 local wood = R2I(R2I(item.wood / item.charges) * charges * self.tax)
 
-                if GetItemTypeId(UnitItemInSlot(self.buyer.get(id), slot)) == item.id then
+                if GetItemTypeId(UnitItemInSlot(self.buyer:get(id), slot)) == item.id then
                     sold = true
 
-                    Transaction.create(self, self.buyer.get(id), item, cost, wood, "sell")
-                    RemoveItem(UnitItemInSlot(self.buyer.get(id), slot))
+                    Transaction.create(self, self.buyer:get(id), item, cost, wood, "sell")
+                    RemoveItem(UnitItemInSlot(self.buyer:get(id), slot))
                     SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, gold + cost)
                     SetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER, lumber + wood)
-                    self.buyer.inventory:show(self.buyer.get(id))
+                    self.buyer.inventory:show(self.buyer:get(id))
                     self.details:refresh(player)
                 end
 
@@ -1781,24 +1806,24 @@ OnInit("Shop", function(requires)
             local slots = 0
             local id = GetPlayerId(player)
 
-            if item and self.buyer.get(id) then
+            if item and self.buyer:get(id) then
                 if item.components > 0 then
-                    for i = 0, UnitInventorySize(self.buyer.get(id)) -1 do
-                        if UnitItemInSlot(self.buyer.get(id), i) ~= nil then
+                    for i = 0, UnitInventorySize(self.buyer:get(id)) -1 do
+                        if UnitItemInSlot(self.buyer:get(id), i) ~= nil then
                             slots = slots + 1
                         end
                     end
 
                     if (slots + 1) >= item.components then
-                        Transaction.create(self, self.buyer.get(id), item, 0, 0, "dismantle")
-                        RemoveItem(UnitItemInSlot(self.buyer.get(id), slot))
+                        Transaction.create(self, self.buyer:get(id), item, 0, 0, "dismantle")
+                        RemoveItem(UnitItemInSlot(self.buyer:get(id), slot))
 
                         for i = 1, item.components do
-                            UnitAddItemById(self.buyer.get(id), Item.get(item.component[i]).id)
+                            UnitAddItemById(self.buyer:get(id), Item.get(item.component[i]).id)
                         end
 
                         Sound.success(player)
-                        self.buyer.inventory:show(self.buyer.get(id))
+                        self.buyer.inventory:show(self.buyer:get(id))
                         self.details:refresh(player)
                     else
                         Sound.error(player)
@@ -1816,7 +1841,7 @@ OnInit("Shop", function(requires)
 
             if Transaction.count(self, id) > 0 then
                 Transaction.last(self, id):rollback()
-                self.buyer.inventory:show(self.buyer.get(id))
+                self.buyer.inventory:show(self.buyer:get(id))
                 self.details:refresh(player)
             else
                 Sound.error(player)
@@ -1931,7 +1956,7 @@ OnInit("Shop", function(requires)
 
                     if not self.detailed then
                         self.detailed = true
-                        self.details:filter(self.category.active, self.category.andLogic)
+                        self:filter(self.category.active, self.category.andLogic)
                     end
                 end
 
@@ -1947,7 +1972,7 @@ OnInit("Shop", function(requires)
                     self.columns = COLUMNS
                     self.detailed = false
                     self.details.visible = false
-                    self.details:filter(self.category.active, self.category.andLogic)
+                    self:filter(self.category.active, self.category.andLogic)
                     self:scrollTo(array[self][GetPlayerId(player)].item, player)
                 end
             end
@@ -2075,9 +2100,11 @@ OnInit("Shop", function(requires)
 
                 for i = 0, bj_MAX_PLAYER_SLOTS do
                     if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
-                        array[i] = {}
-                        array[i][id] = this
-                        array[i][count] = id
+                        local handle = GetHandleId(Player(i))
+
+                        array[handle] = {}
+                        array[handle][id] = this
+                        array[handle][count] = id
                         this.scrolls[i] = {}
                     end
                 end
@@ -2109,7 +2136,7 @@ OnInit("Shop", function(requires)
         end
 
         function Shop.onExpire()
-            local id = GetPlayerId(GetTriggerPlayer())
+            local id = GetPlayerId(GetLocalPlayer())
             local this = array[GetUnitTypeId(Shop.unit[id])]
 
             if this then
@@ -2125,28 +2152,26 @@ OnInit("Shop", function(requires)
 
         function Shop.onPeriod()
             for i = 0, bj_MAX_PLAYER_SLOTS do
-                local player = Player(i)
-                local id = GetPlayerId(player)
                 local group = CreateGroup()
-                local shop = Shop.unit[id]
+                local shop = Shop.unit[i]
                 local this = array[shop and GetUnitTypeId(shop)]
 
                 if this then
-                    GroupClear(Shop.group[id])
+                    GroupClear(Shop.group[i])
                     GroupEnumUnitsInRange(group, GetUnitX(shop), GetUnitY(shop), this.aoe, nil)
 
                     local unit = FirstOfGroup(group)
 
                     while unit do
                         if ShopFilter(unit, Player(i), shop) then
-                            GroupAddUnit(Shop.group[id], unit)
+                            GroupAddUnit(Shop.group[i], unit)
                         end
 
                         GroupRemoveUnit(group, unit)
                         unit = FirstOfGroup(group)
                     end
 
-                    this.buyer:update(Shop.group[id], player)
+                    this.buyer:update(Shop.group[i], i)
                 end
 
                 DestroyGroup(group)
@@ -2173,7 +2198,7 @@ OnInit("Shop", function(requires)
                     this.visible = false
                 end
 
-                Transaction.clear(this, player)
+                Transaction.clear(this, id)
             end
         end
 
@@ -2214,24 +2239,27 @@ OnInit("Shop", function(requires)
                     this.buyer.inventory:show(this.buyer:get(id))
                 else
                     Shop.unit[id] = nil
-                    Transaction.clear(this, player)
+                    Transaction.clear(this, id)
                 end
             end
         end
 
         function Shop.onEsc()
             local player = GetTriggerPlayer()
+            local handle = GetHandleId(player)
             local id = GetPlayerId(player)
 
             for i = 1, count do
-                local this = array[id][array[id][i]]
+                local this = array[handle][array[handle][i]]
 
                 if this then
+                    Shop.unit[id] = nil
+
                     if player == GetLocalPlayer() then
                         this.visible = false
                     end
 
-                    Transaction.clear(this, player)
+                    Transaction.clear(this, id)
                 end
             end
         end

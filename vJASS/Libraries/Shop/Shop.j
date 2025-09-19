@@ -1954,7 +1954,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             set buyer.visible = visibility
 
             if not visibility then
-                set buyer.index = 0
+                set buyer.index[GetPlayerId(GetLocalPlayer())] = 0
             else
                 if details.visible then
                     call details.refresh(GetLocalPlayer())

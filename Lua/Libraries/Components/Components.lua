@@ -339,11 +339,11 @@ OnInit("Components", function(requires)
         Sprite = Class(Operators)
 
         Sprite:property("model", {
-            get = function(self) return self._path end,
+            get = function(self) return self._path or "" end,
             set = function(self, value)
-                self._path = value
+                self._path = value or ""
 
-                BlzFrameSetModel(self.frame, value, self.camera)
+                BlzFrameSetModel(self.frame, self._path, self.camera)
             end
         })
 

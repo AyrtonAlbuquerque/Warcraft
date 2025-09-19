@@ -184,7 +184,7 @@ OnInit("Item", function(requires)
     end
 
     function Item.get(id)
-        if id > 0 then
+        if id and id > 0 then
             if itempool[id] then
                 return itempool[id][0]
             else
