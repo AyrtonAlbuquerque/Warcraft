@@ -1,3 +1,6 @@
+---@beginFile Components
+---@debug
+---@diagnostic disable: need-check-nil
 OnInit("Components", function(requires)
     requires "Class"
 
@@ -109,7 +112,7 @@ OnInit("Components", function(requires)
     })
 
     Operators:property("enabled", {
-        get = function(self) return self._enabled or true end,
+        get = function(self) return self._enabled end,
         set = function(self, value)
             self._enabled = value
 
@@ -118,7 +121,7 @@ OnInit("Components", function(requires)
     })
 
     Operators:property("visible", {
-        get = function(self) return self._visible or true end,
+        get = function(self) return self._visible end,
         set = function(self, value)
             self._visible = value
 
@@ -214,7 +217,7 @@ OnInit("Components", function(requires)
         })
 
         Tooltip:property("visible", {
-            get = function(self) return self.isVisible or true end,
+            get = function(self) return self.isVisible end,
             set = function(self, value)
                 self.isVisible = value
 
@@ -1334,7 +1337,7 @@ OnInit("Components", function(requires)
             this.check = Backdrop.create(0, 0, width, height, this.frame, CHECKED_BUTTON)
             this.block = Backdrop.create(0, 0, width, height, this.frame, UNAVAILABLE_BUTTON)
             this.sprite = Sprite.create(0, 0, width, height, this.frame, FRAMEPOINT_CENTER, FRAMEPOINT_CENTER)
-            this.tagger = Sprite.create(0, 0, 0.00001, 0.00001, this.rame, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT)
+            this.tagger = Sprite.create(0, 0, 0.00001, 0.00001, this.frame, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT)
             this.player = Sprite.create(0, 0, 0.00001, 0.00001, this.frame, FRAMEPOINT_BOTTOMLEFT, FRAMEPOINT_BOTTOMLEFT)
             this.tooltip = Tooltip.create(this.frame, TOOLTIP_SIZE, FRAMEPOINT_TOPLEFT, simpleTooltip)
             this.highlight = BlzCreateFrame("HighlightFrame", this.frame, 0, 0)

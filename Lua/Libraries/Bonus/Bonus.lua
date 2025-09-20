@@ -1,3 +1,6 @@
+---@beginFile Bonus
+---@debug
+---@diagnostic disable: need-check-nil
 OnInit("Bonus", function(requires)
     requires "Class"
     requires "RegisterPlayerUnitEvent"

@@ -1,3 +1,6 @@
+---@beginFile Item
+---@debug
+---@diagnostic disable: need-check-nil
 OnInit("Item", function(requires)
     requires "Class"
     requires "RegisterPlayerUnitEvent"
@@ -239,9 +242,9 @@ OnInit("Item", function(requires)
 
             table.insert(this.component, component)
             this.components = (this.components or 0) + 1
-            this.conuter[component] = (this.counter[component] or 0) + 1
+            this.counter[component] = (this.counter[component] or 0) + 1
 
-            while (part.ralation[i] or 0) ~= id do
+            while (part.relation[i] or 0) ~= id do
                 if not part.relation[i] then
                     part.relation[i] = id
                     break
