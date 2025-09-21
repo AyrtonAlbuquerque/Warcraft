@@ -1313,7 +1313,7 @@ OnInit("Shop", function(requires)
                 else
                     current[this.selected[id] or 0] = nil
                     this.selected[id] = this.unit[id][array[button][2]]
-                    current[this.selected[id]] = this
+                    current[this.selected[id] or 0] = this
                     IssueNeutralTargetOrder(player, Shop.unit[id], "smart", this.selected[id])
                     this.inventory:show(this.selected[id])
                     this.inventory:remove(id)
