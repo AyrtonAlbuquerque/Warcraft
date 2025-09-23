@@ -168,14 +168,9 @@ OnInit("CDR", function(requires)
             end
         end
 
-        abilities[unit] = nil
         set[unit] = nil
         units[unit] = nil
-        units[unit].cdr = nil
-        units[unit].cooldown = nil
-        units[unit].offset = nil
-        units[unit].flat = nil
-        units[unit].count = nil
+        abilities[unit] = nil
     end
 
     function mt:register(unit, id)

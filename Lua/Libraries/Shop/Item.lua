@@ -103,11 +103,7 @@ OnInit("Item", function(requires)
     Item:property("relation", { get = function (self) return relations[self.id] end })
 
     function Item:recipe(lumber)
-        local amount = self.gold
-
-        if lumber then
-            amount = amount + self.wood
-        end
+        local amount = lumber and self.wood or self.gold
 
         if self.components > 0 then
             for i = 1, #self.component do
@@ -117,6 +113,8 @@ OnInit("Item", function(requires)
                     amount = amount - Item.get(self.component[i]).gold
                 end
             end
+
+            return amount
         end
 
         return 0
@@ -135,7 +133,7 @@ OnInit("Item", function(requires)
         else
             local size = UnitInventorySize(unit)
 
-            for i = 0, size do
+            for i = 0, size - 1 do
                 owned[GetItemTypeId(UnitItemInSlot(unit, i))] = (owned[GetItemTypeId(UnitItemInSlot(unit, i))] or 0) + 1
             end
 
