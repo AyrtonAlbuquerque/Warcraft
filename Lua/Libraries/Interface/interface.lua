@@ -1122,6 +1122,14 @@ OnInit("Interface", function(requires)
         end
 
         function Interface.onInit()
+            if BlzGetLocalClientWidth() > 1920 then
+                HERO_LIST_X = -0.315
+                MINIMAP_LEFT_X = -0.32
+                MINIMAP_RIGHT_X = 0.97
+                PORTRAIT_X = PORTRAIT_X + 0.01
+                PORTRAIT_WIDTH = PORTRAIT_WIDTH - 0.02
+            end
+
             Interface.coin = BlzGetFrameByName("ResourceBarGoldText" , 0)
             Interface.wood = BlzGetFrameByName("ResourceBarLumberText" , 0)
             Interface.default = BlzGetFrameByName("UpperButtonBarFrame", 0)
