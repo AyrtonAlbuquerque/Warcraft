@@ -1140,17 +1140,17 @@ OnInit("Interface", function(requires)
                 highlight[i] = BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON_INDICATOR, i)
             end
 
-            -- for i = 0, 12 do
-            --     local frame = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), i), 1)
+            for i = 0, 11 do
+                local frame = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), i), 1)
 
-            --     if i >= 6 then
-            --         BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)), ITEM_PANEL_Y + GROUP_Y)
-            --         BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)) + GROUP_WIDTH, ITEM_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
-            --     else
-            --         BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)), ABILITY_PANEL_Y + GROUP_Y)
-            --         BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)) + GROUP_WIDTH, ABILITY_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
-            --     end
-            -- end
+                if i >= 6 then
+                    BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)), ITEM_PANEL_Y + GROUP_Y)
+                    BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)) + GROUP_WIDTH, ITEM_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
+                else
+                    BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)), ABILITY_PANEL_Y + GROUP_Y)
+                    BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)) + GROUP_WIDTH, ABILITY_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
+                end
+            end
 
             BlzEnableUIAutoPosition(false)
             BlzFrameSetParent(Interface.tooltip, BlzGetFrameByName("ConsoleUI", 0))
