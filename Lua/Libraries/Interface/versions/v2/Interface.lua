@@ -148,9 +148,10 @@ do
 
     function mt:onCommandButtons()
         local id = GetPlayerId(GetLocalPlayer())
-        local scale = 0.8205
+        local scale = 0.59358974
 
         if shop[id] then
+            scale = 0.8205
             command0X1[id] = 0.333500
             command0Y1[id] = 0.213950
             command0X2[id] = 0.366760
@@ -220,34 +221,34 @@ do
             command4Y1[id] = 999.0
             command4X2[id] = 999.0
             command4Y2[id] = 999.0
-            command5X1[id] = 0.286200
-            command5Y1[id] = 0.0461300
-            command5X2[id] = 0.318200
-            command5Y2[id] = 0.0141300
-            command6X1[id] = 0.324000
-            command6Y1[id] = 0.0461300
-            command6X2[id] = 0.356000
-            command6Y2[id] = 0.0141300
-            command7X1[id] = 0.360510
-            command7Y1[id] = 0.0490700
-            command7X2[id] = 0.380910
-            command7Y2[id] = 0.0286700
-            command8X1[id] = 0.135000
-            command8Y1[id] = 0.0461300
-            command8X2[id] = 0.167000
-            command8Y2[id] = 0.0141300
-            command9X1[id] = 0.173050
-            command9Y1[id] = 0.0461300
-            command9X2[id] = 0.205050
-            command9Y2[id] = 0.0141300
-            command10X1[id] = 0.210600
-            command10Y1[id] = 0.0461300
-            command10X2[id] = 0.242600
-            command10Y2[id] = 0.0141300
-            command11X1[id] = 0.248400
-            command11Y1[id] = 0.0461300
-            command11X2[id] = 0.280400
-            command11Y2[id] = 0.0141300
+            command5X1[id] = 0.317000
+            command5Y1[id] = 0.0316000
+            command5X2[id] = 0.340150
+            command5Y2[id] = 0.00845000
+            command6X1[id] = 0.344800
+            command6Y1[id] = 0.0316000
+            command6X2[id] = 0.367950
+            command6Y2[id] = 0.00845000
+            command7X1[id] = 0.371460
+            command7Y1[id] = 0.0333300
+            command7X2[id] = 0.386280
+            command7Y2[id] = 0.0185100
+            command8X1[id] = 0.206310
+            command8Y1[id] = 0.0316000
+            command8X2[id] = 0.229460
+            command8Y2[id] = 0.00845000
+            command9X1[id] = 0.234000
+            command9Y1[id] = 0.0316000
+            command9X2[id] = 0.257150
+            command9Y2[id] = 0.00845000
+            command10X1[id] = 0.261500
+            command10Y1[id] = 0.0316000
+            command10X2[id] = 0.256850
+            command10Y2[id] = 0.00845000
+            command11X1[id] = 0.289200
+            command11Y1[id] = 0.0316000
+            command11X2[id] = 0.340150
+            command11Y2[id] = 0.00845000
         end
 
         -- Display the 12 slot grid
@@ -299,7 +300,7 @@ do
         handle = BlzGetFrameByName("CommandButton_7", 0)
         BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, command7X1[id], command7Y1[id]) 
         BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, command7X2[id], command7Y2[id])
-        BlzFrameSetScale(handle, 0.5923)
+        BlzFrameSetScale(handle, 0.38)
         
         -- Reposition the Q command button
         handle = BlzGetFrameByName("CommandButton_8", 0)
@@ -329,41 +330,43 @@ do
     end
 
     function mt:onInventoryButtons()
+        local scale = 0.72844556
+
         -- Reposition the 0 inventory button
         handle = BlzGetFrameByName("InventoryButton_0", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.443500, 0.0461300)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.475500, 0.0141300)
-        BlzFrameSetSize(handle, 0.032, 0.032)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.434500, 0.0316000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.457650, 0.00845000)
+        BlzFrameSetScale(handle, scale)
 
         -- Reposition the 1 inventory button
         handle = BlzGetFrameByName("InventoryButton_1", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.481100, 0.0461300)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.513100, 0.0141300)
-        BlzFrameSetSize(handle, 0.032, 0.032)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.462300, 0.0316000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.485450, 0.00845000)
+        BlzFrameSetScale(handle, scale)
 
         -- Reposition the 2 inventory button
         handle = BlzGetFrameByName("InventoryButton_2", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.518700, 0.0461300)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.550700, 0.0141300)
-        BlzFrameSetSize(handle, 0.032, 0.032)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.490050, 0.0316000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.513200, 0.00845000)
+        BlzFrameSetScale(handle, scale)
 
         -- Reposition the 3 inventory button
         handle = BlzGetFrameByName("InventoryButton_3", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.556500, 0.0461300)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.588500, 0.0141300)
-        BlzFrameSetSize(handle, 0.032, 0.032)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.517900, 0.0316000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.541050, 0.00845000)
+        BlzFrameSetScale(handle, scale)
 
         -- Reposition the 4 inventory button
         handle = BlzGetFrameByName("InventoryButton_4", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.594300, 0.0461300)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.626300, 0.0141300)
-        BlzFrameSetSize(handle, 0.032, 0.032)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.545500, 0.0316000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.568650, 0.00845000)
+        BlzFrameSetScale(handle, scale)
 
         -- Reposition the 5 inventory button
         handle = BlzGetFrameByName("InventoryButton_5", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.632100, 0.0461300)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.664100, 0.0141300)
-        BlzFrameSetSize(handle, 0.032, 0.032)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.573200, 0.0316000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.596350, 0.00845000)
+        BlzFrameSetScale(handle, scale)
 
         handle = nil
     end
@@ -371,9 +374,8 @@ do
     function mt:onInfoPanel()
         -- Reposition the Buff bar
         handle = BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR, 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.359120, 0.115000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.482620, 0.100000)
-
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.203640, 0.0880500)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.327140, 0.0730500)
 
         -- Remove the Status text
         BlzFrameSetScale(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR_LABEL, 0), 0.00001)
@@ -391,63 +393,63 @@ do
 
         -- Reposition the Hero Main Stat
         handle = BlzGetFrameByName("InfoPanelIconHeroIcon", 6)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.422900, 0.0284300)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.439600, 0.0117300)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.416190, 0.0333300)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.431010, 0.0185100)
 
         -- Reposition the Strength label and value
         handle = BlzGetFrameByName("InfoPanelIconHeroStrengthLabel", 6)
         BlzFrameSetScale(handle, 0.00001)
         handle = BlzGetFrameByName("InfoPanelIconHeroStrengthValue", 6)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.466810, 0.0867600)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.541350, 0.0736400)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.452500, 0.0615500)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.509060, 0.0484300)
 
         -- Reposition the Agility label and value
         handle = BlzGetFrameByName("InfoPanelIconHeroAgilityLabel", 6)
         BlzFrameSetScale(handle, 0.00001)
         handle = BlzGetFrameByName("InfoPanelIconHeroAgilityValue", 6)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.541900, 0.0867600)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.610880, 0.0736400)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.509000, 0.0615500)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.560210, 0.0484300)
 
         -- Reposition the Intelligence label and value
         handle = BlzGetFrameByName("InfoPanelIconHeroIntellectLabel", 6)
         BlzFrameSetScale(handle, 0.00001)
         handle = BlzGetFrameByName("InfoPanelIconHeroIntellectValue", 6)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.611490, 0.0867600)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.667120, 0.0736400)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.560380, 0.0615500)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.598230, 0.0484300)
 
         -- Reposition the Timed Life bar
         handle = BlzGetFrameByName("SimpleProgressIndicator", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.133280, 0.0105000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.667280, 0.000500000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.205120, 0.00570000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.598380, 0.00000)
 
         -- Reposition the XP bar
         handle = BlzGetFrameByName("SimpleHeroLevelBar", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.133280, 0.0105000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.667280, 0.000500000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.205120, 0.00570000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.598380, 0.00000)
 
         -- Reposition the Training bar
         handle = BlzGetFrameByName("SimpleBuildTimeIndicator", 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.133280, 0.0105000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.667280, 0.000500000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.205120, 0.00570000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.598380, 0.00000)
 
         -- Reposition the Attack 1 block
         handle = BlzGetFrameByName("InfoPanelIconBackdrop", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.136230, 0.0951800)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.160340, 0.0710700)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.207620, 0.0680000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.225620, 0.0500000)
         BlzFrameSetSize(handle, 0.01800, 0.01800)
         handle = BlzGetFrameByName("InfoPanelIconValue", 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.160340, 0.0867600)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.247120, 0.0736400)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.226050, 0.0615500)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.286560, 0.0484300)
         BlzFrameSetScale(BlzGetFrameByName("InfoPanelIconLabel", 0), 0.0001)
 
         -- Reposition the Armor block
         handle = BlzGetFrameByName("InfoPanelIconBackdrop", 2)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.247020, 0.0951800)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.271130, 0.0710700)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.286390, 0.0680000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.304390, 0.0500000)
         BlzFrameSetSize(handle, 0.01800, 0.01800)
         handle = BlzGetFrameByName("InfoPanelIconValue", 2)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.271990, 0.0867600)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.358770, 0.0736400)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.305020, 0.0615500)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.369750, 0.0484300)
         BlzFrameSetScale(BlzGetFrameByName("InfoPanelIconLabel", 2), 0.0001)
 
         handle = nil
@@ -459,8 +461,8 @@ do
         BlzEnableUIAutoPosition(false)
         BlzFrameSetVisible(handle, true)
         BlzFrameClearAllPoints(handle)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.370500, 0.0977600)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.429450, 0.0284500)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.3786, 0.0708000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.4232, 0.0185500)
 
         handle = nil
     end
@@ -600,63 +602,63 @@ do
     function mt:onGroupSelection()
         -- Reposistion the Group selection button 0
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 0), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.132400, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.155400, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.203640, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.223640, 0.0800000)
 
         -- Reposistion the Group selection button 1
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 1), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.172400, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.195400, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.237840, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.257840, 0.0800000)
 
         -- Reposistion the Group selection button 2
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 2), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.212400, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.235400, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.272040, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.292040, 0.0800000)
 
         -- Reposistion the Group selection button 3
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 3), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.252400, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.275400, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.306240, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.326240, 0.0800000)
 
         -- Reposistion the Group selection button 4
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 4), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.332400, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.355400, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.340440, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.360440, 0.0800000)
 
         -- Reposistion the Group selection button 5
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 5), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.292400, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.315400, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.374640, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.394640, 0.0800000)
 
         -- Reposistion the Group selection button 6
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 6), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.444000, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.467000, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.408840, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.428840, 0.0800000)
 
         -- Reposistion the Group selection button 7
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 7), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.484000, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.507000, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.443040, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.463040, 0.0800000)
 
         -- Reposistion the Group selection button 8
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 8), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.524000, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.547000, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.477240, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.497240, 0.0800000)
 
         -- Reposistion the Group selection button 9
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 9), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.564000, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.587000, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.511440, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.531440, 0.0800000)
 
         -- Reposistion the Group selection button 10
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 10), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.604000, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.627000, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.545640, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.565640, 0.0800000)
 
         -- Reposistion the Group selection button 11
         handle = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), 11), 1)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.644000, 0.133000)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.667000, 0.110000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.578000, 0.100000)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.598000, 0.0800000)
 
         handle = nil
     end
@@ -668,12 +670,12 @@ do
 
     function mt:onChat()
         handle = BlzGetOriginFrame(ORIGIN_FRAME_CHAT_MSG, 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.132400, 0.336900)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.532400, 0.134400)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.00000, 0.322500)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.400000, 0.120000)
 
         handle = BlzGetOriginFrame(ORIGIN_FRAME_UNIT_MSG, 0)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.132400, 0.336900)
-        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.532400, 0.134400)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_TOPLEFT, 0.00000, 0.322500)
+        BlzFrameSetAbsPoint(handle, FRAMEPOINT_BOTTOMRIGHT, 0.400000, 0.120000)
 
         handle = nil
     end
@@ -684,17 +686,17 @@ do
         if BlzGetTriggerFrameEvent() == FRAMEEVENT_CHECKBOX_CHECKED then
             if BlzGetTriggerFrame() == CheckBL then
                 if GetLocalPlayer() == GetTriggerPlayer() then
-                    mapX1[i] = - 0.133630
-                    mapY1[i] = 0.150000
-                    mapX2[i] = 0.0163700
+                    mapX1[i] = - 0.133190
+                    mapY1[i] = 0.125000
+                    mapX2[i] = - 0.00819000
                     mapY2[i] = 0.00000
                     checkL[i] = true
                 end
             else
                 if GetLocalPlayer() == GetTriggerPlayer() then
-                    mapX1[i] = 0.785470
-                    mapY1[i] = 0.150000
-                    mapX2[i] = 0.935470
+                    mapX1[i] = 0.811030
+                    mapY1[i] = 0.125000
+                    mapX2[i] = 0.936030
                     mapY2[i] = 0.00000
                     checkR[i] = true
                 end
@@ -703,9 +705,9 @@ do
             if BlzGetTriggerFrame() == CheckBL then
                 if GetLocalPlayer() == GetTriggerPlayer() then
                     if checkR[i] then
-                        mapX1[i] = 0.785470
-                        mapY1[i] = 0.150000
-                        mapX2[i] = 0.935470
+                        mapX1[i] = 0.811030
+                        mapY1[i] = 0.125000
+                        mapX2[i] = 0.936030
                         mapY2[i] = 0.00000
                     else
                         mapX1[i] = 999.0
@@ -718,9 +720,9 @@ do
             else
                 if GetLocalPlayer() == GetTriggerPlayer() then
                     if checkL[i] then
-                        mapX1[i] = - 0.133630
-                        mapY1[i] = 0.150000
-                        mapX2[i] = 0.0163700
+                        mapX1[i] = - 0.133190
+                        mapY1[i] = 0.125000
+                        mapX2[i] = - 0.00819000
                         mapY2[i] = 0.00000
                     else
                         mapX1[i] = 999.0
@@ -775,7 +777,7 @@ do
                 if DISPLAY_SHOP then
                     if main[this.id] ~= this.unit then
                         main[this.id] = this.unit
-                        shop[this.id] = (GetUnitAbilityLevel(this.unit, FourCC('Aneu')) > 0 or GetUnitAbilityLevel(this.unit, FourCC('Ane2')) > 0 or GetUnitAbilityLevel(this.unit, FourCC('Apit')) > 0) and not IsUnitEnemy(this.unit, this.player)
+                        shop[this.id] = (GetUnitAbilityLevel(this.unit, S2A('Aneu')) > 0 or GetUnitAbilityLevel(this.unit, S2A('Ane2')) > 0 or GetUnitAbilityLevel(this.unit, S2A('Apit')) > 0) and not IsUnitEnemy(this.unit, this.player)
                         MainUI:onCommandButtons()
                     end
                 end
@@ -851,8 +853,8 @@ do
         BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UBERTOOLTIP , 0), FRAMEPOINT_BOTTOMRIGHT, 0.8, 0.165)
 
         UI = BlzCreateFrameByType("BACKDROP", "UI", BlzGetFrameByName("ConsoleUIBackdrop", 0), "", 1)
-        BlzFrameSetAbsPoint(UI, FRAMEPOINT_TOPLEFT, 0.132400, 0.0991800)
-        BlzFrameSetAbsPoint(UI, FRAMEPOINT_BOTTOMRIGHT, 0.667380, 0.00000)
+        BlzFrameSetAbsPoint(UI, FRAMEPOINT_TOPLEFT, 0.203640, 0.0728500)
+        BlzFrameSetAbsPoint(UI, FRAMEPOINT_BOTTOMRIGHT, 0.599140, 0.00000)
         BlzFrameSetTexture(UI, "UI.blp", 0, true)
 
         ShopSlots = BlzCreateFrameByType("BACKDROP", "ShopSlots", BlzGetFrameByName("ConsoleUIBackdrop", 0), "", 1) 
@@ -862,14 +864,14 @@ do
 
         HealthBar = BlzCreateFrameByType("SIMPLESTATUSBAR", "", UI, "", 0)
         BlzFrameSetTexture(HealthBar, "replaceabletextures\\teamcolor\\teamcolor00", 0, true)
-        BlzFrameSetAbsPoint(HealthBar, FRAMEPOINT_TOPLEFT, 0.134950, 0.0678600)
-        BlzFrameSetAbsPoint(HealthBar, FRAMEPOINT_BOTTOMRIGHT, 0.359120, 0.0486800)
+        BlzFrameSetAbsPoint(HealthBar, FRAMEPOINT_TOPLEFT, 0.205390, 0.0463700)
+        BlzFrameSetAbsPoint(HealthBar, FRAMEPOINT_BOTTOMRIGHT, 0.370110, 0.0341300)
         BlzFrameSetValue(HealthBar, 0)
 
         ManaBar = BlzCreateFrameByType("SIMPLESTATUSBAR", "", UI, "", 0)
         BlzFrameSetTexture(ManaBar, "replaceabletextures\\teamcolor\\teamcolor01", 0, true)
-        BlzFrameSetAbsPoint(ManaBar, FRAMEPOINT_TOPLEFT, 0.440380, 0.0678600)
-        BlzFrameSetAbsPoint(ManaBar, FRAMEPOINT_BOTTOMRIGHT, 0.664550, 0.0486800)
+        BlzFrameSetAbsPoint(ManaBar, FRAMEPOINT_TOPLEFT, 0.432280, 0.0463000)
+        BlzFrameSetAbsPoint(ManaBar, FRAMEPOINT_BOTTOMRIGHT, 0.597370, 0.0340600)
         BlzFrameSetValue(ManaBar, 0)
 
         HeroCheck = BlzCreateFrame("QuestCheckBox", UI, 0, 0)
@@ -877,44 +879,44 @@ do
         BlzFrameSetAbsPoint(HeroCheck, FRAMEPOINT_BOTTOMRIGHT, -0.117260, 0.586200)
 
         HPText = BlzCreateFrameByType("TEXT", "HPTEXT", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
-        BlzFrameSetAbsPoint(HPText, FRAMEPOINT_TOPLEFT, 0.134950, 0.0678800)
-        BlzFrameSetAbsPoint(HPText, FRAMEPOINT_BOTTOMRIGHT, 0.359120, 0.0487000)
+        BlzFrameSetAbsPoint(HPText, FRAMEPOINT_TOPLEFT, 0.205580, 0.0462600)
+        BlzFrameSetAbsPoint(HPText, FRAMEPOINT_BOTTOMRIGHT, 0.370190, 0.0333600)
         BlzFrameSetText(HPText, "|cffFFFFFF|r")
         BlzFrameSetEnable(HPText, false)
         BlzFrameSetScale(HPText, 1.00)
         BlzFrameSetTextAlignment(HPText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
 
         MPText = BlzCreateFrameByType("TEXT", "MPTEXT", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
-        BlzFrameSetAbsPoint(MPText, FRAMEPOINT_TOPLEFT, 0.440880, 0.0678800)
-        BlzFrameSetAbsPoint(MPText, FRAMEPOINT_BOTTOMRIGHT, 0.665050, 0.0487000)
+        BlzFrameSetAbsPoint(MPText, FRAMEPOINT_TOPLEFT, 0.432030, 0.0465000)
+        BlzFrameSetAbsPoint(MPText, FRAMEPOINT_BOTTOMRIGHT, 0.597750, 0.0333800)
         BlzFrameSetText(MPText, "|cffFFFFFF|r")
         BlzFrameSetEnable(MPText, false)
         BlzFrameSetScale(MPText, 1.00)
         BlzFrameSetTextAlignment(MPText, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
 
-        Gold = BlzCreateFrameByType("TEXT", "GOLD", UI, "", 0)
-        BlzFrameSetAbsPoint(Gold, FRAMEPOINT_TOPLEFT, 0.377110, 0.0266100)
-        BlzFrameSetAbsPoint(Gold, FRAMEPOINT_BOTTOMRIGHT, 0.423110, 0.0132600)
+        Gold = BlzCreateFrameByType("TEXT", "LUMBER", UI, "", 0)
+        BlzFrameSetAbsPoint(Gold, FRAMEPOINT_TOPLEFT, 0.381150, 0.0171200)
+        BlzFrameSetAbsPoint(Gold, FRAMEPOINT_BOTTOMRIGHT, 0.430760, 0.00667000)
         BlzFrameSetText(Gold, "|cffffcc00|r")
         BlzFrameSetEnable(Gold, false)
         BlzFrameSetScale(Gold, 1.00)
         BlzFrameSetTextAlignment(Gold, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
 
         CheckBL = BlzCreateFrame("QuestCheckBox", UI, 0, 0)
-        BlzFrameSetAbsPoint(CheckBL, FRAMEPOINT_TOPLEFT, 0.122370, 0.0100000)
-        BlzFrameSetAbsPoint(CheckBL, FRAMEPOINT_BOTTOMRIGHT, 0.132370, 0.00000)
+        BlzFrameSetAbsPoint(CheckBL, FRAMEPOINT_TOPLEFT, 0.194700, 0.0100000)
+        BlzFrameSetAbsPoint(CheckBL, FRAMEPOINT_BOTTOMRIGHT, 0.204700, 0.00000)
 
         CheckBR = BlzCreateFrame("QuestCheckBox", UI, 0, 0)
-        BlzFrameSetAbsPoint(CheckBR, FRAMEPOINT_TOPLEFT, 0.667350, 0.0100000)
-        BlzFrameSetAbsPoint(CheckBR, FRAMEPOINT_BOTTOMRIGHT, 0.677350, 0.00000)
+        BlzFrameSetAbsPoint(CheckBR, FRAMEPOINT_TOPLEFT, 0.598460, 0.0100000)
+        BlzFrameSetAbsPoint(CheckBR, FRAMEPOINT_BOTTOMRIGHT, 0.608460, 0.00000)
 
         MenuCheck = BlzCreateFrame("QuestCheckBox", UI, 0, 0)
         BlzFrameSetAbsPoint(MenuCheck, FRAMEPOINT_TOPLEFT, 0.918800, 0.601640)
         BlzFrameSetAbsPoint(MenuCheck, FRAMEPOINT_BOTTOMRIGHT, 0.932840, 0.587600)
 
         GoldIcon = BlzCreateFrameByType("BACKDROP", "GoldIcon", UI, "", 1)
-        BlzFrameSetAbsPoint(GoldIcon, FRAMEPOINT_TOPLEFT, 0.359900, 0.0284300)
-        BlzFrameSetAbsPoint(GoldIcon, FRAMEPOINT_BOTTOMRIGHT, 0.376600, 0.0117300)
+        BlzFrameSetAbsPoint(GoldIcon, FRAMEPOINT_TOPLEFT, 0.370800, 0.0170500)
+        BlzFrameSetAbsPoint(GoldIcon, FRAMEPOINT_BOTTOMRIGHT, 0.380800, 0.00705000)
 
         if GOLD_ICON ~= "" then
             BlzFrameSetTexture(GoldIcon, GOLD_ICON, 0, true)

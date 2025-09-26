@@ -799,7 +799,7 @@ do
                 if DISPLAY_SHOP then
                     if main[this.id] ~= this.unit then
                         main[this.id] = this.unit
-                        shop[this.id] = (GetUnitAbilityLevel(this.unit, FourCC('Aneu')) > 0 or GetUnitAbilityLevel(this.unit, FourCC('Ane2')) > 0 or GetUnitAbilityLevel(this.unit, FourCC('Apit')) > 0) and not IsUnitEnemy(this.unit, this.player)
+                        shop[this.id] = (GetUnitAbilityLevel(this.unit, S2A('Aneu')) > 0 or GetUnitAbilityLevel(this.unit, S2A('Ane2')) > 0 or GetUnitAbilityLevel(this.unit, S2A('Apit')) > 0) and not IsUnitEnemy(this.unit, this.player)
                         MainUI:onCommandButtons()
                     end
                 end

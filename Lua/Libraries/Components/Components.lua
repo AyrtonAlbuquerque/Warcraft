@@ -1165,27 +1165,27 @@ OnInit("Components", function(requires)
         Slider:property("min", {
             get = function(self) return self.minimum or 0 end,
             set = function(self, value)
-                self.minimum = value
-
-                BlzFrameSetMinMaxValue(self.frame, value, self.maximum)
+                self.minimum = value or 0
+                
+                BlzFrameSetMinMaxValue(self.frame, self.min, self.max)
             end
         })
 
         Slider:property("max", {
             get = function(self) return self.maximum or 100 end,
             set = function(self, value)
-                self.maximum = value
+                self.maximum = value or 100
 
-                BlzFrameSetMinMaxValue(self.frame, self.minimum, value)
+                BlzFrameSetMinMaxValue(self.frame, self.min, self.max)
             end
         })
 
         Slider:property("step", {
             get = function(self) return self.stepping or 1 end,
             set = function(self, value)
-                self.stepping = value
+                self.stepping = value or 1
 
-                BlzFrameSetStepSize(self.frame, value)
+                BlzFrameSetStepSize(self.frame, self.stepping)
             end
         })
 
@@ -1212,7 +1212,7 @@ OnInit("Components", function(requires)
         end
 
         function Slider.create(x, y, width, height, parent, template)
-            local this = CheckBox.allocate()
+            local this = Slider.allocate()
 
             if not parent then
                 parent = CONSOLE
