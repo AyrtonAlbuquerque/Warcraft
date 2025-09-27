@@ -201,7 +201,7 @@ OnInit("Interface", function(requires)
     local MENU_FRAME_Y = -0.02
     -- The size of the menu frame
     local MENU_FRAME_WIDTH = 0.40
-    local MENU_FRAME_HEIGHT = 0.23
+    local MENU_FRAME_HEIGHT = 0.25
     -- -------------------------------------- Menu Options ------------------------------------- --
     local MENU_X_OFFSET = 0.04
     local MENU_Y_OFFSET = -0.025
@@ -262,12 +262,14 @@ OnInit("Interface", function(requires)
     local LUMBER_TEXT_HEIGHT = 0.0125
     local LUMBER_TEXT_SCALE = 1.0
     -- ---------------------------------------- Minimap ---------------------------------------- --
-    -- The initial position of the minimap on the right side of the screen
-    local MINIMAP_RIGHT_X = 0.785
-    local MINIMAP_RIGHT_Y = 0.15
-    -- The initial position of the minimap on the left side of the screen
-    local MINIMAP_LEFT_X = -0.13365
-    local MINIMAP_LEFT_Y = 0.15
+    -- The min/max x position of the minimap when on the right side of the screen
+    local MINIMAP_RIGHT_MIN = 0.785
+    local MINIMAP_RIGHT_MAX = 0.97
+    -- the min/max x position of the minimap when on the left side of the screen
+    local MINIMAP_LEFT_MIN = -0.32
+    local MINIMAP_LEFT_MAX = -0.135
+    -- The minimap y
+    local MINIMAP_Y = 0.15
     -- The size of the minimap
     local MINIMAP_WIDTH = 0.15
     local MINIMAP_HEIGHT = 0.15
@@ -379,6 +381,8 @@ OnInit("Interface", function(requires)
             self.defaultText:destroy()
             self.sliderText:destroy()
             self.shaderText:destroy()
+            self.mapText:destroy()
+            self.mapSlider:destroy()
         end
 
         function Options.create(x, y, width, height, parent)
@@ -410,12 +414,20 @@ OnInit("Interface", function(requires)
             this.shader.max = 255
             this.shader.value = PORTRAIT_DARKNESS
             this.shader.onSlide = Options.onSlider
+            this.mapText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, this.shader.frame, "|cffffffffMinimap Position|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            this.mapSlider = Slider.create(0, 0, SLIDER_WIDTH, SLIDER_HEIGHT, this.mapText.frame, "EscMenuSliderTemplate")
+            this.mapSlider.min = MINIMAP_LEFT_MIN
+            this.mapSlider.max = MINIMAP_LEFT_MAX
+            this.mapSlider.step = 0.00185
+            this.mapSlider.value = MINIMAP_LEFT_MAX
+            this.mapSlider.onSlide = Options.onSlider
             array[this.right] = this
             array[this.toggle] = this
             array[this.heroes] = this
             array[this.shader] = this
             array[this.slider] = this
             array[this.default] = this
+            array[this.mapSlider] = this
 
             this.right:setPoint(FRAMEPOINT_TOPLEFT, FRAMEPOINT_TOPLEFT, MENU_X_OFFSET, MENU_Y_OFFSET)
             this.rightText:setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
@@ -429,6 +441,8 @@ OnInit("Interface", function(requires)
             this.slider:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
             this.shaderText:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
             this.shader:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            this.mapText:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            this.mapSlider:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
 
             for i = 0, bj_MAX_PLAYER_SLOTS do
                 array[GetHandleId(Player(i))] = this
@@ -442,19 +456,7 @@ OnInit("Interface", function(requires)
 
             if this and GetLocalPlayer() == GetTriggerPlayer() then
                 if this.toggle.checked then
-                    if BlzGetTriggerPlayerIsKeyDown() then
-                        if this.right.checked then
-                            Interface.map.x = MINIMAP_RIGHT_X
-                            Interface.map.y = MINIMAP_RIGHT_Y
-                            Interface.map.visible = true
-                        else
-                            Interface.map.x = MINIMAP_LEFT_X
-                            Interface.map.y = MINIMAP_LEFT_Y
-                            Interface.map.visible = true
-                        end
-                    else
-                        Interface.map.visible = false
-                    end
+                    Interface.map.visible = BlzGetTriggerPlayerIsKeyDown()
                 end
             end
         end
@@ -470,6 +472,8 @@ OnInit("Interface", function(requires)
                 elseif slide == this.shader then
                     this.shaderText.text = "|cffffffffPortrait Opacity: " .. I2S(R2I((this.shader.value*100)/255)) .. "%|r"
                     Interface.portrait.opacity = R2I(this.shader.value)
+                elseif slide == this.mapSlider then
+                    Interface.map.x = this.mapSlider.value
                 end
             end
         end
@@ -479,14 +483,15 @@ OnInit("Interface", function(requires)
             local this = array[check]
 
             if this and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == this.right and not this.toggle.checked then
-                    Interface.map.x = MINIMAP_RIGHT_X
-                    Interface.map.y = MINIMAP_RIGHT_Y
-                    Interface.map.visible = true
+                if check == this.right then
+                    Interface.map.x = MINIMAP_RIGHT_MIN - (this.mapSlider.min - this.mapSlider.value)
+                    this.mapSlider.min = MINIMAP_RIGHT_MIN
+                    this.mapSlider.max = MINIMAP_RIGHT_MAX
+                    this.mapSlider.value = Interface.map.x
                 elseif check == this.toggle then
                     Interface.map.visible = false
                 elseif check == this.heroes then
-                    Interface.heroes= true
+                    Interface.heroes = true
                 elseif check == this.default then
                     BlzFrameSetVisible(Interface.default, true)
                 end
@@ -499,23 +504,12 @@ OnInit("Interface", function(requires)
 
             if this and GetLocalPlayer() == GetTriggerPlayer() then
                 if check == this.right then
-                    if not this.toggle.checked then
-                        Interface.map.x = MINIMAP_LEFT_X
-                        Interface.map.y = MINIMAP_LEFT_Y
-                        Interface.map.visible = true
-                    else
-                        Interface.map.visible = false
-                    end
+                    Interface.map.x = MINIMAP_LEFT_MIN + (this.mapSlider.value - this.mapSlider.min)
+                    this.mapSlider.min = MINIMAP_LEFT_MIN
+                    this.mapSlider.max = MINIMAP_LEFT_MAX
+                    this.mapSlider.value = Interface.map.x
                 elseif check == this.toggle then
-                    if this.right.checked then
-                        Interface.map.x = MINIMAP_RIGHT_X
-                        Interface.map.y = MINIMAP_RIGHT_Y
-                        Interface.map.visible = true
-                    else
-                        Interface.map.x = MINIMAP_LEFT_X
-                        Interface.map.y = MINIMAP_LEFT_Y
-                        Interface.map.visible = true
-                    end
+                    Interface.map.visible = true
                 elseif check == this.heroes then
                     Interface.heroes = false
                 elseif check == this.default then
@@ -1124,8 +1118,6 @@ OnInit("Interface", function(requires)
         function Interface.onInit()
             if BlzGetLocalClientWidth() > 1920 then
                 HERO_LIST_X = -0.315
-                MINIMAP_LEFT_X = -0.32
-                MINIMAP_RIGHT_X = 0.97
                 PORTRAIT_X = PORTRAIT_X + 0.01
                 PORTRAIT_WIDTH = PORTRAIT_WIDTH - 0.02
             end
@@ -1134,7 +1126,7 @@ OnInit("Interface", function(requires)
             Interface.wood = BlzGetFrameByName("ResourceBarLumberText" , 0)
             Interface.default = BlzGetFrameByName("UpperButtonBarFrame", 0)
             Interface.tooltip = BlzGetOriginFrame(ORIGIN_FRAME_UBERTOOLTIP , 0)
-            Interface.map = Minimap.create(MINIMAP_LEFT_X, MINIMAP_LEFT_Y, MINIMAP_WIDTH, MINIMAP_HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0))
+            Interface.map = Minimap.create(MINIMAP_LEFT_MAX, MINIMAP_Y, MINIMAP_WIDTH, MINIMAP_HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0))
             Interface.menu = Menu.create(MENU_X, MENU_Y, MENU_WIDTH, MENU_HEIGHT, nil)
             Interface.portrait = Portrait.create(INFO_X, INFO_Y, INFO_WIDTH, INFO_HEIGHT, nil)
             Interface.grid = Grid.create(SHOP_PANEL_X, SHOP_PANEL_Y, SHOP_COLUMNS*SHOP_SLOT_WIDTH + 0.032, SHOP_SLOT_HEIGHT*SHOP_ROWS + 0.034, nil)
