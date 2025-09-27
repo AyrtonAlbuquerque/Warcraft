@@ -19,10 +19,10 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real INFO_HEIGHT = 0.15
         /* ---------------------------------------- Portrait --------------------------------------- */
         // The initial position of the portrait (relative to the info panel)
-        private constant real PORTRAIT_X = 0.017
+        private real PORTRAIT_X = 0.017
         private constant real PORTRAIT_Y = -0.017
         // Size of the portrait
-        private constant real PORTRAIT_WIDTH = 0.085
+        private real PORTRAIT_WIDTH = 0.085
         private constant real PORTRAIT_HEIGHT = 0.09
         // Portrait darkness level (0 -> Normal, > 0 -> Darker)
         private constant integer PORTRAIT_DARKNESS = 104
@@ -166,7 +166,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant string ITEM_SLOT_TEXTURE = "ItemSlot.blp"
         /* --------------------------------------- Hero List --------------------------------------- */
         // The initial position of the first hero icon
-        private constant real HERO_LIST_X = -0.128
+        private real HERO_LIST_X = -0.128
         private constant real HERO_LIST_Y = 0.573
         // Size of the hero icon
         private constant real HERO_LIST_WIDTH = 0.038
@@ -204,7 +204,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real MENU_FRAME_Y = -0.02
         // The size of the menu frame
         private constant real MENU_FRAME_WIDTH = 0.40
-        private constant real MENU_FRAME_HEIGHT = 0.23
+        private constant real MENU_FRAME_HEIGHT = 0.25
         /* -------------------------------------- Menu Options ------------------------------------- */
         private constant real MENU_X_OFFSET = 0.04
         private constant real MENU_Y_OFFSET = -0.025
@@ -265,12 +265,14 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real LUMBER_TEXT_HEIGHT = 0.0125
         private constant real LUMBER_TEXT_SCALE = 1.0
         /* ---------------------------------------- Minimap ---------------------------------------- */
-        // The initial position of the minimap on the right side of the screen
-        private constant real MINIMAP_RIGHT_X = 0.785
-        private constant real MINIMAP_RIGHT_Y = 0.15
-        // The initial position of the minimap on the left side of the screen
-        private constant real MINIMAP_LEFT_X = -0.13365
-        private constant real MINIMAP_LEFT_Y = 0.15
+        // The min/max x position of the minimap when on the right side of the screen
+        private constant real MINIMAP_RIGHT_MIN = 0.785
+        private constant real MINIMAP_RIGHT_MAX = 0.97
+        // the min/max x position of the minimap when on the left side of the screen
+        private constant real MINIMAP_LEFT_MIN = -0.32
+        private constant real MINIMAP_LEFT_MAX = -0.135
+        // The minimap y
+        private constant real MINIMAP_Y = 0.15
         // The size of the minimap
         private constant real MINIMAP_WIDTH = 0.15
         private constant real MINIMAP_HEIGHT = 0.15
@@ -387,6 +389,8 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         Text sliderText
         Slider shader
         Text shaderText
+        Text mapText
+        Slider mapSlider
 
         method destroy takes nothing returns nothing
             call right.destroy()
@@ -401,6 +405,8 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             call defaultText.destroy()
             call sliderText.destroy()
             call shaderText.destroy()
+            call mapText.destroy()
+            call mapSlider.destroy()
             call deallocate()
         endmethod
 
@@ -434,12 +440,20 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             set shader.max = 255
             set shader.value = PORTRAIT_DARKNESS
             set shader.onSlide = function thistype.onSlider
+            set mapText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, shader.frame, "|cffffffffMinimap Position|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            set mapSlider = Slider.create(0, 0, SLIDER_WIDTH, SLIDER_HEIGHT, mapText.frame, "EscMenuSliderTemplate")
+            set mapSlider.min = MINIMAP_LEFT_MIN
+            set mapSlider.max = MINIMAP_LEFT_MAX
+            set mapSlider.step = 0.00185
+            set mapSlider.value = MINIMAP_LEFT_MAX
+            set mapSlider.onSlide = function thistype.onSlider
             set table[right] = this
             set table[toggle] = this
             set table[heroes] = this
             set table[shader] = this
             set table[slider] = this
             set table[default] = this
+            set table[mapSlider] = this
 
             call right.setPoint(FRAMEPOINT_TOPLEFT, FRAMEPOINT_TOPLEFT, MENU_X_OFFSET, MENU_Y_OFFSET)
             call rightText.setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
@@ -453,6 +467,8 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             call slider.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
             call shaderText.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
             call shader.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call mapText.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call mapSlider.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
 
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
@@ -468,19 +484,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
 
             if GetLocalPlayer() == GetTriggerPlayer() then
                 if toggle.checked then
-                    if BlzGetTriggerPlayerIsKeyDown() then
-                        if right.checked then
-                            set Interface.map.x = MINIMAP_RIGHT_X
-                            set Interface.map.y = MINIMAP_RIGHT_Y
-                            set Interface.map.visible = true
-                        else
-                            set Interface.map.x = MINIMAP_LEFT_X
-                            set Interface.map.y = MINIMAP_LEFT_Y
-                            set Interface.map.visible = true
-                        endif
-                    else
-                        set Interface.map.visible = false
-                    endif
+                    set Interface.map.visible = BlzGetTriggerPlayerIsKeyDown()
                 endif
             endif
         endmethod
@@ -496,6 +500,8 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                 elseif slide == shader then
                     set shaderText.text = "|cffffffffPortrait Opacity: " + I2S(R2I((shader.value*100)/255)) + "%|r"
                     set Interface.portrait.opacity = R2I(shader.value)
+                elseif slide == mapSlider then
+                    set Interface.map.x = mapSlider.value
                 endif
             endif
         endmethod
@@ -505,14 +511,15 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             local thistype this = table[check]
 
             if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == right and not toggle.checked then
-                    set Interface.map.x = MINIMAP_RIGHT_X
-                    set Interface.map.y = MINIMAP_RIGHT_Y
-                    set Interface.map.visible = true
+                if check == right then
+                    set Interface.map.x = MINIMAP_RIGHT_MIN - (mapSlider.min - mapSlider.value)
+                    set mapSlider.min = MINIMAP_RIGHT_MIN
+                    set mapSlider.max = MINIMAP_RIGHT_MAX
+                    set mapSlider.value = Interface.map.x
                 elseif check == toggle then
                     set Interface.map.visible = false
                 elseif check == heroes then
-                    set Interface.heroes= true
+                    set Interface.heroes = true
                 elseif check == default then
                     call BlzFrameSetVisible(Interface.default, true)
                 endif
@@ -525,23 +532,12 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
 
             if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
                 if check == right then
-                    if not toggle.checked then
-                        set Interface.map.x = MINIMAP_LEFT_X
-                        set Interface.map.y = MINIMAP_LEFT_Y
-                        set Interface.map.visible = true
-                    else
-                        set Interface.map.visible = false
-                    endif
+                    set Interface.map.x = MINIMAP_LEFT_MIN + (mapSlider.value - mapSlider.min)
+                    set mapSlider.min = MINIMAP_LEFT_MIN
+                    set mapSlider.max = MINIMAP_LEFT_MAX
+                    set mapSlider.value = Interface.map.x
                 elseif check == toggle then
-                    if right.checked then
-                        set Interface.map.x = MINIMAP_RIGHT_X
-                        set Interface.map.y = MINIMAP_RIGHT_Y
-                        set Interface.map.visible = true
-                    else
-                        set Interface.map.x = MINIMAP_LEFT_X
-                        set Interface.map.y = MINIMAP_LEFT_Y
-                        set Interface.map.visible = true
-                    endif
+                    set Interface.map.visible = true
                 elseif check == heroes then
                     set Interface.heroes = false
                 elseif check == default then
@@ -1269,11 +1265,17 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             local framehandle frame
             local integer i = 0
 
+            if BlzGetLocalClientWidth() > 1920 then
+                set HERO_LIST_X = -0.315
+                set PORTRAIT_X = PORTRAIT_X + 0.01
+                set PORTRAIT_WIDTH = PORTRAIT_WIDTH - 0.02
+            endif
+
             set coin = BlzGetFrameByName("ResourceBarGoldText" , 0) 
             set wood = BlzGetFrameByName("ResourceBarLumberText" , 0)
             set default = BlzGetFrameByName("UpperButtonBarFrame", 0)
             set tooltip = BlzGetOriginFrame(ORIGIN_FRAME_UBERTOOLTIP , 0)
-            set map = Minimap.create(MINIMAP_LEFT_X, MINIMAP_LEFT_Y, MINIMAP_WIDTH, MINIMAP_HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0))
+            set map = Minimap.create(MINIMAP_LEFT_MAX, MINIMAP_Y, MINIMAP_WIDTH, MINIMAP_HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0))
             set menu = Menu.create(MENU_X, MENU_Y, MENU_WIDTH, MENU_HEIGHT, null)
             set portrait = Portrait.create(INFO_X, INFO_Y, INFO_WIDTH, INFO_HEIGHT, null)
             set grid = Grid.create(SHOP_PANEL_X, SHOP_PANEL_Y, SHOP_COLUMNS*SHOP_SLOT_WIDTH + 0.032, SHOP_SLOT_HEIGHT*SHOP_ROWS + 0.034, null)
