@@ -1,4 +1,4 @@
-scope Test
+scope Setup
     struct Items
         static constant integer BOOTS_OF_SPEED              = 'I00A'
         static constant integer ANKH_OF_REINCARNATION       = 'I00N'
@@ -481,18 +481,16 @@ scope Test
         endmethod
 
         private static method onInit takes nothing returns nothing
+            local integer i = 0
+
             call configure()
             call create('ngme', 600, 0.5)
-            call SetPlayerState(Player(0), PLAYER_STATE_RESOURCE_GOLD, 9999999)
-            // call BlzFrameSetAlpha(BlzGetFrameByName("SimpleInventoryCover", 0), 0)
-            // call BlzFrameSetScale(BlzGetFrameByName("InventoryText", 0), 0.0001)
-            // call BlzFrameSetAbsPoint(BlzGetFrameByName("ConsoleUI", 0), FRAMEPOINT_TOPLEFT, 0.0, 0.633)
-            // call BlzFrameSetVisible(BlzGetFrameByName("ResourceBarFrame", 0), false)
-            // call BlzFrameSetVisible(BlzGetFrameByName("UpperButtonBarFrame", 0), false)
-            // call BlzFrameSetVisible(BlzFrameGetChild(BlzGetFrameByName("ConsoleUI", 0), 7), false)
-            // call BlzFrameSetVisible(BlzFrameGetChild(BlzFrameGetChild(BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 5),0), false)
-            // call BlzFrameSetParent(BlzGetFrameByName("MiniMapFrame", 0), BlzGetFrameByName("ConsoleUIBackdrop", 0))
-            // call BlzFrameSetVisible(BlzGetOriginFrame(ORIGIN_FRAME_PORTRAIT, 0), false)
+
+            loop
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                call SetPlayerState(Player(i), PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(Player(i), PLAYER_STATE_RESOURCE_GOLD) + 99999999)
+                set i = i + 1
+            endloop
         endmethod
     endstruct
 endscope
