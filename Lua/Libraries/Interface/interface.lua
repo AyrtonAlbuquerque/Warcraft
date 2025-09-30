@@ -1,3 +1,6 @@
+---@beginFile Interface
+---@debug
+---@diagnostic disable: need-check-nil
 OnInit("Interface", function(requires)
     requires "Class"
     requires "Components"
@@ -1161,7 +1164,7 @@ OnInit("Interface", function(requires)
             BlzFrameSetScale(BlzGetFrameByName("SimpleBuildingNameValue", 1), 0.00001)
             BlzFrameSetScale(BlzGetFrameByName("SimpleBuildingActionLabel", 1), 0.00001)
             BlzFrameSetScale(BlzGetFrameByName("SimpleHoldNameValue", 2), 0.00001)
-            BlzFrameSetScale(BlzGetFrameByName("SimpleHoldDescriptionNameValue", 2), 0.00001)
+            BlzFrameSetScale(BlzGetFrameByName("SimpleHoldDescriptionValue", 2), 0.00001)
             BlzFrameSetScale(BlzGetFrameByName("SimpleItemNameValue", 3), 0.00001)
             BlzFrameSetScale(BlzGetFrameByName("SimpleItemDescriptionValue", 3), 0.00001)
             BlzFrameSetScale(BlzGetFrameByName("SimpleDestructableNameValue", 4), 0.00001)

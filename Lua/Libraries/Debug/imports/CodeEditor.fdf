@@ -1,0 +1,244 @@
+Frame "FRAME" "CodeEditor" {
+	Frame "BACKDROP" "CodeEditorBackdrop" {
+		BackdropTileBackground,
+		BackdropBackground  "blackmask.blp",
+		BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+		BackdropCornerSize  0.024,
+		BackdropBackgroundInsets 0.004 0.004 0.004 0.004,
+		BackdropEdgeFile  "talentTreeBorderYellow.blp",
+		BackdropBlendAll,
+	}
+	
+	Frame "BACKDROP" "CodeEditorBorder" {
+		BackdropTileBackground,
+		BackdropBackground  "transparentmask.blp",
+		BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+		BackdropCornerSize  0.024,
+		BackdropBackgroundInsets 0.004 0.004 0.004 0.004,
+		BackdropEdgeFile  "talentTreeBorderYellow.blp",
+		BackdropBlendAll,
+	}
+}
+
+Frame "TEXT" "Consolas" {
+   UseActiveContext,
+   FontFlags "FIXEDSIZE",
+   FrameFont "Consolas.ttf", 0.007, "",
+}
+
+Frame "GLUEBUTTON" "CodeEditorButton" {
+    Width 0.02,
+    Height 0.02,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+    ControlBackdrop "CodeEditorButtonBackdrop",
+    Frame "BACKDROP" "CodeEditorButtonBackdrop" {
+    }
+
+    ControlMouseOverHighlight "CodeEditorButtonHighLight",
+    Frame "HIGHLIGHT" "CodeEditorButtonHighLight" {
+		HighlightType "FILETEXTURE",
+		HighlightAlphaFile "UI\Glues\ScoreScreen\scorescreen-tab-hilight.blp",
+		HighlightAlphaMode "ADD",
+    }
+}
+
+Frame "GLUEBUTTON" "VariableViewerButton" {
+    Width 0.02,
+    Height 0.02,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+    Frame "TEXT" "VariableViewerButtonText" {
+    }
+
+    ControlMouseOverHighlight "VariableViewerButtonHighLight",
+    Frame "HIGHLIGHT" "VariableViewerButtonHighLight" {
+		HighlightType "FILETEXTURE",
+		HighlightAlphaFile "UI\Glues\ScoreScreen\scorescreen-tab-hilight.blp",
+		HighlightAlphaMode "ADD",
+    }
+}
+
+Frame "GLUEBUTTON" "CloseEditorButton" {
+    Width 0.02,
+    Height 0.02,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+    ControlBackdrop "CloseEditorButtonIcon",
+    Frame "BACKDROP" "CloseEditorButtonIcon" {
+    }
+
+    ControlPushedBackdrop "CloseEditorButtonIconPushed",
+    Frame "BACKDROP" "CloseEditorButtonIconPushed" {
+    }
+
+    ControlMouseOverHighlight "CloseEditorButtonHighLight",
+    Frame "HIGHLIGHT" "CloseEditorButtonHighLight" {
+        HighlightType "FILETEXTURE",
+        HighlightAlphaFile "closeEditorHighlight.blp",
+        HighlightAlphaMode "ADD",
+    }
+}
+
+Frame "GLUEBUTTON" "ExpandEditorButton" {
+    Width 0.02,
+    Height 0.02,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+    ControlBackdrop "ExpandEditorButtonIcon",
+    Frame "BACKDROP" "ExpandEditorButtonIcon" {
+    }
+
+    ControlPushedBackdrop "ExpandEditorButtonIconPushed",
+    Frame "BACKDROP" "ExpandEditorButtonIconPushed" {
+    }
+
+    ControlMouseOverHighlight "ExpandEditorButtonHighLight",
+    Frame "HIGHLIGHT" "ExpandEditorButtonHighLight" {
+        HighlightType "FILETEXTURE",
+        HighlightAlphaFile "expandEditorHighlight.blp",
+        HighlightAlphaMode "ADD",
+    }
+}
+
+Frame "GLUEBUTTON" "CollapseEditorButton" {
+    Width 0.02,
+    Height 0.02,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+    ControlBackdrop "CollapseEditorButtonIcon",
+    Frame "BACKDROP" "CollapseEditorButtonIcon" {
+    }
+
+    ControlPushedBackdrop "CollapseEditorButtonIconPushed",
+    Frame "BACKDROP" "CollapseEditorButtonIconPushed" {
+    }
+
+    ControlMouseOverHighlight "CollapseEditorButtonHighLight",
+    Frame "HIGHLIGHT" "CollapseEditorButtonHighLight" {
+        HighlightType "FILETEXTURE",
+        HighlightAlphaFile "collapseEditorHighlight.blp",
+        HighlightAlphaMode "ADD",
+    }
+}
+
+Frame "GLUEBUTTON" "SearchDownButton" {
+    Width 0.02,
+    Height 0.02,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+    ControlBackdrop "SearchDownButtonIcon",
+    Frame "BACKDROP" "SearchDownButtonIcon" {
+    }
+
+    ControlPushedBackdrop "SearchDownButtonIconPushed",
+    Frame "BACKDROP" "SearchDownButtonIconPushed" {
+    }
+
+    ControlMouseOverHighlight "SearchDownButtonHighLight",
+    Frame "HIGHLIGHT" "SearchDownButtonHighLight" {
+        HighlightType "FILETEXTURE",
+        HighlightAlphaFile "searchDownHighlight.blp",
+        HighlightAlphaMode "ADD",
+    }
+}
+
+Frame "GLUEBUTTON" "SearchUpButton" {
+    Width 0.02,
+    Height 0.02,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+    ControlBackdrop "SearchUpButtonIcon",
+    Frame "BACKDROP" "SearchUpButtonIcon" {
+    }
+
+    ControlPushedBackdrop "SearchUpButtonIconPushed",
+    Frame "BACKDROP" "SearchUpButtonIconPushed" {
+    }
+
+    ControlMouseOverHighlight "SearchUpButtonHighLight",
+    Frame "HIGHLIGHT" "SearchUpButtonHighLight" {
+        HighlightType "FILETEXTURE",
+        HighlightAlphaFile "searchUpHighlight.blp",
+        HighlightAlphaMode "ADD",
+    }
+}
+
+Frame "GLUEBUTTON" "TabNavigator" {
+    Width 0.035,
+    Height 0.035,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+    ControlBackdrop "TabNavigatorIcon",
+    Frame "BACKDROP" "TabNavigatorIcon" {
+		BackdropTileBackground,
+		BackdropBackground  "transparentmask.blp",
+		BackdropCornerFlags "UL|UR|T|L|R",
+		BackdropCornerSize  0.024,
+		BackdropBackgroundInsets 0.004 0.004 0.004 0.004,
+		BackdropEdgeFile  "TalentTreeBorderYellow.blp",
+		BackdropBlendAll,
+    }
+	
+    Frame "BACKDROP" "TabNavigatorBackdrop" {
+		BackdropTileBackground,
+		BackdropBackground  "blackmask.blp",
+		BackdropBackgroundInsets 0.004 0.004 0.004 0.004,
+		BackdropBlendAll,
+    }
+	
+	Frame "TEXT" "TabNavigatorTitle" {
+		UseActiveContext,
+		DecorateFileNames,
+		FontFlags "FIXEDSIZE",
+		FrameFont "MasterFont", 0.01, "",
+		FontColor 1.0 1.0 1.0 1.0,
+		FontShadowColor 0.0 0.0 0.0 0.9,
+		FontShadowOffset 0.001 -0.001,
+	}
+   
+	ControlMouseOverHighlight "TabNavigatorHighlight",
+    Frame "HIGHLIGHT" "TabNavigatorHighlight" {
+		HighlightType "FILETEXTURE",
+		HighlightAlphaFile "UI\Glues\ScoreScreen\scorescreen-tab-hilight.blp",
+		HighlightAlphaMode "ADD",
+   }
+}
+
+Frame "GLUEBUTTON" "BottomBarButton" {
+    Width 0.02,
+    Height 0.02,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+    ControlBackdrop "BottomBarButtonIcon",
+    Frame "BACKDROP" "BottomBarButtonIcon" {
+    }
+
+    ControlPushedBackdrop "BottomBarButtonIconPushed",
+    Frame "BACKDROP" "BottomBarButtonIconPushed" {
+    }
+	
+    ControlDisabledBackdrop "BottomBarButtonIconDisabled",
+    Frame "BACKDROP" "BottomBarButtonIconDisabled" {
+    }
+
+    ControlMouseOverHighlight "BottomBarButtonHighLight",
+    Frame "HIGHLIGHT" "BottomBarButtonHighLight" {
+        HighlightType "FILETEXTURE",
+		HighlightAlphaFile "UI\Glues\ScoreScreen\scorescreen-tab-hilight.blp",
+        HighlightAlphaMode "ADD",
+    }
+}
+
+IncludeFile "UI/FrameDef/UI/EscMenuTemplates.fdf",
+
+Frame "EDITBOX" "SearchBarEditBox" INHERITS WITHCHILDREN "EscMenuEditBoxTemplate" {
+    Width 0.15,
+    Height 0.037,
+    DecorateFileNames,
+    FrameFont "MasterFont", 0.008, "",
+
+    EditTextFrame "SearchBarEditBoxText",
+    Frame "TEXT" "SearchBarEditBoxText" {
+    }
+}

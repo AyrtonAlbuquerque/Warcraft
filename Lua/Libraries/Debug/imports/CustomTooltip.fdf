@@ -1,0 +1,47 @@
+// -- LOCAL TEMPLATES -------------------------------------------------------
+Frame "BACKDROP" "CustomTooltipBackgroundTemplate" {
+        DecorateFileNames, //Look-Up Names in some String table (for example gameinterface)
+        BackdropTileBackground, //Tile mode enabled
+        BackdropBackground  "ToolTipBackground", //BackgroundFile
+        BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+        BackdropCornerSize  0.008, //higher numbers make the corners bigger.
+        BackdropBackgroundInsets 0.0022 0.0022 0.0022 0.0022, //makes the background smaller, from the outside.
+        BackdropEdgeFile  "ToolTipBorder", //the border File
+        BackdropBlendAll,
+}
+// -- Frames -------------------------------------------------------
+Frame "BACKDROP" "CustomTooltip" INHERITS "CustomTooltipBackgroundTemplate" {
+   UseActiveContext,
+ 
+   Frame "TEXT" "CustomTooltipTitle" {
+       UseActiveContext,
+       DecorateFileNames,
+       SetPoint TOPLEFT, "CustomTooltip", TOPLEFT, 0.006, -0.0065, //Positionate "CustomTooltipSimpleTitle"'s TOPLEFT to "CustomTooltip"'s TOPLEFT with an offset
+       SetPoint TOPRIGHT, "CustomTooltip", TOPRIGHT, -0.006, -0.0065,
+       FontFlags "FIXEDSIZE",
+       FrameFont "MasterFont", 0.011, "",
+       FontColor 1.0 1.0 1.0 1.0, //Red Green Blue Alpha 0.0 to 1.0
+       FontShadowColor 0.0 0.0 0.0 0.9,
+       FontShadowOffset 0.001 -0.001,
+   }
+ 
+   Frame "TEXT" "CustomTooltipValue" {
+       UseActiveContext,
+       DecorateFileNames,
+       SetPoint TOPLEFT, "CustomTooltip", TOPLEFT, 0.006, -0.0295,
+       SetPoint TOPRIGHT,  "CustomTooltip", TOPRIGHT, -0.006, -0.0295,
+       FontFlags "FIXEDSIZE",
+       FrameFont "MasterFont", 0.01, "",
+       FontColor 1.0 1.0 1.0 1.0,
+       FontShadowColor 0.0 0.0 0.0 0.9,
+       FontShadowOffset 0.001 -0.001,
+   }
+   
+   Frame "BACKDROP" "CustomTooltipSeparator" {
+       DecorateFileNames, //Look-Up Names in some String table (for example gameinterface)
+       BackdropBackground  "ToolTipHorizontalSeparator",
+       SetPoint TOPLEFT, "CustomTooltip", TOPLEFT, 0.0075, -0.023,
+       SetPoint BOTTOMRIGHT,  "CustomTooltip", TOPRIGHT, -0.0075, -0.0236,
+       BackdropBlendAll,
+   }
+}

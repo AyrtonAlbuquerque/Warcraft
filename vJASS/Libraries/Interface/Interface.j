@@ -1312,7 +1312,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             call BlzFrameSetScale(BlzGetFrameByName("SimpleBuildingNameValue", 1), 0.00001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleBuildingActionLabel", 1), 0.00001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleHoldNameValue", 2), 0.00001)
-            call BlzFrameSetScale(BlzGetFrameByName("SimpleHoldDescriptionNameValue", 2), 0.00001)
+            call BlzFrameSetScale(BlzGetFrameByName("SimpleHoldDescriptionValue", 2), 0.00001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleItemNameValue", 3), 0.00001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleItemDescriptionValue", 3), 0.00001)
             call BlzFrameSetScale(BlzGetFrameByName("SimpleDestructableNameValue", 4), 0.00001)

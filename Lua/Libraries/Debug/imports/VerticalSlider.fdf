@@ -1,0 +1,33 @@
+Frame "SLIDER" "VerticalSlider" {
+    Height 0.016,
+    SliderLayoutVertical,
+
+    ControlBackdrop "VerticalSliderBlackdrop",
+    Frame "BACKDROP" "VerticalSliderBlackdrop" {
+        BackdropTileBackground,
+        BackdropBackground  "UI\Widgets\Glues\GlueScreen-Slider-BackdropBackground.blp",
+        BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+        BackdropCornerSize  0.008,
+        BackdropBackgroundInsets 0.004 0.004 0.004 0.004,
+        BackdropEdgeFile  "UI\Widgets\Glues\GlueScreen-Slider-BackdropBorder.blp",
+        BackdropBlendAll,
+    }
+
+    SliderThumbButtonFrame "VerticalSliderThumbButton",
+    Frame "BUTTON" "VerticalSliderThumbButton" {
+        Width 0.016,
+        Height 0.016,
+
+        ControlBackdrop "VerticalSliderThumbButtonBackdrop",
+        Frame "BACKDROP" "VerticalSliderThumbButtonBackdrop" {
+            BackdropBlendAll,
+            BackdropBackground  "UI\Widgets\Glues\SinglePlayerSkirmish-ScrollBarKnob.blp",
+        }
+
+        ControlDisabledBackdrop "VerticalSliderThumbButtonDisabledBackdrop",
+        Frame "BACKDROP" "VerticalSliderThumbButtonDisabledBackdrop" {
+            BackdropBlendAll,
+            BackdropBackground  "UI\Widgets\Glues\SinglePlayerSkirmish-ScrollBarKnobDisabled.blp",
+        }
+    }
+}
