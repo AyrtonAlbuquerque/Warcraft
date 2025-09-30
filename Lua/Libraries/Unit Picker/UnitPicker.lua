@@ -311,7 +311,8 @@ OnInit("UnitPicker", function(requires)
         })
 
         Unit:property("ability", {
-            get = function(self) return abilities[self.id] end
+            get = function(self) return abilities[self.id] end,
+            set = function(self, value) abilities[self.id] = value end
         })
 
         Unit:property("isHero", {
@@ -637,8 +638,8 @@ OnInit("UnitPicker", function(requires)
     do
         Pick:property("unit", {
             get = function(self) return self.picked end,
-            set = function(self, value) 
-                self.picked = value 
+            set = function(self, value)
+                self.picked = value
                 self.button.texture = value.icon
                 self.button.tooltip.text = value.tooltip
                 self.button.tooltip.name = value.name
@@ -751,7 +752,7 @@ OnInit("UnitPicker", function(requires)
         end
 
         function Slot.create(picker, unit, x, y, parent)
-            local this = Slot.allocate(x, y, ITEM_SIZE, ITEM_SIZE, parent, false, false)
+            local this = Slot.allocate(x, y, SLOT_WIDTH, SLOT_HEIGHT, parent, "Leaderboard", false)
 
             this.x = x
             this.y = y
@@ -771,7 +772,7 @@ OnInit("UnitPicker", function(requires)
             this.woodText = Text.create(0, 0, COST_WIDTH, COST_HEIGHT, COST_SCALE, false, this.wood.frame, nil, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
             this.food = Backdrop.create(0, 0, COST_SIZE, COST_SIZE, this.wood.frame, FOOD_ICON)
             this.foodText = Text.create(0, 0, COST_WIDTH, COST_HEIGHT, COST_SCALE, false, this.food.frame, nil, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            array[button] = this
+            array[this.button] = this
 
             this.button:setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_LEFT, 0.006, 0)
             this.name:setPoint(FRAMEPOINT_TOPLEFT, FRAMEPOINT_TOPRIGHT, 0, 0)
@@ -857,13 +858,13 @@ OnInit("UnitPicker", function(requires)
             for i = 0, bj_MAX_PLAYER_SLOTS do
                 if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
                     for j = 0, ABILITY_COUNT - 1 do
-                        this.ability[i][j]:destroy()
+                        self.ability[i][j]:destroy()
                     end
                 end
             end
 
             for i = 0, CATEGORY_COUNT - 1 do
-                this.category[i]:destroy()
+                self.category[i]:destroy()
             end
 
             self.name:destroy()
@@ -902,13 +903,13 @@ OnInit("UnitPicker", function(requires)
                 self.intelligence.visible = unit.isHero
                 self.range.visible = unit.isHero
                 self.regeneration.visible = unit.isHero
-
+                
                 if unit.isHero then
                     self.range.text = unit.range
                     self.regeneration.text = unit.regeneration
-                    self.agility.text = unit.agility + unit.agilityPerLevel
-                    self.strength.text = unit.strength + unit.strengthPerLevel
-                    self.intelligence.text = unit.intelligence + unit.intelligencePerLevel
+                    self.agility.text = unit.agility .. unit.agilityPerLevel
+                    self.strength.text = unit.strength .. unit.strengthPerLevel
+                    self.intelligence.text = unit.intelligence .. unit.intelligencePerLevel
 
                     self.agility:display(nil, 0, 0, 0)
                     self.strength:display(nil, 0, 0, 0)
@@ -1071,7 +1072,9 @@ OnInit("UnitPicker", function(requires)
             self.active = 0
 
             for i = 0, CATEGORY_COUNT - 1 do
-                self.button[i].active = false
+                if self.button[i] then
+                    self.button[i].active = false
+                end
             end
 
             self.picker:filter(self.active, self.andLogic)
@@ -1134,6 +1137,665 @@ OnInit("UnitPicker", function(requires)
 
                 this.picker:filter(this.active, this.andLogic)
             end
+        end
+    end
+
+    -- --------------------------------------- UnitPicker -------------------------------------- --
+    do
+        UnitPicker = Class(Panel)
+
+        local bans = {}
+        local unitpool = {}
+
+        UnitPicker:property("visible", {
+            get = function(self) return self.isVisible end,
+            set = function(self, value)
+                local id = GetPlayerId(GetLocalPlayer())
+
+                self.isVisible = value or self.keepOpen
+
+                if not self.isVisible then
+                    array[id] = nil
+                else
+                    array[id] = self
+
+                    if array[self][id] then
+                        self:detail(array[self][id].unit, GetLocalPlayer())
+                    else
+                        self:detail(unitpool[self][0].unit, GetLocalPlayer())
+                    end
+                end
+
+                BlzFrameSetVisible(self.frame, self.isVisible)
+            end
+        })
+
+        UnitPicker:property("keepOpened", {
+            get = function(self) return self.keepOpen end,
+            set = function(self, value)
+                self.keepOpen = value
+
+                if not self.visible and self.keepOpen then
+                    self.visible = true
+                end
+            end
+        })
+
+        function UnitPicker:destroy()
+            local slot = unitpool[self][0]
+
+            while slot do
+                slot:destroy()
+                slot = slot.next
+            end
+
+            for i = 0, MAX_PICKS_SHOWED - 1 do
+                if self.pick[i] then
+                    self.pick[i]:destroy()
+                end
+            end
+
+            self.ban:destroy()
+            self.edit:destroy()
+            self.close:destroy()
+            self.clear:destroy()
+            self.logic:destroy()
+            self.banText:destroy()
+            self.details:destroy()
+            self.category:destroy()
+        end
+
+        function UnitPicker:buy(unit, player)
+            local id = GetPlayerId(player)
+            local cap = GetPlayerState(player, PLAYER_STATE_RESOURCE_FOOD_CAP)
+            local gold = GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD)
+            local lumber = GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER)
+            local food = cap - GetPlayerState(player, PLAYER_STATE_RESOURCE_FOOD_USED)
+            local new
+
+            if unit.gold <= gold and unit.wood <= lumber and (unit.food <= food or cap == 0) and not self.ban.visible then
+                new = CreateUnit(player, unit.id, self.spawnX, self.spawnY, 0)
+
+                if new then
+                    SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, gold - unit.gold)
+                    SetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER, lumber - unit.wood)
+                    Sound.success(player)
+
+                    if self.showPicks and self.pick[id] then
+                        self.pick[id].unit = unit
+                    end
+                else
+                    Sound.error(player)
+                    return false
+                end
+
+                return true
+            else
+                if self.ban.visible then
+                    Sound.error(player)
+                else
+                    if unit.gold > gold then
+                        Sound.gold(player)
+                    elseif unit.wood > lumber then
+                        Sound.wood(player)
+                    elseif unit.food > food and cap ~= 0 then
+                        Sound.food(player)
+                    else
+                        Sound.error(player)
+                    end
+                end
+
+                return false
+            end
+
+            return false
+        end
+
+        function UnitPicker:scroll(down)
+            local slot = self.first
+
+            if (down and self.tail ~= self.last and not self.last.visible) or (not down and self.head ~= self.first) then
+                while slot do
+                    if down then
+                        slot:move(slot.row - 1, slot.column)
+                    else
+                        slot:move(slot.row + 1, slot.column)
+                    end
+
+                    slot.visible = slot.row >= 0 and slot.row <= self.rows - 1 and slot.column >= 0 and slot.column <= self.columns - 1 and slot.filtered
+
+                    if slot.row == 0 and slot.column == 0 then
+                        self.head = slot
+                    end
+
+                    if (slot.row == self.rows - 1 and slot.column == self.columns - 1) or (slot == self.last and slot.visible) then
+                        self.tail = slot
+                    end
+
+                    slot = slot.right
+                end
+
+                return true
+            end
+
+            return false
+        end
+
+        function UnitPicker:scrollTo(unit, player)
+            if unit and player == GetLocalPlayer() then
+                local slot = array[self][unit.id]
+
+                repeat until slot.visible or not self:scroll(true)
+            end
+        end
+
+        function UnitPicker:random(player)
+            local j = GetRandomInt(0, self.index)
+            local id = GetPlayerId(player)
+            local slot = unitpool[self][j]
+
+            if self.index >= 0 and slot then
+                for i = 0, self.index do
+                    if slot.available and slot.button.active and slot.drafted[id] then
+                        if self:buy(slot.unit, player) then
+                            slot.button.active = not slot.unit.unique
+
+                            SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) + R2I(slot.unit.gold * self.discount))
+                            SetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER) - R2I(slot.unit.wood * self.discount))
+                        else
+                            Sound.error(player)
+                        end
+
+                        break
+                    end
+
+                    j = ModuloInteger(j + 1, self.index)
+                    slot = unitpool[self][j]
+                end
+            end
+        end
+
+        function UnitPicker:draft()
+            local k
+            local slot
+            local used = {}
+            local tries = 0
+            local reused = false
+
+            if self.drafts > 0 and self.drafts < self.index then
+                for i = 0, bj_MAX_PLAYER_SLOTS do
+                    if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                        for j = 0, self.drafts - 1 do
+                            tries = 0
+                            k = GetRandomInt(0, self.index)
+                            slot = unitpool[self][k]
+
+                            while tries <= self.index do
+                                if slot and not used[slot] then
+                                    used[slot] = 1
+                                    slot.drafted[i] = true
+
+                                    if reused then
+                                        slot.unit.unique = false
+                                    end
+
+                                    break
+                                end
+
+                                k = ModuloInteger(k + 1, self.index)
+                                slot = unitpool[self][k]
+                                tries = tries + 1
+                            end
+
+                            if tries > self.index then
+                                reused = true
+                                used = {}
+                            end
+                        end
+                    end
+                end
+            end
+
+            used = nil
+            self.category:reset()
+        end
+
+        function UnitPicker:filter(categories, andLogic)
+            local slot = unitpool[self][0]
+            local process
+            local i = -1
+
+            self.size = 0
+            self.first = nil
+            self.last = nil
+            self.head = nil
+            self.tail = nil
+
+            while slot do
+                if andLogic then
+                    process = categories == 0 or BlzBitAnd(slot.unit.categories, categories) >= categories
+                else
+                    process = categories == 0 or BlzBitAnd(slot.unit.categories, categories) > 0
+                end
+
+                if self.edit.text ~= "" and self.edit.text ~= nil then
+                    process = process and self:find(StringCase(slot.unit.name, false), StringCase(self.edit.text, false))
+                end
+
+                process = process and (slot.drafted[GetPlayerId(GetLocalPlayer())] or self.banCount > 0)
+                slot.filtered = process
+
+                if process then
+                    i = i + 1
+                    self.size = self.size + 1
+                    slot:move(R2I(i/self.columns), ModuloInteger(i, self.columns))
+                    slot.visible = slot.row >= 0 and slot.row <= self.rows - 1 and slot.column >= 0 and slot.column <= self.columns - 1
+
+                    if i > 0 then
+                        slot.left = self.last
+                        self.last.right = slot
+                    else
+                        self.first = slot
+                        self.head = self.first
+                    end
+
+                    if slot.visible then
+                        self.tail = slot
+                    end
+
+                    self.last = slot
+                else
+                    slot.visible = false
+                end
+
+                slot = slot.next
+            end
+        end
+
+        function UnitPicker:select(unit, player)
+            local id = GetPlayerId(player)
+
+            if unit then
+                if GetLocalPlayer() == player and array[self][id] then
+                    array[self][id].button:display(nil, 0, 0, 0)
+                end
+
+                array[self][id] = array[self][unit.id]
+
+                if GetLocalPlayer() == player then
+                    array[self][id].button:display(ITEM_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
+                end
+            end
+        end
+
+        function UnitPicker:detail(unit, player)
+            if unit then
+                self:select(unit, player)
+                self.details:show(unit, player)
+            else
+                if GetLocalPlayer() == player then
+                    self:filter(self.category.active, self.category.andLogic)
+                    self:scrollTo(array[self][GetPlayerId(player)].unit, player)
+                end
+            end
+        end
+
+        function UnitPicker:find(source, target)
+            local sourceLength = StringLength(source)
+            local targetLength = StringLength(target)
+            local i = 0
+
+            if targetLength <= sourceLength then
+                while i <= sourceLength - targetLength do
+                    if SubString(source, i, i + targetLength) == target then
+                        return true
+                    end
+
+                    i = i + 1
+                end
+            end
+
+            return false
+        end
+
+        function UnitPicker:addCategory(icon, description)
+            return self.category:add(icon, description)
+        end
+
+        function UnitPicker:add(id, unique, texture, ratio, categories)
+            local slot
+
+            if not array[self][id] then
+                local unit = Unit.get(id)
+
+                if unit then
+                    self.size = self.size + 1
+                    self.index = self.index + 1
+                    unit.ratio = ratio
+                    unit.unique = unique
+                    unit.texture = texture
+                    unit.categories = categories or 0
+                    slot = Slot.create(self, unit, 0, 0, self.frame)
+                    slot.row = R2I(self.index/COLUMNS)
+                    slot.column = ModuloInteger(self.index, COLUMNS)
+                    slot.filtered = true
+                    slot.visible = slot.row >= 0 and slot.row <= ROWS - 1 and slot.column >= 0 and slot.column <= COLUMNS - 1
+
+                    if self.index > 0 then
+                        slot.prev = self.last
+                        slot.left = self.last
+                        self.last.next = slot
+                        self.last.right = slot
+                    else
+                        self.first = slot
+                        self.head = slot
+                    end
+
+                    if slot.visible then
+                        self.tail = slot
+                    end
+
+                    for i = 0, bj_MAX_PLAYER_SLOTS do
+                        slot.drafted[i] = not (self.drafts > 0)
+                    end
+
+                    self.last = slot
+                    array[self][id] = slot
+                    unitpool[self][self.index] = slot
+                else
+                    print("Invalid unit code: " .. A2S(id))
+                end
+            else
+                print("The unit " .. GetObjectName(id) .. " is already registered for the instance " .. tostring(self))
+            end
+        end
+
+        function UnitPicker.create(spawnX, spawnY, randomDiscount, bansPerPlayer, banTimeout, draftCount, showPicks)
+            local this = UnitPicker.allocate(X, Y, WIDTH, HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0), "EscMenuBackdrop", false)
+
+            this.spawnX = spawnX
+            this.spawnY = spawnY
+            this.first = nil
+            this.last = nil
+            this.head = nil
+            this.tail = nil
+            this.size = 0
+            this.left = true
+            this.index = -1
+            this.banCount = 0
+            this.drafts = draftCount
+            this.timeout = banTimeout
+            this.keepOpen = false
+            this.showPicks = showPicks
+            this.discount = randomDiscount
+            this.rows = ROWS
+            this.columns = COLUMNS
+            this.pick = {}
+            this.scrolls = {}
+            this.details = Detail.create(this)
+            this.category = Category.create(this)
+            this.ban = Component.create(0, 0, 0.1, 0.03, this.frame, "ComponentFrame", "ScriptDialogButton", false)
+            this.ban.visible = bansPerPlayer > 0
+            this.ban.OnClick = UnitPicker.onBan
+            this.banText = Text.create(0, 0, this.ban.width, this.ban.height, 1, false, this.ban.frame, "Ban (" .. I2S(bansPerPlayer) .. "): " .. N2S(this.timeout, 0), TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_CENTER)
+            this.close = Button.create(0, 0, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, this.frame, true, false)
+            this.close.texture = CLOSE_ICON
+            this.close.tooltip.text = "Close"
+            this.close.OnClick = UnitPicker.onClose
+            this.clear = Button.create(0, 0, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, this.close.frame, true, false)
+            this.clear.texture = CLEAR_ICON
+            this.clear.tooltip.text = "Clear"
+            this.clear.OnClick = UnitPicker.onClear
+            this.logic = Button.create(0, 0, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, this.clear.frame, true, false)
+            this.logic.texture = LOGIC_ICON
+            this.logic.active = false
+            this.logic.tooltip.text = "AND"
+            this.logic.OnClick = UnitPicker.onLogic
+            this.randomize = Button.create(0, 0, TOOLBAR_BUTTON_SIZE, TOOLBAR_BUTTON_SIZE, this.logic.frame, true, false)
+            this.randomize.texture = RANDOM_ICON
+            this.randomize.tooltip.text = "Random (" .. I2S(R2I(this.discount * 100)) .. "% Discount)"
+            this.randomize.OnClick = UnitPicker.onRandom
+            this.edit = EditBox.create(0, 0, EDIT_WIDTH, EDIT_HEIGHT, this.randomize.frame, "EscMenuEditBoxTemplate")
+            this.edit.OnText = UnitPicker.onSearch
+
+            array[this] = {}
+            unitpool[this] = {}
+            array[this.ban] = this
+            array[this.edit] = this
+            array[this.close] = this
+            array[this.clear] = this
+            array[this.logic] = this
+            array[this.randomize] = this
+
+            this.ban:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, 0.007)
+            this.banText:setPoint(FRAMEPOINT_CENTER, FRAMEPOINT_CENTER, 0, 0)
+            this.close:setPoint(FRAMEPOINT_BOTTOMRIGHT, FRAMEPOINT_TOPRIGHT, -0.005, -0.0025)
+            this.clear:setPoint(FRAMEPOINT_RIGHT, FRAMEPOINT_LEFT, 0, 0)
+            this.logic:setPoint(FRAMEPOINT_RIGHT, FRAMEPOINT_LEFT, 0, 0)
+            this.randomize:setPoint(FRAMEPOINT_RIGHT, FRAMEPOINT_LEFT, 0, 0)
+            this.edit:setPoint(FRAMEPOINT_RIGHT, FRAMEPOINT_LEFT, 0, 0)
+
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    this.scrolls[i] = {}
+                end
+            end
+
+            if bansPerPlayer > 0 then
+                for i = 0, bj_MAX_PLAYER_SLOTS do
+                    if GetPlayerController(Player(i)) == MAP_CONTROL_USER and GetPlayerSlotState(Player(i)) == PLAYER_SLOT_STATE_PLAYING then
+                        bans[i] = bansPerPlayer
+                        this.banCount = this.banCount + bansPerPlayer
+                    end
+                end
+
+                TimerStart(CreateTimer(), 1, true, function()
+                    this.timeout = this.timeout - 1
+                    this.banText.text = "Ban (" .. I2S(bans[GetPlayerId(GetLocalPlayer())]) .. "): " .. N2S(this.timeout, 0)
+
+                    if this.banCount <= 0 or this.timeout <= 0 then
+                        this.banCount = 0
+                        this.ban.visible = false
+
+                        this:draft()
+                        Sound.alert(GetLocalPlayer())
+                        PauseTimer(GetExpiredTimer())
+                        DestroyTimer(GetExpiredTimer())
+                    end
+                end)
+            else
+                if this.drafts > 0 then
+                    TimerStart(CreateTimer(), 1, false, function()
+                        this:draft()
+                        DestroyTimer(GetExpiredTimer())
+                    end)
+                end
+            end
+
+            if showPicks then
+                for i = 0, MAX_PICKS_SHOWED - 1 do
+                    if GetPlayerController(Player(i)) == MAP_CONTROL_USER and GetPlayerSlotState(Player(i)) == PLAYER_SLOT_STATE_PLAYING then
+                        this.pick[i] = Pick.create(this, this.frame, this.left)
+                        this.pick[i].text = GetPlayerName(Player(i))
+
+                        if this.left then
+                            this.pick[i]:setPoint(FRAMEPOINT_TOPRIGHT, FRAMEPOINT_TOPLEFT, 0.005, -0.03 - R2I(i/2)*(SLOT_HEIGHT + SLOT_GAP_Y))
+                        else
+                            this.pick[i]:setPoint(FRAMEPOINT_TOPLEFT, FRAMEPOINT_TOPRIGHT, -0.005, -0.03 - R2I(i/2)*(SLOT_HEIGHT + SLOT_GAP_Y))
+                        end
+
+                        this.left = not this.left
+                    end
+                end
+            end
+
+            this.visible = false
+
+            return this
+        end
+
+        function UnitPicker:onScroll()
+            local id = GetPlayerId(GetTriggerPlayer())
+            local direction = R2I(BlzGetTriggerFrameValue())
+
+            if (self.scrolls[id][0] or 0) ~= direction then
+                self.scrolls[id][0] = direction
+                self.scrolls[id][1] = 0
+            else
+                self.scrolls[id][1] = (self.scrolls[id][1] or 0) + 1
+            end
+
+            if GetLocalPlayer() == GetTriggerPlayer() then
+                if self.scrolls[id][1] == 1 and SCROLL_DELAY > 0 then
+                    self:scroll(direction < 0)
+                elseif SCROLL_DELAY <= 0 then
+                    self:scroll(direction < 0)
+                end
+            end
+        end
+
+        function UnitPicker.onBan()
+            local this = array[GetTriggerComponent()]
+            local id = GetPlayerId(GetTriggerPlayer())
+
+            if this then
+                local slot = array[this][id]
+
+                if slot and bans[id] > 0 then
+                    if slot.available then
+                        slot.available = false
+                        bans[id] = bans[id] - 1
+                        this.banCount = this.banCount - 1
+                    else
+                        Sound.error(GetTriggerPlayer())
+                    end
+                else
+                    Sound.error(GetTriggerPlayer())
+                end
+            end
+        end
+
+        function UnitPicker.onExpire()
+            local id = GetPlayerId(GetLocalPlayer())
+            local this = array[id]
+
+            if this then
+                this.scrolls[id][1] = (this.scrolls[id][1] or 0) - 1
+
+                if this.scrolls[id][1] > 0 then
+                    this:scroll((this.scrolls[id][0] or 0) < 0)
+                else
+                    this.scrolls[id][1] = 0
+                end
+            end
+        end
+
+        function UnitPicker.onSearch()
+            local this = array[GetTriggerEditBox()]
+
+            if this and GetLocalPlayer() == GetTriggerPlayer() then
+                this:filter(this.category.active, this.category.andLogic)
+            end
+        end
+
+        function UnitPicker.onClose()
+            local this = array[GetTriggerComponent()]
+
+            if this then
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    this.visible = false
+                end
+            end
+        end
+
+        function UnitPicker.onClear()
+            local this = array[GetTriggerComponent()]
+
+            if this and GetLocalPlayer() == GetTriggerPlayer() then
+                this.category:reset()
+            end
+        end
+
+        function UnitPicker.onLogic()
+            local this = array[GetTriggerComponent()]
+
+            if this and GetLocalPlayer() == GetTriggerPlayer() then
+                this.logic.active = not this.logic.active
+                this.category.andLogic = not this.category.andLogic
+
+                if this.category.andLogic then
+                    this.logic.tooltip.text = "AND"
+                else
+                    this.logic.tooltip.text = "OR"
+                end
+
+                this:filter(this.category.active, this.category.andLogic)
+            end
+        end
+
+        function UnitPicker.onRandom()
+            local this = array[GetTriggerComponent()]
+
+            if this then
+                this:random(GetTriggerPlayer())
+            end
+        end
+
+        function UnitPicker.onEsc()
+            local this = array[GetPlayerId(GetTriggerPlayer())]
+
+            if this then
+                if GetLocalPlayer() == GetTriggerPlayer() then
+                    this.visible = false
+                end
+            end
+        end
+
+        function UnitPicker.onInit()
+            local trigger = CreateTrigger()
+
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    TriggerRegisterPlayerEventEndCinematic(trigger, Player(i))
+                end
+            end
+
+            if SCROLL_DELAY > 0 then
+                TimerStart(CreateTimer(), SCROLL_DELAY, true, UnitPicker.onExpire)
+            end
+
+            TriggerAddCondition(trigger, Condition(UnitPicker.onEsc))
+        end
+    end
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                          Lua API                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    function CreateUnitPicker(spawnX, spawnY, randomDiscount, bansPerPlayer, banTimeout, draftCount, showPicks)
+        return UnitPicker.create(spawnX, spawnY, randomDiscount, bansPerPlayer, banTimeout, draftCount, showPicks)
+    end
+    
+    function UnitPickerAddCategory(picker, icon, description)
+        return picker:addCategory(icon, description)
+    end
+
+    function UnitPickerAddUnit(picker, id, unique, texture, ratio, categories)
+        picker:add(id, unique, texture, ratio, categories)
+    end
+
+    function UnitPickerRegisterUnit(id, a1, a2, a3, a4, a5, a6)
+        Unit.register(id, a1, a2, a3, a4, a5, a6)
+    end
+
+    function ShowUnitPicker(picker, player, flag)
+        if picker and GetLocalPlayer() == player then
+            picker.visible = flag
+        end
+    end
+
+    function UnitPickerKeepOpened(picker, player, flag)
+        if picker and GetLocalPlayer() == player then
+            picker.keepOpened = flag
         end
     end
 end)
