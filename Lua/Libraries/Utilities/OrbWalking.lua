@@ -6,7 +6,7 @@ OnInit("OrbWalking", function(requires)
     local OrbWalking = Class()
 
     local function UnitFilter(unit)
-        return IsUnitType(unit, UNIT_TYPE_HERO)
+        return IsUnitType(unit, UNIT_TYPE_HERO) and IsUnitType(unit, UNIT_TYPE_RANGED_ATTACKER)
     end
 
     function OrbWalking.onOrder()

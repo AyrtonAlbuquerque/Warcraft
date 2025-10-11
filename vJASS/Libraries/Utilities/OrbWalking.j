@@ -3,7 +3,7 @@ library OrbWalking requires RegisterPlayerUnitEvent, Utilities
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
     private function UnitFilter takes unit u returns boolean
-        return IsUnitType(u, UNIT_TYPE_HERO)
+        return IsUnitType(u, UNIT_TYPE_HERO) and IsUnitType(u, UNIT_TYPE_RANGED_ATTACKER)
     endfunction
     
     /* ----------------------------------------------------------------------------------------- */
