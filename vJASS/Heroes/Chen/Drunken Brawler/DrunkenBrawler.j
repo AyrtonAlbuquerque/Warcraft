@@ -9,7 +9,7 @@ library DrunkenBrawler requires Spell, NewBonus, Utilities
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Drunken Brawler ability
-        private constant integer ABILITY = 'A006'
+        private constant integer ABILITY = 'Chn8'
     endglobals
 
     // The Evasion bonus

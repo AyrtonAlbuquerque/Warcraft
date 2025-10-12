@@ -9,11 +9,11 @@ library FortifyingBrew requires DamageInterface, Spell, NewBonus, Utilities
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Fortifying Brew ability
-        private constant integer ABILITY    = 'A00E'
+        private constant integer ABILITY    = 'Chn0'
         // The raw code of the Fortifying Brew Reduction ability
-        private constant integer REDUCTION  = 'A00F'
+        private constant integer REDUCTION  = 'Chn1'
         // The raw code of the Fortifying Brew buff
-        private constant integer BUFF       = 'B001'
+        private constant integer BUFF       = 'BCh0'
     endglobals
 
     // The Fortifying Brew health/mana regen bonus duration per cast

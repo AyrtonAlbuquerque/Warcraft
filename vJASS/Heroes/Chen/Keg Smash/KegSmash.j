@@ -1,5 +1,5 @@
 library KegSmash requires Spell, NewBonus, Utilities, Missiles, TimerUtils, CrowdControl
-    /* ----------------------- Keg Smash v1.4 by Chopinski ---------------------- */
+    /* ----------------------- Keg Smash v1.5 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard           - Icon
     //     Vexorian           - TimerUtils
@@ -12,11 +12,11 @@ library KegSmash requires Spell, NewBonus, Utilities, Missiles, TimerUtils, Crow
     /* -------------------------------------------------------------------------- */
     globals
         // The Keg Smash Ability
-        private constant integer ABILITY      = 'A001'
+        public constant integer ABILITY       = 'Chn4'
         // The Keg Smash Ignite ability
-        private constant integer IGNITE       = 'A004'
+        private constant integer IGNITE       = 'Chn6'
         // The Keg Smash Brew Cloud Ability
-        private constant integer DEBUFF       = 'A002'
+        private constant integer DEBUFF       = 'Chn5'
         // The Keg Smash Brew Cloud debuff
         public  constant integer BUFF         = 'BNdh'
         // The Keg Smash Missile model
@@ -246,7 +246,7 @@ library KegSmash requires Spell, NewBonus, Utilities, Missiles, TimerUtils, Crow
         endmethod
     endstruct
 
-    private struct Keg extends Missiles
+    private struct Keg extends Missile
         real aoe
         real time
         real slow

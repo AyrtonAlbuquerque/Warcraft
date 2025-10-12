@@ -1,5 +1,5 @@
-library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFire, NewBonus, Utilities, Periodic
-    /* ----------------- Storm, Earth and Fire v1.3 by Chopinski ---------------- */
+library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFire, NewBonus, Utilities, Modules
+    /* ----------------- Storm, Earth and Fire v1.5 by Chopinski ---------------- */
     // Credits:
     //     Blizazrd    - Icon
     //     Bribe       - SpellEffectEvent, UnitIndexerGUI
@@ -10,17 +10,15 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of Storm, Earth and Fire ability
-        private constant integer ABILITY       = 'A007'
+        private constant integer ABILITY       = 'Chn9'
         // The raw code of Storm unit
-        private constant integer STORM         = 'n002'
+        private constant integer STORM         = 'UCh1'
         // The raw code of Earth unit
-        private constant integer EARTH         = 'n003'
+        private constant integer EARTH         = 'UCh2'
         // The raw code of Fire unit
-        private constant integer FIRE          = 'n001'
-        // The raw code Earth hardened skin ability
-        private constant integer HARDENED_SKIN = 'A00C'
+        private constant integer FIRE          = 'UCh0'
         // The raw code Fire Immolation ability
-        private constant integer IMMOLATION    = 'A00A'
+        private constant integer IMMOLATION    = 'ChnA'
     endglobals
 
     // The max hp of each element
@@ -111,8 +109,8 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
                         call SetUnitLifePercentBJ(u, 100)
                         call SetUnitManaPercentBJ(u, 100)
                     elseif id == EARTH then
-                        call SetUnitAbilityLevel(u, Fissure_ABILITY, level)
-                        call SetUnitAbilityLevel(u, HARDENED_SKIN, level)
+                        call SetUnitAbilityLevel(u, KegSmash_ABILITY, GetUnitAbilityLevel(unit, KegSmash_ABILITY))
+                        call SetUnitAbilityLevel(u, Fissure_ABILITY, GetUnitAbilityLevel(unit, Fissure_ABILITY))
                         call BlzSetUnitMaxHP(u, GetHealth(id, level, unit))
                         call BlzSetUnitMaxMana(u, GetMana(id, level, unit))
                         call BlzSetUnitBaseDamage(u, GetDamage(id, level, unit), 0)

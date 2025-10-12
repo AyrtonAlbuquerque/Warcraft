@@ -1,5 +1,5 @@
-library BreathOfFire requires Spell, NewBonus, Utilities, Missiles, Periodic optional KegSmash
-    /* -------------------- Breath of Fire v1.4 by Chopinski -------------------- */
+library BreathOfFire requires Spell, NewBonus, Dummy, Utilities, Missiles, Modules optional KegSmash
+    /* -------------------- Breath of Fire v1.5 by Chopinski -------------------- */
     // Credits:
     //     Blizzard           - Icon
     //     AZ                 - Breth of Fire model
@@ -10,7 +10,7 @@ library BreathOfFire requires Spell, NewBonus, Utilities, Missiles, Periodic opt
     /* -------------------------------------------------------------------------- */
     globals
         // The Breath of Fire Ability
-        public  constant integer ABILITY      = 'A003'
+        public  constant integer ABILITY      = 'Chn3'
         // The Breath of Fire model
         private constant string  MODEL        = "BreathOfFire.mdl"
         // The Breath of Fire scale
@@ -144,7 +144,7 @@ library BreathOfFire requires Spell, NewBonus, Utilities, Missiles, Periodic opt
         implement Periodic
     endstruct
 
-    private struct Wave extends Missiles
+    private struct Wave extends Missile
         group group
         integer level
         real fov
@@ -156,7 +156,7 @@ library BreathOfFire requires Spell, NewBonus, Utilities, Missiles, Periodic opt
         real ignite_duration
         real ignite_interval
 
-        private method onHit takes unit hit returns boolean
+        private method onUnit takes unit hit returns boolean
             if IsUnitInCone(hit, centerX, centerY, distance, face, fov) then
                 if DamageFilter(owner, hit) then
                     if UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
@@ -178,7 +178,7 @@ library BreathOfFire requires Spell, NewBonus, Utilities, Missiles, Periodic opt
                 loop
                     set u = FirstOfGroup(group)
                     exitwhen u == null
-                        if GetUnitTypeId(u) == Utilities_DUMMY and BrewCloud.active(u) then
+                        if GetUnitTypeId(u) == Dummy.type and BrewCloud.active(u) then
                             set d = DistanceBetweenCoordinates(x, y, GetUnitX(u), GetUnitY(u))
 
                             if d <= collision + KegSmash_GetAoE(source, level)/2 and IsUnitInCone(u, centerX, centerY, 2*distance, face, 180) then

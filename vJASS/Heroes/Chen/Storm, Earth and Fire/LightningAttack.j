@@ -9,7 +9,7 @@ library LightningAttack requires DamageInterface, Utilities, Spell, Utilities op
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of Lightning Attack ability
-        public  constant integer ABILITY      = 'A009'
+        public  constant integer ABILITY      = 'ChnD'
         // The Lightning Attack lightning model
         private constant string  LIGHTNING    = "CLSB"
         // The Lightning Attack damage model

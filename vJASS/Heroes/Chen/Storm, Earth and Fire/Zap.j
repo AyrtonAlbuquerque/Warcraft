@@ -1,5 +1,5 @@
 library Zap requires Spell, Missiles, Utilities optional NewBonus
-    /* -------------------------- Zap v1.3 by Chopinski ------------------------- */
+    /* -------------------------- Zap v1.4 by Chopinski ------------------------- */
     // Credits:
     //     CRAZYRUSSIAN    - Icon
     //     Bribe           - SpellEffectEvent
@@ -10,13 +10,13 @@ library Zap requires Spell, Missiles, Utilities optional NewBonus
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Zap ability
-        public  constant integer ABILITY      = 'A008'
+        public  constant integer ABILITY      = 'ChnC'
         // The Zap model
         private constant string  MODEL        = "ZapMissile.mdl"
         // The Zap scale
         private constant real    SCALE        = 1.
         // The Zap Missile speed
-        private constant real    SPEED        = 2000.
+        private constant real    SPEED        = 3000.
         // The Zap Missile heigth
         private constant real    HEIGHT       = 150.
         // The Zap Missile damage model
@@ -52,7 +52,7 @@ library Zap requires Spell, Missiles, Utilities optional NewBonus
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Lightning extends Missiles
+    private struct Lightning extends Missile
         real mana
 
         private method onPeriod takes nothing returns boolean
@@ -65,7 +65,7 @@ library Zap requires Spell, Missiles, Utilities optional NewBonus
             return not hasMana
         endmethod
 
-        private method onHit takes unit hit returns boolean
+        private method onUnit takes unit hit returns boolean
             if DamageFilter(owner, hit) then
                 call UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_LIGHTNING, null)
                 call DestroyEffect(AddSpecialEffectTarget(IMPACT_MODEL, hit, ATTACH))
@@ -77,7 +77,6 @@ library Zap requires Spell, Missiles, Utilities optional NewBonus
         private method onRemove takes nothing returns nothing
             call SetUnitX(source, x)
             call SetUnitY(source, y)
-            call BlzPauseUnitEx(source, false)
             call ShowUnit(source, true)
             call SelectUnitAddForPlayer(source, owner)
         endmethod
@@ -100,7 +99,6 @@ library Zap requires Spell, Missiles, Utilities optional NewBonus
             set zap.collision = GetCollision(Spell.level)
             set zap.mana = GetManaDrain(Spell.level)*Missiles_PERIOD
 
-            call BlzPauseUnitEx(Spell.source.unit, true)
             call ShowUnit(Spell.source.unit, false)
             call zap.launch()
         endmethod

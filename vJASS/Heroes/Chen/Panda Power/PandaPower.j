@@ -10,9 +10,9 @@ library PandaPower requires RegisterPlayerUnitEvent, NewBonus, Spell
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Panda Power Ability
-        private constant integer ABILITY       = 'A00D'
+        private constant integer ABILITY       = 'ChnE'
         // The raw code of the Chen unit in the editor
-        private constant integer CHEN_ID       = 'N000'
+        private constant integer CHEN_ID       = 'Chen'
         // The GAIN_AT_LEVEL is greater than 0
         // Chen will gain Panda Power at this level 
         private constant integer GAIN_AT_LEVEL = 20

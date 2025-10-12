@@ -1,5 +1,5 @@
-library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, CrowdControl, Periodic
-    /* --------------------- Drunken Style v1.4 by Chopinski -------------------- */
+library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, CrowdControl, Modules
+    /* --------------------- Drunken Style v1.5 by Chopinski -------------------- */
     // Credits:
     //     Blizzard - Icon
     //     Vexorian - MouseUtils
@@ -10,7 +10,7 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
     /* -------------------------------------------------------------------------- */
     globals
         // The Drunken Style Ability
-        private constant integer ABILITY = 'A005'
+        private constant integer ABILITY = 'Chn7'
         // The Drunken Style knockback model
         private constant string  MODEL   = "WindBlow.mdl"
         // The Drunken Style knockback attach point
@@ -73,7 +73,7 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Dash extends Missiles
+    private struct Dash extends Missile
         real fov
         real face
         real centerX
@@ -82,18 +82,10 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
         real knockback
 
         private method onPeriod takes nothing returns boolean
-            if UnitAlive(source) then
-                call SetUnitX(source, x)
-                call SetUnitY(source, y)
-                call BlzSetUnitFacingEx(source, face)
-
-                return false
-            endif
-
-            return true
+            return not UnitAlive(source)
         endmethod
 
-        private method onHit takes unit hit returns boolean
+        private method onUnit takes unit hit returns boolean
             if IsUnitInCone(hit, centerX, centerY, collision, face, fov) then
                 if DamageFilter(owner, hit) then
                     if UnitDamageTarget(source, hit, damage, true, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WOOD_HEAVY_BASH) then
@@ -156,6 +148,7 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
             set dash.type = type[id]
             set dash.face = angle * bj_RADTODEG
             set dash.source = Spell.source.unit
+            set dash.unit = Spell.source.unit
             set dash.owner = Spell.source.player
             set dash.centerX = Spell.source.x
             set dash.centerY = Spell.source.y
