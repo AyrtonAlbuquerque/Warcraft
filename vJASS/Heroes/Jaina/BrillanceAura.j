@@ -1,5 +1,5 @@
-library BrillanceAura requires RegisterPlayerUnitEvent, Spell, Periodic, Utilities
-    /* -------------------- Brilliance Aure v1.2 by Chopinski ------------------- */
+library BrillanceAura requires RegisterPlayerUnitEvent, Spell, Modules, Utilities
+    /* -------------------- Brilliance Aura v1.2 by Chopinski ------------------- */
     // Credits
     //      Magtheridon96    - RegisterPlayerUnitEvent
     /* ----------------------------------- END ---------------------------------- */
@@ -9,7 +9,7 @@ library BrillanceAura requires RegisterPlayerUnitEvent, Spell, Periodic, Utiliti
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY    = 'A003'
+        private constant integer ABILITY    = 'Jna3'
         // If true the bonus regen will stack with each cast
         private constant boolean STACK      = false
     endglobals

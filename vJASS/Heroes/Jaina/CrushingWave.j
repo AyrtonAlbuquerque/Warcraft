@@ -9,7 +9,7 @@ library CrushingWave requires Spell, Missiles, Utilities, CrowdControl optional 
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY   = 'A001'
+        private constant integer ABILITY   = 'Jna1'
         // The Wave model
         private constant string MODEL      = "LivingTide.mdl"
         // The Wave speed 
@@ -60,21 +60,11 @@ library CrushingWave requires Spell, Missiles, Utilities, CrowdControl optional 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Wave extends Missiles
-        unit unit
+    private struct Wave extends Missile
         real slow
         real timeout
 
-        private method onPeriod takes nothing returns boolean
-            if unit != null then
-                call SetUnitX(unit, x)
-                call SetUnitY(unit, y)
-            endif
-
-            return false
-        endmethod
-
-        private method onHit takes unit u returns boolean
+        private method onUnit takes unit u returns boolean
             if UnitFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                     call SlowUnit(u, slow, timeout, null, null, false)

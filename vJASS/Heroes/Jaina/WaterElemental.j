@@ -9,9 +9,9 @@ library WaterElemental requires Spell, NewBonus, Indexer, Utilities
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY   = 'A000'
+        private constant integer ABILITY   = 'Jna0'
         // The raw code of the Water Elemental unit
-        public  constant integer ELEMENTAL = 'h001'
+        public  constant integer ELEMENTAL = 'ujn0'
         // The summon effect
         private constant string MODEL      = "WaterBurst.mdl"
         // The summon effect scale

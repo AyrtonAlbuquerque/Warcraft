@@ -1,4 +1,4 @@
-library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Missiles, Utilities, Periodic optional NewBonus
+library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Missiles, Utilities, Modules optional NewBonus
     /* --------------------- Water Shield v1.2 by Chopinski --------------------- */
     // Credits:
     //     Darkfang        - Icon
@@ -10,7 +10,7 @@ library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Mi
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY                = 'A002'
+        private constant integer ABILITY                = 'Jna2'
         // The shield model
         private constant string  MODEL                  = "WaterShield.mdl"
         // The shield attachement point
@@ -73,7 +73,7 @@ library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Mi
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct WaterBolt extends Missiles
+    private struct WaterBolt extends Missile
         method onFinish takes nothing returns boolean
             if UnitAlive(target) then
                 call UnitDamageTarget(source, target, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)

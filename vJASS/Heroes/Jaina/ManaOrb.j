@@ -1,4 +1,4 @@
-library ManaOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageInterface, Spell, Periodic
+library ManaOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageInterface, Spell, Modules
     /* ------------------------ Mana Orb v1.1 by Chopinski ---------------------- */
     // Credits:
     //     Darkfang             - Icon
@@ -11,15 +11,15 @@ library ManaOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageInt
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY        = 'A006'
+        private constant integer ABILITY        = 'Jna4'
         // The raw code of the level 1 buff
-        private constant integer BUFF_1         = 'B002'
+        private constant integer BUFF_1         = 'BJn0'
         // The raw code of the level 2 buff
-        private constant integer BUFF_2         = 'B003'
+        private constant integer BUFF_2         = 'BJn1'
         // The raw code of the level 3 buff
-        private constant integer BUFF_3         = 'B004'
+        private constant integer BUFF_3         = 'BJn2'
         // The raw code of the level 4 buff
-        private constant integer BUFF_4         = 'B005'
+        private constant integer BUFF_4         = 'BJn3'
         // The orb model
         private constant string  MODEL          = "OrbWaterX.mdl"
         // The orb model scale

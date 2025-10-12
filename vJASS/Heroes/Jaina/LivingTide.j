@@ -1,4 +1,4 @@
-library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Periodic optional NewBonus
+library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules optional NewBonus
     /* ---------------------- Living Tide v1.1 by Chopinski --------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -11,7 +11,7 @@ library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Periodic opt
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY    = 'A004'
+        private constant integer ABILITY    = 'Jna5'
         // The Living Tide model
         private constant string  MODEL      = "LivingTide.mdl"
         // The Living Tide scale
@@ -25,9 +25,9 @@ library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Periodic opt
     // The amount of damage dealt in a second
     private function GetDamagePerSecond takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 50. * level + (0.2 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 100. * level + (0.2 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
-            return 50. * level
+            return 100. * level
         endif
     endfunction
 
@@ -64,8 +64,8 @@ library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Periodic opt
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Tide extends Missiles
-        private method onHit takes unit u returns boolean
+    private struct Tide extends Missile
+        private method onUnit takes unit u returns boolean
             if UnitFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                     call flush(u)

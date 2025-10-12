@@ -1,4 +1,4 @@
-library BadWeather requires RegisterPlayerUnitEvent, Spell, Periodic, Utilities, DamageInterface
+library BadWeather requires RegisterPlayerUnitEvent, Spell, Modules, Utilities, DamageInterface
     /* ---------------------- Bad Weather v1.1 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96        - RegisterPlayerUnitEvent
@@ -10,11 +10,11 @@ library BadWeather requires RegisterPlayerUnitEvent, Spell, Periodic, Utilities,
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Ability
-        private constant integer ABILITY       = 'A005'
+        private constant integer ABILITY       = 'Jna6'
         // The raw code of the debuff Ability
-        private constant integer DEBUFF        = 'A007'
+        private constant integer DEBUFF        = 'Jna7'
         // The raw code of the debuff buff
-        private constant integer BUFF          = 'B001'
+        private constant integer BUFF          = 'BJn4'
         // The rain model
         private constant string  MODEL         = "Rain.mdl"
         // The rain model scale
