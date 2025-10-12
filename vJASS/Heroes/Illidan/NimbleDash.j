@@ -1,4 +1,4 @@
-library NimbleDash requires Spell, Missiles, Utilities, CrowdControl, NewBonus, Evasion, optional Metamorphosis, optional CooldownReduction
+library NimbleDash requires Spell, Missiles, Modules, Utilities, CrowdControl, NewBonus, Evasion, optional Metamorphosis, optional CooldownReduction
     /* ---------------------- Nimble Dash v1.0 by Chopinski --------------------- */
     // Credits:
     //     Blizzard - Icon
@@ -10,7 +10,7 @@ library NimbleDash requires Spell, Missiles, Utilities, CrowdControl, NewBonus, 
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        public constant integer  ABILITY = 'A005'
+        public constant integer  ABILITY = 'Idn1'
         // The Model
         private constant string  MODEL   = "Windwalk Necro Soul.mdl"
         // The dash speed
@@ -84,19 +84,11 @@ library NimbleDash requires Spell, Missiles, Utilities, CrowdControl, NewBonus, 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Dash extends Missiles
+    private struct Dash extends Missile
         real fear
         effect sfx
-
-        private method onPeriod takes nothing returns boolean
-            call SetUnitX(source, x)
-            call SetUnitY(source, y)
-            call BlzSetUnitFacingEx(source, effect.yaw*bj_RADTODEG)
-            
-            return false
-        endmethod
         
-        private method onHit takes unit u returns boolean
+        private method onUnit takes unit u returns boolean
             static if LIBRARY_Metamorphosis then
                 if IsUnitEnemy(u, owner) and UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
                     if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, null) then
@@ -173,6 +165,7 @@ library NimbleDash requires Spell, Missiles, Utilities, CrowdControl, NewBonus, 
             set dash.speed = SPEED
             set dash.owner = Spell.source.player
             set dash.source = Spell.source.unit
+            set dash.unit = Spell.source.unit
             set dash.damage = GetDamage(Spell.source.unit, Spell.level)
             set dash.collision = GetCollision(Spell.level)
             set dash.fear = GetFearDuration(Spell.source.unit, Spell.level)

@@ -1,5 +1,5 @@
-library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdControl, Periodic optional Metamorphosis
-    /* --------------------- Spell Shield v1.4 by Chopinski --------------------- */
+library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdControl, Modules optional Metamorphosis
+    /* --------------------- Spell Shield v1.5 by Chopinski --------------------- */
     // Credits:
     //     Darkfang        - Icon
     //     Bribe           - SpellEffectEvent
@@ -10,9 +10,9 @@ library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdC
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Spell Shield ability
-        private constant integer ABILITY    = 'A004'
+        private constant integer ABILITY    = 'Idn4'
         // The raw code of the Spell Shield buff
-        private constant integer BUFF       = 'B003'
+        private constant integer BUFF       = 'BId1'
         // The Spell Shield model
         private constant string  MODEL      = "SpellShield.mdl"
         // Spell Shield block effect period
@@ -53,7 +53,7 @@ library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdC
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Missile extends Missiles
+    private struct Projectile extends Missile
         private method onFinish takes nothing returns boolean
             if UnitAlive(target) then
                 call UnitDamageTarget(source, target, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
@@ -129,7 +129,7 @@ library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdC
             local integer size = BlzGroupGetSize(group)
             local group g = CreateGroup()
             local integer i = 0
-            local Missile missile
+            local Projectile missile
             local integer level
             local unit u
             local real x
@@ -145,7 +145,7 @@ library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdC
                             set level = GetUnitAbilityLevel(u, ABILITY)
                             
                             if UnitAlive(u) and IsUnitEnemy(u, Spell.source.player) and DistanceBetweenCoordinates(x, y, Spell.source.x, Spell.source.y) < GetAoE(u, level) then
-                                set missile = Missile.create(x, y, GetUnitZ(u) + 60, Spell.source.x, Spell.source.y, Spell.source.z + 60)
+                                set missile = Projectile.create(x, y, GetUnitZ(u) + 60, Spell.source.x, Spell.source.y, Spell.source.z + 60)
                                 set missile.model = MISSILE
                                 set missile.speed = SPEED
                                 set missile.scale = SCALE

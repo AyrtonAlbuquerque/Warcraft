@@ -1,5 +1,5 @@
-library Immolation requires Spell, RegisterPlayerUnitEvent, NewBonus, Periodic, Utilities
-    /* ---------------------- Immolation v1.2 by Chopinski ---------------------- */
+library Immolation requires Spell, RegisterPlayerUnitEvent, NewBonus, Modules, Utilities
+    /* ---------------------- Immolation v1.3 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Magtheridon96   - RegisterPlayerUnitEvent
@@ -11,9 +11,9 @@ library Immolation requires Spell, RegisterPlayerUnitEvent, NewBonus, Periodic, 
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Immolation ability
-        private constant integer ABILITY      = 'A002'
+        private constant integer ABILITY      = 'Idn2'
         // The raw code of the Immolation buff
-        private constant integer BUFF         = 'B002'
+        private constant integer BUFF         = 'BId0'
         // The immolation damage period
         private constant real    PERIOD       = 1.
         // The immolation Damage model

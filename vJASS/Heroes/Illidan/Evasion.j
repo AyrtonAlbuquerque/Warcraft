@@ -9,9 +9,9 @@ library Evade requires Spell, NewBonus, Evasion, Utilities
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Evasion ability
-        private constant integer ABILITY = 'A001'
+        private constant integer ABILITY = 'Idn6'
         // The raw code of the Evasion buff
-        private constant integer BUFF    = 'B001'
+        private constant integer BUFF    = 'BId2'
     endglobals
 
     // The Evasion bonus per level

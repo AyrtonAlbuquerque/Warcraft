@@ -9,7 +9,7 @@ library AdaptedWarrior requires Spell, Evasion, NewBonus, DamageInterface, Regis
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Adapted Warrior ability
-        private constant integer ABILITY        = 'A000'
+        private constant integer ABILITY        = 'Idn0'
         // The Mana Burn model
         private constant string  MODEL          = "Abilities\\Spells\\Human\\Feedback\\SpellBreakerAttack.mdl"
         // The Mana Burn bonus model

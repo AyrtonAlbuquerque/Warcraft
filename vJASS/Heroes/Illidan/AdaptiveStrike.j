@@ -1,5 +1,5 @@
-library AdaptiveStrike requires RegisterPlayerUnitEvent, NewBonus, Spell, Utilities
-    /* -------------------- Adaptive Strike v1.3 by Chopinski ------------------- */
+library AdaptiveStrike requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Spell, Utilities
+    /* -------------------- Adaptive Strike v1.4 by Chopinski ------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Magtheridon96   - RegisterPlayerUnitEvent
@@ -11,7 +11,7 @@ library AdaptiveStrike requires RegisterPlayerUnitEvent, NewBonus, Spell, Utilit
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Adaptive Strike ability
-        private constant integer ABILITY = 'A003'
+        private constant integer ABILITY = 'Idn3'
         // The Adaptive Strike Slash model
         private constant string  SLASH   = "Culling Slash.mdl"
         // The Adaptive Strike Cleave model
