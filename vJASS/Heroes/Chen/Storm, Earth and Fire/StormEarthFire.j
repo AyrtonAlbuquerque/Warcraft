@@ -12,11 +12,11 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
         // The raw code of Storm, Earth and Fire ability
         private constant integer ABILITY       = 'Chn9'
         // The raw code of Storm unit
-        private constant integer STORM         = 'UCh1'
+        private constant integer STORM         = 'uch1'
         // The raw code of Earth unit
-        private constant integer EARTH         = 'UCh2'
+        private constant integer EARTH         = 'uch2'
         // The raw code of Fire unit
-        private constant integer FIRE          = 'UCh0'
+        private constant integer FIRE          = 'uch0'
         // The raw code Fire Immolation ability
         private constant integer IMMOLATION    = 'ChnA'
     endglobals
