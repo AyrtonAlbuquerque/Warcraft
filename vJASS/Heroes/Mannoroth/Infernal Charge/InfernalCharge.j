@@ -1,5 +1,5 @@
 library InfernalCharge requires Spell, Missiles, Utilities, CrowdControl, optional NewBonus
-    /* ------------------------------------ Infernal Charge v1.5 ------------------------------------ */
+    /* ------------------------------------ Infernal Charge v1.6 ------------------------------------ */
     // Credits:
     //     marilynmonroe - Pit Infernal model
     //     Bribe         - SpellEffectEvent
@@ -10,7 +10,7 @@ library InfernalCharge requires Spell, Missiles, Utilities, CrowdControl, option
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Infernal Charge ability
-        private constant integer    ABILITY          = 'A003'
+        private constant integer    ABILITY          = 'Mnr8'
         // The time scale of the pit infernal when charging
         private constant integer    TIME_SCALE       = 2
         // The index of the animation played when charging
@@ -59,18 +59,11 @@ library InfernalCharge requires Spell, Missiles, Utilities, CrowdControl, option
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct Charge extends Missiles
+    private struct Charge extends Missile
         real distance
         real knockback
 
-        private method onPeriod takes nothing returns boolean
-            call SetUnitX(source, x)
-            call SetUnitY(source, y)
-
-            return false
-        endmethod
-
-        private method onHit takes unit hit returns boolean
+        private method onUnit takes unit hit returns boolean
             if ChargeFilter(owner, hit) then
                 if UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
                     call KnockbackUnit(hit, AngleBetweenCoordinates(x, y, GetUnitX(hit), GetUnitY(hit)), distance, knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, true, true, false, false)
@@ -89,7 +82,7 @@ library InfernalCharge requires Spell, Missiles, Utilities, CrowdControl, option
         endmethod
     endstruct
 
-    private struct PitInfernal extends Spell
+    private struct InfernalCharge extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Pit Infernal|r charges in the pointed direction, knocking back and damaging enemy units, dealing |cff00ffff" + N2S(GetChargeDamage(source, level), 0) + "|r |cff00ffffMagic|r damage."
         endmethod
@@ -97,6 +90,7 @@ library InfernalCharge requires Spell, Missiles, Utilities, CrowdControl, option
         private method onCast takes nothing returns nothing
             local Charge charge = Charge.create(Spell.source.x, Spell.source.y, 0, Spell.x, Spell.y, 0)
 
+            set charge.unit = Spell.source.unit
             set charge.source = Spell.source.unit
             set charge.duration = CHARGE_TIME
             set charge.model = KNOCKBACK_MODEL

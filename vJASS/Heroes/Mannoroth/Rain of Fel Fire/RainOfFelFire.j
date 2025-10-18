@@ -1,5 +1,5 @@
-library RainOfFelFire requires Missiles, Spell, Utilities, Periodic, optional NewBonus
-    /* ------------------- Rain of Fel Fire v1.5 by Chopinski ------------------- */
+library RainOfFelFire requires Missiles, Spell, Utilities, Modules, optional NewBonus
+    /* ------------------- Rain of Fel Fire v1.6 by Chopinski ------------------- */
     // Credits:
     //     The Panda - InfernalShower icon
     //     Mythic    - Rain of Fire model
@@ -10,7 +10,7 @@ library RainOfFelFire requires Missiles, Spell, Utilities, Periodic, optional Ne
     /* -------------------------------------------------------------------------- */
     globals
         //the raw code of the Rain of Fel Fire ability
-        private constant integer    ABILITY            = 'A000'
+        private constant integer    ABILITY            = 'Mnr1'
         //the starting height of the missile
         private constant integer    START_HEIGHT       = 2000
         // The landing time of the falling misisle
@@ -141,7 +141,7 @@ library RainOfFelFire requires Missiles, Spell, Utilities, Periodic, optional Ne
         implement Periodic
     endstruct
 
-    private struct Meteor extends Missiles
+    private struct Meteor extends Missile
         integer level
 
         private method onFinish takes nothing returns boolean
@@ -169,7 +169,7 @@ library RainOfFelFire requires Missiles, Spell, Utilities, Periodic, optional Ne
         endmethod
     endstruct
 
-    private struct FelFire extends Ability
+    private struct FelFire extends Spell
         private real x
         private real y
         private unit unit

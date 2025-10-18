@@ -9,7 +9,7 @@ library InfernalStomp requires Spell, CrowdControl, optional NewBonus
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Infernal Stomp ability
-        private constant integer ABILITY = 'A00D'
+        private constant integer ABILITY = 'Mnr9'
         // The stun model
         private constant string  MODEL   = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
         // The stun model attach point

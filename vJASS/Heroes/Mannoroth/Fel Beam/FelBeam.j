@@ -1,5 +1,5 @@
-library FelBeam requires Missiles, Spell, Periodic, NewBonus, Utilities
-    /* ----------------------- Fel Beam v1.5 by Chopinski ----------------------- */
+library FelBeam requires Missiles, Spell, Modules, NewBonus, Utilities
+    /* ----------------------- Fel Beam v1.6 by Chopinski ----------------------- */
     // Credits:
     //     BPower    - Missile Library
     //     AZ        - Fel Beam model
@@ -12,7 +12,7 @@ library FelBeam requires Missiles, Spell, Periodic, NewBonus, Utilities
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Rain of Fel Fire ability
-        public constant integer     ABILITY       = 'A001'
+        public constant integer     ABILITY       = 'Mnr2'
         // The beam inicial z offset
         private constant real       START_HEIGHT  = 60
         // The beam final z offset
@@ -109,7 +109,7 @@ library FelBeam requires Missiles, Spell, Periodic, NewBonus, Utilities
         implement Periodic
     endstruct
 
-    struct Beam extends Missiles
+    struct Beam extends Missile
         integer id
         integer armor
         real curse_duration

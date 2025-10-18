@@ -1,9 +1,8 @@
-library DoomCurse requires DamageInterface, TimerUtils, Spell, NewBonus
-    /* ---------------------- Doom Curse v1.5 by Chopinski --------------------- */
+library DoomCurse requires DamageInterface, Modules, Spell, NewBonus
+    /* ---------------------- Doom Curse v1.6 by Chopinski --------------------- */
     // Credits:
     //     marilynmonroe - Pit Infernal model
     //     Mr.Goblin     - Inferno icon
-    //     Vexorian      - TimerUtils Library
     //     Mytich        - Soul Armor Spring.mdx
     /* ----------------------------------- END ---------------------------------- */
     
@@ -12,11 +11,11 @@ library DoomCurse requires DamageInterface, TimerUtils, Spell, NewBonus
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Doom Curse ability
-        private constant integer    ABILITY     = 'A004'
+        private constant integer    ABILITY     = 'MnrD'
         // The raw code of the Doom Curse buff
-        private constant integer    CURSE_BUFF  = 'B001'
+        private constant integer    CURSE_BUFF  = 'BMn2'
         // The raw code of the unit created
-        private constant integer    UNIT_ID     = 'n001'
+        private constant integer    UNIT_ID     = 'umn0'
         // The Attack type of the damage dealt (Spell)
         private constant attacktype ATTACK_TYPE = ATTACK_TYPE_NORMAL
         // The Damage type of the damage dealt 

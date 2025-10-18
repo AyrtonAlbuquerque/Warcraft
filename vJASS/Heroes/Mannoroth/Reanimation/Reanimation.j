@@ -11,12 +11,12 @@ library Reanimation requires RegisterPlayerUnitEvent, Spell, TimerUtils
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the reanimation ability
-        private constant integer ABILITY                    = 'A008'
+        private constant integer ABILITY                    = 'Mnr0'
         // The raw code of the reanimation metamorphosis 
         // ability that is used to change its model
-        private constant integer REANIMATION_METAMORPHOSIS  = 'A006'
+        private constant integer REANIMATION_METAMORPHOSIS  = 'Mnr6'
         // The Reanimation buff
-        private constant integer REANIMATION_BUFF           = 'B002'
+        private constant integer REANIMATION_BUFF           = 'BMn0'
         // The effect created on the gorund when mannoroth dies
         private constant string  MANNOROTH_SKELETON         = "Reanimation.mdl"
         // The size of the skeleton model

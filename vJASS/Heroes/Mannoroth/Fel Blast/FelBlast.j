@@ -1,5 +1,5 @@
-library FelBlast requires Spell, Periodic, Utilities optional FelBeam optional NewBonus
-    /* ----------------------- Fel Blast v1.5 by Chopinski ---------------------- */
+library FelBlast requires Spell, Modules, Utilities optional FelBeam optional NewBonus
+    /* ----------------------- Fel Blast v1.6 by Chopinski ---------------------- */
     // Credits:
     //     Mythic   - Nther Blast model
     //     san      - Miasma icon
@@ -10,7 +10,7 @@ library FelBlast requires Spell, Periodic, Utilities optional FelBeam optional N
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the fel blast ability
-        private constant integer    ABILITY       = 'A002'
+        private constant integer    ABILITY       = 'Mnr4'
         // The amount of time it takes to do the damage
         private constant real       BLAST_DELAY   = 0.75
         // The blast model
