@@ -33,6 +33,7 @@ library Indexer
                     call UnitMakeAbilityPermanent(unit, true, ability)
                     call BlzUnitDisableAbility(unit, ability, true, true)
                 endif
+
                 call SetUnitUserData(unit, id)
                 call TriggerEvaluate(onIndex)
                 
@@ -65,18 +66,22 @@ library Indexer
             call RegionAddRect(r, map)
             call RemoveRect(map)
             call TriggerRegisterEnterRegion(CreateTrigger(), r, Filter(function thistype.onEnter))
+            
             loop
                 exitwhen i == bj_MAX_PLAYER_SLOTS
                     call GroupEnumUnitsOfPlayer(bj_lastCreatedGroup, Player(i), null)
+
                     loop
                         set unit = FirstOfGroup(bj_lastCreatedGroup)
                         exitwhen unit == null
                             call index(unit)
                         call GroupRemoveUnit(bj_lastCreatedGroup, unit)
                     endloop
+
                     call TriggerRegisterPlayerUnitEvent(t, Player(i), EVENT_PLAYER_UNIT_ISSUED_ORDER, null)
                 set i = i + 1
             endloop
+
             call TriggerAddCondition(t, Filter(function thistype.onOrder))
             
             set r = null
