@@ -171,6 +171,12 @@ library NimbleDash requires Spell, Missiles, Modules, Utilities, CrowdControl, N
             set dash.fear = GetFearDuration(Spell.source.unit, Spell.level)
             set dash.sfx = AddSpecialEffectTarget(MODEL, Spell.source.unit, "chest")
 
+            static if LIBRARY_Metamorphosis then
+                if GetUnitAbilityLevel(Spell.source.unit, Metamorphosis_BUFF) > 0 then
+                    call SetUnitAnimation(Spell.source.unit, "Walk Alternate")
+                endif
+            endif
+
             if charges[Spell.source.id] > 0 then
                 set charges[Spell.source.id] = charges[Spell.source.id] - 1
 
