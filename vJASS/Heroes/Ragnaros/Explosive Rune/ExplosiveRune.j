@@ -1,5 +1,5 @@
 library ExplosiveRune requires Spell, Utilities optional Afterburner, CooldownReduction, NewBonus
-    /* -------------------- Explosive Rune v1.6 by Chopinski -------------------- */
+    /* -------------------- Explosive Rune v1.7 by Chopinski -------------------- */
     // Credits:
     //     Mythic           - Conflagrate model
     //     JetFangInferno   - FireRune model
@@ -13,7 +13,7 @@ library ExplosiveRune requires Spell, Utilities optional Afterburner, CooldownRe
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Explosive Rune Ability
-        private constant integer    ABILITY             = 'A001'
+        private constant integer    ABILITY             = 'Rgn1'
         // The number of charges of the ability
         private constant integer    CHARGES_COUNT       = 4
         // The number of charges of the ability

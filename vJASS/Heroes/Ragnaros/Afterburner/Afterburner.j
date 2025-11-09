@@ -1,5 +1,5 @@
-library Afterburner requires Spell, Periodic, DamageInterface, Utilities, optional NewBonus
-    /* ---------------------- Afterburner v1.6 by Chopinski --------------------- */
+library Afterburner requires Spell, Modules, DamageInterface, Utilities, optional NewBonus
+    /* ---------------------- Afterburner v1.7 by Chopinski --------------------- */
     // Credits:
     //     PrinceYaser - icon.
     /* ----------------------------------- END ---------------------------------- */
@@ -9,9 +9,9 @@ library Afterburner requires Spell, Periodic, DamageInterface, Utilities, option
     /* -------------------------------------------------------------------------- */
     globals
         //The raw code of the Afternurner Ability
-        private constant integer    ABILITY         = 'A003'
-        //The raw code of the Afternurner Prox Ability
-        private constant integer    AFTERBURN_PROXY = 'A007'
+        private constant integer    ABILITY         = 'Rgn3'
+        //The raw code of the Afternurner Proxy Ability
+        private constant integer    AFTERBURN_PROXY = 'Rgn6'
         // The Attack type of the damage dealt (Spell)
         private constant attacktype ATTACK_TYPE     = ATTACK_TYPE_NORMAL
         // The Damage type of the damage dealt

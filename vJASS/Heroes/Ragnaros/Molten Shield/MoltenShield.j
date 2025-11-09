@@ -1,5 +1,5 @@
 library MoltenShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, NewBonus
-    /* --------------------- Molten Shield v1.6 by Chopinski -------------------- */
+    /* --------------------- Molten Shield v1.7 by Chopinski -------------------- */
     // Credits:
     //     Power            - Shield model
     //     Mythic           - Explosion model
@@ -11,11 +11,11 @@ library MoltenShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, N
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Molten Shield Ability
-        private constant integer    ABILITY           = 'A006'
+        private constant integer    ABILITY           = 'Rgn7'
         // The raw code of the Ragnaros unit in the editor
-        private constant integer    RAGNAROS_ID       = 'H001'
+        private constant integer    RAGNAROS_ID       = 'Rgns'
         // The raw code of the buff used to link bonus
-        private constant integer    BUFF_ID           = 'B001'
+        private constant integer    BUFF_ID           = 'BRg0'
         // The GAIN_AT_LEVEL is greater than 0
         // ragnaros will gain molten shield at this level 
         private constant integer    GAIN_AT_LEVEL     = 20

@@ -1,5 +1,5 @@
-library Sulfuras requires RegisterPlayerUnitEvent, Spell, NewBonus, Utilities
-    /* ---------------------------------------- Sulfuras v1.6 --------------------------------------- */
+library Sulfuras requires RegisterPlayerUnitEvent, Spell, NewBonus, Utilities, Missiles
+    /* ---------------------------------------- Sulfuras v1.7 --------------------------------------- */
     // Credits: 
     //     Blizzard      - icon (Edited by me)
     //     Magtheridon96 - RegisterPlayerUnitEvent
@@ -10,7 +10,13 @@ library Sulfuras requires RegisterPlayerUnitEvent, Spell, NewBonus, Utilities
     /* ---------------------------------------------------------------------------------------------- */
     globals
         //The raw code of the Sufuras Ability
-        private constant integer ABILITY = 'A000'
+        private constant integer ABILITY        = 'Rgn0'
+        // The missile model
+        private constant string MISSILE_MODEL   = "Fireball Minor.mdl"
+        // The missile speed
+        private constant real MISSILE_SPEED     = 1250
+        // The missile scale
+        private constant real MISSILE_SCALE     = 0.5
     endglobals
 
     //Modify this function to change the amount of damage Ragnaros gains per kill
@@ -27,6 +33,11 @@ library Sulfuras requires RegisterPlayerUnitEvent, Spell, NewBonus, Utilities
         return 3 + 0*level
     endfunction
 
+    // The minimum range for the missile to be created
+    private function GetMinimumRange takes nothing returns real
+        return 400.
+    endfunction
+
     //Modify this function to change when Ragnaros gains bonus damage based on the Death Event.
     private function UnitFilter takes player owner, unit target returns boolean
         return IsUnitEnemy(target, owner) and not IsUnitType(target, UNIT_TYPE_STRUCTURE)
@@ -35,6 +46,16 @@ library Sulfuras requires RegisterPlayerUnitEvent, Spell, NewBonus, Utilities
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
+    private struct Fireball extends Missile
+        real bonus
+
+        private method onFinish takes nothing returns boolean
+            call AddUnitBonus(source, BONUS_DAMAGE, bonus)
+
+            return false
+        endmethod
+    endstruct
+    
     struct Sulfuras extends Spell
         private static integer array count
         readonly static integer array stacks
@@ -49,6 +70,7 @@ library Sulfuras requires RegisterPlayerUnitEvent, Spell, NewBonus, Utilities
             local integer key
             local integer level
             local integer amount
+            local Fireball fireball
 
             if GetUnitAbilityLevel(source, ABILITY) > 0 then
                 set target = GetDyingUnit()
@@ -61,7 +83,19 @@ library Sulfuras requires RegisterPlayerUnitEvent, Spell, NewBonus, Utilities
                         set amount = GetBonus(target, level)
                         set stacks[key] = stacks[key] + amount
 
-                        call AddUnitBonus(source, BONUS_DAMAGE, amount)
+                        if DistanceBetweenCoordinates(GetUnitX(source), GetUnitY(source), GetUnitX(target), GetUnitY(target)) >= GetMinimumRange() then
+                            set fireball = Fireball.create(GetUnitX(target), GetUnitY(target), 50, GetUnitX(source), GetUnitY(source), 50)
+                            set fireball.model = MISSILE_MODEL
+                            set fireball.speed = MISSILE_SPEED
+                            set fireball.scale = MISSILE_SCALE
+                            set fireball.source = source
+                            set fireball.target = source
+                            set fireball.bonus = amount
+
+                            call fireball.launch()
+                        else
+                            call AddUnitBonus(source, BONUS_DAMAGE, amount)
+                        endif
                     else
                         set count[key] = count[key] + 1
 
@@ -70,7 +104,19 @@ library Sulfuras requires RegisterPlayerUnitEvent, Spell, NewBonus, Utilities
                             set amount = GetBonus(target, level)
                             set stacks[key] = stacks[key] + amount
 
-                            call AddUnitBonus(source, BONUS_DAMAGE, amount)
+                            if DistanceBetweenCoordinates(GetUnitX(source), GetUnitY(source), GetUnitX(target), GetUnitY(target)) >= GetMinimumRange() then
+                                set fireball = Fireball.create(GetUnitX(target), GetUnitY(target), 50, GetUnitX(source), GetUnitY(source), 50)
+                                set fireball.model = MISSILE_MODEL
+                                set fireball.speed = MISSILE_SPEED
+                                set fireball.scale = MISSILE_SCALE
+                                set fireball.source = source
+                                set fireball.target = source
+                                set fireball.bonus = amount
+
+                                call fireball.launch()
+                            else
+                                call AddUnitBonus(source, BONUS_DAMAGE, amount)
+                            endif
                         endif
                     endif
                 endif

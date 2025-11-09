@@ -1,5 +1,5 @@
-library LivingMeteor requires Spell, Missiles, MouseUtils, Utilities, Periodic optional Afterburner, NewBonus
-    /* --------------------- Living Meteor v1.6 by Chopinski -------------------- */
+library LivingMeteor requires Spell, Missiles, MouseUtils, Utilities, Modules optional Afterburner, NewBonus
+    /* --------------------- Living Meteor v1.7 by Chopinski -------------------- */
     // Credits:
     //     Blizzard         - icon (Edited by me)
     //     AZ               - Meteor model
@@ -11,7 +11,7 @@ library LivingMeteor requires Spell, Missiles, MouseUtils, Utilities, Periodic o
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Living Meteor ability
-        private constant integer    ABILITY             = 'A002'
+        private constant integer    ABILITY             = 'Rgn2'
         // The landing time of the falling meteor
         private constant real       LANDING_TIME        = 0.75
         // The roll time of the rolling meteor
@@ -51,7 +51,7 @@ library LivingMeteor requires Spell, Missiles, MouseUtils, Utilities, Periodic o
     // The landing damage distance of the meteor
     private function LandingDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 50. + 50.*level + 1*GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 50. + 50.*level + 1 * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
             return 50. + 50.*level
         endif
@@ -82,7 +82,7 @@ library LivingMeteor requires Spell, Missiles, MouseUtils, Utilities, Periodic o
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Meteor extends Missiles
+    private struct Meteor extends Missile
         private static integer ticks = R2I(DAMAGE_INTERVAL/Missiles_PERIOD)
 
         real aoe

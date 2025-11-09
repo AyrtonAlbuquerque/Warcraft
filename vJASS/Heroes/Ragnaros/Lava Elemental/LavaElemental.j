@@ -1,5 +1,5 @@
 library LavaElemental requires Spell, RegisterPlayerUnitEvent, NewBonus, Utilities optional Sulfuras
-    /* -------------------- Lava Elemental v1.6 by Chopinski -------------------- */
+    /* -------------------- Lava Elemental v1.7 by Chopinski -------------------- */
     // Credits:
     //     Henry         - Lava Elemental model (warcraft3undergorund.com)
     //     Empyreal      - fire base model (xgmguru.ru)
@@ -13,9 +13,9 @@ library LavaElemental requires Spell, RegisterPlayerUnitEvent, NewBonus, Utiliti
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Lava Elemental ability
-        private constant integer ABILITY            = 'A004'
+        private constant integer ABILITY            = 'Rgn4'
         // The raw code of the Lava Elemental unit
-        private constant integer LAVA_ELEMENTAL     = 'o000'
+        private constant integer LAVA_ELEMENTAL     = 'rgn0'
         // This ability cooldown if targeted at a 
         // structure
         private constant real    STRUCTURE_COOLDOWN = 120.

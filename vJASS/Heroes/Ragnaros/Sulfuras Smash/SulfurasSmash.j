@@ -12,7 +12,7 @@ library SulfurasSmash requires Spell, Missiles, TimedHandles, Utilities, CrowdCo
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Sulfuras Smash ability
-        private constant integer    ABILITY             = 'A005'
+        private constant integer    ABILITY             = 'Rgn5'
         // The landing time of the falling sulfuras
         private constant real       LANDING_TIME        = 0.75
         // The distance from the casting point from 
@@ -76,7 +76,7 @@ library SulfurasSmash requires Spell, Missiles, TimedHandles, Utilities, CrowdCo
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Hammer extends Missiles
+    private struct Hammer extends Missile
         real aoe
         real stun
         integer level
