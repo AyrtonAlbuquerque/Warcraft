@@ -1,4 +1,4 @@
-library StormBolt requires Spell, Missiles, Utilities, CrowdControl optional ThunderClap optional NewBonus
+library StormBolt requires Spell, Missiles, Utilities, CrowdControl optional NewBonus
     /* --------------------------------------- Storm Bolt v1.5 -------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -10,9 +10,9 @@ library StormBolt requires Spell, Missiles, Utilities, CrowdControl optional Thu
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Storm Bolt ability
-        public  constant integer    ABILITY            = 'A005'
+        public  constant integer    ABILITY            = 'Mrd9'
         // The raw code of the Storm Bolt Double Thunder ability
-        public  constant integer    STORM_BOLT_RECAST  = 'A00A'
+        public  constant integer    STORM_BOLT_RECAST  = 'MrdB'
         // The missile model
         private constant string     MISSILE_MODEL      = "Abilities\\Spells\\Human\\StormBolt\\StormBoltMissile.mdl"
         // The missile size
@@ -73,7 +73,7 @@ library StormBolt requires Spell, Missiles, Utilities, CrowdControl optional Thu
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct Hammer extends Missiles
+    private struct Hammer extends Missile
         real slow
         integer level
         boolean bonus
@@ -81,7 +81,7 @@ library StormBolt requires Spell, Missiles, Utilities, CrowdControl optional Thu
         real slowDuration
         boolean deflected
 
-        private method onHit takes unit u returns boolean
+        private method onUnit takes unit u returns boolean
             if UnitAlive(u) then
                 if DamageFilter(owner, u) then
                     set newDamage = damage

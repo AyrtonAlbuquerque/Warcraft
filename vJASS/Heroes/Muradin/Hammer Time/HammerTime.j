@@ -9,9 +9,9 @@ library HammerTime requires Spell, DamageInterface, Utilities optional StormBolt
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Hammer Time ability
-        private constant integer ABILITY       = 'A009'
+        private constant integer ABILITY       = 'Mrd7'
         // The raw code of the Muradin unit in the editor
-        private constant integer MURADIN_ID    = 'H000'
+        private constant integer MURADIN_ID    = 'Mrdn'
         // The GAIN_AT_LEVEL is greater than 0
         // Muradin will gain Hammer Time at this level 
         private constant integer GAIN_AT_LEVEL = 20

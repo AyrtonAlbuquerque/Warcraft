@@ -10,7 +10,7 @@ library DoubleThunder requires RegisterPlayerUnitEvent, optional StormBolt, opti
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Double Thunder ability
-        private constant integer ABILITY = 'A000'
+        private constant integer ABILITY = 'Mrd0'
     endglobals
 
     // This updates the double thunder level at levels 10, 15 and 20

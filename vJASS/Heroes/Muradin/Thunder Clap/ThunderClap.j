@@ -1,5 +1,5 @@
-library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities optional Avatar optional NewBonus
-    /* -------------------------------------- Thunder Clap v1.5 ------------------------------------- */
+library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities optional Avatar optional StormBolt optional NewBonus
+    /* -------------------------------------- Thunder Clap v1.6 ------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
     //     Bribe          - SpellEffectEvent
@@ -11,9 +11,9 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities option
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Thunder Clap ability
-        public  constant integer ABILITY             = 'A003'
+        public  constant integer ABILITY             = 'Mrd2'
         // The raw code of the Thunder Clap Recast ability
-        public  constant integer THUNDER_CLAP_RECAST = 'A004'
+        public  constant integer THUNDER_CLAP_RECAST = 'Mrd6'
         // The model used when storm bolt refunds mana on kill
         private constant string  HEAL_EFFECT         = "Abilities\\Spells\\Items\\AIhe\\AIheTarget.mdl"
         // The attachment point
@@ -26,6 +26,8 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities option
         private constant string  STUN_MODEL          = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
         // The stun model attachment point
         private constant string  STUN_POINT          = "overhead"
+        // Use Storm Bolt v3
+        private constant boolean STORM_BOLT_V3       = true
     endglobals
 
     // The damage dealt
@@ -88,7 +90,7 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities option
     /* ---------------------------------------------------------------------------------------------- */
     private struct ThunderClap extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r by |cffffcc00" + N2S(GetAttackSlowAmount(source, level) * 100, 0) + "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc002.5%|r (|cffffcc0010%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r"
+            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r by |cffffcc00" + N2S(GetAttackSlowAmount(source, level) * 100, 0) + "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc002.5%|r (|cffffcc0010%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and the second |cffffcc00Thunder Clap|r stuns enemy units instead."
         endmethod
         
         private method onCast takes nothing returns nothing
@@ -153,6 +155,10 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities option
                 call DestroyEffectTimed(AddSpecialEffectTarget(HEAL_EFFECT, source, ATTACH_POINT), 1.0)
             endif
             
+            static if LIBRARY_StormBolt and STORM_BOLT_V3 then
+                call StormBolt.lightning(source, damage, aoe)
+            endif
+
             set g = null
             set owner = null
             set source = null

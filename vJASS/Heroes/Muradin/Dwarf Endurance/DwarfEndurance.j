@@ -1,4 +1,4 @@
-library DwarfEndurance requires Spell, DamageInterface, Periodic, Utilities
+library DwarfEndurance requires Spell, DamageInterface, Modules, Utilities
     /* -------------------- Dwarf Endurance v1.3 by Chopinski ------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -10,7 +10,7 @@ library DwarfEndurance requires Spell, DamageInterface, Periodic, Utilities
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Dwarf Endurance ability
-        private constant integer ABILITY        = 'A007'
+        private constant integer ABILITY        = 'Mrd4'
         // The period at which health is restored
         private constant real    PERIOD         = 0.1
         // The model used

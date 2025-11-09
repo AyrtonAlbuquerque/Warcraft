@@ -1,5 +1,5 @@
-library Bash requires Spell, DamageInterface, CrowdControl, Utilities optional NewBonus
-    /* ------------------------------------------ Bash v1.1 ----------------------------------------- */
+library Bash requires Spell, DamageInterface, CrowdControl, Utilities, NewBonus
+    /* ------------------------------------------ Bash v1.2 ----------------------------------------- */
     // Credits:
     //     PrinceYaser - Icon
     /* ---------------------------------------- By Chipinski ---------------------------------------- */
@@ -9,7 +9,7 @@ library Bash requires Spell, DamageInterface, CrowdControl, Utilities optional N
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the bash ability
-        private constant integer ABILITY = 'A006'
+        private constant integer ABILITY = 'Mrd3'
         // The stun model
         private constant string  MODEL   = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
         // The stun model attachment point
@@ -18,16 +18,20 @@ library Bash requires Spell, DamageInterface, CrowdControl, Utilities optional N
 
     // The damage dealt
     private function GetDamage takes unit source, integer level returns real
-        static if LIBRARY_NewBonus then
-            return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1) + 0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1) + 0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)
+    endfunction
+
+    private function GetBonusAttackSpeed takes unit source, integer level returns real
+        if level == 1 then
+            return 0.15
         else
-            return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1)
+            return 0.05 + 0.*level
         endif
     endfunction
 
     // The proc chance
     private function GetChance takes unit source, integer level returns real
-        return 10. + 5*level
+        return 0.1 + 0.05*level
     endfunction
 
     // The duration
@@ -49,7 +53,11 @@ library Bash requires Spell, DamageInterface, CrowdControl, Utilities optional N
     /* ---------------------------------------------------------------------------------------------- */
     private struct Bash extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "Gives a |cffffcc00" + N2S(GetChance(source, level), 0) + "%|r chance that an attack will do |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r bonus |cff00ffffMagic|r damage and stun an opponent for |cffffcc001|r (|cffffcc000.5|r for |cffffcc00Heroes|r) second."
+            return "Gives a |cffffcc00" + N2S(GetChance(source, level), 0) + "%|r chance that an attack will do |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r bonus |cff00ffffMagic|r damage and stun an opponent for |cffffcc001|r (|cffffcc000.5|r for |cffffcc00Heroes|r) second. Additionally Muradin gains |cffffcc00" + N2S(GetBonusAttackSpeed(source, level) * 100, 0) + "% Attack Speed|r"
+        endmethod
+
+        private method onLearn takes unit source, integer skill, integer level returns nothing
+            call AddUnitBonus(source, BONUS_ATTACK_SPEED, GetBonusAttackSpeed(source, level))
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -57,7 +65,7 @@ library Bash requires Spell, DamageInterface, CrowdControl, Utilities optional N
 
             if level > 0 then
                 if UnitFilter(Damage.source.player, Damage.target.unit) then
-                    if GetRandomReal(0, 100) <= GetChance(Damage.source.unit, level) then
+                    if GetRandomReal(0, 1) <= GetChance(Damage.source.unit, level) then
                         if UnitDamageTarget(Damage.source.unit, Damage.target.unit, GetDamage(Damage.source.unit, level), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                             call StunUnit(Damage.target.unit, GetDuration(Damage.source.unit, Damage.target.unit, level), MODEL, POINT, false)
                         endif

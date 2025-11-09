@@ -1,5 +1,5 @@
 library DoubleThunder requires RegisterPlayerUnitEvent, Utilities optional StormBolt, optional ThunderClap, optional Avatar
-    /* ------------------------------------- Double Thunder v1.5 ------------------------------------ */
+    /* ------------------------------------- Double Thunder v1.6 ------------------------------------ */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Blizzard       - Icon
@@ -10,7 +10,9 @@ library DoubleThunder requires RegisterPlayerUnitEvent, Utilities optional Storm
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Double Thunder ability
-        private constant integer ABILITY = 'A000'
+        private constant integer ABILITY = 'Mrd0'
+        // Enable or disable double storm bolt (use to control behavior in versions v1, v2 ans v3)
+        private constant boolean DOUBLE_STORM_BOLT = false
     endglobals
 
     // This updates the double thunder level at levels 10, 15 and 20
@@ -58,7 +60,7 @@ library DoubleThunder requires RegisterPlayerUnitEvent, Utilities optional Storm
             local integer id = GetUnitUserData(source)
             local integer skill = GetSpellAbilityId()
         
-            static if LIBRARY_StormBolt then
+            static if LIBRARY_StormBolt and DOUBLE_STORM_BOLT then
                 if skill == StormBolt_ABILITY then
                     if GetRandomInt(1, 100) <= GetDoubleChance(source, GetUnitAbilityLevel(source, ABILITY)) then
                         call UnitAddAbility(source,  StormBolt_STORM_BOLT_RECAST)

@@ -10,9 +10,9 @@ library StormBolt requires Spell, Missiles, Utilities, TimedHandles, CrowdContro
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Storm Bolt ability
-        public  constant integer    ABILITY            = 'A001'
+        public  constant integer    ABILITY            = 'Mrd8'
         // The raw code of the Storm Bolt Double Thunder ability
-        public  constant integer    STORM_BOLT_RECAST  = 'A002'
+        public  constant integer    STORM_BOLT_RECAST  = 'MrdA'
         // The missile model
         private constant string     MISSILE_MODEL      = "Abilities\\Spells\\Human\\StormBolt\\StormBoltMissile.mdl"
         // The missile size
@@ -62,7 +62,7 @@ library StormBolt requires Spell, Missiles, Utilities, TimedHandles, CrowdContro
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct Hammer extends Missiles
+    private struct Hammer extends Missile
         real time
         real mana
         integer level
