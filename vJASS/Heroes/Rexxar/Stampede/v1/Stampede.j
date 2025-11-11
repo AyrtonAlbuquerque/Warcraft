@@ -1,4 +1,4 @@
-library Stampede requires Spell, Missiles, Utilities, Periodic, CrowdControl, optional NewBonus
+library Stampede requires Spell, Missiles, Utilities, Modules, CrowdControl, optional NewBonus
     /* ----------------------- Stampede v1.2 by Chopinski ----------------------- */
     // Credits:
     //     00110000 - RemorselessWinter effect
@@ -9,7 +9,7 @@ library Stampede requires Spell, Missiles, Utilities, Periodic, CrowdControl, op
     /* -------------------------------------------------------------------------- */
     globals
         // The ability raw code
-        private constant integer ABILITY     = 'A005'
+        private constant integer ABILITY     = 'Rex8'
         // The missile model
         private constant string  MODEL       = "Abilities\\Spells\\Other\\Stampede\\StampedeMissile.mdl"
         // The missile scale
@@ -68,10 +68,10 @@ library Stampede requires Spell, Missiles, Utilities, Periodic, CrowdControl, op
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Lizard extends Missiles
+    private struct Lizard extends Missile
         real stun
 
-        private method onHit takes unit u returns boolean
+        private method onUnit takes unit u returns boolean
             if UnitFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                     call StunUnit(u, stun, STUN_MODEL, STUN_ATTACH, false)

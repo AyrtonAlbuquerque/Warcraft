@@ -1,5 +1,5 @@
-library Misha requires RegisterPlayerUnitEvent, Spell, NewBonus, Periodic, Utilities
-    /* ------------------------- Misha v1.1 by Chopinski ------------------------ */
+library Misha requires Table, RegisterPlayerUnitEvent, Spell, NewBonus, Modules, Utilities
+    /* ------------------------- Misha v1.2 by Chopinski ------------------------ */
     // Credits:
     //     Blizzard - Icon
     /* ----------------------------------- END ---------------------------------- */
@@ -9,9 +9,9 @@ library Misha requires RegisterPlayerUnitEvent, Spell, NewBonus, Periodic, Utili
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY   = 'A000'
+        private constant integer ABILITY   = 'Rex0'
         // The raw code of the Misha unit
-        public  constant integer MISHA     = 'n000'
+        public  constant integer MISHA     = 'rex0'
     endglobals
     
     // The Misha Max Health
@@ -33,6 +33,8 @@ library Misha requires RegisterPlayerUnitEvent, Spell, NewBonus, Periodic, Utili
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     struct Misha extends Spell
+        private static HashTable table
+        private static boolean creating = false
         readonly static group array group
         readonly static integer array owner
         
@@ -54,6 +56,7 @@ library Misha requires RegisterPlayerUnitEvent, Spell, NewBonus, Periodic, Utili
 
         private method onExpire takes nothing returns nothing
             local unit u
+            local integer i = 0
             local group g = CreateGroup()
             
             if group[id] == null then
@@ -67,6 +70,7 @@ library Misha requires RegisterPlayerUnitEvent, Spell, NewBonus, Periodic, Utili
                 set u = FirstOfGroup(g)
                 exitwhen u == null
                     if UnitAlive(u) and GetUnitTypeId(u) == MISHA then
+                        set creating = true
                         set owner[GetUnitUserData(u)] = id
 
                         call GroupAddUnit(group[id], u)
@@ -74,6 +78,16 @@ library Misha requires RegisterPlayerUnitEvent, Spell, NewBonus, Periodic, Utili
                         call SetUnitLifePercentBJ(u, 100)
                         call BlzSetUnitBaseDamage(u, R2I(GetMishaDamage(unit, level)), 0)
                         call BlzSetUnitArmor(u, GetMishaArmor(unit, level))
+
+                        loop
+                            exitwhen i == 6
+                                if table[GetPlayerId(player)].has(i) then
+                                    call UnitAddItemToSlotById(u, table[GetPlayerId(player)][i], i)
+                                endif
+                            set i = i + 1
+                        endloop
+
+                        set creating = false
                     endif
                 call GroupRemoveUnit(g, u)
             endloop
@@ -97,20 +111,70 @@ library Misha requires RegisterPlayerUnitEvent, Spell, NewBonus, Periodic, Utili
             local unit source = GetTriggerUnit()
             local integer i = GetUnitUserData(source)
             local integer id = owner[i]
+            local integer j = 0
             
             if id != 0 then
                 set owner[i] = 0
+
                 call GroupRemoveUnit(group[id], source)
+
+                loop
+                    exitwhen j == 6
+                        call RemoveItem(UnitItemInSlot(source, j))
+                    set j = j + 1
+                endloop
             endif
             
             set source = null
         endmethod
     
+        private static method onPickup takes nothing returns nothing
+            local integer i = 0
+            local unit u = GetManipulatingUnit()
+            local integer id = GetPlayerId(GetOwningPlayer(u))
+
+            if GetUnitTypeId(u) == MISHA and not creating then
+                loop
+                    exitwhen i == 6
+                        set table[id][i] = GetItemTypeId(UnitItemInSlot(u, i))
+                    set i = i + 1
+                endloop
+            endif
+
+            set u = null
+        endmethod
+
+        private static method onDrop takes nothing returns nothing
+            local integer i = 0
+            local boolean removed = false
+            local unit u = GetManipulatingUnit()
+            local integer id = GetPlayerId(GetOwningPlayer(u))
+
+            if GetUnitTypeId(u) == MISHA and UnitAlive(u) and not creating then
+                loop
+                    exitwhen i == 6
+                        if not removed and GetItemTypeId(UnitItemInSlot(u, i)) == GetItemTypeId(GetManipulatedItem()) then
+                            set removed = true
+                            call table[id].remove(i)
+                        else
+                            set table[id][i] = GetItemTypeId(UnitItemInSlot(u, i))
+                        endif
+                    set i = i + 1
+                endloop
+            endif
+
+            set u = null
+        endmethod
+
         implement Periodic
 
         private static method onInit takes nothing returns nothing
+            set table = HashTable.create()
+
             call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function thistype.onDrop)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, function thistype.onPickup)
         endmethod
     endstruct
 endlibrary

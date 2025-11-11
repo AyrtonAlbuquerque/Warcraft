@@ -10,9 +10,9 @@ library FeralRoar requires Spell, NewBonus, Utilities, CrowdControl optional Mis
     /* -------------------------------------------------------------------------- */
     globals
         // The ability raw code
-        private constant integer ABILITY = 'A002'
+        private constant integer ABILITY = 'Rex2'
         // The buff raw code
-        private constant integer BUFF    = 'B001'
+        private constant integer BUFF    = 'BRx0'
         // The model used in fear
         private constant string  FEAR    = "Fear.mdx"
         // Where the fear model is attached to

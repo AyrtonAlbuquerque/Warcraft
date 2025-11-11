@@ -1,5 +1,5 @@
-library WildBond requires RegisterPlayerUnitEvent, Periodic, Indexer, NewBonus, Ability
-    /* ----------------------- Wild Bond v1.1 by Chopinski ---------------------- */
+library WildBond requires RegisterPlayerUnitEvent, Modules, Indexer, NewBonus, Spell
+    /* ----------------------- Wild Bond v1.2 by Chopinski ---------------------- */
     // Credits:
     //     Nyx-Studio      - Icon
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -11,9 +11,9 @@ library WildBond requires RegisterPlayerUnitEvent, Periodic, Indexer, NewBonus, 
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Wild Bond Ability
-        private constant integer ABILITY       = 'A006'
+        private constant integer ABILITY       = 'Rex9'
         // The raw code of the Rexxar unit in the editor
-        private constant integer REXXAR_ID     = 'O000'
+        private constant integer REXXAR_ID     = 'Rexr'
         // The GAIN_AT_LEVEL is greater than 0
         // Rexxar will gain Wild Bond at this level 
         private constant integer GAIN_AT_LEVEL = 20

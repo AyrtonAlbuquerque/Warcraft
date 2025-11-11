@@ -1,5 +1,5 @@
 library EagleEye requires Spell, Missiles, NewBonus, TimerUtils
-    /* ---------------------- Eagle's Eye v1.1 by Chopinksi --------------------- */
+    /* ---------------------- Eagle's Eye v1.2 by Chopinski --------------------- */
     // Credits: SkriK
     //     SkriK           - Icon
     //     Vexorian        - TimerUtils
@@ -11,9 +11,9 @@ library EagleEye requires Spell, Missiles, NewBonus, TimerUtils
     /* -------------------------------------------------------------------------- */
     globals
         // The ability raw code
-        private constant integer ABILITY     = 'A004'
+        private constant integer ABILITY     = 'Rex4'
         // The missile model
-        private constant string  MODEL       = "Eagle.mdl"
+        private constant string  MODEL       = "Green Crow.mdl"
         // The missile scale
         private constant real    SCALE       = 0.6
         // The model used for the blind effect
@@ -25,7 +25,7 @@ library EagleEye requires Spell, Missiles, NewBonus, TimerUtils
         // The death model scale
         private constant real    DEATH_SCALE = 1.5
         // The missile speed
-        private constant real    SPEED       = 1200
+        private constant real    SPEED       = 1500
         // The missile final height
         private constant real    HEIGHT      = 350
         // The eagle search period
@@ -88,7 +88,7 @@ library EagleEye requires Spell, Missiles, NewBonus, TimerUtils
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Eagle extends Missiles
+    private struct Eagle extends Missile
         real aoe
         real time
         timer timer

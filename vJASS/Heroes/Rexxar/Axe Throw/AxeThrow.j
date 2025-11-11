@@ -1,5 +1,5 @@
 library AxeThrow requires Spell, Missiles, Utilities, CrowdControl optional NewBonus
-    /* ----------------------- Axe Throw v1.2 by Chopinski ---------------------- */
+    /* ----------------------- Axe Throw v1.3 by Chopinski ---------------------- */
     // Credits:
     //     -Berz-          - Icon
     //     Bribe           - SpellEffectEvent
@@ -10,7 +10,7 @@ library AxeThrow requires Spell, Missiles, Utilities, CrowdControl optional NewB
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY   = 'A001'
+        private constant integer ABILITY   = 'Rex1'
         // The missile model
         private constant string  MODEL     = "Abilities\\Weapons\\RexxarMissile\\RexxarMissile.mdl"
         // The missile scale
@@ -75,17 +75,18 @@ library AxeThrow requires Spell, Missiles, Utilities, CrowdControl optional NewB
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Axe extends Missiles
+    private struct Axe extends Missile
         real slow
         real time
         real reduction
         boolean deflected
     
-        private method onHit takes unit u returns boolean
+        private method onUnit takes unit u returns boolean
             if UnitAlive(u) then
                 if DamageFilter(owner, u) then
                     if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                         call DestroyEffect(AddSpecialEffectTarget(HIT_MODEL, u, ATTACH))
+
                         if not UnitAlive(u) then
                             call StartUnitAbilityCooldown(source, ABILITY, BlzGetUnitAbilityCooldownRemaining(source, ABILITY) - reduction)
                         else
@@ -128,7 +129,7 @@ library AxeThrow requires Spell, Missiles, Utilities, CrowdControl optional NewB
                     set axe.source = Spell.source.unit
                     set axe.owner = Spell.source.player
                     set axe.arc = GetArc(Spell.level)
-                    set axe.curve = a*GetCurve(Spell.level)
+                    set axe.curve = a*GetCurve(Spell.level)*bj_DEGTORAD
                     set axe.collision = GetAoE(Spell.source.unit, Spell.level)
                     set axe.damage = GetDamage(Spell.source.unit, Spell.level)
                     set axe.slow = GetSlowAmount(Spell.level)

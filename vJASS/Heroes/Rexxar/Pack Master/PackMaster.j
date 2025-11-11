@@ -1,4 +1,4 @@
-library PackMaster requires RegisterPlayerUnitEvent, Spell, TimerUtils, NewBonus, Periodic
+library PackMaster requires RegisterPlayerUnitEvent, Spell, TimerUtils, NewBonus, Modules
     /* ---------------------- Pack Master v1.2 by Chopinski --------------------- */
     // Credits:
     //     Vexorian        - TimerUtils
@@ -9,9 +9,9 @@ library PackMaster requires RegisterPlayerUnitEvent, Spell, TimerUtils, NewBonus
     /* -------------------------------------------------------------------------- */
     globals
         // The ability raw code
-        private constant integer ABILITY = 'A003'
+        private constant integer ABILITY = 'Rex3'
         // The Wolf unit raw code
-        private constant integer WOLF    = 'o001'
+        private constant integer WOLF    = 'rex1'
     endglobals
     
     // The maximum number of wolfs per level

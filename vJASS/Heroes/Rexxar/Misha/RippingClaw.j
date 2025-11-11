@@ -11,7 +11,7 @@ library RippingClaws requires RegisterPlayerUnitEvent, DamageInterface, Utilitie
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY = 'A008'
+        private constant integer ABILITY = 'Rex7'
         // The Claw effect
         private constant string  CLAW    = "Reaper's Claws Gold.mdl"
         // The model scale

@@ -10,7 +10,7 @@ library Enraged requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Ind
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY = 'A007'
+        private constant integer ABILITY = 'Rex6'
     endglobals
     
     // The movement speed bonus
