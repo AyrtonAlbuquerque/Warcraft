@@ -1,5 +1,5 @@
-library BerserkerZone requires Spell, Periodic, Utilities, NewBonus
-    /* --------------------- BerserkerZone v1.0 by Chopinski -------------------- */
+library BerserkerZone requires Spell, Modules, Utilities, NewBonus
+    /* --------------------- BerserkerZone v1.1 by Chopinski -------------------- */
     // Credits:
     //     Az - BladeZone model
     /* ----------------------------------- END ---------------------------------- */
@@ -9,11 +9,11 @@ library BerserkerZone requires Spell, Periodic, Utilities, NewBonus
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Berserker Zone ability
-        public  constant integer ABILITY    = 'A00A'
+        public  constant integer ABILITY    = 'SmrB'
         // The raw code of the Berserker Zone aura
-        public  constant integer AURA       = 'A00B'
+        public  constant integer AURA       = 'SmrC'
         // The raw code of the Berserker Zone buff
-        public  constant integer BUFF       = 'B001'
+        public  constant integer BUFF       = 'BSm1'
         // The model path used in Berserker Zone
         private constant string  MODEL      = "BladeZone.mdl"
         // The model scale

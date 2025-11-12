@@ -1,5 +1,5 @@
-library Mimic requires Spell, RegisterPlayerUnitEvent, MirrorImage, NewBonus, Periodic, Utilities optional Bladestorm
-    /* ------------------------- Mimic v1.3 by Chopinski ------------------------ */
+library Mimic requires Spell, RegisterPlayerUnitEvent, MirrorImage, NewBonus, Modules, Utilities optional Bladestorm
+    /* ------------------------- Mimic v1.4 by Chopinski ------------------------ */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     CRAZYRUSSIAN   - Icon
@@ -10,7 +10,7 @@ library Mimic requires Spell, RegisterPlayerUnitEvent, MirrorImage, NewBonus, Pe
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Critical Strike ability
-        private constant integer ABILITY  = 'A004'
+        private constant integer ABILITY  = 'Smr4'
     endglobals
 
     // The bonus damage every level up

@@ -1,5 +1,5 @@
-library MirrorImage requires RegisterPlayerUnitEvent, Spell, NewBonus, Periodic, TimedHandles, Indexer, Utilities
-    /* ---------------------- MirrorImage v1.4 by Chopinski --------------------- */
+library MirrorImage requires RegisterPlayerUnitEvent, Spell, NewBonus, Modules, TimedHandles, Indexer, Utilities
+    /* ---------------------- MirrorImage v1.5 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96    - RegisterPlayerUnitEvent
     //     TriggerHappy     - TimedHandles
@@ -10,11 +10,11 @@ library MirrorImage requires RegisterPlayerUnitEvent, Spell, NewBonus, Periodic,
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Mirror Image ability
-        private constant integer ABILITY            = 'A002'
+        private constant integer ABILITY            = 'Smr2'
         // The raw code of the Cloned Hero ability
-        private constant integer CLONED_HERO        = 'A007'
+        private constant integer CLONED_HERO        = 'Smr6'
         // The raw code of the Cloned Inventory ability
-        private constant integer CLONE_INVENTORY    = 'A008'
+        private constant integer CLONE_INVENTORY    = 'Smr7'
         // The model that is used to identify the real Samuro
         private constant string  ID_MODEL           = "CloudAura.mdx"
         // The model attchment point

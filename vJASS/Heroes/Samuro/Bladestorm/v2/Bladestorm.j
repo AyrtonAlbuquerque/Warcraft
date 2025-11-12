@@ -1,5 +1,5 @@
-library Bladestorm requires Spell, Periodic, Utilities optional NewBonus
-    /* ---------------------- Bladestorm v1.3 by Chopinski ---------------------- */
+library Bladestorm requires Spell, Modules, Utilities optional NewBonus
+    /* ---------------------- Bladestorm v1.4 by Chopinski ---------------------- */
     // Credits:
     //     zbc - Icon
     /* ----------------------------------- END ---------------------------------- */
@@ -9,13 +9,17 @@ library Bladestorm requires Spell, Periodic, Utilities optional NewBonus
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Bladestorm ability
-        public  constant integer ABILITY    = 'A009'
+        public  constant integer ABILITY    = 'Smr1'
         // The raw code of the Bladestorm buff
-        public  constant integer BUFF       = 'B000'
+        public  constant integer BUFF       = 'BSm0'
         // The model path used in baldestorm
-        private constant string  MODEL      = "Bladestorm.mdl"
-        // The rate at which the bladestorm model is spammed
-        private constant real    RATE       = 0.25
+        private constant string  MODEL      = "BladestormHots.mdl"
+        // If true, the bladestorm model will be spawned at the damage period
+        private constant boolean SPAM       = false
+        // The damage period
+        private constant real    PERIOD     = 0.25
+        // The time scale during bladestorm
+        private constant real    TIME_SCALE = 1
     endglobals
 
     // The Bladestorm damage per second
@@ -42,6 +46,7 @@ library Bladestorm requires Spell, Periodic, Utilities optional NewBonus
     private struct Bladestorm extends Spell
         private unit unit
         private integer level
+        private effect effect
 
         method destroy takes nothing returns nothing
             call SetUnitTimeScale(unit, 1)
@@ -49,9 +54,11 @@ library Bladestorm requires Spell, Periodic, Utilities optional NewBonus
             call IssueImmediateOrderById(unit, 852590)
             call QueueUnitAnimation(unit, "Stand Ready")
             call AddUnitAnimationProperties(unit, "spin", false)
+            call DestroyEffect(effect)
             call deallocate()
             
             set unit = null
+            set effect = null
         endmethod
 
         private method onTooltip takes unit source, integer level, ability spell returns string
@@ -62,9 +69,12 @@ library Bladestorm requires Spell, Periodic, Utilities optional NewBonus
             local integer cost = GetManaCost(unit, level)
 
             if GetUnitAbilityLevel(unit, BUFF) > 0 and GetUnitState(unit, UNIT_STATE_MANA) >= cost then
-                call AddUnitMana(unit, -cost * RATE)
-                call DestroyEffect(AddSpecialEffectTarget(MODEL, unit, "origin"))
-                call UnitDamageArea(unit, GetUnitX(unit), GetUnitY(unit), GetAoE(unit, level), GetDamage(unit, level) * RATE, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, false, false, false)
+                call AddUnitMana(unit, -cost * PERIOD)
+                call UnitDamageArea(unit, GetUnitX(unit), GetUnitY(unit), GetAoE(unit, level), GetDamage(unit, level) * PERIOD, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, false, false, false)
+
+                if not SPAM then
+                    call DestroyEffect(AddSpecialEffectTarget(MODEL, unit, "origin"))
+                endif
 
                 return true
             endif
@@ -78,10 +88,14 @@ library Bladestorm requires Spell, Periodic, Utilities optional NewBonus
                 set unit = Spell.source.unit
                 set level = Spell.level
             
-                call SetUnitTimeScale(unit, 3)
+                call SetUnitTimeScale(unit, TIME_SCALE)
                 call UnitAddAbility(unit, 'Abun')
-                call StartTimer(RATE, true, this, Spell.source.id)
+                call StartTimer(PERIOD, true, this, Spell.source.id)
                 call AddUnitAnimationProperties(unit, "spin", true)
+
+                if SPAM then
+                    set effect = AddSpecialEffectTarget(MODEL, unit, "origin")
+                endif
             endif
         endmethod
 

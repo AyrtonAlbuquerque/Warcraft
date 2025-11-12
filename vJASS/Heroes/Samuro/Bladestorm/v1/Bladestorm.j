@@ -1,5 +1,5 @@
-library Bladestorm requires Spell, Periodic optional NewBonus
-    /* ---------------------- Bladestorm v1.3 by Chopinski ---------------------- */
+library Bladestorm requires Spell, Modules optional NewBonus
+    /* ---------------------- Bladestorm v1.4 by Chopinski ---------------------- */
     // Credits:
     //     zbc - Icon
     /* ----------------------------------- END ---------------------------------- */
@@ -9,7 +9,7 @@ library Bladestorm requires Spell, Periodic optional NewBonus
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Bladestorm ability
-        public  constant integer ABILITY    = 'A005'
+        public  constant integer ABILITY    = 'SmrA'
         // The model path used in baldestorm
         private constant string  MODEL      = "Bladestorm.mdl"
         // The rate at which the bladestorm model is spammed

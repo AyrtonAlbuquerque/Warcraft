@@ -1,5 +1,5 @@
 library Critical requires Spell, NewBonus, CriticalStrike, DamageInterface, Missiles, Utilities
-    /* ----------------------- Critical v1.3 by Chopinski ----------------------- */
+    /* ----------------------- Critical v1.4 by Chopinski ----------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Blizzard       - Icon
@@ -10,7 +10,7 @@ library Critical requires Spell, NewBonus, CriticalStrike, DamageInterface, Miss
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Critical Strike ability
-        public constant integer     ABILITY         = 'A003'
+        public constant integer     ABILITY         = 'Smr3'
         // The missile model
         private constant string     MISSILE_MODEL   = "Fire_Slash.mdl"
         // The missile size
@@ -60,8 +60,8 @@ library Critical requires Spell, NewBonus, CriticalStrike, DamageInterface, Miss
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct FireSlash extends Missiles
-        method onHit takes unit hit returns boolean
+    private struct FireSlash extends Missile
+        method onUnit takes unit hit returns boolean
             if Filtered(owner, hit) then
                 call UnitDamageTarget(source, hit, damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null)
             endif

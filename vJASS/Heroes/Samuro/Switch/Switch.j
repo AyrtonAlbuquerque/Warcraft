@@ -1,5 +1,5 @@
-library Switch requires Spell, Periodic, MirrorImage
-    /* ------------------------ Switch v1.4 by Chopinski ------------------------ */
+library Switch requires Spell, Modules, MirrorImage
+    /* ------------------------ Switch v1.5 by Chopinski ------------------------ */
     // Credits:
     //     CheckeredFlag  - Icon
     /* ----------------------------------- END ---------------------------------- */
@@ -9,7 +9,7 @@ library Switch requires Spell, Periodic, MirrorImage
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Switch ability
-        public  constant integer ABILITY       = 'A006'
+        public  constant integer ABILITY       = 'Smr0'
         // The switch effect
         private constant string  SWITCH_EFFECT = "Abilities\\Spells\\Orc\\MirrorImage\\MirrorImageCaster.mdl"
     endglobals

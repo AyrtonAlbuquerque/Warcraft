@@ -10,7 +10,7 @@ library WindWalk requires RegisterPlayerUnitEvent, Spell, NewBonus, DamageInterf
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Wind Walk ability
-        public  constant integer    ABILITY   = 'A001'
+        public  constant integer    ABILITY   = 'Smr9'
         // The raw code of the Wind Walk buff
         private constant integer    BUFF      = 'BOwk'
     endglobals

@@ -10,7 +10,7 @@ library Mimic requires Spell, RegisterPlayerUnitEvent, MirrorImage, optional Win
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Critical Strike ability
-        private constant integer ABILITY  = 'A004'
+        private constant integer ABILITY  = 'Smr4'
     endglobals
 
     // The level at which illsuions will start to mimic Wind Walk
