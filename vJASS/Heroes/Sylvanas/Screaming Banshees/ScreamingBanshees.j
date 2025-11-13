@@ -1,4 +1,4 @@
-library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities
+library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities, Effect
     /* ------------------ Screaming Banshees v1.4 by Chopinski ------------------ */
     // Credits:
     //     4eNNightmare - Icon
@@ -17,7 +17,7 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities
         // The missile size
         private constant real    MISSILE_SCALE      = 1.3
         // The missile duration
-        private constant real    MISSILE_DURATION   = 2.5
+        private constant real    MISSILE_SPEED      = 750
         // The hit model
         private constant string  HIT_MODEL          = "Abilities\\Weapons\\AvengerMissile\\AvengerMissile.mdl"
         // The attachment point
@@ -30,7 +30,7 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities
 
     // The misisle max distance
     private function GetDistance takes integer level returns real
-        return 800. + 100.*level
+        return 1100. + 100.*level
     endfunction
 
     // The armor reductoin duration
@@ -59,6 +59,18 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities
     private struct Banshee extends Missile
         real timeout
         integer armor
+        real distance
+        Effect attachment = 0
+
+        private method onPeriod takes nothing returns boolean
+            if traveled >= (distance * 0.5) and traveled <= (distance * 0.75) and attachment == 0 then
+                set attachment = attach("Abilities\\Spells\\Other\\TalkToMe\\TalkToMe", 0, 0, 100, 1)
+            elseif traveled > (distance * 0.75) and attachment != 0 then
+                call attachment.color(255, 0, 0)
+            endif
+
+            return false
+        endmethod
 
         private method onUnit takes unit hit returns boolean
             if Filtered(owner, hit) then
@@ -91,12 +103,12 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities
                 set distance = GetDistance(Spell.level)
                 set angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
                 set banshee = Banshee.create(Spell.source.x, Spell.source.y, 50, Spell.source.x + distance * Cos(angle), Spell.source.y + distance * Sin(angle), 50)
-
+                set banshee.distance = distance
                 set banshee.source = Spell.source.unit
                 set banshee.owner = Spell.source.player
                 set banshee.model = MISSILE_MODEL
                 set banshee.scale = MISSILE_SCALE
-                set banshee.duration = MISSILE_DURATION
+                set banshee.speed = MISSILE_SPEED
                 set banshee.collision = GetCollisionSize(Spell.level)
                 set banshee.armor = GetArmorReduction(Spell.level)
                 set banshee.timeout = GetDuration(Spell.level)
