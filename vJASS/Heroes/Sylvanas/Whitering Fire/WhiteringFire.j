@@ -1,5 +1,5 @@
-library WitheringFire requires RegisterPlayerUnitEvent, Ability
-    /* -------------------- Withering Fire v1.3 by Chopinski -------------------- */
+library WitheringFire requires RegisterPlayerUnitEvent, Spell
+    /* -------------------- Withering Fire v1.4 by Chopinski -------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     Blizzard       - Icon
@@ -10,13 +10,13 @@ library WitheringFire requires RegisterPlayerUnitEvent, Ability
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Withering Fire Ability
-        public  constant integer ABILITY               = 'A00L'
+        public  constant integer ABILITY               = 'SvnA'
         // The raw code of the Withering Fire Normal Ability
-        private constant integer WITHERING_FIRE_NORMAL = 'A00M'
+        private constant integer WITHERING_FIRE_NORMAL = 'Svn6'
         // The raw code of the Withering Fire Cursed Ability
-        private constant integer WITHERING_FIRE_CURSED = 'A00N'
+        private constant integer WITHERING_FIRE_CURSED = 'Svn7'
         // The raw code of the Sylvanas unit in the editor
-        private constant integer SYLVANAS_ID           = 'H001'
+        private constant integer SYLVANAS_ID           = 'Svns'
         // The GAIN_AT_LEVEL is greater than 0
         // sylvanas will gain Withering Fire at this level 
         private constant integer GAIN_AT_LEVEL         = 20

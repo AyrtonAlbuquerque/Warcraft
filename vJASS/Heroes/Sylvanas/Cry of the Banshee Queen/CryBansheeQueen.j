@@ -1,5 +1,5 @@
-library BansheeCry requires Spell, Utilities, CrowdControl
-    /* -------------------------------- Cry of the Banshee Queen v1.4 ------------------------------- */
+library BansheeCry requires Spell, Utilities, CrowdControl, optional BlackArrow
+    /* -------------------------------- Cry of the Banshee Queen v1.5 ------------------------------- */
     // Credits:
     //     Darkfang      - Void Curse Icon
     //     Mythic        - Call of the Dread model (edited by me)
@@ -10,7 +10,7 @@ library BansheeCry requires Spell, Utilities, CrowdControl
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Cry of the Banshee Queen ability
-        private constant integer ABILITY       = 'A00F'
+        private constant integer ABILITY       = 'Svn2'
         // The fear model
         private constant string  FEAR_MODEL    = "Fear.mdl"
         // The the fear attachment point
@@ -63,9 +63,22 @@ library BansheeCry requires Spell, Utilities, CrowdControl
             loop
                 set u = FirstOfGroup(g)
                 exitwhen u == null
-                    if Filtered(Spell.source.player, u) then
-                        call FearUnit(u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
-                        call SlowUnit(u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), null, null, false)
+                    static if LIBRARY_BlackArrow then
+                        if Filtered(Spell.source.player, u) then
+                            call FearUnit(u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
+                            call SlowUnit(u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), null, null, false)
+                        elseif GetOwningPlayer(u) == Spell.source.player and (GetUnitTypeId(u) == BlackArrow_SKELETON_WARRIOR or GetUnitTypeId(u) == BlackArrow_SKELETON_ARCHER) then
+                            call ShowUnit(u, false)
+                            call UnitApplyTimedLife(ReplaceUnit(u, GetUnitTypeId(u), bj_UNIT_STATE_METHOD_ABSOLUTE), 'BTLF', BlackArrow_GetSkeletonDuration(GetUnitAbilityLevel(u, BlackArrow_ABILITY)))
+                        elseif GetOwningPlayer(u) == Spell.source.player and GetUnitTypeId(u) == BlackArrow_SKELETON_ELITE then
+                            call ShowUnit(u, false)
+                            call UnitApplyTimedLife(ReplaceUnit(u, GetUnitTypeId(u), bj_UNIT_STATE_METHOD_ABSOLUTE), 'BTLF', BlackArrow_GetEliteDuration(GetUnitAbilityLevel(u, BlackArrow_ABILITY)))
+                        endif
+                    else
+                        if Filtered(Spell.source.player, u) then
+                            call FearUnit(u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
+                            call SlowUnit(u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), null, null, false)
+                        endif
                     endif
                 call GroupRemoveUnit(g, u)
             endloop

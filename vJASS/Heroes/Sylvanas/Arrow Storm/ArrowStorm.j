@@ -1,5 +1,5 @@
-library ArrowStorm requires Spell, Utilities, Missiles, optional BlackArrow optional NewBonus
-    /* ---------------------- ArrowStorm v1.4 by Chopinski ---------------------- */
+library ArrowStorm requires Spell, Utilities, Missiles, DamageInterface optional BlackArrow optional NewBonus
+    /* ---------------------- ArrowStorm v1.5 by Chopinski ---------------------- */
     // Credits:
     //     Deathclaw24  - Arrow Storm Icon
     //     AZ           - Black Arrow model
@@ -10,13 +10,13 @@ library ArrowStorm requires Spell, Utilities, Missiles, optional BlackArrow opti
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Arrow Storm ability
-        private constant integer    ABILITY           = 'A00H'
+        private constant integer    ABILITY           = 'Svn3'
         // The normal arrow model
         private constant string     ARROW_MODEL       = "Abilities\\Weapons\\MoonPriestessMissile\\MoonPriestessMissile.mdl"
         // The cursed arrow model
-        private constant string     CURSE_ARROW_MODEL = "Abilities\\Spells\\Other\\BlackArrow\\BlackArrowMissile.mdl"//"BlackArrow.mdl"
+        private constant string     CURSE_ARROW_MODEL = "Abilities\\Spells\\Other\\BlackArrow\\BlackArrowMissile.mdl"
         // The arrow size
-        private constant real       ARROW_SCALE       = 1.//3
+        private constant real       ARROW_SCALE       = 1.
         // The arrow speed
         private constant real       ARROW_SPEED       = 1500.
         // The arrow arc in degrees
@@ -51,6 +51,11 @@ library ArrowStorm requires Spell, Utilities, Missiles, optional BlackArrow opti
         return 75.
     endfunction
 
+    // The cooldown reduction per attack
+    private function GetCooldownReduction takes unit source, integer level returns real
+        return 1. + 0.*level
+    endfunction
+
     // Filter
     private function Filtered takes player op, unit target returns boolean
         return IsUnitEnemy(target, op) and UnitAlive(target) and not IsUnitType(target, UNIT_TYPE_STRUCTURE)
@@ -59,7 +64,7 @@ library ArrowStorm requires Spell, Utilities, Missiles, optional BlackArrow opti
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Arrow extends Missiles
+    private struct Arrow extends Missile
         real aoe
         real timeout
         integer level
@@ -95,7 +100,7 @@ library ArrowStorm requires Spell, Utilities, Missiles, optional BlackArrow opti
 
     private struct ArrowStorm extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Sylvanas|r lauches |cffffcc00" + N2S(GetArrowCount(level), 0) + "|r arrows into the air that will land within |cffffcc00" + N2S(GetAoE(source, level), 0) + "|r |cffffcc00AoE|r of targeted area in random spots, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage to enemy units hitted. If |cffffcc00Black Arrows|r is active, |cffffcc00Arrow Storm|r will curse enemy units hit."
+            return "|cffffcc00Sylvanas|r lauches |cffffcc00" + N2S(GetArrowCount(level), 0) + "|r arrows into the air that will land within |cffffcc00" + N2S(GetAoE(source, level), 0) + "|r |cffffcc00AoE|r of targeted area in random spots, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage to enemy units hitted. If |cffffcc00Black Arrows|r is active, |cffffcc00Arrow Storm|r will curse enemy units hit. Additionally, every auto attack reduces the cooldown of |cffffcc00Arrow Storm|r by |cffffcc001|r second."
         endmethod
 
         private method onCast takes nothing returns nothing
@@ -111,7 +116,7 @@ library ArrowStorm requires Spell, Utilities, Missiles, optional BlackArrow opti
                     set arrow.source = Spell.source.unit
                     set arrow.owner = Spell.source.player
                     set arrow.speed = ARROW_SPEED
-                    set arrow.arc = ARROW_ARC
+                    set arrow.arc = ARROW_ARC * bj_DEGTORAD
                     set arrow.damage = GetDamage(Spell.source.unit, Spell.level)
                     set arrow.aoe = GetArrowAoE(Spell.level)
 
@@ -136,10 +141,19 @@ library ArrowStorm requires Spell, Utilities, Missiles, optional BlackArrow opti
                     call arrow.launch()
                 set i = i - 1
             endloop
-        endmethod   
+        endmethod
+
+        private static method onDamage takes nothing returns nothing
+            local real cooldown = BlzGetUnitAbilityCooldownRemaining(Damage.source.unit, ABILITY)
+
+            if cooldown > 0 and Damage.isEnemy then
+                call StartUnitAbilityCooldown(Damage.source.unit, ABILITY, cooldown - GetCooldownReduction(Damage.source.unit, GetUnitAbilityLevel(Damage.source.unit, ABILITY)))
+            endif
+        endmethod
 
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
+            call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct
 endlibrary

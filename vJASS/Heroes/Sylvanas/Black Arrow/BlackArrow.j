@@ -1,5 +1,5 @@
-library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Utilities, NewBonus, Periodic optional RangerPrecision
-    /* ---------------------- Black Arrow v1.4 by Chopinski --------------------- */
+library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Utilities, NewBonus, Modules optional RangerPrecision
+    /* ---------------------- Black Arrow v1.5 by Chopinski --------------------- */
     // Credits:
     //     Magtheridon96 - RegisterPlayerUnitEvent
     //     AZ            - Black Arrow model
@@ -12,15 +12,15 @@ library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Uti
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Black Arrow ability
-        public  constant integer ABILITY           = 'A00C'
+        public  constant integer ABILITY           = 'Svn1'
         // The raw code of the Black Arrow Curse debuff
-        public  constant integer BLACK_ARROW_CURSE = 'A00D'
+        public  constant integer BLACK_ARROW_CURSE = 'Svn8'
         // The raw code of the melee unit
-        private constant integer SKELETON_WARRIOR  = 'u000'
+        public  constant integer SKELETON_WARRIOR  = 'svn0'
         // The raw code of the ranged unit
-        private constant integer SKELETON_ARCHER   = 'n001'
+        public  constant integer SKELETON_ARCHER   = 'svn2'
         // The raw code of the Elite unit
-        private constant integer SKELETON_ELITE    = 'n000'
+        public  constant integer SKELETON_ELITE    = 'svn1'
         // The effect created when the skelton warrior spawns
         private constant string  RAISE_EFFECT      = "Abilities\\Spells\\Undead\\RaiseSkeletonWarrior\\RaiseSkeleton.mdl"
     endglobals
@@ -56,7 +56,7 @@ library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Uti
     endfunction
 
     // The sketelon duration
-    private function GetSkeletonDuration takes integer level returns real
+    public function GetSkeletonDuration takes integer level returns real
         return 15.
     endfunction
 
@@ -76,18 +76,18 @@ library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Uti
     endfunction
 
     // The elite sketelon duration
-    private function GetEliteDuration takes integer level returns real
+    public function GetEliteDuration takes integer level returns real
         return 60.
     endfunction
 
     // How long it takes to a unit to be able to spawn Elites again after it already has the max amount
     private function GetEliteCountReset takes integer level returns real
-        return 30.
+        return 20.
     endfunction
 
     // The Max amount of Elites a unit can have before going into cooldown
     private function GetMaxEliteCount takes integer level returns integer
-        return 2
+        return 1 + level
     endfunction
 
     /* -------------------------------------------------------------------------- */

@@ -10,11 +10,11 @@ library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBo
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Ranger Precision ability
-        public  constant integer ABILITY                = 'A00E'
+        public  constant integer ABILITY                = 'Svn0'
         // The raw code of the Withering Fire Normal Ability
-        private constant integer WITHERING_FIRE_NORMAL  = 'A00M'
+        private constant integer WITHERING_FIRE_NORMAL  = 'Svn6'
         // The raw code of the Withering Fire Cursed Ability
-        private constant integer WITHERING_FIRE_CURSED  = 'A00N'
+        private constant integer WITHERING_FIRE_CURSED  = 'Svn7'
     endglobals
 
     // The bonus duration
@@ -49,7 +49,7 @@ library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBo
         endmethod
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "Whenever |cffffcc00Sylvanas|r kill an enemy unit or |cffffcc00attack|r an enemy |cffffcc00Hero|r her abilities with the bow and arrow improve and she gains |cff00ff00" + N2S(GetBonusAmount(level), 0) + " Agility|r for |cffffcc00" + N2S(GetBonusDuration(level), 0) + " seconds. Additionally every |cffffcc00" + N2S(GetAttackCount(level), 0) + "|r attacks |cffffcc00Sylvanas|r wiill shoot up to |cffffcc003|r targets at once. If |cffffcc00Black Arrows|r is active, all targets will be cursed.
+            return "Whenever |cffffcc00Sylvanas|r kill an enemy unit or |cffffcc00attack|r an enemy |cffffcc00Hero|r her abilities with the bow and arrow improve and she gains |cff00ff00" + N2S(GetBonusAmount(level), 0) + " Agility|r for |cffffcc00" + N2S(GetBonusDuration(level), 0) + "|r seconds. Additionally every |cffffcc00" + N2S(GetAttackCount(level), 0) + "|r attacks |cffffcc00Sylvanas|r wiill shoot up to |cffffcc003|r targets at once. If |cffffcc00Black Arrows|r is active, all targets will be cursed.
 "
         endmethod
 

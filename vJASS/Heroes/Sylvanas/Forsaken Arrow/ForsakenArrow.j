@@ -1,5 +1,5 @@
-library ForsekenArrow requires Spell, Utilities, Missiles, CrowdControl optional BlackArrow optional NewBonus
-    /* ------------------------------------- Forseken Arrow v1.4 ------------------------------------ */
+library ForsakenArrow requires Spell, Utilities, Missiles, CrowdControl, Modules optional BlackArrow optional NewBonus
+    /* ------------------------------------- Forsaken Arrow v1.5 ------------------------------------ */
     // Credits:
     //     Bribe          - SpellEffectEvent
     //     Darkfang       - Icon
@@ -12,7 +12,7 @@ library ForsekenArrow requires Spell, Utilities, Missiles, CrowdControl optional
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Screaming Banshees ability
-        private constant integer    ABILITY         = 'A00K'
+        private constant integer    ABILITY         = 'Svn5'
         // The missile model
         private constant string     MISSILE_MODEL   = "DeathShot.mdl"
         // The missile size
@@ -31,6 +31,10 @@ library ForsekenArrow requires Spell, Utilities, Missiles, CrowdControl optional
         private constant attacktype ATTACK_TYPE     = ATTACK_TYPE_NORMAL  
         // The damage type of the damage dealt
         private constant damagetype DAMAGE_TYPE     = DAMAGE_TYPE_MAGIC
+        // The Black Fire model
+        private constant string     BURN_MODEL      = "BlackFire.mdl"
+        // The Black Fire size
+        private constant real       BURN_SCALE      = 0.75
     endglobals
 
     // The Explosion AoE
@@ -74,6 +78,25 @@ library ForsekenArrow requires Spell, Utilities, Missiles, CrowdControl optional
         endif
     endfunction
 
+    // The burn damage per second
+    private function GetBurnDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 25. * level + (0.05 * level * GetUnitBonus(source, BONUS_SPELL_POWER))
+        else
+            return 25. * level
+        endif
+    endfunction
+
+    // The burn duration
+    private function GetBurnDuration takes unit source, integer level returns real
+        return 4. + 2.*level
+    endfunction
+
+    // The burn interval
+    private function GetBurnInterval takes integer level returns real
+        return 1.0
+    endfunction
+
     // The missile collision size
     private function GetCollisionSize takes integer level returns real
         return 200. + 0.*level
@@ -87,16 +110,93 @@ library ForsekenArrow requires Spell, Utilities, Missiles, CrowdControl optional
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct Arrow extends Missiles
+    private struct BlackFire
+        real x
+        real y
+        real aoe
+        real damage
+        real period
+        real duration
+        unit unit
+        group group
+        player player
+        effect effect
+
+        method destroy takes nothing returns nothing
+            call DestroyEffect(effect)
+            call DestroyGroup(group)
+            call deallocate()
+
+            set unit = null
+            set group = null
+            set player = null
+            set effect = null
+        endmethod
+
+        private method onPeriod takes nothing returns boolean
+            local unit u
+
+            set duration = duration - period
+
+            call GroupEnumUnitsInRange(group, x, y, aoe, null)
+
+            loop
+                set u = FirstOfGroup(group)
+                exitwhen u == null
+                    if Filtered(player, u) then
+                        call UnitDamageTarget(unit, u, damage, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, null)
+                    endif
+                call GroupRemoveUnit(group, u)
+            endloop
+
+            return duration > 0
+        endmethod
+
+        static method create takes unit source, real x, real y, real damage, real aoe, real duration returns thistype
+            local thistype this = thistype.allocate()
+
+            set this.x = x
+            set this.y = y
+            set this.unit = source
+            set this.aoe = aoe
+            set this.damage = damage
+            set this.duration = duration
+            set this.group = CreateGroup()
+            set this.player = GetOwningPlayer(source)
+            set this.period = GetBurnInterval(GetUnitAbilityLevel(source, ABILITY))
+            set this.effect = AddSpecialEffectEx(BURN_MODEL, x, y, 0, BURN_SCALE)
+
+            call StartTimer(period, true, this, 0)
+
+            return this
+        endmethod
+
+        implement Periodic
+    endstruct
+    
+    private struct Arrow extends Missile
         real aoe
         integer level
         boolean curse
         real explosion
         integer ability
+        integer tick = 0
         real curse_duration
         integer curse_level
 
-        private method onHit takes unit hit returns boolean
+        private method onPeriod takes nothing returns boolean
+            set tick = tick + 1
+
+            if tick == 4 then
+                set tick = 0
+
+                call BlackFire.create(source, x, y, GetBurnDamage(source, level), aoe, GetBurnDuration(source, level))
+            endif
+
+            return false
+        endmethod
+
+        private method onUnit takes unit hit returns boolean
             if Filtered(owner, hit) then
                 if UnitDamageTarget(source, hit, damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, null) and curse then
                     static if LIBRARY_BlackArrow then
@@ -138,6 +238,7 @@ library ForsekenArrow requires Spell, Utilities, Missiles, CrowdControl optional
             endloop
 
             call DestroyGroup(g)
+            call BlackFire.create(source, x, y, GetBurnDamage(source, level), aoe, GetBurnDuration(source, level))
 
             set g = null
 
@@ -145,9 +246,9 @@ library ForsekenArrow requires Spell, Utilities, Missiles, CrowdControl optional
         endmethod
     endstruct
 
-    private struct ForsekenArrow extends Spell
+    private struct ForsakenArrow extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Sylvanas|r shoots a |cffffcc00Forsaken Arrow|r at the targeted area. On its path any enemy unit that comes in contact with it gets cursed and takes |cff00ffff" + N2S(GetCollisionDamage(source, level), 0) + "|r |cff00ffffMagic|r damage. When it reaches its destination the |cffffcc00Forsaken Arrow|r explodes, dealing |cff00ffff" + N2S(GetExplosionDamage(source, level), 0) + "|r |cff00ffffMagic|r damage, |cffffcc00fearing, silencing and slowing|r all enemies whithin |cffffcc00" + N2S(GetAoE(source, level), 0) + "|r AoE for |cffffcc005|r (|cffffcc002.5|r for Heroes) seconds."
+            return "|cffffcc00Sylvanas|r shoots a |cffffcc00Forsaken Arrow|r at the targeted area. On its path any enemy unit that comes in contact with it gets cursed and takes |cff00ffff" + N2S(GetCollisionDamage(source, level), 0) + "|r |cff00ffffMagic|r damage. The arrow also leaves a trail of |cffffcc00Black Fire|r that burns enemy units for |cffd45e19" + N2S(GetBurnDamage(source, level), 0) + " True|r damage per second for |cffffcc00" + N2S(GetBurnDuration(source, level), 1) + "|r seconds.  When it reaches its destination the |cffffcc00Forsaken Arrow|r explodes, dealing |cff00ffff" + N2S(GetExplosionDamage(source, level), 0) + "|r |cff00ffffMagic|r damage, |cffffcc00fearing, silencing and slowing|r all enemies whithin |cffffcc00" + N2S(GetAoE(source, level), 0) + "|r AoE for |cffffcc005|r (|cffffcc002.5|r for Heroes) seconds."
         endmethod
 
         private method onCast takes nothing returns nothing

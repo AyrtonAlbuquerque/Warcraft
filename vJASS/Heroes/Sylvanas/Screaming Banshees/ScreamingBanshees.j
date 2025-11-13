@@ -1,5 +1,5 @@
 library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities
-    /* ------------------ Screaming Banshees v1.3 by Chopinski ------------------ */
+    /* ------------------ Screaming Banshees v1.4 by Chopinski ------------------ */
     // Credits:
     //     4eNNightmare - Icon
     /* ----------------------------------- END ---------------------------------- */
@@ -9,19 +9,23 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Screaming Banshees ability
-        private constant integer ABILITY       = 'A00I'
+        private constant integer ABILITY            = 'Svn4'
         // The raw code of the Screaming Banshees Teleport ability
-        private constant integer TELEPORT      = 'A00J'
+        private constant integer TELEPORT           = 'Svn9'
         // The missile model
-        private constant string  MISSILE_MODEL = "Abilities\\Spells\\Undead\\Possession\\PossessionTarget.mdl"
+        private constant string  MISSILE_MODEL      = "Bats Only.mdl"
         // The missile size
-        private constant real    MISSILE_SCALE = 1.25
-        // The missile speed
-        private constant real    MISSILE_SPEED = 750.
+        private constant real    MISSILE_SCALE      = 1.3
+        // The missile duration
+        private constant real    MISSILE_DURATION   = 2.5
         // The hit model
-        private constant string  HIT_MODEL     = "Abilities\\Weapons\\AvengerMissile\\AvengerMissile.mdl"
+        private constant string  HIT_MODEL          = "Abilities\\Weapons\\AvengerMissile\\AvengerMissile.mdl"
         // The attachment point
-        private constant string  ATTACH_POINT  = "origin"
+        private constant string  ATTACH_POINT       = "origin"
+        // The missile extra attachment model
+        private constant string  EXTRA_MODEL        = "Abilities\\Weapons\\AvengerMissile\\AvengerMissile.mdl"
+        // The extra attachment scale
+        private constant real    EXTRA_SCALE        = 1.75
     endglobals
 
     // The misisle max distance
@@ -52,11 +56,11 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Banshee extends Missiles
+    private struct Banshee extends Missile
         real timeout
         integer armor
 
-        private method onHit takes unit hit returns boolean
+        private method onUnit takes unit hit returns boolean
             if Filtered(owner, hit) then
                 call DestroyEffect(AddSpecialEffectTarget(HIT_MODEL, hit, ATTACH_POINT))
                 call AddUnitBonusTimed(hit, BONUS_ARMOR, -armor, timeout)
@@ -90,14 +94,15 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities
 
                 set banshee.source = Spell.source.unit
                 set banshee.owner = Spell.source.player
-                set banshee.speed = MISSILE_SPEED
                 set banshee.model = MISSILE_MODEL
                 set banshee.scale = MISSILE_SCALE
+                set banshee.duration = MISSILE_DURATION
                 set banshee.collision = GetCollisionSize(Spell.level)
                 set banshee.armor = GetArmorReduction(Spell.level)
                 set banshee.timeout = GetDuration(Spell.level)
                 set array[Spell.source.id] = banshee
 
+                call banshee.attach(EXTRA_MODEL, 0, 0, banshee.z + 50, EXTRA_SCALE)
                 call UnitAddAbility(Spell.source.unit, TELEPORT)
                 call BlzUnitHideAbility(Spell.source.unit, ABILITY, true)
                 call banshee.launch()
