@@ -1,5 +1,5 @@
-library HolyUnity requires RegisterPlayerUnitEvent, Spell, Periodic
-    /* ---------------------- Holy unity v1.3 by Chopinski ---------------------- */
+library HolyUnity requires RegisterPlayerUnitEvent, Spell, Modules
+    /* ---------------------- Holy unity v1.4 by Chopinski ---------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
     //     KelThuzad      - Icon
@@ -10,9 +10,9 @@ library HolyUnity requires RegisterPlayerUnitEvent, Spell, Periodic
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Holy Unity Ability
-        private constant integer ABILITY       = 'A008'
+        private constant integer ABILITY       = 'Trl8'
         // The raw code of the Turalyon unit in the editor
-        private constant integer TURALYON_ID   = 'H000'
+        private constant integer TURALYON_ID   = 'Trln'
         // The GAIN_AT_LEVEL is greater than 0
         // Turalyon will gain Holy Unity at this level 
         private constant integer GAIN_AT_LEVEL = 20

@@ -1,5 +1,5 @@
 library LightBurst requires Spell, NewBonus, Utilities, CrowdControl optional LightInfusion
-    /* -------------------------------------- Light Burst v1.4 -------------------------------------- */
+    /* -------------------------------------- Light Burst v1.5 -------------------------------------- */
     // Credits:
     //     Redeemer59         - Icon
     //     AZ                 - Stomp and Misisle effect
@@ -10,7 +10,7 @@ library LightBurst requires Spell, NewBonus, Utilities, CrowdControl optional Li
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The Light Burst Ability
-        private constant integer ABILITY      = 'A004'
+        private constant integer ABILITY      = 'Trl3'
         // The Light Burst Missile Model
         private constant string  MODEL        = "Light Burst.mdl"
         // The Light Burst Missile Model scale
@@ -62,7 +62,7 @@ library LightBurst requires Spell, NewBonus, Utilities, CrowdControl optional Li
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             System                                             */
     /* ---------------------------------------------------------------------------------------------- */
-    private struct Burst extends Missiles
+    private struct Burst extends Missile
         real aoe
         real time
         real slow

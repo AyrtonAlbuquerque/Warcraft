@@ -1,5 +1,5 @@
-library LightInfusion requires RegisterPlayerUnitEvent, Spell, Table, Utilities, NewBonus, Periodic
-    /* -------------------- Light Infusion v1.3 by Chopinski -------------------- */
+library LightInfusion requires RegisterPlayerUnitEvent, Spell, Table, Utilities, NewBonus, Modules
+    /* -------------------- Light Infusion v1.4 by Chopinski -------------------- */
     // Credits:
     //     NO-Bloody-Name  - Icon
     //     Bribe           - Table
@@ -13,7 +13,7 @@ library LightInfusion requires RegisterPlayerUnitEvent, Spell, Table, Utilities,
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Light Infusion ability
-        private constant integer ABILITY     = 'A000'
+        private constant integer ABILITY     = 'Trl0'
         // The Light Infusion orb model
         private constant string  MODEL       = "LightOrb.mdl"
         // The Light Infusion orb scale

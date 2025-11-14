@@ -1,5 +1,5 @@
-library HolyLink requires Spell, Utilities, DamageInterface, NewBonus, Periodic optional LightInfusion
-    /* ----------------------- Holy Link v1.3 by Chopinski ---------------------- */
+library HolyLink requires Spell, Utilities, DamageInterface, NewBonus, Modules optional LightInfusion
+    /* ----------------------- Holy Link v1.4 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Metal_Sonic     - Rejuvenation Effect
@@ -10,7 +10,7 @@ library HolyLink requires Spell, Utilities, DamageInterface, NewBonus, Periodic 
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Holy Link ability
-        private constant integer ABILITY       = 'A002'
+        private constant integer ABILITY       = 'Trl2'
         // The Holy Link Normal buff model
         private constant string  MODEL         = "Rejuvenation.mdl"
         // The Holy Link infused buff model
@@ -20,7 +20,7 @@ library HolyLink requires Spell, Utilities, DamageInterface, NewBonus, Periodic 
         // The Holy Link model attachment point
         private constant string  ATTACH_POINT  = "chest"
         // The Holy Link update period
-        private constant real    PERIOD        = 0.031250000
+        private constant real    PERIOD        = 0.03125
     endglobals
 
     // The Holy Link Health Regen bonus

@@ -1,5 +1,5 @@
-library BlessedField requires Spell, Periodic, Utilities, optional LightInfusion
-    /* --------------------- Blessed Field v1.3 by Chopinski -------------------- */
+library BlessedField requires Spell, Modules, Utilities, optional LightInfusion
+    /* --------------------- Blessed Field v1.4 by Chopinski -------------------- */
     // Credits:
     //     Darkfang - Icon
     //     AZ       - Blessings effect
@@ -10,19 +10,19 @@ library BlessedField requires Spell, Periodic, Utilities, optional LightInfusion
     /* -------------------------------------------------------------------------- */
     globals
         // The Blessed Field Ability
-        private constant integer ABILITY       = 'A005'
+        private constant integer ABILITY       = 'Trl5'
         // The Blessed Field Aura ability
-        private constant integer AURA          = 'A006'
+        private constant integer AURA          = 'Trl6'
         // The Blessed Field Aura Infused ability
-        private constant integer INFUSED_AURA  = 'A007'
+        private constant integer INFUSED_AURA  = 'Trl7'
         // The Blessed Field Aura level 1 buff
-        private constant integer BUFF_1        = 'B005'
+        private constant integer BUFF_1        = 'BTr4'
         // The Blessed Field Aura level 2 buff
-        private constant integer BUFF_2        = 'B006'
+        private constant integer BUFF_2        = 'BTr5'
         // The Blessed Field Aura Infused level 1 buff
-        private constant integer BUFF_3        = 'B007'
+        private constant integer BUFF_3        = 'BTr6'
         // The Blessed Field Aura Infused level 2 buff
-        private constant integer BUFF_4        = 'B008'
+        private constant integer BUFF_4        = 'BTr7'
         // The Blessed Field model
         private constant string  MODEL         = "BlessedField.mdl"
         // The Blessed Field scale
@@ -40,6 +40,11 @@ library BlessedField requires Spell, Periodic, Utilities, optional LightInfusion
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DURATION_HERO, level - 1)
     endfunction
 
+    // The regeneration bonus
+    private function GetRegenBonus takes unit source, integer level returns real
+        return 25 * level + ((0.25 + 0.25 * level) * GetHeroStr(source, true))
+    endfunction
+
     // The Blessed Field damage reduction based on the buff level
     private function GetDamageReduction takes integer level returns real
         return 1. - (0.1 + 0.2*level)
@@ -47,7 +52,7 @@ library BlessedField requires Spell, Periodic, Utilities, optional LightInfusion
 
     // The Blessed Field health restored when receiving a killing blow
     private function GetHealthRegained takes unit source, integer level returns real
-        return BlzGetUnitMaxHP(source)*(0.1 + 0.2*level)
+        return BlzGetUnitMaxHP(source) * (0.1 + 0.2*level)
     endfunction
 
     // The Blessed Field Infused hero revive cooldown 
@@ -89,7 +94,7 @@ library BlessedField requires Spell, Periodic, Utilities, optional LightInfusion
         endmethod
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Turalyon|r blesses the targeted area, creating a |cffffcc00Blessed Field|r. All allied units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + "|r |cffffcc00AoE|r have their |cff00ff00Health Regeneration|r increased by |cff00ff00" + N2S(25 * level, 0) + "|r and take |cffffcc00" + N2S((1 - GetDamageReduction(level)) * 100, 0) + "%|r reduced damage from all sources.\n\n|cffffcc00Light Infused|r: When allied units within |cffffcc00Blessed Field|r area receives a killing blow, their death is denied and they regain |cffffcc00" + N2S((0.1 + 0.2*level) * 100, 0) + "%|r of their |cffff0000Maximum Health|r. This effect can only happen once for |cffffcc00Hero|r units with |cffffcc00" + N2S(GetHeroResetTime(), 1) + "|r seconds cooldown."
+            return "|cffffcc00Turalyon|r blesses the targeted area, creating a |cffffcc00Blessed Field|r. All allied units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + "|r |cffffcc00AoE|r have their |cff00ff00Health Regeneration|r increased by |cff00ff00" + N2S(GetRegenBonus(source, level), 0) + "|r and take |cffffcc00" + N2S((1 - GetDamageReduction(level)) * 100, 0) + "%|r reduced damage from all sources.\n\n|cffffcc00Light Infused|r: When allied units within |cffffcc00Blessed Field|r area receives a killing blow, their death is denied and they regain |cffffcc00" + N2S((0.1 + 0.2*level) * 100, 0) + "%|r of their |cffff0000Maximum Health|r. This effect can only happen once for |cffffcc00Hero|r units with |cffffcc00" + N2S(GetHeroResetTime(), 1) + "|r seconds cooldown."
         endmethod
 
         private method onCast takes nothing returns nothing
@@ -104,6 +109,9 @@ library BlessedField requires Spell, Periodic, Utilities, optional LightInfusion
 
             call UnitAddAbility(unit, AURA)
             call SetUnitAbilityLevel(unit, AURA, level)
+            call BlzSetAbilityRealLevelField(BlzGetUnitAbility(unit, AURA), ABILITY_RLF_LIFE_REGENERATION_INCREASE_PERCENT, level - 1, GetRegenBonus(Spell.source.unit, level))
+            call IncUnitAbilityLevel(unit, AURA)
+            call DecUnitAbilityLevel(unit, AURA)
 
             static if LIBRARY_LightInfusion then
                 if LightInfusion.charges[Spell.source.id] > 0 then

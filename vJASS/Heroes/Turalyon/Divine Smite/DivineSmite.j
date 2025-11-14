@@ -1,5 +1,5 @@
-library DivineSmite requires Spell, Utilities, Periodic optional LightInfusion optional NewBonus
-    /* --------------------- Divine Smite v1.3 by Chopinski --------------------- */
+library DivineSmite requires Spell, Utilities, Modules optional LightInfusion optional NewBonus
+    /* --------------------- Divine Smite v1.4 by Chopinski --------------------- */
     // Credits:
     //     CRAZYRUSSIAN    - Icon
     //     Mythic          - Divine Edict Effect
@@ -11,7 +11,7 @@ library DivineSmite requires Spell, Utilities, Periodic optional LightInfusion o
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Divine Smite ability
-        private constant integer ABILITY       = 'A001'
+        private constant integer ABILITY       = 'Trl1'
         // The Divine Smite model
         private constant string  MODEL         = "Divine Edict.mdl"
         // The  Divine Smite heal model

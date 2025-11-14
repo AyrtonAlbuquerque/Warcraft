@@ -11,15 +11,15 @@ library HolyStrike requires DamageInterface, Spell, NewBonus
     /* -------------------------------------------------------------------------- */
     globals
         // The Holy Strike ablity
-        private constant integer ABILITY      = 'A003'
+        private constant integer ABILITY      = 'Trl4'
         // The Holy Strike level 1 buff
-        private constant integer BUFF_1       = 'B001'
+        private constant integer BUFF_1       = 'BTr0'
         // The Holy Strike level 2 buff
-        private constant integer BUFF_2       = 'B002'
+        private constant integer BUFF_2       = 'BTr1'
         // The Holy Strike level 3 buff
-        private constant integer BUFF_3       = 'B003'
+        private constant integer BUFF_3       = 'BTr2'
         // The Holy Strike level 4 buff
-        private constant integer BUFF_4       = 'B004'
+        private constant integer BUFF_4       = 'BTr3'
         // The Holy Strike heal model
         private constant string  MODEL        = "HolyStrike.mdl"
         // The Holy Strike heal attchment point
