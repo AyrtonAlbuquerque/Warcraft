@@ -1,5 +1,5 @@
-library OdinAnnihilate requires Spell, Missiles, Periodic, Utilities optional NewBonus
-    /* -------------------- Odin Annihilate v1.2 by Chopinski ------------------- */
+library OdinAnnihilate requires Spell, Missiles, Modules, Utilities optional NewBonus
+    /* -------------------- Odin Annihilate v1.3 by Chopinski ------------------- */
     // Credits:
     //     a-ravlik        - Icon
     //     Mythic          - Interceptor Shell model
@@ -10,7 +10,7 @@ library OdinAnnihilate requires Spell, Missiles, Periodic, Utilities optional Ne
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Odin Annihilate ability
-        public  constant integer ABILITY = 'A008'
+        public  constant integer ABILITY = 'Tyc8'
         // The Missile model
         private constant string  MODEL   = "Interceptor Shell.mdl"
         // The Missile scale
@@ -68,7 +68,7 @@ library OdinAnnihilate requires Spell, Missiles, Periodic, Utilities optional Ne
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Rocket extends Missiles  
+    private struct Rocket extends Missile
         real aoe
         group group
 
@@ -129,10 +129,10 @@ library OdinAnnihilate requires Spell, Missiles, Periodic, Utilities optional Ne
                 set rocket.speed = SPEED
                 set rocket.source = unit
                 set rocket.owner = player
-                set rocket.arc = GetArc(level)
+                set rocket.arc = GetArc(level) * bj_DEGTORAD
                 set rocket.aoe = GetAoE(level)
                 set rocket.group = CreateGroup()
-                set rocket.curve = GetCurve(level)
+                set rocket.curve = GetCurve(level) * bj_DEGTORAD
                 set rocket.damage = GetDamage(unit, level)
 
                 call rocket.launch()

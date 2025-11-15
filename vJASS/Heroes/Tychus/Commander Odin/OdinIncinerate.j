@@ -1,5 +1,5 @@
-library OdinIncinerate requires Spell, Missiles, Periodic, MouseUtils, DamageInterface, Utilities, optional Newbonus
-    /* -------------------- Odin Annihilate v1.3 by Chopinski ------------------- */
+library OdinIncinerate requires Spell, Missiles, Modules, MouseUtils, DamageInterface, Utilities, optional Newbonus
+    /* -------------------- Odin Annihilate v1.4 by Chopinski ------------------- */
     // Credits:
     //     a-ravlik        - Icon
     //     Bribe           - SpellEffectEvent
@@ -13,9 +13,9 @@ library OdinIncinerate requires Spell, Missiles, Periodic, MouseUtils, DamageInt
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Odin Incinerate ability
-        public  constant integer ABILITY = 'A009'
+        public  constant integer ABILITY = 'Tyc9'
         // The raw code of the Incinerate ability
-        private constant integer FLAMES  = 'A00A'
+        private constant integer FLAMES  = 'TycA'
         // The Missile model
         private constant string  MODEL   = "Interceptor Shell.mdl"
         // The Missile scale
@@ -151,7 +151,7 @@ library OdinIncinerate requires Spell, Missiles, Periodic, MouseUtils, DamageInt
         endmethod 
     endstruct
     
-    private struct Rocket extends Missiles  
+    private struct Rocket extends Missile
         real aoe
         group group
         real iAoE
@@ -218,7 +218,7 @@ library OdinIncinerate requires Spell, Missiles, Periodic, MouseUtils, DamageInt
             set rocket.model = MODEL
             set rocket.scale = SCALE
             set rocket.speed = SPEED
-            set rocket.arc = ARC
+            set rocket.arc = ARC * bj_DEGTORAD
             set rocket.aoe = aoe
             set rocket.source = unit
             set rocket.owner = player

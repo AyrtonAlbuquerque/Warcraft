@@ -1,5 +1,5 @@
-library CommanderOdin requires Spell, Periodic, optional FragGranade, optional AutomatedTurrent, optional Overkill, optional RunAndGun, optional OdinAttack, optional OdinAnnihilate, optional OdinIncinerate
-    /* -------------------- Commander Odin v1.3 by Chopinski -------------------- */
+library CommanderOdin requires Spell, Modules, optional FragGranade, optional AutomatedTurrent, optional Overkill, optional RunAndGun, optional OdinAttack, optional OdinAnnihilate, optional OdinIncinerate
+    /* -------------------- Commander Odin v1.4 by Chopinski -------------------- */
     // Credits:
     //     Blizzard        - Icon
     /* ----------------------------------- END ---------------------------------- */
@@ -9,7 +9,7 @@ library CommanderOdin requires Spell, Periodic, optional FragGranade, optional A
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Commander Odin ability
-        private constant integer ABILITY = 'A006'
+        private constant integer ABILITY = 'Tyc5'
     endglobals
 
     /* -------------------------------------------------------------------------- */

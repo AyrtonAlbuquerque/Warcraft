@@ -1,5 +1,5 @@
-library FragGranade requires Spell, Missiles, NewBonus, Periodic, Utilities, CrowdControl, optional ArsenalUpgrade,
-    /* ---------------------- Bullet Time v1.4 by Chopinski --------------------- */
+library FragGranade requires Spell, Missiles, NewBonus, Modules, Utilities, CrowdControl, optional ArsenalUpgrade,
+    /* --------------------- Frag Granade v1.5 by Chopinski --------------------- */
     // Credits:
     //     Blizzard          - Icon
     //     Magtheridon96     - RegisterPlayerUnitEvent
@@ -11,7 +11,7 @@ library FragGranade requires Spell, Missiles, NewBonus, Periodic, Utilities, Cro
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Frag Granade ability
-        public  constant integer ABILITY   = 'A001'
+        public  constant integer ABILITY   = 'Tyc1'
         // The Frag Granade model
         private constant string  MODEL     = "Abilities\\Weapons\\MakuraMissile\\MakuraMissile.mdl"
         // The Frag Granade scale
@@ -19,7 +19,7 @@ library FragGranade requires Spell, Missiles, NewBonus, Periodic, Utilities, Cro
         // The Frag Granade speed
         private constant real    SPEED     = 1000.
         // The Frag Granade arc
-        private constant real    ARC       = 45.
+        private constant real    ARC       = 45. * bj_DEGTORAD
         // The Frag Granade Explosion model
         private constant string  EXPLOSION = "Explosion.mdl"
         // The Frag Granade Explosion model scale
@@ -173,7 +173,7 @@ library FragGranade requires Spell, Missiles, NewBonus, Periodic, Utilities, Cro
         implement Periodic
     endstruct
 
-    private struct Granade extends Missiles
+    private struct Granade extends Missile
         real aoe
         real time
         real stun

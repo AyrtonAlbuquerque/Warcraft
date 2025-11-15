@@ -1,5 +1,5 @@
-library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, MouseUtils, NewBonus, Periodic optional ArsenalUpgrade
-    /* ----------------------- Overkill v1.4 by Chopinski ----------------------- */
+library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, MouseUtils, NewBonus, Modules optional ArsenalUpgrade
+    /* ----------------------- Overkill v1.5 by Chopinski ----------------------- */
     // Credits:
     //     Blizzard         - Icon
     //     Magtheridon96    - RegisterPlayerUnitEvent
@@ -12,9 +12,9 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Overkill ability
-        public  constant integer ABILITY = 'A004'
+        public  constant integer ABILITY = 'Tyc3'
         // The raw code of the Overkill buff
-        private constant integer BUFF    = 'B001'
+        private constant integer BUFF    = 'BTy0'
         // The Bullet model
         private constant string  MODEL   = "Bullet.mdl"
         // The Bullet scale
@@ -23,6 +23,8 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
         private constant real    SPEED   = 2000.
         // The firing period
         private constant real    PERIOD  = 0.03125
+        // The key to move without following cursor
+        private constant oskeytype KEY   = OSKEY_TAB
     endglobals
 
     // The X coordinate starting point for the bullets. This exists so the bullets
@@ -54,7 +56,7 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
 
     // The Bullet max travel distance
     private function GetTravelDistance takes integer level returns real
-        return 600. + 0.*level
+        return 700. + 0.*level
     endfunction
 
     // The Bullet mana cost
@@ -78,8 +80,8 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Bullet extends Missiles
-        private method onHit takes unit hit returns boolean
+    private struct Bullet extends Missile
+        private method onUnit takes unit hit returns boolean
             if DamageFilter(owner, hit) then
                 call UnitDamageTarget(source, hit, damage, true, true, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, null)
             endif
@@ -89,10 +91,15 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
     endstruct
 
     private struct Overkill extends Spell
+        private static boolean array holding
+        private static boolean array registered
+        private static trigger trigger = CreateTrigger()
+
         private unit unit
         private integer id
         private real prevX
         private real prevY
+        private real facing
         private player player
 
         method destroy takes nothing returns nothing
@@ -107,7 +114,7 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
         endmethod
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Tychus|r fire his mini-gun at full power, unleashing a barrage of bullets towards his facing direction. Each bullet consumes |cff00ffff" + N2S(GetManaCost(source, level), 0) + " Mana|r and deals |cffff0000" + N2S(GetDamage(level, source), 0) + " Physical|r damage to any enemy unit in its trajectory. |cffffcc00Tychus|r will only stop firing if he has no mana left or deactivates |cffffcc00Overkill|r. In addition |cffffcc00Tychus|r can move while on |cffffcc00Overkill|r and will always be facing the |cffffcc00Cursor|r during its active period."
+            return "|cffffcc00Tychus|r fire his mini-gun at full power, unleashing a barrage of bullets towards his facing direction. Each bullet consumes |cff00ffff" + N2S(GetManaCost(source, level), 0) + " Mana|r and deals |cffff0000" + N2S(GetDamage(level, source), 0) + " Physical|r damage to any enemy unit in its trajectory. |cffffcc00Tychus|r will only stop firing if he has no mana left or deactivates |cffffcc00Overkill|r. In addition |cffffcc00Tychus|r can move while on |cffffcc00Overkill|r and will always be facing the |cffffcc00Cursor|r during its active period. Hold the |cffffcc00TAB|r key to move wihtout changing direction."
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -151,8 +158,12 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
                     call SetUnitAnimation(unit, "Attack")
                 endif
 
+                if not holding[GetPlayerId(player)] then
+                    set facing = AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))*bj_RADTODEG
+                endif
+
+                call BlzSetUnitFacingEx(unit, facing)
                 call AddUnitMana(unit, -cost)
-                call BlzSetUnitFacingEx(unit, AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))*bj_RADTODEG)
                 call bullet.launch()
 
                 return true
@@ -168,10 +179,26 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
                 set id = Spell.source.id
                 set prevX = Spell.source.x
                 set prevY = Spell.source.y
+                set facing = GetUnitFacing(unit) * bj_DEGTORAD
                 set player = Spell.source.player
 
+                if not registered[GetPlayerId(player)] then
+                    set registered[GetPlayerId(player)] = true
+                    call BlzTriggerRegisterPlayerKeyEvent(trigger, player, KEY, 0, true)
+                    call BlzTriggerRegisterPlayerKeyEvent(trigger, player, KEY, 0, false)
+                endif
+
                 call UnitAddAbility(unit, 'Abun')
+                call SetUnitPropWindowBJ(unit, 360)
                 call StartTimer(PERIOD, true, this, id)
+            endif
+        endmethod
+
+        private static method onKey takes nothing returns nothing
+            if BlzGetTriggerPlayerIsKeyDown() then
+                set holding[GetPlayerId(GetTriggerPlayer())] = true
+            else
+                set holding[GetPlayerId(GetTriggerPlayer())] = false
             endif
         endmethod
 
@@ -179,6 +206,7 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
 
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
+            call TriggerAddCondition(trigger, Condition(function thistype.onKey))
         endmethod
     endstruct
 endlibrary

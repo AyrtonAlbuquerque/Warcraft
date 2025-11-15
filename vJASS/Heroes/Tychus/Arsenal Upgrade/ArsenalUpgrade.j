@@ -1,4 +1,4 @@
-library ArsenalUpgrade requires RegisterPlayerUnitEvent, Ability
+library ArsenalUpgrade requires RegisterPlayerUnitEvent, Spell
     /* -------------------- Arsenal Upgrade v1.3 by Chopinski ------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -9,9 +9,9 @@ library ArsenalUpgrade requires RegisterPlayerUnitEvent, Ability
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Arsenal Upgrade Ability
-        public  constant integer ABILITY       = 'A00B'
+        public  constant integer ABILITY       = 'TycB'
         // The raw code of the Tychus unit in the editor
-        private constant integer TYCHUS_ID     = 'E000'
+        private constant integer TYCHUS_ID     = 'Tycs'
         // The GAIN_AT_LEVEL is greater than 0
         // Tychus will gain Arsenal Upgrade at this level 
         private constant integer GAIN_AT_LEVEL = 20

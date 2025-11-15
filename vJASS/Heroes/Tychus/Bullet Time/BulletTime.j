@@ -1,5 +1,5 @@
-library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Periodic, Spell
-    /* ---------------------- Bullet Time v1.3 by Chopinski --------------------- */
+library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Modules, Spell
+    /* ---------------------- Bullet Time v1.4 by Chopinski --------------------- */
     // Credits:
     //     Blizzard        - Icon
     //     Magtheridon96   - RegisterPlayerUnitEvent
@@ -10,7 +10,7 @@ library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, 
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Bullet Time ability
-        private constant integer ABILITY = 'A000'
+        private constant integer ABILITY = 'Tyc0'
     endglobals
 
     // The Bullet Time duration after no attacks.
@@ -25,7 +25,7 @@ library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, 
 
     // The Bullet Time Max bonus per level. Real(1. => 100%)
     private function GetMaxBonus takes integer level returns real
-        return 1.*level
+        return 1. * level
     endfunction
 
     // The Bullet Time level up base on hero level
@@ -36,7 +36,7 @@ library BulletTime requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, 
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct BulletTime extends extends Ability
+    private struct BulletTime extends Spell
         private unit unit
         private real bonus
 

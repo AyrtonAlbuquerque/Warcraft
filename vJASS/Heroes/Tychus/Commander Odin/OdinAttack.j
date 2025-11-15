@@ -11,9 +11,9 @@ library OdinAttack requires RegisterPlayerUnitEvent, Spell, Missiles, Utilities,
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Odin Attack ability
-        public  constant integer ABILITY = 'A007'
+        public  constant integer ABILITY = 'Tyc7'
         // The raw code of the Odin unit
-        private constant integer ODIN    = 'E001'
+        private constant integer ODIN    = 'Odin'
         // The Missile model
         private constant string  MODEL   = "Interceptor Shell.mdl"
         // The Missile scale
@@ -76,7 +76,7 @@ library OdinAttack requires RegisterPlayerUnitEvent, Spell, Missiles, Utilities,
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Attack extends Missiles
+    private struct Attack extends Missile
         real aoe
         group group
 

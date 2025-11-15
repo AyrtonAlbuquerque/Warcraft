@@ -11,11 +11,11 @@ library AutomatedTurrent requires Spell, DamageInterface, Missiles, Utilities, N
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Automated Turrent ability
-        public  constant integer ABILITY = 'A002'
+        public  constant integer ABILITY = 'Tyc2'
         // The raw code of the Automated Turrent Missile ability
-        private constant integer MISSILE = 'A003'
+        private constant integer MISSILE = 'Tyc6'
         // The raw code of the Automated Turrent unit
-        private constant integer UNIT    = 'o000'
+        private constant integer UNIT    = 'tyc0'
         // The Missile model
         private constant string  MODEL   = "Airstrike Rocket.mdl"
         // The Missile scale
@@ -90,7 +90,7 @@ library AutomatedTurrent requires Spell, DamageInterface, Missiles, Utilities, N
     /* -------------------------------------------------------------------------- */
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
-    private struct Missile extends Missiles
+    private struct TurrentMissile extends Missile
         real aoe
         group group
 
@@ -147,7 +147,7 @@ library AutomatedTurrent requires Spell, DamageInterface, Missiles, Utilities, N
 
         private static method onDamage takes nothing returns nothing
             local real range
-            local Missile missile
+            local TurrentMissile missile
             local integer level = GetUnitAbilityLevel(Damage.source.unit, MISSILE)
 
             if level > 0 and Damage.isEnemy then
@@ -156,14 +156,14 @@ library AutomatedTurrent requires Spell, DamageInterface, Missiles, Utilities, N
                 if array[Damage.source.id] >= GetAttackCount(Damage.source.unit, level) then
                     set array[Damage.source.id] = 0
                     set range = GetRandomRange(GetMaxAoE(level))
-                    set missile = Missile.create(Damage.source.x, Damage.source.y, Damage.source.z + 80, GetRandomCoordInRange(Damage.target.x, range, true), GetRandomCoordInRange(Damage.target.y, range, false), 0)
+                    set missile = TurrentMissile.create(Damage.source.x, Damage.source.y, Damage.source.z + 80, GetRandomCoordInRange(Damage.target.x, range, true), GetRandomCoordInRange(Damage.target.y, range, false), 0)
                     set missile.model = MODEL
                     set missile.scale = SCALE
                     set missile.speed = SPEED
                     set missile.source = Damage.source.unit
                     set missile.owner = Damage.source.player
-                    set missile.arc = GetArc(level)
-                    set missile.curve = GetCurve(level)
+                    set missile.arc = GetArc(level) * bj_DEGTORAD
+                    set missile.curve = GetCurve(level) * bj_DEGTORAD
                     set missile.damage = GetDamage(owner[Damage.source.id], level)
                     set missile.group = CreateGroup()
                     set missile.aoe = GetAoE(level)

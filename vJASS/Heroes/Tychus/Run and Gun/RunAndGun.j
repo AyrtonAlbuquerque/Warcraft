@@ -12,7 +12,7 @@ library RunAndGun requires Spell, RegisterPlayerUnitEvent, NewBonus, TimedHandle
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Run and Gun ability
-        public  constant integer ABILITY = 'A005'
+        public  constant integer ABILITY = 'Tyc4'
         // The Buff model
         private constant string  MODEL   = "Valiant Charge Royal.mdl"
         // The Buff attachment point
