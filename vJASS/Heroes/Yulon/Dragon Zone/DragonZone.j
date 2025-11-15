@@ -10,9 +10,9 @@ library DragonZone requires Spell, Utilities, CrowdControl, Modules optional New
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Ability
-        private constant integer ABILITY          = 'A006'
+        private constant integer ABILITY          = 'Yul5'
         // The raw code of the regen ability
-        private constant integer REGEN_ABILITY    = 'A007'
+        private constant integer REGEN_ABILITY    = 'Yul6'
         // The Model
         private constant string  MODEL            = "DragonZone.mdl"
         // The model scale

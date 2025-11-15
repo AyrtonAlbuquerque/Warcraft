@@ -1,5 +1,5 @@
-library DragonScale requires RegisterPlayerUnitEvent, DamageInterface, Ability optional NewBonus
-    /* --------------------- Dragon Scale v1.2 by Chopinski --------------------- */
+library DragonScale requires RegisterPlayerUnitEvent, DamageInterface, Spell optional NewBonus
+    /* --------------------- Dragon Scale v1.3 by Chopinski --------------------- */
     // Credits:
     //     Arowanna        - Icon
     //     Magtheridon96   - RegisterPlayerUnitEvent
@@ -11,7 +11,7 @@ library DragonScale requires RegisterPlayerUnitEvent, DamageInterface, Ability o
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY        = 'A000'
+        private constant integer ABILITY        = 'Yul0'
         // The model
         private constant string  MODEL          = "GreenFlare.mdl"
         // The attachment point

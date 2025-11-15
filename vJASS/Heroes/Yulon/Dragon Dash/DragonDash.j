@@ -10,7 +10,7 @@ library DragonDash requires Spell, Missiles, Utilities
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        public constant integer ABILITY         = 'A002'
+        public constant integer ABILITY         = 'Yul4'
         // The Model
         private constant string  MODEL          = "DDash.mdl"
         // The model scale
@@ -57,14 +57,11 @@ library DragonDash requires Spell, Missiles, Utilities
         private method onPeriod takes nothing returns boolean
             call BlzSetSpecialEffectPosition(dash, x + OFFSET*Cos(theta), y + OFFSET*Sin(theta), z)
             call BlzSetSpecialEffectYaw(dash, effect.yaw)
-            call SetUnitX(source, x)
-            call SetUnitY(source, y)
-            call BlzSetUnitFacingEx(source, effect.yaw*bj_RADTODEG)
             
             return false
         endmethod
         
-        private method onHit takes unit u returns boolean
+        private method onUnit takes unit u returns boolean
             local real cooldown
             
             if UnitFilter(owner, u) then
@@ -114,6 +111,7 @@ library DragonDash requires Spell, Missiles, Utilities
             set dash.speed = SPEED
             set dash.theta = angle
             set dash.owner = Spell.source.player
+            set dash.unit = Spell.source.unit
             set dash.source = Spell.source.unit
             set dash.collision = GetCollision(Spell.level)
             set dash.reduction = GetCooldownReduction(Spell.level)

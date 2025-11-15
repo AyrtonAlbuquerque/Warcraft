@@ -11,7 +11,7 @@ library YulonBlessing requires RegisterPlayerUnitEvent, Utilities, Spell, TimerU
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Ability
-        private constant integer ABILITY          = 'A004'
+        private constant integer ABILITY          = 'Yul7'
         // The Model
         private constant string  MODEL            = "DragonBless.mdl"
         // The model in the caster

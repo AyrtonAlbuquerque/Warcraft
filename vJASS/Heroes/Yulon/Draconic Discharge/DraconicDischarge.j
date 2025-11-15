@@ -11,7 +11,7 @@ library DraconicDischarge requires Spell, Utilities, LineSegmentEnumeration, Cro
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY     = 'A005'
+        private constant integer ABILITY     = 'Yul3'
         // The Model
         private constant string  MODEL       = "Discharge.mdl"
         // The model scale

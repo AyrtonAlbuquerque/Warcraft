@@ -10,7 +10,7 @@ library WhirlwindSpin requires Spell, Utilities, CrowdControl, Modules optional 
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY          = 'A004'
+        private constant integer ABILITY          = 'Yul2'
         // The Model
         private constant string  MODEL            = "DragonSpin.mdl"
         // The model scale

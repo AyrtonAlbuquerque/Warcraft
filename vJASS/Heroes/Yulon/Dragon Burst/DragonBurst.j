@@ -10,7 +10,7 @@ library DragonBurst requires Spell, Utilities, CrowdControl optional NewBonus
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY          = 'A001'
+        private constant integer ABILITY          = 'Yul1'
         // The Model
         private constant string  MODEL            = "DragonBurst.mdl"
         // The model scale
