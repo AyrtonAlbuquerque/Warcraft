@@ -1,9 +1,9 @@
 scope BookOfChaos
-    private struct SmokeWave extends Missiles
-        unit unit
+    private struct SmokeWave extends Missile
+        unit carrier
 
-        method onHit takes unit hit returns boolean
-            if IsUnitEnemy(hit, owner) and UnitAlive(hit) and not IsUnitType(hit, UNIT_TYPE_STRUCTURE) and hit != unit then
+        method onUnit takes unit hit returns boolean
+            if IsUnitEnemy(hit, owner) and UnitAlive(hit) and not IsUnitType(hit, UNIT_TYPE_STRUCTURE) and hit != carrier then
                 call UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_CHAOS, DAMAGE_TYPE_MAGIC, null)
             endif
 
@@ -11,7 +11,7 @@ scope BookOfChaos
         endmethod
 
         method onRemove takes nothing returns nothing
-            set unit = null
+            set carrier = null
         endmethod
     endstruct
     
@@ -41,7 +41,7 @@ scope BookOfChaos
                         exitwhen i > 90 
                             set missile = SmokeWave.create(Damage.target.x, Damage.target.y, z, Damage.target.x + 300*Cos(a + i*bj_DEGTORAD), Damage.target.y + 300*Sin(a + i*bj_DEGTORAD), z)
                             set missile.source = Damage.source.unit
-                            set missile.unit = Damage.target.unit
+                            set missile.carrier = Damage.target.unit
                             set missile.model = "ShaSmokeAttack.mdx"
                             set missile.scale = 2
                             set missile.speed = 400

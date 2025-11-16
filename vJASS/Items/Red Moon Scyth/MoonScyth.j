@@ -1,5 +1,5 @@
 scope MoonScyth
-    private struct SoulMissile extends Missiles
+    private struct SoulMissile extends Missile
         boolean hero
 
         method onFinish takes nothing returns boolean
@@ -51,7 +51,7 @@ scope MoonScyth
             local real ty
             local SoulMissile missile
         
-            if UnitHasItemOfType(killer, code) and not IsUnitIllusionEx(killer) then
+            if UnitHasItemOfType(killer, code) then
                 set x = GetUnitX(killer)
                 set y = GetUnitY(killer)
                 set tx = GetUnitX(killed)

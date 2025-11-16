@@ -1,5 +1,5 @@
 scope LegendaryBladeI
-    struct BladeMissile extends Missiles
+    struct BladeMissile extends Missile
 		method onFinish takes nothing returns boolean
 			if type == 0 then
 				// call DamageOverTimeEx(source, target, damage, 2, ATTACK_TYPE_HERO, DAMAGE_TYPE_FIRE, "Abilities\\Spells\\Other\\BreathOfFire\\BreathOfFireDamage.mdl", "origin")

@@ -1,6 +1,6 @@
 scope ElementalSpin
-    private struct Waves extends Missiles
-        method onHit takes unit hit returns boolean
+    private struct Waves extends Missile
+        method onUnit takes unit hit returns boolean
             if UnitAlive(hit) and not IsUnitType(hit, UNIT_TYPE_STRUCTURE) then
                 if IsUnitEnemy(hit, owner) then
                     call UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)

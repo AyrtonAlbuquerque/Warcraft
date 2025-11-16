@@ -1,9 +1,9 @@
 scope BookOfOceans
-    private struct WaterSplash extends Missiles
-        unit unit
+    private struct WaterSplash extends Missile
+        unit carrier
 
-        method onHit takes unit hit returns boolean
-            if IsUnitEnemy(hit, owner) and UnitAlive(hit) and not IsUnitType(hit, UNIT_TYPE_STRUCTURE) and hit != unit then
+        method onUnit takes unit hit returns boolean
+            if IsUnitEnemy(hit, owner) and UnitAlive(hit) and not IsUnitType(hit, UNIT_TYPE_STRUCTURE) and hit != carrier then
                 call UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_PIERCE, DAMAGE_TYPE_MAGIC, null)
                 call DestroyEffectTimed(AddSpecialEffectTarget("WaterBreathDamage.mdx", hit, "chest"), 3)
                 call AddUnitBonusTimed(hit, BONUS_MOVEMENT_SPEED, -50, 3.00)
@@ -13,7 +13,7 @@ scope BookOfOceans
         endmethod
 
         method onRemove takes nothing returns nothing
-            set unit = null
+            set carrier = null
         endmethod
     endstruct
     
@@ -39,7 +39,7 @@ scope BookOfOceans
                     exitwhen i > 45.0
                         set missile = WaterSplash.create(Damage.target.x, Damage.target.y, z, Damage.target.x + 300*Cos(a + i*bj_DEGTORAD), Damage.target.y + 300*Sin(a + i*bj_DEGTORAD), z)
                         set missile.source = Damage.source.unit
-                        set missile.unit = Damage.target.unit
+                        set missile.carrier = Damage.target.unit
                         set missile.owner = Damage.source.player
                         set missile.model = "WaterBreath.mdx"
                         set missile.scale = 0.75

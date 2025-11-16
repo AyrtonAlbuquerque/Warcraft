@@ -1,5 +1,5 @@
 scope ElementalSphere
-	private struct Essence extends Missiles
+	private struct Essence extends Missile
 		integer index
 	
 		method onFinish takes nothing returns boolean
@@ -127,17 +127,33 @@ scope ElementalSphere
 		endmethod
 		
 		private method onPickup takes unit u, item i returns nothing
-			if IsUnitType(u, UNIT_TYPE_HERO) and not IsUnitIllusionEx(u) then
-				if not IsUnitInGroup(u, group) then
-					call GroupAddUnit(group, u)
+			static if LIBRARY_MirrorImage then
+				if IsUnitType(u, UNIT_TYPE_HERO) and not IsUnitIllusionEx(u) then
+					if not IsUnitInGroup(u, group) then
+						call GroupAddUnit(group, u)
+					endif
+				endif
+			else
+				if IsUnitType(u, UNIT_TYPE_HERO) and not IsUnitIllusion(u) then
+					if not IsUnitInGroup(u, group) then
+						call GroupAddUnit(group, u)
+					endif
 				endif
 			endif
 		endmethod
 
 		private method onDrop takes unit u, item i returns nothing
-			if IsUnitType(u, UNIT_TYPE_HERO) and not IsUnitIllusionEx(u) then
-				if IsUnitInGroup(u, group) and not UnitHasItemOfType(u, code) then
-					call GroupRemoveUnit(group, u)
+			static if LIBRARY_MirrorImage then
+				if IsUnitType(u, UNIT_TYPE_HERO) and not IsUnitIllusionEx(u) then
+					if IsUnitInGroup(u, group) and not UnitHasItemOfType(u, code) then
+						call GroupRemoveUnit(group, u)
+					endif
+				endif
+			else
+				if IsUnitType(u, UNIT_TYPE_HERO) and not IsUnitIllusion(u) then
+					if IsUnitInGroup(u, group) and not UnitHasItemOfType(u, code) then
+						call GroupRemoveUnit(group, u)
+					endif
 				endif
 			endif
 		endmethod
@@ -146,15 +162,29 @@ scope ElementalSphere
 			local unit u = GetDyingUnit()
 			local integer i = 0
 
-			if BlzGroupGetSize(group) > 0 and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitIllusionEx(u) then
-				if IsUnitType(u, UNIT_TYPE_HERO) then
-					loop
-						exitwhen i == 5
-							call create(i, GetUnitX(u) + GetRandomReal(0, 75), GetUnitY(u) + GetRandomReal(0, 75))
-						set i = i + 1						
-					endloop
-				else
-					call create(GetRandomInt(0, 4), GetUnitX(u), GetUnitY(u))
+			static if LIBRARY_MirrorImage then
+				if BlzGroupGetSize(group) > 0 and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitIllusionEx(u) then
+					if IsUnitType(u, UNIT_TYPE_HERO) then
+						loop
+							exitwhen i == 5
+								call create(i, GetUnitX(u) + GetRandomReal(0, 75), GetUnitY(u) + GetRandomReal(0, 75))
+							set i = i + 1						
+						endloop
+					else
+						call create(GetRandomInt(0, 4), GetUnitX(u), GetUnitY(u))
+					endif
+				endif
+			else
+				if BlzGroupGetSize(group) > 0 and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitIllusion(u) then
+					if IsUnitType(u, UNIT_TYPE_HERO) then
+						loop
+							exitwhen i == 5
+								call create(i, GetUnitX(u) + GetRandomReal(0, 75), GetUnitY(u) + GetRandomReal(0, 75))
+							set i = i + 1						
+						endloop
+					else
+						call create(GetRandomInt(0, 4), GetUnitX(u), GetUnitY(u))
+					endif
 				endif
 			endif
 			

@@ -1,6 +1,6 @@
 scope RedemptionSword
-    private struct LightWave extends Missiles
-        method onHit takes unit hit returns boolean
+    private struct LightWave extends Missile
+        method onUnit takes unit hit returns boolean
             if IsUnitEnemy(hit, owner) and UnitAlive(hit) and not IsUnitType(hit, UNIT_TYPE_STRUCTURE) then
                 call UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_MAGIC, null)
                 call DestroyEffect(AddSpecialEffectTarget("HolyLight_2.mdx", hit, "origin"))

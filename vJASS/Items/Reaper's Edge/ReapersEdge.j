@@ -1,5 +1,5 @@
 scope ReapersEdge
-    private struct SoulMissile extends Missiles
+    private struct SoulMissile extends Missile
         boolean hero
 
         method onFinish takes nothing returns boolean
@@ -54,7 +54,7 @@ scope ReapersEdge
             local real ty
             local SoulMissile missile
 
-            if UnitHasItemOfType(killer, code) and not IsUnitIllusionEx(killer) then
+            if UnitHasItemOfType(killer, code) then
                 set killed = GetTriggerUnit()
                 set hero = IsUnitType(killed, UNIT_TYPE_HERO)
                 set x = GetUnitX(killed)

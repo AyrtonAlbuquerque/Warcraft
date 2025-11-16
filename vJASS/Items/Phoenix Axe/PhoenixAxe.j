@@ -1,8 +1,8 @@
 scope PhoenixAxe
-    private struct FireSlash extends Missiles
+    private struct FireSlash extends Missile
         integer index
 
-        method onHit takes unit hit returns boolean
+        method onUnit takes unit hit returns boolean
             if IsUnitEnemy(hit, owner) and UnitAlive(hit) and not IsUnitType(hit, UNIT_TYPE_STRUCTURE) then
                 call UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_CHAOS, DAMAGE_TYPE_UNIVERSAL, null)
                 if not UnitAlive(hit) then
