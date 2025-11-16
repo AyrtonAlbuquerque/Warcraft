@@ -28,7 +28,7 @@ library BlazingDash requires Spell, Missiles, Effect, Utilities, NewBonus
 
     // The Dash distance
     private function GetDistance takes unit source, integer level returns real
-         return 800. + 200.*level
+         return 1250. + 0.*level
     endfunction
 
     // The Cooldown Reduction per unit dashed through
