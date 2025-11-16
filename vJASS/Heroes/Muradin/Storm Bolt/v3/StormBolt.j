@@ -56,6 +56,11 @@ library StormBolt requires Spell, Missiles, Indexer, Utilities, CrowdControl, Mo
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
     endfunction
 
+    // The hammer vision range
+    private function GetVisionRange takes unit source, integer level returns real
+        return 400. + 0.*level
+    endfunction
+
     // Hammer Pickup range
     private function GetPickupRange takes unit source, integer level returns real
         return 150. + 0.*level
@@ -229,6 +234,7 @@ library StormBolt requires Spell, Missiles, Indexer, Utilities, CrowdControl, Mo
             set hammer.damage = GetDamage(Spell.source.unit, level)
             set hammer.collision = GetAoE(Spell.source.unit, level)
             set hammer.slow = GetSlow(level)
+            set hammer.vision = GetVisionRange(Spell.source.unit, level)
             set hammer.slowDuration = GetSlowDuration(level)
             set hammer.attachment = hammer.attach(EXTRA_MODEL, 0, 0, 0, MISSILE_SCALE)
 
