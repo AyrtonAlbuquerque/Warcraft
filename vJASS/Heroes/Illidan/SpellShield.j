@@ -152,8 +152,8 @@ library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdC
                                 set missile.source = u
                                 set missile.target = Spell.source.unit
                                 set missile.damage = GetDamage(u, level)
-                                set missile.arc = GetArc(level)
-                                set missile.curve = GetCurve(level)
+                                set missile.arc = GetArc(level) * bj_DEGTORAD
+                                set missile.curve = GetCurve(level) * bj_DEGTORAD
 
                                 call missile.launch()
                             endif
