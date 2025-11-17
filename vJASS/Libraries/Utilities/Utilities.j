@@ -629,6 +629,16 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         return newUnit
     endfunction
 
+    // Creates a lightning effect between 2 units
+    function CreateLightningUnit2Unit takes unit source, unit target, real duration, string lightningType returns TimedLightning
+        return TimedLightning.unit2unit(source, target, duration, lightningType)
+    endfunction
+
+    // Creates a lightning effect between unit and point
+    function CreateLightningUnit2Point takes unit source, real x, real y, real z, real duration, string lightningType returns TimedLightning
+        return TimedLightning.unit2point(source, x, y, z, duration, lightningType)
+    endfunction
+
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             Systems                                            */
     /* ---------------------------------------------------------------------------------------------- */
@@ -781,24 +791,24 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
 
     /* --------------------------------------- Chain Lightning -------------------------------------- */
     struct ChainLightning
-        timer      timer
-        unit       unit
-        unit       prev
-        unit       self
-        unit       next
-        group      group
-        group      damaged
-        player     player
-        real       damage
-        real       range
-        real       duration
-        integer    bounces
+        timer timer
+        unit unit
+        unit prev
+        unit self
+        unit next
+        group group
+        group damaged
+        player player
+        real damage
+        real range
+        real duration
+        integer bounces
         attacktype attacktype
         damagetype damagetype
-        string     lightning
-        string     effect
-        string     attach
-        boolean    rebounce
+        string lightning
+        string effect
+        string attach
+        boolean rebounce
 
         private method destroy takes nothing returns nothing
             call DestroyGroup(group)
@@ -1130,6 +1140,80 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
             
             call TimerStart(timer, duration, false, function thistype.onExpire)
             
+            return this
+        endmethod
+    endstruct
+
+    /* ------------------------------------- TimedLightning ------------------------------------ */
+    struct TimedLightning
+        private real x
+        private real y
+        private real z
+        private timer timer
+        private unit source
+        private unit target
+        private real duration
+        private boolean permanent
+        private lightning lightning
+
+        method destroy takes nothing returns nothing
+            call DestroyLightning(lightning)
+            call ReleaseTimer(timer)
+            call deallocate()
+
+            set timer = null
+            set source = null
+            set target = null
+            set lightning = null
+        endmethod
+
+        private static method onPeriod takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
+  
+            if not permanent then
+                set duration = duration - PERIOD
+
+                if duration <= 0 then
+                    call destroy()
+                endif
+            endif
+
+            if source != null and target != null then
+                call MoveLightningEx(lightning, true, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + 50.0, GetUnitX(target), GetUnitY(target), GetUnitZ(target) + 50.0)
+            elseif source != null then
+                call MoveLightningEx(lightning, true, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + 50.0, x, y, z)
+            endif
+        endmethod
+
+        static method unit2point takes unit source, real x, real y, real z, real duration, string lightningType returns thistype
+            local thistype this = thistype.allocate()
+
+            set this.x = x
+            set this.y = y
+            set this.z = z
+            set this.source = source
+            set this.duration = duration
+            set this.permanent = duration <= 0
+            set this.timer = NewTimerEx(this)
+            set this.lightning = AddLightningEx(lightningType, true, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + 50.0, x, y, z)
+
+            call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
+
+            return this
+        endmethod
+
+        static method unit2unit takes unit source, unit target, real duration, string lightningType returns thistype
+            local thistype this = thistype.allocate()
+
+            set this.source = source
+            set this.target = target
+            set this.duration = duration
+            set this.permanent = duration <= 0
+            set this.timer = NewTimerEx(this)
+            set this.lightning = AddLightningEx(lightningType, true, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + 50.0, GetUnitX(target), GetUnitY(target), GetUnitZ(target) + 50.0)
+
+            call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
+
             return this
         endmethod
     endstruct

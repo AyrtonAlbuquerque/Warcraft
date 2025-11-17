@@ -65,7 +65,7 @@ library AdaptiveStrike requires RegisterPlayerUnitEvent, DamageInterface, NewBon
         
             static if LIBRARY_Metamorphosis then
                 if GetUnitAbilityLevel(source, Metamorphosis_BUFF) > 0 then
-                    set e = AddSpecialEffectEx(SWIPE, GetUnitX(source), GetUnitY(source), SWIPE_HEIGHT, SWIPE_SCALE)
+                    set e = AddSpecialEffectEx(SWIPE, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + SWIPE_HEIGHT, SWIPE_SCALE)
                     call BlzSetSpecialEffectOrientation(e, Deg2Rad(GetUnitFacing(source)), 0, Deg2Rad(SWIPE_ANGLE))
                     call DestroyEffect(e)
                 elseif level > 0 and IsUnitType(source, UNIT_TYPE_MELEE_ATTACKER) and GetRandomReal(0, 100) <= GetChance(level) then
