@@ -3,9 +3,9 @@ scope CommanderShield
         static constant integer code = 'I065'
         
         // Attributes
-        real armor = 8
-        real block = 100
-        real health = 12000
+        real armor = 5
+        real block = 50
+        real health = 500
 
         private real x
         private real y
