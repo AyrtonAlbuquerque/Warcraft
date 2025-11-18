@@ -3,7 +3,7 @@ scope WarriorShield
         static constant integer code = 'I03D'
 
         real armor = 3
-        real block = 20
+        real block = 30
         real health = 400
 
         private static method onInit takes nothing returns nothing
