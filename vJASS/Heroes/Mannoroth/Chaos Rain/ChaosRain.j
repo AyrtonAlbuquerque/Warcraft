@@ -12,6 +12,8 @@ library ChaosRain requires Missiles, Spell, Utilities, Modules, CrowdControl opt
         private constant integer ABILITY        = 'Mnr5'
         // The raw code of the Infernal unitu
         private constant integer INFERNAL       = 'umn1'
+        // The raw code of the Infernal Fire ability
+        private constant integer INFERNAL_FIRE  = 'MnrB'
         // The starting height of the missile
         private constant integer START_HEIGHT   = 1500
         // The starting offset of the missile
@@ -34,6 +36,15 @@ library ChaosRain requires Missiles, Spell, Utilities, Modules, CrowdControl opt
             return 250 * level + (0.6 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
             return 250. * level
+        endif
+    endfunction
+
+    // The amount of damage Infernal Fire deals per second
+    private function GetInfernalFireDamage takes unit source, integer level returns real
+        static if LIBRARY_NewBonus then
+            return 50 * level + (0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 50. * level
         endif
     endfunction
 
@@ -123,6 +134,9 @@ library ChaosRain requires Missiles, Spell, Utilities, Modules, CrowdControl opt
                 call BlzSetUnitMaxHP(u, R2I(GetInfernalHealth(source, level)))
                 call BlzSetUnitArmor(u, GetInfernalArmor(source, level))
                 call SetUnitLifePercentBJ(u, 100)
+                call BlzSetAbilityRealLevelField(BlzGetUnitAbility(u, INFERNAL_FIRE), ABILITY_RLF_DAMAGE_PER_INTERVAL, 0, GetInfernalFireDamage(source, level))
+                call BlzUnitDisableAbility(u, INFERNAL_FIRE, true, true)
+                call BlzUnitDisableAbility(u, INFERNAL_FIRE, false, false)
 
                 if GetInfernalDuration(source, level) > 0 then
                     call UnitApplyTimedLife(u, 'BTLF', GetInfernalDuration(source, level))

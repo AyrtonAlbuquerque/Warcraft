@@ -1,4 +1,4 @@
-library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules optional NewBonus
+library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules optional NewBonus optional WaterElemental
     /* ---------------------- Living Tide v1.1 by Chopinski --------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -25,9 +25,9 @@ library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules opti
     // The amount of damage dealt in a second
     private function GetDamagePerSecond takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 100. * level + (0.2 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 150. * level + (0.2 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
-            return 100. * level
+            return 150. * level
         endif
     endfunction
 
@@ -66,10 +66,23 @@ library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules opti
     /* -------------------------------------------------------------------------- */
     private struct Tide extends Missile
         private method onUnit takes unit u returns boolean
-            if UnitFilter(owner, u) then
-                if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+            static if LIBRARY_WaterElemental then
+                if UnitFilter(owner, u) then
+                    if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                        call flush(u)
+                    endif
+                elseif GetUnitTypeId(u) == WaterElemental_ELEMENTAL and GetOwningPlayer(u) == owner then
+                    call SetWidgetLife(u, GetWidgetLife(u) + damage)
                     call flush(u)
                 endif
+
+            else
+                if UnitFilter(owner, u) then
+                    if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                        call flush(u)
+                    endif
+                endif
+
             endif
 
             return false
@@ -103,7 +116,7 @@ library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules opti
         endmethod
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Jaina|r conjures a |cffffcc00Living Tide|r at the target location that follows the cursor at constant speed and deals |cff00ffff" + N2S(GetDamagePerSecond(source, level), 0) + " Magic|r damage to enemy units within |cffffcc00" + N2S(GetCollision(source, level), 0) + " AoE|r of it. |cffffcc00Jaina|r can keep the |cffffcc00Living Tide|r alive for as long as she has mana or until being interrupted. Drains |cffffcc00" + N2S(GetBaseManaCostPerSecond(source, level), 0) + "|r mana per second. Mana drain is increased by |cffffcc00" + N2S(GetManaCostPerIncrement(source, level), 0) + "|r for every |cffffcc00" + N2S(GetManaCostRangeIncrement(source, level), 0) + "|r range between |cffffcc00Jaina|r and the |cffffcc00Living Tide|r."
+            return "|cffffcc00Jaina|r conjures a |cffffcc00Living Tide|r at the target location that follows the cursor at constant speed and deals |cff00ffff" + N2S(GetDamagePerSecond(source, level), 0) + " Magic|r damage to enemy units within |cffffcc00" + N2S(GetCollision(source, level), 0) + " AoE|r and heals her |cffffcc00Water Elementals|r for the same amount. |cffffcc00Jaina|r can keep the |cffffcc00Living Tide|r alive for as long as she has mana or until being interrupted. Drains |cffffcc00" + N2S(GetBaseManaCostPerSecond(source, level), 0) + "|r mana per second. Mana drain is increased by |cffffcc00" + N2S(GetManaCostPerIncrement(source, level), 0) + "|r for every |cffffcc00" + N2S(GetManaCostRangeIncrement(source, level), 0) + "|r range between |cffffcc00Jaina|r and the |cffffcc00Living Tide|r."
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -152,7 +165,7 @@ library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules opti
                 set tide.source = unit
                 set tide.owner = player
                 set tide.vision = GetVisionRange(unit, level)
-                set tide.damage = GetDamagePerSecond(unit, level)*Missiles_PERIOD
+                set tide.damage = GetDamagePerSecond(unit, level) * Missile.period
                 set tide.collision = GetCollision(unit, level)
 
                 call tide.launch()
