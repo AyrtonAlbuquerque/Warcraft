@@ -81,9 +81,9 @@ library ForsakenArrow requires Spell, Utilities, Missiles, CrowdControl, Modules
     // The burn damage per second
     private function GetBurnDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 25. * level + (0.05 * level * GetUnitBonus(source, BONUS_SPELL_POWER))
+            return 75. * level + (0.15 * level * GetUnitBonus(source, BONUS_SPELL_POWER))
         else
-            return 25. * level
+            return 75. * level
         endif
     endfunction
 
