@@ -190,6 +190,8 @@ library CriticalStrike requires ArcingFloatingText, NewBonus, optional DamageInt
 
                     call TriggerEvaluate(trigger)
 
+                    set Damage.amount = damage
+
                     if damage > 0 then
                         call ArcingTextTag.create("|cffff0000" + (I2S(R2I(damage)) + "!") + "|r", target.unit, TEXT_SIZE)
                     endif
