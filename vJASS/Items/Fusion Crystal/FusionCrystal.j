@@ -3,7 +3,7 @@ scope FusionCrystal
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
     private constant function GetMultiplier takes nothing returns real
-        return 0.5
+        return 2.
     endfunction
 
     private constant function GetChargesCount takes nothing returns integer
@@ -26,7 +26,7 @@ scope FusionCrystal
         real health = 500
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc00500|r Mana\n+ |cffffcc00500|r Health\n\n|cff00ff00Passive|r: |cffffcc00Charge|r: When killing a unit the number of charges of Fusion Crystal are increased by |cffffcc001|r.\n\n|cff00ff00Active|r: |cffffcc00Energy Release|r: When activated, all charges are consumed and for |cffffcc0010|r seconds, |cffff0000Health|r and |cff80ffffMana|r Regeneration are increased by |cffffcc00" + R2SW(GetMultiplier() * FusionCrystal.charge[id], 1, 1) + "|r.\n\n90 seconds Cooldown\n\nCharges: |cffffcc00" + I2S(FusionCrystal.charge[id]) + "|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc00500|r Mana\n+ |cffffcc00500|r Health\n\n|cff00ff00Passive|r: |cffffcc00Charge|r: When killing a unit the number of charges of Fusion Crystal are increased by |cffffcc001|r.\n\n|cff00ff00Active|r: |cffffcc00Energy Release|r: When activated, all charges are consumed and for |cffffcc0010|r seconds, |cffff0000Health|r and |cff80ffffMana|r Regeneration are increased by |cffffcc00" + R2SW(GetMultiplier() * FusionCrystal.charge[id], 1, 1) + "|r.\n\n|cffffcc0090|r seconds Cooldown\n\nCharges: |cffffcc00" + I2S(FusionCrystal.charge[id]) + "|r"
         endmethod
 
         private static method onDeath takes nothing returns nothing

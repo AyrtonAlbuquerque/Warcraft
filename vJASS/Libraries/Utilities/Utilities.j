@@ -545,7 +545,7 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         call TimedPause.create(u, duration, flag)
     endfunction
 
-    // Replace Unit respecting Max Health and Mana values
+    // Replace Unit respecting Max Health, Mana, Damage and Armor values
     function ReplaceUnit takes unit whichUnit, integer newUnitId, integer unitStateMethod returns unit
         local unit oldUnit = whichUnit
         local unit newUnit
@@ -581,6 +581,8 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         elseif (unitStateMethod == bj_UNIT_STATE_METHOD_ABSOLUTE) then
             call BlzSetUnitMaxHP(newUnit, BlzGetUnitMaxHP(oldUnit))
             call SetUnitState(newUnit, UNIT_STATE_LIFE, GetUnitState(oldUnit, UNIT_STATE_LIFE))
+            call BlzSetUnitBaseDamage(newUnit, BlzGetUnitBaseDamage(oldUnit, 0), 0)
+            call BlzSetUnitArmor(newUnit, BlzGetUnitArmor(oldUnit))
 
             if (GetUnitState(newUnit, UNIT_STATE_MAX_MANA) > 0) then
                 call BlzSetUnitMaxMana(newUnit, BlzGetUnitMaxMana(oldUnit))
@@ -591,6 +593,8 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         elseif (unitStateMethod == bj_UNIT_STATE_METHOD_MAXIMUM) then
             call BlzSetUnitMaxHP(newUnit, BlzGetUnitMaxHP(oldUnit))
             call BlzSetUnitMaxMana(newUnit, BlzGetUnitMaxMana(oldUnit))
+            call BlzSetUnitBaseDamage(newUnit, BlzGetUnitBaseDamage(oldUnit, 0), 0)
+            call BlzSetUnitArmor(newUnit, BlzGetUnitArmor(oldUnit))
             call SetUnitState(newUnit, UNIT_STATE_LIFE, GetUnitState(newUnit, UNIT_STATE_MAX_LIFE))
             call SetUnitState(newUnit, UNIT_STATE_MANA, GetUnitState(newUnit, UNIT_STATE_MAX_MANA))
         else

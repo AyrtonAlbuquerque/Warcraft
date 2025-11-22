@@ -28,7 +28,7 @@ scope SoulSword
         real damage = 20
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc0020|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Soul Steal|r: Every attack heals |cff00ff00" + N2S(GetHeal() + SoulSword.bonus[id], 1) + "|r Health and deals |cff0080ff" + N2S(GetDamage(), 0) +"|r bonus |cff0080ffMagic |rdamage. Killing an enemy unit, increases the on attack heal by |cffffcc000.2|r. Hero kills increases on attack heal by |cffffcc002|r."
+            return "|cffffcc00Gives:|r\n+ |cffffcc0020|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Soul Steal|r: Every attack heals |cff00ff00" + N2S(GetHeal() + SoulSword.bonus[id], 1) + "|r |cffff0000Health|r and |cff8080ffMana|r and deals |cff0080ff" + N2S(GetDamage(), 0) +"|r bonus |cff0080ffMagic |rdamage. Killing an enemy unit, increases the on attack heal by |cffffcc000.2|r. Hero kills increases on attack heal by |cffffcc002|r."
         endmethod
 
         private method onPickup takes unit u, item i returns nothing
@@ -39,6 +39,7 @@ scope SoulSword
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy then
                 call UnitDamageTarget(Damage.source.unit, Damage.target.unit, GetDamage(), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
                 call SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (GetHeal() + bonus[Damage.source.id])))
+                call AddUnitMana(Damage.source.unit, GetHeal() + bonus[Damage.source.id])
                 call ArcingTextTag.create(("|cff32cd32" + "+" + I2S(R2I(GetHeal() + bonus[Damage.source.id]))), Damage.source.unit, 0.015)
                 call DestroyEffect(AddSpecialEffectTarget("SpellVampTarget.mdx", Damage.source.unit, "origin"))
             endif

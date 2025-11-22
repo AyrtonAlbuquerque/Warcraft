@@ -68,11 +68,9 @@ library BansheeCry requires Spell, Utilities, CrowdControl, optional BlackArrow
                             call FearUnit(u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
                             call SlowUnit(u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), null, null, false)
                         elseif GetOwningPlayer(u) == Spell.source.player and (GetUnitTypeId(u) == BlackArrow_SKELETON_WARRIOR or GetUnitTypeId(u) == BlackArrow_SKELETON_ARCHER) then
-                            call ShowUnit(u, false)
-                            call UnitApplyTimedLife(ReplaceUnit(u, GetUnitTypeId(u), bj_UNIT_STATE_METHOD_ABSOLUTE), 'BTLF', BlackArrow_GetSkeletonDuration(GetUnitAbilityLevel(u, BlackArrow_ABILITY)))
+                            call UnitApplyTimedLife(ReplaceUnit(u, GetUnitTypeId(u), bj_UNIT_STATE_METHOD_ABSOLUTE), 'BTLF', BlackArrow_GetSkeletonDuration(GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)))
                         elseif GetOwningPlayer(u) == Spell.source.player and GetUnitTypeId(u) == BlackArrow_SKELETON_ELITE then
-                            call ShowUnit(u, false)
-                            call UnitApplyTimedLife(ReplaceUnit(u, GetUnitTypeId(u), bj_UNIT_STATE_METHOD_ABSOLUTE), 'BTLF', BlackArrow_GetEliteDuration(GetUnitAbilityLevel(u, BlackArrow_ABILITY)))
+                            call UnitApplyTimedLife(ReplaceUnit(u, GetUnitTypeId(u), bj_UNIT_STATE_METHOD_ABSOLUTE), 'BTLF', BlackArrow_GetEliteDuration(GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)))
                         endif
                     else
                         if Filtered(Spell.source.player, u) then

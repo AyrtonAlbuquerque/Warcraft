@@ -48,7 +48,7 @@ library ArrowStorm requires Spell, Utilities, Missiles, DamageInterface optional
 
     // The arrow impact AoE
     private function GetArrowAoE takes integer level returns real
-        return 75.
+        return 100.
     endfunction
 
     // The cooldown reduction per attack

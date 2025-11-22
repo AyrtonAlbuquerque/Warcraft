@@ -15,13 +15,13 @@ scope ReapersEdge
         static real array spell
         private static integer array array
 
-        real agility = 200
-        real strength = 200
-        real spellPower = 400
-        real intelligence = 200
+        real agility = 15
+        real strength = 15
+        real spellPower = 40
+        real intelligence = 15
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc00200|r All Stats\n+ |cffffcc00400|r Spell Power\n\n|cff00ff00Passive|r|cffffcc00: Soul Reaper|r: Every |cffffcc002|r enemy units killed, |cffff0000Strength|r,|cff00ff00 Agility |rand |cff00ffffIntelligence|r are increased by |cffffcc001|r and|cff008080 Spell Power|r is incresed by |cffffcc000.5|r permanently. Killing a enemy Hero increases all stats by |cffffcc0020|r and|cff008080 Spell Power|r by|cffffcc00 5|r.\n\nSpell Power Bonus: |cff008080" + N2S(spell[id], 1) + "|r\nStats Bonus: |cffffcc00" + I2S(stats[id]) + "|r"
+            return "|cffffcc00Gives|r:\n+ |cffffcc0015|r All Stats\n+ |cffffcc0040|r Spell Power\n\n|cff00ff00Passive:|r |cffffcc00Soul Reaper|r: Every |cffffcc006|r enemy units killed, |cffff0000Strength|r, |cff00ff00Agility|r and |cff00ffffIntelligence|r are increased by |cffffcc001|r and |cff00ffffSpell Power|r is incresed by |cffffcc000.5|r permanently. Killing a enemy Hero increases all stats by |cffffcc005|r and |cff00ffffSpell Power|r by |cffffcc005|r.\n\nSpell Power Bonus: |cff00ffff" + N2S(spell[id], 1) + "|r\nStats Bonus: |cffffcc00" + I2S(stats[id]) + "|r"
         endmethod
 
         static method add takes unit target, boolean hero returns nothing
@@ -30,7 +30,7 @@ scope ReapersEdge
             local real spell
 
             if hero then
-                set stats = 20
+                set stats = 5
                 set spell = 5
             else
                 set stats = 1
@@ -39,6 +39,7 @@ scope ReapersEdge
 
             set ReapersEdge.spell[index] = ReapersEdge.spell[index] + spell
             set ReapersEdge.stats[index] = ReapersEdge.stats[index] + stats
+
             call AddUnitBonus(target, BONUS_SPELL_POWER, spell)
             call UnitAddStat(target, stats, stats, stats)
         endmethod
@@ -67,7 +68,8 @@ scope ReapersEdge
                         call add(killer, hero)
                     else
                         set array[index] = array[index] + 1
-                        if array[index] == 2 then
+
+                        if array[index] == 6 then
                             call add(killer, hero)
                             set array[index] = 0
                         endif
@@ -78,18 +80,19 @@ scope ReapersEdge
                         set missile.target = killer
                         set missile.model = "Abilities\\Weapons\\VoidWalkerMissile\\VoidWalkerMissile.mdl"
                         set missile.speed = 1000
-                        set missile.arc = 30
+                        set missile.arc = 30 * bj_DEGTORAD
                         set missile.hero = hero
 
                         call missile.launch()
                     else
                         set array[index] = array[index] + 1
-                        if array[index] == 2 then
+
+                        if array[index] == 6 then
                             set missile = SoulMissile.create(x, y, GetUnitFlyHeight(killed) + 60, tx, ty, 60)
                             set missile.target = killer
                             set missile.model = "Abilities\\Weapons\\VoidWalkerMissile\\VoidWalkerMissile.mdl"
                             set missile.speed = 1000
-                            set missile.arc = 30
+                            set missile.arc = 30 * bj_DEGTORAD
                             set missile.hero = hero
                             set array[index] = 0
 

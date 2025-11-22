@@ -3,11 +3,11 @@ scope EternityStone
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
     private constant function GetHealthBonus takes nothing returns integer
-        return 5
+        return 20
     endfunction
 
     private constant function GetRegenBonus takes nothing returns real
-        return 0.2
+        return 1.
     endfunction
 
     private constant function GetDuration takes nothing returns real
@@ -22,7 +22,7 @@ scope EternityStone
 
         // Attributes
         real health = 400
-        real healthRegen = 5
+        real healthRegen = 10
 
         private static integer array healthBonus
         private static real array regen
@@ -37,7 +37,7 @@ scope EternityStone
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc005|r Health Regeneration\n+ |cffffcc00400|r Health\n\n|cff00ff00Passive|r: |cffffcc00Eternal Youth|r: When killing a unit |cff00ff00Heatlh Regeneration|r is increased by |cffffcc000.2|r and |cffff0000Maximum Health|r is increased by |cffffcc005|r for |cffffcc0060|r seconds.\n\nHeath Bonus: |cffff0000" + I2S(EternityStone.healthBonus[id]) + "|r\nHealth Regeneration Bonus: |cff00ff00" + N2S(EternityStone.regen[id], 1) + "|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc0010|r Health Regeneration\n+ |cffffcc00400|r Health\n\n|cff00ff00Passive|r: |cffffcc00Eternal Youth|r: When killing a unit |cff00ff00Heatlh Regeneration|r is increased by |cffffcc001|r and |cffff0000Maximum Health|r is increased by |cffffcc0020|r for |cffffcc0060|r seconds.\n\nHeath Bonus: |cffff0000" + I2S(EternityStone.healthBonus[id]) + "|r\nHealth Regeneration Bonus: |cff00ff00" + N2S(EternityStone.regen[id], 1) + "|r"
         endmethod
 
         private static method onDeath takes nothing returns nothing
