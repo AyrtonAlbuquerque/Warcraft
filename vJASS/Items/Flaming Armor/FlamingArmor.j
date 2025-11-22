@@ -8,9 +8,9 @@ scope FlamingArmor
 
     private function GetDamage takes unit source returns real
         if IsUnitType(source, UNIT_TYPE_HERO) then
-            return 25. + (0.01 * GetHeroLevel(source) * GetUnitBonus(source, BONUS_SPELL_POWER))
+            return 50. + (0.05 * GetHeroLevel(source) * GetUnitBonus(source, BONUS_SPELL_POWER))
         else
-            return 25. + (0.15 * GetUnitBonus(source, BONUS_SPELL_POWER))
+            return 50. + (0.5 * GetUnitBonus(source, BONUS_SPELL_POWER))
         endif
     endfunction
 

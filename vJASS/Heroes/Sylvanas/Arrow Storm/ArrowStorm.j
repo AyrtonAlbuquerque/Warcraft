@@ -144,10 +144,18 @@ library ArrowStorm requires Spell, Utilities, Missiles, DamageInterface optional
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real cooldown = BlzGetUnitAbilityCooldownRemaining(Damage.source.unit, ABILITY)
+            local real cooldown
+            local real reduction
 
-            if cooldown > 0 and Damage.isEnemy then
-                call StartUnitAbilityCooldown(Damage.source.unit, ABILITY, cooldown - GetCooldownReduction(Damage.source.unit, GetUnitAbilityLevel(Damage.source.unit, ABILITY)))
+            if Damage.isEnemy then
+                set cooldown = BlzGetUnitAbilityCooldownRemaining(Damage.source.unit, ABILITY)
+                set reduction = GetCooldownReduction(Damage.source.unit, GetUnitAbilityLevel(Damage.source.unit, ABILITY))
+
+                if cooldown >= reduction then
+                    call StartUnitAbilityCooldown(Damage.source.unit, ABILITY, cooldown - reduction)
+                else
+                    call ResetUnitAbilityCooldown(Damage.source.unit, ABILITY)
+                endif
             endif
         endmethod
 

@@ -28,7 +28,7 @@ scope SoulSword
         real damage = 20
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc0020|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Soul Steal|r: Every attack heals |cff00ff00" + N2S(GetHeal() + SoulSword.bonus[id], 1) + "|r |cffff0000Health|r and |cff8080ffMana|r and deals |cff0080ff" + N2S(GetDamage(), 0) +"|r bonus |cff0080ffMagic |rdamage. Killing an enemy unit, increases the on attack heal by |cffffcc000.2|r. Hero kills increases on attack heal by |cffffcc002|r."
+            return "|cffffcc00Gives:|r\n+ |cffffcc0020|r Damage\n\n|cff00ff00Passive|r: |cffffcc00Soul Steal|r: Every attack heals |cff00ff00" + N2S(GetHeal() + SoulSword.bonus[id], 1) + "|r |cffff0000Health|r and |cff8080ffMana|r and deals |cff00ffff" + N2S(GetDamage(), 0) +"|r Magic|r damage. Killing an enemy unit, increases the on attack heal by |cffffcc000.2|r. Hero kills increases on attack heal by |cffffcc002|r."
         endmethod
 
         private method onPickup takes unit u, item i returns nothing
