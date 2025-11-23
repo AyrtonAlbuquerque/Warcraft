@@ -3,11 +3,11 @@ scope AncientSphere
         static constant integer code = 'I070' 
 
         // Attributes
-        real mana = 10000 
-        real health = 10000 
-        real manaRegen = 100 
-        real spellPower = 100 
-        real healthRegen = 100 
+        real mana = 500 
+        real health = 500 
+        real manaRegen = 10
+        real spellPower = 100
+        real healthRegen = 10
 
         private static integer array hp
         private static integer array mp
@@ -37,11 +37,11 @@ scope AncientSphere
                 set mr[index] = mr[index] + 10
                 set sp[index] = sp[index] + 10
 
-                call AddUnitBonus(unit, BONUS_HEALTH, 500)
-                call AddUnitBonus(unit, BONUS_MANA, 500)
-                call AddUnitBonus(unit, BONUS_HEALTH_REGEN, 10)
-                call AddUnitBonus(unit, BONUS_MANA_REGEN, 10)
-                call AddUnitBonus(unit, BONUS_SPELL_POWER, 10)
+                call AddUnitBonus(unit, BONUS_HEALTH, 50)
+                call AddUnitBonus(unit, BONUS_MANA, 50)
+                call AddUnitBonus(unit, BONUS_HEALTH_REGEN, 0.25)
+                call AddUnitBonus(unit, BONUS_MANA_REGEN, 0.25)
+                call AddUnitBonus(unit, BONUS_SPELL_POWER, 5)
                 call DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\Items\\AIre\\AIreTarget.mdl", unit, "origin"))
             
                 return true

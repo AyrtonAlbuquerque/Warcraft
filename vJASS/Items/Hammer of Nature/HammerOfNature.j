@@ -3,9 +3,9 @@ scope HammerOfNature
         static constant integer code = 'I07F'
 
         // Attributes
-        real damage = 500
-        real strength = 250
-        real spellPower = 250
+        real damage = 35
+        real strength = 15
+        real spellPower = 35
 
         private static integer array attack
         private static integer array remaining
@@ -30,7 +30,18 @@ scope HammerOfNature
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc00500|r Damage\n+ |cffffcc00250|r Spell Power\n+ |cffffcc00250|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Cleave|r: Melee attacks cleave within |cffffcc00300 AoE|r, dealing |cffffcc0040%%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Force of Nature|r: Every |cffffcc00fifth|r attack a powerfull blow will damage the target for |cff00ffff" + N2S(1000, 0) + " Magic|r damage and create a |cffffcc00Pulsing Blast|r at the target location. The |cffffcc00Pulsing Blast|r heals all nearby allies and damages all nearby enemy units within |cffffcc00400 AoE|r  for |cff00ffff" + N2S(1000, 0) + " Magic|r damage / |cff00ff001000|r heal. If the blow kills the target, the damage / heal doubles as well as the amount of pulses. Max |cffffcc005|r pulsing blasts with |cffffcc005|r pulses.\n\nPulsing Blasts: |cffffcc00" + I2S(remaining[id]) + "|r"
+            local real value
+            local real heal
+            
+            if IsUnitType(u, UNIT_TYPE_HERO) then
+                set heal = 100 + (5 * GetHeroLevel(u))
+                set value = 200 + (10 * GetHeroLevel(u))
+            else
+                set heal = 100 + (5 * GetUnitLevel(u))
+                set value = 200 + (10 * GetUnitLevel(u))
+            endif
+
+            return "|cffffcc00Gives:|r\n+ |cffffcc0035|r Damage\n+ |cffffcc00350|r Spell Power\n+ |cffffcc0015|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Cleave|r: Melee attacks cleave within |cffffcc00300 AoE|r, dealing |cffffcc0040%%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Force of Nature|r: Every |cffffcc00fifth|r attack a powerfull blow will damage the target for |cff00ffff" + N2S(value, 0) + " Magic|r damage and create a |cffffcc00Pulsing Blast|r at the target location. The |cffffcc00Pulsing Blast|r heals all nearby allies and damages all nearby enemy units within |cffffcc00400 AoE|r  for |cff00ffff" + N2S(heal, 0) + " Magic|r damage / heal. If the blow kills the target, the damage / heal doubles as well as the amount of pulses. Max |cffffcc005|r pulsing blasts with |cffffcc005|r pulses.\n\nPulsing Blasts: |cffffcc00" + I2S(remaining[id]) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -47,6 +58,8 @@ scope HammerOfNature
 
         private static method onDamage takes nothing returns nothing
             local thistype this
+            local real value
+            local real heal
 
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and Damage.source.isMelee and not Damage.target.isStructure then
                 set attack[Damage.source.id] = attack[Damage.source.id] + 1
@@ -54,7 +67,15 @@ scope HammerOfNature
                 if attack[Damage.source.id] >= 5 then
                     set attack[Damage.source.id] = 0
 
-                    call UnitDamageTarget(Damage.source.unit, Damage.target.unit, 1000, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
+                    if Damage.source.isHero then
+                        set heal = 100 + (5 * GetHeroLevel(Damage.source.unit))
+                        set value = 200 + (10 * GetHeroLevel(Damage.source.unit))
+                    else
+                        set heal = 100 + (5 * GetUnitLevel(Damage.source.unit))
+                        set value = 200 + (10 * GetUnitLevel(Damage.source.unit))
+                    endif
+
+                    call UnitDamageTarget(Damage.source.unit, Damage.target.unit, value, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
 
                     if remaining[Damage.source.id] < 5 then
                         set this = thistype.allocate(0)
@@ -66,11 +87,11 @@ scope HammerOfNature
                         set index = Damage.source.id
                         set remaining[Damage.source.id] = remaining[Damage.source.id] + 1
 
-                        if GetWidgetLife(Damage.target.unit) < 1000 then
-                            set amount = 2000
+                        if Damage.target.health < value then
+                            set amount = 2 * heal
                             set pulses = 10
                         else
-                            set amount = 1000
+                            set amount = heal
                             set pulses = 5
                         endif
 

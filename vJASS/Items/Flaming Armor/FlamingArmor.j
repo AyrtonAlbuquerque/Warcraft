@@ -41,7 +41,7 @@ scope FlamingArmor
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc00800|r Health\n+ |cffffcc008|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Damage Reduction|r: All damage taken are reduced by |cffffcc0015%%|r.\n\n|cff00ff00Passive|r: |cffffcc00Guarding Flames|r: Every second, all enemy units within |cffffcc00" + N2S(GetAoE(), 0) + " AoE|r take |cff00ffff" + N2S(GetDamage(unit), 0) + "|r |cff00ffffMagic|r damage."
+            return "|cffffcc00Gives|r:\n+ |cffffcc00800|r Health\n+ |cffffcc008|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Damage Reduction|r: All damage taken are reduced by |cffffcc0015%%|r.\n\n|cff00ff00Passive|r: |cffffcc00Guarding Flames|r: Every second, all enemy units within |cffffcc00" + N2S(GetAoE(), 0) + " AoE|r take |cff00ffff" + N2S(GetDamage(u), 0) + "|r |cff00ffffMagic|r damage."
         endmethod
 
         private method onPeriod takes nothing returns boolean

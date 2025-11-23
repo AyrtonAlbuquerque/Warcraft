@@ -25,9 +25,9 @@ library Bladestorm requires Spell, Modules, Utilities optional NewBonus
     // The Bladestorm damage per second
     private function GetDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 25. * level + 0.1 * level * GetUnitBonus(source, BONUS_DAMAGE)
+            return 50. * level + 0.1 * level * GetUnitBonus(source, BONUS_DAMAGE)
         else
-            return 25. * level
+            return 50. * level
         endif
     endfunction
 

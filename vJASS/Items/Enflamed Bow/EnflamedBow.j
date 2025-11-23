@@ -2,13 +2,14 @@ scope EnflamedBow
     struct EnflamedBow extends Item
         static constant integer code = 'I06U'
 
-        // Attributes
-        real damage = 500
-        real agility = 250
+        real damage = 25
+        real agility = 15
+        real spellPower = 25
 
         private static HashTable table
         private static integer array counting
         
+        private real amount
         private unit source
         private unit target
         private effect effect
@@ -41,8 +42,8 @@ scope EnflamedBow
 
             if duration > 0 then
                 if UnitAlive(target) then
-                    if UnitDamageTarget(source, target, 62.5, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, null) then
-                        call SetWidgetLife(source, GetWidgetLife(source) + 62.5)
+                    if UnitDamageTarget(source, target, amount, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, null) then
+                        call SetWidgetLife(source, GetWidgetLife(source) + amount * 0.1)
                     endif
                 else
                     return false
@@ -55,7 +56,7 @@ scope EnflamedBow
         private static method onDamage takes nothing returns nothing
 			local thistype this
 
-            if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure and not (GetEventDamage() > GetWidgetLife(Damage.target.unit)) then
+            if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure and not (Damage.amount > Damage.target.health) then
                 if table[Damage.source.handle][Damage.target.handle] == 0 then
 					set this = thistype.allocate(0)
 					set source = Damage.source.unit
@@ -66,6 +67,12 @@ scope EnflamedBow
                     set index = Damage.source.id
                     set counting[index] = counting[index] + 1
                     set table[sourceId][targetId] = this
+
+                    if Damage.source.isHero then
+                        set amount = 100 + 5 * GetHeroLevel(Damage.source.unit)
+                    else
+                        set amount = 100 + 5 * GetUnitLevel(Damage.source.unit)
+                    endif
 
                     if table[sourceId].effect[0] == null then
                         set table[sourceId].effect[0] = AddSpecialEffectTarget("Ember Yellow.mdx", Damage.source.unit, "chest")

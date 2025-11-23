@@ -5,9 +5,9 @@ scope CrownOfRightouesness
         static constant integer ability = 'A00V'
 
         // Attributes
-        real mana = 10000
-        real manaRegen = 250
-        real spellPower = 600
+        real mana = 350
+        real manaRegen = 5
+        real spellPower = 65
 
         private static real array shield
 
@@ -25,7 +25,7 @@ scope CrownOfRightouesness
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc0010000|r Mana\n+ |cffffcc00250|r Mana Regeneration\n+ |cffffcc00600|r Spell Power\n\n|cff00ff00Acitve|r: |cffffcc00Light Shield|r: When activated, creates a light barrier around the Hero, blocking up to |cffffcc00" + N2S(5000 + (5 * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + "|r damage or until its duration is over. Lasts |cffffcc0030|r seconds."
+            return "|cffffcc00Gives:|r\n+ |cffffcc00350|r Mana\n+ |cffffcc005|r Mana Regeneration\n+ |cffffcc0065|r Spell Power\n\n|cff00ff00Acitve|r: |cffffcc00Light Shield|r: When activated, creates a light barrier around the Unit, blocking up to |cffffcc00" + N2S(500 + (2 * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + "|r damage or until its duration is over. Lasts |cffffcc0030|r seconds."
         endmethod
             
         private method onPeriod takes nothing returns boolean
@@ -71,7 +71,7 @@ scope CrownOfRightouesness
                 set texttag = CreateTextTag()
             endif
 
-            set shield[index] = shield[index] + (5000 + 5*GetUnitBonus(unit, BONUS_SPELL_POWER))
+            set shield[index] = shield[index] + (500 + 2 * GetUnitBonus(unit, BONUS_SPELL_POWER))
         endmethod
 
         implement Periodic

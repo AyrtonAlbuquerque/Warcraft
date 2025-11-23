@@ -1,41 +1,22 @@
 scope BookOfFlames
     struct BookOfFlames extends Item
         static constant integer code = 'I06B'
-        static constant integer unit = 'o004'
+        static constant integer buff = 'B001'
         static constant integer ability = 'A04E'
 
-        real damage = 500
-        real intelligence = 250
-        real spellPowerFlat = 600
+        real cooldownReduction = 0.15
+        real intelligence = 15
+        real spellPower = 70
+        real damage = 25
 
-        private static method onDeath takes nothing returns nothing
-            local unit killer = GetKillingUnit()
-            local real size
-
-            if GetUnitTypeId(killer) == unit then
-                set size = BlzGetUnitRealField(killer, UNIT_RF_SCALING_VALUE)
-
-                call BlzSetUnitMaxHP(killer, BlzGetUnitMaxHP(killer) + 250)
-                call SetUnitLifePercentBJ(killer, GetUnitLifePercent(killer))
-                call BlzSetUnitBaseDamage(killer, BlzGetUnitBaseDamage(killer, 0) + 25, 0)
-
-                if size < 2 then
-                    call BlzSetUnitRealField(killer, UNIT_RF_SCALING_VALUE, size + 0.01)
-                    call SetUnitScale(killer, size + 0.01, size + 0.01, size + 0.01)
-                endif
+        private static method onDamage takes nothing returns nothing
+            if GetUnitAbilityLevel(Damage.source.unit, buff) > 0 then
+                set Damage.amount = Damage.amount * 1.15
             endif
-
-            set killer = null
-        endmethod
-
-        private static method onCast takes nothing returns nothing
-            call CreateUnit(Spell.source.player, unit, Spell.source.x, Spell.source.y, 0)
-            call CreateUnit(Spell.source.player, unit, Spell.source.x, Spell.source.y, 0)
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellEffectEvent(ability, function thistype.onCast)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
+            call RegisterSpellDamagingEvent(function thistype.onDamage)
             call RegisterItem(allocate(code), SummoningBook.code, SphereOfFire.code, 0, 0, 0)
         endmethod
     endstruct

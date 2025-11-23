@@ -27,10 +27,9 @@ scope LegendaryBladeI
         static constant integer code = 'I073'
         static constant real step = 2.5*0.017453
 
-		// Attributes
-        real damage = 1000
-        real attackSpeed = 0.5
-        real spellPower = 500
+        real damage = 40
+        real attackSpeed = 0.3
+        real spellPower = 50
 
         private static real array amount
         private static integer array attack
@@ -110,7 +109,7 @@ scope LegendaryBladeI
 						set m.source = Damage.source.unit
 						set m.target = Damage.target.unit
 						set m.speed = 1000.
-						set m.arc = 5.
+						set m.arc = 5 * bj_DEGTORAD
 						set m.model = "Abilities\\Weapons\\FireBallMissile\\FireBallMissile.mdl"
 						set m.damage = amount[Damage.source.id] * 3
 						set m.type = 0

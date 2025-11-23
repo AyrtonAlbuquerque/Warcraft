@@ -5,8 +5,9 @@ scope RingOfConversion
         static constant integer ability = 'A00L'
 
         // Attributes
-        real mana = 10000
-        real manaRegen = 250
+        real mana = 400
+        real manaRegen = 10
+        real spellPower = 80
 
         private unit unit
 
@@ -58,9 +59,9 @@ scope RingOfConversion
 
             if UnitHasItemOfType(killer, code) then
                 if IsUnitType(killed, UNIT_TYPE_HERO) then
-                    call SetUnitState(killer, UNIT_STATE_MANA, GetUnitState(killer, UNIT_STATE_MANA) + 5000)
+                    call SetUnitState(killer, UNIT_STATE_MANA, GetUnitState(killer, UNIT_STATE_MANA) + 200)
                 else 
-                    call SetUnitState(killer, UNIT_STATE_MANA, GetUnitState(killer, UNIT_STATE_MANA) + 500)
+                    call SetUnitState(killer, UNIT_STATE_MANA, GetUnitState(killer, UNIT_STATE_MANA) + 20)
                 endif
             endif
 

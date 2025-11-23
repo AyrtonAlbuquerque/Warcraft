@@ -3,8 +3,9 @@ scope HellishMask
         static constant integer code = 'I06R'
         
         // Attributes
-        real damage = 750
-        real lifeSteal = 0.3
+        real damage = 25
+        real spellPower = 25
+        real lifeSteal = 0.15
 
         private static HashTable table
         private static integer array bonus
@@ -31,7 +32,7 @@ scope HellishMask
             local thistype this
 
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure then
-                if table[Damage.target.handle].integer[Damage.source.handle] < 25 then
+                if table[Damage.target.handle].integer[Damage.source.handle] < 10 then
                     set this = thistype.allocate(0)
                     set unit = Damage.target.unit
                     set index = Damage.target.id

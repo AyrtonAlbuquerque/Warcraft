@@ -3,8 +3,8 @@ scope HeatingCloak
         static constant integer code = 'I07C'
 
         // Attributes
-        real mana = 5000
-        real health = 5000
+        real mana = 500
+        real health = 500
 
         private static real array amount
         private static string array state
@@ -32,7 +32,7 @@ scope HeatingCloak
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc005000|r Health\n+ |cffffcc005000|r Mana\n\n|cff00ff00Passive|r: |cffffcc00Immolation|r: Every second, all enemy units within |cffffcc00400 AoE|r take |cff00ffff" + N2S(amount[id], 0) + " Magic|r damage.\n\n|cff00ff00Passive|r: |cffffcc00Turn up the Heat|r: Every |cffffcc0060|r seconds |cffffcc00Heating Cloak|r charges up and the damage dealt by its immolation is increased by |cff00ffff500 Magic|r damage for |cffffcc0030|r seconds.\n\n" + state[id] + "|cffffcc00" + cd[id] + "|r"
+            return "|cffffcc00Gives|r:\n+ |cffffcc00500|r Health\n+ |cffffcc00500|r Mana\n\n|cff00ff00Passive|r: |cffffcc00Immolation|r: Every second, all enemy units within |cffffcc00350 AoE|r take |cff00ffff" + N2S(amount[id], 0) + " Magic|r damage.\n\n|cff00ff00Passive|r: |cffffcc00Turn up the Heat|r: Every |cffffcc0060|r seconds |cffffcc00Heating Cloak|r charges up and the damage dealt by its immolation is increased by |cff00ffff" + N2S(amount[id], 0) + " Magic|r damage for |cffffcc0030|r seconds.\n\n" + state[id] + "|cffffcc00" + cd[id] + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -49,9 +49,14 @@ scope HeatingCloak
                         call DestroyEffect(effect)
                         call BlzSetItemIconPath(item, "ReplaceableTextures\\CommandButtons\\BTNCoD.blp")
                         set string = "Abilities\\Spells\\Other\\ImmolationRed\\ImmolationRedDamage.mdl"
-                        set amount[index] = 1000
                         set state[index] = "Remaining Burst Time: "
                         set effect = AddSpecialEffectTarget("EmberOrange.mdx", unit, "chest")
+
+                        if IsUnitType(unit, UNIT_TYPE_HERO) then
+                            set amount[index] = 2 * (150 + (5 * GetHeroLevel(unit)))
+                        else
+                            set amount[index] = 2 * (150 + (5 * GetUnitLevel(unit)))
+                        endif
                     endif
                 else
                     set cd[index] = I2S(cooldown)
@@ -61,13 +66,18 @@ scope HeatingCloak
                         call BlzSetItemIconPath(item, "ReplaceableTextures\\CommandButtons\\BTNCloakOfFrost.blp")
                         set cooldown = 90
                         set string = "Abilities\\Spells\\Undead\\FrostArmor\\FrostArmorDamage.mdl"
-                        set amount[index] = 500
                         set state[index] = "Burst Cooldown: "
                         set effect = AddSpecialEffectTarget("EmberSnow.mdx", unit, "chest")
+
+                        if IsUnitType(unit, UNIT_TYPE_HERO) then
+                            set amount[index] = 150 + (5 * GetHeroLevel(unit))
+                        else
+                            set amount[index] = 150 + (5 * GetUnitLevel(unit))
+                        endif
                     endif
                 endif
 
-                call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), 400, null)
+                call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), 350, null)
 
                 loop
                     set u = FirstOfGroup(group)
@@ -102,7 +112,12 @@ scope HeatingCloak
                 set self.cooldown = 90
                 set state[id] = "Burst Cooldown: "
                 set cd[id] = I2S(self.cooldown - 30)
-                set amount[id]   = 500
+
+                if IsUnitType(u, UNIT_TYPE_HERO) then
+                    set amount[id] = 150 + (5 * GetHeroLevel(u))
+                else
+                    set amount[id] = 150 + (5 * GetUnitLevel(u))
+                endif
 
                 call StartTimer(1, true, self, id)
             endif

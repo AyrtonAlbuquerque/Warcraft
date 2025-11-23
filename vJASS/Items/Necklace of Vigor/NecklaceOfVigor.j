@@ -6,18 +6,19 @@ scope NecklaceOfVigor
         private static integer array strikes
 
         // Attributes
-        real mana = 10000
-        real health = 10000
-        real spellPower = 750
+        real mana = 750
+        real health = 750
+        real spellPower = 125
         
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc0010000|r Health\n+ |cffffcc0010000|r Mana\n+ |cffffcc00750|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Vigorous Strike|r: After casting an ability your next basic attack will deal |cffffcc00" + N2S(3 * GetUnitBonus(u, BONUS_SPELL_POWER), 0) + "|r as bonus |cffd45e19Pure|r damage to the target.\n\nStrikes Left: |cffffcc00" + I2S(strikes[id]) + "|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc00750|r Health\n+ |cffffcc00750|r Mana\n+ |cffffcc00125|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Vigorous Strike|r: After casting an ability your next basic attack will deal |cffd45e19" + N2S(1.75 * GetUnitBonus(u, BONUS_SPELL_POWER), 0) + "|r |cffd45e19Pure|r damage to the target.\n\nStrikes Left: |cffffcc00" + I2S(strikes[id]) + "|r"
         endmethod
 
         private static method onDamage takes nothing returns nothing
             if Damage.isEnemy and strikes[Damage.source.id] > 0 then
                 set strikes[Damage.source.id] = strikes[Damage.source.id] - 1
-                call UnitDamageTarget(Damage.source.unit, Damage.target.unit, 3*GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER), false, false, ATTACK_TYPE_CHAOS, DAMAGE_TYPE_UNIVERSAL, null)
+                
+                call UnitDamageTarget(Damage.source.unit, Damage.target.unit, 1.75*GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER), false, false, ATTACK_TYPE_CHAOS, DAMAGE_TYPE_UNIVERSAL, null)
 
                 if strikes[Damage.source.id] == 0 then
                     call DestroyEffect(table[Damage.source.id].effect[0])

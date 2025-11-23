@@ -3,13 +3,14 @@ scope WizardStaff
         static constant integer code = 'I07R'
         static integer array bonus
 
-        real health = 10000
-        real intelligence = 250
-        real manaRegen = 300
-        real spellPower = 750
+        real health = 400
+        real intelligence = 20
+        real manaRegen = 15
+        real spellPower = 90
+        real spellVamp = 0.1
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc00750|r Spell Power\n+ |cffffcc00250|r Intelligence\n+ |cffffcc0010000|r Health\n+ |cffffcc00300|r Mana Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Spell Vamp|r: Dealing |cff00ffffMagical|r damage, heals for |cffffcc005%%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Sorcery Mastery|r: After casting an ability, |cff00ffffSpell Power|r is increased by |cffffcc0025|r permanently.\n\nSpell Power Bonus: |cffffcc00" + I2S(bonus[id]) + "|r"
+            return "|cffffcc00Gives|r:\n+ |cffffcc0090|r Spell Power\n+ |cffffcc0020|r Intelligence\n+ |cffffcc00400|r Health\n+ |cffffcc0015|r Mana Regeneration\n+ |cffffcc0010%|r Spell Vamp\n\n|cff00ff00Passive|r: |cffffcc00Sorcery Mastery|r: After casting an ability, |cff00ffffSpell Power|r is increased by |cffffcc003|r permanently.\n\nSpell Power Bonus: |cffffcc00" + I2S(bonus[id]) + "|r"
         endmethod
 
         private static method onCast takes nothing returns nothing
@@ -20,8 +21,8 @@ scope WizardStaff
             local boolean blink = id == 'A00H'
 
             if UnitHasItemOfType(caster, code) and not potion and not blink then
-                set bonus[index] = bonus[index] + 25
-                call AddUnitBonus(caster, BONUS_SPELL_POWER, 25)
+                set bonus[index] = bonus[index] + 3
+                call AddUnitBonus(caster, BONUS_SPELL_POWER, 3)
             endif
 
             set caster = null
