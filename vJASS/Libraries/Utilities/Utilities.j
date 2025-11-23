@@ -643,6 +643,15 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         return TimedLightning.unit2point(source, x, y, z, duration, lightningType)
     endfunction
 
+    // Get a unit or hero level
+    function GetWidgetLevel takes unit u returns integer
+        if IsUnitType(u, UNIT_TYPE_HERO) then
+            return GetHeroLevel(u)
+        else
+            return GetUnitLevel(u)
+        endif
+    endfunction
+
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             Systems                                            */
     /* ---------------------------------------------------------------------------------------------- */

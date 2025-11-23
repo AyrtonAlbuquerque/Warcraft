@@ -31,21 +31,7 @@ scope ElementalSpin
         real spellPower = 100
         
         private method onTooltip takes unit u, item i, integer id returns string
-            local real value
-            local real lesser
-            local real dot
-
-            if IsUnitType(u, UNIT_TYPE_HERO) then
-                set dot = 25 + (5 * GetHeroLevel(u))
-                set value = 200 + (20 * GetHeroLevel(u))
-                set lesser = 100 + (10 * GetHeroLevel(u))
-            else
-                set dot = 25 + (5 * GetUnitLevel(u))
-                set value = 200 + (20 * GetUnitLevel(u))
-                set lesser = 100 + (10 * GetUnitLevel(u))
-            endif
-
-            return "|cffffcc00Gives:|r+ |cffffcc00100|r Spell Power\n+ |cffffcc0020|r Intelligence\n+ |cffffcc0012|r Health Regeneration\n+ |cffffcc0012|r Mana Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Elemental Waves|r: Every attack has |cffffcc0020%%|r chance to spawn an elemental wave at target location damaging an applying an special effect on the wave type. When proccing this effect there is |cffffcc0025%%|r chance of creating either a |cffffcc00Holy|r, |cffff0000Fire|r, |cff00ff00Poison|r or |cff8080ffWater|r wave. A |cffffcc00Holy Wave|r will damage enemys and heal allies for |cff00ffff" + N2S(value, 0) + " Magic|r damage. A |cffff0000Fire Wave|r damage enemys for |cff00ffff" + N2S(lesser, 0) + " Magic|r damage and apply a |cffff0000Burn|r effect dealing |cff00ffff" + N2S(dot, 0) + " Magic|r damage per second for |cffffcc005|r seconds. |cff00ff00Poison Wave|r damage enemys for |cff00ffff" + N2S(value, 0) + " Magic|r damage and reduce their armor by |cffffcc0010|r  for |cffffcc0010|r seconds. Finnaly the |cff8080ffWater Wave|r damage enemys for |cff00ffff" + N2S(value, 0) + " Magic|r damage and reduce their movement speed by |cffffcc0050%%|r for |cffffcc005|r seconds."
+            return "|cffffcc00Gives:|r+ |cffffcc00100|r Spell Power\n+ |cffffcc0020|r Intelligence\n+ |cffffcc0012|r Health Regeneration\n+ |cffffcc0012|r Mana Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Elemental Waves|r: Every attack has |cffffcc0020%%|r chance to spawn an elemental wave at target location damaging an applying an special effect on the wave type. When proccing this effect there is |cffffcc0025%%|r chance of creating either a |cffffcc00Holy|r, |cffff0000Fire|r, |cff00ff00Poison|r or |cff8080ffWater|r wave. A |cffffcc00Holy Wave|r will damage enemys and heal allies for |cff00ffff" + N2S(200 + (20 * GetWidgetLevel(u)) + (0.02 * GetWidgetLevel(u) * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + " Magic|r damage. A |cffff0000Fire Wave|r damage enemys for |cff00ffff" + N2S(100 + (10 * GetWidgetLevel(u)) + (0.02 * GetWidgetLevel(u) * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + " Magic|r damage and apply a |cffff0000Burn|r effect dealing |cff00ffff" + N2S(25 + (5 * GetWidgetLevel(u)) + (0.005 * GetWidgetLevel(u) * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + " Magic|r damage per second for |cffffcc005|r seconds. |cff00ff00Poison Wave|r damage enemys for |cff00ffff" + N2S(200 + (20 * GetWidgetLevel(u)) + (0.02 * GetWidgetLevel(u) * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + " Magic|r damage and reduce their armor by |cffffcc0010|r  for |cffffcc0010|r seconds. Finnaly the |cff8080ffWater Wave|r damage enemys for |cff00ffff" + N2S(200 + (20 * GetWidgetLevel(u)) + (0.02 * GetWidgetLevel(u) * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + " Magic|r damage and reduce their movement speed by |cffffcc0050%%|r for |cffffcc005|r seconds."
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -62,36 +48,16 @@ scope ElementalSpin
 
                 if missile.type == 1 then
                     set missile.model  = "LavaBreath.mdx"
-
-                    if Damage.source.isHero then
-                        set missile.damage = 100 + (10 * GetHeroLevel(Damage.source.unit))
-                    else
-                        set missile.damage = 100 + (10 * GetUnitLevel(Damage.source.unit))
-                    endif
+                    set missile.damage = 100 + (10 * Damage.source.level) + (0.02 * Damage.source.level * GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER))
                 elseif missile.type == 2 then
                     set missile.model  = "HolyBreath.mdx"
-                    
-                    if Damage.source.isHero then
-                        set missile.damage = 200 + (20 * GetHeroLevel(Damage.source.unit))
-                    else
-                        set missile.damage = 200 + (20 * GetUnitLevel(Damage.source.unit))
-                    endif
+                    set missile.damage = 200 + (20 * Damage.source.level) + (0.02 * Damage.source.level * GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER))
                 elseif missile.type == 3 then
                     set missile.model  = "AcidBreath.mdx"
-                    
-                    if Damage.source.isHero then
-                        set missile.damage = 200 + (20 * GetHeroLevel(Damage.source.unit))
-                    else
-                        set missile.damage = 200 + (20 * GetUnitLevel(Damage.source.unit))
-                    endif
+                    set missile.damage = 200 + (20 * Damage.source.level) + (0.02 * Damage.source.level * GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER))
                 elseif missile.type == 4 then
                     set missile.model  = "WaterBreath.mdx"
-                    
-                    if Damage.source.isHero then
-                        set missile.damage = 200 + (20 * GetHeroLevel(Damage.source.unit))
-                    else
-                        set missile.damage = 200 + (20 * GetUnitLevel(Damage.source.unit))
-                    endif
+                    set missile.damage = 200 + (20 * Damage.source.level) + (0.02 * Damage.source.level * GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER))
                 endif
                 
                 set missile.source = Damage.source.unit

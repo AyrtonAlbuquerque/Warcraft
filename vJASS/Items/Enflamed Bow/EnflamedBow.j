@@ -67,12 +67,7 @@ scope EnflamedBow
                     set index = Damage.source.id
                     set counting[index] = counting[index] + 1
                     set table[sourceId][targetId] = this
-
-                    if Damage.source.isHero then
-                        set amount = 100 + 5 * GetHeroLevel(Damage.source.unit)
-                    else
-                        set amount = 100 + 5 * GetUnitLevel(Damage.source.unit)
-                    endif
+                    set amount = 100 + (5 * Damage.source.level) + (0.01 * Damage.source.level * GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER))
 
                     if table[sourceId].effect[0] == null then
                         set table[sourceId].effect[0] = AddSpecialEffectTarget("Ember Yellow.mdx", Damage.source.unit, "chest")

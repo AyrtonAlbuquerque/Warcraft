@@ -50,6 +50,14 @@ library Unit
             return GetWidgetLife(unit)
         endmethod
 
+        method operator level takes nothing returns integer
+            if IsUnitType(unit, UNIT_TYPE_HERO) then
+                return GetHeroLevel(unit)
+            else
+                return GetUnitLevel(unit)
+            endif
+        endmethod
+
         method operator agility takes nothing returns integer
             return GetHeroAgi(unit, true)
         endmethod

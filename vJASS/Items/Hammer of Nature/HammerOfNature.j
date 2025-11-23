@@ -30,18 +30,7 @@ scope HammerOfNature
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            local real value
-            local real heal
-            
-            if IsUnitType(u, UNIT_TYPE_HERO) then
-                set heal = 100 + (5 * GetHeroLevel(u))
-                set value = 200 + (10 * GetHeroLevel(u))
-            else
-                set heal = 100 + (5 * GetUnitLevel(u))
-                set value = 200 + (10 * GetUnitLevel(u))
-            endif
-
-            return "|cffffcc00Gives:|r\n+ |cffffcc0035|r Damage\n+ |cffffcc00350|r Spell Power\n+ |cffffcc0015|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Cleave|r: Melee attacks cleave within |cffffcc00300 AoE|r, dealing |cffffcc0040%%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Force of Nature|r: Every |cffffcc00fifth|r attack a powerfull blow will damage the target for |cff00ffff" + N2S(value, 0) + " Magic|r damage and create a |cffffcc00Pulsing Blast|r at the target location. The |cffffcc00Pulsing Blast|r heals all nearby allies and damages all nearby enemy units within |cffffcc00400 AoE|r  for |cff00ffff" + N2S(heal, 0) + " Magic|r damage / heal. If the blow kills the target, the damage / heal doubles as well as the amount of pulses. Max |cffffcc005|r pulsing blasts with |cffffcc005|r pulses.\n\nPulsing Blasts: |cffffcc00" + I2S(remaining[id]) + "|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc0035|r Damage\n+ |cffffcc00350|r Spell Power\n+ |cffffcc0015|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Cleave|r: Melee attacks cleave within |cffffcc00300 AoE|r, dealing |cffffcc0040%%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Force of Nature|r: Every |cffffcc00fifth|r attack a powerfull blow will damage the target for |cff00ffff" + N2S(200 + (10 * GetWidgetLevel(u)) + (0.2 * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + " Magic|r damage and create a |cffffcc00Pulsing Blast|r at the target location. The |cffffcc00Pulsing Blast|r heals all nearby allies and damages all nearby enemy units within |cffffcc00400 AoE|r  for |cff00ffff" + N2S(00 + (5 * GetWidgetLevel(u))  + (0.1 * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + " Magic|r damage / heal. If the blow kills the target, the damage / heal doubles as well as the amount of pulses. Max |cffffcc005|r pulsing blasts with |cffffcc005|r pulses.\n\nPulsing Blasts: |cffffcc00" + I2S(remaining[id]) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -66,14 +55,8 @@ scope HammerOfNature
 
                 if attack[Damage.source.id] >= 5 then
                     set attack[Damage.source.id] = 0
-
-                    if Damage.source.isHero then
-                        set heal = 100 + (5 * GetHeroLevel(Damage.source.unit))
-                        set value = 200 + (10 * GetHeroLevel(Damage.source.unit))
-                    else
-                        set heal = 100 + (5 * GetUnitLevel(Damage.source.unit))
-                        set value = 200 + (10 * GetUnitLevel(Damage.source.unit))
-                    endif
+                    set heal = 100 + (5 * Damage.source.level) + (0.1 * GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER))
+                    set value = 200 + (10 * Damage.source.level) + (0.2 * GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER))
 
                     call UnitDamageTarget(Damage.source.unit, Damage.target.unit, value, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
 

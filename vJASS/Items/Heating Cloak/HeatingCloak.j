@@ -51,12 +51,7 @@ scope HeatingCloak
                         set string = "Abilities\\Spells\\Other\\ImmolationRed\\ImmolationRedDamage.mdl"
                         set state[index] = "Remaining Burst Time: "
                         set effect = AddSpecialEffectTarget("EmberOrange.mdx", unit, "chest")
-
-                        if IsUnitType(unit, UNIT_TYPE_HERO) then
-                            set amount[index] = 2 * (150 + (5 * GetHeroLevel(unit)))
-                        else
-                            set amount[index] = 2 * (150 + (5 * GetUnitLevel(unit)))
-                        endif
+                        set amount[index] = 2 * (150 + (5 * GetWidgetLevel(unit)) + (0.005 * GetWidgetLevel(unit) * GetUnitBonus(unit, BONUS_SPELL_POWER)))
                     endif
                 else
                     set cd[index] = I2S(cooldown)
@@ -68,12 +63,7 @@ scope HeatingCloak
                         set string = "Abilities\\Spells\\Undead\\FrostArmor\\FrostArmorDamage.mdl"
                         set state[index] = "Burst Cooldown: "
                         set effect = AddSpecialEffectTarget("EmberSnow.mdx", unit, "chest")
-
-                        if IsUnitType(unit, UNIT_TYPE_HERO) then
-                            set amount[index] = 150 + (5 * GetHeroLevel(unit))
-                        else
-                            set amount[index] = 150 + (5 * GetUnitLevel(unit))
-                        endif
+                        set amount[index] = 150 + (5 * GetWidgetLevel(unit) + (0.005 * GetWidgetLevel(unit) * GetUnitBonus(unit, BONUS_SPELL_POWER)))
                     endif
                 endif
 
@@ -112,12 +102,7 @@ scope HeatingCloak
                 set self.cooldown = 90
                 set state[id] = "Burst Cooldown: "
                 set cd[id] = I2S(self.cooldown - 30)
-
-                if IsUnitType(u, UNIT_TYPE_HERO) then
-                    set amount[id] = 150 + (5 * GetHeroLevel(u))
-                else
-                    set amount[id] = 150 + (5 * GetUnitLevel(u))
-                endif
+                set amount[id] = 150 + (5 * GetWidgetLevel(u)) + (0.005 * GetWidgetLevel(u) * GetUnitBonus(u, BONUS_SPELL_POWER))
 
                 call StartTimer(1, true, self, id)
             endif

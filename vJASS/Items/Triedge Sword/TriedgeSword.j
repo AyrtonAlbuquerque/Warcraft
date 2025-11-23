@@ -13,7 +13,7 @@ scope TriedgeSword
         real criticalChance = 0.1
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc0065|r Damage\n+ |cffffcc0010%|r Critical Chance\n+ |cffffcc0050%|r Critical Damage\n\n|cff00ff00Passive|r: |cffffcc00Critical Mass|r: After hitting a critical strike |cffffcc00Triedge|r gains |cffffcc003|r stacks, increasing |cffff0000Damage|r by |cffff000010|r, |cffff0000Criticial Chance|r by |cffffcc002%|r and |cffff0000Critical Damage|r by |cffffcc0010%|r  per stack. Attacking an enemy unit consumes |cffffcc001|r stack. Max |cffffcc0010|r stacks.\n\nStacks: |cffffcc00" + I2S(stacks[id]) + "|r\nBonus Damage: |cffffcc00" + I2S(damageBonus[id]) + "|r\nBonus Critical Strike Chance: |cffffcc00" + I2S(bonusChance[id]) + "%%|r\nBonus Critical Strike Damage: |cffffcc00" + I2S(bonusDamage[id]) + "%%|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc0065|r Damage\n+ |cffffcc0010%%|r Critical Chance\n+ |cffffcc0050%%|r Critical Damage\n\n|cff00ff00Passive|r: |cffffcc00Critical Mass|r: After hitting a critical strike |cffffcc00Triedge|r gains |cffffcc003|r stacks, increasing |cffff0000Damage|r by |cffff000010|r, |cffff0000Criticial Chance|r by |cffffcc002%|r and |cffff0000Critical Damage|r by |cffffcc0010%|r  per stack. Attacking an enemy unit consumes |cffffcc001|r stack. Max |cffffcc0010|r stacks.\n\nStacks: |cffffcc00" + I2S(stacks[id]) + "|r\nBonus Damage: |cffffcc00" + I2S(damageBonus[id]) + "|r\nBonus Critical Strike Chance: |cffffcc00" + I2S(bonusChance[id]) + "%%|r\nBonus Critical Strike Damage: |cffffcc00" + I2S(bonusDamage[id]) + "%%|r"
         endmethod
 
         private static method onDamage takes nothing returns nothing
