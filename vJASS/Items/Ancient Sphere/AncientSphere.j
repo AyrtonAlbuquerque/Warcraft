@@ -9,10 +9,10 @@ scope AncientSphere
         real spellPower = 100
         real healthRegen = 10
 
+        private static real array hr
+        private static real array mr
         private static integer array hp
         private static integer array mp
-        private static integer array hr
-        private static integer array mr
         private static integer array sp
         private static boolean array check
 
@@ -26,16 +26,16 @@ scope AncientSphere
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc0010000|r Health\n+ |cffffcc0010000|r Mana\n+ |cffffcc00100|r Spell Power\n+ |cffffcc00100|r Health Regeneration\n+ |cffffcc00100|r Mana Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Infused Enlightenment|r: Every |cffffcc0045|r seconds your Hero gains permanently |cffffcc00500|r Health, |cffffcc00500|r Mana, |cffffcc0010|r Spell Power, |cffffcc0010|r Health Regeneration and |cffffcc0010|r Mana Regeneration.\n\nHealth Bonus: |cffff0000" + I2S(hp[id]) + "|r\nMana Bonus: |cff0000ff" + I2S(mp[id]) + "|r\nHealth Regen Bonus: |cff00ff00" + I2S(hr[id]) + "|r\nMana Regen Bonus: |cff00ffff"  + I2S(mr[id]) + "|r\nSpell Power Bonus: |cff0080ff" + I2S(sp[id]) + "|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc00500|r Health\n+ |cffffcc00500|r Mana\n+ |cffffcc00100|r Spell Power\n+ |cffffcc0010|r Health Regeneration\n+ |cffffcc0010|r Mana Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Infused Enlightenment|r: Every |cffffcc0045|r seconds gains |cffff000050 Health|r, |cff8080ff50 Mana|r, |cff00ffff5 Spell Power|r, |cff00ff000.25 Health Regeneration|r and |cff8080ff0.25 Mana Regeneration|r permanently.\n\nHealth Bonus: |cffff0000" + I2S(hp[id]) + "|r\nMana Bonus: |cff0000ff" + I2S(mp[id]) + "|r\nHealth Regen Bonus: |cff00ff00" + N2S(hr[id], 2) + "|r\nMana Regen Bonus: |cff00ffff"  + N2S(mr[id], 2) + "|r\nSpell Power Bonus: |cff0080ff" + I2S(sp[id]) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
             if UnitHasItemOfType(unit, code) then
-                set hp[index] = hp[index] + 500
-                set mp[index] = mp[index] + 500
-                set hr[index] = hr[index] + 10
-                set mr[index] = mr[index] + 10
-                set sp[index] = sp[index] + 10
+                set hp[index] = hp[index] + 50
+                set mp[index] = mp[index] + 50
+                set hr[index] = hr[index] + 0.25
+                set mr[index] = mr[index] + 0.25
+                set sp[index] = sp[index] + 5
 
                 call AddUnitBonus(unit, BONUS_HEALTH, 50)
                 call AddUnitBonus(unit, BONUS_MANA, 50)
