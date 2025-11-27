@@ -27,7 +27,7 @@ scope SorcererStaff
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc0050|r Spell Power\n+ |cffffcc008%|r Spell Vamp\n+ |cffffcc0015|r Intelligence\n+ |cffffcc00300|r Health\n\n|cff00ff00Passive|r: |cffffcc00Sorcerer Trait|r: After casting an ability, |cff00ffffSpell Power|r is increased by |cff00ffff10|r for |cffffcc0015|r seconds.\n\nCurrent Spell Power Bonus: |cff0080ff" + N2S(bonus[id], 0) + "|r"
+            return "|cffffcc00Gives|r:\n+ |cffffcc0050|r Spell Power\n+ |cffffcc008%%|r Spell Vamp\n+ |cffffcc0015|r Intelligence\n+ |cffffcc00300|r Health\n\n|cff00ff00Passive|r: |cffffcc00Sorcerer Trait|r: After casting an ability, |cff00ffffSpell Power|r is increased by |cff00ffff10|r for |cffffcc0015|r seconds.\n\nCurrent Spell Power Bonus: |cff00ffff" + N2S(bonus[id], 0) + "|r"
         endmethod
 
         private static method onCast takes nothing returns nothing
