@@ -227,26 +227,20 @@ library MirrorImage requires RegisterPlayerUnitEvent, Spell, NewBonus, Modules, 
                 call SetPlayerHandicapXP(owner, GetPlayerHandicapXP(owner) - GetBonusExp())
                 call SetUnitOwner(killed, PLAYER_EXTRA, true)
                 call ShowUnit(killed, false)
+                call SetUnitBonus(killed, BONUS_LIFE_STEAL, 0)
+                call SetUnitBonus(killed, BONUS_SPELL_VAMP, 0)
+                call SetUnitBonus(killed, BONUS_MISS_CHANCE, 0)
+                call SetUnitBonus(killed, BONUS_SPELL_POWER, 0)
+                call SetUnitBonus(killed, BONUS_EVASION_CHANCE, 0)
+                call SetUnitBonus(killed, BONUS_CRITICAL_CHANCE, 0)
+                call SetUnitBonus(killed, BONUS_CRITICAL_DAMAGE, 0)
+
+                set source[id] = 0
             endif
             
             set i = null
             set owner = null
             set killed = null
-        endmethod
-
-        private static method onIndex takes nothing returns nothing
-            local unit u = GetIndexUnit()
-            local integer id = GetUnitUserData(u)
-
-            set source[id] = 0
-
-            call SetUnitBonus(u, BONUS_LIFE_STEAL, 0)
-            call SetUnitBonus(u, BONUS_SPELL_VAMP, 0)
-            call SetUnitBonus(u, BONUS_MISS_CHANCE, 0)
-            call SetUnitBonus(u, BONUS_SPELL_POWER, 0)
-            call SetUnitBonus(u, BONUS_EVASION_CHANCE, 0)
-            call SetUnitBonus(u, BONUS_CRITICAL_CHANCE, 0)
-            call SetUnitBonus(u, BONUS_CRITICAL_DAMAGE, 0)
         endmethod
 
         private static method onDeindex takes nothing returns nothing
@@ -272,7 +266,6 @@ library MirrorImage requires RegisterPlayerUnitEvent, Spell, NewBonus, Modules, 
 
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
-            call RegisterUnitIndexEvent(function thistype.onIndex)
             call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterUnitDeindexEvent(function thistype.onDeindex)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
