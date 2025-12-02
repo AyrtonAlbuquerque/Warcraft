@@ -227,13 +227,6 @@ library MirrorImage requires RegisterPlayerUnitEvent, Spell, NewBonus, Modules, 
                 call SetPlayerHandicapXP(owner, GetPlayerHandicapXP(owner) - GetBonusExp())
                 call SetUnitOwner(killed, PLAYER_EXTRA, true)
                 call ShowUnit(killed, false)
-                call SetUnitBonus(killed, BONUS_LIFE_STEAL, 0)
-                call SetUnitBonus(killed, BONUS_SPELL_VAMP, 0)
-                call SetUnitBonus(killed, BONUS_MISS_CHANCE, 0)
-                call SetUnitBonus(killed, BONUS_SPELL_POWER, 0)
-                call SetUnitBonus(killed, BONUS_EVASION_CHANCE, 0)
-                call SetUnitBonus(killed, BONUS_CRITICAL_CHANCE, 0)
-                call SetUnitBonus(killed, BONUS_CRITICAL_DAMAGE, 0)
 
                 set source[id] = 0
             endif

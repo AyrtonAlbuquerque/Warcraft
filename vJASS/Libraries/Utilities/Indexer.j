@@ -21,11 +21,11 @@ library Indexer
                 set unit = source
                 
                 if key > - 1 then
-                    set id = array[key]
-                    set array[key] = 0
+                    call SetUnitUserData(unit, array[key])
                     set key = key - 1
                 else
                     set id = id + 1
+                    call SetUnitUserData(unit, id)
                 endif
                 
                 if GetUnitAbilityLevel(unit, ability) == 0 then
@@ -34,7 +34,6 @@ library Indexer
                     call BlzUnitDisableAbility(unit, ability, true, true)
                 endif
 
-                call SetUnitUserData(unit, id)
                 call TriggerEvaluate(onIndex)
                 
                 set unit = null

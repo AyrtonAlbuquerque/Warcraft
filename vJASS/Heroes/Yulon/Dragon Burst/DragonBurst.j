@@ -14,7 +14,7 @@ library DragonBurst requires Spell, Utilities, CrowdControl optional NewBonus
         // The Model
         private constant string  MODEL            = "DragonBurst.mdl"
         // The model scale
-        private constant real    SCALE            = 0.75
+        private constant real    SCALE            = 1.
         // The knock back model
         private constant string  KNOCKBACK_MODEL  = "WindBlow.mdl"
         // The knock back attachment point
@@ -28,7 +28,7 @@ library DragonBurst requires Spell, Utilities, CrowdControl optional NewBonus
 
     // The Center AOE for Knock Up
     private function GetCenterAoE takes unit source, integer level returns real
-         return 100. + 0.*level
+         return 150. + 0.*level
     endfunction
 
     // The Damage dealt
@@ -38,6 +38,11 @@ library DragonBurst requires Spell, Utilities, CrowdControl optional NewBonus
         else
             return 100. + 50.*level
         endif
+    endfunction
+
+    // The bonus damage taken from the center
+    private function GetBonusDamage takes unit source, integer level returns real
+        return 0.2 + 0.2*level
     endfunction
 
     // The Knock Up duration
@@ -65,7 +70,7 @@ library DragonBurst requires Spell, Utilities, CrowdControl optional NewBonus
     /* -------------------------------------------------------------------------- */
     private struct DragonBurst extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Yu'lon|r creates an eruption at the target location, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r damage to all nearby enemy units. Units at the center of the eruption are |cffffcc00Knocked Up|r for |cffffcc00" + N2S(GetKnockUpDuration(source, level), 2) + "|r seconds and units further away from the center are |cffffcc00Knocked Back|r away from the center."
+            return "|cffffcc00Yu'lon|r creates an eruption at the target location, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage to all enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r and |cffffcc00Knocking Back|r. Units at the center of the eruption are |cffffcc00Knocked Up|r for |cffffcc00" + N2S(GetKnockUpDuration(source, level), 2) + "|r seconds and take |cffffcc00" + N2S(GetBonusDamage(source, level)*100, 0) + "%|r more damage."
         endmethod
         
         private method onCast takes nothing returns nothing
@@ -79,6 +84,7 @@ library DragonBurst requires Spell, Utilities, CrowdControl optional NewBonus
             local real aoe = GetAoE(Spell.source.unit, Spell.level)
             local real damage = GetDamage(Spell.source.unit, Spell.level)
             local real center = GetCenterAoE(Spell.source.unit, Spell.level)
+            local real bonus = GetBonusDamage(Spell.source.unit, Spell.level)
             
             call DestroyEffect(AddSpecialEffectEx(MODEL, Spell.x, Spell.y, 0, SCALE))
             call GroupEnumUnitsInRange(g, Spell.x, Spell.y, aoe, null)
@@ -92,10 +98,12 @@ library DragonBurst requires Spell, Utilities, CrowdControl optional NewBonus
                         set angle = AngleBetweenCoordinates(Spell.x, Spell.y, x, y)
                         set distance = DistanceBetweenCoordinates(Spell.x, Spell.y, x, y)
                         
-                        if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                            if distance > center then
+                        if distance > center then
+                            if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                                 call KnockbackUnit(u, angle, aoe - distance, GetKnockBackDuration(Spell.source.unit, Spell.level), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
-                            else
+                            endif
+                        else
+                            if UnitDamageTarget(Spell.source.unit, u, damage * (1 + bonus), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                                 call KnockupUnit(u, height, GetKnockUpDuration(Spell.source.unit, Spell.level), null, null, false)
                             endif
                         endif
@@ -112,4 +120,4 @@ library DragonBurst requires Spell, Utilities, CrowdControl optional NewBonus
             call RegisterSpell(thistype.allocate(), ABILITY)
         endmethod
     endstruct
-endlibrary
+endlibrary  

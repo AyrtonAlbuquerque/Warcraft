@@ -29,9 +29,9 @@ library WhirlwindSpin requires Spell, Utilities, CrowdControl, Modules optional 
     // The Damage dealt
     private function GetDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 50. + 50. * level + (0.9 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 75. + 75. * level + (0.9 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
-            return 50. + 50. * level
+            return 75. + 75. * level
         endif
     endfunction
 
