@@ -3,10 +3,10 @@ scope RadiantHelmet
 		static constant integer code = 'I08C'
 
 		// Attributes
-        real mana = 10000
-        real health = 20000
-        real strength = 250
-        real healthRegen = 500
+        real mana = 600
+        real health = 1000
+        real strength = 200
+        real healthRegen = 30
 
         private static real array regen
         private static integer array cooldown
@@ -24,7 +24,7 @@ scope RadiantHelmet
 		endmethod
 	
 		private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc0010000|r Mana\n+ |cffffcc0020000|r Health\n+ |cffffcc00500|r Health Regeneration\n+ |cffffcc00250|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Radiant Strength|r: |cff00ff00Health Regeneration|r is increased by |cffffcc00" + N2S(regen[id], 0) + "|r.\n\n|cff00ff00Passive|r: |cffffcc00Resilient Attempt|r: When your Hero life drops below |cffffcc0050%%|r, |cffffcc00Radiant Strength|r effect is amplified to |cffffcc00100%%|r for |cffffcc0020|r seconds. |cffffcc0090|r seconds cooldown.\n\nCooldown: |cffffcc00" + N2S(R2I(cooldown[id]/10), 0) + "|r"
+			return "|cffffcc00Gives|r:\n+ |cffffcc00600|r Mana\n+ |cffffcc001000|r Health\n+ |cffffcc0030|r Health Regeneration\n+ |cffffcc0020|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Radiant Strength|r: |cff00ff00Health Regeneration|r is increased by |cffffcc00" + N2S(regen[id], 0) + "|r.\n\n|cff00ff00Passive|r: |cffffcc00Resilient Attempt|r: When |cffff0000Health|r drops below |cffffcc0050%%|r, |cffffcc00Radiant Strength|r effect is amplified to |cffffcc0050%%|r for |cffffcc0020|r seconds. |cffffcc0090|r seconds cooldown.\n\nCooldown: |cffffcc00" + N2S(R2I(cooldown[id]/10), 0) + "|r"
         endmethod
 
 		private method onPeriod takes nothing returns boolean
@@ -35,7 +35,7 @@ scope RadiantHelmet
 				endif
 
 				if cooldown[index] >= 0 and cooldown[index] < 700 then
-					set regen[index] = GetHeroStr(unit, true)*0.5
+					set regen[index] = GetHeroStr(unit, true) * 0.25
 
 					if effect != null then
 						call DestroyEffect(effect)
@@ -44,7 +44,7 @@ scope RadiantHelmet
 
 					call SetWidgetLife(unit, GetWidgetLife(unit) + regen[index]*0.1)
 				else
-					set regen[index] = GetHeroStr(unit, true)
+					set regen[index] = GetHeroStr(unit, true) * 0.5
 					call SetWidgetLife(unit, GetWidgetLife(unit) + regen[index]*0.1)
 				endif
 

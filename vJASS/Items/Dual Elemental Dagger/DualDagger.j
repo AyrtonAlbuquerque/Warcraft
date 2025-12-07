@@ -4,10 +4,10 @@ scope DualDagger
         static constant integer ability = 'A00Z'
 
         // Attributes
-        real damage = 500
-        real evasion = 0.25
-        real lifeSteal = 0.25
-        real spellPower = 250
+        real damage = 40
+        real evasion = 0.2
+        real lifeSteal = 0.2
+        real spellPower = 80
 
         private static integer array amount
         private static boolean array state
@@ -42,7 +42,7 @@ scope DualDagger
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc00500|r Damage\n+ |cffffcc00250|r Spell Power\n+ |cffffcc0025%%|r Evasion\n+ |cffffcc0025%%|r Life Steal\n\n|cff00ff00Active|r: |cffffcc00Dual Wield|r: When used, the |cffffcc00Dual Elemental Dagger|r switch between |cffff0000Burning|r and |cff8080ffFreezing|r Mode.\n\n|cff00ff00Passive|r: |cffffcc00Burn or Freeze|r: When |cffffcc00Dual Elemental Dagger|r is in |cffff0000Burning|r mode, all attacked enemy units take |cff00ffff" + N2S(amount[id], 0) + " Magic|r damage per second for |cffffcc003|r seconds. When its in |cff8080ffFreezing|r mode, all attacked enemy units have theirs |cffffcc00Movement Speed and Attack Speed|r reduced by |cffffcc0050%%|r for |cffffcc005|r seconds."
+            return "|cffffcc00Gives|r:\n+ |cffffcc0040|r Damage\n+ |cffffcc0080|r Spell Power\n+ |cffffcc0020%%|r Evasion\n+ |cffffcc0020%%|r Life Steal\n\n|cff00ff00Active|r: |cffffcc00Dual Wield|r: When used, the |cffffcc00Dual Elemental Dagger|r switch between |cffff0000Burning|r and |cff8080ffFreezing|r Mode.\n\n|cff00ff00Passive|r: |cffffcc00Burn or Freeze|r: When |cffffcc00Dual Elemental Dagger|r is in |cffff0000Burning|r mode, all attacked enemy units take |cff00ffff" + N2S(amount[id], 0) + " Magic|r damage per second for |cffffcc003|r seconds. When its in |cff8080ffFreezing|r mode, all attacked enemy units have theirs |cffffcc00Movement Speed|r and |cffffcc00Attack Speed|r reduced by |cffffcc0050%%|r for |cffffcc003|r seconds."
         endmethod
 
         private method onDrop takes unit u, item i returns nothing
@@ -66,7 +66,7 @@ scope DualDagger
             local thistype this
 
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure then
-                set amount[Damage.source.id] = R2I(250 + GetUnitBonus(Damage.source.unit, BONUS_DAMAGE)*0.1)
+                set amount[Damage.source.id] = R2I((50 + 5 * Damage.source.level) + (0.1 * GetUnitBonus(Damage.source.unit, BONUS_DAMAGE)) + (0.15 * GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER)))
                 set freeze[Damage.source.id] = state[Damage.source.id]
 
                 if freeze[Damage.source.id] then

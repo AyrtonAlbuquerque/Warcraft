@@ -4,9 +4,9 @@ scope LegendaryBladeII
 		static constant real step = 2.5*0.017453
 
 		// Attributes
-        real damage = 1250
-        real attackSpeed = 1
-        real spellPower = 750
+        real damage = 50
+        real attackSpeed = 0.4
+        real spellPower = 70
 
 		private static real array amount
 		private static integer array attack
@@ -101,8 +101,8 @@ scope LegendaryBladeII
 								set missile.source = Damage.source.unit
 								set missile.target = Damage.target.unit
 								set missile.speed = 1000.
-								set missile.arc = 5.
-								set missile.damage = amount[Damage.source.id] * 3
+								set missile.arc = 5. * bj_DEGTORAD
+								set missile.damage = amount[Damage.source.id]
 								set missile.type = i
 
 								if i == 0 then

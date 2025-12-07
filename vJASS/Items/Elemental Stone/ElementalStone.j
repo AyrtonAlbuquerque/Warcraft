@@ -3,13 +3,14 @@ scope ElementalStone
 		static constant integer code = 'I093'
 
 		// Attributes
-        real mana = 30000
-        real health = 30000
-        real manaRegen = 750
-        real healthRegen = 750
+        real mana = 1000
+        real health = 1000
+        real manaRegen = 15
+        real healthRegen = 25
 
         private static integer array bonus
 		private static integer array stacks
+		private static integer array counter
 	
 		private unit unit
 		private player player
@@ -23,14 +24,14 @@ scope ElementalStone
 		endmethod
 	
 		private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc0030000|r Mana\n+ |cffffcc0030000|r Health\n+ |cffffcc00750|r Health Regeneration\n+ |cffffcc00750|r Mana Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Income|r: While carrying |cffffcc00Elemental Stone|r, every second grants |cffffcc00" + I2S(250 + 1*stacks[id]) + " Gold|r. Every enemy unit killed grants a stack, increasing the income by |cffffcc001|r. Hero Kills grants |cffffcc0050|r Stacks.\n\nStacks: |cffffcc00" + I2S(stacks[id]) + "|r\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r"
+			return "|cffffcc00Gives|r:\n+ |cffffcc001000|r Mana\n+ |cffffcc001000|r Health\n+ |cffffcc0025|r Health Regeneration\n+ |cffffcc0015|r Mana Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Income|r: While carrying |cffffcc00Elemental Stone|r, every second grants (|cffffcc005|r + |cffffcc001|r x |cffffcc00Stacks|r) |cffffcc00Gold|r. Every |cffffcc0010|r enemy units killed grants a stack, increasing the income by |cffffcc001|r. Hero Kills grants |cffffcc005|r Stacks.\n\nStacks: |cffffcc00" + I2S(stacks[id]) + "|r\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r"
         endmethod
 
 		private method onPeriod takes nothing returns boolean
 			local integer amount
 
 			if UnitHasItemOfType(unit, code)  then
-				set amount = 250 + stacks[index]
+				set amount = 5 + stacks[index]
 				set bonus[index] = bonus[index] + amount
 
 				call AddPlayerGold(player, amount)
@@ -62,9 +63,14 @@ scope ElementalStone
 	
 			if UnitHasItemOfType(killer, code) and IsUnitEnemy(killed, GetOwningPlayer(killer)) then
 				if IsUnitType(killed, UNIT_TYPE_HERO) then
-					set stacks[index] = stacks[index] + 50
+					set stacks[index] = stacks[index] + 5
 				else
-					set stacks[index] = stacks[index] + 1
+					set counter[index] = counter[index] + 1
+
+					if counter[index] >= 10 then
+						set counter[index] = 0
+						set stacks[index] = stacks[index] + 1
+					endif
 				endif
 			endif
 	

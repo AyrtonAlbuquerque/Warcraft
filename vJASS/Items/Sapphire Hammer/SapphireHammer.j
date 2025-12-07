@@ -5,9 +5,9 @@ scope SapphireHammer
         static constant string point = "overhead"
 	
 		// Attributes
-        real damage = 750
-        real strength = 500
-        real spellPower = 400
+        real damage = 45
+        real strength = 25
+        real spellPower = 45
 
 		private static integer array bonus
 	
@@ -16,13 +16,13 @@ scope SapphireHammer
 	
 		method destroy takes nothing returns nothing
             set unit = null
-            set bonus[index] = bonus[index] - 10
+            set bonus[index] = bonus[index] - 1
 
             call deallocate()
 		endmethod
 	
 		private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc00750|r Damage\n+ |cffffcc00400|r Spell Power\n+ |cffffcc00500|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Cleave|r: Melee attacks cleave within |cffffcc00350 AoE|r, dealing |cffffcc0045%%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Unstopable Momentum|r: Every attack increases |cffff0000Strength|r by |cffffcc0010|r for |cffffcc0060|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Shattering Blow|r: Every attack has |cffffcc0020%%|r chance to shatter the earth around the target, dealing |cff00ffff" + N2S((GetHeroStr(u, true)*0.5), 0) + " Magic|r damage and stunning all enemy units within |cffffcc00400 AoE|r for |cffffcc003|r seconds |cffffcc00(1 for Heroes)|r and Healing the Hero for the same amount.\n\nStrength Bonus: |cffffcc00" + I2S(bonus[id]) + "|r"
+			return "|cffffcc00Gives:|r\n+ |cffffcc0045|r Damage\n+ |cffffcc0045|r Spell Power\n+ |cffffcc0025|r Strength\n\n|cff00ff00Passive|r: |cffffcc00Cleave|r: Melee attacks cleave within |cffffcc00350 AoE|r, dealing |cffffcc0045%%|r of damage dealt.\n\n|cff00ff00Passive|r: |cffffcc00Unstopable Momentum|r: Every attack increases |cffff0000Strength|r by |cffffcc001|r  for |cffffcc0030|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Shattering Blow|r: Every attack has |cffffcc0020%%|r chance to shatter the earth around the target, dealing |cff00ffff" + N2S((GetHeroStr(u, true) * 0.5), 0) + " Magic|r damage and stunning all enemy units within |cffffcc00400 AoE|r for |cffffcc003|r seconds (|cffffcc001|r for Heroes) and healing for the same amount.\n\nStrength Bonus: |cffffcc00" + I2S(bonus[id]) + "|r"
         endmethod
 	
 		private static method onDamage takes nothing returns nothing
@@ -38,14 +38,14 @@ scope SapphireHammer
 				set this = thistype.allocate(0)
 				set unit = Damage.source.unit
 				set index = Damage.source.id
-				set bonus[Damage.source.id] = bonus[Damage.source.id] + 10
+				set bonus[Damage.source.id] = bonus[Damage.source.id] + 1
 	
 				call StartTimer(60, false, this, -1)
-				call AddUnitBonusTimed(Damage.source.unit, BONUS_STRENGTH, 10, 60)
+				call AddUnitBonusTimed(Damage.source.unit, BONUS_STRENGTH, 1, 30)
                 call DestroyEffect(AddSpecialEffectTarget("HealRed.mdx", Damage.source.unit, "origin"))
 	
 				if GetRandomReal(1, 100) <= 20 then
-					set damage = GetHeroStr(Damage.source.unit, true)*0.5
+					set damage = Damage.source.strength * 0.5
 					set heal = damage
                     set g = CreateGroup()
 	

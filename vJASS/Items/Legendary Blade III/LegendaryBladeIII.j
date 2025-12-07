@@ -4,9 +4,9 @@ scope LegendaryBladeIII
 		static constant real step = 2.5*0.017453
 
 		// Attributes
-        real damage = 1500
-        real attackSpeed = 1.5
-        real spellPower = 1000
+        real damage = 50
+        real attackSpeed = 0.5
+        real spellPower = 100
 
 		private static integer array attack
 		private static real array amount
@@ -29,7 +29,7 @@ scope LegendaryBladeIII
 		endmethod	
 
 		private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc001500|r Damage\n+ |cffffcc001000|r Spell Power\n+ |cffffcc00150%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Flaming Blade|r: Every |cffffcc004|r attacks a fireball will strike the target dealing |cffffcc003x your last damage dealt over 2 seconds|r.\n\n|cff00ff00Passive|r: |cffffcc00Holy Blade|r: Every |cffffcc004|r attacks a lightball will strike the target dealing the same amount of damage of your last damage dealt by a basic attack and will heal the carrier by |cffffcc003x|r that amount.\n\n|cff00ff00Passive|r: |cffffcc00Water Bolt|r: Every |cffffcc004|r attacks a water bolt will strike the target dealing |cff00ffff" + N2S(1000, 0) + " Magic|r damage and will slow the target by |cffffcc0030%|r for |cffffcc001,5|r seconds."
+            return "|cffffcc00Gives:|r\n+ |cffffcc0050|r Damage\n+ |cffffcc00100|r Spell Power\n+ |cffffcc0050%%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Flaming Blade|r: Every |cffffcc004|r attacks a fireball will strike the target dealing |cffffcc003x your last damage dealt over 2 seconds|r.\n\n|cff00ff00Passive|r: |cffffcc00Holy Blade|r: Every |cffffcc004|r attacks a lightball will strike the target dealing the same amount of damage of your last damage dealt by a basic attack and will heal the carrier by |cffffcc001.2x|r that amount.\n\n|cff00ff00Passive|r: |cffffcc00Water Bolt|r: Every |cffffcc004|r attacks a water bolt will strike the target dealing |cff00ffff" + N2S(150 + 5 * GetWidgetLevel(u) + (0.025 * GetWidgetLevel(u) * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + " Magic|r damage and will slow the target by |cffffcc0030%%|r for |cffffcc001,5|r seconds."
         endmethod
 
 		private method onPeriod takes nothing returns boolean
@@ -109,8 +109,8 @@ scope LegendaryBladeIII
 								set missile.source = Damage.source.unit
 								set missile.target = Damage.target.unit
 								set missile.speed = 1000.
-								set missile.arc = 5.
-								set missile.damage = amount[Damage.source.id] * 3
+								set missile.arc = 5. * bj_DEGTORAD
+								set missile.damage = amount[Damage.source.id]
 								set missile.type = i
 
 								if i == 0 then
@@ -119,7 +119,7 @@ scope LegendaryBladeIII
 									set missile.model  = "Abilities\\Spells\\Other\\HealingSpray\\HealBottleMissile.mdl"
 								else
 									set missile.model  = "Abilities\\Weapons\\WaterElementalMissile\\WaterElementalMissile.mdl"
-									set missile.damage = 1000
+									set missile.damage = 150 + 5 * Damage.source.level + (0.025 * Damage.source.level * GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER))
 								endif
 			
 								call missile.launch()

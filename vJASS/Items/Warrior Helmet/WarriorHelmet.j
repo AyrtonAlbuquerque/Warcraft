@@ -38,7 +38,7 @@ scope WarriorHelmet
         endmethod
 
         method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc007|r Strength\n+ |cffffcc005|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Overheal|r: When Hero's life drops below |cffffcc0050%|r, |cff00ff00Health Regeneration|r is increased by |cffffcc0020 Hp/s|r for |cffffcc0015|r seconds.\n\nCooldown: |cffffcc00" + R2I2S(WarriorHelmet.cooldown[id]) + "|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc007|r Strength\n+ |cffffcc005|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Overheal|r: When Hero's life drops below |cffffcc0050%%|r, |cff00ff00Health Regeneration|r is increased by |cffffcc0020 Hp/s|r for |cffffcc0015|r seconds.\n\nCooldown: |cffffcc00" + R2I2S(WarriorHelmet.cooldown[id]) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean

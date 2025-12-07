@@ -2,12 +2,12 @@ scope Weaver
     struct Weaver extends Item
         static constant integer code = 'I08U'
 
-        real mana = 15000
-        real health = 15000
-        real manaRegen = 250
-        real healthRegen = 250
-        real intelligence = 500
-        real spellPower = 750
+        real mana = 800
+        real health = 800
+        real manaRegen = 15
+        real healthRegen = 15
+        real intelligence = 20
+        real spellPower = 150
 
         private static method onCast takes nothing returns nothing
             local unit caster = GetTriggerUnit()

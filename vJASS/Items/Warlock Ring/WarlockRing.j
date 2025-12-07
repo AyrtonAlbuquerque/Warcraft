@@ -2,26 +2,49 @@ scope WarlockRing
     struct WarlockRing extends Item
         static constant integer code = 'I09C'
 
-        real mana = 25000
-        real health = 15000
-        real manaRegen = 750
-        real intelligence = 500
+        real mana = 1000
+        real health = 800
+        real manaRegen = 20
+        real intelligence = 25
 
-        private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc0025000|r Mana\n+ |cffffcc0015000|r Health\n+ |cffffcc00750|r Mana Regeneration\n+ |cffffcc00500|r Intelligence\n\n|cff00ff00Passive|r: |cffffcc00Arcane Power|r: All |cff00ffffMagic|r damage dealt is amplified by |cff00ffff" + R2I2S((GetHeroInt(u, true) * 0.5)) + "|r."
+        private unit unit
+        private real bonus
+
+        method destroy takes nothing returns nothing
+            call deallocate()
+
+            set unit = null
         endmethod
 
-        private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
+        private method onPeriod takes nothing returns boolean
+            local integer count = UnitCountItemOfType(unit, code)
 
-            if UnitHasItemOfType(Damage.source.unit, code) and damage > 0 then
-                set damage = damage + GetHeroInt(Damage.source.unit, true)*0.5
-                call BlzSetEventDamage(damage) 
+			call AddUnitBonus(unit, BONUS_SPELL_POWER, -bonus)
+
+            if count > 0 then
+                set bonus = GetUnitBonus(unit, BONUS_SPELL_POWER) * 0.25 * count
+
+                call AddUnitBonus(unit, BONUS_SPELL_POWER, bonus)
             endif
-        endmethod  
+
+			return count > 0
+		endmethod
+
+        private method onPickup takes unit u, item i returns nothing
+            local integer id = GetUnitUserData(u)
+
+            if not HasStartedTimer(id) then
+                set this = thistype.allocate(0)
+                set unit = u
+                set bonus = 0
+
+                call StartTimer(1, true, this, id)
+            endif
+        endmethod 
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
-            call RegisterSpellDamageEvent(function thistype.onDamage)
             call RegisterItem(allocate(code), SphereOfDarkness.code, MoonchantRing.code, 0, 0, 0)
         endmethod
     endstruct

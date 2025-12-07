@@ -2,9 +2,10 @@ scope RedemptionSword
     private struct LightWave extends Missile
         method onUnit takes unit hit returns boolean
             if IsUnitEnemy(hit, owner) and UnitAlive(hit) and not IsUnitType(hit, UNIT_TYPE_STRUCTURE) then
-                call UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_MAGIC, null)
-                call DestroyEffect(AddSpecialEffectTarget("HolyLight_2.mdx", hit, "origin"))
-                call SetWidgetLife(source, GetWidgetLife(source) + damage)
+                if UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
+                    call DestroyEffect(AddSpecialEffectTarget("HolyLight_2.mdx", hit, "origin"))
+                    call SetWidgetLife(source, GetWidgetLife(source) + damage)
+                endif
             endif
 
             return false
@@ -16,10 +17,10 @@ scope RedemptionSword
         static integer array bonus
         static integer array attack
 
-        real damage = 1500
+        real damage = 80
+        real spellPower = 60
         real criticalChance = 0.3
-        real criticalDamage = 3
-        real spellPowerFlat = 300
+        real criticalDamage = 0.3
 
         private static method launch takes unit source, unit target, real damage returns nothing
             local real x = GetUnitX(target)
@@ -39,7 +40,7 @@ scope RedemptionSword
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc001500|r Damage\n+ |cffffcc0030%%|r Critical Strike Chance\n+ |cffffcc00300%%|r Critical Strike Damage\n+ |cffffcc00300|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Redemption Strike|r: Every |cffffcc00fourth|r attack or |cffffcc00Critical Strike|r a light wave will travel from attacked unit postion damaging enemy units in its path for |cffffcc00" + I2S(bonus[id]) + "|r damage and will heal your Hero for the same amount for every unit damaged."
+            return "|cffffcc00Gives:|r\n+ |cffffcc0080|r Damage\n+ |cffffcc0060|r Spell Power\n+ |cffffcc0030%%|r Critical Chance\n+ |cffffcc0030%%|r Critical Damage\n\n|cff00ff00Passive|r: |cffffcc00Redemption Strike|r: Every |cffffcc00fourth|r attack or |cffffcc00Critical Strike|r a light wave will travel from attacked unit postion damaging enemy units in its path for |cff00ffff" + N2S(50 + 2.5 * GetWidgetLevel(u) + 0.25 * GetUnitBonus(u, BONUS_DAMAGE), 0) + " Magic|r damage and will heal your Hero for the same amount for every units damaged."
         endmethod
 
         private static method onCritical takes nothing returns nothing
@@ -55,7 +56,7 @@ scope RedemptionSword
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = 2500 + GetUnitBonus(Damage.source.unit, BONUS_DAMAGE)*0.25
+            local real damage = 50 + 2.5 * Damage.source.level + 0.25 * GetUnitBonus(Damage.source.unit, BONUS_DAMAGE)
 
             set bonus[Damage.source.id] = R2I(damage)
 

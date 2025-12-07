@@ -3,9 +3,10 @@ scope HolyScepter
         static constant integer code = 'I09L'
 
         // Attributes
-        real manaRegen = 500
-        real intelligence = 500
-        real spellPower = 1250
+        real manaRegen = 20
+        real intelligence = 30
+        real spellPower = 125
+        real spellVamp = 0.15
 
         private static real array barrier
         

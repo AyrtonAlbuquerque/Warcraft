@@ -2,18 +2,18 @@ scope LegendaryBladeI
     struct BladeMissile extends Missile
 		method onFinish takes nothing returns boolean
 			if type == 0 then
-				// call DamageOverTimeEx(source, target, damage, 2, ATTACK_TYPE_HERO, DAMAGE_TYPE_FIRE, "Abilities\\Spells\\Other\\BreathOfFire\\BreathOfFireDamage.mdl", "origin")
+				// call DamageOverTimeEx(source, target, 3 * damage, 2, ATTACK_TYPE_HERO, DAMAGE_TYPE_FIRE, "Abilities\\Spells\\Other\\BreathOfFire\\BreathOfFireDamage.mdl", "origin")
 			elseif type == 1 then
-				call UnitDamageTarget(source, target, damage/3, true, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_DIVINE, null)
-				call SetWidgetLife(source, GetWidgetLife(source) + damage)
-				call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage)), source, 0.015)
+				call UnitDamageTarget(source, target, damage, true, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_DIVINE, null)
+				call SetWidgetLife(source, GetWidgetLife(source) + damage*1.2)
+				call ArcingTextTag.create(("|cff32cd32" + "+" + R2I2S(damage*1.2)), source, 0.015)
 				call DestroyEffect(AddSpecialEffectTarget("HolyLight.mdx", source, "origin"))
 			elseif type == 2 then
-				call UnitDamageTarget(source, target, 1000, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_DIVINE, null)
+				call UnitDamageTarget(source, target, damage, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_DIVINE, null)
 				call DestroyEffectTimed(AddSpecialEffectTarget("WaterBreathDamage.mdx", target, "chest"), 1.5)
 				call AddUnitBonusTimed(target, BONUS_MOVEMENT_SPEED, -0.3*GetUnitMoveSpeed(target), 1.5)
 			elseif type == 3 then
-				call AddUnitBonusTimed(target, BONUS_ARMOR, -50, 5.0)
+				call AddUnitBonusTimed(target, BONUS_ARMOR, -10, 5.0)
 			elseif type == 4 then
 				call AddUnitBonusTimed(source, BONUS_MOVEMENT_SPEED, 522, 3)
 				call DestroyEffectTimed(AddSpecialEffectTarget("Abilities\\Spells\\Other\\Tornado\\Tornado_Target.mdl", source, "origin"), 3)
@@ -111,7 +111,7 @@ scope LegendaryBladeI
 						set m.speed = 1000.
 						set m.arc = 5 * bj_DEGTORAD
 						set m.model = "Abilities\\Weapons\\FireBallMissile\\FireBallMissile.mdl"
-						set m.damage = amount[Damage.source.id] * 3
+						set m.damage = amount[Damage.source.id]
 						set m.type = 0
 
 						call m.launch()

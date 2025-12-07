@@ -2,9 +2,9 @@ scope BloodbourneShield
     struct BloodbourneShield extends Item
         static constant integer code = 'I08L'
 
-        real armor = 15
-        real block = 250
-        real health = 25000
+        real armor = 10
+        real block = 70
+        real health = 1200
 
         private static method onDamage takes nothing returns nothing
             local real damage = GetEventDamage()

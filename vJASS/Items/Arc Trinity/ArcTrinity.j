@@ -3,8 +3,8 @@ scope ArcTrinity
         static constant integer code = 'I0A0'
         
         // Attributes
-        real damage = 2000
-        real criticalDamage = 3
+        real damage = 150
+        real criticalDamage = 0.3
         real criticalChance = -0.3
 
         private unit unit
@@ -16,7 +16,7 @@ scope ArcTrinity
             call DestroyEffect(table.effect[1])
             call AddUnitBonus(unit, BONUS_SPELL_VAMP, -1)
             call AddUnitBonus(unit, BONUS_LIFE_STEAL, -1)
-            call AddUnitBonus(unit, BONUS_DAMAGE, -3000)
+            call AddUnitBonus(unit, BONUS_DAMAGE, -100)
             call table.destroy()
             call deallocate()
 
@@ -45,7 +45,7 @@ scope ArcTrinity
 
                     call AddUnitBonus(source, BONUS_SPELL_VAMP, 1)
                     call AddUnitBonus(source, BONUS_LIFE_STEAL, 1)
-                    call AddUnitBonus(source, BONUS_DAMAGE, 3000)
+                    call AddUnitBonus(source, BONUS_DAMAGE, 100)
                     call StartTimer(1, true, this, id)
                 endif
 

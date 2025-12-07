@@ -13,20 +13,22 @@ scope MoonScyth
         static constant integer code = 'I09I'
         static integer array stats
         static integer array amount
+        static integer array counter
 
-        real damage = 500
-        real agility = 500
-        real strength = 500
-        real intelligence = 500
-        real lifeSteal = 0.5
-        real movementSpeed = 50
+        real damage = 50
+        real agility = 25
+        real strength = 25
+        real intelligence = 25
+        real spellPower = 75
+        real lifeSteal = 0.2
+        real movementSpeed = 25
 
         static method add takes unit u, boolean hero returns nothing
             local integer id = GetUnitUserData(u)
             local integer value = 1
     
             if hero then
-                set value = 50
+                set value = 5
             endif
     
             set stats[id] = stats[id] + value
@@ -38,7 +40,7 @@ scope MoonScyth
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc00500|r All Stats\n+ |cffffcc00500|r Spell Power\n+ |cffffcc00500|r Damage\n+ |cffffcc0050|r Movement Speed\n+ |cffffcc0050%%|r Life Steal\n\n|cff00ff00Passive|r: |cffffcc00Blood Harvest|r: For every enemy unit killed, |cffff0000Strength|r,|cff00ff00 Agility|r ,|cff00ffffIntelligence|r, |cff00ffffSpell Power|r and |cff00ff00Damage|r are incresed by |cffffcc001|r permanently. Killing a enemy Hero increases |cff00ff00A|r|cff00ff1el|r|cff00ff3el|r|cff00ff5e |r|cff00ff7eS|r|cff00ff9et|r|cff00ffbea|r|cff00ffdet|r|cff00fffes|r, |cff00ffffSpell Power|r and |cff00ff00Damage|r by |cffffcc0050|r.\n\nStats Bonus: |cffffcc00" + I2S(stats[id]) + "|r\nDamage Bonus: |cffffcc00" + I2S(amount[id]) + "|r\nSpell Power Bonus: |cffffcc00" + I2S(stats[id]) + "|r"
+            return "|cffffcc00Gives|r:\n+ |cffffcc0025|r All Stats\n+ |cffffcc0075|r Spell Power\n+ |cffffcc0050|r Damage\n+ |cffffcc0025|r Movement Speed\n+ |cffffcc0020%%|r Life Steal\n\n|cff00ff00Passive|r: |cffffcc00Blood Harvest|r: Every |cffffcc004|r enemy units killed, |cffff0000Strength|r,|cff00ff00 Agility|r ,|cff00ffffIntelligence|r, |cff00ffffSpell Power|r and |cffff0000Damage|r are incresed by |cffffff001|r permanently. Killing a enemy Hero increases |cff00ff00A|r|cff00ff1el|r|cff00ff3el|r|cff00ff5e |r|cff00ff7eS|r|cff00ff9et|r|cff00ffbea|r|cff00ffdet|r|cff00fffes|r, |cff00ffffSpell Power|r and |cffff0000Damage|r by |cffffff005|r.\n\nStats Bonus: |cffffcc00" + I2S(stats[id]) + "|r\nDamage Bonus: |cffffcc00" + I2S(amount[id]) + "|r\nSpell Power Bonus: |cffffcc00" + I2S(stats[id]) + "|r"
         endmethod
 
         private static method onDeath takes nothing returns nothing
@@ -52,21 +54,41 @@ scope MoonScyth
             local SoulMissile missile
         
             if UnitHasItemOfType(killer, code) then
-                set x = GetUnitX(killer)
-                set y = GetUnitY(killer)
-                set tx = GetUnitX(killed)
-                set ty = GetUnitY(killed)
+                set x = GetUnitX(killed)
+                set y = GetUnitY(killed)
+                set tx = GetUnitX(killer)
+                set ty = GetUnitY(killer)
 
-                if DistanceBetweenCoordinates(x, y, tx, ty) <= 200 then
-                    call add(killer, IsUnitType(killed, UNIT_TYPE_HERO))
+                if IsUnitType(GetTriggerUnit(), UNIT_TYPE_HERO) then
+                    if DistanceBetweenCoordinates(tx, ty, x, y) <= 200 then
+                        call add(killer, IsUnitType(killed, UNIT_TYPE_HERO))
+                    else
+                        set missile = SoulMissile.create(x, y, GetUnitFlyHeight(killed) + 100, tx, ty, 100)
+                        set missile.target = killer
+                        set missile.speed = 1000
+                        set missile.model = "Abilities\\Weapons\\AvengerMissile\\AvengerMissile.mdl"
+                        set missile.hero = IsUnitType(killed, UNIT_TYPE_HERO)
+
+                        call missile.launch()
+                    endif
                 else
-                    set missile = SoulMissile.create(tx, ty, GetUnitFlyHeight(killed) + 100, x, y, 100)
-                    set missile.target = killer
-                    set missile.speed = 1000.
-                    set missile.model = "BloodMissile.mdx"
-                    set missile.hero = IsUnitType(killed, UNIT_TYPE_HERO)
+                    set counter[index] = counter[index] + 1
 
-                    call missile.launch()
+                    if counter[index] >= 4 then
+                        set counter[index] = 0
+
+                        if DistanceBetweenCoordinates(tx, ty, x, y) <= 200 then
+                            call add(killer, IsUnitType(killed, UNIT_TYPE_HERO))
+                        else
+                            set missile = SoulMissile.create(x, y, GetUnitFlyHeight(killed) + 100, tx, ty, 100)
+                            set missile.target = killer
+                            set missile.speed = 1000
+                            set missile.model = "Abilities\\Weapons\\AvengerMissile\\AvengerMissile.mdl"
+                            set missile.hero = IsUnitType(killed, UNIT_TYPE_HERO)
+
+                            call missile.launch()
+                        endif
+                    endif
                 endif
             endif
             

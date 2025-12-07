@@ -4,9 +4,9 @@ scope LegendaryBladeIV
 		static constant real step = 2.5*0.017453
 
 		// Attributes
-		real damage = 1750
-        real attackSpeed = 2
-        real spellPower = 1250
+		real damage = 60
+        real attackSpeed = 0.6
+        real spellPower = 125
 
 		private static integer array attack
 		private static real array amount
@@ -30,7 +30,7 @@ scope LegendaryBladeIV
 		endmethod
 	
 		private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc001750|r Damage\n+ |cffffcc001250|r Spell Power\n+ |cffffcc00200%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Flaming Blade|r: Every |cffffcc004|r attacks a fireball will strike the target dealing |cffffcc003x your last damage dealt over 2 seconds|r.\n\n|cff00ff00Passive|r: |cffffcc00Holy Blade|r: Every |cffffcc004|r attacks a lightball will strike the target dealing the same amount of damage of your last damage dealt by a basic attack and will heal the carrier by |cffffcc003x|r that amount.\n\n|cff00ff00Passive|r: |cffffcc00Water Blade|r: Every |cffffcc004|r attacks a water bolt will strike the target dealing |cff00ffff" + N2S(1000, 0) + " Magic|r damage and will slow the target by |cffffcc0030%|r for |cffffcc001,5|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Dark Blade|r: Every |cffffcc004|r attacks a dark bolt will strike the target reducing its armor by |cffffcc0050|r for |cffffcc005|r seconds."
+			return "|cffffcc00Gives:|r\n+ |cffffcc0060|r Damage\n+ |cffffcc00125|r Spell Power\n+ |cffffcc0060%%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Flaming Blade|r: Every |cffffcc004|r attacks a fireball will strike the target dealing |cffffcc003x your last damage dealt over 2 seconds|r.\n\n|cff00ff00Passive|r: |cffffcc00Holy Blade|r: Every |cffffcc004|r attacks a lightball will strike the target dealing the same amount of damage of your last damage dealt by a basic attack and will heal the carrier by |cffffcc001.2x|r that amount.\n\n|cff00ff00Passive|r: |cffffcc00Water Bolt|r: Every |cffffcc004|r attacks a water bolt will strike the target dealing |cff00ffff" + N2S(150 + 5 * GetWidgetLevel(u) + (0.025 * GetWidgetLevel(u) * GetUnitBonus(u, BONUS_SPELL_POWER)), 0) + " Magic|r damage and will slow the target by |cffffcc0030%%|r for |cffffcc001.5|r seconds.\n\n|cff00ff00Passive|r: |cffffcc00Dark Blade|r: Every |cffffcc004|r attacks a dark bolt will strike the target reducing its armor by |cffffcc0010|r for |cffffcc005|r seconds."
         endmethod
 
 		private method onPeriod takes nothing returns boolean
@@ -113,7 +113,7 @@ scope LegendaryBladeIV
 								set missile.source = Damage.source.unit
 								set missile.target = Damage.target.unit
 								set missile.speed  = 1000.
-								set missile.arc = 5.
+								set missile.arc = 5. * bj_DEGTORAD
 								set missile.damage = amount[Damage.source.id] * 3
 								set missile.type = i
 
@@ -123,10 +123,9 @@ scope LegendaryBladeIV
 									set missile.model  = "Abilities\\Spells\\Other\\HealingSpray\\HealBottleMissile.mdl"
 								elseif i == 2 then
 									set missile.model  = "Abilities\\Weapons\\WaterElementalMissile\\WaterElementalMissile.mdl"
-									set missile.damage = 1000
+									set missile.damage = 150 + 5 * Damage.source.level + (0.025 * Damage.source.level * GetUnitBonus(Damage.source.unit, BONUS_SPELL_POWER))
 								else
 									set missile.model  = "Abilities\\Spells\\Other\\BlackArrow\\BlackArrowMissile.mdl"
-									set missile.damage = 0
 								endif
 			
 								call missile.launch()

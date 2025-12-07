@@ -3,9 +3,9 @@ scope PhilosopherStone
         static constant integer code = 'I07U'
 
         // Attributes
-        real mana = 10000
-        real health = 10000
-        real healthRegen = 300
+        real mana = 800
+        real health = 800
+        real healthRegen = 20
 
         private static integer array bonus
 
@@ -22,19 +22,19 @@ scope PhilosopherStone
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc0010000|r Mana\n+ |cffffcc0010000|r Health\n+ |cffffcc00300|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Income|r: While carrying |cffffcc00Philosopher's Stone|r, every second grants |cffffcc00250 Gold|r.\n\n|cff00ff00Passive|r: |cffffcc00Eternal Life|r: Every |cffffcc00120|r seconds |cff00ff00Health Regeneration|r is increased by |cffffcc00500|r  for |cffffcc0030|r seconds.\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r"
+            return "|cffffcc00Gives|r:\n+ |cffffcc00800|r Mana\n+ |cffffcc00800|r Health\n+ |cffffcc0020|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Income|r: While carrying |cffffcc00Philosopher's Stone|r, every second grants |cffffcc005 Gold|r.\n\n|cff00ff00Passive|r: |cffffcc00Eternal Life|r: Every |cffffcc00120|r seconds |cff00ff00Health Regeneration|r is increased by |cffffcc00100|r  for |cffffcc0030|r seconds.\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
             if UnitHasItemOfType(unit, code) then
-                set bonus[index] = bonus[index] + 250
+                set bonus[index] = bonus[index] + 5
                 
-                call AddPlayerGold(player, 250)
+                call AddPlayerGold(player, 5)
 
                 if cooldown <= 0 then
                     set cooldown = 120
 
-                    call AddUnitBonusTimed(unit, BONUS_HEALTH_REGEN, 500, 30)
+                    call AddUnitBonusTimed(unit, BONUS_HEALTH_REGEN, 100, 30)
                     call DestroyEffectTimed(AddSpecialEffectTarget("GreenHeal.mdx", unit, "origin"), 30)
                 endif
 

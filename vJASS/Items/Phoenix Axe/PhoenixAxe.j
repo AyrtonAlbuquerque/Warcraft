@@ -4,9 +4,10 @@ scope PhoenixAxe
 
         method onUnit takes unit hit returns boolean
             if IsUnitEnemy(hit, owner) and UnitAlive(hit) and not IsUnitType(hit, UNIT_TYPE_STRUCTURE) then
-                call UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_CHAOS, DAMAGE_TYPE_UNIVERSAL, null)
-                if not UnitAlive(hit) then
-                    set PhoenixAxe.stacks[index] = PhoenixAxe.stacks[index] + 100
+                if UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_CHAOS, DAMAGE_TYPE_UNIVERSAL, null) then
+                    if not UnitAlive(hit) then
+                        set PhoenixAxe.stacks[index] = PhoenixAxe.stacks[index] + 1
+                    endif
                 endif
             endif
 
@@ -19,10 +20,10 @@ scope PhoenixAxe
         static integer array stacks
         private static integer array attack
 
-        real damage = 1250
+        real damage = 50
         real criticalChance = 0.25
-        real criticalDamage = 2.5
-        real spellPower = 500
+        real criticalDamage = 0.4
+        real spellPower = 50
 
         private static method launch takes unit source, unit target, real damage returns nothing
             local real x = GetUnitX(target)
@@ -42,7 +43,7 @@ scope PhoenixAxe
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc001250|r Damage\n+ |cffffcc00500|r Spell Power\n+ |cffffcc0025%%|r Critical Strike Chance\n+ |cffffcc00250%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Fire Slash|r: After hitting a Critical Strike a |cffffcc00Fire Slash|r is lauched from the attacked unit position, damaging enemy units in its path for |cffffcc00" + I2S(1000 + stacks[id]) + "|r |cffd45e19Pure|r damage. When attacking enemy Heroes, every |cffffcc00third|r attack will lauch a |cffffcc00Fire Slash|r.\n\n|cff00ff00Passive|r: |cffffcc00Slash Stacks|r: For every enemy unit killed by |cffffcc00Fire Slash|r, |cffffcc00Phoenix Axe|r gains |cffffcc001|r stack permanently, causing subsequent Slashes to deal more damage.\n\nStacks: |cffffcc00" + I2S(stacks[id] / 100) + "|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc0050|r Damage\n+ |cffffcc0050|r Spell Power\n+ |cffffcc0025%%|r Critical Chance\n+ |cffffcc0040%%|r Critical Damage\n\n|cff00ff00Passive|r: |cffffcc00Fire Slash|r: After hitting a Critical Strike a |cffffcc00Fire Slash|r is lauched from the attacked unit position, damaging enemy units in its path for |cffd45e19" + I2S(100 + 5 * GetWidgetLevel(u) + 5 * stacks[id]) + " Pure|r damage. When attacking enemy Heroes, every |cffffcc00third|r attack will lauch a |cffffcc00Fire Slash|r.\n\n|cff00ff00Passive|r: |cffffcc00Slash Stacks|r: For every enemy unit killed by |cffffcc00Fire Slash|r, |cffffcc00Phoenix Axe|r gains |cffffcc001|r stack permanently, causing subsequent |cffffcc00Fire Slash|r to deal more damage.\n\nStacks: |cffffcc00" + I2S(stacks[id]) + "|r"
         endmethod
 
         private static method onCritical takes nothing returns nothing
@@ -50,7 +51,7 @@ scope PhoenixAxe
             local unit target = GetCriticalTarget()
 
             if UnitHasItemOfType(source, code) and IsUnitEnemy(target, GetOwningPlayer(source)) then
-                call launch(source, target, 1000 + stacks[GetUnitUserData(source)])
+                call launch(source, target, 100 + 5 * GetWidgetLevel(source) + 5 * stacks[GetUnitUserData(source)])
             endif
 
             set source = null
@@ -63,7 +64,7 @@ scope PhoenixAxe
                 
                 if attack[Damage.source.id] >= 3 then
                     set attack[Damage.source.id] = 0
-                    call launch(Damage.source.unit, Damage.target.unit, 1000 + stacks[Damage.source.id])
+                    call launch(Damage.source.unit, Damage.target.unit, 100 + 5 * Damage.source.level + 5 * stacks[Damage.source.id])
                 endif
             endif
         endmethod

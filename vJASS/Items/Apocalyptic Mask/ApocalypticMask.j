@@ -3,8 +3,9 @@ scope ApocalypticMask
 		static constant integer code = 'I089'
 	
 		// Attributes
-        real damage = 1500
-        real lifeSteal = 0.5
+        real damage = 40
+		real spellPower = 40
+        real lifeSteal = 0.2
 
 		private unit unit
 		private integer index
@@ -19,7 +20,7 @@ scope ApocalypticMask
 			set duration = duration - 1
 
 			if duration == 0 then
-				call AddUnitBonus(unit, BONUS_ARMOR, 25)
+				call AddUnitBonus(unit, BONUS_ARMOR, 10)
 			endif
 
 			return duration > 0
@@ -37,7 +38,7 @@ scope ApocalypticMask
 					set index = Damage.target.id
 	
 					call StartTimer(1, true, this, index)
-					call AddUnitBonus(unit, BONUS_ARMOR, -25)
+					call AddUnitBonus(unit, BONUS_ARMOR, -10)
 				endif
 	
 				set duration = 10

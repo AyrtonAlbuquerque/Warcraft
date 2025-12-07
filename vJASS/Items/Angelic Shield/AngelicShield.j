@@ -5,21 +5,21 @@ scope AngelicShield
         static constant integer ability = 'A01I'
 
         real armor = 20
-        real health = 50000
+        real health = 2000
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc0050000|r Health\n+ |cffffcc00500|r Damage Block\n+ |cffffcc0020|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Guardian Angel|r: |cffffcc00Damage Block|r increases by |cffffcc00100|r  for every |cffffcc0010%%|r of missing health. In addition, overblocked damage heals your Hero.\n\n|cff00ff00Active|r: |cffffcc00Sanctified Zone|r: When activated, all allied units within |cffffcc00800 AoE|r becomes immune to all damage, and all the damage your Hero takes during this time is evenly distributed amongst allied units within range. Lasts |cffffcc0015|r seconds.\n\nDamage Block: |cffffcc00" + R2I2S(500 + (10 * R2I(100 - GetUnitLifePercent(u)))) + "|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc0050000|r Health\n+ |cffffcc00500|r Damage Block\n+ |cffffcc0020|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Guardian Angel|r: |cffffcc00Damage Block|r increases by |cffffcc0010|r for every |cffffcc0010%|r of missing health. In addition, overblocked damage heals your Hero.\n\n|cff00ff00Active|r: |cffffcc00Sanctified Zone|r: When activated, all allied units within |cffffcc00800 AoE|r becomes immune to all damage, and all the damage your Hero takes during this time is evenly distributed amongst allied units within range. Lasts |cffffcc0015|r seconds.\n\nDamage Block: |cffffcc00" + R2I2S(100 + R2I(100 - GetUnitLifePercent(u))) + "|r"
         endmethod
 
         private static method onDamage takes nothing returns nothing
             local real heal          
             local group g1
             local group g2
-            local unit  v
+            local unit v
 
             if Damage.amount > 0 then
                 if UnitHasItemOfType(Damage.target.unit, code) and Damage.isAttack then
-                    set Damage.amount = Damage.amount - (500 + (10 * R2I(100 - GetUnitLifePercent(Damage.target.unit))))
+                    set Damage.amount = Damage.amount - (100 + R2I(100 - GetUnitLifePercent(Damage.target.unit)))
                 endif
 
                 if GetUnitAbilityLevel(Damage.target.unit, buff) > 0 then
@@ -30,7 +30,7 @@ scope AngelicShield
                     set g1 = CreateGroup()
                     set g2 = CreateGroup()
 
-                    call GroupEnumUnitsInRange(g1, Damage.target.x, Damage.target.y, 900, null)
+                    call GroupEnumUnitsInRange(g1, Damage.target.x, Damage.target.y, 800, null)
 
                     loop
                         set v = FirstOfGroup(g1)

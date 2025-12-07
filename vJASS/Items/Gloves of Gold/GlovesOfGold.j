@@ -6,7 +6,7 @@ scope GlovesOfGold
         real attackSpeed = 1.25
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:\n+ |cffffcc00125%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Hand of Midas|r: Every attack has |cffffcc001%|r chance to turn |cffff0000non-Hero|r targets into a pile of |cffffcc00gold|r equivalent to |cffffcc0020%|r |cffff0000Max Health|r.|r\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r"
+            return "|cffffcc00Gives:\n+ |cffffcc00125%%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Hand of Midas|r: Every attack has |cffffcc001%%|r chance to turn |cffff0000non-Hero|r targets into a pile of |cffffcc00gold|r equivalent to |cffffcc0020%%|r |cffff0000Max Health|r.|r\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r"
         endmethod
 
         private static method onDamage takes nothing returns nothing

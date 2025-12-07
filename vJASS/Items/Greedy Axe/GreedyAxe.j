@@ -26,7 +26,7 @@ scope GreedyAxe
 
         // Attributes
         real damage = 45
-        real criticalDamage = 1
+        real criticalDamage = 0.2
         real criticalChance = 0.25
 
         private static integer array bonus
@@ -42,7 +42,7 @@ scope GreedyAxe
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc0045|r Damage\n+ |cffffcc0025%%|r Critical Chance\n+ |cffffcc00100%%|r Critical Damage\n\n|cff00ff00Passive|r: |cffffcc00Pillage|r: After hitting a critical strike, for the next |cffffcc003 |rseconds, the Hero gains |cffffcc0050%% |rAttack Speed bonus and every attack grants |cffffcc00Gold|r equal to |cffffcc002.5%% (25%% against Heroes)|r of the damage dealt.\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc0045|r Damage\n+ |cffffcc0025%%|r Critical Chance\n+ |cffffcc0020%%|r Critical Damage\n\n|cff00ff00Passive|r: |cffffcc00Pillage|r: After hitting a critical strike, for the next |cffffcc003 |rseconds, the Hero gains |cffffcc0050%% |rAttack Speed bonus and every attack grants |cffffcc00Gold|r equal to |cffffcc002.5%% (25%% against Heroes)|r of the damage dealt.\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean

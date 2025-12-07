@@ -3,8 +3,8 @@ scope Doombringer
         static constant integer code = 'I083'
 
         // Attributes    
-        real damage = 1250
-        real criticalDamage = 2
+        real damage = 75
+        real criticalDamage = 0.3
         real criticalChance = 0.2
 
         private static HashTable table
@@ -14,12 +14,12 @@ scope Doombringer
         private integer index
         
         method destroy takes nothing returns nothing
-            set bonus[index] = bonus[index] - 1250
+            set bonus[index] = bonus[index] - 75
             call deallocate()
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc001250|r Damage\n+ |cffffcc0020%%|r Critical Strike Chance\n+ |cffffcc00200%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Death's Blow|r: Every |cffffcc00fifth|r attack is a guaranteed Critical Strike with |cffffcc00200%%|r Critical Damage Bonus within |cffffcc00400 AoE|r. If |cffffcc00Death's Blow|r kills the attacked enemy unit, damage is increased by |cffffcc001250|r for |cffffcc0010|r seconds.\n\nBonus Damage: |cffffcc00" + I2S(bonus[id]) + "|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc0075|r Damage\n+ |cffffcc0020%%|r Critical Strike Chance\n+ |cffffcc0030%%|r Critical Strike Damage\n\n|cff00ff00Passive|r: |cffffcc00Death's Blow|r: Every |cffffcc00fifth|r attack is a guaranteed |cffff0000Critical Strike|r with |cffffcc0050%%|r |cffff0000Critical Damage|r bonus within |cffffcc00300 AoE|r. If |cffffcc00Death's Blow|r kills the attacked enemy unit, damage is increased by |cffffcc0075|r for |cffffcc0010|r seconds\n\nBonus Damage: |cffffcc00" + I2S(bonus[id]) + "|r"
         endmethod
 
         private static method onCritical takes nothing returns nothing
@@ -39,13 +39,14 @@ scope Doombringer
                 set damage = GetCriticalDamage()
                 set attack[idx] = -1
 
-                call UnitAddCriticalStrike(source, -100, -2)
+                call AddUnitBonus(source, BONUS_CRITICAL_CHANCE, -1)
+                call AddUnitBonus(source, BONUS_CRITICAL_DAMAGE, -0.5)
                 call DestroyEffect(AddSpecialEffectTarget("Damnation Orange.mdx", target, "origin"))
                 call DestroyEffect(table[id].effect[0])
                 call DestroyEffect(table[id].effect[1])
                 call table.remove(id)
 
-                call GroupEnumUnitsInRange(g, GetUnitX(target), GetUnitY(target), 400, null)
+                call GroupEnumUnitsInRange(g, GetUnitX(target), GetUnitY(target), 300, null)
 
                 loop
                     set v = FirstOfGroup(g)
@@ -61,10 +62,10 @@ scope Doombringer
                 if damage > GetWidgetLife(target) then
                     set this = thistype.allocate(0)
                     set index = idx
-                    set bonus[idx] = bonus[idx] + 1250
+                    set bonus[idx] = bonus[idx] + 75
 
                     call StartTimer(10, false, this, -1)
-                    call AddUnitBonusTimed(source, BONUS_DAMAGE, 1250, 10)
+                    call AddUnitBonusTimed(source, BONUS_DAMAGE, 75, 10)
                 endif
             endif
 
@@ -83,7 +84,7 @@ scope Doombringer
                     set table[Damage.source.handle].effect[1] = AddSpecialEffectTarget("Sweep_Fire_Small.mdx", Damage.source.unit, "hand right")
 
                     call AddUnitBonus(Damage.source.unit, BONUS_CRITICAL_CHANCE, 1)
-                    call AddUnitBonus(Damage.source.unit, BONUS_CRITICAL_DAMAGE, 2)
+                    call AddUnitBonus(Damage.source.unit, BONUS_CRITICAL_DAMAGE, 0.5)
                 endif
             endif
         endmethod

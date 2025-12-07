@@ -3,10 +3,10 @@ scope SwordOfDomination
         static constant integer code = 'I09X'
         static integer array attack
 
-        real damage = 2000
+        real damage = 85
+        real spellPower = 70
         real criticalChance = 0.35
-        real criticalDamage = 3.5
-        real spellPower = 500
+        real criticalDamage = 0.35
 
         private static method onDamage takes nothing returns nothing
             local group g
