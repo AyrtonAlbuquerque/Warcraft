@@ -41,7 +41,7 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
 
     // The Bullet damage.
     private function GetDamage takes integer level, unit source returns real
-        return (5. + 5.*level) + (0.25 * level) * GetUnitBonus(source, BONUS_DAMAGE)
+        return (5. + 5.*level) + (0.1 * level) * GetUnitBonus(source, BONUS_DAMAGE)
     endfunction
 
     // The Bullet collision.
@@ -63,12 +63,12 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
     private function GetManaCost takes unit source, integer level returns real
         static if LIBRARY_ArsenalUpgrade then
             if GetUnitAbilityLevel(source, ArsenalUpgrade_ABILITY) > 0 then
-                return 0.5 + 0.*level
+                return 0.5 * level
             else
-                return 1. + 0.*level
+                return 1. * level
             endif
         else
-            return 1. + 0.*level
+            return 1. * level
         endif
     endfunction
 
@@ -99,6 +99,7 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
         private integer id
         private real prevX
         private real prevY
+        private real window
         private real facing
         private player player
 
@@ -106,6 +107,7 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
             call AddUnitAnimationProperties(unit, "spin", false)
             call QueueUnitAnimation(unit, "Stand Ready")
             call IssueImmediateOrderById(unit, 852590)
+            call SetUnitPropWindowBJ(unit, window)
             call UnitRemoveAbility(unit, 'Abun')
             call deallocate()
 
@@ -179,6 +181,7 @@ library Overkill requires Spell, RegisterPlayerUnitEvent, Missiles, Utilities, M
                 set id = Spell.source.id
                 set prevX = Spell.source.x
                 set prevY = Spell.source.y
+                set window = GetUnitPropWindow(unit) * bj_RADTODEG
                 set facing = GetUnitFacing(unit) * bj_DEGTORAD
                 set player = Spell.source.player
 
