@@ -24,7 +24,7 @@ scope SakuraBlade
 		endmethod
     
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc001000|r Damage\n+ |cffffcc00100%%|r Movement Speed\n+ |cffffcc00400%%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Sakura Fall|r: |cffffcc00Movement Speed|r, |cffffcc00Attack Speed|r and |cffff0000Damage|r provided by Sakura Blade also affect allied units.|r\n\n|cff00ff00Passive|r: |cffffcc00Sakura Lamina|r: For every allied Hero within |cffffcc00800 AoE|r, the damage provided by |cffffcc00Sakura Blade|r is increased by |cffffcc00250|r.\n\nBonus Damage: |cffffcc00" + I2S(250*bonus[id]) + "|r"
+            return "|cffffcc00Gives|r:\n+ |cffffcc00100|r Damage\n+ |cffffcc0025%%|r Movement Speed\n+ |cffffcc00200%%|r Attack Speed\n\n|cff00ff00Passive|r: |cffffcc00Sakura Fall|r: |cffffcc00Movement Speed|r, |cffffcc00Attack Speed|r and |cffff0000Damage|r provided by Sakura Blade also affect allied units.|r\n\n|cff00ff00Passive|r: |cffffcc00Sakura Lamina|r: For every allied Hero within |cffffcc00800 AoE|r, the damage provided by |cffffcc00Sakura Blade|r is increased by |cffffcc0025|r.\n\nBonus Damage: |cffffcc00" + I2S(100 + 25 * bonus[id]) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -46,7 +46,7 @@ scope SakuraBlade
                 if i != bonus[index] then
                     set bonus[index] = i
 
-                    call BlzSetAbilityRealLevelField(BlzGetUnitAbility(unit, aura), field, 0, (1000 + 250*bonus[index]))
+                    call BlzSetAbilityRealLevelField(BlzGetUnitAbility(unit, aura), field, 0, 100 + 25 * bonus[index])
                     call IncUnitAbilityLevel(unit, aura)
                     call DecUnitAbilityLevel(unit, aura)
                 endif
@@ -59,18 +59,17 @@ scope SakuraBlade
 
         private method onPickup takes unit u, item i returns nothing
             local integer id = GetUnitUserData(u)
-            local thistype self
     
             if not HasStartedTimer(id) then
-                set self = thistype.allocate(0)
-                set self.unit = u
-                set self.index = id
-                set self.group = CreateGroup()
-                set self.player = GetOwningPlayer(u)
+                set this = thistype.allocate(0)
+                set unit = u
+                set index = id
+                set group = CreateGroup()
+                set player = GetOwningPlayer(u)
 
                 call UnitAddAbility(u, aura)
                 call BlzUnitHideAbility(u, aura, true)
-                call StartTimer(0.25, true, self, id)
+                call StartTimer(0.25, true, this, id)
             endif
         endmethod
 

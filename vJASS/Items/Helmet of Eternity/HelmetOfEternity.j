@@ -3,10 +3,10 @@ scope HelmetOfEternity
 		static constant integer code = 'I0AI'
 
 		// Attributes
-		real mana = 15000
-        real health = 30000
-        real strength = 500
-        real healthRegen = 1000
+		real mana = 1000
+        real health = 1500
+        real strength = 30
+        real healthRegen = 50
 
 		private unit unit
 		private integer type
@@ -22,9 +22,11 @@ scope HelmetOfEternity
 	
 		private method onPeriod takes nothing returns boolean
 			local real percentage
-			
+
 			if UnitHasItemOfType(unit, code) then
 				set percentage = GetUnitLifePercent(unit)
+
+				call SetWidgetLife(unit, GetWidgetLife(unit) + 2 * R2I(100 - percentage))
 
 				if percentage > 75 then
 					if type != 0 then
@@ -33,24 +35,18 @@ scope HelmetOfEternity
 						set type = 0
 					endif
 				elseif percentage > 50 and percentage <= 75 then
-					call SetWidgetLife(unit, GetWidgetLife(unit) + 50)
-
 					if type != 1 then
 						call DestroyEffect(effect)
 						set effect = AddSpecialEffectTarget("Radiance_Crimson.mdx", unit, "chest")
 						set type = 1
 					endif
 				elseif percentage > 25 and percentage <= 50 then
-					call SetWidgetLife(unit, GetWidgetLife(unit) + 100)
-
 					if type != 2 then
 						call DestroyEffect(effect)
 						set effect = AddSpecialEffectTarget("Radiance_Nature.mdx", unit, "chest")
 						set type = 2
 					endif
 				elseif percentage <= 25 then
-					call SetWidgetLife(unit, GetWidgetLife(unit) + 150)
-
 					if type != 3 then
 						call DestroyEffect(effect)
 						set effect = AddSpecialEffectTarget("Radiance_Holy.mdx", unit, "chest")
@@ -66,15 +62,14 @@ scope HelmetOfEternity
 	
 		private method onPickup takes unit u, item i returns nothing
 			local integer id = GetUnitUserData(u)
-			local thistype self
 	
 			if not HasStartedTimer(id) then
-				set self = thistype.allocate(0)
-				set self.unit = u
-				set self.type = 0
-				set self.effect = AddSpecialEffectTarget("Radiance_Royal.mdx", u, "chest")
+				set this = thistype.allocate(0)
+				set unit = u
+				set type = 0
+				set effect = AddSpecialEffectTarget("Radiance_Royal.mdx", u, "chest")
 
-				call StartTimer(0.1, true, self, id)
+				call StartTimer(0.1, true, this, id)
 			endif
 		endmethod
 
