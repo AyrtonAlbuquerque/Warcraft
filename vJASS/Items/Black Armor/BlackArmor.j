@@ -10,7 +10,7 @@ scope BlackArmor
         real health = 1500
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc001500|r Health\n+ |cffffcc0015|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Damage Reduction|r: All damage taken is reduced by |cffffcc0020%|r.\n\n|cff00ff00Passive|r: |cffffcc00Spiked Plate|r: When being attacked, returns |cffd45e19" + N2S(5 * GetWidgetLevel(u) + BlzGetUnitArmor(u), 0) + " Pure|r damage.\n\n|cff00ff00Passive|r: |cffffcc00Impenetrable|r: All damage reduced by |cffffcc00Damage Reduction|r effect is stored. When all damage stored reaches |cffffcc005000|r |cff808080Armor|r is increased by |cffffcc001|r permanently.\n\nArmor Bonus: |cffffcc00" + I2S(defense[id]) + "|r\nDamage Reduced: |cffffcc00" + R2I2S(stored[id]) + "|r"
+            return "|cffffcc00Gives|r:\n+ |cffffcc001500|r Health\n+ |cffffcc0015|r Armor\n\n|cff00ff00Passive|r: |cffffcc00Damage Reduction|r: All damage taken is reduced by |cffffcc0020%%|r.\n\n|cff00ff00Passive|r: |cffffcc00Spiked Plate|r: When being attacked, returns |cffd45e19" + N2S(5 * GetWidgetLevel(u) + BlzGetUnitArmor(u), 0) + " Pure|r damage.\n\n|cff00ff00Passive|r: |cffffcc00Impenetrable|r: All damage reduced by |cffffcc00Damage Reduction|r effect is stored. When all damage stored reaches |cffffcc005000|r |cff808080Armor|r is increased by |cffffcc001|r permanently.\n\nArmor Bonus: |cffffcc00" + I2S(defense[id]) + "|r\nDamage Reduced: |cffffcc00" + R2I2S(stored[id]) + "|r"
         endmethod
 
         private static method onDamage takes nothing returns nothing

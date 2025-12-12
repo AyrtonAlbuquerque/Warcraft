@@ -9,6 +9,22 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
         method onTooltip takes unit source, integer level, ability spell returns string defaults null
     endinterface
 
+    private module Initializer
+        private static method onInit takes nothing returns nothing
+            set struct = Table.create()
+            set sources = Unit.create(null)
+            set targets = Unit.create(null)
+            set learned = HashTable.create()
+
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function thistype.onLearning)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST, function thistype.onStarting)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCasting)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, function thistype.onEnding)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_FINISH, function thistype.onFinishing)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, function thistype.onChanneling)
+        endmethod
+    endmodule
+
     struct Spell extends ISpell
         private static Table struct
         private static HashTable learned
@@ -283,19 +299,7 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
             endif
         endmethod
 
-        private static method onInit takes nothing returns nothing
-            set struct = Table.create()
-            set sources = Unit.create(null)
-            set targets = Unit.create(null)
-            set learned = HashTable.create()
-
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function thistype.onLearning)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST, function thistype.onStarting)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onCasting)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_ENDCAST, function thistype.onEnding)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_FINISH, function thistype.onFinishing)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CHANNEL, function thistype.onChanneling)
-        endmethod
+        implement Initializer
     endstruct
 
     /* ----------------------------------------------------------------------------------------- */
