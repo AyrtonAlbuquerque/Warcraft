@@ -46,11 +46,11 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
     // The base damage of each element
     private function GetDamage takes integer unitId, integer level, unit source returns integer
         if unitId == STORM then
-            return R2I(25 + 0*level + GetUnitBonus(source, BONUS_DAMAGE)*0.8)
+            return R2I(25 * level + GetUnitBonus(source, BONUS_DAMAGE)*0.8)
         elseif unitId == EARTH then
-            return R2I(100 + 0*level + GetUnitBonus(source, BONUS_DAMAGE)*0.5)
+            return R2I(100 * level + GetUnitBonus(source, BONUS_DAMAGE)*0.5)
         else  
-            return R2I(75 + 0*level + GetUnitBonus(source, BONUS_DAMAGE)*1.5)
+            return R2I(75 * level + GetUnitBonus(source, BONUS_DAMAGE)*1.5)
         endif
     endfunction
 
@@ -67,7 +67,12 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
 
     // The attack damage block for Earth spitir
     private function GetDamageBlock takes integer level returns real
-        return 25. * level
+        return 50. * level + GetUnitBonus(null, BONUS_DAMAGE_BLOCK)
+    endfunction
+
+    // The Immolation damage
+    private function GetImmolationDamage takes unit source, integer level returns real
+        return 75. * level + (0.1 * level * GetUnitBonus(source, BONUS_SPELL_POWER))
     endfunction
 
     /* -------------------------------------------------------------------------- */
@@ -129,6 +134,9 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
                         call SetUnitBonus(u, BONUS_SPELL_POWER, GetUnitBonus(unit, BONUS_SPELL_POWER))
                         call SetUnitLifePercentBJ(u, 100)
                         call SetUnitManaPercentBJ(u, 100)
+                        call BlzSetAbilityRealLevelField(BlzGetUnitAbility(u, IMMOLATION), ABILITY_RLF_DAMAGE_PER_INTERVAL, level - 1, GetImmolationDamage(unit, level))
+                        call IncUnitAbilityLevel(u, IMMOLATION)
+                        call DecUnitAbilityLevel(u, IMMOLATION)
                     endif
                 call GroupRemoveUnit(group, u)
             endloop

@@ -42,9 +42,9 @@ library Fissure requires Spell, Missiles, Utilities, CrowdControl, optional NewB
     // The damage
     private function GetDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 150. * level + 1.5 * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 250. * level + 1.5 * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
-            return 150. * level
+            return 250. * level
         endif
     endfunction
 

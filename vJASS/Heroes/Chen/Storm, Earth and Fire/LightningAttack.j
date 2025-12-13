@@ -20,21 +20,21 @@ library LightningAttack requires DamageInterface, Utilities, Spell, Utilities op
 
     // The number of bounces
     private function GetBounces takes integer level returns integer
-        return 3 + 0*level
+        return 4 + 0*level
     endfunction
 
     // The damage per bounce
     private function GetDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 50. * level + (0.2 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 150. * level + (0.2 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
-            return 50. * level
+            return 150. * level
         endif
     endfunction
 
     // The search range of bouncing lightning
     private function GetAoE takes integer level returns real
-        return 300. + 0.*level
+        return 400. + 0.*level
     endfunction
     
     /* -------------------------------------------------------------------------- */
