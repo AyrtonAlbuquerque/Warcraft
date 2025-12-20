@@ -25,9 +25,9 @@ library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules opti
     // The amount of damage dealt in a second
     private function GetDamagePerSecond takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 150. * level + (0.2 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 300. * level + (0.2 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
-            return 150. * level
+            return 300. * level
         endif
     endfunction
 
@@ -133,6 +133,8 @@ library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules opti
                     call IssueImmediateOrder(unit, "stop")
                     set struct[id] = 0
                 else
+                    set tide.damage = GetDamagePerSecond(unit, level) * Missile.period
+
                     call AddUnitMana(unit, -cost)
                     call tide.deflect(GetPlayerMouseX(player), GetPlayerMouseY(player), 0)
                     call BlzSetUnitFacingEx(unit, AngleBetweenCoordinates(x, y, tide.x, tide.y)*bj_RADTODEG)

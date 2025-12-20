@@ -21,9 +21,9 @@ library CrushingWave requires Spell, Missiles, Utilities, CrowdControl optional 
     // The wave damage
     private function GetDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 50. + 50.*level + (0.15 + 0.15*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 100. + 100.*level + (0.15 + 0.15*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
-            return 50. + 50.*level
+            return 100. + 100.*level
         endif
     endfunction
 

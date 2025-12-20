@@ -11,7 +11,7 @@ library ManaOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageInt
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the ability
-        private constant integer ABILITY        = 'Jna4'
+        private constant integer ABILITY        = 'Jna8'
         // The raw code of the level 1 buff
         private constant integer BUFF_1         = 'BJn0'
         // The raw code of the level 2 buff
@@ -132,23 +132,21 @@ library ManaOrb requires RegisterPlayerUnitEvent, Utilities, NewBonus, DamageInt
 
             set duration = duration - PERIOD
 
-            if duration > 0 then
-                call GroupEnumUnitsInRange(group, x, y, range, null)
+            call GroupEnumUnitsInRange(group, x, y, range, null)
 
-                loop
-                    set u = FirstOfGroup(group)
-                    exitwhen u == null
-                        if UnitPickupFilter(player, u) then
-                            call AddUnitBonus(u, BONUS_MANA, bonus)
-                            call DestroyEffect(AddSpecialEffectTarget(EFFECT, u, ATTACH))
-                            
-                            return false
-                        endif
-                    call GroupRemoveUnit(group, u)
-                endloop
-            endif
+            loop
+                set u = FirstOfGroup(group)
+                exitwhen u == null
+                    if UnitPickupFilter(player, u) then
+                        call AddUnitBonus(u, BONUS_MANA, bonus)
+                        call DestroyEffect(AddSpecialEffectTarget(EFFECT, u, ATTACH))
+                        
+                        set u = null
 
-            set u = null
+                        return false
+                    endif
+                call GroupRemoveUnit(group, u)
+            endloop
 
             return duration > 0
         endmethod

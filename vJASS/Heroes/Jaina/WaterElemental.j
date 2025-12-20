@@ -25,12 +25,12 @@ library WaterElemental requires Spell, NewBonus, Indexer, Utilities
 
     // The unit health
     private function GetHealth takes unit source, integer level returns integer
-        return 600 + R2I(0.3 * BlzGetUnitMaxHP(source)) + R2I(1.5 + 0.5*level * GetUnitBonus(source, BONUS_SPELL_POWER))
+        return 800 + R2I(0.3 * BlzGetUnitMaxHP(source)) + R2I(1.5 + 0.5*level * GetUnitBonus(source, BONUS_SPELL_POWER))
     endfunction
 
     // The unit armor
     private function GetArmor takes unit source, integer level returns real
-        return 1. + GetUnitBonus(source, BONUS_ARMOR)
+        return 3. + GetUnitBonus(source, BONUS_ARMOR)
     endfunction
 
     // The unit duration
