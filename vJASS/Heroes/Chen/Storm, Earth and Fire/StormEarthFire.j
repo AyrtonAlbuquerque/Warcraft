@@ -14,9 +14,9 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
         // The raw code of Storm unit
         private constant integer STORM         = 'uch1'
         // The raw code of Earth unit
-        private constant integer EARTH         = 'uch2'
+        private constant integer EARTH         = 'uch0'
         // The raw code of Fire unit
-        private constant integer FIRE          = 'uch0'
+        private constant integer FIRE          = 'uch2'
         // The raw code Fire Immolation ability
         private constant integer IMMOLATION    = 'ChnA'
     endglobals
@@ -126,7 +126,6 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
                         call SetUnitManaPercentBJ(u, 100)
                     elseif id == FIRE then
                         call SetUnitAbilityLevel(u, BreathOfFire_ABILITY, GetUnitAbilityLevel(unit, BreathOfFire_ABILITY))
-                        call SetUnitAbilityLevel(u, IMMOLATION, level)
                         call BlzSetUnitMaxHP(u, GetHealth(id, level, unit))
                         call BlzSetUnitMaxMana(u, GetMana(id, level, unit))
                         call BlzSetUnitBaseDamage(u, GetDamage(id, level, unit), 0)
@@ -134,9 +133,9 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
                         call SetUnitBonus(u, BONUS_SPELL_POWER, GetUnitBonus(unit, BONUS_SPELL_POWER))
                         call SetUnitLifePercentBJ(u, 100)
                         call SetUnitManaPercentBJ(u, 100)
-                        call BlzSetAbilityRealLevelField(BlzGetUnitAbility(u, IMMOLATION), ABILITY_RLF_DAMAGE_PER_INTERVAL, level - 1, GetImmolationDamage(unit, level))
-                        call IncUnitAbilityLevel(u, IMMOLATION)
-                        call DecUnitAbilityLevel(u, IMMOLATION)
+                        call BlzSetAbilityRealLevelField(BlzGetUnitAbility(u, IMMOLATION), ABILITY_RLF_DAMAGE_PER_INTERVAL, 0, GetImmolationDamage(unit, level))
+                        call BlzUnitDisableAbility(u, IMMOLATION, true, true)
+                        call BlzUnitDisableAbility(u, IMMOLATION, false, false)
                     endif
                 call GroupRemoveUnit(group, u)
             endloop
@@ -149,7 +148,7 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
             set level = Spell.level
             set group = CreateGroup()
 
-            call StartTimer(0, false, this, -1)
+            call StartTimer(1, false, this, 0)
         endmethod
 
         implement Periodic
