@@ -22,9 +22,9 @@ library Stampede requires Spell, Missiles, Utilities, Modules, CrowdControl, opt
     // The amount of damage dealt when a boar hits an enemy
     private function GetDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 25. * level + 0.2 * level * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 125. * level + (0.2 * level * GetUnitBonus(source, BONUS_SPELL_POWER)) + ((0.8 + 0.2 * level) * GetHeroStr(source, true))
         else
-            return 25. * level
+            return 125. * level
         endif
     endfunction
 

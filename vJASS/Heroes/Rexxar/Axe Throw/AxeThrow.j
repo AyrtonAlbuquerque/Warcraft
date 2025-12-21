@@ -46,7 +46,7 @@ library AxeThrow requires Spell, Missiles, Utilities, CrowdControl optional NewB
     // The missile damage
     private function GetDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 50. + 50. * level + 0.8 * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 50. + 50. * level + ((0.4 + 0.1 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)) + ((0.4 + 0.1 * level) * GetUnitBonus(source, BONUS_DAMAGE))
         else
             return 50. + 50. * level
         endif
