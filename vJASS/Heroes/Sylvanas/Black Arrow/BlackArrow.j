@@ -36,23 +36,23 @@ library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Uti
     endfunction
 
     // The melee sketelon health amount
-    private function GetSkeletonWarriorHealth takes integer level, unit source returns integer
-        return R2I(50 * (level + 6) + BlzGetUnitMaxHP(source) * 0.15)
+    private function GetSkeletonWarriorHealth takes integer level, unit source, unit target returns integer
+        return R2I((50 * (level + 6)) + (BlzGetUnitMaxHP(source) * 0.15) + (0.15 * level * BlzGetUnitMaxHP(target)))
     endfunction
 
     // The melee sketelon damage amount
-    private function GetSkeletonWarriorDamage takes integer level, unit source returns integer
-        return R2I(5 * (level + 3) + GetUnitBonus(source, BONUS_DAMAGE) * 0.15)
+    private function GetSkeletonWarriorDamage takes integer level, unit source, unit target returns integer
+        return R2I((5 * (level + 3)) + (GetUnitBonus(source, BONUS_DAMAGE) * 0.15) + (0.15 * level * BlzGetUnitBaseDamage(target, 0)) + (0.15 * level * GetUnitBonus(target, BONUS_DAMAGE)))
     endfunction
 
     // The ranged sketelon health amount
-    private function GetSkeletonArcherHealth takes integer level, unit source returns integer
-        return R2I(50 * (level + 3) + BlzGetUnitMaxHP(source) * 0.15)
+    private function GetSkeletonArcherHealth takes integer level, unit source, unit target returns integer
+        return R2I((50 * (level + 3)) + (BlzGetUnitMaxHP(source) * 0.15) + (0.15 * level * BlzGetUnitMaxHP(target)))
     endfunction
 
     // The ranged sketelon damage amount
-    private function GetSkeletonArcherDamage takes integer level, unit source returns integer
-        return R2I(5 * (level + 6) + GetUnitBonus(source, BONUS_DAMAGE) * 0.15)
+    private function GetSkeletonArcherDamage takes integer level, unit source, unit target returns integer
+        return R2I((5 * (level + 6)) + (GetUnitBonus(source, BONUS_DAMAGE) * 0.15) + (0.15 * level * BlzGetUnitBaseDamage(target, 0)) + (0.15 * level * GetUnitBonus(target, BONUS_DAMAGE)))
     endfunction
 
     // The sketelon duration
@@ -66,13 +66,13 @@ library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Uti
     endfunction
 
     // The elite sketelon health amount
-    private function GetEliteHealth takes integer level, unit source returns integer
-        return R2I(50 * (level + 11) + BlzGetUnitMaxHP(source) * 0.33)
+    private function GetEliteHealth takes integer level, unit source, unit target returns integer
+        return R2I((50 * (level + 11)) + (BlzGetUnitMaxHP(source) * 0.33) + (0.2 * level * BlzGetUnitMaxHP(target)))
     endfunction
 
     // The elite sketelon damage amount
-    private function GetEliteDamage takes integer level, unit source returns integer
-        return R2I(5 * (level + 11) + GetUnitBonus(source, BONUS_DAMAGE) * 0.33)
+    private function GetEliteDamage takes integer level, unit source, unit target returns integer
+        return R2I((5 * (level + 11)) + (GetUnitBonus(source, BONUS_DAMAGE) * 0.33) + (0.2 * level * BlzGetUnitBaseDamage(target, 0)) + (0.2 * level * GetUnitBonus(target, BONUS_DAMAGE)))
     endfunction
 
     // The elite sketelon duration
@@ -88,6 +88,11 @@ library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Uti
     // The Max amount of Elites a unit can have before going into cooldown
     private function GetMaxEliteCount takes integer level returns integer
         return 1 + level
+    endfunction
+
+    // The minimum level for normal units to spawn elites
+    private constant function GetMinLevel takes nothing returns integer
+        return 6
     endfunction
 
     /* -------------------------------------------------------------------------- */
@@ -123,7 +128,7 @@ library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Uti
         endmethod
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "Increases |cffffcc00Sylvanas|r damage by |cffff0000" + N2S(GetBonusDamage(source, level), 0) + "|r and apply a curse on attacked units. If a cursed unit dies a |cffffcc00Skeleton Warrior|r will be spawnmed in its location lasting for |cffffcc00" + N2S(GetSkeletonDuration(level), 0) + "|r seconds. Attacking an enemy Hero |cffffcc005|r times while |cffffcc00Black Arrows|r is active creates an |cffffcc00Elite Skeleton Warrior|r at the target location. Max |cffffcc00" + N2S(GetMaxEliteCount(level), 0) + " Elite Warriors|r with |cffffcc00" + N2S(GetEliteCountReset(level), 0) + "|r seconds cooldown."
+            return "Increases |cffffcc00Sylvanas|r damage by |cffff0000" + N2S(GetBonusDamage(source, level), 0) + "|r and apply a curse on attacked units. If a cursed unit dies a |cffffcc00Skeleton Warrior|r will be spawnmed in its location lasting for |cffffcc00" + N2S(GetSkeletonDuration(level), 0) + "|r seconds. Attacking an enemy Hero or High Level Unit |cffffcc005|r times while |cffffcc00Black Arrows|r is active creates an |cffffcc00Elite Skeleton Warrior|r at the target location. Max |cffffcc00" + N2S(GetMaxEliteCount(level), 0) + " Elite Warriors|r with |cffffcc00" + N2S(GetEliteCountReset(level), 0) + "|r seconds cooldown."
         endmethod
 
         private static method onDamage takes nothing returns nothing
@@ -137,7 +142,7 @@ library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Uti
                 set source[Damage.target.id] = Damage.source.unit
                 set Damage.amount = Damage.amount + GetBonusDamage(Damage.source.unit, level)
 
-                if Damage.target.isHero then
+                if Damage.target.isHero or Damage.target.level >= GetMinLevel() then
                     set counter[Damage.source.id] = counter[Damage.source.id] + 1
 
                     if counter[Damage.source.id] >= 5 then
@@ -147,8 +152,8 @@ library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Uti
                             set elite[Damage.source.id] = elite[Damage.source.id] + 1 
                             set u = CreateUnit(owner[Damage.target.id], SKELETON_ELITE, Damage.target.x, Damage.target.y, 0)
 
-                            call BlzSetUnitMaxHP(u, GetEliteHealth(level, source[Damage.target.id]))
-                            call BlzSetUnitBaseDamage(u, GetEliteDamage(level, source[Damage.target.id]), 0)
+                            call BlzSetUnitMaxHP(u, GetEliteHealth(level, source[Damage.target.id], Damage.target.unit))
+                            call BlzSetUnitBaseDamage(u, GetEliteDamage(level, source[Damage.target.id], Damage.target.unit), 0)
                             call SetUnitLifePercentBJ(u, 100)
                             call UnitApplyTimedLife(u, 'BTLF', GetEliteDuration(level))
                             call SetUnitAnimation(u, "Birth")
@@ -163,6 +168,7 @@ library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Uti
                         endif
                     endif
                 endif
+
                 call UnitAddAbilityTimed(Damage.target.unit, BLACK_ARROW_CURSE, GetCurseDuration(level), level, true)
             endif
 
@@ -203,13 +209,13 @@ library BlackArrow requires Spell, DamageInterface, RegisterPlayerUnitEvent, Uti
                 if IsUnitType(killed, UNIT_TYPE_RANGED_ATTACKER) then
                     set u = CreateUnit(owner[i], SKELETON_ARCHER, GetUnitX(killed), GetUnitY(killed), 0)
 
-                    call BlzSetUnitMaxHP(u, GetSkeletonArcherHealth(level, source[i]))
-                    call BlzSetUnitBaseDamage(u, GetSkeletonArcherDamage(level, source[i]), 0)
+                    call BlzSetUnitMaxHP(u, GetSkeletonArcherHealth(level, source[i], killed))
+                    call BlzSetUnitBaseDamage(u, GetSkeletonArcherDamage(level, source[i], killed), 0)
                 else
                     set u = CreateUnit(owner[i], SKELETON_WARRIOR, GetUnitX(killed), GetUnitY(killed), 0)
 
-                    call BlzSetUnitMaxHP(u, GetSkeletonWarriorHealth(level, source[i]))
-                    call BlzSetUnitBaseDamage(u, GetSkeletonWarriorDamage(level, source[i]), 0)
+                    call BlzSetUnitMaxHP(u, GetSkeletonWarriorHealth(level, source[i], killed))
+                    call BlzSetUnitBaseDamage(u, GetSkeletonWarriorDamage(level, source[i], killed), 0)
                 endif
                 
                 call SetUnitLifePercentBJ(u, 100)

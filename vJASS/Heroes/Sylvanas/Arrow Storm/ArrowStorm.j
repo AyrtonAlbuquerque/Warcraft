@@ -35,7 +35,7 @@ library ArrowStorm requires Spell, Utilities, Missiles, DamageInterface optional
     // The damage each arrow deals
     private function GetDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 25. + 25.*level + 0.15 * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 25. + 25.*level + (0.15 * GetUnitBonus(source, BONUS_SPELL_POWER)) + (0.1 * level * GetHeroAgi(source, true))
         else
             return 25. + 25.*level
         endif

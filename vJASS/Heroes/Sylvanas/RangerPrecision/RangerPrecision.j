@@ -29,12 +29,17 @@ library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBo
 
     // The attack count
     private function GetAttackCount takes integer level returns integer
-        return 5 - level
+        return 4 - level
     endfunction
 
     // The auto level up levels
     private function GetLevel takes integer level returns boolean
-        return level == 5 or level == 10 or level == 15 or level == 20
+        return level == 5 or level == 10 or level == 15
+    endfunction
+
+    // The minimum level for normal units to gain the bonus
+    private constant function GetMinLevel takes nothing returns integer
+        return 6
     endfunction
 
     /* -------------------------------------------------------------------------- */
@@ -49,14 +54,13 @@ library RangerPrecision requires DamageInterface, RegisterPlayerUnitEvent, NewBo
         endmethod
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "Whenever |cffffcc00Sylvanas|r kill an enemy unit or |cffffcc00attack|r an enemy |cffffcc00Hero|r her abilities with the bow and arrow improve and she gains |cff00ff00" + N2S(GetBonusAmount(level), 0) + " Agility|r for |cffffcc00" + N2S(GetBonusDuration(level), 0) + "|r seconds. Additionally every |cffffcc00" + N2S(GetAttackCount(level), 0) + "|r attacks |cffffcc00Sylvanas|r wiill shoot up to |cffffcc003|r targets at once. If |cffffcc00Black Arrows|r is active, all targets will be cursed.
-"
+            return "Whenever |cffffcc00Sylvanas|r kill an enemy unit or |cffffcc00attack|r an enemy |cffffcc00Hero|r or |cffffcc00High Level Unit|r her abilities with the bow and arrow improve and she gains |cff00ff00" + N2S(GetBonusAmount(level), 0) + " Agility|r for |cffffcc00" + N2S(GetBonusDuration(level), 0) + "|r seconds. Additionally every |cffffcc00" + N2S(GetAttackCount(level), 0) + "|r attacks |cffffcc00Sylvanas|r will shoot up to |cffffcc003|r targets at once. If |cffffcc00Black Arrows|r is active, all targets will be cursed."
         endmethod
 
         private static method onDamage takes nothing returns nothing
             local integer level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
 
-            if level > 0 and Damage.target.isHero then
+            if level > 0 and (Damage.target.isHero or Damage.target.level >= GetMinLevel()) then
                 call AddUnitBonusTimed(Damage.source.unit, BONUS_AGILITY, GetBonusAmount(level), GetBonusDuration(level))
             endif
         endmethod
