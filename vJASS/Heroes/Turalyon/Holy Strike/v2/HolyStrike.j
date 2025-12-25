@@ -28,7 +28,7 @@ library HolyStrike requires DamageInterface, Spell, NewBonus
 
     // The Holy Strike Heal
     private function GetHeal takes integer level, boolean isRanged returns real
-        local real heal = 10.*level
+        local real heal = 20.*level
 
         if isRanged then
             set heal = heal/2
@@ -40,7 +40,7 @@ library HolyStrike requires DamageInterface, Spell, NewBonus
     // The Holy Strike bonus strength per unit type
     private function GetBonus takes unit source, integer level returns integer 
         if IsUnitType(source, UNIT_TYPE_HERO) then
-            return 5 + 0*level
+            return 10 + 0*level
         else
             return 2 + 0*level
         endif

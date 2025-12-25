@@ -16,9 +16,9 @@ scope BookOfNature
                 else
                     call SetWidgetLife(Spell.source.unit, Spell.source.health + 200 + (20 * GetUnitLevel(Spell.source.unit)))
                 endif
-            endif
 
-            call DestroyEffect(AddSpecialEffectTarget(effect, Spell.source.unit, "origin"))
+                call DestroyEffect(AddSpecialEffectTarget(effect, Spell.source.unit, "origin"))
+            endif
         endmethod
 
         private static method onInit takes nothing returns nothing

@@ -32,15 +32,15 @@ library DivineSmite requires Spell, Utilities, Modules optional LightInfusion op
     private function GetDamage takes unit source, integer level, boolean infused returns real
         static if LIBRARY_NewBonus then
             if infused then
-                return 50. * level + 0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)
+                return 50. * level + (0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)) + (0.1 * level * GetHeroStr(source, true))
             else    
-                return 100. * level + (0.25 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+                return 100. * level + (0.25 * level * GetUnitBonus(source, BONUS_SPELL_POWER)) + (0.25 * level * GetHeroStr(source, true))
             endif
         else
             if infused then
-                return 50. * level
+                return 50. * level + (0.1 * level *  GetHeroStr(source, true))
             else    
-                return 100. * level
+                return 100. * level + (0.25 * level *  GetHeroStr(source, true))
             endif
         endif
     endfunction
@@ -48,7 +48,7 @@ library DivineSmite requires Spell, Utilities, Modules optional LightInfusion op
     // The Divine Smite AoE
     private function GetAoE takes unit source, integer level, boolean infused returns real
         if infused then
-            return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1) + 50*level
+            return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1) + 50 * level
         else
             return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
         endif

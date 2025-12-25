@@ -51,7 +51,7 @@ library LightBurst requires Spell, NewBonus, Utilities, CrowdControl optional Li
 
     // The Light Burst Damage
     private function GetDamage takes unit source, integer level returns real
-        return 50. + 50.*level + (0.6 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        return (100 + 100. * level) + ((0.6 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)) + (0.4 * level * GetHeroStr(source, true))
     endfunction
 
     // The Light Burst Damage Filter for enemy units
