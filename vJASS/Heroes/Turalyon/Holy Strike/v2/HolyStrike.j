@@ -69,7 +69,7 @@ library HolyStrike requires DamageInterface, Spell, NewBonus
         endmethod
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Turalyon|r provides to all nearby allied units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + " AoE|r the ability to |cffffcc00Holy Strike|r, healing |cffffcc00" + N2S(GetHeal(level, false), 0) + "|r health with every auto attack. Healing halved for ranged attacks. In addition |cffffcc00Turalyon|r gains |cffffcc002|r (|cffffcc005|r for |cffffcc00Heroes|r) |cffff0000Strength|r for every allied unit in range."
+            return "|cffffcc00Turalyon|r provides to all nearby allied units within |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) + " AoE|r the ability to |cffffcc00Holy Strike|r, healing |cffffcc00" + N2S(GetHeal(level, false), 0) + "|r health with every auto attack. Healing halved for ranged attacks. In addition |cffffcc00Turalyon|r gains |cffffcc002|r (|cffffcc0010|r for |cffffcc00Heroes|r) |cffff0000Strength|r for every allied unit in range."
         endmethod
 
         private method onPeriod takes nothing returns boolean

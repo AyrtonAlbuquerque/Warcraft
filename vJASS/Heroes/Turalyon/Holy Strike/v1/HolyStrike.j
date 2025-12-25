@@ -28,8 +28,7 @@ library HolyStrike requires DamageInterface, Ability
 
     // The Holy Strike Heal
     private function GetHeal takes integer level, boolean isRanged returns real
-        local real heal = 10.*level
-
+        local real heal = 20.*level
         if isRanged then
             set heal = heal/2
         endif
