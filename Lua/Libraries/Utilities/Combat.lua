@@ -1,4 +1,4 @@
-OnInit(function(requires)
+OnInit("Combat", function(requires)
     requires "Class"
     requires "Damage"
 

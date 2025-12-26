@@ -1,4 +1,7 @@
-OnInit(function(requires)
+---@beginFile Omnivamp
+---@debug
+---@diagnostic disable: need-check-nil
+OnInit("Omnivamp", function(requires)
     requires "Class"
     requires "Bonus"
     requires "Damage"
