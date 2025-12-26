@@ -586,6 +586,111 @@ OnInit("Utilities", function(requires)
         end)
     end
 
+    -- Replace Unit respecting Max Health, Mana, Damage and Armor values
+    function ReplaceUnit(whichUnit, newUnitId, unitStateMethod)
+        local oldUnit = whichUnit
+        local newUnit
+        local wasHidden
+        local index
+        local indexItem
+        local oldRatio
+
+        if oldUnit == null then
+            bj_lastReplacedUnit = oldUnit
+            return oldUnit
+        end
+
+        wasHidden = IsUnitHidden(oldUnit)
+        ShowUnit(oldUnit, false)
+
+        if (newUnitId == S2A('ugol')) then
+            newUnit = CreateBlightedGoldmine(GetOwningPlayer(oldUnit), GetUnitX(oldUnit), GetUnitY(oldUnit), GetUnitFacing(oldUnit))
+        else
+            newUnit = CreateUnit(GetOwningPlayer(oldUnit), newUnitId, GetUnitX(oldUnit), GetUnitY(oldUnit), GetUnitFacing(oldUnit))
+        end
+
+        if unitStateMethod == bj_UNIT_STATE_METHOD_RELATIVE then
+            if (GetUnitState(oldUnit, UNIT_STATE_MAX_LIFE) > 0) then
+                oldRatio = GetUnitState(oldUnit, UNIT_STATE_LIFE) / GetUnitState(oldUnit, UNIT_STATE_MAX_LIFE)
+                SetUnitState(newUnit, UNIT_STATE_LIFE, oldRatio * GetUnitState(newUnit, UNIT_STATE_MAX_LIFE))
+            end
+
+            if (GetUnitState(oldUnit, UNIT_STATE_MAX_MANA) > 0) and (GetUnitState(newUnit, UNIT_STATE_MAX_MANA) > 0) then
+                oldRatio = GetUnitState(oldUnit, UNIT_STATE_MANA) / GetUnitState(oldUnit, UNIT_STATE_MAX_MANA)
+                SetUnitState(newUnit, UNIT_STATE_MANA, oldRatio * GetUnitState(newUnit, UNIT_STATE_MAX_MANA))
+            end
+        elseif unitStateMethod == bj_UNIT_STATE_METHOD_ABSOLUTE then
+            BlzSetUnitMaxHP(newUnit, BlzGetUnitMaxHP(oldUnit))
+            SetUnitState(newUnit, UNIT_STATE_LIFE, GetUnitState(oldUnit, UNIT_STATE_LIFE))
+            BlzSetUnitBaseDamage(newUnit, BlzGetUnitBaseDamage(oldUnit, 0), 0)
+            BlzSetUnitArmor(newUnit, BlzGetUnitArmor(oldUnit))
+
+            if GetUnitState(newUnit, UNIT_STATE_MAX_MANA) > 0 then
+                BlzSetUnitMaxMana(newUnit, BlzGetUnitMaxMana(oldUnit))
+                SetUnitState(newUnit, UNIT_STATE_MANA, GetUnitState(oldUnit, UNIT_STATE_MANA))
+            end
+        elseif unitStateMethod == bj_UNIT_STATE_METHOD_DEFAULTS then
+            -- The newly created unit should already have default life and mana.
+        elseif unitStateMethod == bj_UNIT_STATE_METHOD_MAXIMUM then
+            BlzSetUnitMaxHP(newUnit, BlzGetUnitMaxHP(oldUnit))
+            BlzSetUnitMaxMana(newUnit, BlzGetUnitMaxMana(oldUnit))
+            BlzSetUnitBaseDamage(newUnit, BlzGetUnitBaseDamage(oldUnit, 0), 0)
+            BlzSetUnitArmor(newUnit, BlzGetUnitArmor(oldUnit))
+            SetUnitState(newUnit, UNIT_STATE_LIFE, GetUnitState(newUnit, UNIT_STATE_MAX_LIFE))
+            SetUnitState(newUnit, UNIT_STATE_MANA, GetUnitState(newUnit, UNIT_STATE_MAX_MANA))
+        else
+            -- Unrecognized unit state method - ignore the request.
+        end
+
+        SetResourceAmount(newUnit, GetResourceAmount(oldUnit))
+
+        if (IsUnitType(oldUnit, UNIT_TYPE_HERO) and IsUnitType(newUnit, UNIT_TYPE_HERO)) then
+            index = 0
+
+            SetHeroXP(newUnit, GetHeroXP(oldUnit), false)
+
+            while index < bj_MAX_INVENTORY do
+                indexItem = UnitItemInSlot(oldUnit, index)
+
+                if indexItem  then
+                    UnitRemoveItem(oldUnit, indexItem)
+                    UnitAddItem(newUnit, indexItem)
+                end
+
+                index = index + 1
+            end
+        end
+
+        if wasHidden then
+            KillUnit(oldUnit)
+            RemoveUnit(oldUnit)
+        else
+            RemoveUnit(oldUnit)
+        end
+
+        bj_lastReplacedUnit = newUnit
+
+        return newUnit
+    end
+
+    -- Creates a lightning effect between 2 units
+    function CreateLightningUnit2Unit(source, target, duration, lightningType)
+        return TimedLightning.unit2unit(source, target, duration, lightningType)
+    end
+
+    -- Creates a lightning effect between unit and point
+    function CreateLightningUnit2Point(source, x, y, z, duration, lightningType)
+        return TimedLightning.unit2point(source, x, y, z, duration, lightningType)
+    end
+
+    -- Get a unit or hero level
+    function GetWidgetLevel(unit)
+        if IsUnitType(unit, UNIT_TYPE_HERO) then
+            return GetHeroLevel(unit)
+        else
+            return GetUnitLevel(unit)
+        end
+    end
     -- -- ---------------------------------------------------------------------------------------------- --
     -- --                                             Systems                                            --
     -- -- ---------------------------------------------------------------------------------------------- --
@@ -715,6 +820,82 @@ OnInit("Utilities", function(requires)
 
         function EffectLink.onInit()
             RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, EffectLink.onDrop)
+        end
+    end
+
+    -- ------------------------------------ Timed Lightning ------------------------------------ --
+    do
+        TimedLightning = Class()
+
+        local array = {}
+
+        function TimedLightning:destroy()
+            array[self.timer] = nil
+
+            DestroyLightning(self.lightning)
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
+
+            self.timer = nil
+            self.source = nil
+            self.target = nil
+            self.lightning = nil
+        end
+
+        function TimedLightning.onPeriod()
+            local this = array[GetExpiredTimer()]
+
+            if this then
+                if not this.permanent then
+                    this.duration = this.duration - PERIOD
+
+                    if this.duration <= 0 then
+                        this:destroy()
+                    end
+                end
+
+                if this.source and this.target then
+                    MoveLightningEx(this.lightning, true, GetUnitX(this.source), GetUnitY(this.source), GetUnitZ(this.source) + 50.0, GetUnitX(this.target), GetUnitY(this.target), GetUnitZ(this.target) + 50.0)
+                elseif this.source then
+                    MoveLightningEx(this.lightning, true, GetUnitX(this.source), GetUnitY(this.source), GetUnitZ(this.source) + 50.0, this.x, this.y, this.z)
+                end
+            end
+        end
+
+        function TimedLightning.unit2point(source, x, y, z, duration, lightningType)
+            local this = TimedLightning.allocate()
+
+            this.x = x
+            this.y = y
+            this.z = z
+            this.source = source
+            this.duration = duration
+            this.permanent = duration <= 0
+            this.timer = CreateTimer()
+            this.lightning = AddLightningEx(lightningType, true, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + 50.0, x, y, z)
+
+            array[this.timer] = this
+
+            TimerStart(this.timer, PERIOD, true, TimedLightning.onPeriod)
+
+            return this
+        end
+
+        function TimedLightning.unit2unit(source, target, duration, lightningType)
+            local this = TimedLightning.allocate()
+
+            this.source = source
+            this.target = target
+            this.duration = duration
+            this.permanent = duration <= 0
+            this.timer = CreateTimer()
+            this.lightning = AddLightningEx(lightningType, true, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + 50.0, GetUnitX(target), GetUnitY(target), GetUnitZ(target) + 50.0)
+
+            array[this.timer] = this
+
+            TimerStart(this.timer, PERIOD, true, TimedLightning.onPeriod)
+
+            return this
         end
     end
 end)

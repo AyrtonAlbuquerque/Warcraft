@@ -28,6 +28,14 @@ OnInit("Unit", function(requires)
 
     Unit:property("health", { get = function(self) return GetWidgetLife(self.unit) end })
 
+    Unit:property("level", { get = function(self)
+        if IsUnitType(self.unit, UNIT_TYPE_HERO) then
+            return GetHeroLevel(self.unit)
+        else
+            return GetUnitLevel(self.unit)
+        end
+    end })
+
     Unit:property("agility", { get = function(self) return GetHeroAgi(self.unit, true) end })
 
     Unit:property("strength", { get = function(self) return GetHeroStr(self.unit, true) end })

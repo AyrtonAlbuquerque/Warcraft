@@ -142,6 +142,8 @@ OnInit("CriticalStrike", function(requires)
                     event[i]()
                 end
 
+                Damage.amount = Critical.damage
+
                 if Critical.damage > 0 then
                     ArcingTextTag.create("|cffff0000" .. N2S(Critical.damage, 0) .. "!|r", Critical.target.unit, TEXT_SIZE)
                 end
