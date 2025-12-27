@@ -14,9 +14,9 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
         // The raw code of Storm unit
         private constant integer STORM         = 'uch1'
         // The raw code of Earth unit
-        private constant integer EARTH         = 'uch0'
+        private constant integer EARTH         = 'uch2'
         // The raw code of Fire unit
-        private constant integer FIRE          = 'uch2'
+        private constant integer FIRE          = 'uch0'
         // The raw code Fire Immolation ability
         private constant integer IMMOLATION    = 'ChnA'
     endglobals
@@ -66,8 +66,8 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
     endfunction
 
     // The attack damage block for Earth spitir
-    private function GetDamageBlock takes integer level returns real
-        return 50. * level + GetUnitBonus(null, BONUS_DAMAGE_BLOCK)
+    private function GetDamageBlock takes unit source, integer level returns real
+        return 50. * level + GetUnitBonus(source, BONUS_DAMAGE_BLOCK)
     endfunction
 
     // The Immolation damage
@@ -120,7 +120,7 @@ library StormEarthFire requires Spell, Zap, LightningAttack, Fissure, BreathOfFi
                         call BlzSetUnitMaxMana(u, GetMana(id, level, unit))
                         call BlzSetUnitBaseDamage(u, GetDamage(id, level, unit), 0)
                         call BlzSetUnitArmor(u, GetArmor(id, level, unit))
-                        call AddUnitBonus(u, BONUS_DAMAGE_BLOCK, GetDamageBlock(level))
+                        call AddUnitBonus(u, BONUS_DAMAGE_BLOCK, GetDamageBlock(unit, level))
                         call SetUnitBonus(u, BONUS_SPELL_POWER, GetUnitBonus(unit, BONUS_SPELL_POWER))
                         call SetUnitLifePercentBJ(u, 100)
                         call SetUnitManaPercentBJ(u, 100)

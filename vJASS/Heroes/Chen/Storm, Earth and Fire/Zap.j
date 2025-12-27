@@ -98,7 +98,7 @@ library Zap requires Spell, Missiles, Utilities optional NewBonus
             set zap.vision = 1000
             set zap.damage = GetDamage(Spell.source.unit, Spell.level)
             set zap.collision = GetCollision(Spell.level)
-            set zap.mana = GetManaDrain(Spell.level)*Missiles_PERIOD
+            set zap.mana = GetManaDrain(Spell.level) * Missile.period
 
             call ShowUnit(Spell.source.unit, false)
             call zap.launch()
