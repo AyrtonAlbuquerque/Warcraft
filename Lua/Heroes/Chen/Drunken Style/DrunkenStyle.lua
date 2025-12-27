@@ -1,19 +1,19 @@
---[[ requires SpellEffectEvent, Utilities, Missiles, MouseUtils, CrowdControl
-    /* --------------------- Drunken Style v1.3 by Chopinski -------------------- */
-    // Credits:
-    //     Blizzard           - Icon
-    //     Bribe              - SpellEffectEvent
-    //     Vexorian           - TimerUtils
-    //     Vexorian           - MouseUtils
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("DrunkenStyle", function(requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Missiles"
+    requires "Utilities"
+    requires "MouseUtils"
+    requires "CrowdControl"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------- Drunken Style v1.5 by Chopinski ---------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The Drunken Style Ability
-    local ABILITY = FourCC('A005')
+    local ABILITY = S2A('Chn7')
     -- The Drunken Style knockback model
     local MODEL   = "WindBlow.mdl"
     -- The Drunken Style knockback attach point
@@ -36,7 +36,7 @@ do
 
     -- The Drunken Style knockback distance
     local function GetKnockDistance(level)
-        return 100. + 0.*level
+        return 200. + 0.*level
     end
 
     -- The Drunken Style knockback duration
@@ -63,8 +63,8 @@ do
     end
 
     -- The Drunken Style dash damage
-    local function GetDamage(level)
-        return 25.*level
+    local function GetDamage(source, level)
+         return 25. * level + (0.25 + 0.25*level) * GetUnitBonus(source, BONUS_DAMAGE)
     end
 
     -- The Drunken Style Damage Filter for enemy units
@@ -72,119 +72,99 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    local n = {}
-    
-    local function GetAngle(player, unit, x, y, mx, my, aoe)
-        local group = CreateGroup() 
-        local angle = GetUnitFacing(unit)*bj_DEGTORAD
-        local size
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Dash = Class(Missile)
 
-        GroupEnumUnitsInRange(group, mx, my, aoe, nil)
-        size = BlzGroupGetSize(group)
-        if size > 0 then
-            for i = 0, size - 1 do
-                local u = BlzGroupUnitAt(group, i)
-                if IsUnitEnemy(u, player) and UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
-                    angle = AngleBetweenCoordinates(x, y, mx, my)
-                    break
+        function Dash:onPeriod()
+            return not UnitAlive(self.source)
+        end
+
+        function Dash:onUnit(unit)
+            if IsUnitInCone(unit, self.centerX, self.centerY, self.collision, self.face, self.fov) then
+                if DamageFilter(self.owner, unit) then
+                    if UnitDamageTarget(self.source, unit, self.damage, true, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WOOD_HEAVY_BASH) then
+                        KnockbackUnit(unit, AngleBetweenCoordinates(self.x, self.y, GetUnitX(unit), GetUnitY(unit)), self.distance, self.knockback, MODEL, ATTACH, true, true, false, true)
+                    end
                 end
             end
-        end
-        DestroyGroup(group)
-        
-        return angle
-    end
-    
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
-            local d = GetDistance(Spell.level)
-            local a = GetAngle(Spell.source.player, Spell.source.unit, Spell.source.x, Spell.source.y, GetPlayerMouseX(Spell.source.player), GetPlayerMouseY(Spell.source.player), 100)
-            local dash = Missiles:create(Spell.source.x, Spell.source.y, 0, Spell.source.x + d*Cos(a), Spell.source.y + d*Sin(a), 0)
-            local this
 
-            if n[Spell.source.unit] then
-                this = n[Spell.source.unit]
-            else
-                this = {}
-                this.type = {}
-                this.timer = CreateTimer()
+            return false
+        end
+
+        function Dash:onRemove()
+            BlzUnitInterruptAttack(self.source)
+            SetUnitTimeScale(self.source, 1)
+            IssueImmediateOrder(self.source, "stop")
+            QueueUnitAnimation(self.source, "Stand Ready")
+        end
+    end
+
+    do
+        DrunkenStyle = Class(Spell)
+
+        local array = {}
+        local types = {}
+
+        function DrunkenStyle:onTooltip(unit, level, ability)
+            return "|cffffcc00Chen|r performs a series of |cffffcc003|r attacks in sequence, |cffffcc00Swing|r, |cffffcc00Kick|r and |cffffcc00Swipe|r, dashing a short distance towards the cursor in each attack, dealing |cffff0000" .. N2S(GetDamage(unit, level), 0) .. "|r |cffff0000Physical|r damage and knocking back enemy units in range. Every cast performs one attack of the sequence. The sequence resets after |cffffcc00" .. N2S(GetResetTime(level), 1) .. "|r seconds if left uncasted. If |cffffcc00Chen|r performs all attacks, |cffffcc00Drunken Style|r goes into cooldown. All attacks can hit |cffffcc00Critical Strikes|r and/or |cffffcc00Miss|r.\n\n|cffffcc00Swing|r  knocks back enemy units in a wide angle in front of |cffffcc00Chen|r.\n\n|cffffcc00Kick|r knocks back enemy units directly in front of |cffffcc00Chen|r.\n\n|cffffcc00Swipe|r knocks back enemy units all around |cffffcc00Chen|r."
+        end
+
+        function DrunkenStyle:onCast()
+            local distance = GetDistance(Spell.level)
+            local angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, GetPlayerMouseX(Spell.source.player), GetPlayerMouseY(Spell.source.player))
+            local dash = Dash.create(Spell.source.x, Spell.source.y, 0, Spell.source.x + distance * math.cos(angle), Spell.source.y + distance * math.sin(angle), 0)
+            local this = array[Spell.source.unit]
+
+            if not this then
+                this = DrunkenStyle.allocate()
                 this.unit = Spell.source.unit
-                n[this.unit] = this
+                array[Spell.source.unit] = this
             end
-            
-            this.type[this.unit] = (this.type[this.unit] or 0) + 1
-            
-            if this.type[this.unit] > 3 then
-                this.type[this.unit] = 0
-                SetUnitAnimationByIndex(Spell.source.unit, 14)
-            elseif this.type[this.unit] == 1 then
+
+            types[this.unit] = (types[this.unit] or 0) + 1
+
+            if types[this.unit] == 1 then
                 StartUnitAbilityCooldown(Spell.source.unit, ABILITY, 0.25)
                 SetUnitAnimationByIndex(Spell.source.unit, 14)
-            elseif this.type[this.unit] == 2 then
+            elseif types[this.unit] == 2 then
                 StartUnitAbilityCooldown(Spell.source.unit, ABILITY, 0.25)
                 SetUnitAnimationByIndex(Spell.source.unit, 23)
             else
+                types[this.unit] = 0
                 SetUnitAnimationByIndex(Spell.source.unit, 17)
             end
-            
-            dash:model(MODEL)
+
+            dash.model = MODEL
+            dash.type = types[this.unit]
+            dash.face = angle * bj_RADTODEG
             dash.source = Spell.source.unit
+            dash.unit = Spell.source.unit
             dash.owner = Spell.source.player
             dash.centerX = Spell.source.x
             dash.centerY = Spell.source.y
-            dash.type = this.type[this.unit]
-            dash.face = a*bj_RADTODEG
-            dash.damage = GetDamage(Spell.level)
-            dash:duration(GetDuration(Spell.level))
-            dash.collision = GetCollision(this.type[this.unit])
-            dash.fov = GetDamageCone(this.type[this.unit])
-            dash.distance  = GetKnockDistance(Spell.level)
+            dash.damage = GetDamage(Spell.source.unit, Spell.level)
+            dash.duration = GetDuration(Spell.level)
+            dash.collision = GetCollision(types[this.unit])
+            dash.fov = GetDamageCone(types[this.unit])
+            dash.distance = GetKnockDistance(Spell.level)
             dash.knockback = GetKnockDuration(Spell.level)
-            
-            dash.onPeriod = function()
-                if UnitAlive(dash.source) then
-                    SetUnitX(dash.source, dash.x)
-                    SetUnitY(dash.source, dash.y)
-                    BlzSetUnitFacingEx(dash.source, dash.face)
-
-                    return false
-                else
-                    return true
-                end
-            end
-            
-            dash.onHit = function(unit)
-                if IsUnitInCone(unit, dash.centerX, dash.centerY, dash.collision, dash.face, dash.fov) then
-                    if DamageFilter(dash.owner, unit) then
-                        if UnitDamageTarget(dash.source, unit, dash.damage, true, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WOOD_HEAVY_BASH) then
-                            KnockbackUnit(unit, AngleBetweenCoordinates(dash.x, dash.y, GetUnitX(unit), GetUnitY(unit)), dash.distance, dash.knockback, MODEL, ATTACH, true, true, false, true)
-                        end
-                    end
-                end
-
-                return false
-            end
-            
-            dash.onRemove = function()
-                BlzUnitInterruptAttack(dash.source)
-                SetUnitTimeScale(dash.source, 1)
-                IssueImmediateOrder(dash.source, "stop")
-                QueueUnitAnimation(dash.source, "Stand Ready")
-            end
 
             dash:launch()
-            
             BlzUnitInterruptAttack(Spell.source.unit)
             SetUnitTimeScale(Spell.source.unit, 1.75)
-            TimerStart(this.timer, GetResetTime(Spell.level), false, function()
-                n[this.unit] = nil
-                this.type[this.unit] = 0
-                PauseTimer(this.timer)
-                DestroyTimer(this.timer)
+            TimerStart(CreateTimer(), GetResetTime(Spell.level), false, function()
+                types[this.unit] = nil
+                array[this.unit] = nil
+
+                DestroyTimer(GetExpiredTimer())
             end)
-        end)
-    end)
-end
+        end
+
+        function DrunkenStyle.onInit()
+            RegisterSpell(DrunkenStyle.allocate(), ABILITY)
+        end
+    end
+end)

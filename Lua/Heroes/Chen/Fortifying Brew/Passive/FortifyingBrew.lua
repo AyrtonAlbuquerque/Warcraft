@@ -1,21 +1,21 @@
---[[ requires DamageInterface, SpellEffectEvent, NewBonusUtils, Utilities
-    /* -------------------- Fortifying Brew v1.3 by Chopinski ------------------- */
-    // Credits:
-    //     Blizzard        - Icon
-    //     Bribe           - SpellEffectEvent
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("FortifyingBrew", function(requires)
+    requires "Class"
+    requires "Bonus"
+    requires "Spell"
+    requires "Damage"
+    requires "Utilities"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- --------------------------- Fortifying Brew v1.4 by Chopinski --------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Fortifying Brew ability
-    local ABILITY   = FourCC('A00E')
+    local ABILITY   = S2A('Chn0')
     -- The raw code of the Fortifying Brew ability
-    local REDUCTION = FourCC('A00F')
+    local REDUCTION = S2A('Chn1')
     -- The raw code of the Fortifying Brew buff
-    local BUFF      = FourCC('B001')
+    local BUFF      = S2A('BCh0')
 
     -- The Fortifying Brew health/mana regen bonus duration per cast
     local function GetDuration(unit, level)
@@ -42,37 +42,48 @@ do
         return level == 5 or level == 10 or level == 15 or level == 20
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function()
-            local unit = GetTriggerUnit()
-            local level = GetUnitAbilityLevel(unit, ABILITY)
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        FortifyingBrew = Class(Spell)
+
+        function FortifyingBrew:onTooltip(unit, level, ability)
+            return "Whenever |cffffcc00Chen|r uses an ability he drinks from his keg, increasing his |cff00ff00Health Regeneration|r by |cff00ff00" .. N2S(GetHealthRegen(level), 1) .. "|r, |cff00ffffMana Regeneration|r by |cff00ffff" .. N2S(GetManaRegen(level), 1) .. "|r and takes |cffffcc00" .. N2S(GetDamageReduction(level) * 100, 1) .. "%|r reduced damage from auto attacks for |cffffcc00" .. N2S(GetDuration(unit, level), 1) .. "|r seconds. Regeneration stacks with each cast."
+        end
+
+        function FortifyingBrew.onSpell()
+            local source = GetTriggerUnit()
+            local level = GetUnitAbilityLevel(source, ABILITY)
 
             if level > 0 then
-                local duration = GetDuration(unit, level)
+                local duration = GetDuration(source, level)
 
-                UnitAddAbilityTimed(unit, REDUCTION, duration, 1, true)
-                AddUnitBonusTimed(unit, BONUS_HEALTH_REGEN, GetHealthRegen(level), duration)
-                AddUnitBonusTimed(unit, BONUS_MANA_REGEN, GetManaRegen(level), duration)
+                UnitAddAbilityTimed(source, REDUCTION, duration, 1, true)
+                AddUnitBonusTimed(source, BONUS_MANA_REGEN, GetManaRegen(level), duration)
+                AddUnitBonusTimed(source, BONUS_HEALTH_REGEN, GetHealthRegen(level), duration)
             end
-        end)
+        end
 
-        RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function()
-            local unit = GetTriggerUnit()
+        function FortifyingBrew.onLevel()
+            local source = GetTriggerUnit()
 
-            if GetLevel(GetHeroLevel(unit)) then
-                IncUnitAbilityLevel(unit, ABILITY)
+            if GetLevel(GetHeroLevel(source)) then
+                IncUnitAbilityLevel(source, ABILITY)
             end
-        end)
+        end
 
-        RegisterAttackDamageEvent(function()
-            local damage = GetEventDamage()
-
-            if damage > 0 and GetUnitAbilityLevel(Damage.target.unit, BUFF) > 0 then
-                BlzSetEventDamage(damage * (1 - GetDamageReduction(GetUnitAbilityLevel(Damage.target.unit, ABILITY))))
+        function FortifyingBrew.onDamage()
+            if Damage.amount > 0 and GetUnitAbilityLevel(Damage.target.unit, BUFF) > 0 then
+                Damage.amount = Damage.amount * (1 - GetDamageReduction(GetUnitAbilityLevel(Damage.target.unit, ABILITY)))
             end
-        end)
-    end)
-end
+        end
+
+        function FortifyingBrew.onInit()
+            RegisterSpell(FortifyingBrew.allocate(), ABILITY)
+            RegisterAttackDamageEvent(FortifyingBrew.onDamage)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, FortifyingBrew.onLevel)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, FortifyingBrew.onSpell)
+        end
+    end
+end)

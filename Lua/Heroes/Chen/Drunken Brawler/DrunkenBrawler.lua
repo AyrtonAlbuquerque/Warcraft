@@ -1,54 +1,50 @@
---[[ requires RegisterPlayerUnitEvent, NewBonusUtils
-    /* -------------------- Drunken Brawler v1.2 by Chopinski ------------------- */
-    // Credits:
-    //     Blizzard        - Icon
-    //     Magtheridon96   - RegisterPlayerUnitEvent
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("DrunkenBrawler", function(requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Utilities"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- --------------------------- Drunken Brawler v1.3 by Chopinski --------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Drunken Brawler ability
-    local ABILITY = FourCC('A006')
+    local ABILITY = S2A('Chn8')
 
     -- The Evasion bonus
     local function GetEvasionBonus(level)
-        return 7. + 0.*level
+        return 0.07 + 0.*level
     end
 
     -- The Critical chance bonus
     local function GetCriticalChanceBonus(level)
-        if level == 1 then
-            return 10. + 0.*level
-        else
-            return 0.
-        end
+        return 0.05 + 0.*level
     end
 
     -- The Critical damage bonus
     local function GetCriticalDamageBonus(level)
-        if level == 1 then
-            return 1. + 0.*level
-        else
-            return 0.75
-        end
+        return 0.075 + 0.*level
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function()
-            if GetLearnedSkill() == ABILITY then
-                local unit = GetTriggerUnit()
-                local level = GetUnitAbilityLevel(unit, ABILITY)
-            
-                AddUnitBonus(unit, BONUS_EVASION_CHANCE, GetEvasionBonus(level))
-                AddUnitBonus(unit, BONUS_CRITICAL_CHANCE, GetCriticalChanceBonus(level))
-                AddUnitBonus(unit, BONUS_CRITICAL_DAMAGE, GetCriticalDamageBonus(level))
-            end
-        end)
-    end)
-end
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        DrunkenBrawler = Class(Spell)
+
+        function DrunkenBrawler:onTooltip(unit, level, abiltiy)
+            return "|cffffcc00Chen|r has |cffffcc00" .. N2S(GetEvasionBonus(level) * 100 * level, 1) .. "%%|r chance to dodge attacks and have increased |cffffcc00" .. N2S(GetCriticalChanceBonus(level) * 100 * level, 1) .. "%%|r |cffffcc00Critical Strike Chance|r and |cffffcc00" .. N2S(GetCriticalDamageBonus(level) * 100 * level, 1) .. "%%|r |cffffcc00Critical Strike Damage|r."
+        end
+
+        function DrunkenBrawler:onLearn(unit, ability, level)
+            AddUnitBonus(unit, BONUS_EVASION_CHANCE, GetEvasionBonus(level))
+            AddUnitBonus(unit, BONUS_CRITICAL_CHANCE, GetCriticalChanceBonus(level))
+            AddUnitBonus(unit, BONUS_CRITICAL_DAMAGE, GetCriticalDamageBonus(level))
+        end
+
+        function DrunkenBrawler.onInit()
+            RegisterSpell(DrunkenBrawler.allocate(), ABILITY)
+        end
+    end
+end)

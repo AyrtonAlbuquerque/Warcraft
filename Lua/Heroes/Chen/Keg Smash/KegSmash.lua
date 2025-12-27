@@ -1,26 +1,24 @@
---[[ requires SpellEffectEvent, NewBonusUtils, Utilities, Missiles, CrowdControl
-    /* ----------------------- Keg Smash v1.3 by Chopinski ---------------------- */
-    // Credits:
-    //     Blizzard           - Icon
-    //     Bribe              - SpellEffectEvent
-    //     Vexorian           - TimerUtils
-    //     JesusHipster       - Barrel model
-    //     EvilCryptLord      - Brew Cloud model (edited by me)
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("KegSmash", function(requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Missiles"
+    requires "Utilities"
+    requires "CrowdControl"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ------------------------------ Keg Smash v1.5 by Chopinski ------------------------------ --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The Keg Smash Ability
-    local ABILITY      = FourCC('A001')
+    KegSmash_ABILITY   = S2A('Chn4')
     -- The Keg Smash Ignite ability
-    local IGNITE       = FourCC('A004')
+    local IGNITE       = S2A('Chn6')
     -- The Keg Smash Brew Cloud Ability
-    local DEBUFF       = FourCC('A002')
+    local DEBUFF       = S2A('Chn5')
     -- The Keg Smash Brew Cloud debuff
-    KegSmash_BUFF      = FourCC('BNdh')
+    KegSmash_BUFF      = S2A('BNdh')
     -- The Keg Smash Missile model
     local MODEL        = "RollingKegMissle.mdl"
     -- The Keg Smash Missile scale
@@ -36,12 +34,12 @@ do
 
     -- The Keg Smash miss chance per level
     local function GetChance(level)
-        return 20.*level
+        return 0.2*level
     end
 
     -- The Keg Smash Brew Cloud duration
     local function GetDuration(unit, level)
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_RLF_DURATION_HERO, level - 1)
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, KegSmash_ABILITY), ABILITY_RLF_DURATION_HERO, level - 1)
     end
 
     -- The Keg Smash slow amount
@@ -56,12 +54,12 @@ do
 
     -- The Keg Smash AoE
     function KegSmash_GetAoE(unit, level)
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, KegSmash_ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
     end
 
     -- The Keg Smash Damage
-    local function GetDamage(level)
-        return 75. + 50.*level
+    local function GetDamage(source, level)
+        return 75. + 50.*level + (0.6 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
     end
 
     -- The Keg Smash Damage Filter for enemy units
@@ -69,214 +67,236 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
     do
-        Ignite = setmetatable({}, {})
-        local mt = getmetatable(Ignite)
-        mt.__index = mt
+        Ignite = Class()
 
         local proxy = {}
 
-        function mt:create(x, y, damage, duration, aoe, interval, source)
-            local this = {}
-            local timer = CreateTimer()
-            local unit = DummyRetrieve(GetOwningPlayer(source), x, y, 0, 0)
-            local ability
+        function Ignite.create(x, y, damage, duration, aoe, interval, source)
+            local self = Ignite.allocate()
 
-            this.unit = source
-            this.damage = damage
-            proxy[unit] = this
+            self.unit = source
+            self.damage = damage
+            self.dummy = DummyRetrieve(GetOwningPlayer(source), x, y, 0, 0)
+            proxy[self.dummy] = self
 
-            UnitAddAbility(unit, IGNITE)
-            ability = BlzGetUnitAbility(unit, IGNITE)
-            BlzSetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_NORMAL, 0, duration)
-            BlzSetAbilityRealLevelField(ability, ABILITY_RLF_FULL_DAMAGE_INTERVAL, 0, duration)
-            BlzSetAbilityRealLevelField(ability, ABILITY_RLF_HALF_DAMAGE_INTERVAL, 0, interval)
-            BlzSetAbilityRealLevelField(ability, ABILITY_RLF_AREA_OF_EFFECT, 0, aoe)
-            BlzSetAbilityRealLevelField(ability, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, damage)
-            IncUnitAbilityLevel(unit, IGNITE)
-            DecUnitAbilityLevel(unit, IGNITE)
-            IssuePointOrder(unit, "flamestrike", x, y)
-            TimerStart(timer, duration + 0.05, false, function()
-                this = nil
-                proxy[unit] = nil
-                DummyRecycle(unit)
-                PauseTimer(timer)
-                DestroyTimer(timer)
+            UnitAddAbility(self.dummy, IGNITE)
+            local spell = BlzGetUnitAbility(self.dummy, IGNITE)
+            BlzSetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_NORMAL, 0, duration)
+            BlzSetAbilityRealLevelField(spell, ABILITY_RLF_FULL_DAMAGE_INTERVAL, 0, duration)
+            BlzSetAbilityRealLevelField(spell, ABILITY_RLF_HALF_DAMAGE_INTERVAL, 0, interval)
+            BlzSetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, 0, aoe)
+            BlzSetAbilityRealLevelField(spell, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, damage)
+            IncUnitAbilityLevel(self.dummy, IGNITE)
+            DecUnitAbilityLevel(self.dummy, IGNITE)
+            IssuePointOrder(self.dummy, "flamestrike", x, y)
+            TimerStart(CreateTimer(), duration + 0.05, false, function()
+                UnitRemoveAbility(self.dummy, IGNITE)
+                DummyRecycle(self.dummy)
+                DestroyTimer(GetExpiredTimer())
+
+                proxy[self.dummy] = nil
+                self.unit = nil
+                self.dummy = nil
             end)
+
+            return self
         end
 
-        onInit(function()
-            local this
+        function Ignite.onDamage()
+            local self = proxy[Damage.source.unit]
 
-            if proxy[Damage.source.unit] and GetEventDamage() > 0 then
-                this = proxy[Damage.source.unit]
-                BlzSetEventDamage(0)
-                UnitDamageTarget(this.unit, Damage.target.unit, this.damage, false, false, Damage.attacktype, Damage.damagetype, nil)
+            if self and Damage.amount > 0 then
+                Damage.source = self.unit
             end
-        end)
+        end
+
+        function Ignite.onInit()
+            RegisterSpellDamageEvent(Ignite.onDamage)
+        end
     end
 
     do
-        BrewCloud = setmetatable({}, {})
-        local mt = getmetatable(BrewCloud)
-        mt.__index = mt
+        BrewCloud = Class()
 
-        local timer = CreateTimer()
         local array = {}
-        local n = {}
-        local key = 0
 
-        function mt:destroy(i)
+        function BrewCloud:destroy()
             UnitRemoveAbility(self.unit, DEBUFF)
             DestroyGroup(self.group)
             DestroyEffect(self.effect)
             DummyRecycle(self.unit)
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
+            array[self.unit] = nil
 
-            n[self.unit] = nil
-            array[i] = array[key]
-            key = key - 1
-            self = nil
-
-            if key == 0 then
-                PauseTimer(timer)
-            end
-
-            return i - 1
+            self.unit = nil
+            self.group = nil
+            self.timer = nil
+            self.player = nil
+            self.effect = nil
+            self.source = nil
         end
 
-        function mt:ignite(unit, damage, duration, interval)
-            if n[unit] then
-                local this = n[unit]
-                if not this.ignited then
-                    this.ignited = true
-                    this.duration = 0
-                    Ignite:create(this.x, this.y, damage, duration, this.aoe, interval, this.source)
+        function BrewCloud.ignite(dummy, damage, duration, interval)
+            local self = array[dummy]
+
+            if self then
+                if not self.ignited then
+                    self.duration = 0
+                    self.ignited = true
+
+                    Ignite.create(self.x, self.y, damage, duration, self.aoe, interval, self.source)
                 end
             end
         end
 
-        function mt:active(unit)
-            local this = n[unit]
+        function BrewCloud.active(dummy)
+            local self = array[dummy]
 
-            if this then
-                return not this.ignited
+            if self then
+                return not self.ignited
             end
 
             return false
         end
 
-        function mt:create(player, source, unit, x, y, aoe, duration, slow, slowDuration, level)
-            local this = {}
-            setmetatable(this, mt)
+        function BrewCloud.create(player, source, dummy, x, y, aoe, duration, slow, slowDuration, level)
+            local self = BrewCloud.allocate()
 
-            this.x = x
-            this.y = y
-            this.aoe = aoe
-            this.slow = slow
-            this.slowDuration = slowDuration
-            this.level = level
-            this.source = source
-            this.player = player
-            this.unit = unit
-            this.ignited = false
-            this.group = CreateGroup()
-            this.effect = AddSpecialEffectEx(CLOUD, x, y, 0, CLOUD_SCALE)
-            this.duration = R2I(duration/PERIOD)
-            key = key + 1
-            array[key] = this
-            n[unit] = this
+            self.x = x
+            self.y = y
+            self.aoe = aoe
+            self.slow = slow
+            self.unit = dummy
+            self.level = level
+            self.player = player
+            self.source = source
+            self.ignited = false
+            self.duration = duration
+            self.slowDuration = slowDuration
+            self.timer = CreateTimer()
+            self.group = CreateGroup()
+            self.effect = AddSpecialEffectEx(CLOUD, x, y, 0, CLOUD_SCALE)
+            array[dummy] = self
 
+            TimerStart(self.timer, PERIOD, true, function()
+                self.duration = self.duration - PERIOD
 
-            if key == 1 then
-                TimerStart(timer, PERIOD, true, function()
-                    local i = 1
+                if self.duration > 0 then
+                    if not self.ignited then
+                        GroupEnumUnitsInRange(self.group, x, y, aoe, nil)
+                        
+                        local u = FirstOfGroup(self.group)
 
-                    while i <= key do
-                        local this = array[i]
-
-                        if this.duration > 0 then
-                            if not this.ignited then
-                                GroupEnumUnitsInRange(this.group, this.x, this.y, this.aoe, nil)
-                                for j = 0, BlzGroupGetSize(this.group) - 1 do
-                                    local u = BlzGroupUnitAt(this.group, j)
-                                    if UnitAlive(u) and IsUnitEnemy(u, this.player) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
-                                        IssueTargetOrder(this.unit, "drunkenhaze", u)
-                                        SlowUnit(u, this.slow, this.slowDuration, nil, nil, false)
-                                    end
+                        while u do
+                            if UnitAlive(u) and IsUnitEnemy(u, self.player) and GetUnitAbilityLevel(u, KegSmash_BUFF) == 0 then
+                                if not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
+                                    IssueTargetOrder(self.unit, "drunkenhaze", u)
+                                    SlowUnit(u, slow, slowDuration, nil, nil, false)
                                 end
-                            else
-                                DestroyEffect(this.effect)
                             end
-                        else
-                            i = this:destroy(i)
+
+                            GroupRemoveUnit(self.group, u)
+                            u = FirstOfGroup(self.group)
                         end
-                        this.duration = this.duration - 1
-                        i = i + 1
+                    else
+                        DestroyEffect(self.effect)
                     end
-                end)
+                else
+                    self:destroy()
+                end
+            end)
+
+            return self
+        end
+
+        function BrewCloud.onCast()
+            if GetUnitAbilityLevel(GetSpellTargetUnit(), KegSmash_BUFF) == 0 then
+                LinkBonusToBuff(GetSpellTargetUnit(), BONUS_MISS_CHANCE, GetChance(GetUnitAbilityLevel(GetTriggerUnit(), DEBUFF)), KegSmash_BUFF)
             end
+        end
+
+        function BrewCloud.onInit()
+            RegisterSpellEffectEvent(DEBUFF, BrewCloud.onCast)
+        end
+    end
+    
+    do
+        Keg = Class(Missile)
+
+        Keg:property("unit", {
+            get = function(self) return self.cloud end,
+            set = function(self, value)
+                self.cloud = value
+                
+                if value then
+                    UnitAddAbility(value, DEBUFF)
+                    SetUnitAbilityLevel(value, DEBUFF, self.level)
+                end
+            end
+        })
+
+        function Keg:onFinish()
+            local duration = GetSlowDuration(self.unit, self.level)
+
+            BrewCloud.create(self.owner, self.source, self.unit, self.x, self.y, self.aoe, self.time, self.slow, duration, self.level)
+            GroupEnumUnitsInRange(self.group, self.x, self.y, self.aoe, nil)
+
+            local u = FirstOfGroup(self.group)
+
+            while u do
+                if DamageFilter(self.owner, u) then
+                    if UnitDamageTarget(self.source, u, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                        IssueTargetOrder(self.unit, "drunkenhaze", u)
+                        SlowUnit(u, self.slow, duration, nil, nil, false)
+                    end
+                end
+
+                GroupRemoveUnit(self.group, u)
+                u = FirstOfGroup(self.group)
+            end
+
+            DestroyGroup(self.group)
+
+            self.unit = nil
+            self.group = nil
+
+            return true
         end
     end
 
     do
-        KegSmash = setmetatable({}, {})
-        local mt = getmetatable(KegSmash)
-        mt.__index = mt
+        KegSmash = Class(Spell)
 
-        function mt:onCast()
-            local this = Missiles:create(Spell.source.x, Spell.source.y, 60, Spell.x, Spell.y, 60)
-
-            this.unit = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
-            UnitAddAbility(this.unit, DEBUFF)
-            SetUnitAbilityLevel(this.unit, DEBUFF, Spell.level)
-
-            this:model(MODEL)
-            this:scale(SCALE)
-            this:speed(SPEED)
-            this.source = Spell.source.unit
-            this.owner = Spell.source.player
-            this.level = Spell.level
-            this.group = CreateGroup()
-            this.damage = GetDamage(Spell.level)
-            this.aoe = KegSmash_GetAoE(Spell.source.unit, Spell.level)
-            this.dur = GetDuration(Spell.source.unit, Spell.level)
-            this.slow = GetSlow(Spell.source.unit, Spell.level)
-            this.slowDuration = GetSlowDuration(this.unit, Spell.level)
-
-
-            this.onFinish = function()
-                BrewCloud:create(this.owner, this.source, this.unit, this.x, this.y, this.aoe, this.dur, this.slow, this.slowDuration, this.level)
-                GroupEnumUnitsInRange(this.group, this.x, this.y, this.aoe, nil)
-                for i = 0, BlzGroupGetSize(this.group) - 1 do
-                    local u = BlzGroupUnitAt(this.group, i)
-                    if DamageFilter(this.owner, u) then
-                        if UnitDamageTarget(this.source, u, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                            IssueTargetOrder(this.unit, "drunkenhaze", u)
-                            SlowUnit(u, this.slow, this.slowDuration, nil, nil, false)
-                        end
-                    end
-                end
-                DestroyGroup(this.group)
-
-                return true
-            end
-
-            this:launch()
+        function KegSmash:onTooltip(unit, level, abiltiy)
+            return "|cffffcc00Chen|r rolls his keg in the targeted direction. Upon arrival the keg explodes, dealing |cff00ffff" .. N2S(GetDamage(unit, level), 0) .. "|r |cff00ffffMagic|r damage, slowing all enemy units within |cffffcc00" .. N2S(KegSmash_GetAoE(unit, level), 0) .. " AoE|r by |cffffcc00" .. N2S(GetSlow(unit, level) * 100, 0) .. "%%|r and leaving a |cffffcc00Brew Cloud|r. Enemy units that come in contact with the |cffffcc00Brew Cloud|r get soaked with brew and drunk, having their |cffffff00Movement Speed|r reduced by |cffffcc00" .. N2S(GetSlow(unit, level) * 100, 0) .. "%%|r and when attacking they have |cffffcc00" .. N2S(GetChance(level) * 100, 0) .. "%%|r chance of missing their target.\n\nLasts for |cffffcc00" .. N2S(GetDuration(unit, level), 1) .. "|r seconds."
         end
 
-        onInit(function()
-            RegisterSpellEffectEvent(ABILITY, function()
-                KegSmash:onCast()
-            end)
+        function KegSmash:onCast()
+            local keg = Keg.create(Spell.source.x, Spell.source.y, 60, Spell.x, Spell.y, 60)
 
-            RegisterSpellEffectEvent(DEBUFF, function()
-                if GetUnitAbilityLevel(GetSpellTargetUnit(), KegSmash_BUFF) == 0 then
-                    LinkBonusToBuff(GetSpellTargetUnit(), BONUS_MISS_CHANCE, GetChance(GetUnitAbilityLevel(GetTriggerUnit(), DEBUFF)), KegSmash_BUFF)
-                end
-            end)
-        end)
+            keg.model = MODEL
+            keg.scale = SCALE
+            keg.speed = SPEED
+            keg.level = Spell.level
+            keg.source = Spell.source.unit 
+            keg.owner = Spell.source.player
+            keg.group = CreateGroup()
+            keg.damage = GetDamage(Spell.source.unit, Spell.level)
+            keg.aoe = KegSmash_GetAoE(Spell.source.unit, Spell.level)
+            keg.time = GetDuration(Spell.source.unit, Spell.level)
+            keg.slow = GetSlow(Spell.source.unit, Spell.level)
+            keg.unit = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
+            
+            keg:launch()
+        end
+
+        function KegSmash.onInit()
+            RegisterSpell(KegSmash.allocate(), KegSmash_ABILITY)
+        end
     end
-end
+end)

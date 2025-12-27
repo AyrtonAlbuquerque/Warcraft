@@ -1,20 +1,19 @@
---[[ requires SpellEffectEvent, NewBonus, Utilities, Missiles, optional KegSmash
-    /* -------------------- Breath of Fire v1.2 by Chopinski -------------------- */
-    // Credits:
-    //     Blizzard           - Icon
-    //     Bribe              - SpellEffectEvent
-    //     AZ                 - Breth of Fire model
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("BreathOfFire", function(requires)
+    requires "Class"
+    requires "Bonus"
+    requires "Dummy"
+    requires "Spell"
+    requires "Missiles"
+    requires "Utilities"
+    requires.optional "KegSmash"
 
-do
+    -- -------------------- Breath of Fire v1.5 by Chopinski -------------------- --
+
     -- -------------------------------------------------------------------------- --
     --                                Configuration                               --
     -- -------------------------------------------------------------------------- --
     -- The Breath of Fire Ability
-    BreathOfFire_ABILITY    = FourCC('A003')
-    -- The raw code of the Utilities library dummy
-    local Utilities_DUMMY   = FourCC('dumi')
+    BreathOfFire_ABILITY    = S2A('Chn3')
     -- The Breath of Fire model
     local MODEL             = "BreathOfFire.mdl"
     -- The Breath of Fire scale
@@ -49,13 +48,13 @@ do
     end
 
     -- The Breath of Fire DoT damage
-    local function GetDoTDamage(level)
-        return 10.*level
+    local function GetDoTDamage(source, level)
+        return 10. * level + 0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)
     end
 
     -- The Breath of Fire Brew Cloud ignite damage
-    local function GetIgniteDamage(level)
-        return 25.*level
+    local function GetIgniteDamage(source, level)
+        return 25. * level + 0.5 * GetUnitBonus(source, BONUS_SPELL_POWER)
     end
 
     -- The Breath of Fire Brew Cloud ignite damage interval
@@ -64,8 +63,8 @@ do
     end
 
     -- The Breath of Fire Damage
-    local function GetDamage(level)
-        return 50. + 50.*level
+    local function GetDamage(source, level)
+        return 50. + 50.*level + 0.75 * GetUnitBonus(source, BONUS_SPELL_POWER)
     end
 
     -- The Breath of Fire armor reduction
@@ -82,152 +81,147 @@ do
     --                                   System                                   --
     -- -------------------------------------------------------------------------- --
     do
-        DoT = setmetatable({}, {})
-        local mt = getmetatable(DoT)
-        mt.__index = mt
-        
-        local timer = CreateTimer()
+        DoT = Class()
+
         local array = {}
-        local n = {}
-        local key = 0
-        
-        function mt:destroy(i)
-            AddUnitBonus(self.target, BONUS_ARMOR, self.armor)
+
+        function DoT:destroy()
             DestroyEffect(self.effect)
 
-			array[i] = array[key]
-            key = key - 1
-            n[self.target] = nil
-            self = nil
+            array[self.target] = nil
 
-			if key == 0 then
-                PauseTimer(timer)
-			end
-
-			return i - 1
+            self.target = nil
+            self.source = nil
+            self.effect = nil
         end
-        
-        function mt:create(source, target, level)
-            local this
-        
-            if n[target] then
-                this = n[target]
-            else
-                this = {}
-                setmetatable(this, mt)
+
+        function DoT.create(source, target, level)
+            local self = array[target]
+
+            if not self then
+                self = DoT.allocate()
                 
-                n[target] = this
-                key = key + 1
-                array[key] = this
-                
-                this.source = source
-                this.target = target
-                this.damage = GetDoTDamage(level)
-                this.effect = AddSpecialEffectTarget(DOT_MODEL, target, ATTACH)
-                this.armor = 0
-                
+                self.source = source
+                self.target = target
+                self.damage = GetDoTDamage(source, level)
+                self.effect = AddSpecialEffectTarget(DOT_MODEL, target, ATTACH)
+                array[target] = self
 
                 if KegSmash then
                     if GetUnitAbilityLevel(target, KegSmash_BUFF) > 0 then
-                        this.armor = GetArmorReduction(level)
-                        AddUnitBonus(target, BONUS_ARMOR, -this.armor)
+                        LinkBonusToBuff(target, BONUS_ARMOR, -GetArmorReduction(level), KegSmash_BUFF)
                     end
                 end
 
-                if key == 1 then
-                    TimerStart(timer, PERIOD, true, function()
-                        local i = 1
-                
-                        while i <= key do
-                            local this = array[i]
-                            
-                            if this.duration > 0 then
-                                if UnitAlive(this.target) then
-                                    if KegSmash then
-                                        if GetUnitAbilityLevel(this.target, KegSmash_BUFF) > 0 then
-                                            UnitDamageTarget(this.source, this.target, 2*this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
-                                        else
-                                            UnitDamageTarget(this.source, this.target, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
-                                        end
-                                    else
-                                        UnitDamageTarget(this.source, this.target, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
-                                    end
+                TimerStart(CreateTimer(), PERIOD, true, function()
+                    self.duration = self.duration - PERIOD
+
+                    if self.duration > 0 then
+                        if UnitAlive(self.target) then
+                            if KegSmash then
+                                if GetUnitAbilityLevel(self.target, KegSmash_BUFF) > 0 then
+                                    UnitDamageTarget(self.source, self.target, 2*self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
                                 else
-                                    i = this:destroy(i)
+                                    UnitDamageTarget(self.source, self.target, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
                                 end
                             else
-                                i = this:destroy(i)
+                                UnitDamageTarget(self.source, self.target, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
                             end
-                            this.duration = this.duration - 1
-                            i = i + 1
+                        else
+                            self:destroy()
                         end
-                    end)
-                end
+                    else
+                        self:destroy()
+                    end
+                end)
             end
-            this.duration = R2I(GetDuration(source, level)/PERIOD)
+
+            self.duration = GetDuration(source, level)
+
+            return self
         end
     end
-    
-    onInit(function()
-        RegisterSpellEffectEvent(BreathOfFire_ABILITY, function()
-            local a = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
-            local d = GetDistance(Spell.source.unit, Spell.level)
+
+    do
+        Wave = Class(Missile)
+
+        function Wave:onUnit(unit)
+            if IsUnitInCone(unit, self.centerX, self.centerY, self.distance, self.face, self.fov) then
+                if DamageFilter(self.owner, unit) then
+                    if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                        DoT.create(self.source, unit, self.level)
+                    end
+                end
+            end
+
+            return false
+        end
+
+        function Wave:onPeriod()
+            if KegSmash then
+                GroupEnumUnitsOfPlayer(self.group, self.owner, nil)
+
+                local unit = FirstOfGroup(self.group)
+
+                while unit do
+                    if GetUnitTypeId(unit) == Dummy.type and BrewCloud.active(unit) then
+                        local d = DistanceBetweenCoordinates(self.x, self.y, GetUnitX(unit), GetUnitY(unit))
+
+                        if d <= self.collision + KegSmash_GetAoE(self.source, self.level)/2 and IsUnitInCone(unit, self.centerX, self.centerY, 2*self.distance, self.face, 180) then
+                            BrewCloud.ignite(unit, self.ignite_damage, self.ignite_duration, self.ignite_interval)
+                        end
+                    end
+
+                    GroupRemoveUnit(self.group, unit)
+                    unit = FirstOfGroup(self.group)
+                end
+            end
+
+            return false
+        end
+
+        function Wave:onRemove()
+            DestroyGroup(self.group)
+            self.group = nil
+        end
+    end
+
+    do
+        BreathOfFire = Class(Spell)
+
+        function BreathOfFire:onTooltip(unit, level, ability)
+            return "|cffffcc00Chen|r breathes fire in a cone, dealing |cff00ffff" .. N2S(GetDamage(unit, level), 0) .. "|r |cff00ffffMagic|r damage to enemy units and setting them on fire, dealing |cff00ffff" .. N2S(GetDoTDamage(unit, level), 0) .. "|r |cff00ffffMagic|r damage every |cffffcc00" .. N2S(GetIgniteInterval(level), 1) .. "|r second. If the unit is under the effect of |cffffcc00Drunken Haze|r, the |cffffcc00DoT|r damage is doubled and reduces the unit armor by |cffffcc00" .. N2S(GetArmorReduction(level), 0) .. "|r. In addition, if the fire wave comes in contact with a |cffffcc00Brew Cloud|r it will ignite it, setting the terrain on fire, dealing |cff00ffff" .. N2S(GetIgniteDamage(unit, level), 0) .. "|r |cff00ffffMagic|r damage per second to enemy units within range.\n\nLasts |cffffcc00" .. N2S(GetDuration(unit, level), 0) .. "|r seconds."
+        end
+
+        function BreathOfFire:onCast()
+            local distance = GetDistance(Spell.source.unit, Spell.level)
+            local angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
             local effect = AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, 0, SCALE)
-            local this = Missiles:create(Spell.source.x, Spell.source.y, 0, Spell.source.x + d*Cos(a), Spell.source.y + d*Sin(a), 0)
+            local wave = Wave.create(Spell.source.x, Spell.source.y, 0, Spell.source.x + distance * math.cos(angle), Spell.source.y + distance * math.sin(angle), 0)
 
-            this:speed(SPEED)
-            this.source = Spell.source.unit 
-            this.owner = Spell.source.player
-            this.level = Spell.level
-            this.centerX = Spell.source.x
-            this.centerY = Spell.source.y
-            this.face = a*bj_RADTODEG
-            this.distance = d
-            this.fov = GetCone(Spell.level)
-            this.damage = GetDamage(Spell.level)
-            this.collision = GetFinalArea(Spell.level)
-            this.group = CreateGroup()
-            this.ignite_damage = GetIgniteDamage(Spell.level)
-            this.ignite_duration = GetDuration(Spell.source.unit, Spell.level)
-            this.ignite_interval = GetIgniteInterval(Spell.level)
+            wave.speed = SPEED
+            wave.level = Spell.level
+            wave.distance = distance
+            wave.face = angle * bj_RADTODEG
+            wave.source = Spell.source.unit 
+            wave.owner = Spell.source.player
+            wave.centerX = Spell.source.x
+            wave.centerY = Spell.source.y
+            wave.group = CreateGroup()
+            wave.fov = GetCone(Spell.level)
+            wave.damage = GetDamage(Spell.source.unit, Spell.level)
+            wave.collision = GetFinalArea(Spell.level)
+            wave.ignite_damage = GetIgniteDamage(Spell.source.unit, Spell.level)
+            wave.ignite_duration = GetDuration(Spell.source.unit, Spell.level)
+            wave.ignite_interval = GetIgniteInterval(Spell.level)
 
-            BlzSetSpecialEffectYaw(effect, a)
+            BlzSetSpecialEffectYaw(effect, angle)
             DestroyEffect(effect)
-            
-            this.onPeriod = function()
-                if KegSmash then
-                    GroupEnumUnitsOfPlayer(this.group, this.owner, nil)
-                    for i = 0, BlzGroupGetSize(this.group) - 1 do
-                        local unit = BlzGroupUnitAt(this.group, i)
-                        if GetUnitTypeId(unit) == Utilities_DUMMY and BrewCloud:active(unit) then
-                            local d = DistanceBetweenCoordinates(this.x, this.y, GetUnitX(unit), GetUnitY(unit))
-                            if d <= this.collision + KegSmash_GetAoE(this.source, this.level)/2 and IsUnitInCone(unit, this.centerX, this.centerY, 2*this.distance, this.face, 180) then
-                                BrewCloud:ignite(unit, this.ignite_damage, this.ignite_duration, this.ignite_interval)
-                            end
-                        end
-                    end
-                end
+            wave:launch()
+        end
 
-                return false
-            end
-            
-            this.onHit = function(unit)
-                if IsUnitInCone(unit, this.centerX, this.centerY, this.distance, this.face, this.fov) then
-                    if DamageFilter(this.owner, unit) then
-                        if UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                            DoT:create(this.source, unit, this.level)
-                        end
-                    end
-                end
-
-                return false
-            end
-            
-            this.onRemove = function()
-                DestroyGroup(this.group)
-            end
-            
-            this:launch()
-        end)
-    end)
-end
+        function BreathOfFire.onInit()
+            RegisterSpell(BreathOfFire.allocate(), BreathOfFire_ABILITY)
+        end
+    end
+end)

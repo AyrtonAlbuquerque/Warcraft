@@ -1,19 +1,20 @@
---[[ requires SpellEffectEvent, Missiles, CrowdControl
-    /* ------------------------ Fissure v1.3 by CHopinski ----------------------- */
-    // Credits:
-    //     AnsonRuk    - Icon Darky29
-    //     Darky29     - Fissure Model
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("Fissure", function(requires)
+    requires "Class"
+    requires "Spell"
+    requires "Missiles"
+    requires "Utilities"
+    requires "CrowdControl"
+    requires.optional "Bonus"
+    
+    -- ------------------------------- Fissure v1.5 by CHopinski ------------------------------- --
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of Fissure ability
-    Fissure_ABILITY   = FourCC('A00B')
+    Fissure_ABILITY   = S2A('ChnB')
     -- The pathing blocker raw code
-    local BLOCKER     = FourCC('YTpc')
+    local BLOCKER     = S2A('YTpc')
     -- The Fissure model
     local MODEL       = "Fissure.mdl"
     -- The Fissure model scale
@@ -40,8 +41,12 @@ do
     end
 
     -- The damage
-    local function GetDamage(level)
-        return 150.*level
+    local function GetDamage(source, level)
+        if Bonus then
+            return 250. * level + 1.5 * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 250. * level
+        end
     end
 
     -- The Fissure damage aoe
@@ -58,52 +63,59 @@ do
     local function DamageFilter(player, unit)
         return UnitAlive(unit) and IsUnitEnemy(unit, player) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
+    
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Fissure = Class(Missile)
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterSpellEffectEvent(Fissure_ABILITY, function()
-            local a = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
-            local d = GetDistance(Spell.source.unit, Spell.level)
-            local this = Missiles:create(Spell.source.x, Spell.source.y, 0, Spell.source.x + d*Cos(a), Spell.source.y + d*Sin(a), 0)
-            
-            this:speed(SPEED)
-            this.yaw = a
-            this.source = Spell.source.unit
-            this.owner = Spell.source.player
-            this.damage = GetDamage(Spell.level)
-            this.collision = GetAoE(Spell.level)     
-            this.stun = GetStunTime(Spell.level)
-            this.dur = GetFissureDuration(Spell.level)
-            this.offset = 0
+        function Fissure:onPeriod()
+            self.offset = self.offset + self.speed * Missile.period
 
-            this.onPeriod = function()
-                this.offset = this.offset + this.veloc
-                if this.offset >= 96 then
-                    local effect = AddSpecialEffectEx(MODEL, this.x, this.y, 0, SCALE)
-                    this.offset = 0
+            if self.offset >= 96 then
+                local effect = AddSpecialEffectEx(MODEL, self.x, self.y, 0, SCALE)
+                self.offset = 0
 
-                    DestroyEffect(AddSpecialEffectEx(BIRTH_MODEL, this.x, this.y, 0, BIRTH_SCALE))
-                    BlzSetSpecialEffectYaw(effect, this.yaw)
-                    DestroyEffectTimed(effect, this.dur - 5)
-                    RemoveDestructableTimed(CreateDestructable(BLOCKER, this.x, this.y, this.yaw*bj_RADTODEG, 1, 0), this.dur)
-                end
-
-                return false
-            end
-            
-            this.onHit = function(unit)
-                if DamageFilter(this.owner, unit) then
-                    if UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        StunUnit(unit, this.stun, STUN_MODEL, STUN_ATTACH, false)
-                    end
-                end
-
-                return false
+                DestroyEffect(AddSpecialEffectEx(BIRTH_MODEL, self.x, self.y, 0, BIRTH_SCALE))
+                BlzSetSpecialEffectYaw(effect, self.face)
+                DestroyEffectTimed(effect, self.time - 5)
+                RemoveDestructableTimed(CreateDestructable(BLOCKER, self.x, self.y, self.face*bj_RADTODEG, 1, 0), self.time)
             end
 
-            this:launch()
-        end)
-    end)
-end
+            return false
+        end
+
+        function Fissure:onUnit(unit)
+            if DamageFilter(self.owner, unit) then
+                if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                    StunUnit(unit, self.stun, STUN_MODEL, STUN_ATTACH, false)
+                end
+            end
+
+            return false
+        end
+
+        function Fissure.onCast()
+            local angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
+            local distance = GetDistance(Spell.source.unit, Spell.level)
+            local self = Fissure.create(Spell.source.x, Spell.source.y, 0, Spell.source.x + distance * math.cos(angle), Spell.source.y + distance * math.sin(angle), 0)
+
+            self.face = angle
+            self.speed = SPEED
+            self.offset = 0
+            self.source = Spell.source.unit
+            self.owner = Spell.source.player
+            self.damage = GetDamage(Spell.source.unit, Spell.level)
+            self.collision = GetAoE(Spell.level)     
+            self.stun = GetStunTime(Spell.level)
+            self.time = GetFissureDuration(Spell.level)
+
+            self:launch()
+        end
+
+        function Fissure.onInit()
+            RegisterSpellEffectEvent(Fissure_ABILITY, Fissure.onCast)
+        end
+    end
+end)

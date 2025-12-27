@@ -1,27 +1,29 @@
---[[ requires SpellEffectEvent, PluginSpellEffect, Zap, LightningAttack, Fissure, BreathOfFire, NewBonus
-    /* ----------------- Storm, Earth and Fire v1.2 by Chopinski ---------------- */
-    // Credits:
-    //     Blizazrd    - Icon
-    //     Bribe       - SpellEffectEvent, UnitIndexerGUI
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("StormEarthFire", function(requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Utilities"
+    requires "Zap"
+    requires "Fissure"
+    requires "KegSmash"
+    requires "BreathOfFire"
+    requires "LightningAttack"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ------------------------ Storm, Earth and Fire v1.5 by Chopinski ------------------------ --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of Storm, Earth and Fire ability
-    local ABILITY       = FourCC('A007')
+    local ABILITY       = S2A('Chn9')
     -- The raw code of Storm unit
-    local STORM         = FourCC('n002')
+    local STORM         = S2A('uch1')
     -- The raw code of Earth unit
-    local EARTH         = FourCC('n003')
+    local EARTH         = S2A('uch2')
     -- The raw code of Fire unit
-    local FIRE          = FourCC('n001')
-    -- The raw code Earth hardened skin ability
-    local HARDENED_SKIN = FourCC('A00C')
+    local FIRE          = S2A('uch0')
     -- The raw code Fire Immolation ability
-    local IMMOLATION    = FourCC('A00A')
+    local IMMOLATION    = S2A('ChnA')
 
     -- The max hp of each element
     local function GetHealth(unittype, level, source)
@@ -67,56 +69,82 @@ do
         end
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
-            local timer = CreateTimer()
-            local player = Spell.source.player
-            local level = Spell.level
-            local unit = Spell.source.unit
-            local group = CreateGroup()
+    local function GetDamageBlock(source, level)
+        return 50. * level + GetUnitBonus(source, BONUS_DAMAGE_BLOCK)
+    end
 
-            TimerStart(timer, 0, false, function()
-                GroupEnumUnitsOfPlayer(group, player, nil)
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    local unit = BlzGroupUnitAt(group, i)
-                    local unittype = GetUnitTypeId(unit)
-                    
-                    if unittype == STORM then
-                        SetUnitAbilityLevel(unit, Zap_ABILITY, level)
-                        SetUnitAbilityLevel(unit, LightningAttack_ABILITY, level)
-                        BlzSetUnitMaxHP(unit, GetHealth(unittype, level, unit))
-                        BlzSetUnitMaxMana(unit, GetMana(unittype, level, unit))
-                        BlzSetUnitBaseDamage(unit, GetDamage(unittype, level, unit), 0)
-                        BlzSetUnitArmor(unit, GetArmor(unittype, level, unit))
-                        SetUnitLifePercentBJ(unit, 100)
-                        SetUnitManaPercentBJ(unit, 100)
-                    elseif unittype == EARTH then
-                        SetUnitAbilityLevel(unit, Fissure_ABILITY, level)
-                        SetUnitAbilityLevel(unit, HARDENED_SKIN, level)
-                        BlzSetUnitMaxHP(unit, GetHealth(unittype, level, unit))
-                        BlzSetUnitMaxMana(unit, GetMana(unittype, level, unit))
-                        BlzSetUnitBaseDamage(unit, GetDamage(unittype, level, unit), 0)
-                        BlzSetUnitArmor(unit, GetArmor(unittype, level, unit))
-                        SetUnitLifePercentBJ(unit, 100)
-                        SetUnitManaPercentBJ(unit, 100)
-                    elseif unittype == FIRE then
-                        SetUnitAbilityLevel(unit, BreathOfFire_ABILITY, level)
-                        SetUnitAbilityLevel(unit, IMMOLATION, level)
-                        BlzSetUnitMaxHP(unit, GetHealth(unittype, level, unit))
-                        BlzSetUnitMaxMana(unit, GetMana(unittype, level, unit))
-                        BlzSetUnitBaseDamage(unit, GetDamage(unittype, level, unit), 0)
-                        BlzSetUnitArmor(unit, GetArmor(unittype, level, unit))
-                        SetUnitLifePercentBJ(unit, 100)
-                        SetUnitManaPercentBJ(unit, 100)
+    local function GetImmolationDamage(source, level)
+        return 75. * level + (0.1 * level * GetUnitBonus(source, BONUS_SPELL_POWER))
+    end
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        StormEarthFire = Class(Spell)
+
+        function StormEarthFire:onCast()
+            local this = {
+                player = Spell.source.player,
+                unit = Spell.source.unit,
+                level = Spell.level,
+                group = CreateGroup()
+            }
+
+            TimerStart(CreateTimer(), 1, false, function()
+                GroupEnumUnitsOfPlayer(this.group, this.player, nil)
+
+                local u = FirstOfGroup(this.group)
+
+                while u do
+                    local id = GetUnitTypeId(u)
+
+                    if id == STORM then
+                        SetUnitAbilityLevel(u, Zap_ABILITY, this.level)
+                        SetUnitAbilityLevel(u, LightningAttack_ABILITY, this.level)
+                        BlzSetUnitMaxHP(u, GetHealth(id, this.level, this.unit))
+                        BlzSetUnitMaxMana(u, GetMana(id, this.level, this.unit))
+                        BlzSetUnitBaseDamage(u, GetDamage(id, this.level, this.unit), 0)
+                        BlzSetUnitArmor(u, GetArmor(id, this.level, this.unit))
+                        SetUnitBonus(u, BONUS_SPELL_POWER, GetUnitBonus(this.unit, BONUS_SPELL_POWER))
+                        SetUnitLifePercentBJ(u, 100)
+                        SetUnitManaPercentBJ(u, 100)
+                    elseif id == EARTH then
+                        SetUnitAbilityLevel(u, KegSmash_ABILITY, GetUnitAbilityLevel(this.unit, KegSmash_ABILITY))
+                        SetUnitAbilityLevel(u, Fissure_ABILITY, GetUnitAbilityLevel(this.unit, Fissure_ABILITY))
+                        BlzSetUnitMaxHP(u, GetHealth(id, this.level, this.unit))
+                        BlzSetUnitMaxMana(u, GetMana(id, this.level, this.unit))
+                        BlzSetUnitBaseDamage(u, GetDamage(id, this.level, this.unit), 0)
+                        BlzSetUnitArmor(u, GetArmor(id, this.level, this.unit))
+                        AddUnitBonus(u, BONUS_DAMAGE_BLOCK, GetDamageBlock(this.unit, this.level))
+                        SetUnitBonus(u, BONUS_SPELL_POWER, GetUnitBonus(this.unit, BONUS_SPELL_POWER))
+                        SetUnitLifePercentBJ(u, 100)
+                        SetUnitManaPercentBJ(u, 100)
+                    elseif id == FIRE then
+                        SetUnitAbilityLevel(u, BreathOfFire_ABILITY, GetUnitAbilityLevel(this.unit, BreathOfFire_ABILITY))
+                        BlzSetUnitMaxHP(u, GetHealth(id, this.level, this.unit))
+                        BlzSetUnitMaxMana(u, GetMana(id, this.level, this.unit))
+                        BlzSetUnitBaseDamage(u, GetDamage(id, this.level, this.unit), 0)
+                        BlzSetUnitArmor(u, GetArmor(id, this.level, this.unit))
+                        SetUnitBonus(u, BONUS_SPELL_POWER, GetUnitBonus(this.unit, BONUS_SPELL_POWER))
+                        SetUnitLifePercentBJ(u, 100)
+                        SetUnitManaPercentBJ(u, 100)
+                        BlzSetAbilityRealLevelField(BlzGetUnitAbility(u, IMMOLATION), ABILITY_RLF_DAMAGE_PER_INTERVAL, 0, GetImmolationDamage(this.unit, this.level))
+                        BlzUnitDisableAbility(u, IMMOLATION, true, true)
+                        BlzUnitDisableAbility(u, IMMOLATION, false, false)
                     end
+
+                    GroupRemoveUnit(this.group, u)
+                    u = FirstOfGroup(this.group)
                 end
-                DestroyGroup(group)
-                PauseTimer(timer)
-                DestroyTimer(timer)
+
+                DestroyGroup(this.group)
+                DestroyTimer(GetExpiredTimer())
             end)
-        end)
-    end)
-end
+        end
+
+        function StormEarthFire.onInit()
+            RegisterSpell(StormEarthFire.allocate(), ABILITY)
+        end        
+    end
+end)

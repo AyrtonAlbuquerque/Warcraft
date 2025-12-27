@@ -1,17 +1,17 @@
---[[ requires SpellEffectEvent, PluginSpellEffect, Missiles
-    /* -------------------------- Zap v1.2 by Chopinski ------------------------- */
-    // Credits:
-    //     CRAZYRUSSIAN    - Icon
-    //     Bribe           - SpellEffectEvent
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("Zap", function(requires)
+    requires "Class"
+    requires "Spell"
+    requires "Missiles"
+    requires "Utilities"
+    requires.optional "Bonus"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- --------------------------------- Zap v1.4 by Chopinski --------------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Zap ability
-    Zap_ABILITY        = FourCC('A008')
+    Zap_ABILITY        = S2A('ChnC')
     -- The Zap model
     local MODEL        = "ZapMissile.mdl"
     -- The Zap scale
@@ -31,8 +31,12 @@ do
     end
 
     -- The Zap damage
-    local function GetDamage(level)
-        return 150.*level
+    local function GetDamage(source, level)
+        if Bonus then
+            return 150. * level + 1 * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 150. * level
+        end
     end
 
     -- The Zap mana drain per second
@@ -45,62 +49,65 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    Zap = setmetatable({}, {})
-    local mt = getmetatable(Zap)
-    mt.__index = mt
-    
-    function mt:onCast()
-        local this = Missiles:create(Spell.source.x, Spell.source.y, HEIGHT, Spell.x, Spell.y, HEIGHT)
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Lightning = Class(Missile)
 
-        this:model(MODEL)
-        this:scale(SCALE)
-        this:speed(SPEED)
-        this.source = Spell.source.unit
-        this.owner = Spell.source.player
-        this.damage = GetDamage(Spell.level)
-        this.collision = GetCollision(Spell.level)
-        this.mana = GetManaDrain(Spell.level)*0.025
-
-        this.onPeriod = function()
-            local hasMana = this.mana <= GetUnitState(this.source, UNIT_STATE_MANA)
+        function Lightning:onPeriod()
+            local hasMana = self.mana <= GetUnitState(self.source, UNIT_STATE_MANA)
 
             if hasMana then
-                AddUnitMana(this.source, -this.mana)
+                AddUnitMana(self.source, -self.mana)
             end
 
             return not hasMana
         end
-        
-        this.onHit = function(unit)
-            if DamageFilter(this.owner, unit) then
-                UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_LIGHTNING, nil)
+
+        function Lightning:onUnit(unit)
+            if DamageFilter(self.owner, unit) then
+                UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_LIGHTNING, nil)
                 DestroyEffect(AddSpecialEffectTarget(IMPACT_MODEL, unit, ATTACH))
             end
 
             return false
         end
-        
-        this.onRemove = function()
-            SetUnitX(this.source, this.x)
-            SetUnitY(this.source, this.y)
-            BlzPauseUnitEx(this.source, false)
-            ShowUnit(this.source, true)
-            SelectUnitAddForPlayer(this.source, this.owner)
+
+        function Lightning:onRemove()
+            SetUnitX(self.source, self.x)
+            SetUnitY(self.source, self.y)
+            ShowUnit(self.source, true)
+            SelectUnitAddForPlayer(self.source, self.owner)
+        end
+    end
+
+    do
+        Zap = Class(Spell)
+
+        function Zap:onTooltip(unit, level, ability)
+            return "|cffffcc00Storm|r transforms into a lightning, flying towards the targeted direction and dealing |cff00ffff" .. N2S(GetDamage(unit, level), 0) .. "|r |cff00ffffMagic|r damage to enemy unit in his path. |cffffcc00Zap|r drains |cff00ffff" .. N2S(GetManaDrain(level), 0) .. " Mana|r per second."
         end
 
+        function Zap:onCast()
+            local zap = Lightning.create(Spell.source.x, Spell.source.y, HEIGHT, Spell.x, Spell.y, HEIGHT)
 
-        BlzPauseUnitEx(Spell.source.unit, true)
-        ShowUnit(Spell.source.unit, false)
-        
-        this:launch()
+            zap.model = MODEL
+            zap.scale = SCALE
+            zap.speed = SPEED
+            zap.source = Spell.source.unit
+            zap.owner = Spell.source.player
+            zap.vision = 1000
+            zap.damage = GetDamage(Spell.source.unit, Spell.level)
+            zap.collision = GetCollision(Spell.level)
+            zap.mana = GetManaDrain(Spell.level) * Missile.period
+
+            ShowUnit(Spell.source.unit, false)
+            zap:launch()
+        end
+
+        function Zap.onInit()
+            RegisterSpell(Zap.allocate(), Zap_ABILITY)
+        end
     end
-    
-    onInit(function()
-        RegisterSpellEffectEvent(Zap_ABILITY, function()
-           Zap:onCast() 
-        end)
-    end)
-end
+end)
