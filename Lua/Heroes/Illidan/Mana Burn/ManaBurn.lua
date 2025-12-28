@@ -12,11 +12,11 @@ do
     --                                Configuration                               --
     -- -------------------------------------------------------------------------- --
     -- The raw code of the Mana Burn Ability
-    ManaBurn_ABILITY      = FourCC('A007')
+    ManaBurn_ABILITY      = S2A('A007')
     -- The raw code of the Illidan unit in the editor
-    local ILLIDAN_ID      = FourCC('E000')
+    local ILLIDAN_ID      = S2A('E000')
     -- The raw code of the Dark Illidan unit in the editor
-    local DARK_ILLIDAN_ID = FourCC('E001')
+    local DARK_ILLIDAN_ID = S2A('E001')
     -- The GAIN_AT_LEVEL is greater than 0
     -- illidan will gain Mana Burn at this level 
     local GAIN_AT_LEVEL   = 20
