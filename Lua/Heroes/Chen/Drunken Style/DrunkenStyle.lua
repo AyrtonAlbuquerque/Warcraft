@@ -75,9 +75,9 @@ OnInit("DrunkenStyle", function(requires)
     -- ----------------------------------------------------------------------------------------- --
     --                                           System                                          --
     -- ----------------------------------------------------------------------------------------- --
+    local Dash = Class(Missile)
+    
     do
-        Dash = Class(Missile)
-
         function Dash:onPeriod()
             return not UnitAlive(self.source)
         end
