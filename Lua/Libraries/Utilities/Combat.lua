@@ -18,7 +18,7 @@ OnInit("Combat", function(requires)
         return Combat.target
     end
 
-    function IsUnitInComba(unit)
+    function IsUnitInCombat(unit)
         return Combat.inCombat(unit)
     end
 
@@ -69,6 +69,7 @@ OnInit("Combat", function(requires)
 
                 array[source] = this
                 array[this.timer] = this
+                array[this.reset] = this
             end
 
             this.unit = source
@@ -98,6 +99,7 @@ OnInit("Combat", function(requires)
 
                 array[target] = that
                 array[that.timer] = that
+                array[that.reset] = that
             end
 
             that.unit = target
