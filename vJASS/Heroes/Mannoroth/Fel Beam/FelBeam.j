@@ -11,16 +11,12 @@ library FelBeam requires Missiles, Spell, Modules, NewBonus, Utilities
     /*                                Configuration                               */
     /* -------------------------------------------------------------------------- */
     globals
-        // The raw code of the Rain of Fel Fire ability
+        // The raw code of the Fel Beam ability
         public constant integer     ABILITY       = 'Mnr2'
         // The beam inicial z offset
         private constant real       START_HEIGHT  = 60
         // The beam final z offset
         private constant real       END_HEIGHT    = 60
-        // The landing time of the falling misisle
-        private constant real       LANDING_TIME  = 1.5
-        // The impact radius of the missile that will damage units.
-        private constant real       IMPACT_RADIUS = 120.
         // The missile model
         private constant string     MISSILE_MODEL = "Fel_Beam.mdx"
         // The size of the fel beam
