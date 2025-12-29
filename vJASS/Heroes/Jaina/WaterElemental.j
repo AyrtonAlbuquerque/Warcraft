@@ -189,6 +189,7 @@ library WaterElemental requires Spell, NewBonus, Indexer, Utilities
                 set this = struct[Spell.source.id]
             else
                 set this = thistype.allocate()
+                set id = Spell.source.id
                 set struct[Spell.source.id] = this
                 set elementals = Elemental.create(Spell.source.unit)
             endif

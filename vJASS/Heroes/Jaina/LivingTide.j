@@ -82,7 +82,6 @@ library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules opti
                         call flush(u)
                     endif
                 endif
-
             endif
 
             return false
