@@ -1,28 +1,27 @@
---[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, TimerUtils, Utilities, DamageInterface
-    /* ---------------------- Bad Weather v1.0 by Chopinski --------------------- */
-    // Credits:
-    //     Bribe                - SpellEffectEvent
-    //     Magtheridon96        - RegisterPlayerUnitEvent
-    //     Vexorian             - TimerUtils
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("BadWeather", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Damage"
+    requires "Utilities"
+    requires "RegisterPlayerUnitEvent"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------- Bad Weather v1.1 by Chopinski ----------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Ability
-    local ABILITY       = FourCC('A005')
+    local ABILITY       = S2A('Jna6')
     -- The raw code of the debuff Ability
-    local DEBUFF        = FourCC('A007')
+    local DEBUFF        = S2A('Jna7')
     -- The raw code of the debuff buff
-    local BUFF          = FourCC('B001')
+    local BUFF          = S2A('BJn4')
     -- The rain model
     local MODEL         = "Rain.mdl"
     -- The rain model scale
     local SCALE         = 2.5
     -- The raw code of the Jaina unit in the editor
-    local JAINA_ID      = FourCC('H000')
+    local JAINA_ID      = S2A('H000')
     -- The GAIN_AT_LEVEL is greater than 0
     -- Jaina will gain Bad Weather at this level
     local GAIN_AT_LEVEL = 20
@@ -41,42 +40,59 @@ do
         end
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
     do
-        onInit(function()
-            RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function()
-                local unit = GetTriggerUnit()
+        BadWeather = Class(Spell)
 
-                if GAIN_AT_LEVEL > 0 then
-                    if GetUnitTypeId(unit) == JAINA_ID and GetHeroLevel(unit) == GAIN_AT_LEVEL then
-                        UnitAddAbility(unit, ABILITY)
-                        UnitMakeAbilityPermanent(unit, true, ABILITY)
-                    end
+        function BadWeather:destroy()
+            UnitRemoveAbility(self.unit, DEBUFF)
+            DestroyEffect(self.effect)
+            DummyRecycle(self.unit)
+            
+            self.unit = nil
+            self.effect = nil
+        end
+
+        function BadWeather:onTooltip(source, level, ability)
+            return "|cffffcc00Jaina|r conjures a heavy rain at the target region causing all enemy units within |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) .. " AoE|r to take |cffffcc00" .. N2S(20, 0) .. "%%|r increased |cff00ffffMagic|r damage.\n\nLasts for |cffffcc00" .. N2S(GetDuratoin(source, level), 0) .. "|r seconds."
+        end
+
+        function BadWeather:onCast()
+            local this = BadWeather.allocate()
+
+            this.unit = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
+            this.effect = AddSpecialEffectEx(MODEL, Spell.x, Spell.y, 0, SCALE)
+
+            UnitAddAbility(this.unit, DEBUFF)
+            TimerStart(CreateTimer(), GetDuratoin(Spell.source.unit, Spell.level), false, function ()
+                DestroyTimer(GetExpiredTimer())
+                this:destroy()
+            end)
+        end
+
+        function BadWeather.onDamage()
+            if GetUnitAbilityLevel(Damage.target.unit, BUFF) > 0 and Damage.isEnemy then
+                Damage.amount = Damage.amount * (1 + GetDamageBonus(BUFF))
+            end
+        end
+
+        function BadWeather.onLevelUp()
+            local unit = GetTriggerUnit()
+        
+            if GAIN_AT_LEVEL > 0 then
+                if GetUnitTypeId(unit) == JAINA_ID and GetHeroLevel(unit) == GAIN_AT_LEVEL then
+                    UnitAddAbility(unit, ABILITY)
+                    UnitMakeAbilityPermanent(unit, true, ABILITY)
                 end
-            end)
+            end
+        end
 
-            RegisterSpellEffectEvent(ABILITY, function()
-                local timer = CreateTimer()
-                local unit = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
-                local effect = AddSpecialEffectEx(MODEL, Spell.x, Spell.y, 0, SCALE)
-
-                UnitAddAbility(unit, DEBUFF)
-                TimerStart(timer, GetDuratoin(Spell.source.unit, Spell.level), false, function()
-                    UnitRemoveAbility(unit, DEBUFF)
-                    DestroyEffect(effect)
-                    DummyRecycle(unit)
-                    PauseTimer(timer)
-                    DestroyTimer(timer)
-                end)
-            end)
-
-            RegisterSpellDamageEvent(function()
-                if GetUnitAbilityLevel(Damage.target.unit, BUFF) > 0 and Damage.isEnemy then
-                    BlzSetEventDamage(GetEventDamage()*(1 + GetDamageBonus(BUFF)))
-                end
-            end)
-        end)
+        function BadWeather.onInit()
+            RegisterSpell(BadWeather.allocate(), ABILITY)
+            RegisterSpellDamageEvent(BadWeather.onDamage)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, BadWeather.onLevelUp)
+        end
     end
-end
+end)

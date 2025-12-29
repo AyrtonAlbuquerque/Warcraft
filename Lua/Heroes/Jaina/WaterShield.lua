@@ -1,19 +1,19 @@
---[[requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, DamageInterface, Missiles, Utilities, TimerUtils
-    /* --------------------- Water Shield v1.1 by Chopinski --------------------- */
-    -- Credits:
-    --     Darkfang        - Icon
-    --     Bribe           - SpellEffectEvent
-    --     Vexorian        - TimerUtils
-    --     Magtheridon96   - RegisterPlayerUnitEvent
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("WaterShield", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Damage"
+    requires "Missiles"
+    requires "Utilities"
+    requires "RegisterPlayerUnitEvent"
+    requires.optional "Bonus"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------- Water Shield v1.2 by Chopinski ---------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the ability
-    local ABILITY                = FourCC('A002')
+    local ABILITY                = S2A('Jna2')
     -- The shield model
     local MODEL                  = "WaterShield.mdl"
     -- The shield attachement point
@@ -31,12 +31,20 @@ do
 
     -- The shield amount
     local function GetAmount(unit, level)
-        return 100.*level + (0.5 + 0.5*level)*GetHeroInt(unit, true)
+        if Bonus then
+            return 100.*level + (0.5 + 0.5*level) * GetHeroInt(unit, true) + 0.25 * GetUnitBonus(unit, BONUS_SPELL_POWER)
+        else
+            return 100.*level + (0.5 + 0.5*level) * GetHeroInt(unit, true)
+        end
     end
 
     -- The water bolt damage
     local function GetBoltDamage(unit, level)
-        return 25. + 25.*level
+        if Bonus then
+            return 25. + 25.*level + 0.15 * GetUnitBonus(unit, BONUS_SPELL_POWER)
+        else
+            return 25. + 25.*level
+        end
     end
 
     -- The range at which units can be selected by water bolt
@@ -64,176 +72,187 @@ do
         return IsUnitEnemy(target, player) and UnitAlive(target) and not IsUnitType(target, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
     do
-        local WaterShield = setmetatable({}, {})
-        local mt = getmetatable(WaterShield)
-        mt.__index = mt
+        WaterBolt = Class(Missile)
 
-        local offense = {}
-        local defense = {}
-        local effect = {}
+        function WaterBolt:onFinish()
+            if UnitAlive(self.target) then
+                UnitDamageTarget(self.source, self.target, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
+            end
 
-        function mt:allocate()
-            local this = {}
-            setmetatable(this, mt)
-            return this
+            return true
         end
+    end
 
-        function mt:destroy()
+    do
+        WaterShield = Class(Spell)
+
+        local effect = {}
+        local defense = {}
+        local offense = {}
+
+        function WaterShield:destroy()
             if self.defensive then
                 defense[self.target] = nil
 
-                if offense[self.target] == nil then
+                if not offense[self.target] then
                     DestroyEffect(effect[self.target])
                     effect[self.target] = nil
                 end
             else
                 offense[self.target] = nil
 
-                if defense[self.target] == nil  then
+                if not defense[self.target] then   
                     DestroyEffect(effect[self.target])
                     effect[self.target] = nil
                 end
             end
 
             DestroyGroup(self.group)
-            PauseTimer(self.timer)
-            DestroyTimer(self.timer)
-            self = nil
+
+            self.group = nil
+            self.source = nil
+            self.target = nil
+            self.player = nil
         end
 
-        function mt:onExpire()
-            if self.defensive and self.amount > 0 then
-                GroupEnumUnitsInRange(self.group, GetUnitX(self.target), GetUnitY(self.target), self.aoe, nil)
-                for i = 0, BlzGroupGetSize(self.group) - 1 do
-                    local unit = BlzGroupUnitAt(self.group, i)
+        function WaterShield:onTooltip(source, level, ability)
+            return "|cffffcc00Jaina|r can cast |cffffcc00Water Shield|r in an ally or enemy unit. When targeting an ally, the |cffffcc00Water Shield|r blocks |cff00ffff" .. N2S(GetAmount(source, level), 0) .. "|r damage and if the shield last it's whole duration it will explode, dealing the remaining shield amount as |cff00ffffMagic|r damage to nearby enemy units within |cffffcc00" .. N2S(GetExplosionAoE(source, level), 0) .. " AoE|r. When targeting an enemy unit, all attacks to the targeted unit will splash water bolts to enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r in a |cffffcc00" .. N2S(GetAngle(source, level), 0) .. "|r degrees angle behind the target unit from the direction of the attack, dealing |cff00ffff" .. N2S(GetBoltDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage.\n\nLasts for |cffffcc00" .. N2S(GetDuration(source, level), 1) .. "|r seconds."
+        end
 
-                    if UnitFilter(self.player, unit) then
-                        UnitDamageTarget(self.source, unit, self.amount, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
-                    end
-                end
-                DestroyEffect(AddSpecialEffectEx(EXPLOSION_MODEL, GetUnitX(self.target), GetUnitY(self.target), 0, EXPLOSION_SCALE))
+        function WaterShield:onCast()
+            local this
+
+            if not effect[Spell.target.unit] then
+                effect[Spell.target.unit] = AddSpecialEffectTarget(MODEL, Spell.target.unit, ATTACH)
             end
 
-            self:destroy()
-        end
-
-        onInit(function()
-            RegisterSpellEffectEvent(ABILITY, function()
-                local this
-
-                if effect[Spell.target.unit] == nil then
-                    effect[Spell.target.unit] = AddSpecialEffectTarget(MODEL, Spell.target.unit, ATTACH)
-                end
-
-                if IsUnitEnemy(Spell.target.unit, Spell.source.player) then
-                    if offense[Spell.target.unit] then
-                        this = offense[Spell.target.unit]
-                    else
-                        this = WaterShield:allocate()
-                        this.timer = CreateTimer()
-                        this.target = Spell.target.unit
-                        this.group = CreateGroup()
-                        this.defensive = false
-                        offense[this.target] = this
-                    end
-
-                    this.source = Spell.source.unit
-                    this.player = Spell.source.player
-                    this.level = Spell.level
-                    this.amount = GetBoltDamage(this.source, this.level)
-                    this.angle = GetAngle(this.source, this.level)
-                    this.aoe = GetAoE(this.source, this.level)
+            if Spell.isEnemy then
+                if offense[Spell.target.unit] then
+                    this = offense[Spell.target.unit]
                 else
-                    if defense[Spell.target.unit] then
-                        this = defense[Spell.target.unit]
-                    else
-                        this = WaterShield:allocate()
-                        this.timer = CreateTimer()
-                        this.target = Spell.target.unit
-                        this.group = CreateGroup()
-                        this.defensive = true
-                        defense[this.target] = this
-                    end
-
-                    this.source = Spell.source.unit
-                    this.player = Spell.source.player
-                    this.level = Spell.level
-                    this.amount = (this.amount or 0) + GetAmount(this.source, this.level)
-                    this.aoe = GetExplosionAoE(this.source, this.level)
+                    this = WaterShield.allocate()
+                    
+                    this.target = Spell.target.unit
+                    this.group = CreateGroup()
+                    this.defensive = false
+                    offense[Spell.target.unit] = this
                 end
 
-                TimerStart(this.timer, GetDuration(this.source, this.level), false, function() this:onExpire() end)
-            end)
-
-            RegisterAnyDamageEvent(function()
-                local damage = GetEventDamage()
-
-                if damage > 0 and defense[Damage.target.unit] then
-                    local this = defense[Damage.target.unit]
-
-                    if damage <= this.amount then
-                        this.amount = this.amount - damage
-                        BlzSetEventDamage(0)
-                    else
-                        damage = damage - this.amount
-                        this.amount = 0
-
-                        BlzSetEventDamage(damage)
-                        this:destroy()
-                    end
+                this.source = Spell.source.unit
+                this.player = Spell.source.player
+                this.level = Spell.level
+                this.amount = GetBoltDamage(this.source, this.level)
+                this.angle = GetAngle(this.source, this.level)
+                this.aoe = GetAoE(this.source, this.level)
+            else
+                if defense[Spell.target.unit] then
+                    this = defense[Spell.target.unit]
+                else
+                    this = WaterShield.allocate()
+                    
+                    this.target = Spell.target.unit
+                    this.group = CreateGroup()
+                    this.defensive = true
+                    this.amount = 0
+                    defense[Spell.target.unit] = this
                 end
-            end)
 
-            RegisterAttackDamageEvent(function()
-                if Damage.isEnemy and offense[Damage.target.unit] then
-                    local this = offense[Damage.target.unit]
+                this.source = Spell.source.unit
+                this.player = Spell.source.player
+                this.level = Spell.level
+                this.amount = this.amount + GetAmount(this.source, this.level)
+                this.aoe = GetExplosionAoE(this.source, this.level)
+            end
 
-                    GroupEnumUnitsInRange(this.group, Damage.target.x, Damage.target.y, this.aoe, nil)
-                    GroupRemoveUnit(this.group, Damage.target.unit)
-                    for i = 0, BlzGroupGetSize(this.group) - 1 do
-                        local unit = BlzGroupUnitAt(this.group, i)
+            TimerStart(CreateTimer(), GetDuration(this.source, this.level), false, function ()
+                if this.defensive and this.amount > 0 then
+                    GroupEnumUnitsInRange(this.group, GetUnitX(this.target), GetUnitY(this.target), this.aoe, nil)
 
-                        if UnitFilter(this.player, unit) and IsUnitInCone(unit, Damage.target.x, Damage.target.y, this.aoe, AngleBetweenCoordinates(Damage.source.x, Damage.source.y, Damage.target.x, Damage.target.y)*bj_RADTODEG, this.angle) then
-                            local bolt = Missiles:create(Damage.target.x, Damage.target.y, 50, GetUnitX(unit), GetUnitY(unit), 50)
+                    local u = FirstOfGroup(this.group)
 
-                            bolt:model(BOLT_MODEL)
-                            bolt:speed(BOLT_SPEED)
-                            bolt:scale(BOLT_SCALE)
-                            bolt.source = this.source
-                            bolt.target = unit
-                            bolt.damage = this.amount
-
-                            bolt.onFinish = function()
-                                if UnitAlive(bolt.target) then
-                                    UnitDamageTarget(bolt.source, bolt.target, bolt.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
-                                end
-
-                                return true
-                            end
-
-                            bolt:launch()
+                    while u do
+                        if UnitFilter(this.player, u) then
+                            UnitDamageTarget(this.source, u, this.amount, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
                         end
                     end
+
+                    DestroyEffect(AddSpecialEffectEx(EXPLOSION_MODEL, GetUnitX(this.target), GetUnitY(this.target), 0, EXPLOSION_SCALE))
                 end
+
+                DestroyTimer(GetExpiredTimer())
+                this:destroy()
             end)
+        end
 
-            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function()
-                local unit = GetTriggerUnit()
+        function WaterShield.onDamage()
+            local self = defense[Damage.target.unit]
 
-                if offense[unit] then
-                    local this = offense[unit]
-                    this:destroy()
+            if Damage.amount > 0 and self then
+                if Damage.amount <= self.amount then
+                    self.amount = self.amount - Damage.amount
+                    Damage.amount = 0
+                else
+                    Damage.amount = Damage.amount - self.amount
+                    self.amount = 0
+
+                    self:destroy()
                 end
+            end
+        end
 
-                if defense[unit] then
-                    local this = defense[unit]
-                    this:destroy()
+        function WaterShield.onAttack()
+            local self = offense[Damage.target.unit]
+
+            if Damage.isEnemy and self then
+                GroupEnumUnitsInRange(self.group, Damage.target.x, Damage.target.y, self.aoe, nil)
+                GroupRemoveUnit(self.group, Damage.target.unit)
+
+                local u = FirstOfGroup(self.group)
+
+                while u do
+                    if UnitFilter(self.player, u) and IsUnitInCone(u, Damage.target.x, Damage.target.y, self.aoe, AngleBetweenCoordinates(Damage.source.x, Damage.source.y, Damage.target.x, Damage.target.y)*bj_RADTODEG, self.angle) then
+                        local bolt = WaterBolt.create(Damage.target.x, Damage.target.y, 50, GetUnitX(u), GetUnitY(u), 50)
+                        
+                        bolt.target = u
+                        bolt.source = self.source
+                        bolt.model = BOLT_MODEL
+                        bolt.speed = BOLT_SPEED
+                        bolt.scale = BOLT_SCALE
+                        bolt.damage = self.amount
+
+                        bolt:launch()
+                    end
+
+                    GroupRemoveUnit(self.group, u)
+                    u = FirstOfGroup(self.group)
                 end
-            end)
-        end)
+            end
+        end
+
+        function WaterShield.onDeath()
+            local unit = GetTriggerUnit()
+            local self
+
+            if defense[unit] then
+                self = defense[unit]
+                self:destroy()
+            end
+
+            if offense[unit] then
+                self = offense[unit]
+                self:destroy()
+            end
+        end
+
+        function WaterShield.onInit()
+            RegisterSpell(WaterShield.allocate(), ABILITY)
+            RegisterAnyDamageEvent(WaterShield.onDamage)
+            RegisterAttackDamageEvent(WaterShield.onAttack)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, WaterShield.onDeath)
+        end
     end
-end
+end)

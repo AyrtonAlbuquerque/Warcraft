@@ -1,19 +1,18 @@
---[[ requires RegisterPlayerUnitEvent, TimerUtils
-    /* -------------------- Brilliance Aure v1.1 by Chopinski ------------------- */
-    // Credits
-    //      Vexorian         - TimerUtils
-    //      Magtheridon96    - RegisterPlayerUnitEvent
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("BrillanceAura", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Utilities"
+    requires "RegisterPlayerUnitEvent"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- --------------------------- Brilliance Aura v1.2 by Chopinski --------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the ability
-    local ABILITY    = FourCC('A003')
+    local ABILITY = S2A('Jna3')
     -- If true the bonus regen will stack with each cast
-    local STACK      = false
+    local STACK   = false
 
     -- The bonus mana regen when an ability is cast
     local function GetBonusManaRegen(unit, level)
@@ -25,85 +24,91 @@ do
         return 2.5 * level
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
     do
-        local BrillianceAura = setmetatable({}, {})
-        local mt = getmetatable(BrillianceAura)
-        mt.__index = mt
+        BrillianceAura = Class(Spell)
 
-        local struct = {}
+        local array = {}
 
-        function mt:allocate()
-            local this = {}
-            setmetatable(this, mt)
-            return this
-        end
+        function BrillianceAura:destroy()
+            DestroyTimer(self.timer)
 
-        function mt:onExpire()
             for i = 0, self.levels - 1 do
                 BlzSetAbilityRealLevelField(self.ability, self.field, i, BlzGetAbilityRealLevelField(self.ability, self.field, i) - self.bonus)
                 IncUnitAbilityLevel(self.unit, ABILITY)
                 DecUnitAbilityLevel(self.unit, ABILITY)
             end
 
-            PauseTimer(self.timer)
-            DestroyTimer(self.timer)
+            array[self.unit] = nil
 
-            struct[self.unit] = nil
-            self = nil
+            self.unit = nil
+            self.timer = nil
+            self.field = nil
+            self.ability = nil
         end
 
-        onInit(function()
-            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function()
-                local unit = GetTriggerUnit()
-                local level = GetUnitAbilityLevel(unit, ABILITY)
-                local this
+        function BrillianceAura:onTooltip(source, level, ability)
+            return "|cffffcc00Jaina|r gives additional |cff00ffff" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_MANA_REGENERATION_INCREASE, level - 1), 1) .. "|r |cff00ffffMana Regeneration|r to nearby friendly units within |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) .. " AoE|r. When she casts an ability the bonus |cff00ffffMana Regeneration|r is increased by |cff00ffff" .. N2S(GetBonusManaRegen(source, level), 1) .. "|r for a |cffffcc00" .. N2S(GetDuration(source, level), 1) .. "|r seconds."
+        end
 
-                if level > 0 then
-                    if STACK then
-                        this = BrillianceAura:allocate()
-                        this.timer = CreateTimer()
-                        this.unit = unit
-                        this.field = ABILITY_RLF_MANA_REGENERATION_INCREASE
-                        this.ability = BlzGetUnitAbility(unit, ABILITY)
-                        this.levels = BlzGetAbilityIntegerField(this.ability, ABILITY_IF_LEVELS)
-                        this.bonus = GetBonusManaRegen(unit, level)
+        function BrillianceAura.onSpell()
+            local source = GetTriggerUnit()
+            local level = GetUnitAbilityLevel(source, ABILITY)
+            local self
 
-                        for i = 0, this.levels - 1 do
-                            BlzSetAbilityRealLevelField(this.ability, this.field, i, BlzGetAbilityRealLevelField(this.ability, this.field, i) + this.bonus)
-                            IncUnitAbilityLevel(unit, ABILITY)
-                            DecUnitAbilityLevel(unit, ABILITY)
-                        end
-                    else
-                        if struct[unit] then
-                            this = struct[unit]
-                        else
-                            this = BrillianceAura:allocate()
-                            this.timer = CreateTimer()
-                            this.unit = unit
-                            this.field = ABILITY_RLF_MANA_REGENERATION_INCREASE
-                            this.ability = BlzGetUnitAbility(unit, ABILITY)
-                            this.levels = BlzGetAbilityIntegerField(this.ability, ABILITY_IF_LEVELS)
-                            this.bonus = 0
-                            struct[unit] = this
-                        end
+            if level > 0 then
+                if STACK then
+                    self = BrillianceAura.allocate()
 
-                        if this.bonus == 0 then
-                            this.bonus = GetBonusManaRegen(unit, level)
+                    self.unit = source
+                    self.timer = CreateTimer()
+                    self.field = ABILITY_RLF_MANA_REGENERATION_INCREASE
+                    self.ability = BlzGetUnitAbility(source, ABILITY)
+                    self.levels = BlzGetAbilityIntegerField(self.ability, ABILITY_IF_LEVELS)
+                    self.bonus = GetBonusManaRegen(source, level)
 
-                            for i = 0, this.levels - 1 do
-                                BlzSetAbilityRealLevelField(this.ability, this.field, i, BlzGetAbilityRealLevelField(this.ability, this.field, i) + this.bonus)
-                                IncUnitAbilityLevel(unit, ABILITY)
-                                DecUnitAbilityLevel(unit, ABILITY)
-                            end
+                    for i = 0, self.levels - 1 do
+                        BlzSetAbilityRealLevelField(self.ability, self.field, i, BlzGetAbilityRealLevelField(self.ability, self.field, i) + self.bonus)
+                        IncUnitAbilityLevel(source, ABILITY)
+                        DecUnitAbilityLevel(source, ABILITY)
+                    end
+                else
+                    self = array[source]
+
+                    if not self then
+                        self = BrillianceAura.allocate()
+
+                        self.bonus = 0
+                        self.unit = source
+                        self.timer = CreateTimer()
+                        self.field = ABILITY_RLF_MANA_REGENERATION_INCREASE
+                        self.ability = BlzGetUnitAbility(source, ABILITY)
+                        self.levels = BlzGetAbilityIntegerField(self.ability, ABILITY_IF_LEVELS)
+                        array[source] = self
+                    end
+                    
+                    if (self.bonus or 0) == 0 then
+                        self.bonus = GetBonusManaRegen(source, level)
+
+                        for i = 0, self.levels - 1 do
+                            BlzSetAbilityRealLevelField(self.ability, self.field, i, BlzGetAbilityRealLevelField(self.ability, self.field, i) + self.bonus)
+                            IncUnitAbilityLevel(source, ABILITY)
+                            DecUnitAbilityLevel(source, ABILITY)
                         end
                     end
-
-                    TimerStart(this.timer, GetDuration(unit, level), false, function() this:onExpire() end)
                 end
-            end)
-        end)
+
+                TimerStart(self.timer, GetDuration(source, level), false, function ()
+                    self:destroy()
+                end)
+            end
+        end
+
+        function BrillianceAura.onInit()
+            RegisterSpell(BrillianceAura.allocate(), ABILITY)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, BrillianceAura.onSpell)
+        end
     end
-end
+end)    

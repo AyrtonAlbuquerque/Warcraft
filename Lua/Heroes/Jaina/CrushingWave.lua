@@ -1,17 +1,19 @@
---[[ requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl optional WaterElemental
-    /* --------------------- Crushing Wave v1.1 by Chopinski -------------------- */
-    // Credits:
-    //     Blizzard        - Icon
-    //     Bribe           - SpellEffectEvent
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("CrushingWave", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Missiles"
+    requires "Utilities"
+    requires "CrowdControl"
+    requires.optional "Bonus"
+    requires.optional "WaterElemental"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------- Crushing Wave v1.2 by Chopinski ---------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the ability
-    local ABILITY   = FourCC('A001')
+    local ABILITY   = S2A('Jna1')
     -- The Wave model
     local MODEL     = "LivingTide.mdl"
     -- The Wave speed
@@ -21,7 +23,11 @@ do
 
     -- The wave damage
     local function GetDamage(unit, level)
-        return 50. + 50.*level
+        if Bonus then
+            return 100. + 100.*level + (0.15 + 0.15*level) * GetUnitBonus(unit, BONUS_SPELL_POWER)
+        else
+            return 100. + 100.*level
+        end
     end
 
     -- The Wave collision
@@ -54,23 +60,49 @@ do
         return UnitAlive(target) and IsUnitEnemy(target, player) and not IsUnitType(target, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    local Wave = Class(Missile)
+    
     do
-        local function launch(x, y, z, tx, ty, tz, source, player, level, elemental)
-            local this = Missiles:create(x, y, z, tx, ty, tz)
+        function Wave:onUnit(unit)
+            if UnitFilter(self.owner, unit) then
+                if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                    SlowUnit(unit, self.slow, self.timeout, nil, nil, false)
+                end
+            end
 
-            this:model(MODEL)
-            this:scale(SCALE)
-            this:speed(SPEED)
-            this.source = source
-            this.owner = player
-            this.unit = elemental
-            this.damage = GetDamage(source, level)
-            this.collision = GetCollision(source, level)
-            this.slow = GetSlowAmount(source, level)
-            this.timeout = GetSlowDuration(source, level)
+            return false
+        end
+
+        function Wave:onRemove()
+            if self.unit then
+                PauseUnit(self.unit, false)
+                SetUnitAnimation(self.unit, "Stand")
+                SetUnitInvulnerable(self.unit, false)
+            end
+
+            self.unit = nil
+        end
+    end
+
+    do
+        CrushingWave = Class(Spell)
+
+        function CrushingWave.launch(x, y, z, tx, ty, tz, source, owner, level, elemental)
+            local wave = Wave.create(x, y, z, tx, ty, tz)
+            
+            wave.model = MODEL
+            wave.scale = SCALE
+            wave.speed = SPEED
+            wave.source = source
+            wave.owner = owner
+            wave.unit = elemental
+            wave.damage = GetDamage(source, level)
+            wave.collision = GetCollision(source, level)
+            wave.slow = GetSlowAmount(source, level)
+            wave.timeout = GetSlowDuration(source, level)
 
             if elemental then
                 BlzSetUnitFacingEx(elemental, AngleBetweenCoordinates(x, y, tx, ty)*bj_RADTODEG)
@@ -79,58 +111,43 @@ do
                 SetUnitInvulnerable(elemental, true)
             end
 
-            this.onPeriod = function()
-                if this.unit then
-                    SetUnitX(this.unit, this.x)
-                    SetUnitY(this.unit, this.y)
-                end
-
-                return false
-            end
-
-            this.onHit = function(unit)
-                if UnitFilter(this.owner, unit) then
-                    if UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        SlowUnit(unit, this.slow, this.timeout, nil, nil, false)
-                    end
-                end
-
-                return false
-            end
-
-            this.onRemove = function()
-                if this.unit then
-                    PauseUnit(this.unit, false)
-                    SetUnitAnimation(this.unit, "Stand")
-                    SetUnitInvulnerable(this.unit, false)
-                end
-            end
-
-            this:launch()
+            wave:launch()
         end
 
-        onInit(function()
-            RegisterSpellEffectEvent(ABILITY, function()
-                local angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
-                local offset = GetTravelDistance(Spell.source.unit, Spell.level)
+        function CrushingWave:onTooltip(source, level, ability)
+            return "|cffffcc00Jaina|r creates a |cffffcc00Crushing Wave|r towards the target direction, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing all enemy units caught in it's path by |cffffcc00" .. N2S(GetSlowAmount(source, level) * 100, 0) .. "%%|r  for |cffffcc00" .. N2S(GetSlowDuration(source, level), 2) .. "|r seconds. If there are any of her |cffffcc00Water Elementals|r within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r range when she casts |cffffcc00Crushing Wave|r, the elementals will turn into |cffffcc00Crushing Waves|r themselves applying the same effects and dashing towards the target point."
+        end
 
-                launch(Spell.source.x, Spell.source.y, 0, Spell.source.x + offset*Cos(angle), Spell.source.y + offset*Sin(angle), 0, Spell.source.unit, Spell.source.player, Spell.level, nil)
+        function CrushingWave:onCast()
+            local angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
+            local offset = GetTravelDistance(Spell.source.unit, Spell.level)
 
-                if Elemental then
-                    local group = CreateGroup()
+            self.launch(Spell.source.x, Spell.source.y, 0, Spell.source.x + offset * math.cos(angle), Spell.source.y + offset * math.sin(angle), 0, Spell.source.unit, Spell.source.player, Spell.level, nil)
+            
+            if WaterElemental then
+                local group = CreateGroup()
+                
+                GroupEnumUnitsInRange(group, Spell.source.x, Spell.source.y, GetAoE(Spell.source.unit, Spell.level), nil)
 
-                    GroupEnumUnitsInRange(group, Spell.source.x, Spell.source.y, GetAoE(Spell.source.unit, Spell.level), nil)
-                    for i = 0, BlzGroupGetSize(group) - 1 do
-                        local unit = BlzGroupUnitAt(group, i)
-                        if UnitAlive(unit) and GetUnitTypeId(unit) == WaterElemental_ELEMENTAL then
-                            if Elemental:owner(unit) == Spell.source.unit then
-                                launch(GetUnitX(unit), GetUnitY(unit), 0, Spell.x, Spell.y, 0, Spell.source.unit, Spell.source.player, Spell.level, unit)
-                            end
+                local u = FirstOfGroup(group)
+
+                while u do
+                    if UnitAlive(u) and GetUnitTypeId(u) == WaterElemental_ELEMENTAL then
+                        if Elemental.owner(u) == Spell.source.unit then
+                            self.launch(GetUnitX(u), GetUnitY(u), 0, Spell.x, Spell.y, 0, Spell.source.unit, Spell.source.player, Spell.level, u)
                         end
                     end
-                    DestroyGroup(group)
+
+                    GroupRemoveUnit(group, u)
+                    u = FirstOfGroup(group)
                 end
-            end)
-        end)
+
+                DestroyGroup(group)
+            end
+        end
+
+        function CrushingWave.onInit()
+            RegisterSpell(CrushingWave.allocate(), ABILITY)
+        end
     end
-end
+end)
