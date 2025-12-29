@@ -1,28 +1,21 @@
---[[ FelBeam requires Missiles, SpellEffectEvent, NewBonus, Utilities
-    /* ----------------------- Fel Beam v1.4 by Chopinski ----------------------- */
-    // Credits:
-    //     BPower    - Missile Library
-    //     Bribe     - SpellEffectEvent
-    //     AZ        - Fel Beam model
-    //     nGy       - Haunt model
-    //     The Panda - ToxicBeam icon
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("FelBeam", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Missiles"
+    requires "Utilities"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
-    -- The raw code of the Rain of Fel Fire ability
-    FelBeam_ABILITY     = FourCC('A001')
+    -- ------------------------------- Fel Beam v1.6 by Chopinski ------------------------------ --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
+    -- The raw code of the Fel Beam ability
+    FelBeam_ABILITY     = S2A('Mnr2')
     -- The beam inicial z offset
     local START_HEIGHT  = 60
     -- The beam final z offset
     local END_HEIGHT    = 60
-    -- The landing time of the falling misisle
-    local LANDING_TIME  = 1.5
-    -- The impact radius of the missile that will damage units.
-    local IMPACT_RADIUS = 120.
     -- The missile model
     local MISSILE_MODEL = "Fel_Beam.mdx"
     -- The size of the fel beam
@@ -44,8 +37,8 @@ do
     end
     
     -- The damage amount
-    local function GetDamage(level)
-        return 50. * (level*level -2*level + 2)
+    local function GetDamage(source, level)
+        return 100. * level + (0.8 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
     end
 
     -- The amount of armor reduced
@@ -58,138 +51,137 @@ do
         return 15. + 0.*level
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    Curse = setmetatable({}, {})
-    local mt = getmetatable(Curse)
-    mt.__index = mt
-    
-    Curse.cursed = {}
-    local timer = CreateTimer()
-    local array = {}
-    local n = {}
-    local key = 0
-    
-    function mt:destroy(i)
-        DestroyEffect(self.effect)
-        AddUnitBonus(self.unit, BONUS_ARMOR, self.armor)
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Curse = Class()
 
-        array[i] = array[key]
-        key = key - 1
-        Curse.cursed[self.unit] = nil
-        n[self.unit] = nil
-        self = nil
+        local array = {}
+        Curse.cursed = {}
 
-        if key == 0 then
-            PauseTimer(timer)
+        function Curse:destroy()
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
+            DestroyEffect(self.effect)
+            AddUnitBonus(self.unit, BONUS_ARMOR, self.armor)
+
+            self.unit = nil
+            self.timer = nil
+            self.effect = nil
+            Curse.cursed[self.unit] = nil
         end
 
-        return i - 1
-    end
-    
-    function mt:create(unit, duration, armor)
-        local this
+        function Curse.create(target, duration, amount)
+            local self = array[target]
 
-        if n[unit] then
-            this = n[unit]
-        else
-            this = {}
-            setmetatable(this, mt)
-            
-            this.unit = unit
-            this.armor = armor
-            this.effect = AddSpecialEffectTarget(CURSE_MODEL, unit, CURSE_ATTACH)
-            key = key + 1
-            array[key] = this
-            n[unit] = this
+            if not self then
+                self = Curse.allocate()
+                
+                self.unit = target
+                self.armor = amount
+                self.timer = CreateTimer()
+                self.effect = AddSpecialEffectTarget(CURSE_MODEL, target, CURSE_ATTACH)
+                array[target] = self
 
-            AddUnitBonus(unit, BONUS_ARMOR, -armor)
-            if key == 1 then
-                TimerStart(timer, 0.5, true, function()
-                    local i = 1
-                    
-                    while i <= key do
-                        local this = array[i]
-                        
-                        if this.ticks <= 0 or not UnitAlive(this.unit) then
-                            i = this:destroy(i)
-                        end
-                        this.ticks = this.ticks - 1
-                        i = i + 1
+                AddUnitBonus(target, BONUS_ARMOR, -amount)
+                TimerStart(self.timer, 0.5, true, function ()
+                    self.duration = self.duration - 0.5
+
+                    if self.duration <= 0 or not UnitAlive(self.unit) then
+                        self:destroy()
                     end
                 end)
             end
-        end
-        this.ticks = duration/0.5
-    end
-    
-    FelBeam = setmetatable({}, {})
-    local mt = getmetatable(FelBeam)
-    mt.__index = mt
-    
-    FelBeam.source = {}
-    
-    function mt:launch(this, source, target, level)
-        this.source = source
-        this.target = target
-        this:model(MISSILE_MODEL)
-        this:scale(MISSILE_SCALE)
-        this:speed(MISSILE_SPEED)
-        this.damage = GetDamage(level)
-        this.owner = GetOwningPlayer(source)
-        this.armor = FelBeam_GetArmorReduction(level)
-        this.curse_duration = FelBeam_GetCurseDuration(level)
-        self.source[target] = source
 
-        this.onFinish = function()
-            if UnitAlive(this.target) then
-                Curse.cursed[this.target] = true
-                if UnitDamageTarget(this.source, this.target, this.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
-                    Curse:create(this.target, this.curse_duration, this.armor)
+            self.duration = duration
+
+            return self
+        end
+    end
+
+    do
+        Beam = Class(Missile)
+
+        function Beam:onFinish()
+            if UnitAlive(self.target) then
+                Curse.cursed[self.target] = true
+
+                if UnitDamageTarget(self.source, self.target, self.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
+                    Curse.create(self.target, self.curse_duration, self.armor)
                 end
             end
 
             return true
         end
-
-        this:launch()
     end
-    
-    onInit(function()
-        RegisterSpellEffectEvent(FelBeam_ABILITY, function()
-            local this = Missiles:create(Spell.source.x, Spell.source.y, START_HEIGHT, Spell.target.x, Spell.target.y, END_HEIGHT)
+
+    do
+        FelBeam = Class(Spell)
+
+        local source = {}
+
+        function FelBeam.launch(beam, caster, target, level)
+            beam.source = caster
+            beam.target = target
+            beam.model = MISSILE_MODEL
+            beam.scale = MISSILE_SCALE
+            beam.speed = MISSILE_SPEED
+            beam.id = GetUnitUserData(target)
+            beam.damage = GetDamage(caster, level)
+            beam.owner = GetOwningPlayer(caster)
+            beam.armor = FelBeam_GetArmorReduction(level)
+            beam.curse_duration = FelBeam_GetCurseDuration(level)
+            source[target] = caster
+
+            beam:launch()
+        end
+
+        function FelBeam:onTooltip(source, level, ability)
+            return "|cffffcc00Mannoroth|r launch at the target unit a |cffffcc00Fel Beam|r, that apply |cffffcc00Fel Curse|r and deals |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage. The cursed unit have it's armor reduced by |cffffcc00" .. N2S(GetArmorReduction(level), 0) .. "|r and if it dies under the effect of |cffffcc00Fel Curse|r curse, another |cffffcc00Fel Beam|r will spawn from it's location and seek a nearby enemy unit within |cffffcc00" .. N2S(GetSearchRange(level), 0) .. " AoE|r.\n\nLast for |cffffcc00" .. N2S(FelBeam_GetCurseDuration(level), 1) .. "|r seconds."
+        end
+
+        function FelBeam:onCast()
+            local beam = Beam.create(Spell.source.x, Spell.source.y, START_HEIGHT, Spell.target.x, Spell.target.y, END_HEIGHT)
             
-            FelBeam:launch(this, Spell.source.unit, Spell.target.unit, Spell.level)
-        end)
+            FelBeam.launch(beam, Spell.source.unit, Spell.target.unit, Spell.level)
+        end
+
+        function FelBeam.onDeath()
+            local killed = GetTriggerUnit()
+            local caster = source[killed]
+            local level
         
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function()
-            local unit = GetTriggerUnit()
-            local caster = FelBeam.source[unit]
-        
-            if Curse.cursed[unit] then
-                local level
-                
-                if not FelBeam.source[unit] then
+            if Curse.cursed[killed] then
+                if not source[killed] then
                     caster = GetKillingUnit()
                     level  = 1
                 else
                     level = GetUnitAbilityLevel(caster, FelBeam_ABILITY)
                 end
         
-                local x = GetUnitX(unit)
-                local y = GetUnitY(unit)
-                local z = GetUnitZ(unit)
-                local group = GetEnemyUnitsInRange(GetOwningPlayer(caster), x, y, GetSearchRange(level), false, false)
-                if BlzGroupGetSize(group) > 0 then
-                    local u = GroupPickRandomUnitEx(group)
-                    local this = Missiles:create(x, y, z, GetUnitX(u), GetUnitY(u), END_HEIGHT)
-                    FelBeam:launch(this, caster, u, level)
+                local x = GetUnitX(killed)
+                local y = GetUnitY(killed)
+                local z = GetUnitFlyHeight(killed) + START_HEIGHT
+                local g = GetEnemyUnitsInRange(GetOwningPlayer(caster), x, y, GetSearchRange(level), false, false)
+
+                if BlzGroupGetSize(g) > 0 then
+                    local u = GroupPickRandomUnit(g)
+                    local beam = Beam.create(x, y, z, GetUnitX(u), GetUnitY(u), END_HEIGHT)
+
+                    FelBeam.launch(beam, caster, u, level)
                 end
-                DestroyGroup(group)
-                FelBeam.source[unit] = nil
-                Curse.cursed[unit] = nil
+
+                DestroyGroup(g)
+
+                source[killed] = nil
+                Curse.cursed[killed] = nil
             end
-        end)
-    end)
-end
+        end
+
+        function FelBeam.onInit()
+            RegisterSpell(FelBeam.allocate(), FelBeam_ABILITY)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, FelBeam.onDeath)
+        end
+    end
+end)

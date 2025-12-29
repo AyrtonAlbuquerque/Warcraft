@@ -1,18 +1,17 @@
---[[ requires Missiles, SpellEffectEvent
-    /* ------------------- Rain of Fel Fire v1.4 by Chopinski ------------------- */
-    // Credits:
-    //     The Panda - InfernalShower icon
-    //     Mythic    - Rain of Fire model
-    //     Bribe     - SpellEffectEvent
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("RainOfFelFire", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Missiles"
+    requires "Utilities"
+    requires.optional "Bonus"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- --------------------------- Rain of Fel Fire v1.6 by Chopinski -------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- the raw code of the Rain of Fel Fire ability
-    local ABILITY             = FourCC('A000')
+    local ABILITY             = S2A('Mnr1')
     -- the starting height of the missile
     local START_HEIGHT        = 2000
     -- The landing time of the falling misisle
@@ -26,14 +25,14 @@ do
     -- the dot attachment point
     local DOT_ATTACH          = "origin"
     -- The Attack type of the damage dealt on imapact (Spell)
-    local  IMPACT_ATTACK_TYPE = ATTACK_TYPE_NORMAL
+    local IMPACT_ATTACK_TYPE  = ATTACK_TYPE_NORMAL
     -- The Damage type of the damage dealt on impact
-    local IMPACT_DAMAGE_TYPE = DAMAGE_TYPE_MAGIC
+    local IMPACT_DAMAGE_TYPE  = DAMAGE_TYPE_MAGIC
     -- The Attack type of the damage over time
-    local DOT_ATTACK_TYPE    = ATTACK_TYPE_HERO
+    local DOT_ATTACK_TYPE     = ATTACK_TYPE_HERO
     -- The Damage type of the damage over time
-    local DOT_DAMAGE_TYPE    = DAMAGE_TYPE_UNIVERSAL
-    
+    local DOT_DAMAGE_TYPE     = DAMAGE_TYPE_UNIVERSAL
+
     -- How long the spell will last
     local function GetDuration(level)
         return 10. + 0.*level
@@ -41,7 +40,7 @@ do
 
     -- The interval at which the rain of fire meteors spwan
     local function GetInterval(level)
-        return 0.2 + 0.*level
+        return 0.2 - 0.025 * level
     end
 
     -- The max range that a rain of fel fire missile can spawn
@@ -49,15 +48,23 @@ do
     local function GetRange(unit, level)
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
     end
-
+    
     -- The amount of damage dealt when the missile lands
-    local function GetImpactDamage(level)
-        return 25.*level
+    local function GetImpactDamage(source, level)
+        if Bonus then
+            return 25. * level + (0.8 + 0.05*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 25. * level
+        end
     end
 
     -- The amount of damage over time dealt to units in range of the impact area
-    local function GetDoTDamage(level)
-        return 5.*level
+    local function GetDoTDamage(source, level)
+        if Bonus then
+            return 5. * level + (0.05 + 0.05*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 5. * level
+        end
     end
 
     -- How long the dot will last
@@ -74,124 +81,142 @@ do
     local function DamageFilter(player, unit)
         return UnitAlive(unit) and IsUnitEnemy(unit, player) and not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE)
     end
-    
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    local DoT = Class()
+
     do
-        local timer = CreateTimer()
         local array = {}
-        local n = {}
-        local key = 0
-        
-        DoT = setmetatable({}, {})
-        local mt = getmetatable(DoT)
-        mt.__index = mt
-        
-        function mt:destroy(i)
+
+        function DoT:destroy()
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
             DestroyEffect(self.effect)
 
-            array[i] = array[key]
-            key = key - 1
-            n[self.target] = nil
-            self = nil
+            array[self.target] = nil
 
-            if key == 0 then
-                PauseTimer(timer)
-            end
-
-            return i - 1
+            self.timer = nil
+            self.source = nil
+            self.target = nil
+            self.effect = nil
         end
-        
-        function mt:create(source, target, damage, level)
-            local this
-            
-            if n[target] then
-                this = n[target]
-            else
-                this = {}
-                setmetatable(this, mt)
-                
-                this.source = source
-                this.target = target
-                this.damage = damage
-                this.effect = AddSpecialEffectTarget(DOT_MODEL, target, DOT_ATTACH)
-                key = key + 1
-                array[key] = this
-                n[target] = this
 
-                if key == 1 then
-                    TimerStart(timer, GetDoTInterval(level), true, function()
-                        local i = 1
-                        
-                        while i <= key do
-                            local this = array[i]
-                        
-                            if this.ticks > 0 and UnitAlive(this.target) then
-                                UnitDamageTarget(this.source, this.target, this.damage, true, false, DOT_ATTACK_TYPE, DOT_DAMAGE_TYPE, nil)
-                            else
-                                i = this:destroy(i)
-                            end
-                            this.ticks = this.ticks - 1
-                            i = i + 1
+        function DoT.create(source, target, damage, level)
+            local self = array[target]
+
+            if not self then
+                self = DoT.allocate()
+
+                self.level = level
+                self.source = source
+                self.target = target
+                self.damage = damage
+                self.timer = CreateTimer()
+                self.effect = AddSpecialEffectTarget(DOT_MODEL, target, DOT_ATTACH)
+
+                array[target] = self
+
+                TimerStart(self.timer, GetDoTInterval(level), true, function ()
+                    self.duration = self.duration - GetDoTInterval(self.level)
+
+                    if self.duration > 0 then
+                        if UnitAlive(self.target) then
+                            UnitDamageTarget(self.source, self.target, self.damage, true, false, DOT_ATTACK_TYPE, DOT_DAMAGE_TYPE, nil)
+                        else
+                            self:destroy()
                         end
-                    end)
-                end
+                    else
+                        self:destroy()
+                    end
+                end)
             end
-            this.ticks = GetDoTDuration(level)/GetDoTInterval(level)
+
+            self.duration = GetDoTDuration(level)
+
+            return self
         end
     end
-    
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
-            local timer = CreateTimer()
-            local source = Spell.source.unit
-            local player = Spell.source.player
-            local level = Spell.level
-            local duration = GetDuration(Spell.level)
-            local i = duration/GetInterval(Spell.level)
-            local ox = Spell.x
-            local oy = Spell.y
 
-            TimerStart(timer, GetInterval(Spell.level), true, function()
-                if i > 0 then
-                    local theta = 2*bj_PI*GetRandomReal(0, 1)
-                    local radius = GetRandomRange(GetRange(source, level))
-                    local x = ox + radius*Cos(theta)
-                    local y = oy + radius*Sin(theta)  
-                    local this = Missiles:create(x, y, START_HEIGHT, x, y, 20)
+    do
+        Meteor = Class(Missile)
 
-                    this:model(MISSILE_MODEL)
-                    this:duration(LANDING_TIME)
-                    this.damage = GetImpactDamage(level)
-                    this.source = source
-                    this.owner = player
-                    this.level = level
+        function Meteor:onFinish()
+            local group = CreateGroup()
 
-                    this.onFinish = function()
-                        local group = CreateGroup()
+            GroupEnumUnitsInRange(group, self.x, self.y, IMPACT_RADIUS, nil)
 
-                        GroupEnumUnitsInRange(group, this.x, this.y, IMPACT_RADIUS, nil)
-                        for j = 0, BlzGroupGetSize(group) - 1 do
-                            local unit = BlzGroupUnitAt(group, j)
-                            if DamageFilter(this.owner, unit) then
-                                if UnitDamageTarget(this.source, unit, this.damage, false, false, IMPACT_ATTACK_TYPE, IMPACT_DAMAGE_TYPE, nil) then
-                                    DoT:create(this.source, unit, GetDoTDamage(this.level), this.level)
-                                end
-                            end
-                        end
-                        DestroyGroup(group)
-                        
-                        return true
+            local u = FirstOfGroup(group)
+
+            while u do
+                if DamageFilter(self.owner, u) then
+                    if UnitDamageTarget(self.source, u, self.damage, false, false, IMPACT_ATTACK_TYPE, IMPACT_DAMAGE_TYPE, nil) then
+                        DoT.create(self.source, u, GetDoTDamage(self.source, self.level), self.level)
                     end
-
-                    this:launch()
-                else
-                    PauseTimer(timer)
-                    DestroyTimer(timer)
                 end
-                i = i - 1
+
+                GroupRemoveUnit(group, u)
+                u = FirstOfGroup(group)
+            end
+
+            DestroyGroup(group)
+
+            return true
+        end
+    end
+
+    do
+        FelFire = Class(Spell)
+
+        function FelFire:destroy()
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
+
+            self.unit = nil
+            self.timer = nil
+        end
+
+        function FelFire:onTooltip(source, level, ability)
+            return "|cffffcc00Mannoroth|r calls fire down from the skies every |cffffcc00" .. N2S(GetInterval(level), 3) .. "|r seconds, dealing |cff00ffff" .. N2S(GetImpactDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage on impact and |cffd45e19" .. N2S(GetDoTDamage(source, level), 0) .. " Pure|r damage per second for |cffffcc00" .. N2S(GetDoTDuration(level), 1) .. "|r seconds.\n\nLasts |cffffcc00" .. N2S(GetDuration(level), 1) .. "|r seconds."
+        end
+
+        function FelFire:onCast()
+            local this = FelFire.allocate()
+
+            this.x = Spell.x
+            this.y = Spell.y
+            this.level = Spell.level
+            this.unit = Spell.source.unit
+            this.timer = CreateTimer()
+            this.duration = GetDuration(Spell.level)
+
+            TimerStart(this.timer, GetInterval(Spell.level), true, function ()
+                this.duration = this.duration - GetInterval(this.level)
+
+                if this.duration > 0 then
+                    local theta = 2*bj_PI*GetRandomReal(0, 1)
+                    local radius = GetRandomRange(GetRange(this.unit, this.level))
+                    local x = this.x + radius*math.cos(theta)
+                    local y = this.y + radius*math.sin(theta)  
+                    local meteor = Meteor.create(x, y, START_HEIGHT, x, y, 20)
+
+                    meteor.source = this.unit
+                    meteor.level = this.level
+                    meteor.model = MISSILE_MODEL
+                    meteor.duration = LANDING_TIME
+                    meteor.owner = GetOwningPlayer(this.unit)
+                    meteor.damage = GetImpactDamage(this.unit, this.level)
+
+                    meteor:launch()
+                else
+                    this:destroy()
+                end
             end)
-        end)
-    end)
-end
+        end
+
+        function FelFire.onInit()
+            RegisterSpell(FelFire.allocate(), ABILITY)
+        end
+    end
+end)

@@ -1,17 +1,18 @@
---[[ requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl
-    -- ------------------------------------ Infernal Charge v1.5 ------------------------------------ --
-    -- Credits:
-    --     marilynmonroe - Pit Infernal model
-    --     Bribe         - SpellEffectEvent
-    -- ---------------------------------------- By Chopinski ---------------------------------------- --
-]]--
+OnInit("InfernalCharge", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Missiles"
+    requires "Utilities"
+    requires "CrowdControl"
+    requires.optional "Bonus"
 
-do
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                          Configuration                                         --
-    -- ---------------------------------------------------------------------------------------------- --
+    -- ---------------------------------- Infernal Charge v1.6 --------------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Infernal Charge ability
-    local ABILITY          = FourCC('A003')
+    local ABILITY          = S2A('Mnr8')
     -- The time scale of the pit infernal when charging
     local TIME_SCALE       = 2
     -- The index of the animation played when charging
@@ -28,8 +29,12 @@ do
     local DAMAGE_TYPE      = DAMAGE_TYPE_MAGIC
 
     -- The damage dealt by the Pit Infernal when charging
-    local function GetChargeDamage(level)
-        return 200. + 0.*level
+    local function GetChargeDamage(source, level)
+        if Bonus then
+            return 200. + 0.*level + 1. * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 200. + 0.*level
+        end
     end
 
     -- The Area of Effect at which units will be knocked back
@@ -52,52 +57,59 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                             System                                             --
-    -- ---------------------------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
-            local this = Missiles:create(Spell.source.x, Spell.source.y, 0, Spell.x, Spell.y, 0)
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Charge = Class(Missile)
 
-            this.damage = GetChargeDamage(Spell.level)
-            this.source = Spell.source.unit
-            this.owner = GetOwningPlayer(Spell.source.unit)
-            this.collision = GetChargeAoE(Spell.level)
-            this.distance = GetKnockbackDistance(Spell.level)
-            this.knockback = GetKnockbackDuration(Spell.level)
-            this:model(KNOCKBACK_MODEL)
-            this:duration(CHARGE_TIME)
-
-            this.onPeriod = function()
-                SetUnitX(this.source, this.x)
-                SetUnitY(this.source, this.y)
-
-                return false
-            end
-            
-            this.onHit = function(unit)
-                if ChargeFilter(this.owner, unit) then
-                    if UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
-                        KnockbackUnit(unit, AngleBetweenCoordinates(this.x, this.y, GetUnitX(unit), GetUnitY(unit)), this.distance, this.knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, true, true, false, false)
-                    end
+        function Charge:onUnit(unit)
+            if ChargeFilter(self.owner, unit) then
+                if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
+                    KnockbackUnit(unit, AngleBetweenCoordinates(self.x, self.y, GetUnitX(unit), GetUnitY(unit)), self.distance, self.knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, true, true, false, false)
                 end
-
-                return false
             end
-            
-            this.onFinish = function()
-                BlzPauseUnitEx(this.source, false)
-                SetUnitTimeScale(this.source, 1)
-                SetUnitAnimation(this.source, "Stand")
 
-                return true
-            end
+            return false
+        end
+
+        function Charge:onFinish()
+            BlzPauseUnitEx(self.source, false)
+            SetUnitTimeScale(self.source, 1)
+            SetUnitAnimation(self.source, "Stand")
+
+            return true
+        end
+    end
+
+    do
+        InfernalCharge = Class(Spell)
+
+        function InfernalCharge:onTooltip(source, level, ability)
+            return "|cffffcc00Pit Infernal|r charges in the pointed direction, knocking back and damaging enemy units, dealing |cff00ffff" .. N2S(GetChargeDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage."
+        end
+
+        function InfernalCharge:onCast()
+            local charge = Charge.create(Spell.source.x, Spell.source.y, 0, Spell.x, Spell.y, 0)
+
+            charge.unit = Spell.source.unit
+            charge.source = Spell.source.unit
+            charge.duration = CHARGE_TIME
+            charge.model = KNOCKBACK_MODEL
+            charge.damage = GetChargeDamage(Spell.source.unit, Spell.level)
+            charge.owner = GetOwningPlayer(Spell.source.unit)
+            charge.collision = GetChargeAoE(Spell.level)
+            charge.distance = GetKnockbackDistance(Spell.level)
+            charge.knockback = GetKnockbackDuration(Spell.level)
 
             BlzPauseUnitEx(Spell.source.unit, true)
             SetUnitTimeScale(Spell.source.unit, TIME_SCALE)
             SetUnitAnimationByIndex(Spell.source.unit, ANIMATION_INDEX)
-            
-            this:launch()
-        end)
-    end)
-end
+            charge:launch()
+        end
+
+        function InfernalCharge.onInit()
+            RegisterSpell(InfernalCharge.allocate(), ABILITY)
+        end
+    end
+end)
