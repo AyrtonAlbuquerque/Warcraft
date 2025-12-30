@@ -86,10 +86,13 @@ OnInit("BreathOfFire", function(requires)
         local array = {}
 
         function DoT:destroy()
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
             DestroyEffect(self.effect)
 
             array[self.target] = nil
 
+            self.timer = nil
             self.target = nil
             self.source = nil
             self.effect = nil
@@ -103,6 +106,7 @@ OnInit("BreathOfFire", function(requires)
                 
                 self.source = source
                 self.target = target
+                self.timer = CreateTimer()
                 self.damage = GetDoTDamage(source, level)
                 self.effect = AddSpecialEffectTarget(DOT_MODEL, target, ATTACH)
                 array[target] = self
@@ -113,7 +117,7 @@ OnInit("BreathOfFire", function(requires)
                     end
                 end
 
-                TimerStart(CreateTimer(), PERIOD, true, function()
+                TimerStart(self.timer, PERIOD, true, function()
                     self.duration = self.duration - PERIOD
 
                     if self.duration > 0 then
