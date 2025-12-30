@@ -1,28 +1,28 @@
---[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, Missiles, TimedHandles, Utilities, CrowdControl optional Sulfuras, optional Afterburner
-    /* -------------------- Sulfuras Smash v1.6 by Chopinski -------------------- */
-    // Credtis:
-    //     Systemfre1       - Sulfuras model
-    //     AZ               - crack model
-    //     Blizzard         - icon (edited by me)
-    //     Magtheridon96    - RegisterPlayerUnitEvent 
-    //     Bribe            - SpellEffectEvent, UnitIndexer
-    //     TriggerHappy     - TimedHandles
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("SulfurasSmash", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Missile"
+    requires "Utilities"
+    requires "CrowdControl"
+    requires "TimedHandles"
+    requires.optional "Bonus"
+    requires.optional "Sulfuras"
+    requires.optional "Afterburner"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------- Sulfuras Smash v1.7 by Chopinski --------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Sulfuras Smash ability
-    local ABILITY             = FourCC('A005')
+    local ABILITY             = S2A('Rgn5')
     -- The landing time of the falling sulfuras
     local LANDING_TIME        = 1.25
     -- The distance from the casting point from 
     -- where the sulfuras spawns
-    local LAUNCH_OFFSET       = 4500
+    local LAUNCH_OFFSET       = 3000
     -- The starting height of sufuras
-    local START_HEIGHT        = 3000
+    local START_HEIGHT        = 2000
     -- Sufuras Model
     local SULFURAS_MODEL      = "Sulfuras.mdl"
     -- Sulfuras Impact effect model
@@ -32,7 +32,7 @@ do
     -- Teh stun model attchement point
     local STUN_POINT          = "overhead"
     -- Sufuras size
-    local SULFURAS_SCALE      = 3.
+    local SULFURAS_SCALE      = 1.5
     -- Size of the impact model
     local IMPACT_SCALE        = 2.
     -- How long will the impact model lasts
@@ -44,8 +44,8 @@ do
 
     -- The stun time for units at the center of impact
     local function GetStunTime(unit)
-        if Sulfuras.stacks[unit] then
-            return 1 + 0.25*R2I(Sulfuras.stacks[unit]*0.01)
+        if Sulfuras then
+            return 1 + 0.25 * R2I((Sulfuras.stacks[unit] or 0) * 0.05)
         else
             return 1.5
         end
@@ -62,60 +62,84 @@ do
     end
 
     -- Ability impact damage
-    local function GetDamage(level)
-        return 250.*level
+    local function GetDamage(source, level)
+        if Bonus then
+            return 250 * level + (0.8 + 0.2 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 250 * level
+        end
     end
 
     -- Filter for units that will be damage on impact
     local function DamageFilter(source, target)
         return UnitAlive(target) and IsUnitEnemy(target, GetOwningPlayer(source)) and not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE)
     end
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    local Hammer = Class(Missile)
     
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
-            local a = AngleBetweenCoordinates(Spell.x, Spell.y, GetUnitX(Spell.source.unit), GetUnitY(Spell.source.unit))
-            local this = Missiles:create(Spell.x + LAUNCH_OFFSET*Cos(a), Spell.y + LAUNCH_OFFSET*Sin(a), START_HEIGHT, Spell.x, Spell.y, 0)
-            
-            this:model(SULFURAS_MODEL)
-            this:scale(SULFURAS_SCALE)
-            this:duration(LANDING_TIME)
-            this.source = Spell.source.unit
-            this.level = Spell.level
-            this.damage = GetDamage(Spell.level)
-            this.owner = Spell.source.player
-            this.stun = GetStunTime(Spell.source.unit)
-            this.aoe = GetCenterAoE(Spell.level)
+    do
+        function Hammer:onFinish()
+            local group = CreateGroup()
 
-            this.onFinish = function()
-                local group = CreateGroup()
+            GroupEnumUnitsInRange(group, self.x, self.y, GetNormalAoE(self.source, self.level), nil)
 
-                GroupEnumUnitsInRange(group, this.x, this.y, GetNormalAoE(this.source, this.level), nil)
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    local unit = BlzGroupUnitAt(group, i)
-                    if DamageFilter(this.source, unit) then
-                        if DistanceBetweenCoordinates(this.x, this.y, GetUnitX(unit), GetUnitY(unit)) <= this.aoe then
-                            if UnitDamageTarget(this.source, unit, 2*this.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
-                                StunUnit(unit, this.stun, STUN_MODEL, STUN_POINT, false)
-                            end
-                        else
-                            UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil)
+            local u = FirstOfGroup(group)
+
+            while u do
+                if DamageFilter(self.source, u) then
+                    if DistanceBetweenCoordinates(self.x, self.y, GetUnitX(u), GetUnitY(u)) <= self.aoe then
+                        if UnitDamageTarget(self.source, u, 2*self.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
+                            StunUnit(u, self.stun, STUN_MODEL, STUN_POINT, false)
                         end
+                    else
+                        UnitDamageTarget(self.source, u, self.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil)
                     end
                 end
-                DestroyGroup(group)
-                DestroyEffectTimed(AddSpecialEffectEx(IMPACT_MODEL, this.x, this.y, 0, IMPACT_SCALE), IMPACT_DURATION)
-                
-                if Afterburner then
-                    Afterburn(this.x, this.y, this.source)
-                end
 
-                return true
+                GroupRemoveUnit(group, u)
+                u = FirstOfGroup(group)
             end
 
-            this:launch()
-        end)
-    end)
-end
+            DestroyGroup(group)
+            DestroyEffectTimed(AddSpecialEffectEx(IMPACT_MODEL, self.x, self.y, 0, IMPACT_SCALE), IMPACT_DURATION)
+
+            if Afterburner then
+                Afterburn(self.x, self.y, self.ource)
+            end
+
+            return true
+        end
+    end
+
+    do
+        SulfurasSmash = Class(Spell)
+
+        function SulfurasSmash:onTooltip(source, level, ability)
+            return "|cffffcc00Ragnaros|r hurls |cffffcc00Sulfuras|r at the target area, landing after |cffffcc00" .. N2S(LANDING_TIME, 2) .. " seconds|r and damaging enemy units for |cff00ffff" .. N2S(GetDamage(source, level), 0) .. " Magic|r damage. Enemy units in the center are stunned for |cffffcc00" .. N2S(GetStunTime(source), 2) .. "|r seconds and take twice as much damage."
+        end
+
+        function SulfurasSmash:onCast()
+            local angle = AngleBetweenCoordinates(Spell.x, Spell.y, GetUnitX(Spell.source.unit), GetUnitY(Spell.source.unit))
+            local sulfuras = Hammer.create(Spell.x + LAUNCH_OFFSET*Cos(angle), Spell.y + LAUNCH_OFFSET*Sin(angle), START_HEIGHT, Spell.x, Spell.y, 0)
+            
+            sulfuras.model = SULFURAS_MODEL
+            sulfuras.scale = SULFURAS_SCALE
+            sulfuras.duration = LANDING_TIME
+            sulfuras.source = Spell.source.unit
+            sulfuras.level = Spell.level
+            sulfuras.owner = Spell.source.player
+            sulfuras.damage = GetDamage(Spell.source.unit, Spell.level)
+            sulfuras.stun = GetStunTime(Spell.source.unit)
+            sulfuras.aoe = GetCenterAoE(Spell.level)
+
+            sulfuras:launch()
+        end
+
+        function SulfurasSmash.onInit()
+            RegisterSpell(SulfurasSmash.allocate(), ABILITY)
+        end
+    end
+end)

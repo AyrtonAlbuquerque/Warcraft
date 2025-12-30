@@ -1,23 +1,20 @@
---[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, Utilities optional Sulfuras
-    /* -------------------- Lava Elemental v1.6 by Chopinski -------------------- */
-    // Credits:
-    //     Henry         - Lava Elemental model (warcraft3undergorund.com)
-    //     Empyreal      - fire base model (xgmguru.ru)
-    //     Mythic        - Pillar of Flame model
-    //     Blizzard      - icon (edited by me)
-    //     Magtheridon96 - RegisterPlayerUnitEvent 
-    //     Bribe         - SpellEffectEvent and UnitIndexer
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("LavaElemental", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Utilities"
+    requires "RegisterPlayerUnitEvent"
+    requires.optional "Sulfuras"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------- Lava Elemental v1.7 by Chopinski --------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Lava Elemental ability
-    local ABILITY            = FourCC('A004')
+    local ABILITY            = S2A('Rgn4')
     -- The raw code of the Lava Elemental unit
-    local LAVA_ELEMENTAL     = FourCC('o000')
+    local LAVA_ELEMENTAL     = S2A('rgn0')
     -- This ability cooldown if targeted at a 
     -- structure
     local STRUCTURE_COOLDOWN = 120.
@@ -36,9 +33,9 @@ do
     -- The amount of damage the Lava Elemental has
     local function GetElementalDamage(unit, level)
         if Sulfuras.stacks[unit] then
-            return R2I(50 + 0.25 * level * Sulfuras.stacks[unit])
+            return R2I(50 + 0.25 * level * (Sulfuras.stacks[unit] or 0))
         else
-            return 25 + 25*level
+            return 25 + 25 * level
         end
     end
 
@@ -47,70 +44,81 @@ do
         return R2I(500*level + BlzGetUnitMaxHP(unit)*0.3)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    local array = {}
-    
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
-            local this = {}
-            local lava
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        LavaElemental = Class(Spell)
+
+        local array = {}
+
+        function LavaElemental:destroy()
+            array[self.lava] = nil
+
+            self.unit = nil
+            self.lava = nil
+            self.effect = nil
+        end
+
+        function LavaElemental:onTooltip(source, level, ability)
+            return "|cffffcc00Ragnaros|r summons a |cffffcc00Lava Elemental|r. This abiliy can be targeted in the |cffffcc00ground|r or |cffffcc00allied structure|r. When summoned in the ground, the |cffffcc00Lava Elemental|r has a life time of |cffffcc00" .. N2S(ELEMENTAL_DURATION, 1) .. " seconds|r and this ability cooldown is set to |cffffcc00" .. N2S(NORMAL_COOLDOWN, 1) .. " seconds|r. When targeted at an allied building, the |cffffcc00Lava Elemental|r takes that building place and lasts forever or until it dies and this ability cooldown is set to |cffffcc00" .. N2S(STRUCTURE_COOLDOWN, 1) .. " seconds|r. All the damage that would be given to the structure is instead taken by the |cffffcc00Lava Elemental|r.\n\n|cffffcc00Lava Elemental|r damage is |cffff0000" .. N2S(GetElementalDamage(source, level), 0) .. "|r and it's attacks burn the ground around the impact for |cff00ffff50 Magic|r damage per second for |cffffcc002 seconds|r."
+        end
+
+        function LavaElemental:onCast()
+            local this = { destroy = LavaElemental.destroy }
 
             if Spell.target.unit then
-                lava = CreateUnit(Spell.source.player, LAVA_ELEMENTAL, Spell.target.x, Spell.target.y, 0.0)
+                this.lava = CreateUnit(Spell.source.player, LAVA_ELEMENTAL, Spell.target.x, Spell.target.y, 0)
                 this.unit = Spell.target.unit
                 this.effect = AddSpecialEffect(FIRA_BASE, Spell.target.x, Spell.target.y)
-                this.key = GetUnitUserData(lava)
-                array[this.key] = this
-
-                UnitAddAbility(Spell.target.unit, FourCC('Abun'))
+                array[this.lava] = this
+                
+                UnitAddAbility(Spell.target.unit, S2A('Abun'))
                 ShowUnit(Spell.target.unit, false)
                 SetUnitInvulnerable(Spell.target.unit, true)
-                SetUnitX(lava, Spell.target.x)
-                SetUnitY(lava, Spell.target.y)
-                BlzSetUnitMaxHP(lava, GetElementalHealth(Spell.source.unit, Spell.level))
-                SetUnitLifePercentBJ(lava, 100)
-                BlzSetUnitBaseDamage(lava, GetElementalDamage(Spell.source.unit, Spell.level), 0)
-                SetUnitPropWindow(lava, 0)
+                SetUnitX(this.lava, Spell.target.x)
+                SetUnitY(this.lava, Spell.target.y)
+                BlzSetUnitMaxHP(this.lava, GetElementalHealth(Spell.source.unit, Spell.level))
+                SetUnitLifePercentBJ(this.lava, 100)
+                BlzSetUnitBaseDamage(this.lava, GetElementalDamage(Spell.source.unit, Spell.level), 0)
+                SetUnitPropWindow(this.lava, 0)
                 BlzSetAbilityRealLevelField(Spell.ability, ABILITY_RLF_COOLDOWN, Spell.level - 1, STRUCTURE_COOLDOWN)
                 IncUnitAbilityLevel(Spell.source.unit, ABILITY)
                 DecUnitAbilityLevel(Spell.source.unit, ABILITY)
                 DestroyEffect(AddSpecialEffect(SPAWN_EFFECT, Spell.target.x, Spell.target.y))
             else
-                lava = CreateUnit(Spell.source.player, LAVA_ELEMENTAL, Spell.x, Spell.y, 0.0)
+                this.lava = CreateUnit(Spell.source.player, LAVA_ELEMENTAL, Spell.x, Spell.y, 0)
                 this.unit = Spell.target.unit
                 this.effect = AddSpecialEffect(FIRA_BASE, Spell.x, Spell.y)
-                this.key = GetUnitUserData(lava)
-                array[this.key] = this
+                array[this.lava] = this
 
-                BlzSetUnitMaxHP(lava, GetElementalHealth(Spell.source.unit, Spell.level))
-                SetUnitLifePercentBJ(lava, 100)
-                BlzSetUnitBaseDamage(lava, GetElementalDamage(Spell.source.unit, Spell.level), 0)
-                SetUnitPropWindow(lava, 0)
-                UnitApplyTimedLife(lava, FourCC('BTLF'), ELEMENTAL_DURATION)
+                BlzSetUnitMaxHP(this.lava, GetElementalHealth(Spell.source.unit, Spell.level))
+                SetUnitLifePercentBJ(this.lava, 100)
+                BlzSetUnitBaseDamage(this.lava, GetElementalDamage(Spell.source.unit, Spell.level), 0)
+                SetUnitPropWindow(this.lava, 0)
+                UnitApplyTimedLife(this.lava, S2A('BTLF'), ELEMENTAL_DURATION)
                 BlzSetAbilityRealLevelField(Spell.ability, ABILITY_RLF_COOLDOWN, Spell.level - 1, NORMAL_COOLDOWN)
                 IncUnitAbilityLevel(Spell.source.unit, ABILITY)
                 DecUnitAbilityLevel(Spell.source.unit, ABILITY)
                 DestroyEffect(AddSpecialEffect(SPAWN_EFFECT, Spell.x, Spell.y))
             end
-        end)
-        
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function()
-            local unit = GetTriggerUnit()
-            local key = GetUnitUserData(unit)
+        end
 
-            if GetUnitTypeId(unit) == LAVA_ELEMENTAL and array[key] then
-                local this = array[key]
-                
-                DestroyEffect(this.effect)
-                if this.unit then
-                    UnitRemoveAbility(this.unit, FourCC('Abun'))
-                    ShowUnit(this.unit, true)
-                    SetUnitInvulnerable(this.unit, false)
-                end
-                this = nil
+        function LavaElemental.onDeath()
+            local self = array[GetTriggerUnit()]
+
+            if self then
+                UnitRemoveAbility(self.unit, S2A('Abun'))
+                ShowUnit(self.unit, true)
+                SetUnitInvulnerable(self.unit, false)
+                DestroyEffect(self.effect)
+                self:destroy()
             end
-        end)
-    end)
-end
+        end
+
+        function LavaElemental.onInit()
+            RegisterSpell(LavaElemental.allocate(), ABILITY)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, LavaElemental.onDeath)
+        end
+    end
+end)
