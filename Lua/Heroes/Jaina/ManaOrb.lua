@@ -165,9 +165,9 @@ OnInit("ManaOrb", function (requires)
                 self.bonus = GetManaBonus(buff[unit])
                 
                 TimerStart(self.timer, PERIOD, true, function ()
-                    if self.duration > 0 then
-                        self.duration = self.duration - PERIOD
+                    self.duration = self.duration - PERIOD
 
+                    if self.duration > 0 then
                         GroupEnumUnitsInRange(self.group, self.x, self.y, self.range, nil)
 
                         local u = FirstOfGroup(self.group)
