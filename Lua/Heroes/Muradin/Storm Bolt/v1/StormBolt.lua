@@ -1,20 +1,21 @@
---[[ requires SpellEffectEvent, Missiles, Utilities, TimedHandles, CrowdControl optional Avatar
-    -- --------------------------------------- Storm Bolt v1.4 -------------------------------------- --
-    -- Credits:
-    --     Blizzard       - Icon
-    --     Bribe          - SpellEffectEvent
-    --     TriggerHappy   - TimedHandles
-    -- ---------------------------------------- By Chipinski ---------------------------------------- --
-]]--
+OnInit("StormBolt", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Missiles"
+    requires "Utilities"
+    requires "TimedHandles"
+    requires.optional "Avatar"
 
-do
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                          Configuration                                         --
-    -- ---------------------------------------------------------------------------------------------- --
+    -- ------------------------------------ Storm Bolt v1.4 ------------------------------------ --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Storm Bolt ability
-    StormBolt_ABILITY            = FourCC('A001')
+    StormBolt_ABILITY            = S2A('Mrd8')
     -- The raw code of the Storm Bolt Double Thunder ability
-    StormBolt_STORM_BOLT_RECAST  = FourCC('A002')
+    StormBolt_STORM_BOLT_RECAST  = S2A('MrdA')
     -- The missile model
     local MISSILE_MODEL          = "Abilities\\Spells\\Human\\StormBolt\\StormBoltMissile.mdl"
     -- The missile size
@@ -33,13 +34,17 @@ do
     local STUN_POINT             = "overhead"
 
     -- The storm bolt damage
-    function StormBolt_GetDamage(level)
-        return 150. + 50.*level
+    function StormBolt_GetDamage(source, level)
+        if Bonus then
+            return 150. + 50.*level + (1.1 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 150. + 50.*level
+        end
     end
 
     -- The storm bolt damage when the target is already stunned
     function StormBolt_GetBonusDamage(damage, level)
-        return damage * (1. + 0.25*level)
+        return 0.25 * level
     end
 
     -- The storm bolt stun duration
@@ -56,64 +61,69 @@ do
         return BlzGetAbilityIntegerLevelField(BlzGetUnitAbility(unit, StormBolt_ABILITY), ABILITY_ILF_MANA_COST, level - 1)*0.5
     end
 
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                             System                                             --
-    -- ---------------------------------------------------------------------------------------------- --
-    StormBolt = setmetatable({}, {})
-    local mt = getmetatable(StormBolt)
-    mt.__index = mt
-    
-    function mt:onCast(source, target, level)
-        local this = Missiles:create(GetUnitX(source), GetUnitY(source), 60, GetUnitX(target), GetUnitY(target), 60)
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Hammer = Class(Missile)
 
-        this.source = source
-        this.target = target
-        this:model(MISSILE_MODEL)
-        this:speed(MISSILE_SPEED)
-        this:scale(MISSILE_SCALE)
-        this.damage = StormBolt_GetDamage(level)
-        this.dur = GetDuration(source, target, level)
-        this.mana = StormBolt_GetMana(source, level)
-        this.level = level
-
-        this.onFinish = function()
-            if UnitAlive(this.target) then
-                if IsUnitStunned(this.target) then
-                    this.damage = StormBolt_GetBonusDamage(this.damage, this.level)
-                    this.bonus  = true
+        function Hammer:onFinish()
+            if UnitAlive(self.target) then
+                if IsUnitStunned(self.target) then
+                    self.damage = self.damage * (1 + StormBolt_GetBonusDamage(self.level))
+                    self.bonus  = true
                 end
 
-                if UnitDamageTarget(this.source, this.target, this.damage, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                    if this.bonus then
-                        DestroyEffect(AddSpecialEffectTarget(BONUS_DAMAGE_MODEL, this.target, ATTACH_POINT))
+                if UnitDamageTarget(self.source, self.target, self.damage, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                    if self.bonus then
+                        DestroyEffect(AddSpecialEffectTarget(BONUS_DAMAGE_MODEL, self.target, ATTACH_POINT))
                     end
 
-                    if not UnitAlive(this.target) then
-                        AddUnitMana(this.source, this.mana)
-                        DestroyEffectTimed(AddSpecialEffectTarget(REFUND_MANA, this.source, ATTACH_POINT), 1.0)
+                    if not UnitAlive(self.target) then
+                        AddUnitMana(self.source, self.mana)
+                        DestroyEffectTimed(AddSpecialEffectTarget(REFUND_MANA, self.source, ATTACH_POINT), 1.0)
+
                         if Avatar then
-                            if GetUnitAbilityLevel(this.source, Avatar_BUFF) > 0 then
-                                ResetUnitAbilityCooldown(this.source, StormBolt_ABILITY)
+                            if GetUnitAbilityLevel(self.source, Avatar_BUFF) > 0 then
+                                ResetUnitAbilityCooldown(self.source, StormBolt_ABILITY)
                             end
                         end
                     else
-                        StunUnit(this.target, this.dur, STUN_MODEL, STUN_POINT, false)
+                        StunUnit(self.target, self.time, STUN_MODEL, STUN_POINT, false)
                     end
                 end
             end
 
             return true
         end
-        
-        this:launch()
     end
-    
-    onInit(function()
-        RegisterSpellEffectEvent(StormBolt_ABILITY, function()
-            StormBolt:onCast(Spell.source.unit, Spell.target.unit, Spell.level)
-        end)
-        RegisterSpellEffectEvent(StormBolt_STORM_BOLT_RECAST, function()
-            StormBolt:onCast(Spell.source.unit, Spell.target.unit, GetUnitAbilityLevel(Spell.source.unit, StormBolt_ABILITY))
-        end)
-    end)
-end
+
+    do
+        StormBolt = Class(Spell)
+
+        function StormBolt:onTooltip(source, level, ability)
+            return "|cffffcc00Muradin|r throw his hammer at an enemy unit, dealing |cff00ffff" .. N2S(StormBolt_GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and stunning the target for |cffffcc003|r seconds (|cffffcc001|r on |cffffcc00Heroes|r). If the target is already stunned, |cffffcc00Storm Bolt|r will do |cffffcc00" .. N2S(StormBolt_GetBonusDamage(level), 0) .. "%%|r bonus damage. In addintion, if |cffffcc00Storm Bolt|r kills the target, |cffffcc0050%|r of its mana cost is refunded."
+        end
+
+        function StormBolt:onCast()
+            local hammer = Hammer.create(Spell.source.x, Spell.source.y, 60, Spell.target.x, Spell.target.y, 60)
+
+            hammer.source = Spell.source.unit
+            hammer.target = Spell.target.unit
+            hammer.model = MISSILE_MODEL
+            hammer.speed = MISSILE_SPEED
+            hammer.scale = MISSILE_SCALE
+            hammer.level = GetUnitAbilityLevel(Spell.source.unit, StormBolt_ABILITY)
+            hammer.damage = StormBolt_GetDamage(Spell.source.unit, hammer.level)
+            hammer.time = GetDuration(Spell.source.unit, Spell.target.unit, hammer.level)
+            hammer.mana = StormBolt_GetMana(Spell.source.unit, hammer.level)
+
+            hammer:launch()
+        end
+
+        function StormBolt.onInit()
+            RegisterSpell(StormBolt.allocate(), StormBolt_ABILITY)
+            RegisterSpell(StormBolt.allocate(), StormBolt_STORM_BOLT_RECAST)
+        end
+    end
+end)

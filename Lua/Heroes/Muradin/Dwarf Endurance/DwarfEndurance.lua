@@ -1,17 +1,16 @@
---[[ requires RegisterPlayerUnitEvent, DamageInterface
-    /* -------------------- Dwarf Endurance v1.2 by Chopinski ------------------- */
-    // Credits:
-    //     Blizzard       - Icon
-    //     Magtheridon96  - RegisterPlayerUnitEvent
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("DwarfEndurance", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Damage"
+    requires "Utilities"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- --------------------------- Dwarf Endurance v1.3 by Chopinski --------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Dwarf Endurance ability
-    local ABILITY        = FourCC('A007')
+    local ABILITY        = S2A('Mrd4')
     -- The period at which health is restored
     local PERIOD         = 0.1
     -- The model used
@@ -29,93 +28,78 @@ do
         return 25. + 25.*level
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    DwarfEndurance = setmetatable({}, {})
-    local mt = getmetatable(DwarfEndurance)
-    mt.__index = mt
-    
-    local timer = CreateTimer()
-    local array = {}
-    local n = {}
-    local key = 0
-    
-    function mt:destroy(i)
-        DestroyEffect(self.effect)
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        DwarfEndurance = Class(Spell)
 
-        array[i] = array[key]
-        key = key - 1
-        n[self.unit] = nil
-        self = nil
+        local array = {}
 
-        if key == 0 then
-            PauseTimer(timer)
+        function DwarfEndurance:destroy()
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
+            DestroyEffect(self.effect)
+
+            array[self.unit] = nil
+
+            self.unit = nil
+            self.timer = nil
+            self.effect = nil
         end
 
-        return i - 1
-    end
-    
-    function mt:onLevelUp()
-        local unit = GetTriggerUnit()
-    
-        if GetLearnedSkill() == ABILITY and not n[unit] then
-            local this = {}
-            setmetatable(this, mt)
-            
-            this.unit = unit
-            this.effect = AddSpecialEffectTarget(HEAL_EFFECT, unit, ATTACH_POINT)
-            this.count = 0
-            key = key + 1
-            array[key] = this
-            n[unit] = this
+        function DwarfEndurance:onTooltip(source, level, ability)
+            return "When |cffffcc00Muradin|r stops taking damage for |cffffcc00" .. N2S(GetCooldown(), 1) .. "|r seconds, |cff00ff00Health Regeneration|r is increased by |cff00ff00" .. N2S(GetHeal(level), 0) .. "|r per second."
+        end
 
-            if key == 1 then
-                TimerStart(timer, PERIOD, true, function()
-                    local i = 1
+        function DwarfEndurance:onLearn(source, skill, level)
+            if not array[source] then
+                local this = { destroy = DwarfEndurance.destroy }
+                
+                this.cooldown = 0
+                this.unit = source
+                this.timer = CreateTimer()
+                this.effect = AddSpecialEffectTarget(HEAL_EFFECT, source, ATTACH_POINT)
+                array[source] = this
+
+                TimerStart(this.timer, PERIOD, true, function ()
+                    local level = GetUnitAbilityLevel(this.unit, ABILITY)
                     
-                    while i <= key do
-                        local this = array[i]
-                        local level = GetUnitAbilityLevel(this.unit, ABILITY)
-                        
-                        if level > 0 then
-                            if this.count <= 0 then
-                                if UnitAlive(this.unit) then
-                                    SetWidgetLife(this.unit, GetWidgetLife(this.unit) + GetHeal(level)*PERIOD)
-                                end
-                            else
-                                this.count = this.count - 1
-                                if this.effect then
-                                    DestroyEffect(this.effect)
-                                    this.effect = nil
-                                end
-
-                                if this.count <= 0 then
-                                    this.effect = AddSpecialEffectTarget(HEAL_EFFECT, this.unit, ATTACH_POINT)
-                                end
+                    if level > 0 then
+                        if this.cooldown <= 0 then
+                            if UnitAlive(this.unit) then
+                                SetWidgetLife(this.unit, GetWidgetLife(this.unit) + GetHeal(level) * PERIOD)
                             end
                         else
-                            i = this:destroy(i)
+                            this.cooldown = this.cooldown - PERIOD
+
+                            if this.effect then
+                                DestroyEffect(this.effect)
+                                this.effect = nil
+                            end
+
+                            if this.cooldown <= 0 then
+                                this.effect = AddSpecialEffectTarget(HEAL_EFFECT, this.unit, ATTACH_POINT)
+                            end
                         end
-                        i = i + 1
+                    else
+                        this:destroy()
                     end
                 end)
             end
         end
-    end
-    
-    onInit(function()
-        RegisterAnyDamageEvent(function()
-            if GetUnitAbilityLevel(Damage.target.unit, ABILITY) > 0 then
-                if n[Damage.target.unit] then
-                    this = n[Damage.target.unit]
-                    this.count = R2I(GetCooldown()/PERIOD)
-                end
-            end
-        end)
+
+        function DwarfEndurance.onDamage()
+            local self = array[Damage.target.unit]
         
-        RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function()
-            DwarfEndurance:onLevelUp()
-        end)
-    end)
-end
+            if self then
+                self.cooldown = GetCooldown()
+            end
+        end
+
+        function DwarfEndurance.onInit()
+            RegisterSpell(DwarfEndurance.allocate(), ABILITY)
+            RegisterAnyDamageEvent(DwarfEndurance.onDamage)
+        end
+    end
+end)

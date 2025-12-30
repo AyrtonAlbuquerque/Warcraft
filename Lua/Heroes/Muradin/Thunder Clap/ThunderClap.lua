@@ -1,23 +1,25 @@
---[[ requires SpellEffectEvent, TimedHandles, CrowdControl optional Avatar
-    -- -------------------------------------- Thunder Clap v1.4 ------------------------------------- --
-    -- Credits:
-    --     Blizzard       - Icon
-    --     Bribe          - SpellEffectEvent
-    --     TriggerHappy   - TimedHandles
-    -- ---------------------------------------- By Chipinski ---------------------------------------- --
-]]--
+OnInit("ThunderClap", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Utilities"
+    requires "CrowdControl"
+    requires "TimedHandles"
+    requires.optional "Bonus"
+    requires.optional "Avatar"
+    requires.optional "StormBolt"
 
-do
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                          Configuration                                         --
-    -- ---------------------------------------------------------------------------------------------- --
+    -- ----------------------------------- Thunder Clap v1.6 ----------------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Thunder Clap ability
-    ThunderClap_ABILITY             = FourCC('A003')
+    ThunderClap_ABILITY             = S2A('Mrd2')
     -- The raw code of the Thunder Clap Recast ability
-    ThunderClap_THUNDER_CLAP_RECAST = FourCC('A004')
+    ThunderClap_THUNDER_CLAP_RECAST = S2A('Mrd6')
     -- The model used when storm bolt refunds mana on kill
     local HEAL_EFFECT               = "Abilities\\Spells\\Items\\AIhe\\AIheTarget.mdl"
-    -- The attachment point of the bonus dmaage model
+    -- The attachment point of the bonus damage model
     local ATTACH_POINT              = "origin"
     -- The slow model
     local SLOW_MODEL                = "Abilities\\Spells\\Orc\\StasisTrap\\StasisTotemTarget.mdl"
@@ -27,10 +29,16 @@ do
     local STUN_MODEL                = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
     -- The stun model attachment point
     local STUN_POINT                = "overhead"
+    -- Use Storm Bolt v3
+    local STORM_BOLT_V3             = true
 
     -- The damage dealt
-    local function GetDamage(unit, level)
-        return 25.*(2*level + 1)
+    local function GetDamage(source, level)
+        if Bonus then
+            return 75.*level + (0.6 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 75.*level
+        end
     end
 
     -- The movement speed slow amount
@@ -79,69 +87,87 @@ do
         return IsUnitEnemy(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE)
     end
 
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                             System                                             --
-    -- ---------------------------------------------------------------------------------------------- --
-    ThunderClap = setmetatable({}, {})
-    local mt = getmetatable(ThunderClap)
-    mt.__index = mt
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        ThunderClap = Class(Spell)
+
+        function ThunderClap:onTooltip(source, level, ability)
+            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r by |cffffcc00" .. N2S(GetAttackSlowAmount(source, level) * 100, 0) .. "%%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc002.5%|r (|cffffcc0010%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and the second |cffffcc00Thunder Clap|r stuns enemy units instead."
+        end
+
+        function ThunderClap:onCast()
+            local id = Spell.id
+            local source = Spell.source.unit
+            local owner = Spell.source.player
+            local level = GetUnitAbilityLevel(Spell.source.unit, ThunderClap_ABILITY)
+            local damage = GetDamage(Spell.source.unit, level)
+            local movement = GetMovementSlowAmount(Spell.source.unit, level)
+            local attack = GetAttackSlowAmount(Spell.source.unit, level)
+            local aoe = GetAoE(Spell.source.unit, level)
+            local group = CreateGroup()
+            local heal = 0
     
-    function mt:onCast(source, ability, player, level)
-        local damage = GetDamage(source, level)
-        local movement = GetMovementSlowAmount(source, level)
-        local attack = GetAttackSlowAmount(source, level)
-        local aoe = GetAoE(source, level)
-        local group = CreateGroup()
-        local heal = 0
+            GroupEnumUnitsInRange(group, Spell.source.x, Spell.source.y, aoe, nil)
 
-        GroupEnumUnitsInRange(group, GetUnitX(source), GetUnitY(source), aoe, nil)
-        for i = 0, BlzGroupGetSize(group) - 1 do
-            local unit = BlzGroupUnitAt(group, i)
+            local u = FirstOfGroup(group)
 
-            if UnitFilter(player, unit) then
-                heal = heal + GetHealAmount(source, unit, level)
+            while u do
+                if UnitFilter(owner, u) then
+                    if Avatar then
+                        if GetUnitAbilityLevel(source, Avatar_BUFF) > 0 then
+                            if id == ThunderClap_THUNDER_CLAP_RECAST then
+                                if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                                    heal = heal + GetHealAmount(source, u, level)
 
-                if Avatar then
-                    if GetUnitAbilityLevel(source, Avatar_BUFF) > 0 then
-                        if ability == ThunderClap_THUNDER_CLAP_RECAST then
-                            if UnitDamageTarget(source, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                                StunUnit(unit, GetDuration(source, unit, level), STUN_MODEL, STUN_POINT, false)
+                                    StunUnit(u, GetDuration(source, u, level), STUN_MODEL, STUN_POINT, false)
+                                end
+                            else
+                                if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                                    heal = heal + GetHealAmount(source, u, level)
+
+                                    SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
+                                    SlowUnitAttack(u, attack, GetDuration(source, u, level), nil, nil, false)
+                                end
                             end
                         else
-                            if UnitDamageTarget(source, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                                SlowUnit(unit, movement, GetDuration(source, unit, level), SLOW_MODEL, SLOW_POINT, false)
-                                SlowUnitAttack(unit, attack, GetDuration(source, unit, level), nil, nil, false)
+                            if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                                heal = heal + GetHealAmount(source, u, level)
+
+                                SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
+                                SlowUnitAttack(u, attack, GetDuration(source, u, level), nil, nil, false)
                             end
                         end
                     else
-                        if UnitDamageTarget(source, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                            SlowUnit(unit, movement, GetDuration(source, unit, level), SLOW_MODEL, SLOW_POINT, false)
-                            SlowUnitAttack(unit, attack, GetDuration(source, unit, level), nil, nil, false)
+                        if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                            heal = heal + GetHealAmount(source, u, level)
+
+                            SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
+                            SlowUnitAttack(u, attack, GetDuration(source, u, level), nil, nil, false)
                         end
                     end
-                else
-                    if UnitDamageTarget(source, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        SlowUnit(unit, movement, GetDuration(source, unit, level), SLOW_MODEL, SLOW_POINT, false)
-                        SlowUnitAttack(unit, attack, GetDuration(source, unit, level), nil, nil, false)
-                    end
                 end
+
+                GroupRemoveUnit(group, u)
+                u = FirstOfGroup(group)
+            end
+
+            DestroyGroup(group)
+
+            if heal > 0 then
+                SetWidgetLife(source, GetWidgetLife(source) + (BlzGetUnitMaxHP(source)*heal))
+                DestroyEffectTimed(AddSpecialEffectTarget(HEAL_EFFECT, source, ATTACH_POINT), 1.0)
+            end
+            
+            if StormBolt and STORM_BOLT_V3 then
+                StormBolt.lightning(source, damage, aoe)
             end
         end
-        DestroyGroup(group)
 
-        if heal > 0 then
-            SetWidgetLife(source, GetWidgetLife(source) + (BlzGetUnitMaxHP(source)*heal))
-            DestroyEffectTimed(AddSpecialEffectTarget(HEAL_EFFECT, source, ATTACH_POINT), 1.0)
+        function ThunderClap.onInit()
+            RegisterSpell(ThunderClap.allocate(), ThunderClap_ABILITY)
+            RegisterSpell(ThunderClap.allocate(), ThunderClap_THUNDER_CLAP_RECAST)
         end
     end
-    
-    onInit(function()
-        RegisterSpellEffectEvent(ThunderClap_ABILITY, function()
-            ThunderClap:onCast(Spell.source.unit, Spell.id, Spell.source.player, Spell.level)
-        end)
-        
-        RegisterSpellEffectEvent(ThunderClap_THUNDER_CLAP_RECAST, function()
-            ThunderClap:onCast(Spell.source.unit, Spell.id, Spell.source.player, Spell.level)
-        end)
-    end)
-end
+end)

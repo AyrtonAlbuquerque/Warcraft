@@ -1,17 +1,19 @@
---[[ requires RegisterPlayerUnitEvent, optional StormBolt, optional ThunderClap, optional Avatar
-    -- ------------------------------------- Double Thunder v1.4 ------------------------------------ --
-    -- Credits:
-    --     Magtheridon96  - RegisterPlayerUnitEvent
-    --     Blizzard       - Icon
-    -- ---------------------------------------- By Chipinski ---------------------------------------- --
-]]--
+OnInit("DoubleThunder", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Utilities"
+    requires "RegisterPlayerUnitEvent"
+    requires.optional "Avatar"
+    requires.optional "StormBolt"
+    requires.optional "ThunderClap"
 
-do
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                          Configuration                                         --
-    -- ---------------------------------------------------------------------------------------------- --
+    -- ---------------------------------- Double Thunder v1.5 ---------------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Double Thunder ability
-    local ABILITY = FourCC('A000')
+    local ABILITY = S2A('Mrd0')
 
     -- This updates the double thunder level at levels 10, 15 and 20
     local function GetLevel(level)
@@ -39,21 +41,29 @@ do
         end
     end
 
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                             System                                             --
-    -- ---------------------------------------------------------------------------------------------- --
-    onInit(function()
-        local trigger = CreateTrigger()
-        TriggerRegisterAnyUnitEventBJ(trigger, EVENT_PLAYER_UNIT_SPELL_EFFECT)
-        TriggerAddAction(trigger, function()
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        DoubleThunder = Class(Spell)
+
+        function DoubleThunder.onLevel()
+            local source = GetTriggerUnit()
+        
+            if GetUnitAbilityLevel(source, ABILITY) > 0 then
+                SetUnitAbilityLevel(source, ABILITY, GetLevel(GetHeroLevel(source)))
+            end
+        end
+
+        function DoubleThunder.onSpell()
             local source = GetTriggerUnit()
             local target = GetSpellTargetUnit()
-            local ability = GetSpellAbilityId()
+            local skill = GetSpellAbilityId()
             local level = GetUnitAbilityLevel(source, ABILITY)
             local chance = GetDoubleChance(source, level)
         
             if StormBolt then
-                if ability == StormBolt_ABILITY then
+                if skill == StormBolt_ABILITY then
                     if GetRandomInt(1, 100) <= chance then
                         UnitAddAbility(source,  StormBolt_STORM_BOLT_RECAST)
                         TriggerSleepAction(0.10)
@@ -65,7 +75,7 @@ do
             end
 
             if ThunderClap then
-                if ability == ThunderClap_ABILITY then
+                if skill == ThunderClap_ABILITY then
                     if GetRandomInt(1, 100) <= chance then
                         UnitAddAbility(source, ThunderClap_THUNDER_CLAP_RECAST)
                         SetUnitAbilityLevel(source, ThunderClap_THUNDER_CLAP_RECAST, GetUnitAbilityLevel(source, ThunderClap_ABILITY))
@@ -75,14 +85,14 @@ do
                     end
                 end
             end
-        end)
+        end
 
-        RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function()
-            local unit = GetTriggerUnit()
-        
-            if GetUnitAbilityLevel(unit, ABILITY) > 0 then
-                SetUnitAbilityLevel(unit, ABILITY, GetLevel(GetHeroLevel(unit)))
-            end
-        end)
-    end)
-end
+        function DoubleThunder.onInit()
+            local trigger = CreateTrigger()
+
+            TriggerRegisterAnyUnitEventBJ(trigger, EVENT_PLAYER_UNIT_SPELL_EFFECT)
+            TriggerAddAction(trigger, DoubleThunder.onSpell)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, DoubleThunder.onLevel)
+        end
+    end
+end)

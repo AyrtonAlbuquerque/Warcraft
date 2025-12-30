@@ -1,29 +1,40 @@
---[[ requires DamageInterface, CrowdControl
-    -- ------------------------------------------ Bash v1.0 ----------------------------------------- --
-    -- Credits:
-    --     PrinceYaser - Icon
-    -- ---------------------------------------- By Chipinski ---------------------------------------- --
-]]--
+OnInit("Bash", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Damage"
+    requires "Utilities"
+    requires "CrowdControl"
 
-do
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                          Configuration                                         --
-    -- ---------------------------------------------------------------------------------------------- --
+    -- --------------------------------------- Bash v1.2 --------------------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the bash ability
-    local ABILITY = FourCC('A006')
+    local ABILITY = S2A('Mrd3')
     -- The stun model
     local MODEL   = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
     -- The stun model attachment point
     local POINT   = "overhead"
 
     -- The damage dealt
-    local function GetDamage(unit, level)
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1)
+    local function GetDamage(source, level)
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1) + 0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)
+    end
+
+    -- The Attack Speed bonus
+    local function GetBonusAttackSpeed(source, level)
+        if level == 1 then
+            return 0.15
+        else
+            return 0.05 + 0.*level
+        end
     end
 
     -- The proc chance
     local function GetChance(unit, level)
-        return 10. + 5*level
+        return 0.1 + 0.05*level
     end
 
     -- The duration
@@ -40,22 +51,37 @@ do
         return IsUnitEnemy(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE)
     end
 
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                             System                                             --
-    -- ---------------------------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterAttackDamageEvent(function()
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Bash = Class(Spell)
+
+        function Bash:onTooltip(source, level, ability)
+            return "Gives a |cffffcc00" .. N2S(GetChance(source, level), 0) .. "%%|r chance that an attack will do |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r bonus |cff00ffffMagic|r damage and stun an opponent for |cffffcc001|r (|cffffcc000.5|r for |cffffcc00Heroes|r) second. Additionally Muradin gains |cffffcc00" .. N2S(GetBonusAttackSpeed(source, level) * 100, 0) .. "%% Attack Speed|r"
+        end
+
+        function Bash:onLearn(source, skill, level)
+            AddUnitBonus(source, BONUS_ATTACK_SPEED, GetBonusAttackSpeed(source, level))
+        end
+
+        function Bash.onDamage()
             local level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
 
             if level > 0 then
                 if UnitFilter(Damage.source.player, Damage.target.unit) then
-                    if GetRandomReal(0, 100) <= GetChance(Damage.source.unit, level) then
+                    if GetRandomReal(0, 1) <= GetChance(Damage.source.unit, level) then
                         if UnitDamageTarget(Damage.source.unit, Damage.target.unit, GetDamage(Damage.source.unit, level), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                             StunUnit(Damage.target.unit, GetDuration(Damage.source.unit, Damage.target.unit, level), MODEL, POINT, false)
                         end
                     end
                 end
             end
-        end)
-    end)
-end
+        end
+
+        function Bash.onInit()
+            RegisterSpell(Bash.allocate(), ABILITY)
+            RegisterAttackDamageEvent(Bash.onDamage)
+        end
+    end
+end)
