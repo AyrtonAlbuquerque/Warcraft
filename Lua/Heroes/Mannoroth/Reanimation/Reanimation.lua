@@ -87,7 +87,7 @@ OnInit("Reanimation", function (requires)
             local level = GetUnitAbilityLevel(Damage.target.unit, ABILITY)
         
             if level > 0 and Damage.amount >= Damage.target.health and not reanimated[Damage.target.unit] then
-                local self = Reanimation.allocate()
+                local self = { destroy = Reanimation.destroy }
 
                 self.timer = CreateTimer()
                 self.stage = 0

@@ -60,7 +60,7 @@ OnInit("BadWeather", function (requires)
         end
 
         function BadWeather:onCast()
-            local this = BadWeather.allocate()
+            local this = { destroy = BadWeather.destroy }
 
             this.unit = DummyRetrieve(Spell.source.player, Spell.x, Spell.y, 0, 0)
             this.effect = AddSpecialEffectEx(MODEL, Spell.x, Spell.y, 0, SCALE)

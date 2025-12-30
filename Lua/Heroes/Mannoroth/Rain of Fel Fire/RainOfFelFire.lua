@@ -182,7 +182,7 @@ OnInit("RainOfFelFire", function (requires)
         end
 
         function FelFire:onCast()
-            local this = FelFire.allocate()
+            local this = { destroy = FelFire.destroy }
 
             this.x = Spell.x
             this.y = Spell.y

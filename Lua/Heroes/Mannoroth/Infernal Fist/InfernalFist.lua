@@ -79,7 +79,7 @@ OnInit("InfernalFist", function (requires)
                 end
 
                 if not timer[Damage.source.unit] then
-                    local self = InfernalFist.allocate()
+                    local self = { destroy = InfernalFist.destroy }
 
                     self.unit = Damage.source.unit
                     self.timer = CreateTimer()

@@ -152,7 +152,7 @@ OnInit("ManaOrb", function (requires)
             local unit = GetTriggerUnit()
             
             if buff[unit] then
-                local self = ManaOrb.allocate()
+                local self = { destroy = ManaOrb.destroy }
 
                 self.x = GetUnitX(unit)
                 self.y = GetUnitY(unit)

@@ -180,7 +180,7 @@ OnInit("ChaosRain", function (requires)
         end
 
         function ChaosRain:onCast()
-            local this = ChaosRain.allocate()
+            local this = { destroy = ChaosRain.destroy }
 
             this.x = Spell.x
             this.y = Spell.y

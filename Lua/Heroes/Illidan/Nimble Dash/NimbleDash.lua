@@ -216,10 +216,12 @@ OnInit("NimbleDash", function (requires)
             AddUnitBonus(unit, BONUS_EVASION_CHANCE, GetPassiveBonus(level))
 
             if not this then
-                this = NimbleDash.allocate()
+                this = {
+                    unit = unit,
+                    timer = CreateTimer(),
+                    destroy = NimbleDash.destroy
+                }
                 
-                this.unit = unit
-                this.timer = CreateTimer()
                 array[unit] = this
                 array[this.timer] = this
                 charges[unit] = GetCharges(unit, level)

@@ -119,8 +119,7 @@ OnInit("DrunkenStyle", function(requires)
             local this = array[Spell.source.unit]
 
             if not this then
-                this = DrunkenStyle.allocate()
-                this.unit = Spell.source.unit
+                this = { unit = Spell.source.unit }
                 array[Spell.source.unit] = this
             end
 

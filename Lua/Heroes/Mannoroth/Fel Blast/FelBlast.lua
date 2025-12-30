@@ -58,7 +58,7 @@ OnInit("FelBlast", function (requires)
         end
 
         function FelBlast:onCast()
-            local this = FelBlast.allocate()
+            local this = { destroy = FelBlast.destroy }
 
             this.x = Spell.x
             this.y = Spell.y

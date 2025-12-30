@@ -85,7 +85,7 @@ OnInit("DoomCurse", function (requires)
         end
 
         function DoomCurse:onCast()
-            local this = DoomCurse.allocate()
+            local this = { destroy = DoomCurse.destroy }
             
             this.level = Spell.level
             this.caster = Spell.source.unit

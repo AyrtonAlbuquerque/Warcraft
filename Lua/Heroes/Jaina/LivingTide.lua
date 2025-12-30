@@ -114,7 +114,7 @@ OnInit("LivingTide", function (requires)
 
         function LivingTide:onCast()
             if not array[Spell.source.unit] then
-                local this = LivingTide.allocate()
+                local this = { destroy = LivingTide.destroy }
                 
                 this.unit = Spell.source.unit
                 this.level = Spell.level

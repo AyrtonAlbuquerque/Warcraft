@@ -88,12 +88,13 @@ OnInit("Metamorphosis", function (requires)
         end
 
         function Metamorphosis:onCast()
-            local this = Metamorphosis.allocate()
-
-            this.group = CreateGroup()
-            this.level = Spell.level
-            this.unit = Spell.source.unit
-            this.player = Spell.source.player
+            local this = {
+                group = CreateGroup(),
+                level = Spell.level,
+                unit = Spell.source.unit,
+                player = Spell.source.player,
+                destroy = Metamorphosis.destroy
+            }
 
             TimerStart(CreateTimer(), 0.5, false, function()
                 local health = 0

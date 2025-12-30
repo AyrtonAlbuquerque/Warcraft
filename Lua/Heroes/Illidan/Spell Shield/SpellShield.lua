@@ -170,7 +170,7 @@ OnInit("SpellShield", function (requires)
 
         function SpellShield.onDamage()
             if Damage.amount > 0 and GetUnitAbilityLevel(Damage.target.unit, BUFF) > 0 then
-                local self = SpellShield.allocate()
+                local self = { destroy = SpellShield.destroy }
 
                 self.duration = 16
                 self.source = Damage.source.unit

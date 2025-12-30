@@ -71,12 +71,14 @@ OnInit("Immolation", function (requires)
             local source = GetOrderedUnit()
 
             if GetIssuedOrderId() == 852177 and not array[source] then
-                local self = Immolation.allocate()
+                local self = {
+                    unit = source,
+                    timer = CreateTimer(),
+                    group = CreateGroup(),
+                    player = GetOwningPlayer(source),
+                    destroy = Immolation.destroy
+                }
 
-                self.unit = source
-                self.timer = CreateTimer()
-                self.group = CreateGroup()
-                self.player = GetOwningPlayer(source)
                 array[source] = self
 
                 LinkEffectToBuff(source, BUFF, "Ember Green.mdl", "chest")

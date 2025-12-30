@@ -128,11 +128,13 @@ OnInit("Metamorphosis", function (requires)
 
         function Metamorphosis:onLearn(unit, ability, level)
             if IsUnitInCombat(unit) then
-                local this = Metamorphosis.allocate()
+                local this = {
+                    unit = unit,
+                    timer = CreateTimer(),
+                    time = GetInCombatTime(level),
+                    destroy = Metamorphosis.destroy
+                }
 
-                this.unit = unit
-                this.timer = CreateTimer()
-                this.time = GetInCombatTime(level)
                 array[this.timer] = this
 
                 TimerStart(this.timer, 1, true, Metamorphosis.onPeriod)
@@ -140,12 +142,13 @@ OnInit("Metamorphosis", function (requires)
         end
 
         function Metamorphosis.onSpell()
-            local self = Metamorphosis.allocate()
-
-            self.unit = Spell.source.unit
-            self.player = Spell.source.player
-            self.group = CreateGroup()
-            self.level = GetUnitAbilityLevel(Spell.source.unit, ABILITY)
+            local self = {
+                unit = Spell.source.unit,
+                player = Spell.source.player,
+                group = CreateGroup(),
+                level = GetUnitAbilityLevel(Spell.source.unit, ABILITY),
+                destroy = Metamorphosis.destroy
+            }
 
             TimerStart(CreateTimer(), 0.5, false, function()
                 local health = 0
@@ -180,11 +183,13 @@ OnInit("Metamorphosis", function (requires)
         
         function Metamorphosis.onEnter()
             if GetUnitAbilityLevel(GetCombatSourceUnit(), ABILITY) > 0 then
-                local self = Metamorphosis.allocate()
+                local self = {
+                    unit = GetCombatSourceUnit(),
+                    timer = CreateTimer(),
+                    time = GetInCombatTime(GetUnitAbilityLevel(GetCombatSourceUnit(), ABILITY)),
+                    destroy = Metamorphosis.destroy
+                }
 
-                self.unit = GetCombatSourceUnit()
-                self.timer = CreateTimer()
-                self.time = GetInCombatTime(GetUnitAbilityLevel(self.unit, ABILITY))
                 array[self.timer] = self
 
                 TimerStart(self.timer, 1, true, Metamorphosis.onPeriod)
@@ -193,9 +198,10 @@ OnInit("Metamorphosis", function (requires)
 
         function Metamorphosis.onLeave()
             if GetUnitAbilityLevel(GetCombatSourceUnit(), MORPH) > 0 then
-                local self = Metamorphosis.allocate()
-
-                self.unit = GetCombatSourceUnit()
+                local self = {
+                    unit = GetCombatSourceUnit(),
+                    destroy = Metamorphosis.destroy
+                }
 
                 TimerStart(CreateTimer(), GetOutOfCombatDuration(GetUnitAbilityLevel(self.unit, ABILITY)), false, function()
                     if GetUnitAbilityLevel(self.unit, Metamorphosis_BUFF) > 0 and not IsUnitInCombat(self.unit) then

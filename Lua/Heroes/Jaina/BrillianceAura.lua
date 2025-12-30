@@ -60,7 +60,7 @@ OnInit("BrillanceAura", function (requires)
 
             if level > 0 then
                 if STACK then
-                    self = BrillianceAura.allocate()
+                    self = { destroy = BrillianceAura.destroy }
 
                     self.unit = source
                     self.timer = CreateTimer()
@@ -78,7 +78,7 @@ OnInit("BrillanceAura", function (requires)
                     self = array[source]
 
                     if not self then
-                        self = BrillianceAura.allocate()
+                        self = { destroy = BrillianceAura.destroy }
 
                         self.bonus = 0
                         self.unit = source

@@ -165,7 +165,7 @@ OnInit("WaterElemental", function (requires)
             if array[Spell.source.unit] then
                 this = array[Spell.source.unit]
             else
-                this = WaterElemental.allocate()
+                this = { destroy = WaterElemental.destroy }
                 this.unit = Spell.source.unit
                 array[Spell.source.unit] = this
                 this.elementals = Elemental.create(Spell.source.unit)
