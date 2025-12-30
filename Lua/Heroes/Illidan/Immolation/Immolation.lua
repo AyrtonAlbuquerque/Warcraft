@@ -54,11 +54,14 @@ OnInit("Immolation", function (requires)
         local array= {}
 
         function Immolation:destroy()
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
             DestroyGroup(self.group)
             
             array[self.unit] = nil
 
             self.unit = nil
+            self.timer = nil
             self.group = nil
             self.player = nil
         end
