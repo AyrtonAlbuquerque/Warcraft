@@ -92,6 +92,11 @@ OnInit("Metamorphosis", function (requires)
         local array = {}
 
         function Metamorphosis:destroy()
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
+            
+            array[self.timer] = nil
+
             self.unit = nil
             self.group = nil
             self.timer = nil
@@ -118,9 +123,6 @@ OnInit("Metamorphosis", function (requires)
                 end
 
                 if not (self.time > 0 and IsUnitInCombat(self.unit) and GetUnitAbilityLevel(self.unit, Metamorphosis_BUFF) == 0) then
-                    PauseTimer(self.timer)
-                    DestroyTimer(self.timer)
-                    array[self.timer] = nil
                     self:destroy()
                 end
             end
