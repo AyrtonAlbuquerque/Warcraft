@@ -106,7 +106,7 @@ OnInit("WaterElemental", function (requires)
                 if array[unit] then
                     local self = array[unit]
                     
-                    if GetOrderTargetUnit() == unit then
+                    if GetOrderTargetUnit() == self.unit then
                         if not IsUnitInGroup(unit, self.group) then
                             GroupAddUnit(self.group, unit)
                         end
@@ -152,7 +152,7 @@ OnInit("WaterElemental", function (requires)
         end
 
         function WaterElemental:onTooltip(source, level, ability)
-            return "|cffffcc00Jaina|r summon a |cffffcc00Water Elemental|r to aid her in combat. The |cffffcc00Water Elemental|r has |cffff0000" .. N2S(GetDamage(source, level), 0) .. "|r Attack Damage, |cffff0000" + N2S(GetHealth(source, level), 0) .. "|r |cffff0000Health|r and |cff808080" .. N2S(GetArmor(source, level), 0) .. "|r |cff808080Armor|r. By default the elementals shadow her movement and commands until any order is given. Ordering the elemental to follow |cffffcc00Jaina|r makes it shadow her again.\n\nLasts |cffffcc00" .. N2S(GetDuration(source, level), 0) .. "|r seconds."
+            return "|cffffcc00Jaina|r summon a |cffffcc00Water Elemental|r to aid her in combat. The |cffffcc00Water Elemental|r has |cffff0000" .. N2S(GetDamage(source, level), 0) .. "|r Attack Damage, |cffff0000" .. N2S(GetHealth(source, level), 0) .. "|r |cffff0000Health|r and |cff808080" .. N2S(GetArmor(source, level), 0) .. "|r |cff808080Armor|r. By default the elementals shadow her movement and commands until any order is given. Ordering the elemental to follow |cffffcc00Jaina|r makes it shadow her again.\n\nLasts |cffffcc00" .. N2S(GetDuration(source, level), 0) .. "|r seconds."
         end
 
         function WaterElemental:onCast()

@@ -134,11 +134,13 @@ OnInit("WaterShield", function (requires)
                 if offense[Spell.target.unit] then
                     this = offense[Spell.target.unit]
                 else
-                    this = WaterShield.allocate()
+                    this = {
+                        target = Spell.target.unit,
+                        group = CreateGroup(),
+                        defensive = false,
+                        destroy = WaterShield.destroy
+                    }
                     
-                    this.target = Spell.target.unit
-                    this.group = CreateGroup()
-                    this.defensive = false
                     offense[Spell.target.unit] = this
                 end
 
@@ -152,12 +154,14 @@ OnInit("WaterShield", function (requires)
                 if defense[Spell.target.unit] then
                     this = defense[Spell.target.unit]
                 else
-                    this = WaterShield.allocate()
-                    
-                    this.target = Spell.target.unit
-                    this.group = CreateGroup()
-                    this.defensive = true
-                    this.amount = 0
+                    this = {
+                        target = Spell.target.unit,
+                        group = CreateGroup(),
+                        defensive = true,
+                        amount = 0,
+                        destroy = WaterShield.destroy
+                    }
+
                     defense[Spell.target.unit] = this
                 end
 
@@ -178,11 +182,14 @@ OnInit("WaterShield", function (requires)
                         if UnitFilter(this.player, u) then
                             UnitDamageTarget(this.source, u, this.amount, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
                         end
+
+                        GroupRemoveUnit(this.group, u)
+                        u = FirstOfGroup(this.group)
                     end
 
                     DestroyEffect(AddSpecialEffectEx(EXPLOSION_MODEL, GetUnitX(this.target), GetUnitY(this.target), 0, EXPLOSION_SCALE))
                 end
-
+                
                 DestroyTimer(GetExpiredTimer())
                 this:destroy()
             end)
