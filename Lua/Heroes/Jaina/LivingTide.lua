@@ -71,7 +71,7 @@ OnInit("LivingTide", function (requires)
         function Tide:onUnit(unit)
             if WaterElemental then
                 if UnitFilter(self.owner, unit) then
-                    if UnitDamageTarget(self.source, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                    if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                         self:flush(unit)
                     end
                 elseif GetUnitTypeId(unit) == WaterElemental_ELEMENTAL and GetOwningPlayer(unit) == self.owner then
@@ -81,7 +81,7 @@ OnInit("LivingTide", function (requires)
 
             else
                 if UnitFilter(self.owner, unit) then
-                    if UnitDamageTarget(self.source, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                    if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                         self:flush(unit)
                     end
                 end
@@ -102,6 +102,8 @@ OnInit("LivingTide", function (requires)
         local array = {}
 
         function LivingTide:destroy()
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
             self.tide:terminate()
 
             self.unit = nil
@@ -149,7 +151,7 @@ OnInit("LivingTide", function (requires)
                         else
                             this.tide.damage = GetDamagePerSecond(this.unit, this.level) * Missile.period
 
-                            AddUnitMana(this.unit, -this.cost)
+                            AddUnitMana(this.unit, -cost)
                             this.tide:deflect(GetPlayerMouseX(this.player), GetPlayerMouseY(this.player), 0)
                             BlzSetUnitFacingEx(this.unit, AngleBetweenCoordinates(x, y, this.tide.x, this.tide.y)*bj_RADTODEG)
 
