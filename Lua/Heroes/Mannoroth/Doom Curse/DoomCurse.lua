@@ -117,7 +117,7 @@ OnInit("DoomCurse", function (requires)
 
                     SetUnitBonus(unit, BONUS_SPELL_POWER, GetSpellPower(source[Damage.target.unit], level))
                     SetUnitAnimation(unit, "Birth")
-                    BlzSetUnitBaseDamage(u, GetBaseDamage(level, source[Damage.target.unit]), 0)
+                    BlzSetUnitBaseDamage(unit, GetBaseDamage(level, source[Damage.target.unit]), 0)
                     BlzSetUnitMaxHP(unit, GetHealth(level, source[Damage.target.unit]))
                     BlzSetUnitArmor(unit, GetArmor(level, source[Damage.target.unit]))
                     SetUnitLifePercentBJ(unit, 100)
