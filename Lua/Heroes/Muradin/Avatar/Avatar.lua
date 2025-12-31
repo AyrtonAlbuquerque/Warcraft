@@ -36,7 +36,7 @@ OnInit("Avatar", function (requires)
         Avatar = Class(Spell)
 
         function Avatar:onTooltip(source, level, ability)
-            return "When activated, |cffffcc00Muradin|r gains |cffff0000" .. N2S(GetBonusDamage(source, level), 0) .. " Damage|r, |cff00ff00" .. N2S(GetBonusHealth(level), 0) .. " Health|r, |cff808080" .. N2S(GetBonusArmor(level), 0) .. " Armor|r and becomes immune to |cff00ffffMagic|r. While in |cffffcc00Avatar|r form, |cffffcc00Double Thunder|r has |cffffcc00100%|r of occuring."
+            return "When activated, |cffffcc00Muradin|r gains |cffff0000" .. N2S(GetBonusDamage(source, level), 0) .. " Damage|r, |cff00ff00" .. N2S(GetBonusHealth(level), 0) .. " Health|r, |cff808080" .. N2S(GetBonusArmor(level), 0) .. " Armor|r and becomes immune to |cff00ffffMagic|r. While in |cffffcc00Avatar|r form, |cffffcc00Double Thunder|r has |cffffcc00100%%|r of occuring."
         end
 
         function Avatar:onCast()
