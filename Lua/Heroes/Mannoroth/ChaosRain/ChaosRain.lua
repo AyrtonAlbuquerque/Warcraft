@@ -219,7 +219,7 @@ OnInit("ChaosRain", function (requires)
             end)
         end
 
-        function ChaosRain.OnInit()
+        function ChaosRain.onInit()
             RegisterSpell(ChaosRain.allocate(), ABILITY)
         end
     end
