@@ -17,7 +17,7 @@ OnInit("SulfurasSmash", function (requires)
     -- The raw code of the Sulfuras Smash ability
     local ABILITY             = S2A('Rgn5')
     -- The landing time of the falling sulfuras
-    local LANDING_TIME        = 1.25
+    local LANDING_TIME        = 0.75
     -- The distance from the casting point from 
     -- where the sulfuras spawns
     local LAUNCH_OFFSET       = 3000
