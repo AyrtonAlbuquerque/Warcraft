@@ -1,17 +1,18 @@
---[[requires SpellEffectEvent, PluginSpellEffect, Missiles, Utilities, CrowdControl
-    /* ----------------------- Axe Throw v1.1 by Chopinski ---------------------- */
-    // Credits:
-    //     -Berz-          - Icon
-    //     Bribe           - SpellEffectEvent
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("AxeThrow", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Missiles"
+    requires "Utilities"
+    requires "CrowdControl"
+    requires.optional "Bonus"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ------------------------------ Axe Throw v1.3 by Chopinski ------------------------------ --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the ability
-    local ABILITY   = FourCC('A001')
+    local ABILITY   = S2A('Rex1')
     -- The missile model
     local MODEL     = "Abilities\\Weapons\\RexxarMissile\\RexxarMissile.mdl"
     -- The missile scale
@@ -45,7 +46,11 @@ do
 
     -- The missile damage
     local function GetDamage(source, level)
-        return 50. + 50.*level
+        if Bonus then
+            return 50. + 50. * level + ((0.4 + 0.1 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)) + ((0.4 + 0.1 * level) * GetUnitBonus(source, BONUS_DAMAGE))
+        else
+            return 50. + 50. * level
+        end
     end
 
     -- The missile slow amount
@@ -68,58 +73,74 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
-            local angle = 1
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Axe = Class(Missile)
 
-            for i = 1, GetAxeCount(Spell.level) do
-                local this = Missiles:create(Spell.source.x, Spell.source.y, 100, Spell.x, Spell.y, 100)
-                this:model(MODEL)
-                this:scale(SCALE)
-                this:speed(SPEED)
-                this.deflected = false
-                this.source = Spell.source.unit
-                this.owner = Spell.source.player
-                this:arc(GetArc(Spell.level))
-                this:curve(angle*GetCurve(Spell.level))
-                this.collision = GetAoE(Spell.source.unit, Spell.level)
-                this.damage = GetDamage(Spell.source.unit, Spell.level)
-                this.slow = GetSlowAmount(Spell.level)
-                this.time = GetSlowDuration(Spell.level)
-                this.reduction = GetCooldownReduction(Spell.level)
-                angle = -angle
+        function Axe:onUnit(unit)
+            if UnitAlive(unit) then
+                if DamageFilter(self.owner, unit) then
+                    if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                        DestroyEffect(AddSpecialEffectTarget(HIT_MODEL, unit, ATTACH))
 
-                this.onHit = function(unit)
-                    if UnitAlive(unit) then
-                        if DamageFilter(this.owner, unit) then
-                            if UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                                DestroyEffect(AddSpecialEffectTarget(HIT_MODEL, unit, ATTACH))
-                                if not UnitAlive(unit) then
-                                    StartUnitAbilityCooldown(this.source, ABILITY, BlzGetUnitAbilityCooldownRemaining(this.source, ABILITY) - this.reduction)
-                                else
-                                    SlowUnit(unit, this.slow, this.time, nil, nil, false)
-                                end
-                            end
+                        if not UnitAlive(unit) then
+                            StartUnitAbilityCooldown(self.source, ABILITY, BlzGetUnitAbilityCooldownRemaining(self.source, ABILITY) - self.reduction)
+                        else
+                            SlowUnit(unit, self.slow, self.time, nil, nil, false)
                         end
                     end
-
-                    return false
                 end
-
-                this.onFinish = function()
-                    if not this.deflected then
-                        this.deflected = true
-                        this:deflectTarget(this.source)
-                    end
-
-                    return false
-                end
-
-                this:launch()
             end
-        end)
-    end)
-end
+            
+            return false
+        end
+
+        function Axe:onFinish()
+            if not self.deflected then
+                self.deflected = true
+                self:deflectTarget(self.source)
+            end
+            
+            return false
+        end
+    end
+
+    do
+        AxeThrow = Class(Spell)
+
+        function AxeThrow:onTooltip(source, level, ability)
+            return "|cffffcc00Rexxar|r thow his axes in an arc, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing enemy units hit by |cffffcc00" .. N2S(GetSlowAmount(level) * 100, 0) .. "%%|r for |cffffcc00" .. N2S(GetSlowDuration(level), 1) .. "|r seconds. Upon reacinhg the targeted destination, the axes return to |cffffcc00Rexxar|r. Every unit killed by the axes reduces cooldown by |cffffcc00" .. N2S(GetCooldownReduction(level), 1) .. "|r seconds."
+        end
+
+        function AxeThrow:onCast()
+            local a = 1
+            
+            for i = 0, GetAxeCount(Spell.level) do
+                local axe = Axe.create(Spell.source.x, Spell.source.y, 100, Spell.x, Spell.y, 100)
+
+                axe.model = MODEL
+                axe.scale = SCALE
+                axe.speed = SPEED
+                axe.deflected = false
+                axe.source = Spell.source.unit
+                axe.owner = Spell.source.player
+                axe.arc = GetArc(Spell.level)
+                axe.curve = a*GetCurve(Spell.level)*bj_DEGTORAD
+                axe.collision = GetAoE(Spell.source.unit, Spell.level)
+                axe.damage = GetDamage(Spell.source.unit, Spell.level)
+                axe.slow = GetSlowAmount(Spell.level)
+                axe.time = GetSlowDuration(Spell.level)
+                axe.reduction = GetCooldownReduction(Spell.level)
+                a = -a
+                
+                axe:launch()
+            end
+        end
+
+        function AxeThrow.onInit()
+            RegisterSpell(AxeThrow.allocate(), ABILITY)
+        end
+    end
+end)

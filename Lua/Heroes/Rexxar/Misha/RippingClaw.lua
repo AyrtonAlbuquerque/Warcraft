@@ -1,18 +1,16 @@
---[[ requires RegisterPlayerUnitEvent, DamageInterface, Utilities
-    /* --------------------- Ripping Claws v1.0 by Chopinski -------------------- */
-    // Credits:
-    //     Nyx-Studio      - Icon
-    //     Magtheridon96   - RegisterPlayerUnitEvent
-    //     Vinz            - Reaper's claw effect
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("RippingClaws", function (requires)
+    requires "Class"
+    requires "Damage"
+    requires "Utilities"
+    requires "RegisterPlayerUnitEvent"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------- Ripping Claws v1.0 by Chopinski ---------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the ability
-    local ABILITY = FourCC('A008')
+    local ABILITY = S2A('Rex7')
     -- The Claw effect
     local CLAW    = "Reaper's Claws Gold.mdl"
     -- The model scale
@@ -44,41 +42,48 @@ do
         end
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    local sequence = {}
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        RippingClaws = Class()
 
-    onInit(function()
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function()
-            local unit = GetAttacker()
-            local level = GetUnitAbilityLevel(unit, ABILITY)
+        local sequence = {}
 
-            if level > 0 then
-                if sequence[unit] == 13 then
-                    SetUnitAnimationByIndex(unit, 13)
-                    QueueUnitAnimation(unit, "Stand Ready")
-                    local effect = AddSpecialEffectEx(CLAW, GetUnitX(unit), GetUnitY(unit), HEIGHT, SCALE)
-                    BlzSetSpecialEffectOrientation(effect, Deg2Rad(GetUnitFacing(unit)), 0, Deg2Rad(GetAngle(sequence[unit])))
-                    DestroyEffect(effect)
-                    sequence[unit] = 14
-                else
-                    SetUnitAnimationByIndex(unit, 14)
-                    QueueUnitAnimation(unit, "Stand Ready")
-                    local effect = AddSpecialEffectEx(CLAW, GetUnitX(unit), GetUnitY(unit), HEIGHT, SCALE)
-                    BlzSetSpecialEffectOrientation(effect, Deg2Rad(GetUnitFacing(unit)), 0, Deg2Rad(GetAngle(sequence[unit])))
-                    DestroyEffect(effect)
-                    sequence[unit] = 13
-                end
-            end
-        end)
-
-        RegisterAttackDamageEvent(function()
+        function RippingClaws.onDamage()
             local level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
 
             if level > 0 then
                 UnitDamageCone(Damage.source.unit, Damage.source.x, Damage.source.y, GetUnitFacing(Damage.source.unit), GetArc(level), GetAoE(level), GetEventDamage()*GetDamagePercentage(level), Damage.attacktype, DAMAGE_TYPE_ENHANCED, false, true, false)
             end
-        end)
-    end)
-end
+        end
+
+        function RippingClaws.onAttack()
+            local source = GetAttacker()
+            local level = GetUnitAbilityLevel(source, ABILITY)
+
+            if level > 0 then
+                if sequence[source] == 13 then
+                    SetUnitAnimationByIndex(source, 13)
+                    QueueUnitAnimation(source, "Stand Ready")
+                    local effect = AddSpecialEffectEx(CLAW, GetUnitX(source), GetUnitY(source), HEIGHT, SCALE)
+                    BlzSetSpecialEffectOrientation(effect, Deg2Rad(GetUnitFacing(source)), 0, Deg2Rad(GetAngle(sequence[source])))
+                    DestroyEffect(effect)
+                    sequence[source] = 14
+                else
+                    SetUnitAnimationByIndex(source, 14)
+                    QueueUnitAnimation(source, "Stand Ready")
+                    local effect = AddSpecialEffectEx(CLAW, GetUnitX(source), GetUnitY(source), HEIGHT, SCALE)
+                    BlzSetSpecialEffectOrientation(effect, Deg2Rad(GetUnitFacing(source)), 0, Deg2Rad(GetAngle(sequence[source])))
+                    DestroyEffect(effect)
+                    sequence[source] = 13
+                end
+            end
+        end
+
+        function RippingClaws.onInit()
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, RippingClaws.onAttack)
+            RegisterAttackDamageEvent(RippingClaws.onDamage)
+        end
+    end
+end)
