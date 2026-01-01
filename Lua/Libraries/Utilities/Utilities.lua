@@ -717,21 +717,18 @@ OnInit("Utilities", function(requires)
                 table.insert(array, this)
 
                 if #array == 1 then
-                    TimerStart(timer, PERIOD, true, function()
+                    TimerStart(timer, 0.1, true, function()
                         local this
 
                         for i = #array, 1, -1 do
                             this = array[i]
 
-                            this.duration = this.duration - PERIOD
+                            this.duration = this.duration - 0.1
 
                             if this.duration <= 0 then
-                                i = this:destroy(i)
-
                                 UnitRemoveAbility(this.unit, this.id)
 
                                 ability[this.unit][this.id] = nil
-                                this = nil
                                 table.remove(array, i)
 
                                 if #array == 0 then
