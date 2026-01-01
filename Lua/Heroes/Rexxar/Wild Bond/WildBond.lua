@@ -56,6 +56,9 @@ OnInit("WildBond", function (requires)
                 if UnitAlive(u) and GetUnitAbilityLevel(u, S2A('Aloc')) == 0 and not IsUnitType(u, UNIT_TYPE_HERO) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
                     self.bonus = self.bonus + GetBonusDamage(GetUnitAbilityLevel(u, ABILITY))
                 end
+
+                GroupRemoveUnit(self.group, u)
+                u = FirstOfGroup(self.group)
             end
 
             AddUnitBonus(self.unit, BONUS_DAMAGE, self.bonus)

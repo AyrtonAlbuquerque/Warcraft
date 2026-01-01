@@ -100,7 +100,7 @@ OnInit("FeralRoar", function (requires)
                         for i = 0, size - 1 do
                             u = BlzGroupUnitAt(Misha.group[source], i)
                                 
-                            UnitAddAbilityTimed(u, ABILITY, 0.5, level, false)
+                            UnitAddAbilityTimed(u, ABILITY, 1, level, false)
                             BlzSetAbilityIntegerLevelField(BlzGetUnitAbility(u, ABILITY), ABILITY_ILF_MANA_COST, level - 1, 0)
                             IssueImmediateOrder(u, ORDER)
                         end

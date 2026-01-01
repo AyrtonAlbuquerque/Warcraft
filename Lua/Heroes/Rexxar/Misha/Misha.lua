@@ -86,8 +86,8 @@ OnInit("Misha", function (requires)
                         end
 
                         for i = 0, 5 do
-                            if array[GetPlayerId(this.player)][i + 1] then
-                                UnitAddItemToSlotById(u, array[GetPlayerId(this.player)][i + 1], i)
+                            if array[GetPlayerId(this.player)][i] and array[GetPlayerId(this.player)][i] ~= 0 then
+                                UnitAddItemToSlotById(u, array[GetPlayerId(this.player)][i], i)
                             end
                         end
 
@@ -125,7 +125,7 @@ OnInit("Misha", function (requires)
 
             if GetUnitTypeId(unit) == Misha_MISHA and not creating then
                 for i = 0, 5 do
-                    array[id][i + 1] = GetItemTypeId(UnitItemInSlot(unit, i))
+                    array[id][i] = GetItemTypeId(UnitItemInSlot(unit, i))
                 end
             end
         end
@@ -139,10 +139,10 @@ OnInit("Misha", function (requires)
                 for i = 0, 5 do
                     if not removed and GetItemTypeId(UnitItemInSlot(unit, i)) == GetItemTypeId(GetManipulatedItem()) then
                         removed = true
-                        table.remove(array[id], i + 1)
+                        array[id][i] = nil
                     else
                         
-                        array[id][i + 1] = GetItemTypeId(UnitItemInSlot(unit, i))
+                        array[id][i] = GetItemTypeId(UnitItemInSlot(unit, i))
                     end
                 end
             end

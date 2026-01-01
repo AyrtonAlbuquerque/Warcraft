@@ -3,6 +3,7 @@ OnInit("EagleEye", function (requires)
     requires "Spell"
     requires "Bonus"
     requires "Missiles"
+    requires "Utilities"
 
     -- ----------------------------- Eagle's Eye v1.2 by Chopinski ----------------------------- --
 
@@ -113,6 +114,9 @@ OnInit("EagleEye", function (requires)
                                 DestroyTimer(self.timer)
                                 break
                             end
+
+                            GroupRemoveUnit(self.group, u)
+                            u = FirstOfGroup(self.group)
                         end
                     else
                         PauseTimer(self.timer)

@@ -2,6 +2,7 @@ OnInit("PackMaster", function (requires)
     requires "Class"
     requires "Spell"
     requires "Bonus"
+    requires "Utilities"
     requires "RegisterPlayerUnitEvent"
 
     -- ----------------------------- Pack Master v1.2 by Chopinski ----------------------------- --
@@ -67,7 +68,7 @@ OnInit("PackMaster", function (requires)
             local order = OrderId2String(GetIssuedOrderId())
             
             if order == "smart" and IsUnitSelected(source, owner) and GetUnitTypeId(source) == WOLF then
-                local self = { destroy = Unselect.destroy }
+                local self = Unselect.allocate()
                 
                 self.unit = source
                 
@@ -183,7 +184,7 @@ OnInit("PackMaster", function (requires)
         end
 
         function Wolf.create(owner)
-            local self = { destroy = Wolf.destroy }
+            local self = Wolf.allocate()
             
             self.unit = owner
             self.shadow = true
@@ -191,7 +192,7 @@ OnInit("PackMaster", function (requires)
             self.timer = CreateTimer()
             self.player = GetOwningPlayer(owner)
             array[self.timer] = self
-            
+
             return self
         end
 
@@ -214,7 +215,7 @@ OnInit("PackMaster", function (requires)
 
         function PackMaster.get(source)
             local self = array[source]
-            
+
             if not self then
                 self = PackMaster.create(source)
                 array[source] = self
@@ -235,9 +236,9 @@ OnInit("PackMaster", function (requires)
 
         function PackMaster.create(source)
             local self = { destroy = PackMaster.destroy }
-            
+
             self.pack = Wolf.create(source)
-            
+
             return self
         end
 

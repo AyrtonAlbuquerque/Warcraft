@@ -127,7 +127,7 @@ OnInit("Stampede", function (requires)
                     lizard.stun = this.stun
                     lizard.source = this.unit
                     lizard.owner = this.player
-                    lizard.damage = damage
+                    lizard.damage = this.damage
                     lizard.collision = this.collision
 
                     lizard:launch()
