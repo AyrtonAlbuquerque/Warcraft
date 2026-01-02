@@ -5,7 +5,7 @@ scope RadiantHelmet
 		// Attributes
         real mana = 600
         real health = 1000
-        real strength = 200
+        real strength = 20
         real healthRegen = 30
 
         private static real array regen
