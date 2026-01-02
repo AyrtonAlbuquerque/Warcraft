@@ -1,18 +1,17 @@
---[[ requires SpellEffectEvent, Utilities, CrowdControl
-    -- -------------------------------- Cry of the Banshee Queen v1.3 ------------------------------- --
-    -- Credits:
-    --     Bribe         - SpellEffectEvent
-    --     Darkfang      - Void Curse Icon
-    --     Mythic        - Call of the Dread model (edited by me)
-    -- ---------------------------------------- By Chopinski ---------------------------------------- --
-]]--
+OnInit("BansheeCry", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Utilities"
+    requires "CrowdControl"
+    requires.optional "BlackArrow"
 
-do
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                          Configuration                                         --
-    -- ---------------------------------------------------------------------------------------------- --
+    -- ----------------------------- Cry of the Banshee Queen v1.5 ----------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Cry of the Banshee Queen ability
-    local ABILITY       = FourCC('A00F')
+    local ABILITY       = S2A('Svn2')
     -- The fear model
     local FEAR_MODEL    = "Fear.mdl"
     -- The the fear attachment point
@@ -50,25 +49,46 @@ do
         return IsUnitEnemy(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                             System                                             --
-    -- ---------------------------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        BansheeCry = Class(Spell)
+
+        function BansheeCry:onCast()
             local group = CreateGroup()
-            local player = Spell.source.player
-            local level = Spell.level
 
             SpamEffectUnit(Spell.source.unit, SCREAM_MODEL, ATTACH_SCREAM, 0.1, 5)
             GroupEnumUnitsInRange(group, Spell.source.x, Spell.source.y, GetAoE(Spell.source.unit, Spell.level), nil)
-            for i = 0, BlzGroupGetSize(group) - 1 do
-                local unit = BlzGroupUnitAt(group, i)
-                if Filtered(player, unit) then
-                    FearUnit(unit, GetDuration(unit, level), FEAR_MODEL, ATTACH_FEAR, false)
-                    SlowUnit(unit, GetSlow(unit, level), GetDuration(unit, level), nil, nil, false)
+
+            local u = FirstOfGroup(group)
+
+            while u do
+                if BlackArrow then
+                    if Filtered(Spell.source.player, u) then
+                        FearUnit(u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
+                        SlowUnit(u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), nil, nil, false)
+                    elseif GetOwningPlayer(u) == Spell.source.player and (GetUnitTypeId(u) == BlackArrow_SKELETON_WARRIOR or GetUnitTypeId(u) == BlackArrow_SKELETON_ARCHER) then
+                        UnitApplyTimedLife(ReplaceUnit(u, GetUnitTypeId(u), bj_UNIT_STATE_METHOD_ABSOLUTE), S2A('BTLF'), BlackArrow_GetSkeletonDuration(GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)))
+                    elseif GetOwningPlayer(u) == Spell.source.player and GetUnitTypeId(u) == BlackArrow_SKELETON_ELITE then
+                        UnitApplyTimedLife(ReplaceUnit(u, GetUnitTypeId(u), bj_UNIT_STATE_METHOD_ABSOLUTE), S2A('BTLF'), BlackArrow_GetEliteDuration(GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)))
+                    end
+                else
+                    if Filtered(Spell.source.player, u) then
+                        FearUnit(u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
+                        SlowUnit(u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), nil, nil, false)
+                    end
                 end
+
+                GroupRemoveUnit(group, u)
+                u = FirstOfGroup(group)
             end
+
             DestroyGroup(group)
-        end)
-    end)
-end
+        end
+
+        function BansheeCry.onInit()
+            RegisterSpell(BansheeCry.allocate(), ABILITY)
+        end
+    end
+end)
