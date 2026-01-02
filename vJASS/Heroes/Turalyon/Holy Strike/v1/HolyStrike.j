@@ -1,4 +1,4 @@
-library HolyStrike requires DamageInterface, Ability
+library HolyStrike requires DamageInterface, Spell
     /* ---------------------- Holy Strike v1.3 by Chopinski --------------------- */
     // Credits:
     //     AbstractCreativity - Icon
