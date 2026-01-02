@@ -119,8 +119,8 @@ OnInit("LightInfusion", function (requires)
                         end
                     end)
                 end
-
-                this.effect[LightInfusion.charges[this.unit]] = AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, Spell.source.z + 100, SCALE)
+                
+                this.effect[(LightInfusion.charges[this.unit] or 0 )] = AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, Spell.source.z + 100, SCALE)
                 LightInfusion.charges[this.unit] = (LightInfusion.charges[this.unit] or 0) + 1
                 this.arc = CIRCLE/LightInfusion.charges[this.unit]
 

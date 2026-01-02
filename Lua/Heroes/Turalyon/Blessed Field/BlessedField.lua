@@ -112,7 +112,7 @@ OnInit("BlessedField", function (requires)
                 end
             end
 
-            DestroyEffect(AddSpecialEffectEx(SPAWN_MODEL, x, y, 0, SPAWN_SCALE))
+            DestroyEffect(AddSpecialEffectEx(SPAWN_MODEL, this.x, this.y, 0, SPAWN_SCALE))
             TimerStart(CreateTimer(), GetDuration(Spell.source.unit, this.level), false, function ()
                 this:destroy()
                 DestroyTimer(GetExpiredTimer())

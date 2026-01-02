@@ -3,6 +3,7 @@ OnInit("HolyStrike", function (requires)
     requires "Spell"
     requires "Bonus"
     requires "Damage"
+    requires "Utilities"
 
     -- ----------------------------- Holy Strike v1.3 by Chopinski ----------------------------- --
 

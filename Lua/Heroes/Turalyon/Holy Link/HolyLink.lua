@@ -72,6 +72,8 @@ OnInit("HolyLink", function (requires)
                 AddUnitBonus(self.target, BONUS_MOVEMENT_SPEED, -self.bonus)
             end
 
+            array[self.unit] = nil
+
             self.self = nil
             self.unit = nil
             self.timer = nil
