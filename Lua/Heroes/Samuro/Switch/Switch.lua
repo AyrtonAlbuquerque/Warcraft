@@ -1,94 +1,97 @@
---[[ requires SpellEffectEvent, MirrorImage
-    /* ------------------------ Switch v1.3 by Chopinski ------------------------ */
-    // Credits:
-    //     Bribe          - SpellEffectEvent
-    //     Vexorian       - TimerUtils
-    //     CheckeredFlag  - Icon
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("Switch", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Utilities"
+    requires "MirrorImage"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- -------------------------------- Switch v1.5 by Chopinski ------------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Switch ability
-    Switch_ABILITY      = FourCC('A006')
-    -- The raw code of the Samuro unit in the editor
-    local SAMURO_ID     = FourCC('O000')
-    -- The GAIN_AT_LEVEL is greater than 0
-    -- Samuro will gain Switch at this level 
-    local GAIN_AT_LEVEL = 20
+    Switch_ABILITY      = S2A('Smr0')
     -- The switch effect
     local SWITCH_EFFECT = "Abilities\\Spells\\Orc\\MirrorImage\\MirrorImageCaster.mdl"
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    Switch = setmetatable({}, {})
-    local mt = getmetatable(Switch)
-    mt.__index = mt
-    
-    function mt:switch(source, target)
-        local sFacing = GetUnitFacing(source)
-        local tFacing = GetUnitFacing(target)
-        local x = GetUnitX(source)
-        local y = GetUnitY(source)
-        local g1 = CreateGroup()
-        local g2 = CreateGroup()
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Switch = Class(Spell)
 
-        PauseUnit(source, true)
-        ShowUnit(source, false)
-        DestroyEffect(AddSpecialEffect(SWITCH_EFFECT, x, y))
-        GroupEnumUnitsOfPlayer(g1, GetOwningPlayer(source), nil)
-        for i = 0, BlzGroupGetSize(g1) - 1 do
-            local unit = BlzGroupUnitAt(g1, i)
-            if GetUnitTypeId(unit) == GetUnitTypeId(source) and IsUnitIllusionEx(unit) then
-                PauseUnit(unit, true)
-                ShowUnit(unit, false)
-                DestroyEffect(AddSpecialEffect(SWITCH_EFFECT, GetUnitX(unit), GetUnitY(unit)))
-                GroupAddUnit(g2, unit)
-            end
+        function Switch:destroy()
+            self.unit = nil
+            self.group = nil
         end
-        DestroyGroup(g1)
-        SetUnitPosition(source, GetUnitX(target), GetUnitY(target))
-        SetUnitFacing(source, tFacing)
-        SetUnitPosition(target, x, y)
-        SetUnitFacing(target, sFacing)
 
-        return g2
-    end
-    
-    onInit(function()
-        RegisterSpellEffectEvent(Switch_ABILITY, function()
+        function Switch.switch(source, target)
+            local x = GetUnitX(source)
+            local y = GetUnitY(source)
+            local g1 = CreateGroup()
+            local g2 = CreateGroup()
+            local sourceFace = GetUnitFacing(source)
+            local targetFace = GetUnitFacing(target)
+
+            PauseUnit(source, true)
+            ShowUnit(source, false)
+            DestroyEffect(AddSpecialEffect(SWITCH_EFFECT, x, y))
+            GroupEnumUnitsOfPlayer(g1, GetOwningPlayer(source), nil)
+
+            local u = FirstOfGroup(g1)
+
+            while u do
+                if GetUnitTypeId(u) == GetUnitTypeId(source) and IsUnitIllusionEx(u) then
+                    PauseUnit(u, true)
+                    ShowUnit(u, false)
+                    DestroyEffect(AddSpecialEffect(SWITCH_EFFECT, GetUnitX(u), GetUnitY(u)))
+                    GroupAddUnit(g2, u)
+                end
+
+                GroupRemoveUnit(g1, u)
+                u = FirstOfGroup(g1)
+            end
+
+            DestroyGroup(g1)
+            SetUnitPosition(source, GetUnitX(target), GetUnitY(target))
+            SetUnitFacing(source, targetFace)
+            SetUnitPosition(target, x, y)
+            SetUnitFacing(target, sourceFace)
+
+            return g2
+        end
+
+        function Switch:onCast()
             if GetUnitTypeId(Spell.source.unit) == GetUnitTypeId(Spell.target.unit) and IsUnitIllusionEx(Spell.target.unit) then
-                local timer = CreateTimer()
-                local unit = Spell.source.unit
-                local group = Switch:switch(Spell.source.unit, Spell.target.unit)
+                local this = { destroy = Switch.destroy }
 
-                TimerStart(timer, 0.25, false, function()
-                    PauseUnit(unit, false)
-                    ShowUnit(unit, true)
-                    for i = 0, BlzGroupGetSize(group) - 1 do
-                        local v = BlzGroupUnitAt(group, i)
-                        PauseUnit(v, false)
-                        ShowUnit(v, true)
+                this.unit = Spell.source.unit
+                this.group = Switch.switch(Spell.source.unit, Spell.target.unit)
+
+                TimerStart(CreateTimer(), 025, false, function ()
+                    PauseUnit(this.unit, false)
+                    ShowUnit(this.unit, true)
+
+                    local u = FirstOfGroup(this.group)
+
+                    while u do
+                        PauseUnit(u, false)
+                        ShowUnit(u, true)
+                        GroupRemoveUnit(this.group, u)
+                        u = FirstOfGroup(this.group)
                     end
-                    DestroyGroup(group)
-                    SelectUnitAddForPlayer(unit, GetOwningPlayer(unit))
-                    PauseTimer(timer)
-                    DestroyTimer(timer)
+
+                    DestroyGroup(this.group)
+                    SelectUnit(this.unit, true)
+                    SelectUnitAddForPlayer(this.unit, GetOwningPlayer(this.unit))
+                    DestroyTimer(GetExpiredTimer())
+                    this:destroy()
                 end)
             end
-        end)
-        
-        RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function()
-            if GAIN_AT_LEVEL > 0 then
-                local unit = GetTriggerUnit()
-                if GetUnitTypeId(unit) == SAMURO_ID and GetHeroLevel(unit) == GAIN_AT_LEVEL then
-                    UnitAddAbility(unit, Switch_ABILITY)
-                    UnitMakeAbilityPermanent(unit, true, Switch_ABILITY)
-                end
-            end
-        end)
-    end)
-end
+        end
+
+        function Switch.onInit()
+            RegisterSpell(Switch.allocate(), Switch_ABILITY)
+        end
+    end
+end)

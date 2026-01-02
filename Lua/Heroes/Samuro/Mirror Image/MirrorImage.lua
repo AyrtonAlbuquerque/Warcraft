@@ -1,22 +1,22 @@
---[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, PluginSpellEffect, NewBonusUtils, TimerUtils, TimedHandles, Indexer
-    /* ---------------------- MirrorImage v1.3 by Chopinski --------------------- */
-    // Credits:
-    //     Magtheridon96    - RegisterPlayerUnitEvent
-    //     Bribe            - SpellEffectEvent
-    //     TriggerHappy     - TimedHandles
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("MirrorImage", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Utilities"
+    requires "TimedHandles"
+    requires "RegisterPlayerUnitEvent"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------- MirrorImage v1.5 by Chopinski ----------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Mirror Image ability
-    local ABILITY           = FourCC('A002')
+    local ABILITY           = S2A('Smr2')
     -- The raw code of the Cloned Hero ability
-    local CLONED_HERO       = FourCC('A007')
+    local CLONED_HERO       = S2A('Smr6')
     -- The raw code of the Cloned Inventory ability
-    local CLONE_INVENTORY   = FourCC('A008')
+    local CLONE_INVENTORY   = S2A('Smr7')
     -- The model that is used to identify the real Samuro
     local ID_MODEL          = "CloudAura.mdx"
     -- The model attchment point
@@ -28,7 +28,7 @@ do
 
     -- Use this function to also check if a unit is a illusion
     function IsUnitIllusionEx(unit)
-        return GetUnitAbilityLevel(unit, CLONED_HERO) > 0
+        return GetUnitAbilityLevel(unit, CLONED_HERO) > 0 or IsUnitIllusion(unit)
     end
 
     -- The expirience multiplyer value per illusion count
@@ -38,7 +38,7 @@ do
 
     -- The number of illusions created per level
     local function GetNumberOfIllusions(level)
-        return level
+        return MathRound(SquareRoot(I2R(level)))
     end
 
     -- The illusions duration. By default the object editor field value
@@ -56,215 +56,182 @@ do
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_RLF_DAMAGE_TAKEN_PERCENT_OMI3, level - 1)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    local dealt = {}
-    local taken = {}
-    local effect = {}
-    local source = {}
-    local group = {}
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        MirrorImage = Class(Spell)
 
-    local function CloneStats(original, illusion)
-        SetHeroXP(illusion, GetHeroXP(original), false)
-        SetHeroStr(illusion, GetHeroStr(original, false), true)
-        SetHeroAgi(illusion, GetHeroAgi(original, false), true)
-        SetHeroInt(illusion, GetHeroInt(original, false), true)
-        BlzSetUnitMaxHP(illusion, BlzGetUnitMaxHP(original))
-        BlzSetUnitMaxMana(illusion, BlzGetUnitMaxMana(original))
-        BlzSetUnitBaseDamage(illusion, BlzGetUnitBaseDamage(original, 0), 0)
-        SetWidgetLife(illusion, GetWidgetLife(original))
-        SetUnitState(illusion, UNIT_STATE_MANA, GetUnitState(original, UNIT_STATE_MANA))
-        ModifyHeroSkillPoints(illusion, bj_MODIFYMETHOD_SET, 0)
-    end
+        local dealt = {}
+        local taken = {}
+        local group = {}
+        local effect = {}
+        local source = {}
 
-    onInit(function()
-        RegisterUnitIndexEvent(function()
-            local unit = GetIndexUnit()
+        function MirrorImage:destroy()
+            self.unit = nil
+            self.player = nil
+        end
 
-            source[unit] = nil
+        function MirrorImage.clone(original, illusion)
+            SetHeroXP(illusion, GetHeroXP(original), false)
+            SetHeroStr(illusion, GetHeroStr(original, false), true)
+            SetHeroAgi(illusion, GetHeroAgi(original, false), true)
+            SetHeroInt(illusion, GetHeroInt(original, false), true)
+            BlzSetUnitMaxHP(illusion, BlzGetUnitMaxHP(original))
+            BlzSetUnitMaxMana(illusion, BlzGetUnitMaxMana(original))
+            BlzSetUnitBaseDamage(illusion, BlzGetUnitBaseDamage(original, 0), 0)
+            SetWidgetLife(illusion, GetWidgetLife(original))
+            SetUnitState(illusion, UNIT_STATE_MANA, GetUnitState(original, UNIT_STATE_MANA))
+            ModifyHeroSkillPoints(illusion, bj_MODIFYMETHOD_SET, 0)
+        end
 
-            if Critical then
-                Critical.chance[unit] = nil
-                Critical.multiplier[unit] = nil
-            end
+        function MirrorImage:onTooltip(source, level, ability)
+            return "Confuses the enemy by creating |cffffcc00" .. N2S(GetNumberOfIllusions(level), 0) .. "|r illusion of |cffffcc00Samuro|r and dispelling all magic. In addition, |cffffcc00Samuro|r gains |cffffcc00" .. N2S(GetBonusExp() * 100, 0) .. "%%|r more expirience from kills for each illusion alive.\n\nDeal |cffffcc00" .. N2S(GetDamageDealt(source, level) * 100, 0) .. "%%|r of the damage and take |cffffcc00" .. N2S(GetDamageTaken(source, level) * 100, 0) .. "%%|r more damage.\n\nLasts |cffffcc00" .. N2S(GetDuration(source, level), 0) .. "|r seconds."
+        end
 
-            if Evasion then
-                Evasion.evasion[unit] = nil
-                Evasion.miss[unit] = nil
-                Evasion.neverMiss[unit] = nil
-            end
-
-            if SpellPower then
-                SpellPower.flat[unit] = nil
-                SpellPower.percent[unit] = nil
-            end
-
-            if LifeSteal then
-                LifeSteal[unit] = nil
-            end
-
-            if SpellVamp then
-                SpellVamp[unit] = nil
-            end
-        end)
-
-        RegisterUnitDeindexEvent(function()
-            local unit = GetIndexUnit()
-
-            if GetUnitAbilityLevel(unit, ABILITY) > 0 then
-                DestroyGroup(group[unit])
-                DestroyEffect(effect[unit])
-
-                group[unit] = nil
-                effect[unit] = nil
-            end
-        end)
-
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, function()
-            if IsUnitIllusionEx(GetManipulatingUnit()) then
-                UnitRemoveItem(GetManipulatingUnit(), GetManipulatedItem())
-            end
-        end)
-
-        RegisterAnyDamageEvent(function()
-            local damage = GetEventDamage()
-
-            if IsUnitIllusionEx(Damage.source.unit) and damage > 0 then
-                BlzSetEventDamage(damage * dealt[Damage.source.unit])
-            end
-
-            if IsUnitIllusionEx(Damage.target.unit) and damage > 0 then
-                BlzSetEventDamage(damage * taken[Damage.target.unit])
-            end
-        end)
-
-        RegisterSpellEffectEvent(ABILITY, function()
-            local timer = CreateTimer()
-            local unit = Spell.source.unit
-            local player = Spell.source.player
+        function MirrorImage:onCast()
             local model = ID_MODEL
-            local level = Spell.level
-            local amount = GetNumberOfIllusions(level)
-            local delay = BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_RLF_ANIMATION_DELAY, level - 1)
-            local duration = GetDuration(unit, level)
-
-            if not group[unit] then
-                group[unit] = CreateGroup()
+            local this = { destroy = MirrorImage.destroy }
+            
+            this.unit = Spell.source.unit
+            this.level = Spell.level
+            this.player = Spell.source.player
+            this.amount = GetNumberOfIllusions(this.level)
+            this.delay = BlzGetAbilityRealLevelField(Spell.ability, ABILITY_RLF_ANIMATION_DELAY, this.level - 1)
+            this.duration = GetDuration(this.unit, this.level)
+            
+            if not group[this.unit] then
+                group[this.unit] = CreateGroup()
             end
 
-            if effect[unit] then
-                DestroyEffect(effect[unit])
-                effect[unit] = nil
-            end
+            DestroyEffect(effect[this.unit])
 
-            while FirstOfGroup(group[unit]) do
-                local u = FirstOfGroup(group[unit])
+            local u = FirstOfGroup(group[this.unit])
 
+            while u do
                 ShowUnit(u, false)
                 KillUnit(u)
-                GroupRemoveUnit(group[unit], u)
+                GroupRemoveUnit(group[this.unit], u)
+                u = FirstOfGroup(group[this.unit])
             end
-
-            if IsPlayerEnemy(GetLocalPlayer(), player) then
+        
+            if IsPlayerEnemy(GetLocalPlayer(), this.player) then
                 model = ".mdl"
             end
+        
+            effect[this.unit] = AddSpecialEffectTarget(model, this.unit, ATTACH)
 
-            effect[unit] = AddSpecialEffectTarget(model, unit, ATTACH)
-            DestroyEffectTimed(effect[unit], duration)
-            TimerStart(timer, delay, false, function()
-                local facing = GetUnitFacing(unit)
-                local x = GetUnitX(unit)
-                local y = GetUnitY(unit)
+            DestroyEffectTimed(effect[this.unit], this.duration)
+            TimerStart(CreateTimer(), this.delay, false, function ()
+                for i = 0, this.amount - 1 do
+                    local illusion = CreateUnit(this.player, GetUnitTypeId(this.unit), GetUnitX(this.unit), GetUnitY(this.unit), GetUnitFacing(this.unit))
 
-                for i = 0, amount - 1 do
-                    local illusion = CreateUnit(player, GetUnitTypeId(unit), x, y, facing)
-                    source[illusion] = unit
-                    dealt[illusion] = GetDamageDealt(unit, level)
-                    taken[illusion] = GetDamageTaken(unit, level)
-
-                    GroupAddUnit(group[unit], illusion)
-                    UnitRemoveAbility(illusion, FourCC('AInv'))
+                    source[illusion] = this.unit
+                    dealt[illusion] = GetDamageDealt(this.unit, this.level)
+                    taken[illusion] = GetDamageTaken(this.unit, this.level)  
+                    
+                    GroupAddUnit(group[this.unit], illusion)
+                    UnitRemoveAbility(illusion, S2A('AInv'))
                     UnitAddAbility(illusion, CLONE_INVENTORY)
-                    CloneItems(unit, illusion, true)
+                    CloneItems(this.unit, illusion, true)
                     UnitAddAbility(illusion, CLONED_HERO)
-                    CloneStats(unit, illusion)
-                    UnitMirrorBonuses(unit, illusion)
-                    UnitApplyTimedLife(illusion, FourCC('BTLF'), GetDuration(unit, level))
-                    SetPlayerHandicapXP(player, GetPlayerHandicapXP(player) + GetBonusExp())
+                    MirrorImage.clone(this.unit, illusion)
+                    UnitMirrorBonuses(this.unit, illusion)
+                    UnitApplyTimedLife(illusion, S2A('BTLF'), this.duration)
+                    SetPlayerHandicapXP(this.player, GetPlayerHandicapXP(this.player) + GetBonusExp())
 
                     if Switch then
                         UnitRemoveAbility(illusion, Switch_ABILITY)
                     end
+
+                    if SamuroCritical then
+                        if GetUnitAbilityLevel(this.unit, Critical_ABILITY) > 0 then
+                            UnitAddAbility(illusion, Critical_ABILITY)
+                            SetUnitAbilityLevel(illusion, Critical_ABILITY, GetUnitAbilityLevel(this.unit, Critical_ABILITY))
+                        end
+                    end
+
+                    DestroyTimer(GetExpiredTimer())
                 end
-
-                PauseTimer(timer)
-                DestroyTimer(timer)
             end)
-        end)
+        end
 
-        RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function()
+        function MirrorImage.onLevelUp()
             local unit = GetTriggerUnit()
-
+        
             if IsUnitIllusionEx(unit) then
                 ModifyHeroSkillPoints(unit, bj_MODIFYMETHOD_SET, 0)
             end
-        end)
+        end
 
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function()
-            local unit = GetTriggerUnit()
+        function MirrorImage.onDamage()
+            if IsUnitIllusionEx(Damage.source.unit) and Damage.amount > 0 and dealt[Damage.source.unit] then
+                Damage.amount = Damage.amount * dealt[Damage.source.unit]
+            end
+        
+            if IsUnitIllusionEx(Damage.target.unit) and Damage.amount > 0 and taken[Damage.target.unit] then
+                Damage.amount = Damage.amount * taken[Damage.target.unit]
+            end
+        end
 
-            if IsUnitIllusionEx(unit) then
-                local player = GetOwningPlayer(unit)
+        function MirrorImage.onDeath()
+            local killed = GetTriggerUnit()
+        
+            if IsUnitIllusionEx(killed) then
+                local owner = GetOwningPlayer(killed)
+                local id = source[killed]
 
-                GroupRemoveUnit(group[source[unit]], unit)
+                GroupRemoveUnit(group[id], killed)
 
-                if BlzGroupGetSize(group[source[unit]]) == 0 then
-                    DestroyEffect(effect[source[unit]])
-                    effect[source[unit]] = nil
+                if BlzGroupGetSize(group[id]) == 0 then
+                    DestroyEffect(effect[id])
+                    effect[id] = nil
                 end
 
-                for i = 0, bj_MAX_INVENTORY do
-                    local item = UnitItemInSlot(unit, i)
+                for i = 0, 5 do
+                    local item = UnitItemInSlot(killed, i)
+
                     if item then
-                        UnitRemoveItem(unit, item)
+                        UnitRemoveItem(killed, item)
                         RemoveItem(item)
                     end
                 end
 
-                if Critical then
-                    Critical.chance[unit] = nil
-                    Critical.multiplier[unit] = nil
-                end
+                DestroyEffect(AddSpecialEffect(DEATH_EFFECT, GetUnitX(killed), GetUnitY(killed)))
+                SetPlayerHandicapXP(owner, GetPlayerHandicapXP(owner) - GetBonusExp())
+                SetUnitOwner(killed, PLAYER_EXTRA, true)
+                ShowUnit(killed, false)
 
-                if Evasion then
-                    Evasion.evasion[unit] = nil
-                    Evasion.miss[unit] = nil
-                    Evasion.neverMiss[unit] = nil
-                end
-
-                if SpellPower then
-                    SpellPower.flat[unit] = nil
-                    SpellPower.percent[unit] = nil
-                end
-
-                if LifeSteal then
-                    LifeSteal[unit] = nil
-                end
-
-                if SpellVamp then
-                    SpellVamp[unit] = nil
-                end
-
-                DestroyEffect(AddSpecialEffect(DEATH_EFFECT, GetUnitX(unit), GetUnitY(unit)))
-                SetPlayerHandicapXP(player, GetPlayerHandicapXP(player) - GetBonusExp())
-                SetUnitOwner(unit, PLAYER_EXTRA, true)
-                ShowUnit(unit, false)
-
-                dealt[unit] = nil
-                taken[unit] = nil
-                source[unit] = nil
+                source[id] = nil
             end
-        end)
-    end)
-end
+        end
+
+        function MirrorImage.onDeindex()
+            local removed = GetIndexUnit()
+
+            if GetUnitAbilityLevel(removed, ABILITY) > 0 then
+                DestroyGroup(group[removed])
+                DestroyEffect(effect[removed])
+
+                group[removed] = nil
+                effect[removed] = nil
+            end
+        end
+
+        function MirrorImage.onPickup()
+            if IsUnitIllusionEx(GetManipulatingUnit()) then
+                UnitRemoveItem(GetManipulatingUnit(), GetManipulatedItem())
+            end
+        end
+
+        function MirrorImage.onInit()
+            RegisterSpell(MirrorImage.allocate(), ABILITY)
+            RegisterAnyDamageEvent(MirrorImage.onDamage)
+            RegisterUnitDeindexEvent(MirrorImage.onDeindex)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, MirrorImage.onDeath)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, MirrorImage.onLevelUp)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, MirrorImage.onPickup)
+        end
+    end
+end)

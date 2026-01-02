@@ -1,17 +1,16 @@
---[[ requires CriticalStrike, Missiles
-    /* -------------------- Breaking Slash v1.2 by Chopinski -------------------- */
-    // Credits:
-    //     PeeKay         - Icon
-    //     AZ             - Slash model
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("BreakingSlash", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Missiles"
+    requires "Utilities"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------- Breaking Slash v1.4 by Chopinski --------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Breaking Slash ability
-    local BreakingSlash_ABILITY = FourCC('A000')
+    BreakingSlash_ABILITY       = S2A('Smr8')
     -- The missile model
     local MISSILE_MODEL         = "Fire_Slash.mdl"
     -- The missile size
@@ -24,8 +23,8 @@ do
     local DAMAGE_TYPE           = DAMAGE_TYPE_UNIVERSAL
 
     -- The Fire Slash damage deatl based on a base damage amount and the ability level
-    function BreakingSlash_GetDamage(damage, level)
-        return damage*level*0.3
+    function BreakingSlash_GetDamage(level)
+        return 0.3 * level
     end
 
     -- The Fire Slash travel distance
@@ -43,48 +42,53 @@ do
         return IsUnitEnemy(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    BreakingSlash = setmetatable({}, {})
-    local mt = getmetatable(BreakingSlash)
-    mt.__index = mt
-    
-    function mt:slash(source, target, damage, level)
-        local x = GetUnitX(target)
-        local y = GetUnitY(target)
-        local z = GetUnitZ(target)
-        local a = AngleBetweenCoordinates(GetUnitX(source), GetUnitY(source), x, y)
-        local d = GetDistance(level)
-        local this = Missiles:create(x, y, z, x + d*Cos(a), y + d*Sin(a), 0)
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        FireSlash = Class(Missile)
 
-        this.source = source
-        this.owner = GetOwningPlayer(source)
-        this.damage = damage
-        this.collision = GetCollision(level)
-        this:model(MISSILE_MODEL)
-        this:scale(MISSILE_SCALE)
-        this:speed(MISSILE_SPEED)
-
-        this.onHit = function(unit)
-            if Filtered(this.owner, unit) then
-                UnitDamageTarget(this.source, unit, this.damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, nil)
+        function FireSlash:onUnit(unit)
+            if Filtered(self.owner, unit) then
+                UnitDamageTarget(self.source, unit, self.damage, true, false, ATTACK_TYPE, DAMAGE_TYPE, nil)
             end
 
             return false
         end
-
-        this:launch()
     end
-    
-    onInit(function()
-        RegisterCriticalStrikeEvent(function()
-            local source = GetCriticalSource()
-            local level  = GetUnitAbilityLevel(source, BreakingSlash_ABILITY)
+
+    do
+        BreakingSlash = Class(Spell)
+
+        function BreakingSlash.slash(source, target, damage, level)
+            local x = GetUnitX(target)
+            local y = GetUnitY(target)
+            local distance = GetDistance(level)
+            local angle = AngleBetweenCoordinates(GetUnitX(source), GetUnitY(source), x, y)
+            local slash = FireSlash.create(x, y, GetUnitFlyHeight(target), x + distance * math.cos(angle), y + distance * math.sin(angle), 0)
+
+            slash.source = source
+            slash.damage = damage
+            slash.model = MISSILE_MODEL
+            slash.scale = MISSILE_SCALE
+            slash.speed = MISSILE_SPEED
+            slash.owner = GetOwningPlayer(source)
+            slash.collision = GetCollision(level)
+
+            slash:launch()
+        end
+
+        function BreakingSlash.onCritical()
+            local level = GetUnitAbilityLevel(GetCriticalSource(), BreakingSlash_ABILITY)
 
             if level > 0 then
-                BreakingSlash:slash(source, GetCriticalTarget(), BreakingSlash_GetDamage(GetCriticalDamage(), level), level)
+                BreakingSlash.slash(GetCriticalSource(), GetCriticalTarget(), GetCriticalDamage() * BreakingSlash_GetDamage(level), level)
             end
-        end)
-    end)
-end
+        end
+
+        function BreakingSlash.onInit()
+            RegisterSpell(BreakingSlash.allocate(), BreakingSlash_ABILITY)
+            RegisterCriticalStrikeEvent(BreakingSlash.onCritical)
+        end
+    end
+end)
