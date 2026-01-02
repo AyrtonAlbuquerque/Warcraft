@@ -97,10 +97,8 @@ OnInit("Mimic", function (requires)
                                 for i = 0, size - 1 do
                                     UnitRemoveAbility(BlzGroupUnitAt(self.group, i), Bladestorm_BUFF)
                                 end
-                            else
-                                self:destroy()
                             end
-                        else
+
                             self:destroy()
                         end
                     end)

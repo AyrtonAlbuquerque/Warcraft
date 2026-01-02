@@ -68,7 +68,7 @@ OnInit("Switch", function (requires)
                 this.unit = Spell.source.unit
                 this.group = Switch.switch(Spell.source.unit, Spell.target.unit)
 
-                TimerStart(CreateTimer(), 025, false, function ()
+                TimerStart(CreateTimer(), 0.25, false, function ()
                     PauseUnit(this.unit, false)
                     ShowUnit(this.unit, true)
 
