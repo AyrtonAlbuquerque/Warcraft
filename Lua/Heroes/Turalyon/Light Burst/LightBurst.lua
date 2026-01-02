@@ -1,18 +1,19 @@
---[[ requires SpellEffectEvent, NewBonusUtils, Utilities, CrowdControl optional LightInfusion
-    -- -------------------------------------- Light Burst v1.2 -------------------------------------- --
-    -- Credits:
-    --     Redeemer59         - Icon
-    --     Bribe              - SpellEffectEvent
-    --     AZ                 - Stomp and Misisle effect
-    -- ---------------------------------------- By Chopinski ---------------------------------------- --
-]]--
+OnInit("LightBurst", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Missiles"
+    requires "Utilities"
+    requires "CrowdControl"
+    requires.optional "LightInfusion"
 
-do
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                          Configuration                                         --
-    -- ---------------------------------------------------------------------------------------------- --
+    -- ------------------------------------ Light Burst v1.5 ----------------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The Light Burst Ability
-    local ABILITY      = FourCC('A004')
+    local ABILITY      = S2A('Trl3')
     -- The Light Burst Missile Model
     local MODEL        = "Light Burst.mdl"
     -- The Light Burst Missile Model scale
@@ -51,8 +52,8 @@ do
     end
 
     -- The Light Burst Damage
-    local function GetDamage(level)
-        return 50. + 50.*level
+    local function GetDamage(source, level)
+        return (100 + 100. * level) + ((0.6 + 0.2*level) * GetUnitBonus(source, BONUS_SPELL_POWER)) + (0.4 * level * GetHeroStr(source, true))
     end
 
     -- The Light Burst Damage Filter for enemy units
@@ -60,61 +61,83 @@ do
         return not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE)
     end
 
-    -- ---------------------------------------------------------------------------------------------- --
-    --                                             System                                             --
-    -- ---------------------------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
-            local this = Missiles:create(Spell.source.x, Spell.source.y, HEIGHT, Spell.x, Spell.y, 0)
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Burst = Class(Missile)
 
-            this:model(MODEL)
-            this:scale(SCALE)
-            this:speed(SPEED)
-            this.source = Spell.source.unit 
-            this.owner = Spell.source.player
-            this.damage = GetDamage(Spell.level)
-            this.aoe = GetAoE(Spell.source.unit, Spell.level)
-            this.dur = GetDuration(Spell.level)
-            this.slow = GetSlow(Spell.level)
+        function Burst:onFinish()
+            local group = CreateGroup()
 
-            if LightInfusion then
-                if (LightInfusion.charges[Spell.source.unit] or 0) > 0 then
-                    this.infused = true
-                    this.bonus = GetBonus(Spell.level)
-                    LightInfusion:consume(Spell.source.unit)
-                end
-            end
+            DestroyEffect(AddSpecialEffectEx(STOMP, self.x, self.y, 0, STOMP_SCALE))
+            GroupEnumUnitsInRange(group, self.x, self.y, self.aoe, nil)
 
-            this.onFinish = function()
-                local group = CreateGroup()
+            local u = FirstOfGroup(group)
 
-                DestroyEffect(AddSpecialEffectEx(STOMP, this.x, this.y, 0, STOMP_SCALE))
-                GroupEnumUnitsInRange(group, this.x, this.y, this.aoe, nil)
-                for i = 0, BlzGroupGetSize(group) - 1 do
-                    local unit = BlzGroupUnitAt(group, i)
-                    if UnitAlive(unit) then
-                        if IsUnitEnemy(unit, this.owner) then
-                            if DamageFilter(unit) then
-                                UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
-                                SlowUnit(unit, this.slow, this.dur, nil, nil, false)
+            while u do
+                if UnitAlive(u) then
+                    if IsUnitEnemy(u, self.owner) then
+                        if DamageFilter(u) then
+                            if UnitDamageTarget(self.source, u, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                                SlowUnit(u, self.slow, self.time, nil, nil, false)
 
-                                if this.infused then
-                                    DisarmUnit(unit, this.dur, DISARM, ATTACH, false)
+                                if self.infused then
+                                    DisarmUnit(u, self.time, DISARM, ATTACH, false)
                                 end
                             end
-                        else
-                            if this.infused then
-                                AddUnitBonusTimed(unit, BONUS_MOVEMENT_SPEED, this.bonus, this.dur)
-                            end
+                        end
+                    else
+                        if self.infused then
+                            AddUnitBonusTimed(u, BONUS_MOVEMENT_SPEED, self.bonus, self.time)
                         end
                     end
                 end
-                DestroyGroup(group)
 
-                return true
+                GroupRemoveUnit(group, u)
+                u = FirstOfGroup(group)
             end
 
-            this:launch()
-        end)
-    end)
-end
+            DestroyGroup(group)
+
+            return true
+        end
+    end
+
+    do
+        LightBurst = Class(Spell)
+
+        function LightBurst:onTooltip(source, level, ability)
+            return "|cffffcc00Turalyon|r thrusts his light sword releasing a |cffffcc00Light Burst|r towards the targeted direction. Upon arrival it explodes, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. " Magic|r damage and slowing all enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r by |cffffcc00" .. N2S(GetSlow(level) * 100, 0) .. "%%|r.\n\n|cffffcc00Light Infused|r: |cffffcc00Light Burst|r increases the |cffffff00Movement Speed|r of any allied unit within its explosion range by |cffffcc00" .. I2S(GetBonus(level)) .. "|r and |cffff0000Disarms|r enemy units for |cffffcc00" .. N2S(GetDuration(level), 1) .. "|r seconds."
+        end
+
+        function LightBurst:onCast()
+            local burst = Burst.create(Spell.source.x, Spell.source.y, HEIGHT, Spell.x, Spell.y, 0)
+
+            burst.model = MODEL
+            burst.scale = SCALE
+            burst.speed = SPEED
+            burst.source = Spell.source.unit 
+            burst.owner = Spell.source.player
+            burst.slow = GetSlow(Spell.level)
+            burst.time = GetDuration(Spell.level)
+            burst.aoe = GetAoE(Spell.source.unit, Spell.level)
+            burst.damage = GetDamage(Spell.source.unit, Spell.level)
+
+            if LightInfusion then
+                if (LightInfusion.charges[Spell.source.unit] or 0) > 0 then
+                    burst.infused = true
+                    burst.bonus = GetBonus(Spell.level)
+
+                    LightInfusion.consume(Spell.source.unit)
+                end
+            end
+
+            burst:launch()
+        end
+
+        function LightBurst.onInit()
+            RegisterSpell(LightBurst.allocate(), ABILITY)
+        end
+    end
+end)

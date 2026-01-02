@@ -1,24 +1,24 @@
---[[ requires DamageInterface
-    /* ---------------------- Holy Strike v1.2 by Chopinski --------------------- */
-    // Credits:
-    //     AbstractCreativity - Icon
-    //     Bribe              - SpellEffectEvent
-    //     Blizzard           - Healing Effect
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("HolyStrike", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Damage"
+    requires "Utilities"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------- Holy Strike v1.3 by Chopinski ----------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
+    -- The Holy Strike ablity
+    local ABILITY      = S2A('Trl4')
     -- The Holy Strike level 1 buff
-    local BUFF_1       = FourCC('B001')
+    local BUFF_1       = S2A('BTr0')
     -- The Holy Strike level 2 buff
-    local BUFF_2       = FourCC('B002')
+    local BUFF_2       = S2A('BTr1')
     -- The Holy Strike level 3 buff
-    local BUFF_3       = FourCC('B003')
+    local BUFF_3       = S2A('BTr2')
     -- The Holy Strike level 4 buff
-    local BUFF_4       = FourCC('B004')
+    local BUFF_4       = S2A('BTr3')
     -- The Holy Strike heal model
     local MODEL        = "HolyStrike.mdl"
     -- The Holy Strike heal attchment point
@@ -26,7 +26,7 @@ do
 
     -- The Holy Strike Heal
     local function GetHeal(level, isRanged)
-        local real heal = 10.*level
+        local heal = 20.*level
 
         if isRanged then
             heal = heal/2
@@ -35,11 +35,13 @@ do
         return heal
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterAttackDamageEvent(function()
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        HolyStrike = Class(Spell)
+
+        function HolyStrike.onDamage()
             if Damage.isEnemy then
                 if GetUnitAbilityLevel(Damage.source.unit, BUFF_4) > 0 then
                     SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(4, Damage.source.isRanged))
@@ -55,6 +57,11 @@ do
                     DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
                 end
             end
-        end)
-    end)
-end
+        end
+
+        function HolyStrike.onInit()
+            RegisterSpell(HolyStrike.allocate(), ABILITY)
+            RegisterAttackDamageEvent(HolyStrike.onDamage)
+        end
+    end
+end)
