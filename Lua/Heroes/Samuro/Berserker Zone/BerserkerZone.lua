@@ -94,7 +94,7 @@ OnInit("BerserkerZone", function (requires)
                 this.duration = this.duration - this.period
 
                 if this.duration > 0 then
-                    GroupEnumUnitsInRange(this.group, this.x, this.y, this.aoe, nill)
+                    GroupEnumUnitsInRange(this.group, this.x, this.y, this.aoe, nil)
 
                     local u = FirstOfGroup(this.group)
 
