@@ -28,9 +28,9 @@ library DragonZone requires Spell, Utilities, CrowdControl, Modules optional New
     // The bonus regeneration
     private function GetBonusRegen takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 12.5 * level + (0.025 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 25 * level + (0.05 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
-            return 12.5 * level
+            return 25 * level
         endif
     endfunction
 
@@ -137,9 +137,9 @@ library DragonZone requires Spell, Utilities, CrowdControl, Modules optional New
             set knock = GetMaxKnockBackDuration(unit, Spell.level)
             
             call DestroyEffectTimed(AddSpecialEffectEx(MODEL, x, y, 0, SCALE), duration)
-            call UnitAddAbilityTimed(dummy, REGEN_ABILITY, duration, Spell.level, true)
+            call UnitAddAbilityTimed(dummy, REGEN_ABILITY, duration, 1, true)
             set spell = BlzGetUnitAbility(dummy, REGEN_ABILITY)
-            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_AMOUNT_OF_HIT_POINTS_REGENERATED, Spell.level - 1, GetBonusRegen(unit, Spell.level))
+            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_AMOUNT_OF_HIT_POINTS_REGENERATED, 0, GetBonusRegen(unit, Spell.level))
             call IncUnitAbilityLevel(dummy, REGEN_ABILITY)
             call DecUnitAbilityLevel(dummy, REGEN_ABILITY)
             call DummyRecycleTimed(dummy, duration)
