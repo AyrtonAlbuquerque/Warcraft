@@ -1,18 +1,16 @@
---[[ requires RegisterPlayerUnitEvent, Utilities
-    /* -------------------- Yulon Blessing v1.1 by Chopinski -------------------- */
-    // Credits:
-    //     Magtheridon96  - RegisterPlayerUnitEvent
-    //     Palaslayer     - icon
-    //     AZ             - Model
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("YulonBlessing", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Utilities"
+    requires "RegisterPlayerUnitEvent"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------- Yulon Blessing v1.2 by Chopinski --------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Ability
-    local ABILITY          = FourCC('A004')
+    local ABILITY          = S2A('Yul7')
     -- The Model
     local MODEL            = "DragonBless.mdl"
     -- The model in the caster
@@ -45,112 +43,116 @@ do
         return UnitAlive(unit) and IsUnitAlly(unit, player) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    YulonBlessing = setmetatable({}, {})
-    local mt = getmetatable(YulonBlessing)
-    mt.__index = mt
-    
-    local array = {}
-    local active = {}
-    
-    function mt:execute()
-        local level = GetUnitAbilityLevel(self.unit, ABILITY)
-        
-        if GetUnitLifePercent(self.unit) >= GetMinHealthPercentage(level) and UnitAlive(self.unit) then
-            local amount = BlzGetUnitMaxHP(self.unit)*GetPercentage(level)
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        YulonBlessing = Class()
+
+        local array = {}
+        local active = {}
+
+        function YulonBlessing:execute()
+            local level = GetUnitAbilityLevel(self.unit, ABILITY)
             
-            DestroyEffectTimed(AddSpecialEffectTarget(CASTER_MODEL, self.unit, ATTACH_POINT), 1)
-            SetWidgetLife(self.unit, GetWidgetLife(self.unit) - amount)
-            AddUnitMana(self.unit, amount)
-            GroupEnumUnitsInRange(self.group, GetUnitX(self.unit), GetUnitY(self.unit), GetAoE(self.unit, level), nil)
-            GroupRemoveUnit(self.group, self.unit)
-            for i = 0, BlzGroupGetSize(self.group) - 1 do
-                local unit = BlzGroupUnitAt(self.group, i)
-                if UnitFilter(self.player, unit) then
-                    DestroyEffect(AddSpecialEffectTarget(MODEL, unit, ATTACH_POINT))
-                    SetWidgetLife(unit, GetWidgetLife(unit) + amount)
-                    AddUnitMana(unit, amount)
+            if GetUnitLifePercent(self.unit) >= GetMinHealthPercentage(level) and UnitAlive(self.unit) then
+                local amount = BlzGetUnitMaxHP(self.unit) * GetPercentage(level)
+                
+                DestroyEffectTimed(AddSpecialEffectTarget(CASTER_MODEL, self.unit, ATTACH_POINT), 1)
+                SetWidgetLife(self.unit, GetWidgetLife(self.unit) - amount)
+                AddUnitMana(self.unit, amount)
+                GroupEnumUnitsInRange(self.group, GetUnitX(self.unit), GetUnitY(self.unit), GetAoE(self.unit, level), nil)
+                GroupRemoveUnit(self.group, self.unit)
+
+                local u = FirstOfGroup(self.group)
+
+                while u do
+                    if UnitFilter(self.player, u) then
+                        DestroyEffect(AddSpecialEffectTarget(MODEL, u, ATTACH_POINT))
+                        SetWidgetLife(u, GetWidgetLife(u) + amount)
+                        AddUnitMana(u, amount)
+                    end
+
+                    GroupRemoveUnit(self.group, u)
+                    u = FirstOfGroup(self.group)
                 end
+            else
+                IssueImmediateOrderById(self.unit, 852544)
             end
-        else
-            IssueImmediateOrderById(self.unit, 852544)
         end
-    end
-    
-    onInit(function()
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function()
+
+        function YulonBlessing:onCast()
+            local this = array[Spell.source.unit]
+
+            if not this then
+                this = YulonBlessing.allocate()
+                
+                this.unit = Spell.source.unit
+                this.player = Spell.source.player
+                this.group = CreateGroup()
+                this.timer =CreateTimer()
+                array[Spell.source.unit] = this
+            end
+
+            this:execute()
+        end
+
+        function YulonBlessing.onLearn(source, skill, level)
+            if active[source] then
+                IssueImmediateOrderById(source, 852544)
+                IssueImmediateOrderById(source, 852543)
+            end
+        end
+
+        function YulonBlessing.onOrder()
             local order = GetIssuedOrderId()
-            local this
         
             if order == 852543 or order == 852544 then
-                local unit = GetOrderedUnit()
-                active[unit] = order == 852543
+                local source = GetOrderedUnit()
+                local self = array[source]
+
+                active[source] = order == 852543
                 
-                if array[unit] then
-                    this = array[unit]
-                else
-                    this = {}
-                    setmetatable(this, mt)
-                    
-                    this.timer = CreateTimer()
-                    this.unit = unit
-                    this.group = CreateGroup()
-                    this.player = GetOwningPlayer(unit)
-                    array[unit] = this
+                if not self then
+                    self = YulonBlessing.allocate()
+
+                    self.unit = source
+                    self.group = CreateGroup()
+                    self.timer = CreateTimer()
+                    self.player = GetOwningPlayer(source)
+                    array[source] = self
                 end
                 
-                if active[unit] then
-                    TimerStart(this.timer, GetPeriod(unit, GetUnitAbilityLevel(unit, ABILITY)), true, function()
-                        local level = GetUnitAbilityLevel(this.unit, ABILITY)
-                        
+                if active[source] then
+                    TimerStart(self.timer, GetPeriod(source, GetUnitAbilityLevel(source, ABILITY)), true, function ()
+                        local level = GetUnitAbilityLevel(self.unit, ABILITY)
+            
                         if level > 0 then
-                            if active[this.unit] then
-                                this:execute()
+                            if active[self.unit] then
+                                self:execute()
                             end
                         else
-                            PauseTimer(this.timer)
-                            DestroyTimer(this.timer)
-                            DestroyGroup(this.group)
+                            PauseTimer(self.timer)
+                            DestroyTimer(self.timer)
+                            DestroyGroup(self.group)
                             
-                            array[this.unit] = nil
-                            this = nil
+                            array[self.unit] = nil
+
+                            self.unit = nil
+                            self.timer = nil
+                            self.group = nil
+                            self.player = nil
                         end
                     end)
                 else
-                    PauseTimer(this.timer)
+                    PauseTimer(self.timer)
                 end
             end
-        end)
-        
-        RegisterSpellEffectEvent(ABILITY, function()
-            local this
-            
-            if array[Spell.source.unit] then
-                this = array[Spell.source.unit]
-            else
-                this = {}
-                setmetatable(this, mt)
-                
-                this.timer = CreateTimer()
-                this.unit = Spell.source.unit
-                this.group = CreateGroup()
-                this.player = Spell.source.player
-                array[this.unit] = this
-            end
-            this:execute()
-        end)
-        
-        RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_SKILL, function()
-            if GetLearnedSkill() == ABILITY then
-                local unit = GetTriggerUnit()
+        end
 
-                if active[unit] then
-                    IssueImmediateOrderById(unit, 852544)
-                    IssueImmediateOrderById(unit, 852543)
-                end
-            end
-        end)
-    end)
-end
+        function YulonBlessing.onInit()
+            RegisterSpell(YulonBlessing.allocate(), ABILITY)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, YulonBlessing.onOrder)
+        end
+    end
+end)

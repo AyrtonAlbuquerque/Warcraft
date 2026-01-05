@@ -1,18 +1,17 @@
---[[ requires SpellEffectEvent, Utilities, CrowdControl
-    /* --------------------- WhirlwindSpin v1.2 by Chopinski -------------------- */
-    // Credits:
-    //     AnsonRuk    - Icon
-    //     Bribe       - SpellEffectEvent
-    //     AZ          - Model
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("WhirlwindSpin", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Utilities"
+    requires "CrowdControl"
+    requires.optional "Bonus"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ---------------------------- WhirlwindSpin v1.3 by Chopinski ---------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the ability
-    local ABILITY          = FourCC('A003')
+    local ABILITY          = S2A('Yul2')
     -- The Model
     local MODEL            = "DragonSpin.mdl"
     -- The model scale
@@ -28,8 +27,12 @@ do
     end
 
     -- The Damage dealt
-    local function GetDamage(level)
-        return 50. + 50.*level
+    local function GetDamage(source, level)
+        if Bonus then
+            return 75. + 75. * level + (0.9 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+        else
+            return 75. + 75. * level
+        end
     end
 
     -- The Knock Back duration
@@ -39,7 +42,7 @@ do
     
     -- The caster time scale. Speed or slow down aniamtions.
     local function GetTimeScale(unit, level)
-        return 2.
+        return 3.
     end
     
     -- The amoount of time until time scale is reset
@@ -52,40 +55,68 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
-            local aoe = GetAoE(Spell.source.unit, Spell.level)
-            local damage = GetDamage(Spell.level)
-            local duration = GetKnockBackDuration(Spell.source.unit, Spell.level)
-            local timer = CreateTimer()
-            local unit = Spell.source.unit
-            local group = CreateGroup()
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        WhirlwindSpin = Class(Spell)
+
+        function WhirlwindSpin:destroy()
+            SetUnitTimeScale(self.unit, 1)
             
+            self.unit = nil
+        end
+
+        function WhirlwindSpin:onTooltip(source, level, ability)
+            return "|cffffcc00Yu'lon|r violently spins around it's location creating an outward force that deals |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r Magic damage. and pushes all enemy units back. Additionaly, |cffffcc00Whirlwind Spin|r resets |cffffcc00Dragon Dash|r cooldown."
+        end
+
+        function WhirlwindSpin:onCast()
+            local group = CreateGroup()
+            local damage = GetDamage(Spell.source.unit, Spell.level)
+            local aoe = GetAoE(Spell.source.unit, Spell.level)
+            local duration = GetKnockBackDuration(Spell.source.unit, Spell.level)
+
+            if DragonDash then
+                ResetUnitAbilityCooldown(Spell.source.unit, DragonDash_ABILITY)
+            end
+
             DestroyEffect(AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, 0, SCALE))
             GroupEnumUnitsInRange(group, Spell.source.x, Spell.source.y, aoe, nil)
-            for i = 0, BlzGroupGetSize(group) - 1 do
-                local u = BlzGroupUnitAt(group, i)
+
+            local u = FirstOfGroup(group)
+
+            while u do
                 if DamageFilter(Spell.source.player, u) then
                     local x = GetUnitX(u)
                     local y = GetUnitY(u)
                     local angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, x, y)
                     local distance = DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, x, y)
                     
-                    if UnitDamageTarget(unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                    if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                         KnockbackUnit(u, angle, aoe - distance, duration, KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
                     end
                 end
+
+                GroupRemoveUnit(group, u)
+                u = FirstOfGroup(group)
             end
+
             DestroyGroup(group)
-            SetUnitTimeScale(unit, GetTimeScale(unit, Spell.level))
-            TimerStart(timer, GetTimeScaleTime(unit, Spell.level), false, function()
-                SetUnitTimeScale(unit, 1)
-                PauseTimer(timer)
-                DestroyTimer(timer)
+            
+            local this = { destroy = WhirlwindSpin.destroy }
+
+            this.unit = Spell.source.unit
+            
+            SetUnitTimeScale(this.unit, GetTimeScale(this.unit, Spell.level))
+            TimerStart(CreateTimer(), GetTimeScaleTime(this.unit, Spell.level), false, function ()
+                this:destroy()
+                DestroyTimer(GetExpiredTimer())
             end)
-        end)
-    end)
-end
+        end
+
+        function WhirlwindSpin.onInit()
+            RegisterSpell(WhirlwindSpin.allocate(), ABILITY)
+        end
+    end
+end)

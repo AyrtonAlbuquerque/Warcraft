@@ -1,19 +1,18 @@
---[[ requires SpellEffectEvent, Utilities, LineSegmentEnumeration, CrowdControl
-    /* ------------------ Draconic Discharge v1.3 by Chopinski ------------------ */
-    // Credits:
-    //     N-ix Studio      - Icon
-    //     Bribe            - SpellEffectEvent
-    //     IcemanBo, AGD    - LineSegmentEnumeration
-    //     Wood             - Model
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("DraconicDischarge", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Utilities"
+    requires "LineSegment"
+    requires "CrowdControl"
+    requires.optional "Bonus"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- -------------------------- Draconic Discharge v1.4 by Chopinski ------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the ability
-    local ABILITY     = FourCC('A005')
+    local ABILITY     = S2A('Yul3')
     -- The Model
     local MODEL       = "Discharge.mdl"
     -- The model scale
@@ -32,7 +31,11 @@ do
 
     -- The Damage dealt
     local function GetDamage(unit, level)
-        return 250.*level
+        if Bonus then
+            return 125. * level + (0.2 + 0.2*level) * GetUnitBonus(unit, BONUS_SPELL_POWER)
+        else
+            return 125. * level
+        end
     end
 
     -- The blast range
@@ -42,7 +45,7 @@ do
     
     -- The stun duration
     local function GetStunDuration(unit, level)
-        return 1. + 1.*level
+        return 1. + 0.25*level
     end
 
     -- The Damage Filter.
@@ -50,39 +53,53 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    onInit(function()
-        RegisterSpellEffectEvent(ABILITY, function()
-            local source = Spell.source.unit
-            local player = Spell.source.player
-            local aoe = GetAoE(source, Spell.level)
-            local range = GetRange(source, Spell.level)
-            local damage = GetDamage(source, Spell.level)
-            local duration = GetStunDuration(source, Spell.level)
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        DraconicDischarge = Class(Spell)
+
+        function DraconicDischarge:onTooltip(source, level, ability)
+            return "|cffffcc00Yu'lon|r discharges a powerful enegy blast towards the targeted direction, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r Magic|r damage and stunning enemy units caught in its radius for |cffffcc00" .. N2S(GetStunDuration(source, level), 0) .. "|r seconds. |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r, |cffffcc00" .. N2S(GetRange(source, level), 0) .. "|r blast range."
+        end
+
+        function DraconicDischarge:onCast()
+            local group = CreateGroup()
+            local aoe = GetAoE(Spell.source.unit, Spell.level)
+            local range = GetRange(Spell.source.unit, Spell.level)
+            local damage = GetDamage(Spell.source.unit, Spell.level)
+            local duration = GetStunDuration(Spell.source.unit, Spell.level)
             local angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
-            local minX = Spell.source.x + OFFSET*Cos(angle)
-            local minY = Spell.source.y + OFFSET*Sin(angle)
-            local maxX = Spell.source.x + (OFFSET + range)*Cos(angle)
-            local maxY = Spell.source.y + (OFFSET + range)*Sin(angle)
-            local effect = AddSpecialEffectEx(MODEL, minX, minY, 65, SCALE)
-            local group = LineSegment.EnumUnits(minX, minY, maxX, maxY, aoe, true)
+            local minX = Spell.source.x
+            local minY = Spell.source.y
+            local maxX = Spell.source.x + range * math.cos(angle)
+            local maxY = Spell.source.y + range * math.sin(angle)
+            local effect = AddSpecialEffectEx(MODEL, Spell.source.x + OFFSET * math.cos(angle), Spell.source.y + OFFSET * math.sin(angle), 65, SCALE)
             
-            QueueUnitAnimation(source, "Stand")
-            BlzSetUnitFacingEx(source, angle*bj_RADTODEG)
             BlzSetSpecialEffectYaw(effect, angle)
-            for i = 1, #group do
-                local unit = group[i]
-                if DamageFilter(player, unit) then
-                    if UnitDamageTarget(source, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        StunUnit(unit, duration, STUN_MODEL, STUN_ATTACH, false)
+            QueueUnitAnimation(Spell.source.unit, "Stand")
+            BlzSetUnitFacingEx(Spell.source.unit, angle*bj_RADTODEG)
+            LineSegment.EnumUnitsEx(group, minX, minY, maxX, maxY, aoe, true)
+
+            local u = FirstOfGroup(group)
+
+            while u do
+                if DamageFilter(Spell.source.player, u) then
+                    if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                        StunUnit(u, duration, STUN_MODEL, STUN_ATTACH, false)
                     end
                 end
+
+                GroupRemoveUnit(group, u)
+                u = FirstOfGroup(group)
             end
+
             DestroyEffect(effect)
-            
-            group = nil
-        end)
-    end)
-end
+            DestroyGroup(group)
+        end
+
+        function DraconicDischarge.onInit()
+            RegisterSpell(DraconicDischarge.allocate() ,ABILITY)
+        end
+    end
+end)
