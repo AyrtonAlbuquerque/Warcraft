@@ -1,21 +1,20 @@
---[[ requires RegisterPlayerUnitEvent, SpellEffectEvent, Missiles
-    /* ---------------------- Odin Attack v1.2 by Chopinski --------------------- */
-    // Credits:
-    //     a-ravlik        - Icon
-    //     Bribe           - SpellEffectEvent
-    //     Magtheridon96   - RegisterPlayerUnitEvent
-    //     Mythic          - Interceptor Shell model
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("OdinAttack", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Missiles"
+    requires "Utilities"
+    requires "RegisterPlayerUnitEvent"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------- Odin Attack v1.3 by Chopinski ----------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Odin Attack ability
-    OdinAttack_ABILITY = FourCC('A007')
+    OdinAttack_ABILITY = S2A('Tyc7')
     -- The raw code of the Odin unit
-    local ODIN         = FourCC('E001')
+    local ODIN         = S2A('Odin')
     -- The Missile model
     local MODEL        = "Interceptor Shell.mdl"
     -- The Missile scale
@@ -55,8 +54,8 @@ do
     end
 
     -- The explosion damage
-    local function GetDamage(level)
-        return 125.*level
+    local function GetDamage(source, level)
+        return 125. * level + 0.75 * GetUnitBonus(source, BONUS_DAMAGE)
     end
 
     -- The numebr of rockets per attack per level
@@ -74,60 +73,77 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    OdinAttack = setmetatable({}, {})
-    local mt = getmetatable(OdinAttack)
-    mt.__index = mt
-    
-    onInit(function()
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function()
-            local unit = GetAttacker()
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Attack = Class(Missile)
 
-            if GetUnitTypeId(unit) == ODIN then
-                IssueTargetOrder(unit, "attack", GetTriggerUnit())
-            end
-        end)
-        
-        RegisterSpellEffectEvent(OdinAttack_ABILITY, function()
-            local i = GetMissileCount(Spell.level)
-            
-            while i > 0 do
-                local range = GetRandomRange(GetAttackAoE(Spell.source.unit, Spell.level))
-                local face = GetUnitFacing(Spell.source.unit)*bj_DEGTORAD
-                local x = GetX(Spell.source.x, face, i)
-                local y = GetY(Spell.source.y, face, i)
-                local offset = DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y) - OFFSET
-                local angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
-                local this = Missiles:create(x, y, HEIGHT, x + offset*Cos(angle), y + offset*Sin(angle), 50)
-                
-                this:model(MODEL)
-                this:scale(SCALE)
-                this:speed(SPEED)
-                this.source = Spell.source.unit
-                this.owner = Spell.source.player
-                this.damage = GetDamage(Spell.level)
-                this.aoe = GetAoE(Spell.level)
-                this.group = CreateGroup()
+        function Attack:onFinish()
+            GroupEnumUnitsInRange(self.group, self.x, self.y, self.aoe, nil)
 
-                this.onFinish = function()
-                    GroupEnumUnitsInRange(this.group, this.x, this.y, this.aoe, nil)
-                    for j = 0, BlzGroupGetSize(this.group) - 1 do
-                        local unit = BlzGroupUnitAt(this.group, j)
-                        if DamageFilter(this.owner, unit) then
-                            UnitDamageTarget(this.source, unit, this.damage, true, true, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, nil)
-                        end
-                    end
-                    DestroyGroup(this.group)
+            local u = FirstOfGroup(self.group)
 
-                    return true
+            while u do
+                if DamageFilter(self.owner, u) then
+                    UnitDamageTarget(self.owner, u, self.damage, true, true, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, nil)
                 end
 
-                this:launch()
-                
-                i = i - 1
+                GroupRemoveUnit(self.group, u)
+                u = FirstOfGroup(self.group)
             end
-        end)
-    end)
-end
+
+            DestroyGroup(self.group)
+
+            return true
+        end
+    end
+
+    do
+        OdinAttack = Class(Spell)
+
+        function OdinAttack:onTooltip(source, level, ability)
+            return "|cffffcc00Odin|r attacks shots |cffffcc00" .. N2S(GetMissileCount(level), 0) .. "|r rockets to a location nearby the primary target location, dealing |cffffcc00" .. N2S(GetDamage(source, level), 0) .. "|r damage to all nearby enemy units within |cffffcc00" .. N2S(GetAoE(level), 0) .. "|r AoE."
+        end
+
+        function OdinAttack:onCast()
+            local count = GetMissileCount(Spell.level)
+            local face = GetUnitFacing(Spell.source.unit) * bj_DEGTORAD
+            local range = GetRandomRange(GetAttackAoE(Spell.source.unit, Spell.level))
+            local angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y)
+            local offset = DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y) - OFFSET
+
+            if count > 0 then
+                for i = 0, count - 1 do
+                    local x = GetX(Spell.source.x, face, i)
+                    local y = GetY(Spell.source.y, face, i)
+                    local attack = Attack.create(x, y, HEIGHT, x + offset*math.cos(angle), y + offset*math.sin(angle), 50)
+
+                    attack.model = MODEL
+                    attack.scale = SCALE
+                    attack.speed = SPEED
+                    attack.source = Spell.source.unit
+                    attack.owner = Spell.source.player
+                    attack.group = CreateGroup()
+                    attack.aoe = GetAoE(Spell.level)
+                    attack.damage = GetDamage(Spell.source.unit, Spell.level)
+
+                    attack:launch()
+                end
+            end
+        end
+
+        function OdinAttack.onAttack()
+            local source = GetAttacker()
+
+            if GetUnitTypeId(source) == ODIN then
+                IssueTargetOrder(source, "attack", GetTriggerUnit())
+            end
+        end
+
+        function OdinAttack.onInit()
+            RegisterSpell(OdinAttack.allocate(), OdinAttack_ABILITY)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, OdinAttack.onAttack)
+        end
+    end
+end)

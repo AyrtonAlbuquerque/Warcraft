@@ -28,7 +28,7 @@ library CommanderOdin requires Spell, Modules, optional FragGranade, optional Au
         endmethod
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-        return "|cffffcc00Tychus|r calls for a |cffffcc00Commander Odin|r to pilot, gaining |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_ALTERNATE_FORM_HIT_POINT_BONUS, level - 1), 0) + "|r bonus |cffff0000Health|r and new abilities for |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, level - 1), 1) + "|r seconds."
+            return "|cffffcc00Tychus|r calls for a |cffffcc00Commander Odin|r to pilot, gaining |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_ALTERNATE_FORM_HIT_POINT_BONUS, level - 1), 0) + "|r bonus |cffff0000Health|r and new abilities for |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, level - 1), 1) + "|r seconds."
         endmethod
 
         private method onExpire takes nothing returns nothing

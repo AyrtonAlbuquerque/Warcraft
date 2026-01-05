@@ -1,18 +1,18 @@
---[[ requires RegisterPlayerUnitEvent, DamageInterface, NewBonusUtils
-    /* ---------------------- Bullet Time v1.2 by Chopinski --------------------- */
-    // Credits:
-    //     Blizzard        - Icon
-    //     Vexorian        - TimerUtils
-    //     Magtheridon96   - RegisterPlayerUnitEvent
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("BulletTime", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Damage"
+    requires "Utilities"
+    requires "RegisterPlayerUnitEvent"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------- Bullet Time v1.4 by Chopinski ----------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Bullet Time ability
-    local ABILITY = FourCC('A000')
+    local ABILITY = S2A('Tyc0')
 
     -- The Bullet Time duration after no attacks.
     local function GetDuration(level)
@@ -26,7 +26,7 @@ do
 
     -- The Bullet Time Max bonus per level. Real(1. => 100%)
     local function GetMaxBonus(level)
-        return 1.*level
+        return 1. * level
     end
 
     -- The Bullet Time level up base on hero level
@@ -34,50 +34,67 @@ do
         return level == 5 or level == 10 or level == 15
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    local array = {}
-    
-    onInit(function()
-        RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, function()
-            local unit = GetTriggerUnit()
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        BulletTime = Class(Spell)
 
-            if GetLevel(GetHeroLevel(unit)) then
-                IncUnitAbilityLevel(unit, ABILITY)
-            end
-        end)
-        
-        RegisterAttackDamageEvent(function()
+        local array = {}
+
+        function BulletTime:destroy()
+            DestroyTimer(self.timer)
+            AddUnitBonus(self.unit, BONUS_ATTACK_SPEED, -self.bonus)
+            
+            array[self.unit] = nil
+
+            self.unit = nil
+            self.timer = nil
+        end
+
+        function BulletTime:onTooltip(source, level, ability)
+            return "Every attack increases the fire rate of |cffffcc00Tychus|r mini-gun by |cffffcc00" .. N2S(GetBonus(level) * 100, 0) .. "%%|r, stacking up to |cffffcc00" .. N2S(GetMaxBonus(level) * 100, 0) .. "%%|r bonus |cffffcc00Attack Speed|r. The bonus lasts for |cffffcc00" .. N2S(GetDuration(level), 1) .. "|r seconds after |cffffcc00Tychus|r stops attacking."
+        end
+
+        function BulletTime.onDamage()
             local level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
-            local this
 
             if level > 0 and Damage.isEnemy then
                 local amount = GetBonus(level)
+                local self = array[Damage.source.unit]
 
-                if array[Damage.source.unit] then
-                    this = array[Damage.source.unit]
-                else
-                    this = {}
-                    this.timer = CreateTimer()
-                    this.unit = Damage.source.unit
-                    this.bonus = 0.
-                    array[this.unit] = this
+                if not self then
+                    self = { destroy = BulletTime.destroy }
+
+                    self.unit = Damage.source.unit
+                    self.bonus = 0
+                    self.timer = CreateTimer()
+                    array[Damage.source.unit] = self
                 end
 
-                if this.bonus + amount <= GetMaxBonus(level) then
-                    this.bonus = this.bonus + amount
-                    AddUnitBonus(this.unit, BONUS_ATTACK_SPEED, amount)
+                if self.bonus + amount <= GetMaxBonus(level) then
+                    self.bonus = self.bonus + amount
+                    AddUnitBonus(self.unit, BONUS_ATTACK_SPEED, amount)
                 end
 
-                TimerStart(this.timer, GetDuration(level), false, function()
-                    AddUnitBonus(this.unit, BONUS_ATTACK_SPEED, -this.bonus)
-                    PauseTimer(this.timer)
-                    DestroyTimer(this.timer)
-                    array[this.unit] = nil
-                    this = nil
+                TimerStart(self.timer, GetDuration(level), false, function ()
+                    self:destroy()
                 end)
             end
-        end)
-    end)
-end
+        end
+
+        function BulletTime.onLevel()
+            local source = GetTriggerUnit()
+
+            if GetLevel(GetHeroLevel(source)) then
+                IncUnitAbilityLevel(source, ABILITY)
+            end
+        end
+
+        function BulletTime.onInit()
+            RegisterSpell(BulletTime.allocate(), ABILITY)
+            RegisterAttackDamageEvent(BulletTime.onDamage)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_HERO_LEVEL, BulletTime.onLevel)
+        end
+    end
+end)

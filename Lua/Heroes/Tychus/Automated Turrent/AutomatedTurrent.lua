@@ -1,29 +1,29 @@
---[[ requires SpellEffectEvent, DamageInterface, Missiles, Utilities, optional ArsenalUpgrade
-    /* ------------------- Automated Turrent v1.2 by Chipinski ------------------ */
-    // Credits:
-    //     NFWar        - Gun Fire Icon
-    //     4eNNightmare - Rocket Flare Icon
-    //     Bribe        - SpellEffectEvent
-    //     Mythic       - Missile model
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("AutomatedTurrent", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Damage"
+    requires "Missiles"
+    requires "Utilities"
+    requires.optional "ArsenalUpgrade"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- -------------------------- Automated Turrent v1.3 by Chipinski -------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Automated Turrent ability
-    AutomatedTurrent_ABILITY = FourCC('A002')
+    AutomatedTurrent_ABILITY    = S2A('Tyc2')
     -- The raw code of the Automated Turrent Missile ability
-    local MISSILE = FourCC('A003')
+    local MISSILE               = S2A('Tyc6')
     -- The raw code of the Automated Turrent unit
-    local UNIT    = FourCC('o000')
+    local UNIT                  = S2A('tyc0')
     -- The Missile model
-    local MODEL   = "Airstrike Rocket.mdl"
+    local MODEL                 = "Airstrike Rocket.mdl"
     -- The Missile scale
-    local SCALE   = 0.5
+    local SCALE                 = 0.5
     -- The Missile speed
-    local SPEED   = 1000.
+    local SPEED                 = 1000.
 
     -- The Automated Turrent duration
     local function GetDuration(unit, level)
@@ -37,7 +37,7 @@ do
 
     -- The Automated Turrent base damage.
     local function GetUnitDamage(level, source)
-        return R2I(5*level + GetUnitBonus(source, BONUS_DAMAGE)*0.2)
+        return R2I(5 * level + (0.1 + 0.1*level) * GetUnitBonus(source, BONUS_DAMAGE))
     end
 
     -- The number of Automated Turrents created
@@ -69,8 +69,8 @@ do
     end
 
     -- The Automated Turrent missile damage.
-    local function GetDamage(level)
-        return 25.*level
+    local function GetDamage(source, level)
+        return 25.*level + (0.25 * level) * GetUnitBonus(source, BONUS_SPELL_POWER)
     end
 
     -- The Automated Turrent missile arc.
@@ -88,75 +88,88 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    AutomatedTurrent = setmetatable({}, {})
-    local mt = getmetatable(AutomatedTurrent)
-    mt.__index = mt
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        TurrentMissile = Class(Missile)
+
+        function TurrentMissile:onFinish()
+            GroupEnumUnitsInRange(self.group, self.x, self.y, self.aoe, nil)
+
+            local u = FirstOfGroup(self.group)
+
+            while u do
+                if DamageFilter(self.owner, u) then
+                    UnitDamageTarget(self.source, u, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
+                end
+
+                GroupRemoveUnit(self.group, u)
+                u = FirstOfGroup(self.group)
+            end
+
+            DestroyGroup(self.group)
+            
+            return true
+        end
+    end
     
-    local array = {}
-    
-    onInit(function()
-        RegisterSpellEffectEvent(AutomatedTurrent_ABILITY, function()
+    do
+        AutomatedTurrent = Class(Spell)
+
+        local owner = {}
+        local array = {}
+
+        function AutomatedTurrent:onTooltip(source, level, ability)
+            return "|cffffcc00Tychus|r summons an immobile |cffffcc00Automated Turrent|r at the target location The turrent has |cffff0000" .. I2S(GetUnitDamage(level, source)) .. " Attack Damage|r and |cffff0000" .. I2S(GetMaxHealth(level, source)) .. " Health|r. Every |cffffcc00" .. I2S(GetAttackCount(source, level)) .. "|r attacks, |cffffcc00Automated Turrent|r releases a |cffffcc00Missile|r to a random spot within |cffffcc00" .. N2S(GetMaxAoE(level), 0) .. " AoE|r of it's primary target. The |cffffcc00Missile|r damages enemy units within |cffffcc00" .. N2S(GetAoE(level), 0) .. " AoE|r, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. " Magic|r damage."
+        end
+
+        function AutomatedTurrent:onCast()
             for i = 0, GetAmount(Spell.level) - 1 do
                 local unit = CreateUnit(Spell.source.player, UNIT, Spell.x, Spell.y, 0)
                 
+                owner[unit] = Spell.source.unit
                 array[unit] = 0
+
                 SetUnitAbilityLevel(unit, MISSILE, Spell.level)
                 BlzSetUnitBaseDamage(unit, GetUnitDamage(Spell.level, Spell.source.unit), 0)
                 BlzSetUnitMaxHP(unit, GetMaxHealth(Spell.level, Spell.source.unit))
                 SetUnitLifePercentBJ(unit, 100)
-                UnitApplyTimedLife(unit, FourCC('BTLF'), GetDuration(Spell.source.unit, Spell.level))
+                UnitApplyTimedLife(unit, S2A('BTLF'), GetDuration(Spell.source.unit, Spell.level))
             end
-        end)
+        end
 
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function()
-            local unit = GetTriggerUnit()
-
-            if GetUnitTypeId(unit) == UNIT then
-                array[unit] = nil
-            end
-        end)
-
-        RegisterAttackDamageEvent(function()
+        function AutomatedTurrent.onDamage()
             local level = GetUnitAbilityLevel(Damage.source.unit, MISSILE)
 
             if level > 0 and Damage.isEnemy then
                 array[Damage.source.unit] = (array[Damage.source.unit] or 0) + 1
+
                 if array[Damage.source.unit] >= GetAttackCount(Damage.source.unit, level) then
                     local range = GetRandomRange(GetMaxAoE(level))
-                    local this = Missiles:create(Damage.source.x, Damage.source.y, Damage.source.z + 80, GetRandomCoordInRange(Damage.target.x, range, true), GetRandomCoordInRange(Damage.target.y, range, false), 0)
+                    local missile = TurrentMissile.create(Damage.source.x, Damage.source.y, Damage.source.z + 80, GetRandomCoordInRange(Damage.target.x, range, true), GetRandomCoordInRange(Damage.target.y, range, false), 0)
                     
                     array[Damage.source.unit] = 0
-                    
-                    this:model(MODEL)
-                    this:scale(SCALE)
-                    this:speed(SPEED)
-                    this:arc(GetArc(level))
-                    this:curve(GetCurve(level))
-                    this.source = Damage.source.unit
-                    this.owner = Damage.source.player
-                    this.damage = GetDamage(level)
-                    this.group = CreateGroup()
-                    this.aoe = GetAoE(level)
 
-                    this.onFinish = function()
-                        GroupEnumUnitsInRange(this.group, this.x, this.y, this.aoe, nil)
-                        for i = 0, BlzGroupGetSize(this.group) - 1 do
-                            local unit = BlzGroupUnitAt(this.group, i)
-                            if DamageFilter(this.owner, unit) then
-                                UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
-                            end
-                        end
-                        DestroyGroup(this.group)
+                    missile.model = MODEL
+                    missile.scale = SCALE
+                    missile.speed = SPEED
+                    missile.source = Damage.source.unit
+                    missile.owner = Damage.source.player
+                    missile.arc = GetArc(level) * bj_DEGTORAD
+                    missile.curve = GetCurve(level) * bj_DEGTORAD
+                    missile.damage = GetDamage(owner[Damage.source.unit], level)
+                    missile.group = CreateGroup()
+                    missile.aoe = GetAoE(level)
 
-                        return true
-                    end
-
-                    this:launch()
+                    missile:launch()
                 end
             end
-        end)
-    end)
-end
+        end
+
+        function AutomatedTurrent.onInit()
+            RegisterSpell(AutomatedTurrent.allocate(), AutomatedTurrent_ABILITY)
+            RegisterAttackDamageEvent(AutomatedTurrent.onDamage)
+        end
+    end
+end)

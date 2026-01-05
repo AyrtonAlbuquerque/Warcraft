@@ -1,21 +1,21 @@
---[[ requires RegisterPlayerUnitEvent, Missiles, Utilities, MouseUtils, NewBonus optional ArsenalUpgrade
-    /* ----------------------- Overkill v1.2 by Chopinski ----------------------- */
-    // Credits:
-    //     Blizzard         - Icon
-    //     Magtheridon96    - RegisterPlayerUnitEvent
-    //     MyPad            - MouseUtils
-    //     Gray Knight      - Bullet model
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("Overkill", function (requires)
+    requires "Class"
+    requires "Bonus"
+    requires "Missiles"
+    requires "Utilities"
+    requires "MouseUtils"
+    requires "RegisterPlayerUnitEvent"
+    requires.optional "ArsenalUpgrade"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ------------------------------- Overkill v1.5 by Chopinski ------------------------------ --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Overkill ability
-    Overkill_ABILITY = FourCC('A004')
+    Overkill_ABILITY = S2A('Tyc3')
     -- The raw code of the Overkill buff
-    local BUFF       = FourCC('B001')
+    local BUFF       = S2A('BTy0')
     -- The Bullet model
     local MODEL      = "Bullet.mdl"
     -- The Bullet scale
@@ -24,6 +24,8 @@ do
     local SPEED      = 2000.
     -- The firing period
     local PERIOD     = 0.03125
+    -- The key to move without following cursor
+    local KEY        = OSKEY_TAB
 
     -- The X coordinate starting point for the bullets. This exists so the bullets
     -- will come out of the tychus model weapon barrel.
@@ -39,7 +41,7 @@ do
 
     -- The Bullet damage.
     local function GetDamage(level, source)
-        return (5. + 5.*level) + GetUnitBonus(source, BONUS_DAMAGE)*0.25*level
+        return (5. + 5.*level) + (0.1 * level) * GetUnitBonus(source, BONUS_DAMAGE)
     end
 
     -- The Bullet collision.
@@ -54,19 +56,19 @@ do
 
     -- The Bullet max travel distance
     local function GetTravelDistance(level)
-        return 600. + 0.*level
+        return 700. + 0.*level
     end
 
     -- The Bullet mana cost
     local function GetManaCost(unit, level)
         if ArsenalUpgrade then
             if GetUnitAbilityLevel(unit, ArsenalUpgrade_ABILITY) > 0 then
-                return 0.5 + 0.*level
+                return 0.5 * level
             else
-                return 1. + 0.*level
+                return 1. * level
             end
         else
-            return 1. + 0.*level
+            return 1. * level
         end
     end
 
@@ -75,121 +77,134 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    Overkill = setmetatable({}, {})
-    local mt = getmetatable(Overkill)
-    mt.__index = mt
-    
-    local timer = CreateTimer()
-    local array = {}
-    local n = {}
-    local key = 0
-    
-    function mt:destroy(i)
-        AddUnitAnimationProperties(self.unit, "spin", false)
-        QueueUnitAnimation(self.unit, "Stand Ready")
-        IssueImmediateOrderById(self.unit, 852590)
-        DisarmUnit(self.unit, false)
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        Bullet = Class(Missile)
 
-        array[i] = array[key]
-        key = key - 1
-        n[self.unit] = nil
-        self = nil
-
-        if key == 0 then
-            PauseTimer(timer)
-        end
-
-        return i - 1
-    end
-    
-    function mt:onOrder()
-        local order = GetIssuedOrderId()
-        local unit = GetOrderedUnit()
-        local this
-
-        if order == 852589 then
-            if n[unit] then
-                this = n[unit]
-            else
-                this = {}
-                setmetatable(this, mt)
-                
-                this.unit = unit
-                this.prevX = GetUnitX(unit)
-                this.prevY = GetUnitY(unit)
-                this.player = GetOwningPlayer(unit)
-                key = key + 1
-                array[key] = this
-                n[unit] = this
-
-                if key == 1 then
-                    TimerStart(timer, PERIOD, true, function()
-                        local i = 1
-                        local morphed = false
-                        
-                        while i <= key do
-                            local this = array[i]
-                            local level = GetUnitAbilityLevel(this.unit, Overkill_ABILITY)
-                            local cost = GetManaCost(this.unit, level)
-                            
-                            if CommanderOdin then
-                                morphed = CommanderOdin.morphed[this.unit]
-                            end
-                            
-                            if GetUnitAbilityLevel(this.unit, BUFF) > 0 and GetUnitState(this.unit, UNIT_STATE_MANA) >= cost and not morphed then
-                                local offset = GetTravelDistance(level)
-                                local range = GetRandomRange(GetMaxAoE(level))
-                                local face = GetUnitFacing(this.unit)*bj_DEGTORAD
-                                local x = GetUnitX(this.unit)
-                                local y = GetUnitY(this.unit)
-                                local bullet = Missiles:create(GetX(x, face), GetY(y, face), 70, GetRandomCoordInRange(x + offset*Cos(face), range, true), GetRandomCoordInRange(y + offset*Sin(face), range, false), GetRandomReal(0, 80))
-                                
-                                bullet:model(MODEL)
-                                bullet:speed(SPEED)
-                                bullet:scale(SCALE)
-                                bullet.source = this.unit
-                                bullet.owner = this.player
-                                bullet.damage = GetDamage(level, this.unit)
-                                bullet.collision = GetCollision(level)
-
-                                bullet.onHit = function(hit)
-                                    if DamageFilter(bullet.owner, hit) then
-                                        UnitDamageTarget(bullet.source, hit, bullet.damage, true, true, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, nil)
-                                    end
-
-                                    return false
-                                end
-
-                                if x ~= this.prevX and y ~= this.prevY then
-                                    this.prevX = x
-                                    this.prevY = y
-                                    AddUnitAnimationProperties(this.unit, "spin", true)
-                                else
-                                    AddUnitAnimationProperties(this.unit, "spin", false)
-                                    SetUnitAnimation(this.unit, "Attack")
-                                end
-
-                                AddUnitMana(this.unit, -cost)
-                                BlzSetUnitFacingEx(this.unit, AngleBetweenCoordinates(x, y, GetPlayerMouseX(this.player), GetPlayerMouseY(this.player))*bj_RADTODEG)
-                                bullet:launch()
-                            else
-                                i = this:destroy(i)
-                            end
-                            i = i + 1
-                        end
-                    end)
-                end
+        function Bullet:onUnit(unit)
+            if DamageFilter(self.owner, unit) then
+                UnitDamageTarget(self.owner, unit, self.damage, true, true, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, nil)
             end
-            DisarmUnit(unit, true)
+
+            return false
         end
     end
-    
-    onInit(function()
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function()
-            Overkill:onOrder()
-        end)
-    end)
-end
+
+    do
+        Overkill = Class(Spell)
+
+        local array = {}
+        local holding = {}
+        local registered = {}
+        local trigger = CreateTrigger()
+            
+        function Overkill:destroy()
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
+            AddUnitAnimationProperties(self.unit, "spin", false)
+            QueueUnitAnimation(self.unit, "Stand Ready")
+            IssueImmediateOrderById(self.unit, 852590)
+            SetUnitPropWindowBJ(self.unit, self.window)
+            UnitRemoveAbility(self.unit, S2A('Abun'))
+
+            array[self.unit] = nil
+
+            self.unit = nil
+            self.timer = nil
+            self.player = nil
+        end
+
+        function Overkill:onTooltip(source, level, ability)
+            return "|cffffcc00Tychus|r fire his mini-gun at full power, unleashing a barrage of bullets towards his facing direction. Each bullet consumes |cff00ffff" .. N2S(GetManaCost(source, level), 0) .. " Mana|r and deals |cffff0000" .. N2S(GetDamage(level, source), 0) .. " Physical|r damage to any enemy unit in its trajectory. |cffffcc00Tychus|r will only stop firing if he has no mana left or deactivates |cffffcc00Overkill|r. In addition |cffffcc00Tychus|r can move while on |cffffcc00Overkill|r and will always be facing the |cffffcc00Cursor|r during its active period. Hold the |cffffcc00TAB|r key to move wihtout changing direction."
+        end
+
+        function Overkill:onCast()
+            local this = array[Spell.source.unit]
+
+            if not this then
+                this = { destroy = Overkill.destroy }
+
+                this.unit = Spell.source.unit
+                this.prevX = Spell.source.x
+                this.prevY = Spell.source.y
+                this.timer = CreateTimer()
+                this.window = GetUnitPropWindow(this.unit) * bj_RADTODEG
+                this.facing = GetUnitFacing(this.unit) * bj_DEGTORAD
+                this.player = Spell.source.player
+
+                array[Spell.source.unit] = this
+
+                if not registered[GetPlayerId(this.player)] then
+                    registered[GetPlayerId(this.player)] = true
+                    BlzTriggerRegisterPlayerKeyEvent(trigger, this.player, KEY, 0, true)
+                    BlzTriggerRegisterPlayerKeyEvent(trigger, this.player, KEY, 0, false)
+                end
+
+                UnitAddAbility(this.unit, S2A('Abun'))
+                SetUnitPropWindowBJ(this.unit, 360)
+                TimerStart(this.timer, PERIOD, true, function ()
+                    local morphed = false
+                    local level = GetUnitAbilityLevel(this.unit, Overkill_ABILITY)
+                    local cost = GetManaCost(this.unit, level)
+
+                    if CommanderOdin then
+                        morphed = CommanderOdin.morphed[this.unit]
+                    end
+
+                    if GetUnitAbilityLevel(this.unit, BUFF) > 0 and GetUnitState(this.unit, UNIT_STATE_MANA) >= cost and not morphed then
+                        local x = GetUnitX(this.unit)
+                        local y = GetUnitY(this.unit)
+                        local offset = GetTravelDistance(level)
+                        local range = GetRandomRange(GetMaxAoE(level))
+                        local face = GetUnitFacing(this.unit)*bj_DEGTORAD
+                        local bullet = Bullet.create(GetX(x, face), GetY(y, face), 70, GetRandomCoordInRange(x + offset*math.cos(face), range, true), GetRandomCoordInRange(y + offset*math.sin(face), range, false), GetRandomReal(0, 80))
+                        
+                        bullet.model = MODEL
+                        bullet.speed = SPEED
+                        bullet.scale = SCALE
+                        bullet.source = this.unit
+                        bullet.owner = this.player
+                        bullet.damage = GetDamage(level, this.unit)
+                        bullet.collision = GetCollision(level)
+
+                        if x ~= this.prevX and y ~= this.prevY then
+                            this.prevX = x
+                            this.prevY = y
+
+                            AddUnitAnimationProperties(this.unit, "spin", true)
+                        else
+                            AddUnitAnimationProperties(this.unit, "spin", false)
+                            SetUnitAnimation(this.unit, "Attack")
+                        end
+
+                        if not holding[GetPlayerId(this.player)] then
+                            this.facing = AngleBetweenCoordinates(x, y, GetPlayerMouseX(this.player), GetPlayerMouseY(this.player))*bj_RADTODEG
+                        end
+
+                        BlzSetUnitFacingEx(this.unit, this.facing)
+                        AddUnitMana(this.unit, -cost)
+                        bullet:launch()
+
+                    else
+                        this:destroy()
+                    end
+                end)
+            end
+        end
+
+        function Overkill.onKey()
+            if BlzGetTriggerPlayerIsKeyDown() then
+                holding[GetPlayerId(GetTriggerPlayer())] = true
+            else
+                holding[GetPlayerId(GetTriggerPlayer())] = false
+            end
+        end
+
+        function Overkill.onInit()
+            RegisterSpell(Overkill.allocate(), Overkill_ABILITY)
+            TriggerAddCondition(trigger, Condition(Overkill.onKey))
+        end
+    end
+end)

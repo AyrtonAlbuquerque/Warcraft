@@ -221,7 +221,6 @@ library FragGranade requires Spell, Missiles, NewBonus, Modules, Utilities, Crow
     private struct FragGranade extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Tychus|r throws a |cffffcc00Frag Granade|r at the target location. Upon arrival, if there are enemy units nearby, the granade explodes dealing |cff00ffff" + N2S(GetDamage(source, level),0) + " Magic|r damage and shredding |cff808080" + I2S(GetArmor(level)) + " Armor|r for |cffffcc00" + N2S(GetArmorDuration(level), 1) + "|r seconds. If there are no enemies nearby, the granade will stay in the location and explode when an enemy unit comes nearby or its duration expires after |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds."
-
         endmethod
 
         private method onCast takes nothing returns nothing

@@ -1,20 +1,19 @@
---[[ requires SpellEffectEvent, Missiles, NewBonusUtils, Utilities, optional ArsenalUpgrade, CrowdControl
-    /* ---------------------- Bullet Time v1.3 by Chopinski --------------------- */
-    // Credits:
-    //     Blizzard          - Icon
-    //     Vexorian          - TimerUtils
-    //     Bribe             - SpellEffectEvent
-    //     Magtheridon96     - RegisterPlayerUnitEvent
-    //     WILL THE ALMIGHTY - Explosion model
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("FragGranade", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Missiles"
+    requires "Utilities"
+    requires "CrowdControl"
+    requires.optional "ArsenalUpgrade"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------- Frag Granade v1.5 by Chopinski ---------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Frag Granade ability
-    FragGranade_ABILITY   = FourCC('A001')
+    FragGranade_ABILITY   = S2A('Tyc1')
     -- The Frag Granade model
     local MODEL           = "Abilities\\Weapons\\MakuraMissile\\MakuraMissile.mdl"
     -- The Frag Granade scale
@@ -55,8 +54,8 @@ do
     end
 
     -- The Frag Granade damage
-    local function GetDamage(level)
-        return 50. + 50.*level
+    local function GetDamage(source, level)
+        return 50. + 50.*level + (0.1 * level) * GetUnitBonus(source, BONUS_SPELL_POWER) + (0.2 + 0.1*level) * GetUnitBonus(source, BONUS_DAMAGE)
     end
 
     -- The Frag Granade lasting duraton
@@ -74,164 +73,165 @@ do
         return UnitAlive(unit) and IsUnitEnemy(unit, player)
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
     do
-        local timer = CreateTimer()
-        local array = {}
-        local key = 0
-    
-        Mine = setmetatable({}, {})
-        local mt = getmetatable(Mine)
-        mt.__index = mt
-        
-        function mt:destroy(i)
+        Mine = Class()
+
+        function Mine:destroy()
+            self:explode()
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
             DestroyGroup(self.group)
             DestroyEffect(self.effect)
             DestroyEffect(AddSpecialEffectEx(EXPLOSION, self.x, self.y, 0, EXP_SCALE))
 
-            array[i] = array[key]
-            key = key - 1
-            self = nil
-
-            if key == 0 then
-                PauseTimer(timer)
-            end
-
-            return i - 1
+            self.unit = nil
+            self.timer = nil
+            self.group = nil
+            self.effect = nil
+            self.player = nil
         end
-        
-        function mt:explode()
+
+        function Mine:explode()
             GroupEnumUnitsInRange(self.group, self.x, self.y, self.aoe, nil)
-            for i = 0, BlzGroupGetSize(self.group) - 1 do
-                local u = BlzGroupUnitAt(self.group, i)
+
+            local u = FirstOfGroup(self.group)
+
+            while u do
                 if DamageFilter(self.player, u) then
                     if UnitDamageTarget(self.unit, u, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        AddUnitBonusTimed(u, BONUS_ARMOR, -self.armor, self.armor_dur)
+                        AddUnitBonusTimed(u, BONUS_ARMOR, -self.armor, self.armor_duration)
+                        
                         if self.stun > 0 then
                             StunUnit(u, self.stun, STUN_MODEL, STUN_ATTACH, false)
                         end
                     end
                 end
+
+                GroupRemoveUnit(self.group, u)
+                u = FirstOfGroup(self.group)
             end
         end
-        
-        function mt:create(source, owner, level, x, y, damage, aoe, armor, armor_dur, stun, duration)
-            local this = {}
-            setmetatable(this, mt)
 
-            this.unit = source
-            this.player = owner
-            this.damage = damage
-            this.duration = duration
-            this.armor = armor
-            this.armor_dur = armor_dur
-            this.aoe = aoe
-            this.x = x
-            this.y = y
-            this.stun = stun
-            this.proximity = GetProximityAoE(level)
-            this.effect = AddSpecialEffectEx(MODEL, x, y, 20, SCALE)
-            this.group = CreateGroup()
-            key = key + 1
-            array[key] = this
+        function Mine.create(source, owner, level, tx, ty, amount, area, reduction, armor_time, stun_time, timeout)
+            local self = Mine.allocate()
 
-            BlzSetSpecialEffectTimeScale(this.effect, 0)
+            self.x = tx
+            self.y = ty
+            self.aoe = area
+            self.unit = source
+            self.player = owner
+            self.damage = amount
+            self.stun = stun_time
+            self.armor = reduction
+            self.duration = timeout
+            self.armor_duration = armor_time
+            self.timer = CreateTimer()
+            self.group = CreateGroup()
+            self.proximity = GetProximityAoE(level)
+            self.effect = AddSpecialEffectEx(MODEL, self.x, self.y, 20, SCALE)
 
-            if key == 1 then
-                TimerStart(timer, PERIOD, true, function()
-                    local i = 1
+            BlzSetSpecialEffectTimeScale(self.effect, 0)
+            TimerStart(self.timer, PERIOD, true, function ()
+                self.duration = self.duration - PERIOD
 
-                    while i <= key do
-                        local this = array[i]
-                        
-                        if this.duration > 0 then
-                            GroupEnumUnitsInRange(this.group, this.x, this.y, this.proximity, nil)
-                            for j = 0, BlzGroupGetSize(this.group) - 1 do
-                                local unit = BlzGroupUnitAt(this.group, j)
-                                if DamageFilter(this.player, unit) then
-                                    this.duration = 0
-                                    this:explode()
-                                    break
-                                end
-                            end
+                if self.duration > 0 then
+                    GroupEnumUnitsInRange(self.group, self.x, self.y, self.proximity, nil)
 
-                            if this.duration == 0 then
-                                i = this:destroy(i)
-                            end
-                        else
-                            this:explode()
-                            i = this:destroy(i)
+                    local u = FirstOfGroup(self.group)
+
+                    while u do
+                        if DamageFilter(self.player, u) then
+                            self:destroy()
+                            break
                         end
-                        this.duration = this.duration - PERIOD
-                        i = i + 1
+
+                        GroupRemoveUnit(self.group, u)
+                        u = FirstOfGroup(self.group)
                     end
-                end)
-            end
+                end
+            end)
+
+            return self
         end
     end
-    
-    FragGranade = setmetatable({}, {})
-    local mt = getmetatable(FragGranade)
-    mt.__index = mt
-    
-    function mt:onCast()
-        local this = Missiles:create(Spell.source.x, Spell.source.y, 75, Spell.x, Spell.y, 0)
-    
-        this:speed(SPEED)
-        this:model(MODEL)
-        this:scale(SCALE)
-        this:arc(ARC)
-        this.source = Spell.source.unit
-        this.owner = Spell.source.player
-        this.level = Spell.level
-        this.stun = 0.
-        this.damage = GetDamage(Spell.level)
-        this.aoe = GetAoE(Spell.level)
-        this.armor = GetArmor(Spell.level)
-        this.armor_dur = GetArmorDuration(Spell.level)
-        this.group = CreateGroup()
-        
-        if ArsenalUpgrade then
-            if GetUnitAbilityLevel(Spell.source.unit, ArsenalUpgrade_ABILITY) > 0 then
-                this.stun = GetStunDuration(Spell.level)
-            end
-        end
 
-        this.onFinish = function()
+    do
+        Granade = Class(Missile)
+
+        function Granade:onFinish()
             local i = 0
 
-            GroupEnumUnitsInRange(this.group, this.x, this.y, this.aoe, nil)
-            for j = 0, BlzGroupGetSize(this.group) - 1 do
-                local unit = BlzGroupUnitAt(this.group, j)
-                if DamageFilter(this.owner, unit) then
+            GroupEnumUnitsInRange(self.group, self.x, self.y, self.aoe, nil)
+
+            local u = FirstOfGroup(self.group)
+
+            while u do
+                if DamageFilter(self.owner, u) then
                     i = i + 1
-                    if UnitDamageTarget(this.source, unit, this.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        AddUnitBonusTimed(unit, BONUS_ARMOR, -this.armor, this.armor_dur)
-                        if this.stun > 0 then
-                            StunUnit(unit, this.stun, STUN_MODEL, STUN_ATTACH, false)
+
+                    if UnitDamageTarget(self.source, u, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                        AddUnitBonusTimed(u, BONUS_ARMOR, -self.armor, self.time)
+
+                        if self.stun > 0 then
+                            StunUnit(u, self.stun, STUN_MODEL, STUN_ATTACH, false)
                         end
                     end
                 end
+
+                GroupRemoveUnit(self.group, u)
+                u = FirstOfGroup(self.group)
             end
-            DestroyGroup(this.group)
+
+            DestroyGroup(self.group)
 
             if i > 0 then
-                DestroyEffect(AddSpecialEffectEx(EXPLOSION, this.x, this.y, 0, EXP_SCALE))
+                DestroyEffect(AddSpecialEffectEx(EXPLOSION, self.x, self.y, 0, EXP_SCALE))
             else
-                Mine:create(this.source, this.owner, this.level, this.x, this.y, this.damage, this.aoe, this.armor, this.armor_dur, this.stun, GetDuration(this.source, this.level))
+                Mine.create(self.source, self.owner, self.level, self.x, self.y, self.damage, self.aoe, self.armor, self.time, self.stun, GetDuration(self.source, self.level))
             end
 
             return true
         end
-
-        this:launch()
     end
-    
-    onInit(function()
-        RegisterSpellEffectEvent(FragGranade_ABILITY, function()
-            FragGranade:onCast()
-        end)
-    end)
-end
+
+    do
+        FragGranade = Class(Spell)
+
+        function FragGranade:onTooltip(source, level, ability)
+            return "|cffffcc00Tychus|r throws a |cffffcc00Frag Granade|r at the target location. Upon arrival, if there are enemy units nearby, the granade explodes dealing |cff00ffff" .. N2S(GetDamage(source, level),0) .. " Magic|r damage and shredding |cff808080" .. I2S(GetArmor(level)) .. " Armor|r for |cffffcc00" .. N2S(GetArmorDuration(level), 1) .. "|r seconds. If there are no enemies nearby, the granade will stay in the location and explode when an enemy unit comes nearby or its duration expires after |cffffcc00" .. N2S(GetDuration(source, level), 1) .. "|r seconds."
+        end
+
+        function FragGranade:onCast()
+            local granade = Granade.create(Spell.source.x, Spell.source.y, 75, Spell.x, Spell.y, 0)
+
+            granade.speed = SPEED
+            granade.model = MODEL
+            granade.scale = SCALE
+            granade.arc = ARC
+            granade.stun = 0
+            granade.source = Spell.source.unit
+            granade.owner = Spell.source.player
+            granade.level = Spell.level
+            granade.damage = GetDamage(Spell.source.unit, Spell.level)
+            granade.aoe = GetAoE(Spell.level)
+            granade.armor = GetArmor(Spell.level)
+            granade.time = GetArmorDuration(Spell.level)
+            granade.group = CreateGroup()
+
+            if ArsenalUpgrade then
+                if GetUnitAbilityLevel(Spell.source.unit, ArsenalUpgrade_ABILITY) > 0 then
+                    granade.stun = GetStunDuration(Spell.level)
+                end
+            end
+
+            granade:launch()
+        end
+
+        function FragGranade.onInit()
+            RegisterSpell(FragGranade.allocate(), FragGranade_ABILITY)
+        end
+    end
+end)

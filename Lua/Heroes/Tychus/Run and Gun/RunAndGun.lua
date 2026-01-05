@@ -1,19 +1,19 @@
---[[ requires RegisterPlayerUnitEvent, NewBonusUtils, TimedHandles, optional ArsenalUpgrade
-    /* ---------------------- Run And Gun v1.2 by Chopinski --------------------- */
-    // Credits:
-    //     Blizzard        - Icon
-    //     TriggerHappy    - TimerUtils
-    //     Magtheridon96   - RegisterPlayerUnitEvent
-    //     Mythic          - Effect
-    /* ----------------------------------- END ---------------------------------- */
-]]--
+OnInit("RunAndGun", function (requires)
+    requires "Class"
+    requires "Spell"
+    requires "Bonus"
+    requires "Utilities"
+    requires "TimedHandles"
+    requires.optional "ArsenalUpgrade"
 
-do
-    -- -------------------------------------------------------------------------- --
-    --                                Configuration                               --
+    -- ----------------------------- Run And Gun v1.3 by Chopinski ----------------------------- --
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                       Configuration                                       --
+    -- ----------------------------------------------------------------------------------------- --
     -- -------------------------------------------------------------------------- --
         -- The raw code of the Run and Gun ability
-        RunAndGun_ABILITY = FourCC('A005')
+        RunAndGun_ABILITY = S2A('Tyc4')
         -- The Buff model
         local MODEL       = "Valiant Charge Royal.mdl"
         -- The Buff attachment point
@@ -41,24 +41,32 @@ do
         end
     end
 
-    -- -------------------------------------------------------------------------- --
-    --                                   System                                   --
-    -- -------------------------------------------------------------------------- --
-    RunAndGun = setmetatable({}, {})
-    local mt = getmetatable(RunAndGun)
-    mt.__index = mt
-    
-    onInit(function()
-        RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function()
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
+    do
+        RunAndGun = Class(Spell)
+
+        function RunAndGun:onTooltip(source, level, ability)
+            return "When killing an enemy unit |cffffcc00Tychus|r gains |cffffcc00" .. N2S(5 * level, 0) .. "|r (|cffffcc00" .. N2S(20 * level, 0) .. "|r for Heroes) bonus |cffffff00Movement Speed|r for |cffffcc00" .. N2S(GetDuration(source, level), 1) .. "|r seconds."
+        end
+
+        function RunAndGun.onDeath()
             local killed = GetTriggerUnit()
             local killer = GetKillingUnit()
-            local level  = GetUnitAbilityLevel(killer, RunAndGun_ABILITY)
+            local level = GetUnitAbilityLevel(killer, RunAndGun_ABILITY)
 
             if IsUnitEnemy(killed, GetOwningPlayer(killer)) and level > 0 then
                 local duration = GetDuration(killer, level)
+
                 AddUnitBonusTimed(killer, BONUS_MOVEMENT_SPEED, GetBonus(level, IsUnitType(killed, UNIT_TYPE_HERO)), duration)
                 DestroyEffectTimed(AddSpecialEffectTarget(MODEL, killer, ATTACH), duration)
             end
-        end)
-    end)
-end
+        end
+
+        function RunAndGun.onInit()
+            RegisterSpell(RunAndGun.allocate(), RunAndGun_ABILITY)
+            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, RunAndGun.onDeath)
+        end
+    end
+end)
