@@ -151,6 +151,8 @@ OnInit("FragGranade", function (requires)
                         GroupRemoveUnit(self.group, u)
                         u = FirstOfGroup(self.group)
                     end
+                else
+                    self:destroy()
                 end
             end)
 

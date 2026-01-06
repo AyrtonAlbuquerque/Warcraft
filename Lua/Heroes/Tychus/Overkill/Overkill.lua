@@ -85,7 +85,7 @@ OnInit("Overkill", function (requires)
 
         function Bullet:onUnit(unit)
             if DamageFilter(self.owner, unit) then
-                UnitDamageTarget(self.owner, unit, self.damage, true, true, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, nil)
+                UnitDamageTarget(self.source, unit, self.damage, true, true, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, nil)
             end
 
             return false
