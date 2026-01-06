@@ -64,7 +64,6 @@ OnInit("DraconicDischarge", function (requires)
         end
 
         function DraconicDischarge:onCast()
-            local group = CreateGroup()
             local aoe = GetAoE(Spell.source.unit, Spell.level)
             local range = GetRange(Spell.source.unit, Spell.level)
             local damage = GetDamage(Spell.source.unit, Spell.level)
@@ -79,23 +78,20 @@ OnInit("DraconicDischarge", function (requires)
             BlzSetSpecialEffectYaw(effect, angle)
             QueueUnitAnimation(Spell.source.unit, "Stand")
             BlzSetUnitFacingEx(Spell.source.unit, angle*bj_RADTODEG)
-            LineSegment.EnumUnitsEx(group, minX, minY, maxX, maxY, aoe, true)
 
-            local u = FirstOfGroup(group)
+            local group = LineSegment.EnumUnits(minX, minY, maxX, maxY, aoe, true)
 
-            while u do
-                if DamageFilter(Spell.source.player, u) then
-                    if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        StunUnit(u, duration, STUN_MODEL, STUN_ATTACH, false)
+            for i = 1, #group do
+                local unit = group[i]
+
+                if DamageFilter(Spell.source.player, unit) then
+                    if UnitDamageTarget(Spell.source.unit, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                        StunUnit(unit, duration, STUN_MODEL, STUN_ATTACH, false)
                     end
                 end
-
-                GroupRemoveUnit(group, u)
-                u = FirstOfGroup(group)
             end
 
             DestroyEffect(effect)
-            DestroyGroup(group)
         end
 
         function DraconicDischarge.onInit()
