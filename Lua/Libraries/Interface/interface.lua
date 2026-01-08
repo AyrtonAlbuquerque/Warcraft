@@ -204,7 +204,7 @@ OnInit("Interface", function(requires)
     local MENU_FRAME_Y = -0.02
     -- The size of the menu frame
     local MENU_FRAME_WIDTH = 0.40
-    local MENU_FRAME_HEIGHT = 0.25
+    local MENU_FRAME_HEIGHT = 0.27
     -- -------------------------------------- Menu Options ------------------------------------- --
     local MENU_X_OFFSET = 0.04
     local MENU_Y_OFFSET = -0.025
@@ -265,13 +265,13 @@ OnInit("Interface", function(requires)
     local LUMBER_TEXT_HEIGHT = 0.0125
     local LUMBER_TEXT_SCALE = 1.0
     -- ---------------------------------------- Minimap ---------------------------------------- --
-    -- The min/max x position of the minimap when on the right side of the screen
-    local MINIMAP_RIGHT_MIN = 0.785
-    local MINIMAP_RIGHT_MAX = 0.97
-    -- the min/max x position of the minimap when on the left side of the screen
-    local MINIMAP_LEFT_MIN = -0.32
-    local MINIMAP_LEFT_MAX = -0.135
+    -- The minimap x
+    local MINIMAP_MIN_X = -0.32
+    local MINIMAP_MAX_X = 0.97
+    local MINIMAP_X = -0.135
     -- The minimap y
+    local MINIMAP_MIN_Y = 0.15
+    local MINIMAP_MAX_Y = 0.6
     local MINIMAP_Y = 0.15
     -- The size of the minimap
     local MINIMAP_WIDTH = 0.15
@@ -372,30 +372,26 @@ OnInit("Interface", function(requires)
         local array = {}
 
         function Options:destroy()
-            self.right:destroy()
             self.toggle:destroy()
             self.heroes:destroy()
             self.slider:destroy()
             self.shader:destroy()
             self.default:destroy()
-            self.rightText:destroy()
             self.toggleText:destroy()
             self.heroesText:destroy()
             self.defaultText:destroy()
             self.sliderText:destroy()
             self.shaderText:destroy()
-            self.mapText:destroy()
-            self.mapSlider:destroy()
+            self.horizontalText:destroy()
+            self.horizontalSlider:destroy()
+            self.verticalText:destroy()
+            self.verticalSlider:destroy()
         end
 
         function Options.create(x, y, width, height, parent)
             local this = Options.allocate(x, y, width, height, parent, "EscMenuBackdrop", false)
 
-            this.right = CheckBox.create(MENU_X_OFFSET, MENU_Y_OFFSET, CHECK_WIDTH, CHECK_HEIGHT, this.frame, "QuestCheckBox")
-            this.right.onCheck = Options.onChecked
-            this.right.onUncheck = Options.onUnchecked
-            this.rightText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, this.right.frame, "|cffffffffShow Minimap on the Right|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            this.toggle = CheckBox.create(0, 0, CHECK_WIDTH, CHECK_HEIGHT, this.right.frame, "QuestCheckBox")
+            this.toggle = CheckBox.create(MENU_X_OFFSET, MENU_Y_OFFSET, CHECK_WIDTH, CHECK_HEIGHT, this.frame, "QuestCheckBox")
             this.toggle.onCheck = Options.onChecked
             this.toggle.onUncheck = Options.onUnchecked
             this.toggleText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, this.toggle.frame, "|cffffffffEnable Minimap Toggle (Hold Tab)|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
@@ -417,24 +413,29 @@ OnInit("Interface", function(requires)
             this.shader.max = 255
             this.shader.value = PORTRAIT_DARKNESS
             this.shader.onSlide = Options.onSlider
-            this.mapText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, this.shader.frame, "|cffffffffMinimap Position|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
-            this.mapSlider = Slider.create(0, 0, SLIDER_WIDTH, SLIDER_HEIGHT, this.mapText.frame, "EscMenuSliderTemplate")
-            this.mapSlider.min = MINIMAP_LEFT_MIN
-            this.mapSlider.max = MINIMAP_LEFT_MAX
-            this.mapSlider.step = 0.00185
-            this.mapSlider.value = MINIMAP_LEFT_MAX
-            this.mapSlider.onSlide = Options.onSlider
-            array[this.right] = this
+            this.horizontalText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, this.shader.frame, "|cffffffffMinimap Horizontal Position|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            this.horizontalSlider = Slider.create(0, 0, SLIDER_WIDTH, SLIDER_HEIGHT, this.horizontalText.frame, "EscMenuSliderTemplate")
+            this.horizontalSlider.min = MINIMAP_MIN_X
+            this.horizontalSlider.max = MINIMAP_MAX_X
+            this.horizontalSlider.step = (MINIMAP_MAX_X - MINIMAP_MIN_X) / 100
+            this.horizontalSlider.value = MINIMAP_X
+            this.horizontalSlider.onSlide = Options.onSlider
+            this.verticalText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, this.horizontalSlider.frame, "|cffffffffMinimap Vertical Position|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            this.verticalSlider = Slider.create(0, 0, SLIDER_WIDTH, SLIDER_HEIGHT, this.verticalText.frame, "EscMenuSliderTemplate")
+            this.verticalSlider.min = MINIMAP_MIN_Y
+            this.verticalSlider.max = MINIMAP_MAX_Y
+            this.verticalSlider.step = (MINIMAP_MAX_Y - MINIMAP_MIN_Y) / 100
+            this.verticalSlider.value = MINIMAP_Y
+            this.verticalSlider.onSlide = Options.onSlider
             array[this.toggle] = this
             array[this.heroes] = this
             array[this.shader] = this
             array[this.slider] = this
             array[this.default] = this
-            array[this.mapSlider] = this
+            array[this.horizontalSlider] = this
+            array[this.verticalSlider] = this
 
-            this.right:setPoint(FRAMEPOINT_TOPLEFT, FRAMEPOINT_TOPLEFT, MENU_X_OFFSET, MENU_Y_OFFSET)
-            this.rightText:setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
-            this.toggle:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            this.toggle:setPoint(FRAMEPOINT_TOPLEFT, FRAMEPOINT_TOPLEFT, MENU_X_OFFSET, MENU_Y_OFFSET)
             this.toggleText:setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
             this.heroes:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
             this.heroesText:setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
@@ -444,8 +445,10 @@ OnInit("Interface", function(requires)
             this.slider:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
             this.shaderText:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
             this.shader:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
-            this.mapText:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
-            this.mapSlider:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            this.horizontalText:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            this.horizontalSlider:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            this.verticalText:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            this.verticalSlider:setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
 
             for i = 0, bj_MAX_PLAYER_SLOTS do
                 array[GetHandleId(Player(i))] = this
@@ -475,8 +478,10 @@ OnInit("Interface", function(requires)
                 elseif slide == this.shader then
                     this.shaderText.text = "|cffffffffPortrait Opacity: " .. I2S(R2I((this.shader.value*100)/255)) .. "%|r"
                     Interface.portrait.opacity = R2I(this.shader.value)
-                elseif slide == this.mapSlider then
-                    Interface.map.x = this.mapSlider.value
+                elseif slide == this.horizontalSlider then
+                    Interface.map.x = this.horizontalSlider.value
+                elseif slide == this.verticalSlider then
+                    Interface.map.y = this.verticalSlider.value
                 end
             end
         end
@@ -486,12 +491,7 @@ OnInit("Interface", function(requires)
             local this = array[check]
 
             if this and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == this.right then
-                    Interface.map.x = MINIMAP_RIGHT_MIN - (this.mapSlider.min - this.mapSlider.value)
-                    this.mapSlider.min = MINIMAP_RIGHT_MIN
-                    this.mapSlider.max = MINIMAP_RIGHT_MAX
-                    this.mapSlider.value = Interface.map.x
-                elseif check == this.toggle then
+                if check == this.toggle then
                     Interface.map.visible = false
                 elseif check == this.heroes then
                     Interface.heroes = true
@@ -506,12 +506,7 @@ OnInit("Interface", function(requires)
             local this = array[check]
 
             if this and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == this.right then
-                    Interface.map.x = MINIMAP_LEFT_MIN + (this.mapSlider.value - this.mapSlider.min)
-                    this.mapSlider.min = MINIMAP_LEFT_MIN
-                    this.mapSlider.max = MINIMAP_LEFT_MAX
-                    this.mapSlider.value = Interface.map.x
-                elseif check == this.toggle then
+                if check == this.toggle then
                     Interface.map.visible = true
                 elseif check == this.heroes then
                     Interface.heroes = false
@@ -538,7 +533,7 @@ OnInit("Interface", function(requires)
 
     do
         function Menu:destroy()
-            this.panel:destroy()
+            self.panel:destroy()
         end
 
         function Menu.create(x, y, width, height, parent)
@@ -565,6 +560,28 @@ OnInit("Interface", function(requires)
                     self.tooltip.text = "Open Menu"
                 end
             end
+        end
+
+        function Menu.onEsc()
+            local self = Interface.menu
+
+            if GetLocalPlayer() == GetTriggerPlayer() and self.panel.visible then
+                self.panel.visible = false
+                self.texture = OPEN_MENU_TEXTURE
+                self.tooltip.text = "Open Menu"
+            end
+        end
+
+        function Menu.onInit()
+            local trigger = CreateTrigger()
+
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    TriggerRegisterPlayerEventEndCinematic(trigger, Player(i))
+                end
+            end
+
+            TriggerAddCondition(trigger, Condition(Menu.onEsc))
         end
     end
 
@@ -1129,7 +1146,7 @@ OnInit("Interface", function(requires)
             Interface.wood = BlzGetFrameByName("ResourceBarLumberText" , 0)
             Interface.default = BlzGetFrameByName("UpperButtonBarFrame", 0)
             Interface.tooltip = BlzGetOriginFrame(ORIGIN_FRAME_UBERTOOLTIP , 0)
-            Interface.map = Minimap.create(MINIMAP_LEFT_MAX, MINIMAP_Y, MINIMAP_WIDTH, MINIMAP_HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0))
+            Interface.map = Minimap.create(MINIMAP_X, MINIMAP_Y, MINIMAP_WIDTH, MINIMAP_HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0))
             Interface.menu = Menu.create(MENU_X, MENU_Y, MENU_WIDTH, MENU_HEIGHT, nil)
             Interface.portrait = Portrait.create(INFO_X, INFO_Y, INFO_WIDTH, INFO_HEIGHT, nil)
             Interface.grid = Grid.create(SHOP_PANEL_X, SHOP_PANEL_Y, SHOP_COLUMNS*SHOP_SLOT_WIDTH + 0.032, SHOP_SLOT_HEIGHT*SHOP_ROWS + 0.034, nil)
