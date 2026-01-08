@@ -23,7 +23,6 @@ OnInit("Shop", function(requires)
     local DETAILED_COLUMNS          = 8
     local CLOSE_ICON                = "ui\\widgets\\battlenet\\chaticons\\bnet-squelch"
     local CLEAR_ICON                = "ReplaceableTextures\\CommandButtons\\BTNCancel.blp"
-    local HELP_ICON                 = "UI\\Widgets\\EscMenu\\Human\\quest-unknown.blp"
     local LOGIC_ICON                = "ReplaceableTextures\\CommandButtons\\BTNMagicalSentry.blp"
     local UNDO_ICON                 = "ReplaceableTextures\\CommandButtons\\BTNReplay-Loop.blp"
     local DISMANTLE_ICON            = "UI\\Feedback\\Resources\\ResourceUpkeep.blp"
@@ -52,6 +51,7 @@ OnInit("Shop", function(requires)
     local DETAIL_USED_COUNT         = 6
     local DETAIL_BUTTON_SIZE        = 0.035
     local DETAIL_BUTTON_GAP         = 0.044
+    local CHARGE_SCALE              = 0.8
     local DETAIL_CLOSE_BUTTON_SIZE  = 0.02
     local DETAIL_SHIFT_BUTTON_SIZE  = 0.012
     local USED_RIGHT                = "ReplaceableTextures\\CommandButtons\\BTNReplay-SpeedDown.blp"
@@ -242,7 +242,7 @@ OnInit("Shop", function(requires)
                         Sound.error(self.player)
                     end
                 elseif self.type == "sell" then
-                    UnitAddItemById(self.unit, self.item.id)
+                    SetItemCharges(UnitAddItemById(self.unit, self.item.id), self.charges)
                     SetPlayerState(self.player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(self.player, PLAYER_STATE_RESOURCE_GOLD) - self.gold)
                     SetPlayerState(self.player, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(self.player, PLAYER_STATE_RESOURCE_LUMBER) - self.wood)
                     Sound.success(self.player)
@@ -256,7 +256,7 @@ OnInit("Shop", function(requires)
                         end
                     end
 
-                    UnitAddItemById(self.unit, self.item.id)
+                    SetItemCharges(UnitAddItemById(self.unit, self.item.id), self.charges)
                     Sound.success(self.player)
                 end
             else
@@ -296,7 +296,7 @@ OnInit("Shop", function(requires)
             end
         end
 
-        function Transaction.create(shop, unit, item, gold, wood, transaction)
+        function Transaction.create(shop, unit, item, gold, wood, charges, transaction)
             local this = Transaction.allocate()
 
             this.shop = shop
@@ -304,6 +304,7 @@ OnInit("Shop", function(requires)
             this.item = item
             this.gold = gold
             this.wood = wood
+            this.charges = charges
             this.index = 0
             this.component = {}
             this.type = transaction
@@ -341,6 +342,7 @@ OnInit("Shop", function(requires)
                 if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
                     for j = 0, INVENTORY_COUNT - 1 do
                         self.button[i][j]:destroy()
+                        self.charge[i][j]:destroy()
                     end
                 end
             end
@@ -369,15 +371,19 @@ OnInit("Shop", function(requires)
                     local item = UnitItemInSlot(unit, i)
 
                     if item then
+                        local charges = GetItemCharges(item)
+
                         self.item[id][i] = Item.get(GetItemTypeId(item))
 
                         if GetLocalPlayer() == GetOwningPlayer(unit) then
                             self.button[id][i].texture = self.item[id][i].icon
-                            self.button[id][i].tooltip.text = self.item[id][i].tooltip
+                            self.button[id][i].tooltip.text = self.item[id][i].tooltip .. "\n\n|cffFFCC00Double/Right click to Sell|r"
                             self.button[id][i].tooltip.name = self.item[id][i].name
                             self.button[id][i].tooltip.icon = self.item[id][i].icon
                             self.button[id][i].visible = true
                             self.button[id][i].highlighted = false
+                            self.charge[id][i].text = I2S(charges)
+                            self.charge[id][i].visible = charges > 0
                         end
                     else
                         self.item[id][i] = nil
@@ -385,6 +391,7 @@ OnInit("Shop", function(requires)
                         if GetLocalPlayer() == GetOwningPlayer(unit) then
                             self.button[id][i].visible = false
                             self.button[id][i].highlighted = false
+                            self.charge[id][i].visible = false
                         end
                     end
                 end
@@ -395,6 +402,7 @@ OnInit("Shop", function(requires)
                     if GetLocalPlayer() == GetOwningPlayer(unit) then
                         self.button[id][i].visible = false
                         self.button[id][i].highlighted = false
+                        self.charge[id][i].visible = false
                     end
                 end
             end
@@ -429,6 +437,7 @@ OnInit("Shop", function(requires)
             this.shop = shop
             this.item = {}
             this.button = {}
+            this.charge = {}
             this.selected = {}
             this.isVisible = false
             this.frame = BlzCreateFrameByType("BACKDROP", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
@@ -441,15 +450,20 @@ OnInit("Shop", function(requires)
                 if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
                     this.item[i] = {}
                     this.button[i] = {}
+                    this.charge[i] = {}
 
                     for j = 0, INVENTORY_COUNT - 1 do
                         this.button[i][j] = Button.create(0.0033700 + INVENTORY_GAP*j, - 0.0037500, INVENTORY_SIZE, INVENTORY_SIZE, this.frame, false, false)
+                        this.charge[i][j] = Text.create(0, 0, INVENTORY_SIZE, INVENTORY_SIZE/3, CHARGE_SCALE, false, this.button[i][j].frame, nil, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_RIGHT)
                         this.button[i][j].tooltip.point = FRAMEPOINT_BOTTOM
                         this.button[i][j].OnClick = Inventory.onClick
                         this.button[i][j].OnDoubleClick = Inventory.onDoubleClick
                         this.button[i][j].OnRightClick = Inventory.onRightClick
                         this.button[i][j].visible = false
+                        this.charge[i][j].visible = false
                         array[this.button[i][j]] = { this, j }
+
+                        this.charge[i][j]:setPoint(FRAMEPOINT_BOTTOMRIGHT, FRAMEPOINT_BOTTOMRIGHT, -0.003, 0.003)
                     end
                 end
             end
@@ -573,7 +587,7 @@ OnInit("Shop", function(requires)
 
             if item then
                 this.texture = item.icon
-                this.tooltip.text = item.tooltip
+                this.tooltip.text = item.tooltip .. "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                 this.tooltip.name = item.name
                 this.tooltip.icon = item.icon
                 this.cost.text = "|cffFFCC00" .. I2S(item.gold) .. "|r"
@@ -1741,7 +1755,7 @@ OnInit("Shop", function(requires)
             if self:canBuy(item, player) and cost <= GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) and wood <= GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER) then
                 local new = CreateItem(item.id, GetUnitX(self.buyer:get(id)), GetUnitY(self.buyer:get(id)))
 
-                self.buyer.inventory:removeComponents(item, Transaction.create(self, self.buyer:get(id), item, cost, wood, "buy"))
+                self.buyer.inventory:removeComponents(item, Transaction.create(self, self.buyer:get(id), item, cost, wood, item.charges, "buy"))
 
                 if not UnitAddItem(self.buyer:get(id), new) then
                     IssueTargetItemOrder(self.buyer:get(id), "smart", new)
@@ -1788,7 +1802,7 @@ OnInit("Shop", function(requires)
                 if GetItemTypeId(UnitItemInSlot(self.buyer:get(id), slot)) == item.id then
                     sold = true
 
-                    Transaction.create(self, self.buyer:get(id), item, cost, wood, "sell")
+                    Transaction.create(self, self.buyer:get(id), item, cost, wood, GetItemCharges(UnitItemInSlot(self.buyer:get(id), slot)), "sell")
                     RemoveItem(UnitItemInSlot(self.buyer:get(id), slot))
                     SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, gold + cost)
                     SetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER, lumber + wood)
@@ -1817,7 +1831,7 @@ OnInit("Shop", function(requires)
                     end
 
                     if (slots + 1) >= item.components then
-                        Transaction.create(self, self.buyer:get(id), item, 0, 0, "dismantle")
+                        Transaction.create(self, self.buyer:get(id), item, 0, 0, GetItemCharges(UnitItemInSlot(self.buyer:get(id), slot)), "dismantle")
                         RemoveItem(UnitItemInSlot(self.buyer:get(id), slot))
 
                         for i = 1, item.components do

@@ -23,7 +23,6 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         private constant integer DETAILED_COLUMNS       = 8
         private constant string CLOSE_ICON              = "ui\\widgets\\battlenet\\chaticons\\bnet-squelch"
         private constant string CLEAR_ICON              = "ReplaceableTextures\\CommandButtons\\BTNCancel.blp"
-        private constant string HELP_ICON               = "UI\\Widgets\\EscMenu\\Human\\quest-unknown.blp"
         private constant string LOGIC_ICON              = "ReplaceableTextures\\CommandButtons\\BTNMagicalSentry.blp"
         private constant string UNDO_ICON               = "ReplaceableTextures\\CommandButtons\\BTNReplay-Loop.blp"
         private constant string DISMANTLE_ICON          = "UI\\Feedback\\Resources\\ResourceUpkeep.blp"
@@ -43,6 +42,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         private constant real INVENTORY_HEIGHT          = 0.03740
         private constant real INVENTORY_SIZE            = 0.031
         private constant real INVENTORY_GAP             = 0.04
+        private constant real CHARGE_SCALE              = 0.8
         private constant integer INVENTORY_COUNT        = 6
         private constant string INVENTORY_TEXTURE       = "Inventory.blp"
         
@@ -226,6 +226,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         integer id
         integer gold
         integer wood
+        integer charges
         player player
         Table component
 
@@ -268,7 +269,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                         call Sound.error(player)
                     endif
                 elseif type == "sell" then
-                    call UnitAddItemById(unit, item.id)
+                    call SetItemCharges(UnitAddItemById(unit, item.id), charges)
                     call SetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD, GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD) - gold)
                     call SetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER, GetPlayerState(player, PLAYER_STATE_RESOURCE_LUMBER) - wood)
                     call Sound.success(player)
@@ -288,7 +289,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                         set i = i + 1
                     endloop
 
-                    call UnitAddItemById(unit, item.id)
+                    call SetItemCharges(UnitAddItemById(unit, item.id), charges)
                     call Sound.success(player)
                 endif
             else
@@ -332,7 +333,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             call Table(transactions[shop][id]).flush()
         endmethod
 
-        static method create takes Shop shop, unit u, Item i, integer gold, integer wood, string transaction returns thistype
+        static method create takes Shop shop, unit u, Item i, integer gold, integer wood, integer charges, string transaction returns thistype
             local thistype this = thistype.allocate()
 
             set item = i
@@ -340,6 +341,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             set .shop = shop
             set .gold = gold
             set .wood = wood
+            set .charges = charges
             set type = transaction
             set index = 0
             set player = GetOwningPlayer(u)
@@ -369,6 +371,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         Table selected
         HashTable item
         HashTable button
+        HashTable charge
         framehandle frame
 
         method operator visible= takes boolean visibility returns nothing
@@ -397,10 +400,12 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                             exitwhen j == INVENTORY_COUNT
                                 call table.remove(button[i][j])
                                 call Button(button[i][j]).destroy()
+                                call Text(charge[i][j]).destroy()
                             set j = j + 1
                         endloop
 
                         call button.remove(i)
+                        call charge.remove(i)
                         call item.remove(i)
                     endif
                 set i = i + 1
@@ -409,6 +414,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             call BlzDestroyFrame(frame)
             call selected.destroy()
             call button.destroy()
+            call charge.destroy()
             call item.destroy()
             call deallocate()
 
@@ -427,6 +433,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         method show takes unit u returns nothing
             local item i
             local integer j = 0
+            local integer charges
             local integer id = GetPlayerId(GetOwningPlayer(u))
 
             if u != null then
@@ -436,14 +443,17 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
                         if i != null then
                             set item[id][j] = Item.get(GetItemTypeId(i))
+                            set charges = GetItemCharges(i)
 
                             if GetLocalPlayer() == GetOwningPlayer(u) then
                                 set Button(button[id][j]).texture = Item(item[id][j]).icon
                                 set Button(button[id][j]).tooltip.icon = Item(item[id][j]).icon
                                 set Button(button[id][j]).tooltip.name = Item(item[id][j]).name
-                                set Button(button[id][j]).tooltip.text = Item(item[id][j]).tooltip
+                                set Button(button[id][j]).tooltip.text = Item(item[id][j]).tooltip + "\n\n|cffFFCC00Double/Right click to Sell|r"
                                 set Button(button[id][j]).visible = true
                                 set Button(button[id][j]).highlighted = false
+                                set Text(charge[id][j]).text = I2S(charges)
+                                set Text(charge[id][j]).visible = charges > 0
                             endif
                         else
                             set item[id][j] = 0
@@ -451,6 +461,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                             if GetLocalPlayer() == GetOwningPlayer(u) then
                                 set Button(button[id][j]).highlighted = false
                                 set Button(button[id][j]).visible = false
+                                set Text(charge[id][j]).visible = false
                             endif
                         endif
                     set j = j + 1
@@ -463,6 +474,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                         if GetLocalPlayer() == GetOwningPlayer(u) then
                             set Button(button[id][j]).highlighted = false
                             set Button(button[id][j]).visible = false
+                            set Text(charge[id][j]).visible = false
                         endif
                     set j = j + 1
                 endloop
@@ -514,6 +526,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             set selected = Table.create()
             set item = HashTable.create()
             set button = HashTable.create()
+            set charge = HashTable.create()
             set frame = BlzCreateFrameByType("BACKDROP", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
 
             call BlzFrameSetPoint(frame, FRAMEPOINT_TOPLEFT, shop.buyer.frame, FRAMEPOINT_TOPLEFT, 0, 0)
@@ -528,13 +541,17 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                         loop
                             exitwhen j == INVENTORY_COUNT
                                 set button[i][j] = Button.create(0.0033700 + INVENTORY_GAP*j, - 0.0037500, INVENTORY_SIZE, INVENTORY_SIZE, frame, false, false)
+                                set charge[i][j] = Text.create(0, 0, INVENTORY_SIZE, INVENTORY_SIZE/3, CHARGE_SCALE, false, Button(button[i][j]).frame, null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_RIGHT)
                                 set Button(button[i][j]).tooltip.point = FRAMEPOINT_BOTTOM
                                 set Button(button[i][j]).onClick = function thistype.onClick
                                 set Button(button[i][j]).onDoubleClick = function thistype.onDoubleClick
                                 set Button(button[i][j]).onRightClick = function thistype.onRightClick
                                 set Button(button[i][j]).visible = false
+                                set Text(charge[i][j]).visible = false
                                 set table[button[i][j]][0] = this
                                 set table[button[i][j]][1] = j
+
+                                call Text(charge[i][j]).setPoint(FRAMEPOINT_BOTTOMRIGHT, FRAMEPOINT_BOTTOMRIGHT, -0.003, 0.003)
                             set j = j + 1
                         endloop
                     endif
@@ -678,7 +695,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
             if item != 0 then
                 set texture = item.icon
-                set tooltip.text = item.tooltip
+                set tooltip.text = item.tooltip + "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                 set tooltip.name = item.name
                 set tooltip.icon = item.icon
                 set cost.text = "|cffFFCC00" + I2S(item.gold) + "|r"
@@ -2027,7 +2044,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             if canBuy(i, p) and cost <= GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) and wood <= GetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER) then
                 set new = CreateItem(i.id, GetUnitX(buyer[id]), GetUnitY(buyer[id]))
 
-                call buyer.inventory.removeComponents(i, Transaction.create(this, buyer[id], i, cost, wood, "buy"))
+                call buyer.inventory.removeComponents(i, Transaction.create(this, buyer[id], i, cost, wood, i.charges, "buy"))
 
                 if not UnitAddItem(buyer[id], new) then
                     call IssueTargetItemOrder(buyer[id], "smart", new)
@@ -2081,7 +2098,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                 if GetItemTypeId(UnitItemInSlot(buyer[id], slot)) == i.id then
                     set sold = true
 
-                    call Transaction.create(this, buyer[id], i, cost, wood, "sell")
+                    call Transaction.create(this, buyer[id], i, cost, wood, GetItemCharges(UnitItemInSlot(buyer[id], slot)), "sell")
                     call RemoveItem(UnitItemInSlot(buyer[id], slot))
                     call SetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD, gold + cost)
                     call SetPlayerState(p, PLAYER_STATE_RESOURCE_LUMBER, lumber + wood)
@@ -2115,7 +2132,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                     if (slots + 1) >= i.components then
                         set j = 0
 
-                        call Transaction.create(this, buyer[id], i, 0, 0, "dismantle")
+                        call Transaction.create(this, buyer[id], i, 0, 0, GetItemCharges(UnitItemInSlot(buyer[id], slot)), "dismantle")
                         call RemoveItem(UnitItemInSlot(buyer[id], slot))
 
                         loop
