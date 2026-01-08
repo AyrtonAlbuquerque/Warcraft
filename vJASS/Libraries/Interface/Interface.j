@@ -204,7 +204,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real MENU_FRAME_Y = -0.02
         // The size of the menu frame
         private constant real MENU_FRAME_WIDTH = 0.40
-        private constant real MENU_FRAME_HEIGHT = 0.25
+        private constant real MENU_FRAME_HEIGHT = 0.27
         /* -------------------------------------- Menu Options ------------------------------------- */
         private constant real MENU_X_OFFSET = 0.04
         private constant real MENU_Y_OFFSET = -0.025
@@ -265,13 +265,13 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real LUMBER_TEXT_HEIGHT = 0.0125
         private constant real LUMBER_TEXT_SCALE = 1.0
         /* ---------------------------------------- Minimap ---------------------------------------- */
-        // The min/max x position of the minimap when on the right side of the screen
-        private constant real MINIMAP_RIGHT_MIN = 0.785
-        private constant real MINIMAP_RIGHT_MAX = 0.97
-        // the min/max x position of the minimap when on the left side of the screen
-        private constant real MINIMAP_LEFT_MIN = -0.32
-        private constant real MINIMAP_LEFT_MAX = -0.135
+        // The minimap x
+        private constant real MINIMAP_MIN_X = -0.32
+        private constant real MINIMAP_MAX_X = 0.97
+        private constant real MINIMAP_X = -0.135
         // The minimap y
+        private constant real MINIMAP_MIN_Y = 0.15
+        private constant real MINIMAP_MAX_Y = 0.6
         private constant real MINIMAP_Y = 0.15
         // The size of the minimap
         private constant real MINIMAP_WIDTH = 0.15
@@ -377,8 +377,6 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private static trigger key = CreateTrigger()
         private static Table table
 
-        CheckBox right
-        Text rightText
         CheckBox toggle
         Text toggleText
         CheckBox heroes
@@ -389,24 +387,26 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         Text sliderText
         Slider shader
         Text shaderText
-        Text mapText
-        Slider mapSlider
+        Text horizontalText
+        Slider horizontalSlider
+        Text verticalText
+        Slider verticalSlider
 
         method destroy takes nothing returns nothing
-            call right.destroy()
             call toggle.destroy()
             call heroes.destroy()
             call slider.destroy()
             call shader.destroy()
             call default.destroy()
-            call rightText.destroy()
             call toggleText.destroy()
             call heroesText.destroy()
             call defaultText.destroy()
             call sliderText.destroy()
             call shaderText.destroy()
-            call mapText.destroy()
-            call mapSlider.destroy()
+            call horizontalText.destroy()
+            call horizontalSlider.destroy()
+            call verticalText.destroy()
+            call verticalSlider.destroy()
             call deallocate()
         endmethod
 
@@ -414,11 +414,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             local integer i = 0
             local thistype this = thistype.allocate(x, y, width, height, parent, "EscMenuBackdrop", false)
 
-            set right = CheckBox.create(MENU_X_OFFSET, MENU_Y_OFFSET, CHECK_WIDTH, CHECK_HEIGHT, frame, "QuestCheckBox")
-            set right.onCheck = function thistype.onChecked
-            set right.onUncheck = function thistype.onUnchecked
-            set rightText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, right.frame, "|cffffffffShow Minimap on the Right|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
-            set toggle = CheckBox.create(0, 0, CHECK_WIDTH, CHECK_HEIGHT, right.frame, "QuestCheckBox")
+            set toggle = CheckBox.create(MENU_X_OFFSET, MENU_Y_OFFSET, CHECK_WIDTH, CHECK_HEIGHT, frame, "QuestCheckBox")
             set toggle.onCheck = function thistype.onChecked
             set toggle.onUncheck = function thistype.onUnchecked
             set toggleText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, toggle.frame, "|cffffffffEnable Minimap Toggle (Hold Tab)|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_LEFT)
@@ -440,24 +436,29 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             set shader.max = 255
             set shader.value = PORTRAIT_DARKNESS
             set shader.onSlide = function thistype.onSlider
-            set mapText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, shader.frame, "|cffffffffMinimap Position|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
-            set mapSlider = Slider.create(0, 0, SLIDER_WIDTH, SLIDER_HEIGHT, mapText.frame, "EscMenuSliderTemplate")
-            set mapSlider.min = MINIMAP_LEFT_MIN
-            set mapSlider.max = MINIMAP_LEFT_MAX
-            set mapSlider.step = 0.00185
-            set mapSlider.value = MINIMAP_LEFT_MAX
-            set mapSlider.onSlide = function thistype.onSlider
-            set table[right] = this
+            set horizontalText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, shader.frame, "|cffffffffMinimap Horizontal Position|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            set horizontalSlider = Slider.create(0, 0, SLIDER_WIDTH, SLIDER_HEIGHT, horizontalText.frame, "EscMenuSliderTemplate")
+            set horizontalSlider.min = MINIMAP_MIN_X
+            set horizontalSlider.max = MINIMAP_MAX_X
+            set horizontalSlider.step = (MINIMAP_MAX_X - MINIMAP_MIN_X) / 100
+            set horizontalSlider.value = MINIMAP_X
+            set horizontalSlider.onSlide = function thistype.onSlider
+            set verticalText = Text.create(0, 0, CHECK_TEXT_WIDTH, CHECK_TEXT_HEIGHT, CHECK_TEXT_SCALE, false, horizontalSlider.frame, "|cffffffffMinimap Vertical Position|r", TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+            set verticalSlider = Slider.create(0, 0, SLIDER_WIDTH, SLIDER_HEIGHT, verticalText.frame, "EscMenuSliderTemplate")
+            set verticalSlider.min = MINIMAP_MIN_Y
+            set verticalSlider.max = MINIMAP_MAX_Y
+            set verticalSlider.step = (MINIMAP_MAX_Y - MINIMAP_MIN_Y) / 100
+            set verticalSlider.value = MINIMAP_Y
+            set verticalSlider.onSlide = function thistype.onSlider
             set table[toggle] = this
             set table[heroes] = this
             set table[shader] = this
             set table[slider] = this
             set table[default] = this
-            set table[mapSlider] = this
+            set table[horizontalSlider] = this
+            set table[verticalSlider] = this
 
-            call right.setPoint(FRAMEPOINT_TOPLEFT, FRAMEPOINT_TOPLEFT, MENU_X_OFFSET, MENU_Y_OFFSET)
-            call rightText.setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
-            call toggle.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call toggle.setPoint(FRAMEPOINT_TOPLEFT, FRAMEPOINT_TOPLEFT, MENU_X_OFFSET, MENU_Y_OFFSET)
             call toggleText.setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
             call heroes.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
             call heroesText.setPoint(FRAMEPOINT_LEFT, FRAMEPOINT_RIGHT, CHECK_TEXT_X, CHECK_TEXT_Y)
@@ -467,8 +468,10 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             call slider.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
             call shaderText.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
             call shader.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
-            call mapText.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
-            call mapSlider.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call horizontalText.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call horizontalSlider.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call verticalText.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
+            call verticalSlider.setPoint(FRAMEPOINT_TOP, FRAMEPOINT_BOTTOM, 0, MENU_Y_GAP)
 
             loop
                 exitwhen i >= bj_MAX_PLAYER_SLOTS
@@ -500,8 +503,10 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                 elseif slide == shader then
                     set shaderText.text = "|cffffffffPortrait Opacity: " + I2S(R2I((shader.value*100)/255)) + "%|r"
                     set Interface.portrait.opacity = R2I(shader.value)
-                elseif slide == mapSlider then
-                    set Interface.map.x = mapSlider.value
+                elseif slide == horizontalSlider then
+                    set Interface.map.x = horizontalSlider.value
+                elseif slide == verticalSlider then
+                    set Interface.map.y = verticalSlider.value
                 endif
             endif
         endmethod
@@ -511,12 +516,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             local thistype this = table[check]
 
             if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == right then
-                    set Interface.map.x = MINIMAP_RIGHT_MIN - (mapSlider.min - mapSlider.value)
-                    set mapSlider.min = MINIMAP_RIGHT_MIN
-                    set mapSlider.max = MINIMAP_RIGHT_MAX
-                    set mapSlider.value = Interface.map.x
-                elseif check == toggle then
+                if check == toggle then
                     set Interface.map.visible = false
                 elseif check == heroes then
                     set Interface.heroes = true
@@ -531,12 +531,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             local thistype this = table[check]
 
             if this != 0 and GetLocalPlayer() == GetTriggerPlayer() then
-                if check == right then
-                    set Interface.map.x = MINIMAP_LEFT_MIN + (mapSlider.value - mapSlider.min)
-                    set mapSlider.min = MINIMAP_LEFT_MIN
-                    set mapSlider.max = MINIMAP_LEFT_MAX
-                    set mapSlider.value = Interface.map.x
-                elseif check == toggle then
+                if check == toggle then
                     set Interface.map.visible = true
                 elseif check == heroes then
                     set Interface.heroes = false
@@ -595,6 +590,31 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                     set tooltip.text = "Open Menu"
                 endif
             endif
+        endmethod
+
+        private static method onEsc takes nothing returns nothing
+            local thistype this = Interface.menu
+
+            if GetLocalPlayer() == GetTriggerPlayer() and panel.visible then
+                set panel.visible = false
+                set texture = OPEN_MENU_TEXTURE
+                set tooltip.text = "Open Menu"
+            endif
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            local integer i = 0
+            local trigger escape = CreateTrigger()
+
+            loop
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                        call TriggerRegisterPlayerEventEndCinematic(escape, Player(i))
+                    endif
+                set i = i + 1
+            endloop
+
+            call TriggerAddCondition(escape, Condition(function thistype.onEsc))
         endmethod
     endstruct
     
@@ -1275,7 +1295,7 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             set wood = BlzGetFrameByName("ResourceBarLumberText" , 0)
             set default = BlzGetFrameByName("UpperButtonBarFrame", 0)
             set tooltip = BlzGetOriginFrame(ORIGIN_FRAME_UBERTOOLTIP , 0)
-            set map = Minimap.create(MINIMAP_LEFT_MAX, MINIMAP_Y, MINIMAP_WIDTH, MINIMAP_HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0))
+            set map = Minimap.create(MINIMAP_X, MINIMAP_Y, MINIMAP_WIDTH, MINIMAP_HEIGHT, BlzGetFrameByName("ConsoleUIBackdrop", 0))
             set menu = Menu.create(MENU_X, MENU_Y, MENU_WIDTH, MENU_HEIGHT, null)
             set portrait = Portrait.create(INFO_X, INFO_Y, INFO_WIDTH, INFO_HEIGHT, null)
             set grid = Grid.create(SHOP_PANEL_X, SHOP_PANEL_Y, SHOP_COLUMNS*SHOP_SLOT_WIDTH + 0.032, SHOP_SLOT_HEIGHT*SHOP_ROWS + 0.034, null)
