@@ -20,12 +20,14 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
         real mana = 0
         real armor = 0
         real block = 0
+        real pierce = 0
         real damage = 0
         real health = 0
         real evasion = 0
         real agility = 0
         real strength = 0
         real tenacity = 0
+        real omnivamp = 0
         real lifeSteal = 0
         real spellVamp = 0
         real manaRegen = 0
@@ -402,6 +404,7 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                 static if LIBRARY_NewBonus then
                     call LinkBonusToItem(u, BONUS_DAMAGE, damage, i)
                     call LinkBonusToItem(u, BONUS_ARMOR, armor, i)
+                    call LinkBonusToItem(u, BONUS_PIERCE_CHANCE, pierce, i)
                     call LinkBonusToItem(u, BONUS_DAMAGE_BLOCK, block, i)
                     call LinkBonusToItem(u, BONUS_AGILITY, agility, i)
                     call LinkBonusToItem(u, BONUS_STRENGTH, strength, i)
@@ -421,6 +424,7 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                     call LinkBonusToItem(u, BONUS_MISS_CHANCE, missChance, i)
                     call LinkBonusToItem(u, BONUS_SPELL_POWER, spellPower, i)
                     call LinkBonusToItem(u, BONUS_SPELL_VAMP, spellVamp, i)
+                    call LinkBonusToItem(u, BONUS_OMNIVAMP, omnivamp, i)
                     call LinkBonusToItem(u, BONUS_COOLDOWN_REDUCTION, cooldownReduction, i)
                     call LinkBonusToItem(u, BONUS_COOLDOWN_REDUCTION_FLAT, cooldownReductionFlat, i)
                     call LinkBonusToItem(u, BONUS_COOLDOWN_OFFSET, cooldownOffset, i)
