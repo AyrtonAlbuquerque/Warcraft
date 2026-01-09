@@ -404,7 +404,6 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                 static if LIBRARY_NewBonus then
                     call LinkBonusToItem(u, BONUS_DAMAGE, damage, i)
                     call LinkBonusToItem(u, BONUS_ARMOR, armor, i)
-                    call LinkBonusToItem(u, BONUS_PIERCE_CHANCE, pierce, i)
                     call LinkBonusToItem(u, BONUS_DAMAGE_BLOCK, block, i)
                     call LinkBonusToItem(u, BONUS_AGILITY, agility, i)
                     call LinkBonusToItem(u, BONUS_STRENGTH, strength, i)
@@ -417,6 +416,7 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                     call LinkBonusToItem(u, BONUS_MANA_REGEN, manaRegen, i)
                     call LinkBonusToItem(u, BONUS_ATTACK_SPEED, attackSpeed, i)
                     call LinkBonusToItem(u, BONUS_MAGIC_RESISTANCE, magicResistance, i)
+                    call LinkBonusToItem(u, BONUS_PIERCE_CHANCE, pierce, i)
                     call LinkBonusToItem(u, BONUS_EVASION_CHANCE, evasion, i)
                     call LinkBonusToItem(u, BONUS_CRITICAL_DAMAGE, criticalDamage, i)
                     call LinkBonusToItem(u, BONUS_CRITICAL_CHANCE, criticalChance, i)
