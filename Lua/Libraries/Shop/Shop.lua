@@ -683,7 +683,7 @@ OnInit("Shop", function(requires)
 
                         if player == GetLocalPlayer() then
                             self.button[id][j].texture = self.used[id][j].icon
-                            self.button[id][j].tooltip.text = self.used[id][j].tooltip
+                            self.button[id][j].tooltip.text = self.used[id][j].tooltip .. "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                             self.button[id][j].tooltip.name = self.used[id][j].name
                             self.button[id][j].tooltip.icon = self.used[id][j].icon
                             self.button[id][j].available = self.shop:has(self.used[id][j].id)
@@ -700,7 +700,7 @@ OnInit("Shop", function(requires)
 
                         if player == GetLocalPlayer() then
                             self.button[id][j].texture = item.icon
-                            self.button[id][j].tooltip.text = item.tooltip
+                            self.button[id][j].tooltip.text = item.tooltip .. "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                             self.button[id][j].tooltip.name = item.name
                             self.button[id][j].tooltip.icon = item.icon
                             self.button[id][j].available = self.shop:has(item.id)
@@ -754,7 +754,7 @@ OnInit("Shop", function(requires)
 
                     if player == GetLocalPlayer() then
                         self.button[id][self.count[id]].texture = item.icon
-                        self.button[id][self.count[id]].tooltip.text = item.tooltip
+                        self.button[id][self.count[id]].tooltip.text = item.tooltip .. "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                         self.button[id][self.count[id]].tooltip.name = item.name
                         self.button[id][self.count[id]].tooltip.icon = item.icon
                         self.button[id][self.count[id]].available = self.shop:has(item.id)
@@ -786,7 +786,7 @@ OnInit("Shop", function(requires)
 
                 self.main[id].item = item
                 self.main[id].texture = item.icon
-                self.main[id].tooltip.text = item.tooltip
+                self.main[id].tooltip.text = item.tooltip .. "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                 self.main[id].tooltip.name = item.name
                 self.main[id].tooltip.icon = item.icon
                 self.main[id].available = self.shop:has(item.id)
@@ -841,7 +841,7 @@ OnInit("Shop", function(requires)
 
                             slot.item = component
                             slot.texture = component.icon
-                            slot.tooltip.text = component.tooltip
+                            slot.tooltip.text = component.tooltip .. "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                             slot.tooltip.name = component.name
                             slot.tooltip.icon = component.icon
                             slot.available = self.shop:has(component.id)
@@ -1437,7 +1437,7 @@ OnInit("Shop", function(requires)
 
                             if player == GetLocalPlayer() then
                                 self.button[id][j].texture = self.item[id][j].icon
-                                self.button[id][j].tooltip.text = self.item[id][j].tooltip
+                                self.button[id][j].tooltip.text = self.item[id][j].tooltip .."\n\n|cffFFCC00Right click to Buy|r\n|cffFFCC00Middle click to Untag|r"
                                 self.button[id][j].tooltip.name = self.item[id][j].name
                                 self.button[id][j].tooltip.icon = self.item[id][j].icon
                             end
@@ -1468,7 +1468,7 @@ OnInit("Shop", function(requires)
 
                     if player == GetLocalPlayer() then
                         self.button[id][self.count[id]].texture = item.icon
-                        self.button[id][self.count[id]].tooltip.text = item.tooltip
+                        self.button[id][self.count[id]].tooltip.text = item.tooltip .. "\n\n|cffFFCC00Right click to Buy|r\n|cffFFCC00Middle click to Untag|r"
                         self.button[id][self.count[id]].tooltip.name = item.name
                         self.button[id][self.count[id]].tooltip.icon = item.icon
                         self.button[id][self.count[id]].visible = true

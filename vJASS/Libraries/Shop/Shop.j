@@ -829,7 +829,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
                             if GetLocalPlayer() == p then
                                 set Button(button[id][j]).texture = Item(used[id][j]).icon
-                                set Button(button[id][j]).tooltip.text = Item(used[id][j]).tooltip
+                                set Button(button[id][j]).tooltip.text = Item(used[id][j]).tooltip + "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                                 set Button(button[id][j]).tooltip.name = Item(used[id][j]).name
                                 set Button(button[id][j]).tooltip.icon = Item(used[id][j]).icon
                                 set Button(button[id][j]).available = shop.has(Item(used[id][j]).id)
@@ -846,7 +846,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
                         if GetLocalPlayer() == p then
                             set Button(button[id][j]).texture = i.icon
-                            set Button(button[id][j]).tooltip.text = i.tooltip
+                            set Button(button[id][j]).tooltip.text = i.tooltip + "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                             set Button(button[id][j]).tooltip.name = i.name
                             set Button(button[id][j]).tooltip.icon = i.icon
                             set Button(button[id][j]).available = shop.has(i.id)
@@ -906,7 +906,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
                         if GetLocalPlayer() == p then
                             set Button(button[id][count[id]]).texture = i.icon
-                            set Button(button[id][count[id]]).tooltip.text = i.tooltip
+                            set Button(button[id][count[id]]).tooltip.text = i.tooltip + "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                             set Button(button[id][count[id]]).tooltip.name = i.name
                             set Button(button[id][count[id]]).tooltip.icon = i.icon
                             set Button(button[id][count[id]]).visible = true
@@ -943,7 +943,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                 set wood = i.wood
                 set Slot(main[id]).item = i
                 set Slot(main[id]).texture = i.icon
-                set Slot(main[id]).tooltip.text = i.tooltip
+                set Slot(main[id]).tooltip.text = i.tooltip + "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                 set Slot(main[id]).tooltip.name = i.name
                 set Slot(main[id]).tooltip.icon = i.icon
                 set Slot(main[id]).available = shop.has(i.id)
@@ -999,7 +999,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
                                 set slot.item = component
                                 set slot.texture = component.icon
-                                set slot.tooltip.text = component.tooltip
+                                set slot.tooltip.text = component.tooltip + "\n\n|cffFFCC00Double/Right click to Buy|r\n|cffFFCC00Middle click to Tag or Untag|r"
                                 set slot.tooltip.name = component.name
                                 set slot.tooltip.icon = component.icon
                                 set slot.available = shop.has(component.id)
@@ -1682,7 +1682,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
                 
                                     if GetLocalPlayer() == p then
                                         set Button(button[id][k]).texture = Item(item[id][k]).icon
-                                        set Button(button[id][k]).tooltip.text = Item(item[id][k]).tooltip
+                                        set Button(button[id][k]).tooltip.text = Item(item[id][k]).tooltip + "\n\n|cffFFCC00Right click to Buy|r\n|cffFFCC00Middle click to Untag|r"
                                         set Button(button[id][k]).tooltip.name = Item(item[id][k]).name
                                         set Button(button[id][k]).tooltip.icon = Item(item[id][k]).icon
                                     endif
@@ -1711,7 +1711,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
                     if GetLocalPlayer() == p then
                         set Button(button[id][count[id]]).texture = i.icon
-                        set Button(button[id][count[id]]).tooltip.text = i.tooltip
+                        set Button(button[id][count[id]]).tooltip.text = i.tooltip + "\n\n|cffFFCC00Right click to Buy|r\n|cffFFCC00Middle click to Untag|r"
                         set Button(button[id][count[id]]).tooltip.name = i.name
                         set Button(button[id][count[id]]).tooltip.icon = i.icon
                         set Button(button[id][count[id]]).visible = true
