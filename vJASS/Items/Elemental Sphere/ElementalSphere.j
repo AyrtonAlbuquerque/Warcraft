@@ -5,22 +5,22 @@ scope ElementalSphere
 		method onFinish takes nothing returns boolean
 			if type == 0 then
 				set ElementalSphere.fire[index] = ElementalSphere.fire[index] + 1
-				call AddUnitBonus(source, BONUS_HEALTH, 20)
-				call AddUnitBonus(source, BONUS_HEALTH_REGEN, 0.2)
+				call AddUnitBonus(source, BONUS_HEALTH, 10)
+				call AddUnitBonus(source, BONUS_HEALTH_REGEN, 0.1)
 			elseif type == 1 then
 				set ElementalSphere.water[index] = ElementalSphere.water[index] + 1
-				call AddUnitBonus(source, BONUS_MANA, 20)
-				call AddUnitBonus(source, BONUS_MANA_REGEN, 0.2)
+				call AddUnitBonus(source, BONUS_MANA, 10)
+				call AddUnitBonus(source, BONUS_MANA_REGEN, 0.1)
 			elseif type == 2 then
 				set ElementalSphere.life[index] = ElementalSphere.life[index] + 1
-				call AddUnitBonus(source, BONUS_SPELL_POWER, 5)
+				call AddUnitBonus(source, BONUS_SPELL_POWER, 2)
 			elseif type == 3 then
 				set ElementalSphere.air[index] = ElementalSphere.air[index] + 1
-				call AddUnitBonus(source, BONUS_EVASION_CHANCE, 0.1)
+				call AddUnitBonus(source, BONUS_EVASION_CHANCE, 0.001)
 				call AddUnitBonus(source, BONUS_MOVEMENT_SPEED, 1)
 			elseif type == 4 then
 				set ElementalSphere.dark[index] = ElementalSphere.dark[index] + 1
-				call AddUnitBonus(source, BONUS_DAMAGE, 5)
+				call AddUnitBonus(source, BONUS_DAMAGE, 2)
 			endif
 	
 			return true
@@ -50,6 +50,7 @@ scope ElementalSphere
 		private real duration
 		private real x
 		private real y
+		private unit unit
 
 		// Attributes
 		real spellPower = 300
@@ -58,6 +59,7 @@ scope ElementalSphere
             call DestroyEffect(effect)
 			call deallocate()
 
+			set unit = null
             set effect = null
         endmethod
 
@@ -67,7 +69,7 @@ scope ElementalSphere
 			set missile.source = target
             set missile.target = target
             set missile.type = essenceType
-            set missile.model = "Abilities\\Weapons\\SorceressMissile\\SorceressMissile.mdl"
+            set missile.model = essence[essenceType]
             set missile.speed = 800
             set missile.owner = GetOwningPlayer(target)
             set missile.index = GetUnitUserData(target)
@@ -77,53 +79,53 @@ scope ElementalSphere
 			return true
 		endmethod
 
-		static method create takes integer i, real x, real y returns thistype
+		static method create takes integer i, unit u, real x, real y returns thistype
 			local thistype this = thistype.allocate(0)
+			local string model = ""
+
+			if IsUnitEnemy(u, GetLocalPlayer()) then
+				set model = essence[i]
+			endif
 
 			set type = i
 			set .x = x
 			set .y = y
-			set effect = AddSpecialEffect(essence[i], x, y)
+			set unit = u
+			set effect = AddSpecialEffect(model, x, y)
 			set duration = 20
 			set launched = false
 
-			call StartTimer(0.5, true, this, -1)
+			call StartTimer(0.5, true, this, 0)
 
 			return this
 		endmethod
 
 		private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc00300|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Elemental Essence|r: When a enemy unit dies, it will spawn in its location one |cffffcc00Elemental Essence|r. Any Hero carrying |cffffcc00Elemental Sphere|r will collect all essences within |cffffcc00800 AoE|r, gaining its effects permanently depending on the essence collected. Dying Heroes spawns all 5 essences. Essences lasts for |cffffcc0020|r seconds.\n\n|cffff0000Fire Essence|r: |cffff0000Health|r is increased by |cffffcc0020|r and |cff00ff00Health Regeneration|r is increased by |cffffcc000.2|r.\n\n|cff00ffffWater Essence|r: |cff00ffffMana|r is increased by |cffffcc0020|r and |cff00ffffMana Regeneration|r is increased by |cffffcc000.2|r.\n\n|cff808080Air Essence|r: |cffff00ffEvasion|r is increased by |cffffcc000.1%%|r and |cffffcc00Movement Speed|r is increased by |cffffcc001|r.\n\n|cff00ff00Life Essence|r: |cff00ffffSpell Power|r is increased by |cffffcc005|r.\n\ncff6f2583Dark Essence|r: |cffff0000Damage|r is increased by |cffffcc005|r.\n\n|cffff0000Fire|r: " + I2S(fire[id]) + "\n|cff00ffffWater|r: " + I2S(water[id]) + "\n|cff808080Air|r: " + I2S(air[id]) + "\n|cff00ff00Life|r: " + I2S(life[id]) + "\n|cff6f2583Dark|r: " + I2S(dark[id])
+            return "|cffffcc00Gives:|r\n+ |cffffcc00300|r Spell Power\n\n|cff00ff00Passive|r: |cffffcc00Elemental Essence|r: When a enemy unit dies, it will spawn in its location one |cffffcc00Elemental Essence|r. Any Hero carrying |cffffcc00Elemental Sphere|r will collect all essences within |cffffcc00800 AoE|r, gaining its effects permanently depending on the essence collected. Dying |cffffcc00Heroes|r spawns all |cffffcc005|r essences. Essences lasts for |cffffcc0020|r seconds.\n\n|cffff0000Fire Essence|r: |cffff0000Health|r is increased by |cffffcc0010|r and |cff00ff00Health Regeneration|r is increased by |cffffcc000.1|r.\n\n|cff00ffffWater Essence|r: |cff00ffffMana|r is increased by |cffffcc0010|r and |cff00ffffMana Regeneration|r is increased by |cffffcc000.1|r.\n\n|cff808080Air Essence|r: |cffff00ffEvasion|r is increased by |cffffcc000.1%%|r and |cffffcc00Movement Speed|r is increased by |cffffcc001|r.\n\n|cff00ff00Life Essence|r: |cff00ffffSpell Power|r is increased by |cffffcc002|r.\n\n|cff6f2583Dark Essence|r: |cffff0000Damage|r is increased by |cffffcc002|r.\n\n|cffff0000Fire|r: " + I2S(fire[id]) + "\n|cff00ffffWater|r: " + I2S(water[id]) + "\n|cff808080Air|r: " + I2S(air[id]) + "\n|cff00ff00Life|r: " + I2S(life[id]) + "\n|cff6f2583Dark|r: " + I2S(dark[id])
         endmethod
 
 		private method onPeriod takes nothing returns boolean
 			local unit u
 			local integer i = 0
 			local integer size = BlzGroupGetSize(group)
-			
-			if duration > 0 then
-				if size > 0 then
-					loop
-						exitwhen i == size or launched
-							set u = BlzGroupUnitAt(group, i)
 
-							if IsUnitInRangeXY(u, x, y, 800) then
-								set launched = launch(x, y, u, type)
-							endif
-						set i = i + 1
-					endloop
+			if size > 0 then
+				loop
+					exitwhen i == size or launched
+						set u = BlzGroupUnitAt(group, i)
 
-					set u = null
+						if IsUnitInRangeXY(u, x, y, 800) and IsUnitEnemy(unit, GetOwningPlayer(u)) then
+							set launched = launch(x, y, u, type)
+						endif
+					set i = i + 1
+				endloop
 
-					return not launched
-				endif
-
-				set duration = duration - 0.5
-
-				return true
+				set u = null
 			endif
 
-			return false
+			set duration = duration - 0.5
+
+			return duration > 0 and not launched
 		endmethod
 		
 		private method onPickup takes unit u, item i returns nothing
@@ -167,11 +169,11 @@ scope ElementalSphere
 					if IsUnitType(u, UNIT_TYPE_HERO) then
 						loop
 							exitwhen i == 5
-								call create(i, GetUnitX(u) + GetRandomReal(0, 75), GetUnitY(u) + GetRandomReal(0, 75))
+								call create(i, u, GetUnitX(u) + GetRandomReal(0, 75), GetUnitY(u) + GetRandomReal(0, 75))
 							set i = i + 1						
 						endloop
 					else
-						call create(GetRandomInt(0, 4), GetUnitX(u), GetUnitY(u))
+						call create(GetRandomInt(0, 4), u, GetUnitX(u), GetUnitY(u))
 					endif
 				endif
 			else
@@ -179,11 +181,11 @@ scope ElementalSphere
 					if IsUnitType(u, UNIT_TYPE_HERO) then
 						loop
 							exitwhen i == 5
-								call create(i, GetUnitX(u) + GetRandomReal(0, 75), GetUnitY(u) + GetRandomReal(0, 75))
+								call create(i, u, GetUnitX(u) + GetRandomReal(0, 75), GetUnitY(u) + GetRandomReal(0, 75))
 							set i = i + 1						
 						endloop
 					else
-						call create(GetRandomInt(0, 4), GetUnitX(u), GetUnitY(u))
+						call create(GetRandomInt(0, 4), u, GetUnitX(u), GetUnitY(u))
 					endif
 				endif
 			endif
