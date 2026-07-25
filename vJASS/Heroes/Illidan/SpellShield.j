@@ -23,6 +23,8 @@ library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdC
         private constant real    SPEED      = 1000
         // The missile scale
         private constant real    SCALE      = 0.5
+        // Spell Shield metamorphosis Z offset
+        private constant real    Z_OFFSET   = 100
     endglobals
 
     // The Spell Shield damage conversion
@@ -99,7 +101,7 @@ library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdC
 
                 static if LIBRARY_Metamorphosis then
                     if GetUnitAbilityLevel(target, Metamorphosis_BUFF) > 0 then
-                        set height = GetUnitZ(target) + 400
+                        set height = GetUnitZ(target) + Z_OFFSET
                     else
                         set height = GetUnitZ(target) + 100
                     endif

@@ -28,6 +28,11 @@ library Enraged requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Ind
         return 0.01 + 0.*level
     endfunction
 
+    // The magic damage reduction bonus (0.01 = 1%)
+    private function GetMagicDamageReduction takes integer level returns real
+        return 0.005 + 0.*level
+    endfunction
+
     // The health percentage that increases the bonusses (1 == 1%)
     private function GetHealthPercentage takes integer level returns real
         return 1. - 0.*level
@@ -37,20 +42,34 @@ library Enraged requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Ind
     /*                                   System                                   */
     /* -------------------------------------------------------------------------- */
     private struct Enraged extends Spell
+        private static real array magic
         private static real array speed
         private static real array damage
         private static real array movement
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Misha|r gains |cffffcc00" + N2S(GetBonusAttackSpeed(level) * 100, 0) + "%|r attack speed, |cffffcc00" + N2S(GetBonusMovementSpeed(level), 0) + "|r movement speed and deals |cffffcc00" + N2S(GetDamageBonus(level) * 100, 0) + "%|r more damage for every |cffffcc00" + N2S(GetHealthPercentage(level) * 100, 0) + "%|r of missing health."
+            return "|cffffcc00Misha|r gains |cffffcc00" + N2S(GetBonusAttackSpeed(level) * 100, 0) + "%|r attack speed, |cffffcc00" + N2S(GetBonusMovementSpeed(level), 0) + "|r movement speed, |cffffcc00" + N2S(GetMagicDamageReduction(level) * 100, 1) + "%|r |cff00ffffMagic|r damage reduction and deals |cffffcc00" + N2S(GetDamageBonus(level) * 100, 0) + "%|r more damage for every |cffffcc00" + N2S(GetHealthPercentage(level) * 100, 0) + "%|r of missing health."
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            local integer level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
+            local integer level
 
-            if level > 0 and Damage.amount > 0 then
-                set damage[Damage.source.id] = ((100 - GetUnitLifePercent(Damage.source.unit)) * GetDamageBonus(level)) / GetHealthPercentage(level)
-                set Damage.amount = Damage.amount * (1 + damage[Damage.source.id])
+            if Damage.amount > 0 then
+                if Damage.isSpell then
+                    set level = GetUnitAbilityLevel(Damage.target.unit, ABILITY)
+
+                    if level > 0 then
+                        set magic[Damage.target.id] = ((100 - GetUnitLifePercent(Damage.target.unit)) * GetMagicDamageReduction(level)) / GetHealthPercentage(level)
+                        set Damage.amount = Damage.amount * (1 - magic[Damage.target.id])
+                    endif
+                else
+                    set level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
+
+                    if level > 0 then
+                        set damage[Damage.source.id] = ((100 - GetUnitLifePercent(Damage.source.unit)) * GetDamageBonus(level)) / GetHealthPercentage(level)
+                        set Damage.amount = Damage.amount * (1 + damage[Damage.source.id])
+                    endif
+                endif
             endif
         endmethod
 
@@ -74,6 +93,7 @@ library Enraged requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Ind
         private static method onIndex takes nothing returns nothing
             local integer i = GetUnitUserData(GetIndexUnit())
 
+            set magic[i] = 0
             set speed[i] = 0
             set damage[i] = 0
             set movement[i] = 0
@@ -82,7 +102,7 @@ library Enraged requires RegisterPlayerUnitEvent, DamageInterface, NewBonus, Ind
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterUnitIndexEvent(function thistype.onIndex)
-            call RegisterAttackDamageEvent(function thistype.onDamage)
+            call RegisterAnyDamageEvent(function thistype.onDamage)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function thistype.onAttack)
         endmethod
     endstruct

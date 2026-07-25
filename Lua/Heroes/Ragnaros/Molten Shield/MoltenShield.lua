@@ -11,7 +11,7 @@ OnInit("MoltenShield", function (requires)
     --                                       Configuration                                       --
     -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Molten Shield Ability
-    local ABILITY           = S2A('Rgn7')
+    local ABILITY           = S2A('Rgn6')
     -- The raw code of the Ragnaros unit in the editor
     local RAGNAROS_ID       = S2A('Rgns')
     -- The raw code of the buff used to link bonus

@@ -35,7 +35,7 @@ scope LightningSword
 						set u = GroupPickRandomUnit(g)
 
 						if not IsUnitInvisible(unit, GetOwningPlayer(u)) then
-							call DestroyLightningTimed(AddLightningEx("BLNL", true, GetUnitX(unit), GetUnitY(unit), (GetUnitZ(unit) + 60.0), GetUnitX(u), GetUnitY(u), (GetUnitZ(u) + 60.0)), 0.2)
+							call CreateLightningUnit2Unit(unit, u, 0.2, "BLNL")
 						endif
 
 						call UnitDamageTarget(unit, u, amount, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)

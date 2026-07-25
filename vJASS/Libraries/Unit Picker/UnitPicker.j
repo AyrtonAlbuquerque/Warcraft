@@ -460,7 +460,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
         endmethod
 
         static method cost takes integer id, boolean lumber returns integer
-            local unit u = CreateUnit(player, id, 0, 0, 0)
+            local unit u = CreateUnit(player, id, WorldBounds.playMaxX, WorldBounds.playMaxY, 0)
             local integer value
             local playerstate resource
 
@@ -502,7 +502,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             local unit u
             
             if id > 0 and not unitpool[id].has(0) then
-                set u = CreateUnit(player, id, 0, 0, 0)
+                set u = CreateUnit(player, id, WorldBounds.playMaxX, WorldBounds.playMaxY, 0)
 
                 if u != null then
                     set this.id = id
@@ -563,7 +563,7 @@ library UnitPicker requires Table, RegisterPlayerUnitEvent, Components, Utilitie
             set region = CreateRegion()
             set unitpool = HashTable.create()
             set abilities = HashTable.create()
-            set shop = CreateUnit(player, 'hpea', 0, 0, 0)
+            set shop = CreateUnit(player, 'hpea', WorldBounds.playMaxX, WorldBounds.playMaxY, 0)
 
             call SetUnitUseFood(shop, false)
             call UnitAddAbility(shop,'Asid')

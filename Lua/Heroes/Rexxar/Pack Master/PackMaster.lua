@@ -22,17 +22,27 @@ OnInit("PackMaster", function (requires)
 
     -- The wolf damage
     local function GetWolfDamage(unit, level)
-        return R2I((BlzGetUnitBaseDamage(unit, 0) + GetUnitBonus(unit, BONUS_DAMAGE)) * (0.25 + 0. * level))
+        return R2I((BlzGetUnitBaseDamage(unit, 0) + GetUnitBonus(unit, BONUS_DAMAGE)) * (0.15 + 0.05 * level))
     end
 
     -- The wolf critical chance
     local function GetWolfCriticalChance(level)
-        return 0.3 + 0.*level
+        return 0.2 + 0.05*level
     end
 
     -- The wolf critical damage bonus (1 base)
     local function GetWolfCriticalDamage(level)
         return 1. + 0. * level
+    end
+
+    -- The wolf cricital armor reduction
+    local function GetWolfArmorReduction(level)
+        return 1. + 1.*level
+    end
+
+    -- The armor reduction duration
+    local function GetArmorReductionDuration(level)
+        return 5. + 0.*level
     end
 
     -- The wolf duration
@@ -164,6 +174,16 @@ OnInit("PackMaster", function (requires)
             end
         end
 
+        function Wolf.onCritical()
+            local self = array[GetCriticalSource()]
+
+            if self then
+                local level = GetUnitAbilityLevel(self.unit, ABILITY)
+
+                AddUnitBonusTimed(GetCriticalTarget(), BONUS_ARMOR, -GetWolfArmorReduction(level), GetArmorReductionDuration(level))
+            end
+        end
+
         function Wolf.onDeath()
             local target = GetTriggerUnit()
             
@@ -197,6 +217,7 @@ OnInit("PackMaster", function (requires)
         end
 
         function Wolf.onInit()
+            RegisterCriticalStrikeEvent(Wolf.onCritical)
             RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, Wolf.onDeath)
         end
     end
@@ -243,7 +264,7 @@ OnInit("PackMaster", function (requires)
         end
 
         function PackMaster:onTooltip(source, level, ability)
-            return "When |cffffcc00Rexxar|r kills an enemy unit a wolf is created at the target location. |cffffcc00Rexxar's|r wolfs cannot be selected, are invulnerable and can only be controlled through this ability. Initially the wolfs shadow |cffffcc00Rexxar's|r movements and commands. Casting this ability gives commands to the wolfs and make them stop shadowing |cffffcc00Rexxar|r. Max |cffffcc00" .. N2S(GetMaxWolfCount(level), 0) .. "|r wolf, deals |cffffcc00" .. N2S(25, 0) .. "%%|r of |cffffcc00Rexxar|r Max Damage and has |cffffcc00" .. N2S(GetWolfCriticalChance(level)*100, 0) .. "%%|r chance to hit a |cffffcc00Critical Strike|r from |cffffcc00" .. N2S(1 + GetWolfCriticalDamage(level), 0) .. "x|r normal damage.\n\n- When targeting an enemy unit the wolfs are commanded to attack the targeted unit.\n\n- When targeting the ground, the wolfs are commanded to move to the postion. Holding the |cffffcc00TAB|r key and targeting the ground commands the wolfs to attack any enemy unit in the way.\n\n- Casting this ability on |cffffcc00Rexxar|r makes the wolfs shadow his movements again.\n\nFinnaly, |cffffcc00Rexxar's|r wolfs can only be at a maximum |cffffcc00" .. N2S(GetMaxDistance(source, level), 0) .. "|r distance from him and when exceeding this distance the wolfs runs back to |cffffcc00Rexxar|r.\n\nLasts for |cffffcc00" .. N2S(GetDuration(source, level), 0) .. "|r seconds."
+            return "When |cffffcc00Rexxar|r kills an enemy unit a wolf is created at the target location. |cffffcc00Rexxar's|r wolfs cannot be selected, are invulnerable and can only be controlled through this ability. Initially the wolfs shadow |cffffcc00Rexxar's|r movements and commands. Casting this ability gives commands to the wolfs and make them stop shadowing |cffffcc00Rexxar|r. Max |cffffcc00" .. N2S(GetMaxWolfCount(level), 0) .. "|r wolf, deals |cffffcc00" .. N2S((0.15 + 0.05*level) * 100, 0) .. "%%|r of |cffffcc00Rexxar|r Max Damage and has |cffffcc00" .. N2S(GetWolfCriticalChance(level)*100, 0) .. "%%|r chance to hit a |cffffcc00Critical Strike|r from |cffffcc00" .. N2S(1 + GetWolfCriticalDamage(level), 0) .. "x|r normal damage. When a wolf hits a |cffffcc00Critical Strike|r it will reduce the target |cff808080Armor|r by |cffffcc00" .. N2S(GetWolfArmorReduction(level), 0) .. "|r for |cffffcc00" .. N2S(GetArmorReductionDuration(level), 0) .. "|r seconds.\n\n- When targeting an enemy unit the wolfs are commanded to attack the targeted unit.\n\n- When targeting the ground, the wolfs are commanded to move to the postion. Holding the |cffffcc00TAB|r key and targeting the ground commands the wolfs to attack any enemy unit in the way.\n\n- Casting this ability on |cffffcc00Rexxar|r makes the wolfs shadow his movements again.\n\nFinnaly, |cffffcc00Rexxar's|r wolfs can only be at a maximum |cffffcc00" .. N2S(GetMaxDistance(source, level), 0) .. "|r distance from him and when exceeding this distance the wolfs runs back to |cffffcc00Rexxar|r.\n\nLasts for |cffffcc00" .. N2S(GetDuration(source, level), 0) .. "|r seconds."
         end
 
         function PackMaster:onLearn(source, skill, level)
@@ -285,7 +306,7 @@ OnInit("PackMaster", function (requires)
                 PackMaster.add(owner)
                 
                 if self.pack.size > 0 then
-                    if order == "attackground" then
+                    if order == "attackonce" then
                         if not (source == target) then
                             self.pack.shadow = false
                             
@@ -299,9 +320,9 @@ OnInit("PackMaster", function (requires)
                             self.pack:command(target, GetUnitX(source), GetUnitY(source), "smart")
                         end
                     elseif self.pack.shadow then
-                        if order == "smart" or order == "move" or order == "attack" then
+                        if order == "smart" or order == "move" or order == "attack" or order == "attackground" then
                             if not target then
-                                self.pack:command(target, GetOrderPointX(), GetOrderPointY(), "smart")
+                                self.pack:command(target, GetOrderPointX(), GetOrderPointY(), order)
                             else
                                 GroupTargetOrder(self.pack.group, order, target)
                             end

@@ -21,17 +21,27 @@ library PackMaster requires RegisterPlayerUnitEvent, Spell, TimerUtils, NewBonus
 
     // The wolf damage
     private function GetWolfDamage takes unit source, integer level returns integer
-        return R2I((BlzGetUnitBaseDamage(source, 0) + GetUnitBonus(source, BONUS_DAMAGE)) * (0.25 + 0.*level))
+        return R2I((BlzGetUnitBaseDamage(source, 0) + GetUnitBonus(source, BONUS_DAMAGE)) * (0.15 + 0.05*level))
     endfunction
     
     // The wolf cricital chance
     private function GetWolfCriticalChance takes integer level returns real
-        return 0.3 + 0.*level
+        return 0.2 + 0.05*level
     endfunction
     
     // The wolf critical damage bonus (1 base)
     private function GetWolfCriticalDamage takes integer level returns real
         return 1. + 0.*level
+    endfunction
+
+    // The wolf cricital armor reduction
+    private function GetWolfArmorReduction takes integer level returns real
+        return 1. + 1.*level
+    endfunction
+
+    // The armor reduction duration
+    private function GetArmorReductionDuration takes integer level returns real
+        return 5. + 0.*level
     endfunction
     
     // The wolf duration
@@ -179,6 +189,17 @@ library PackMaster requires RegisterPlayerUnitEvent, Spell, TimerUtils, NewBonus
             endif
         endmethod
         
+        private static method onCritical takes nothing returns nothing
+            local thistype this = struct[GetUnitUserData(GetCriticalSource())]
+            local integer level
+
+            if this != 0 then
+                set level = GetUnitAbilityLevel(unit, ABILITY)
+
+                call AddUnitBonusTimed(GetCriticalTarget(), BONUS_ARMOR, -GetWolfArmorReduction(level), GetArmorReductionDuration(level))
+            endif
+        endmethod
+
         private static method onDeath takes nothing returns nothing
             local unit target = GetTriggerUnit()
             local integer id
@@ -214,6 +235,7 @@ library PackMaster requires RegisterPlayerUnitEvent, Spell, TimerUtils, NewBonus
         endmethod
         
         private static method onInit takes nothing returns nothing
+            call RegisterCriticalStrikeEvent(function thistype.onCritical)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
         endmethod
     endstruct
@@ -262,7 +284,7 @@ library PackMaster requires RegisterPlayerUnitEvent, Spell, TimerUtils, NewBonus
         endmethod
         
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "When |cffffcc00Rexxar|r kills an enemy unit a wolf is created at the target location. |cffffcc00Rexxar's|r wolfs cannot be selected, are invulnerable and can only be controlled through this ability. Initially the wolfs shadow |cffffcc00Rexxar's|r movements and commands. Casting this ability gives commands to the wolfs and make them stop shadowing |cffffcc00Rexxar|r. Max |cffffcc00" + N2S(GetMaxWolfCount(level), 0) + "|r wolf, deals |cffffcc00" + N2S(25, 0) + "%|r of |cffffcc00Rexxar|r Max Damage and has |cffffcc00" + N2S(GetWolfCriticalChance(level)*100, 0) + "%|r chance to hit a |cffffcc00Critical Strike|r from |cffffcc00" + N2S(1 + GetWolfCriticalDamage(level), 0) + "x|r normal damage.\n\n- When targeting an enemy unit the wolfs are commanded to attack the targeted unit.\n\n- When targeting the ground, the wolfs are commanded to move to the postion. Holding the |cffffcc00TAB|r key and targeting the ground commands the wolfs to attack any enemy unit in the way.\n\n- Casting this ability on |cffffcc00Rexxar|r makes the wolfs shadow his movements again.\n\nFinnaly, |cffffcc00Rexxar's|r wolfs can only be at a maximum |cffffcc00" + N2S(GetMaxDistance(source, level), 0) + "|r distance from him and when exceeding this distance the wolfs runs back to |cffffcc00Rexxar|r.\n\nLasts for |cffffcc00" + N2S(GetDuration(source, level), 0) + "|r seconds."
+            return "When |cffffcc00Rexxar|r kills an enemy unit a wolf is created at the target location. |cffffcc00Rexxar's|r wolfs cannot be selected, are invulnerable and can only be controlled through this ability. Initially the wolfs shadow |cffffcc00Rexxar's|r movements and commands. Casting this ability gives commands to the wolfs and make them stop shadowing |cffffcc00Rexxar|r. Max |cffffcc00" + N2S(GetMaxWolfCount(level), 0) + "|r wolf, deals |cffffcc00" + N2S((0.15 + 0.05*level) * 100, 0) + "%|r of |cffffcc00Rexxar|r Max Damage and has |cffffcc00" + N2S(GetWolfCriticalChance(level)*100, 0) + "%|r chance to hit a |cffffcc00Critical Strike|r from |cffffcc00" + N2S(1 + GetWolfCriticalDamage(level), 0) + "x|r normal damage. When a wolf hits a |cffffcc00Critical Strike|r it will reduce the target |cff808080Armor|r by |cffffcc00" + N2S(GetWolfArmorReduction(level), 0) + "|r for |cffffcc00" + N2S(GetArmorReductionDuration(level), 0) + "|r seconds.\n\n- When targeting an enemy unit the wolfs are commanded to attack the targeted unit.\n\n- When targeting the ground, the wolfs are commanded to move to the postion. Holding the |cffffcc00TAB|r key and targeting the ground commands the wolfs to attack any enemy unit in the way.\n\n- Casting this ability on |cffffcc00Rexxar|r makes the wolfs shadow his movements again.\n\nFinnaly, |cffffcc00Rexxar's|r wolfs can only be at a maximum |cffffcc00" + N2S(GetMaxDistance(source, level), 0) + "|r distance from him and when exceeding this distance the wolfs runs back to |cffffcc00Rexxar|r.\n\nLasts for |cffffcc00" + N2S(GetDuration(source, level), 0) + "|r seconds."
         endmethod
 
         private method onLearn takes unit source, integer skill, integer level returns nothing
@@ -307,10 +329,10 @@ library PackMaster requires RegisterPlayerUnitEvent, Spell, TimerUtils, NewBonus
                 call add(owner)
                 
                 if pack.size > 0 then
-                    if order == "attackground" then
+                    if order == "attackonce" then
                         if not (source == target) then
                             set pack.shadow = false
-                            
+
                             if holding[GetPlayerId(owner)] then
                                 call pack.command(target, GetOrderPointX(), GetOrderPointY(), "attack")
                             else
@@ -321,9 +343,9 @@ library PackMaster requires RegisterPlayerUnitEvent, Spell, TimerUtils, NewBonus
                             call pack.command(target, GetUnitX(source), GetUnitY(source), "smart")
                         endif
                     elseif pack.shadow then
-                        if order == "smart" or order == "move" or order == "attack" then
+                        if order == "smart" or order == "move" or order == "attack" or order == "attackground" then
                             if target == null then
-                                call pack.command(target, GetOrderPointX(), GetOrderPointY(), "smart")
+                                call pack.command(target, GetOrderPointX(), GetOrderPointY(), order)
                             else
                                 call GroupTargetOrder(pack.group, order, target)
                             endif

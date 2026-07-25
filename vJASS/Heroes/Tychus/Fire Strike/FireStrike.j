@@ -10,8 +10,8 @@ library FireStrike requires Missiles, Spell, Utilities, Modules optional NewBonu
     globals
         // The raw code of the Fire Strike ability
         public  constant integer ABILITY        = 'Tyc5'
-        // The raw code of the Incinerate ability
-        private constant integer FLAMES         = 'TycA'
+        // The raw code of the Flames ability
+        private constant integer FLAMES         = 'Flam'
         // The starting height of the missile
         private constant integer START_HEIGHT   = 1500
         // The starting offset of the missile
@@ -116,6 +116,7 @@ library FireStrike requires Missiles, Spell, Utilities, Modules optional NewBonu
             call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_HALF_DAMAGE_INTERVAL, 0, interval)
             call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, 0, aoe)
             call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, dmg)
+            call BlzSetAbilityStringLevelField(spell, ABILITY_SLF_SPECIAL, 0, "")
             call IncUnitAbilityLevel(dummy, FLAMES)
             call DecUnitAbilityLevel(dummy, FLAMES)
             call IssuePointOrder(dummy, "flamestrike", x, y)

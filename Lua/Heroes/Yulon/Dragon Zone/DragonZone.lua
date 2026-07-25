@@ -12,8 +12,6 @@ OnInit("DragonZone", function (requires)
     -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Ability
     local ABILITY          = S2A('Yul5')
-    -- The raw code of the regen ability
-    local REGEN_ABILITY    = S2A('Yul6')
     -- The Model
     local MODEL            = "DragonZone.mdl"
     -- The model scale
@@ -86,7 +84,6 @@ OnInit("DragonZone", function (requires)
         end
 
         function DragonZone:onCast()
-            local dummy = DummyRetrieve(Spell.source.player, Spell.source.x, Spell.source.y, 0, 0) 
             local this = { destroy = DragonZone.destroy }
 
             this.x = Spell.source.x
@@ -95,17 +92,12 @@ OnInit("DragonZone", function (requires)
             this.player = Spell.source.player
             this.timer = CreateTimer()
             this.group = CreateGroup()
+            this.heal = GetBonusRegen(this.unit, Spell.level)
             this.aoe = GetAoE(this.unit, Spell.level)
             this.duration = GetDuration(this.unit, Spell.level)
             this.knock = GetMaxKnockBackDuration(this.unit, Spell.level)
             
             DestroyEffectTimed(AddSpecialEffectEx(MODEL, this.x, this.y, 0, SCALE), this.duration)
-            UnitAddAbilityTimed(dummy, REGEN_ABILITY, this.duration, 1, true)
-            local spell = BlzGetUnitAbility(dummy, REGEN_ABILITY)
-            BlzSetAbilityRealLevelField(spell, ABILITY_RLF_AMOUNT_OF_HIT_POINTS_REGENERATED, 0, GetBonusRegen(this.unit, Spell.level))
-            IncUnitAbilityLevel(dummy, REGEN_ABILITY)
-            DecUnitAbilityLevel(dummy, REGEN_ABILITY)
-            DummyRecycleTimed(dummy, this.duration)
             SetUnitTimeScale(this.unit, GetTimeScale(this.unit, Spell.level))
             TimerStart(CreateTimer(), GetTimeScaleTime(this.unit, Spell.level), false, function ()
                 SetUnitTimeScale(this.unit, 1)
@@ -127,6 +119,8 @@ OnInit("DragonZone", function (requires)
                                 
                                 KnockbackUnit(u, angle, this.aoe + 25 - distance, this.knock*(distance/this.aoe), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
                             end
+                        elseif UnitAlive(u) and IsUnitAlly(u, this.player) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
+                            SetWidgetLife(u, GetWidgetLife(u) + this.heal * PERIOD)
                         end
 
                         GroupRemoveUnit(this.group, u)

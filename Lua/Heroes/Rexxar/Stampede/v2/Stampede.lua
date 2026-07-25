@@ -12,7 +12,7 @@ OnInit("Stampede", function (requires)
     --                                       Configuration                                       --
     -- ----------------------------------------------------------------------------------------- --
     -- The ability raw code
-    local ABILITY     = S2A('Rex5')
+    local ABILITY     = S2A('RexA')
     -- The missile model
     local MODEL       = "Abilities\\Spells\\Other\\Stampede\\StampedeMissile.mdl"
     -- The missile scale

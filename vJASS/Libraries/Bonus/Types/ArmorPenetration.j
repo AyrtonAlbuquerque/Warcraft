@@ -38,15 +38,25 @@ library ArmorPenetration requires NewBonus, DamageInterface
             return ArmorPenetration[u]
         endif
     endfunction
-    
+
     function GetArmorReduction takes unit source, unit target returns real
-        local real armor = BlzGetUnitArmor(target) - GetUnitArmorPenetration(source, true)
+        local real armor = BlzGetUnitArmor(target)
+        local real reduction
 
         if armor > 0 then
             set armor = armor * (1 - GetUnitArmorPenetration(source, false))
         endif
 
-        return (armor * ARMOR_MULTIPLIER) / (1 + (armor * ARMOR_MULTIPLIER))
+        set armor = armor - GetUnitArmorPenetration(source, true)
+        set reduction = armor * ARMOR_MULTIPLIER
+
+        if reduction >= 0 then
+            set reduction = reduction / (1 + reduction)
+        else
+            set reduction = reduction / (1 - reduction)
+        endif
+
+        return reduction
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */

@@ -17,6 +17,8 @@ OnInit("ThunderClap", function (requires)
     ThunderClap_ABILITY             = S2A('Mrd2')
     -- The raw code of the Thunder Clap Recast ability
     ThunderClap_THUNDER_CLAP_RECAST = S2A('Mrd6')
+    -- The stomp model
+    local MODEL                     = "ThunderClapHD.mdl"
     -- The model used when storm bolt refunds mana on kill
     local HEAL_EFFECT               = "Abilities\\Spells\\Items\\AIhe\\AIheTarget.mdl"
     -- The attachment point of the bonus damage model
@@ -82,6 +84,19 @@ OnInit("ThunderClap", function (requires)
         end
     end
 
+    -- The thunderclap model scale
+    local function GetScale(source, level)
+        if Avatar then
+            if GetUnitAbilityLevel(source, Avatar_BUFF) > 0 then
+                return 2.
+            else
+                return 1.
+            end
+        else
+            return 1.
+        end
+    end
+
     -- Filter for units
     local function UnitFilter(player, unit)
         return IsUnitEnemy(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) and not IsUnitType(unit, UNIT_TYPE_MAGIC_IMMUNE)
@@ -94,7 +109,7 @@ OnInit("ThunderClap", function (requires)
         ThunderClap = Class(Spell)
 
         function ThunderClap:onTooltip(source, level, ability)
-            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r by |cffffcc00" .. N2S(GetAttackSlowAmount(source, level) * 100, 0) .. "%%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc002.5%|r (|cffffcc0010%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and the second |cffffcc00Thunder Clap|r stuns enemy units instead."
+            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r by |cffffcc00" .. N2S(GetAttackSlowAmount(source, level) * 100, 0) .. "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc000.5%|r (|cffffcc005%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and the second |cffffcc00Thunder Clap|r stuns enemy units instead."
         end
 
         function ThunderClap:onCast()
@@ -109,6 +124,7 @@ OnInit("ThunderClap", function (requires)
             local group = CreateGroup()
             local heal = 0
     
+            DestroyEffect(AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, 0, GetScale(Spell.source.unit, level)))
             GroupEnumUnitsInRange(group, Spell.source.x, Spell.source.y, aoe, nil)
 
             local u = FirstOfGroup(group)

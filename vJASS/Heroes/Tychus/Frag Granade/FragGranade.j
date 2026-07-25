@@ -62,6 +62,16 @@ library FragGranade requires Spell, Missiles, NewBonus, Modules, Utilities, Crow
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DURATION_HERO, level - 1)
     endfunction
 
+    // The charges cooldown
+    private function GetCooldown takes unit source, integer level returns real
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_COOLDOWN, level - 1)
+    endfunction
+
+    // The max charges
+    private function GetMaxCharges takes unit source, integer level returns integer
+        return 5 + 0*level
+    endfunction
+
     // The Frag Granade stun duration
     private function GetStunDuration takes integer level returns real
         return 1.5 + 0.*level
@@ -219,8 +229,32 @@ library FragGranade requires Spell, Missiles, NewBonus, Modules, Utilities, Crow
     endstruct
 
     private struct FragGranade extends Spell
+        private static integer array charges
+
+        private unit unit
+        private integer id
+
+        method destroy takes nothing returns nothing
+            call deallocate()
+
+            set unit = null
+            set charges[id] = 0
+        endmethod
+
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Tychus|r throws a |cffffcc00Frag Granade|r at the target location. Upon arrival, if there are enemy units nearby, the granade explodes dealing |cff00ffff" + N2S(GetDamage(source, level),0) + " Magic|r damage and shredding |cff808080" + I2S(GetArmor(level)) + " Armor|r for |cffffcc00" + N2S(GetArmorDuration(level), 1) + "|r seconds. If there are no enemies nearby, the granade will stay in the location and explode when an enemy unit comes nearby or its duration expires after |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds."
+            return "|cffffcc00Tychus|r throws a |cffffcc00Frag Granade|r at the target location. Upon arrival, if there are enemy units nearby, the granade explodes dealing |cff00ffff" + N2S(GetDamage(source, level),0) + " Magic|r damage and shredding |cff808080" + I2S(GetArmor(level)) + " Armor|r for |cffffcc00" + N2S(GetArmorDuration(level), 1) + "|r seconds. If there are no enemies nearby, the granade will stay in the location and explode when an enemy unit comes nearby or its duration expires after |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds. |cffffcc00Frag Granade|r can hold up to |cffffcc00" + N2S(GetMaxCharges(source, level), 0) + "|r charges.\n\nCharges: " + N2S(charges[GetUnitUserData(source)], 0)
+        endmethod
+
+        private method onPeriod takes nothing returns boolean
+            local integer level = GetUnitAbilityLevel(unit, ABILITY)
+
+            if charges[id] < GetMaxCharges(unit, level) and charges[id] >= 0 then
+                set charges[id] = charges[id] + 1
+
+                call BlzEndUnitAbilityCooldown(unit, ABILITY)
+            endif
+
+            return level > 0
         endmethod
 
         private method onCast takes nothing returns nothing
@@ -246,8 +280,48 @@ library FragGranade requires Spell, Missiles, NewBonus, Modules, Utilities, Crow
                 endif
             endif
 
+            if charges[Spell.source.id] > 0 then
+                set charges[Spell.source.id] = charges[Spell.source.id] - 1
+
+                if charges[Spell.source.id] >= 1 then
+                    call ResetUnitAbilityCooldown(Spell.source.unit, ABILITY)
+                else
+                    static if LIBRARY_CooldownReduction then
+                        call CalculateAbilityCooldown(Spell.source.unit, ABILITY, Spell.level, GetRemainingTime(GetTimerInstance(Spell.source.id)))
+                    else
+                        set Spell.cooldown = GetRemainingTime(GetTimerInstance(Spell.source.id))
+                    endif
+                endif
+            endif
+
             call granade.launch()
         endmethod
+
+        private method onLearn takes unit source, integer skill, integer level returns nothing
+            local integer id = GetUnitUserData(source)
+
+            if not HasStartedTimer(id) then
+                set this = thistype.allocate()
+                set this.id = id
+                set this.unit = source
+                set charges[id] = 1
+                
+                call StartTimer(GetCooldown(source, level), true, this, id)
+            else
+                set this = GetTimerInstance(id)
+                
+                if this != 0 then
+                    if charges[id] < GetMaxCharges(source, level) then
+                        set charges[id] = charges[id] + 1
+                    endif
+                    
+                    call SetTimerPeriod(this, GetCooldown(source, level))
+                    call BlzEndUnitAbilityCooldown(source, skill)
+                endif
+            endif
+        endmethod
+
+        implement Periodic
 
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)

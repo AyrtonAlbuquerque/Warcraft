@@ -11,17 +11,23 @@ OnInit(function(requires)
     end
 
     function HealthRegeneration:set(unit, value)
-        if GetUnitAbilityLevel(unit, ability) == 0 then
-            UnitAddAbility(unit, ability)
-            UnitMakeAbilityPermanent(unit, true, ability)
-        end
+        if value == 0 then
+            UnitRemoveAbility(unit, ability)
 
-        if BlzSetAbilityRealLevelField(BlzGetUnitAbility(unit, ability), field, 0, value) then
-            IncUnitAbilityLevel(unit, ability)
-            DecUnitAbilityLevel(unit, ability)
-        end
+            return 0.
+        else
+            if GetUnitAbilityLevel(unit, ability) == 0 then
+                UnitAddAbility(unit, ability)
+                UnitMakeAbilityPermanent(unit, true, ability)
+            end
 
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ability), field, 0)
+            if BlzSetAbilityRealLevelField(BlzGetUnitAbility(unit, ability), field, 0, value) then
+                IncUnitAbilityLevel(unit, ability)
+                DecUnitAbilityLevel(unit, ability)
+            end
+
+            return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ability), field, 0)
+        end
     end
 
     function HealthRegeneration:add(unit, value)

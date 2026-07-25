@@ -12,7 +12,7 @@ OnInit("Metamorphosis", function (requires)
     --                                       Configuration                                       --
     -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Metamorphosis ability
-    local ABILITY      = S2A('Idn8')
+    local ABILITY      = S2A('Idn5')
     -- The raw code of the Metamorphosis buff
     Metamorphosis_BUFF = S2A('BEme')
     -- The Metamorphosis lift off model
@@ -24,7 +24,7 @@ OnInit("Metamorphosis", function (requires)
 
     -- The Metamorphosis AoE for Fear effect
     local function GetAoE(level)
-        return 400. + 0.*level
+        return 500. + 0.*level
     end
 
     -- The Metamorphosis Fear Duration
@@ -36,19 +36,9 @@ OnInit("Metamorphosis", function (requires)
         end
     end
 
-    -- The Metamorphosis Armor debuff Duration
-    local function GetArmorReduction(level)
-        return 1. + 0.*level
-    end
-
-    -- The Metamorphosis Armor debuff Duration
-    local function GetArmorDuration(unit, level)
-        return 5. + 0.*level
-    end
-
     -- The Metamorphosis Health Bonus
-    local function GetBonusHealth(unit, level)
-        if IsUnitType(unit, UNIT_TYPE_HERO) then
+    local function GetBonusHealth(source, level)
+        if IsUnitType(source, UNIT_TYPE_HERO) then
             return 100*level
         else
             return 50*level
@@ -56,12 +46,22 @@ OnInit("Metamorphosis", function (requires)
     end
 
     -- The Metamorphosis Damage Bonus
-    local function GetBonusDamage(unit, level)
-        if IsUnitType(unit, UNIT_TYPE_HERO) then
+    local function GetBonusDamage(source, level)
+        if IsUnitType(source, UNIT_TYPE_HERO) then
             return 10*level
         else
             return 5*level
         end
+    end
+
+    -- The Metamorphosis Omnivamp Bonus
+    local function GetOmnivampBonus(source, level)
+        return 0.15 * level
+    end
+
+    -- The Movement Speed Bonus
+    local function GetMovementSpeedBonus(source, level)
+        return 50. * level
     end
 
     -- Fear Filter
@@ -84,7 +84,7 @@ OnInit("Metamorphosis", function (requires)
         end
 
         function Metamorphosis:onTooltip(source, level, abiltiy)
-            return "|cffffcc00Illidan|r transforms into a powerful |cffffcc00Demon|r with a ranged |cffffcc00AoE|r attack and gains |cffff0000" .. N2S(50 * level, 0) .. "|r bonus |cffff0000Health|r and |cffff0000" .. N2S(5 * level, 0) .. "|r bonus |cffff0000Damage|r for each enemy unit affected by his transformation (doubled fo |cffffcc00Heroes|r). |cffffcc00Illidan|r also gains |cffffcc00Fly|r movement type while in his dark form and his basic attacks reduce all damaged enemy units armor by |cffffcc00" .. N2S(GetArmorReduction(level), 0) .. "|r for |cffffcc00" .. N2S(GetArmorDuration(source, level), 0) .. "|r seconds. When lifting off and landing when transforming, all enemy units within |cffffcc00" .. N2S(GetAoE(level), 0) .. " AoE|r will be |cffffcc00Feared|r for |cffffcc005|r seconds (|cffffcc002|r for Heroes).\n\nLasts for |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(abiltiy, ABILITY_RLF_DURATION_HERO, level - 1), 0) .. "|r seconds."
+            return "|cffffcc00Illidan|r transforms into a powerful |cffffcc00Demon|r and gains |cffff0000" + N2S(50 * level, 0) + "|r bonus |cffff0000Health|r and |cffff0000" .. N2S(5 * level, 0) .. "|r bonus |cffff0000Damage|r for each enemy unit affected by his transformation (doubled for |cffffcc00Heroes|r). |cffffcc00Illidan|r also gains |cffffcc00" .. N2S(GetOmnivampBonus(source, level) * 100, 0) .. "%|r |cff8080ffOmnivamp|r, |cff00ff00" .. N2S(GetMovementSpeedBonus(source, level), 0) .. " Movement Speed|r and |cffffcc00Fly|r movement type while in his dark form. When lifting off and landing while transforming, all enemy units within |cffffcc00" .. N2S(GetAoE(level), 0) .. " AoE|r will be |cffffcc00Feared|r for |cffffcc005|r seconds (|cffffcc002|r for Heroes)."
         end
 
         function Metamorphosis:onCast()
@@ -119,22 +119,15 @@ OnInit("Metamorphosis", function (requires)
 
                 LinkBonusToBuff(this.unit, BONUS_HEALTH, health, Metamorphosis_BUFF)
                 LinkBonusToBuff(this.unit, BONUS_DAMAGE, damage, Metamorphosis_BUFF)
+                LinkBonusToBuff(this.unit, BONUS_OMNIVAMP, GetOmnivampBonus(this.unit, this.level), Metamorphosis_BUFF)
+                LinkBonusToBuff(this.unit, BONUS_MOVEMENT_SPEED, GetMovementSpeedBonus(this.unit, this.level), Metamorphosis_BUFF)
                 DestroyTimer(GetExpiredTimer())
                 this:destroy()
             end)
         end
 
-        function Metamorphosis.onDamage()
-            if GetUnitAbilityLevel(Damage.source.unit, Metamorphosis_BUFF) > 0 then
-                if Damage.isEnemy and not Damage.target.isMagicImmune then
-                    AddUnitBonusTimed(Damage.target.unit, BONUS_ARMOR, -GetArmorReduction(GetUnitAbilityLevel(Damage.source.unit, ABILITY)), GetArmorDuration(Damage.target.unit, GetUnitAbilityLevel(Damage.source.unit, ABILITY)))
-                end
-            end
-        end
-
         function Metamorphosis.onInit()
             RegisterSpell(Metamorphosis.allocate(), ABILITY)
-            RegisterAttackDamageEvent(Metamorphosis.onDamage)
         end
     end
 end)

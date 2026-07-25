@@ -11,7 +11,7 @@ library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, Crow
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Metamorphosis ability
-        private constant integer ABILITY     = 'Idn8'
+        private constant integer ABILITY     = 'Idn5'
         // The raw code of the Metamorphosis buff
         public  constant integer BUFF        = 'BEme'
         // The Metamorphosis lift off model
@@ -24,7 +24,7 @@ library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, Crow
 
     // The Metamorphosis AoE for Fear effect
     private function GetAoE takes integer level returns real
-        return 400. + 0.*level
+        return 500. + 0.*level
     endfunction
 
     // The Metamorphosis Fear Duration
@@ -34,16 +34,6 @@ library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, Crow
         else
             return 5. + 0.*level
         endif
-    endfunction
-
-    // The Metamorphosis Armor debuff Duration
-    private function GetArmorReduction takes integer level returns real
-        return 1. + 0.*level
-    endfunction
-
-    // The Metamorphosis Armor debuff Duration
-    private function GetArmorDuration takes unit source, integer level returns real
-        return 5. + 0.*level
     endfunction
 
     // The Metamorphosis Health Bonus
@@ -62,6 +52,16 @@ library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, Crow
         else
             return 5*level
         endif
+    endfunction
+
+    // The Metamorphosis Omnivamp Bonus
+    private function GetOmnivampBonus takes unit source, integer level returns real
+        return 0.15 * level
+    endfunction
+
+    // The Movement Speed Bonus
+    private function GetMovementSpeedBonus takes unit source, integer level returns real
+        return 50. * level
     endfunction
 
     // Fear Filter
@@ -88,7 +88,7 @@ library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, Crow
         endmethod
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Illidan|r transforms into a powerful |cffffcc00Demon|r with a ranged |cffffcc00AoE|r attack and gains |cffff0000" + N2S(50 * level, 0) + "|r bonus |cffff0000Health|r and |cffff0000" + N2S(5 * level, 0) + "|r bonus |cffff0000Damage|r for each enemy unit affected by his transformation (doubled fo |cffffcc00Heroes|r). |cffffcc00Illidan|r also gains |cffffcc00Fly|r movement type while in his dark form and his basic attacks reduce all damaged enemy units armor by |cffffcc00" + N2S(GetArmorReduction(level), 0) + "|r for |cffffcc00" + N2S(GetArmorDuration(source, level), 0) + "|r seconds. When lifting off and landing when transforming, all enemy units within |cffffcc00" + N2S(GetAoE(level), 0) + " AoE|r will be |cffffcc00Feared|r for |cffffcc005|r seconds (|cffffcc002|r for Heroes).\n\nLasts for |cffffcc00" + N2S(BlzGetAbilityRealLevelField(spell, ABILITY_RLF_DURATION_HERO, level - 1), 0) + "|r seconds."
+            return "|cffffcc00Illidan|r transforms into a powerful |cffffcc00Demon|r and gains |cffff0000" + N2S(50 * level, 0) + "|r bonus |cffff0000Health|r and |cffff0000" + N2S(5 * level, 0) + "|r bonus |cffff0000Damage|r for each enemy unit affected by his transformation (doubled for |cffffcc00Heroes|r). |cffffcc00Illidan|r also gains |cffffcc00" + N2S(GetOmnivampBonus(source, level) * 100, 0) + "%|r |cff8080ffOmnivamp|r, |cff00ff00" + N2S(GetMovementSpeedBonus(source, level), 0) + " Movement Speed|r and |cffffcc00Fly|r movement type while in his dark form. When lifting off and landing while transforming, all enemy units within |cffffcc00" + N2S(GetAoE(level), 0) + " AoE|r will be |cffffcc00Feared|r for |cffffcc005|r seconds (|cffffcc002|r for Heroes)."
         endmethod
 
         private method onExpire takes nothing returns nothing
@@ -113,6 +113,8 @@ library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, Crow
 
             call LinkBonusToBuff(unit, BONUS_HEALTH, health, BUFF)
             call LinkBonusToBuff(unit, BONUS_DAMAGE, damage, BUFF)
+            call LinkBonusToBuff(unit, BONUS_OMNIVAMP, GetOmnivampBonus(unit, level), BUFF)
+            call LinkBonusToBuff(unit, BONUS_MOVEMENT_SPEED, GetMovementSpeedBonus(unit, level), BUFF)
         endmethod
 
         private method onCast takes nothing returns nothing
@@ -122,22 +124,13 @@ library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, Crow
             set unit = Spell.source.unit
             set player = Spell.source.player
 
-            call StartTimer(0.5, false, this, -1)
-        endmethod
-
-        private static method onDamage takes nothing returns nothing
-            if GetUnitAbilityLevel(Damage.source.unit, BUFF) > 0 then
-                if Damage.isEnemy and not Damage.target.isMagicImmune then
-                    call AddUnitBonusTimed(Damage.target.unit, BONUS_ARMOR, -GetArmorReduction(GetUnitAbilityLevel(Damage.source.unit, ABILITY)), GetArmorDuration(Damage.target.unit, GetUnitAbilityLevel(Damage.source.unit, ABILITY)))
-                endif
-            endif
+            call StartTimer(0.5, false, this, 0)
         endmethod
 
         implement Periodic
 
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
-            call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct
 endlibrary

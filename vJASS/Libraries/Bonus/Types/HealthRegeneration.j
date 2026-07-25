@@ -12,17 +12,23 @@ scope HealthRegeneration
         endmethod
 
         method Set takes unit u, real value returns real
-            if GetUnitAbilityLevel(u, ability) == 0 then
-                call UnitAddAbility(u, ability)
-                call UnitMakeAbilityPermanent(u, true, ability)
-            endif
+            if value == 0 then
+                call UnitRemoveAbility(u, ability)
+
+                return 0.
+            else
+                if GetUnitAbilityLevel(u, ability) == 0 then
+                    call UnitAddAbility(u, ability)
+                    call UnitMakeAbilityPermanent(u, true, ability)
+                endif
+                
+                if BlzSetAbilityRealLevelField(BlzGetUnitAbility(u, ability), field, 0, value) then
+                    call IncUnitAbilityLevel(u, ability)
+                    call DecUnitAbilityLevel(u, ability)
+                endif
             
-            if BlzSetAbilityRealLevelField(BlzGetUnitAbility(u, ability), field, 0, value) then
-                call IncUnitAbilityLevel(u, ability)
-                call DecUnitAbilityLevel(u, ability)
+                return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, ability), field, 0)
             endif
-        
-            return BlzGetAbilityRealLevelField(BlzGetUnitAbility(u, ability), field, 0)
         endmethod
 
         method add takes unit u, real value returns real

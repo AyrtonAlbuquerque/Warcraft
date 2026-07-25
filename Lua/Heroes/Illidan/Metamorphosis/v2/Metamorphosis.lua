@@ -14,7 +14,7 @@ OnInit("Metamorphosis", function (requires)
     --                                       Configuration                                       --
     -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Metamorphosis ability
-    local ABILITY       = S2A('Idn5')
+    local ABILITY       = S2A('Idn8')
     -- The raw code of the Metamorphosis tranformation ability
     local MORPH         = S2A('Idn7')
     -- The raw code of the Metamorphosis buff

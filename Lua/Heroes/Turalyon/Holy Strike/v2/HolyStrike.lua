@@ -13,21 +13,15 @@ OnInit("HolyStrike", function (requires)
     -- The Holy Strike ablity
     local ABILITY      = S2A('Trl4')
     -- The Holy Strike level 1 buff
-    local BUFF_1       = S2A('BTr0')
-    -- The Holy Strike level 2 buff
-    local BUFF_2       = S2A('BTr1')
-    -- The Holy Strike level 3 buff
-    local BUFF_3       = S2A('BTr2')
-    -- The Holy Strike level 4 buff
-    local BUFF_4       = S2A('BTr3')
+    local BUFF         = S2A('BTr0')
     -- The Holy Strike heal model
     local MODEL        = "HolyStrike.mdl"
     -- The Holy Strike heal attchment point
     local ATTACH_POINT = "origin"
 
     -- The Holy Strike Heal
-    local function GetHeal(level, isRanged)
-        local heal = 20.*level
+    local function GetHeal(source, level, isRanged)
+        local heal = 10. * level + (0.03 * level * GetUnitBonus(source, BONUS_SPELL_POWER)) + (0.05 * level * GetHeroStr(source, true))
 
         if isRanged then
             heal = heal/2
@@ -52,6 +46,7 @@ OnInit("HolyStrike", function (requires)
         HolyStrike = Class(Spell)
 
         local array = {}
+        local sources = CreateGroup()
 
         function HolyStrike:destroy()
             PauseTimer(self.timer)
@@ -68,7 +63,7 @@ OnInit("HolyStrike", function (requires)
         end
 
         function HolyStrike:onTooltip(source, level, ability)
-            return "|cffffcc00Turalyon|r provides to all nearby allied units within |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) .. " AoE|r the ability to |cffffcc00Holy Strike|r, healing |cffffcc00" .. N2S(GetHeal(level, false), 0) .. "|r health with every auto attack. Healing halved for ranged attacks. In addition |cffffcc00Turalyon|r gains |cffffcc002|r (|cffffcc0010|r for |cffffcc00Heroes|r) |cffff0000Strength|r for every allied unit in range."
+            return "|cffffcc00Turalyon|r provides to all nearby allied units within |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) .. " AoE|r the ability to |cffffcc00Holy Strike|r, healing |cffffcc00" .. N2S(GetHeal(source, level, false), 0) .. "|r health with every auto attack. Healing halved for ranged attacks. In addition |cffffcc00Turalyon|r gains |cffffcc002|r (|cffffcc0010|r for |cffffcc00Heroes|r) |cffff0000Strength|r for every allied unit in range."
         end
 
         function HolyStrike:onLearn(source, skill, level)
@@ -115,22 +110,42 @@ OnInit("HolyStrike", function (requires)
                 this.level = level
                 this.aoe = BlzGetAbilityRealLevelField(this.ability, ABILITY_RLF_AREA_OF_EFFECT, level - 1)
             end
+
+            if not IsUnitInGroup(source, sources) then
+                GroupAddUnit(sources, source)
+            end
         end
 
         function HolyStrike.onDamage()
+            local source
+            local highest = 1
+
             if Damage.isEnemy then
-                if GetUnitAbilityLevel(Damage.source.unit, BUFF_4) > 0 then
-                    SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(4, Damage.source.isRanged))
-                    DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
-                elseif GetUnitAbilityLevel(Damage.source.unit, BUFF_3) > 0 then
-                    SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(3, Damage.source.isRanged))
-                    DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
-                elseif GetUnitAbilityLevel(Damage.source.unit, BUFF_2) > 0 then
-                    SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(2, Damage.source.isRanged))
-                    DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
-                elseif GetUnitAbilityLevel(Damage.source.unit, BUFF_1) > 0 then
-                    SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(1, Damage.source.isRanged))
-                    DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                if GetUnitAbilityLevel(Damage.source.unit, BUFF) > 0 then
+                    local size = BlzGroupGetSize(sources)
+
+                    if size > 0 then
+                        for i = 0, size - 1, 1 do
+                            local unit = BlzGroupUnitAt(sources, i)
+                            local level = GetUnitAbilityLevel(unit, ABILITY)
+
+                            if level > 0 then
+                                if UnitAlive(unit) and IsUnitInRangeXY(unit, Damage.source.x, Damage.source.y, BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1) + 100) then
+                                    if level >= highest then
+                                        highest = level
+                                        source = unit
+                                    end
+                                end
+                            else
+                                GroupRemoveUnit(sources, unit)
+                            end
+                        end
+                    end
+
+                    if source then
+                        SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(source, highest, Damage.source.isRanged))
+                        DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                    end
                 end
             end
         end

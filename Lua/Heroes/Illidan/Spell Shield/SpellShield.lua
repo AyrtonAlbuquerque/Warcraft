@@ -26,6 +26,8 @@ OnInit("SpellShield", function (requires)
     local SPEED      = 1000
     -- The missile scale
     local SCALE      = 0.5
+    -- Spell Shield metamorphosis Z offset
+    local Z_OFFSET   = 100
 
     -- The Adaptive Strike damage
     local function GetConversion(level)
@@ -99,7 +101,7 @@ OnInit("SpellShield", function (requires)
 
                     if Metamorphosis then
                         if GetUnitAbilityLevel(self.target, Metamorphosis_BUFF) > 0 then
-                            self.height = GetUnitZ(self.target) + 400
+                            self.height = GetUnitZ(self.target) + Z_OFFSET
                         else
                             self.height = GetUnitZ(self.target) + 100
                         end

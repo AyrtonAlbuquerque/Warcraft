@@ -83,7 +83,7 @@ Frame "FRAME" "TooltipBoxFrame" {
 Frame "TEXTAREA" "DescriptionArea" {
     TextAreaLineHeight 0.0105,
     TextAreaInset 0.0,
-    TextAreaLineGap 0.0
+    TextAreaLineGap 0.0,
 }
 
 Frame "HIGHLIGHT" "HighlightFrame" {

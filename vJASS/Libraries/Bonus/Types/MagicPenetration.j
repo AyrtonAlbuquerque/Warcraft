@@ -40,13 +40,23 @@ library MagicPenetration requires NewBonus, DamageInterface, MagicResistance
     endfunction
 
     function GetMagicReduction takes unit source, unit target returns real
-        local real magic = GetUnitMagicResistance(target) - GetUnitMagicPenetration(source, true)
+        local real magic = GetUnitMagicResistance(target)
+        local real reduction
 
         if magic > 0 then
             set magic = magic * (1 - GetUnitMagicPenetration(source, false))
         endif
 
-        return (magic * MAGIC_MULTIPLIER) / (1 + (magic * MAGIC_MULTIPLIER))
+        set magic = magic - GetUnitMagicPenetration(source, true)
+        set reduction = magic * MAGIC_MULTIPLIER
+
+        if reduction >= 0 then
+            set reduction = reduction / (1 + reduction)
+        else
+            set reduction = reduction / (1 - reduction)
+        endif
+
+        return reduction
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */

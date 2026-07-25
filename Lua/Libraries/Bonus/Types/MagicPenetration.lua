@@ -90,12 +90,22 @@ OnInit("MagicPenetration", function(requires)
     end
 
     function GetMagicReduction(source, target)
-        local magic = GetUnitMagicResistance(target) - GetUnitMagicPenetration(source, true)
+        local magic = GetUnitMagicResistance(target)
+        local reduction
 
         if magic > 0 then
             magic = magic * (1 - GetUnitMagicPenetration(source, false))
         end
 
-        return (magic * MAGIC_MULTIPLIER) / (1 + (magic * MAGIC_MULTIPLIER))
+        magic = magic - GetUnitMagicPenetration(source, true)
+        reduction = magic * MAGIC_MULTIPLIER
+
+        if reduction >= 0 then
+            reduction = reduction / (1 + reduction)
+        else
+            reduction = reduction / (1 - reduction)
+        end
+
+        return reduction
     end
 end)

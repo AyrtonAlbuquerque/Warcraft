@@ -347,7 +347,7 @@ OnInit("Utilities", function(requires)
         local group = GetEnemyUnitsInRange(player, GetUnitX(target), GetUnitY(target), aoe, false, false)
 
         if BlzGroupGetSize(group) == 1 then
-            DestroyLightningTimed(AddLightningEx(lightning, true, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + 60.0, GetUnitX(target), GetUnitY(target), GetUnitZ(target) + 60.0), duration)
+            CreateLightningUnit2Unit(source, target, duration, lightning)
             DestroyEffect(AddSpecialEffectTarget(effect, target, attach))
             UnitDamageTarget(source, target, damage, false, false, attacktype, damagetype, nil)
             DestroyGroup(group)
@@ -387,7 +387,7 @@ OnInit("Utilities", function(requires)
                         end
 
                         if next then
-                            DestroyLightningTimed(AddLightningEx(lightning, true, GetUnitX(this), GetUnitY(this), GetUnitZ(this) + 60.0, GetUnitX(next), GetUnitY(next), GetUnitZ(next) + 60.0), duration)
+                            CreateLightningUnit2Unit(this, next, duration, lightning)
                             DestroyEffect(AddSpecialEffectTarget(effect, next, attach))
                             GroupAddUnit(damaged, next)
                             UnitDamageTarget(source, next, damage, false, false, attacktype, damagetype, nil)

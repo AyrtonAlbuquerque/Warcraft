@@ -13,8 +13,8 @@ library KegSmash requires Spell, NewBonus, Utilities, Missiles, TimerUtils, Crow
     globals
         // The Keg Smash Ability
         public constant integer ABILITY       = 'Chn4'
-        // The Keg Smash Ignite ability
-        private constant integer IGNITE       = 'Chn6'
+        // The Keg Smash Flames ability
+        private constant integer IGNITE       = 'Flam'
         // The Keg Smash Brew Cloud Ability
         private constant integer DEBUFF       = 'Chn5'
         // The Keg Smash Brew Cloud debuff

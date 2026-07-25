@@ -6,7 +6,7 @@ library Stampede requires Spell, Missiles, Utilities, Modules, CrowdControl, opt
     /* -------------------------------------------------------------------------- */
     globals
         // The ability raw code
-        private constant integer ABILITY     = 'Rex5'
+        private constant integer ABILITY     = 'RexA'
         // The missile model
         private constant string  MODEL       = "Abilities\\Spells\\Other\\Stampede\\StampedeMissile.mdl"
         // The missile scale

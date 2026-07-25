@@ -29,6 +29,11 @@ OnInit("Enraged", function (requires)
         return 0.01 + 0. * level
     end
 
+    -- The magic damage reduction bonus (0.01 = 1%)
+    local function GetMagicDamageReduction(level)
+        return 0.005 + 0. * level
+    end
+
     -- The health percentage that increases the bonusses (1 == 1%)
     local function GetHealthPercentage(level)
         return 1. - 0. * level
@@ -40,20 +45,26 @@ OnInit("Enraged", function (requires)
     do
         Enraged = Class(Spell)
 
+        local magic = {}
         local speed = {}
         local damage = {}
         local movement = {}
 
         function Enraged:onTooltip(source, level, ability)
-            return "|cffffcc00Misha|r gains |cffffcc00" .. N2S(GetBonusAttackSpeed(level) * 100, 0) .. "%%|r attack speed, |cffffcc00" .. N2S(GetBonusMovementSpeed(level), 0) .. "|r movement speed and deals |cffffcc00" .. N2S(GetDamageBonus(level) * 100, 0) .. "%%|r more damage for every |cffffcc00" .. N2S(GetHealthPercentage(level) * 100, 0) .. "%|r of missing health."
+            return "|cffffcc00Misha|r gains |cffffcc00" .. N2S(GetBonusAttackSpeed(level) * 100, 0) .. "%|r attack speed, |cffffcc00" .. N2S(GetBonusMovementSpeed(level), 0) .. "|r movement speed and deals |cffffcc00" .. N2S(GetDamageBonus(level) * 100, 0) .. "%|r more damage for every |cffffcc00" .. N2S(GetHealthPercentage(level) * 100, 0) .. "%|r of missing health."
         end
 
         function Enraged.onDamage()
             local level = GetUnitAbilityLevel(Damage.source.unit, ABILITY)
 
             if level > 0 and Damage.amount > 0 then
-                damage[Damage.source.unit] = ((100 - GetUnitLifePercent(Damage.source.unit)) * GetDamageBonus(level)) / GetHealthPercentage(level)
-                Damage.amount = Damage.amount * (1 + damage[Damage.source.unit])
+                if Damage.isSpell then
+                    magic[Damage.source.unit] = ((100 - GetUnitLifePercent(Damage.source.unit)) * GetMagicDamageReduction(level)) / GetHealthPercentage(level)
+                    Damage.amount = Damage.amount * (1 - magic[Damage.source.unit])
+                else
+                    damage[Damage.source.unit] = ((100 - GetUnitLifePercent(Damage.source.unit)) * GetDamageBonus(level)) / GetHealthPercentage(level)
+                    Damage.amount = Damage.amount * (1 + damage[Damage.source.unit])
+                end
             end
         end
 
@@ -74,6 +85,7 @@ OnInit("Enraged", function (requires)
         end
 
         function Enraged.onIndex()
+            magic[GetIndexUnit()] = nil
             speed[GetIndexUnit()] = nil
             damage[GetIndexUnit()] = nil
             movement[GetIndexUnit()] = nil
@@ -83,6 +95,7 @@ OnInit("Enraged", function (requires)
             RegisterSpell(Enraged.allocate(), ABILITY)
             RegisterUnitIndexEvent(Enraged.onIndex)
             RegisterAttackDamageEvent(Enraged.onDamage)
+            RegisterSpellDamageEvent(Enraged.onDamage)
             RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, Enraged.onAttack)
         end
     end

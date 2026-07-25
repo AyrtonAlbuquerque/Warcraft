@@ -11,13 +11,9 @@ OnInit("Afterburner", function (requires)
     --                                       Configuration                                       --
     -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Afternurner Ability
-    local ABILITY         = S2A('Rgn3')
-    -- The raw code of the Afternurner Prox Ability
-    local AFTERBURN_PROXY = S2A('Rgn6')
-    -- The Attack type of the damage dealt (Spell)
-    local ATTACK_TYPE     = ATTACK_TYPE_NORMAL
-    -- The Damage type of the damage dealt
-    local DAMAGE_TYPE     = DAMAGE_TYPE_MAGIC
+    local ABILITY = S2A('Rgn3')
+    -- The raw code of the Flames Ability
+    local FLAMES  = S2A('Flam')
 
     -- function responsible to determine the duration of the Afterburn
     -- By default, it uses the Cooldown value in the Object Editor
@@ -69,15 +65,16 @@ OnInit("Afterburner", function (requires)
             self.dummy = DummyRetrieve(GetOwningPlayer(source), x, y, 0, 0)
             array[self.dummy] = self
 
-            UnitAddAbility(self.dummy, AFTERBURN_PROXY)
-            local skill = BlzGetUnitAbility(self.dummy, AFTERBURN_PROXY)
+            UnitAddAbility(self.dummy, FLAMES)
+            local skill = BlzGetUnitAbility(self.dummy, FLAMES)
             BlzSetAbilityRealLevelField(skill, ABILITY_RLF_DURATION_NORMAL, 0, duration)
             BlzSetAbilityRealLevelField(skill, ABILITY_RLF_FULL_DAMAGE_INTERVAL, 0, duration)
             BlzSetAbilityRealLevelField(skill, ABILITY_RLF_HALF_DAMAGE_INTERVAL, 0, interval)
             BlzSetAbilityRealLevelField(skill, ABILITY_RLF_AREA_OF_EFFECT, 0, aoe)
             BlzSetAbilityRealLevelField(skill, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, damage)
-            IncUnitAbilityLevel(self.dummy, AFTERBURN_PROXY)
-            DecUnitAbilityLevel(self.dummy, AFTERBURN_PROXY)
+            BlzSetAbilityStringLevelField(skill, ABILITY_SLF_SPECIAL, 0, "")
+            IncUnitAbilityLevel(self.dummy, FLAMES)
+            DecUnitAbilityLevel(self.dummy, FLAMES)
             IssuePointOrder(self.dummy, "flamestrike", x, y)
 
             TimerStart(CreateTimer(), duration + 0.05, false, function ()

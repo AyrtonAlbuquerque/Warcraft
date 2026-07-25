@@ -39,8 +39,8 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities, Effect
     endfunction
 
     // The amount of armor reduced when passing through units
-    private function GetArmorReduction takes integer level returns integer
-        return 2 + 2*level
+    private function GetArmorReduction takes integer level returns real
+        return 0.3 + 0.1*level
     endfunction
 
     // The missile collision size
@@ -58,7 +58,7 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities, Effect
     /* -------------------------------------------------------------------------- */
     private struct Banshee extends Missile
         real timeout
-        integer armor
+        real reduction
         real distance
         Effect attachment = 0
 
@@ -73,9 +73,16 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities, Effect
         endmethod
 
         private method onUnit takes unit hit returns boolean
+            local real armor
+
             if Filtered(owner, hit) then
+                set armor = BlzGetUnitArmor(hit)
+
                 call DestroyEffect(AddSpecialEffectTarget(HIT_MODEL, hit, ATTACH_POINT))
-                call AddUnitBonusTimed(hit, BONUS_ARMOR, -armor, timeout)
+
+                if armor > 0 then
+                    call AddUnitBonusTimed(hit, BONUS_ARMOR, -armor * reduction, timeout)
+                endif
             endif
 
             return false
@@ -91,7 +98,7 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities, Effect
         private static Banshee array array
 
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Sylvanas|r releases |cffffcc00Screaming Banshees|r in the target direction. The banshees travel |cffffcc00" + N2S(GetDistance(level), 0) + "|r distance and when passing through an enemy unit it reduces its |cff808080Armor|r by |cff808080" + N2S(GetArmorReduction(level), 0) + "|r for |cffffcc00" + N2S(GetDuration(level), 0) + "|r seconds. |cffffcc00Sylvanas|r can reactivate the ability to teleport to the banshees position."
+            return "|cffffcc00Sylvanas|r releases |cffffcc00Screaming Banshees|r in the target direction. The banshees travel |cffffcc00" + N2S(GetDistance(level), 0) + "|r distance and when passing through an enemy unit it reduces its |cff808080Armor|r by |cffffcc00" + N2S(GetArmorReduction(level) * 100, 0) + "%|r for |cffffcc00" + N2S(GetDuration(level), 0) + "|r seconds. |cffffcc00Sylvanas|r can reactivate the ability to teleport to the banshees position."
         endmethod
 
         private method onCast takes nothing returns nothing
@@ -110,7 +117,7 @@ library ScreamingBanshees requires Spell, NewBonus, Missiles, Utilities, Effect
                 set banshee.scale = MISSILE_SCALE
                 set banshee.speed = MISSILE_SPEED
                 set banshee.collision = GetCollisionSize(Spell.level)
-                set banshee.armor = GetArmorReduction(Spell.level)
+                set banshee.reduction = GetArmorReduction(Spell.level)
                 set banshee.timeout = GetDuration(Spell.level)
                 set array[Spell.source.id] = banshee
 

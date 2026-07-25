@@ -11,7 +11,7 @@ library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, Crow
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Metamorphosis ability
-        private constant integer ABILITY     = 'Idn5'
+        private constant integer ABILITY     = 'Idn8'
         // The raw code of the Metamorphosis tranformation ability
         public  constant integer MORPH       = 'Idn7'
         // The raw code of the Metamorphosis buff

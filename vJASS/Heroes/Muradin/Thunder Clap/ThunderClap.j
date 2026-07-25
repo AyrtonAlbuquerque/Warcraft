@@ -14,6 +14,8 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities option
         public  constant integer ABILITY             = 'Mrd2'
         // The raw code of the Thunder Clap Recast ability
         public  constant integer THUNDER_CLAP_RECAST = 'Mrd6'
+        // The stomp model
+        private constant string  MODEL               = "ThunderClapHD.mdl"
         // The model used when storm bolt refunds mana on kill
         private constant string  HEAL_EFFECT         = "Abilities\\Spells\\Items\\AIhe\\AIheTarget.mdl"
         // The attachment point
@@ -74,9 +76,22 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities option
     // The healing amount
     private function GetHealAmount takes unit source, unit target, integer level returns real
         if IsUnitType(target, UNIT_TYPE_HERO) then
-            return 0.1
+            return 0.05
         else
-            return 0.025
+            return 0.005
+        endif
+    endfunction
+
+    // The thunderclap model scale
+    private function GetScale takes unit source, integer level returns real
+        static if LIBRARY_Avatar then
+            if GetUnitAbilityLevel(source, Avatar_BUFF) > 0 then
+                return 2.
+            else
+                return 1.
+            endif
+        else
+            return 1.
         endif
     endfunction
 
@@ -90,7 +105,7 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities option
     /* ---------------------------------------------------------------------------------------------- */
     private struct ThunderClap extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r by |cffffcc00" + N2S(GetAttackSlowAmount(source, level) * 100, 0) + "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc002.5%|r (|cffffcc0010%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and the second |cffffcc00Thunder Clap|r stuns enemy units instead."
+            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r by |cffffcc00" + N2S(GetAttackSlowAmount(source, level) * 100, 0) + "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc000.5%|r (|cffffcc005%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and the second |cffffcc00Thunder Clap|r stuns enemy units instead."
         endmethod
         
         private method onCast takes nothing returns nothing
@@ -106,6 +121,7 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities option
             local real heal = 0
             local unit u
     
+            call DestroyEffect(AddSpecialEffectEx(MODEL, Spell.source.x, Spell.source.y, 0, GetScale(Spell.source.unit, level)))
             call GroupEnumUnitsInRange(g, Spell.source.x, Spell.source.y, aoe, null)
 
             loop

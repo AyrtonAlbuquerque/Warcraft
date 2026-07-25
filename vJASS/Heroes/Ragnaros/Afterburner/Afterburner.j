@@ -8,14 +8,10 @@ library Afterburner requires Spell, Modules, DamageInterface, Utilities, optiona
     /*                                Configuration                               */
     /* -------------------------------------------------------------------------- */
     globals
-        //The raw code of the Afternurner Ability
+        // The raw code of the Afternurner Ability
         private constant integer    ABILITY         = 'Rgn3'
-        //The raw code of the Afternurner Proxy Ability
-        private constant integer    AFTERBURN_PROXY = 'Rgn6'
-        // The Attack type of the damage dealt (Spell)
-        private constant attacktype ATTACK_TYPE     = ATTACK_TYPE_NORMAL
-        // The Damage type of the damage dealt
-        private constant damagetype DAMAGE_TYPE     = DAMAGE_TYPE_MAGIC
+        // The raw code of the Flames Ability
+        private constant integer    FLAMES          = 'Flam'
     endglobals
 
     //function responsible to determine the duration of the Afterburn
@@ -72,15 +68,16 @@ library Afterburner requires Spell, Modules, DamageInterface, Utilities, optiona
             set id = GetUnitUserData(dummy)
             set array[id] = this
 
-            call UnitAddAbility(dummy, AFTERBURN_PROXY)
-            set skill = BlzGetUnitAbility(dummy, AFTERBURN_PROXY)
+            call UnitAddAbility(dummy, FLAMES)
+            set skill = BlzGetUnitAbility(dummy, FLAMES)
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_DURATION_NORMAL, 0, duration)
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_FULL_DAMAGE_INTERVAL, 0, duration)
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_HALF_DAMAGE_INTERVAL, 0, interval)
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_AREA_OF_EFFECT, 0, aoe)
             call BlzSetAbilityRealLevelField(skill, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, damage)
-            call IncUnitAbilityLevel(dummy, AFTERBURN_PROXY)
-            call DecUnitAbilityLevel(dummy, AFTERBURN_PROXY)
+            call BlzSetAbilityStringLevelField(skill, ABILITY_SLF_SPECIAL, 0, "")
+            call IncUnitAbilityLevel(dummy, FLAMES)
+            call DecUnitAbilityLevel(dummy, FLAMES)
             call IssuePointOrder(dummy, "flamestrike", x, y)
             call StartTimer(duration + 0.05, false, this, -1)
             

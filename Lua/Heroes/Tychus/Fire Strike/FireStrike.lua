@@ -12,8 +12,8 @@ OnInit("FireStrike", function (requires)
     -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Fire Strike ability
     local ABILITY        = S2A('Tyc5')
-    -- The raw code of the Incinerate ability
-    local FLAMES         = S2A('TycA')
+    -- The raw code of the Flames ability
+    local FLAMES         = S2A('Flam')
     -- The starting height of the missile
     local START_HEIGHT   = 1500
     -- The starting offset of the missile
@@ -115,6 +115,7 @@ OnInit("FireStrike", function (requires)
             BlzSetAbilityRealLevelField(spell, ABILITY_RLF_HALF_DAMAGE_INTERVAL, 0, interval)
             BlzSetAbilityRealLevelField(spell, ABILITY_RLF_AREA_OF_EFFECT, 0, aoe)
             BlzSetAbilityRealLevelField(spell, ABILITY_RLF_HALF_DAMAGE_DEALT, 0, damage)
+            BlzSetAbilityStringLevelField(spell, ABILITY_SLF_SPECIAL, 0, "")
             IncUnitAbilityLevel(self.dummy, FLAMES)
             DecUnitAbilityLevel(self.dummy, FLAMES)
             IssuePointOrder(self.dummy, "flamestrike", x, y)

@@ -21,7 +21,7 @@ OnInit("FragGranade", function (requires)
     -- The Frag Granade speed
     local SPEED           = 1000.
     -- The Frag Granade arc
-    local ARC             = 45.
+    local ARC             = 45. * bj_DEGTORAD
     -- The Frag Granade Explosion model
     local EXPLOSION       = "Explosion.mdl"
     -- The Frag Granade Explosion model scale
@@ -61,6 +61,16 @@ OnInit("FragGranade", function (requires)
     -- The Frag Granade lasting duraton
     local function GetDuration(unit, level)
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(unit, FragGranade_ABILITY), ABILITY_RLF_DURATION_HERO, level - 1)
+    end
+
+    -- The charges cooldown
+    local function GetCooldown(source, level)
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, FragGranade_ABILITY), ABILITY_RLF_COOLDOWN, level - 1)
+    end
+
+    -- The max charges
+    local function GetMaxCharges(source, level)
+        return 5 + 0*level
     end
 
     -- The Frag Granade stun duration
@@ -202,8 +212,22 @@ OnInit("FragGranade", function (requires)
     do
         FragGranade = Class(Spell)
 
+        local array = {}
+        local charges = {}
+
+        function FragGranade:destroy()
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
+
+            charges[self.unit] = nil
+            array[self.unit] = nil
+            array[self.timer] = nil
+            self.unit = nil
+            self.timer = nil
+        end
+
         function FragGranade:onTooltip(source, level, ability)
-            return "|cffffcc00Tychus|r throws a |cffffcc00Frag Granade|r at the target location. Upon arrival, if there are enemy units nearby, the granade explodes dealing |cff00ffff" .. N2S(GetDamage(source, level),0) .. " Magic|r damage and shredding |cff808080" .. I2S(GetArmor(level)) .. " Armor|r for |cffffcc00" .. N2S(GetArmorDuration(level), 1) .. "|r seconds. If there are no enemies nearby, the granade will stay in the location and explode when an enemy unit comes nearby or its duration expires after |cffffcc00" .. N2S(GetDuration(source, level), 1) .. "|r seconds."
+            return "|cffffcc00Tychus|r throws a |cffffcc00Frag Granade|r at the target location. Upon arrival, if there are enemy units nearby, the granade explodes dealing |cff00ffff" .. N2S(GetDamage(source, level),0) .. " Magic|r damage and shredding |cff808080" .. I2S(GetArmor(level)) .. " Armor|r for |cffffcc00" .. N2S(GetArmorDuration(level), 1) .. "|r seconds. If there are no enemies nearby, the granade will stay in the location and explode when an enemy unit comes nearby or its duration expires after |cffffcc00" .. N2S(GetDuration(source, level), 1) .. "|r seconds.|cffffcc00Frag Granade|r can hold up to |cffffcc00" .. N2S(GetMaxCharges(source, level), 0) .. "|r charges.\n\nCharges: " .. N2S(charges[source] or 0, 0)
         end
 
         function FragGranade:onCast()
@@ -229,7 +253,71 @@ OnInit("FragGranade", function (requires)
                 end
             end
 
+            if charges[Spell.source.unit] > 0 then
+                charges[Spell.source.unit] = (charges[Spell.source.unit] or 0) - 1
+
+                if charges[Spell.source.unit] >= 1 then
+                    ResetUnitAbilityCooldown(Spell.source.unit, FragGranade_ABILITY)
+                else
+                    if CDR then
+                        CalculateAbilityCooldown(Spell.source.unit, FragGranade_ABILITY, Spell.level, TimerGetRemaining(array[Spell.source.unit].timer))
+                    else
+                        Spell.cooldown = TimerGetRemaining(array[Spell.source.unit].timer)
+                    end
+                end
+            end
+
             granade:launch()
+        end
+
+        function FragGranade:onLearn(unit, ability, level)
+            if not array[unit] then
+                local this = {
+                    unit = unit,
+                    timer = CreateTimer(),
+                    destroy = FragGranade.destroy
+                }
+                
+                array[unit] = this
+                charges[unit] = 1
+
+                TimerStart(this.timer, GetCooldown(unit, level), true, function ()
+                    local level = GetUnitAbilityLevel(this.unit, FragGranade_ABILITY)
+
+                    if level > 0 then
+                        if charges[this.unit] < GetMaxCharges(this.unit, level) and charges[this.unit] >= 0 then
+                            charges[this.unit] = charges[this.unit] + 1
+
+                            BlzEndUnitAbilityCooldown(this.unit, FragGranade_ABILITY)
+                        end
+                    else
+                        this:destroy()
+                    end
+                end)
+            else
+                local this = array[unit]
+                
+                if this then
+                    if (charges[this.unit] or 0) < GetMaxCharges(unit, level) then
+                        charges[this.unit] = (charges[this.unit] or 0) + 1
+                    end
+
+                    BlzEndUnitAbilityCooldown(this.unit, FragGranade_ABILITY)
+                    TimerStart(this.timer, GetCooldown(this.unit, level), true, function ()
+                        local level = GetUnitAbilityLevel(this.unit, FragGranade_ABILITY)
+
+                        if level > 0 then
+                            if charges[this.unit] < GetMaxCharges(this.unit, level) and charges[this.unit] >= 0 then
+                                charges[this.unit] = charges[this.unit] + 1
+
+                                BlzEndUnitAbilityCooldown(this.unit, FragGranade_ABILITY)
+                            end
+                        else
+                            this:destroy()
+                        end
+                    end)
+                end
+            end
         end
 
         function FragGranade.onInit()

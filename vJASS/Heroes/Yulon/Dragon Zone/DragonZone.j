@@ -11,8 +11,6 @@ library DragonZone requires Spell, Utilities, CrowdControl, Modules optional New
     globals
         // The raw code of the Ability
         private constant integer ABILITY          = 'Yul5'
-        // The raw code of the regen ability
-        private constant integer REGEN_ABILITY    = 'Yul6'
         // The Model
         private constant string  MODEL            = "DragonZone.mdl"
         // The model scale
@@ -71,6 +69,7 @@ library DragonZone requires Spell, Utilities, CrowdControl, Modules optional New
         private real x
         private real y
         private real aoe
+        private real heal
         private unit unit
         private real knock
         private group group
@@ -110,6 +109,8 @@ library DragonZone requires Spell, Utilities, CrowdControl, Modules optional New
                                 
                                 call KnockbackUnit(u, angle, aoe + 25 - distance, knock*(distance/aoe), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
                             endif
+                        elseif UnitAlive(u) and IsUnitAlly(u, player) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
+                            call SetWidgetLife(u, GetWidgetLife(u) + heal * PERIOD)
                         endif
                     call GroupRemoveUnit(group, u)
                 endloop
@@ -123,31 +124,21 @@ library DragonZone requires Spell, Utilities, CrowdControl, Modules optional New
         endmethod
     
         private method onCast takes nothing returns nothing
-            local unit dummy = DummyRetrieve(Spell.source.player, Spell.source.x, Spell.source.y, 0, 0)
-            local ability spell
-            
             set this = thistype.allocate()
             set x = Spell.source.x
             set y = Spell.source.y
             set unit = Spell.source.unit
             set player = Spell.source.player
             set group = CreateGroup()
+            set heal = GetBonusRegen(unit, Spell.level)
             set aoe = GetAoE(unit, Spell.level)
             set duration = GetDuration(unit, Spell.level)
             set knock = GetMaxKnockBackDuration(unit, Spell.level)
             
             call DestroyEffectTimed(AddSpecialEffectEx(MODEL, x, y, 0, SCALE), duration)
-            call UnitAddAbilityTimed(dummy, REGEN_ABILITY, duration, 1, true)
-            set spell = BlzGetUnitAbility(dummy, REGEN_ABILITY)
-            call BlzSetAbilityRealLevelField(spell, ABILITY_RLF_AMOUNT_OF_HIT_POINTS_REGENERATED, 0, GetBonusRegen(unit, Spell.level))
-            call IncUnitAbilityLevel(dummy, REGEN_ABILITY)
-            call DecUnitAbilityLevel(dummy, REGEN_ABILITY)
-            call DummyRecycleTimed(dummy, duration)
             call SetUnitTimeScale(unit, GetTimeScale(unit, Spell.level))
             call StartTimer(PERIOD, true, this, 0)
             call StartTimer(GetTimeScaleTime(unit, Spell.level), false, this, 0)
-            
-            set dummy = null
         endmethod
 
         implement Periodic

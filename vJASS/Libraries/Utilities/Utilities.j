@@ -846,8 +846,10 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
             local thistype this = GetTimerData(GetExpiredTimer())
             
             call DestroyGroup(group)
+
             if bounces > 0 then
                 set group = GetEnemyUnitsInRange(player, GetUnitX(self), GetUnitY(self), range, false, false)
+
                 call GroupRemoveUnit(group, self)
                 
                 if not rebounce then
@@ -865,11 +867,12 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
                     endif
                     
                     if next != null then
-                        call DestroyLightningTimed(AddLightningEx(lightning, true, GetUnitX(self), GetUnitY(self), GetUnitZ(self) + 60.0, GetUnitX(next), GetUnitY(next), GetUnitZ(next) + 60.0), duration)
+                        call CreateLightningUnit2Unit(self, next, duration, lightning)
                         call DestroyEffect(AddSpecialEffectTarget(effect, next, attach))
                         call GroupAddUnit(damaged, next)
                         call UnitDamageTarget(unit, next, damage, false, false, attacktype, damagetype, null)
                         call DestroyGroup(group)
+
                         set prev = self
                         set self = next
                         set next = null
@@ -880,38 +883,37 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
             else
                 call destroy()
             endif
+
             set bounces = bounces - 1
         endmethod
 
-        static method create takes unit source, unit target, real dmg, real aoe, real dur, real interval, integer bounceCount, attacktype attackType, damagetype damageType, string lightningType, string sfx, string attachPoint, boolean canRebounce returns thistype
-            local group    g
+        static method create takes unit source, unit target, real damage, real aoe, real duration, real interval, integer bounceCount, attacktype attackType, damagetype damageType, string lightningType, string sfx, string attachPoint, boolean canRebounce returns thistype
+            local group g = GetEnemyUnitsInRange(GetOwningPlayer(source), GetUnitX(target), GetUnitY(target), aoe, false, false)
             local thistype this
 
-            set g = GetEnemyUnitsInRange(GetOwningPlayer(source), GetUnitX(target), GetUnitY(target), aoe, false, false)
-
             if BlzGroupGetSize(g) == 1 then
-                call DestroyLightningTimed(AddLightningEx(lightningType, true, GetUnitX(source), GetUnitY(source), BlzGetUnitZ(source) + 60.0, GetUnitX(target), GetUnitY(target), BlzGetUnitZ(target) + 60.0), dur)
+                call CreateLightningUnit2Unit(source, target, duration, lightningType)
                 call DestroyEffect(AddSpecialEffectTarget(sfx, target, attachPoint))
-                call UnitDamageTarget(source, target, dmg, false, false, attackType, damageType, null)
+                call UnitDamageTarget(source, target, damage, false, false, attackType, damageType, null)
             else
-                set this       = thistype.allocate()
-                set timer      = NewTimerEx(this)
-                set prev       = null
-                set self       = target
-                set next       = null
-                set unit       = source
-                set player     = GetOwningPlayer(source)
-                set damage     = dmg
-                set range      = aoe
-                set duration   = dur
-                set bounces    = bounceCount
+                set this = thistype.allocate()
+                set timer = NewTimerEx(this)
+                set prev = null
+                set self = target
+                set next = null
+                set unit = source
+                set player = GetOwningPlayer(source)
+                set .damage = damage
+                set range = aoe
+                set .duration = duration
+                set bounces = bounceCount
                 set attacktype = attackType
                 set damagetype = damageType
-                set lightning  = lightningType
-                set effect     = sfx
-                set attach     = attachPoint
-                set rebounce   = canRebounce
-                set damaged    = CreateGroup()
+                set lightning = lightningType
+                set effect = sfx
+                set attach = attachPoint
+                set rebounce = canRebounce
+                set damaged = CreateGroup()
 
                 call GroupRemoveUnit(g, target)
                 call GroupAddUnit(damaged, target)
@@ -919,7 +921,9 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
                 call UnitDamageTarget(source, target, damage, false, false, attacktype, damagetype, null)
                 call TimerStart(timer, interval, true, function thistype.onPeriod)
             endif
+
             call DestroyGroup(g)
+
             set g = null
 
             return this

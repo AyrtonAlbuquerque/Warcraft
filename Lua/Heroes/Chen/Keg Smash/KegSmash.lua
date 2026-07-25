@@ -13,8 +13,8 @@ OnInit("KegSmash", function(requires)
     -- ----------------------------------------------------------------------------------------- --
     -- The Keg Smash Ability
     KegSmash_ABILITY   = S2A('Chn4')
-    -- The Keg Smash Ignite ability
-    local IGNITE       = S2A('Chn6')
+    -- The Keg Smash Flame ability
+    local IGNITE       = S2A('Flam')
     -- The Keg Smash Brew Cloud Ability
     local DEBUFF       = S2A('Chn5')
     -- The Keg Smash Brew Cloud debuff

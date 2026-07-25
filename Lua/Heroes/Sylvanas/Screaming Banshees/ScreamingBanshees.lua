@@ -42,7 +42,7 @@ OnInit("ScreamingBanshees", function (requires)
 
     -- The amount of armor reduced when passing through units
     local function GetArmorReduction(level)
-        return 2 + 2*level
+        return 0.3 + 0.1*level
     end
 
     -- The missile collision size
@@ -73,8 +73,13 @@ OnInit("ScreamingBanshees", function (requires)
 
         function Banshee:onUnit(unit)
             if Filtered(self.owner, unit) then
+                local armor = BlzGetUnitArmor(unit)
+
                 DestroyEffect(AddSpecialEffectTarget(HIT_MODEL, unit, ATTACH_POINT))
-                AddUnitBonusTimed(unit, BONUS_ARMOR, -self.armor, self.timeout)
+
+                if armor > 0 then
+                    AddUnitBonusTimed(unit, BONUS_ARMOR, -armor * self.reduction, self.timeout)
+                end
             end
 
             return false
@@ -92,7 +97,7 @@ OnInit("ScreamingBanshees", function (requires)
         local array = {}
 
         function ScreamingBanshees:onTooltip(source, level, ability)
-            return "|cffffcc00Sylvanas|r releases |cffffcc00Screaming Banshees|r in the target direction. The banshees travel |cffffcc00" .. N2S(GetDistance(level), 0) .. "|r distance and when passing through an enemy unit it reduces its |cff808080Armor|r by |cff808080" .. N2S(GetArmorReduction(level), 0) .. "|r for |cffffcc00" .. N2S(GetDuration(level), 0) .. "|r seconds. |cffffcc00Sylvanas|r can reactivate the ability to teleport to the banshees position."
+            return "|cffffcc00Sylvanas|r releases |cffffcc00Screaming Banshees|r in the target direction. The banshees travel |cffffcc00" .. N2S(GetDistance(level), 0) .. "|r distance and when passing through an enemy unit it reduces its |cff808080Armor|r by |cffffcc00" .. N2S(GetArmorReduction(level) * 100, 0) .. "%|r for |cffffcc00" .. N2S(GetDuration(level), 0) .. "|r seconds. |cffffcc00Sylvanas|r can reactivate the ability to teleport to the banshees position."
         end
 
         function ScreamingBanshees:onCast()
@@ -108,7 +113,7 @@ OnInit("ScreamingBanshees", function (requires)
                 banshee.scale = MISSILE_SCALE
                 banshee.speed = MISSILE_SPEED
                 banshee.collision = GetCollisionSize(Spell.level)
-                banshee.armor = GetArmorReduction(Spell.level)
+                banshee.reduction = GetArmorReduction(Spell.level)
                 banshee.timeout = GetDuration(Spell.level)
                 array[Spell.source.unit] = banshee
 

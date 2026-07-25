@@ -11,7 +11,7 @@ library MoltenShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, N
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Molten Shield Ability
-        private constant integer    ABILITY           = 'Rgn7'
+        private constant integer    ABILITY           = 'Rgn6'
         // The raw code of the Ragnaros unit in the editor
         private constant integer    RAGNAROS_ID       = 'Rgns'
         // The raw code of the buff used to link bonus

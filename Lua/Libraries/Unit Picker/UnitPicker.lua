@@ -367,7 +367,7 @@ OnInit("UnitPicker", function(requires)
         end
 
         function Unit.cost(id, lumber)
-            local unit = CreateUnit(player, id, 0, 0, 0)
+            local unit = CreateUnit(player, id, WorldBounds.playMaxX, WorldBounds.playMaxY, 0)
             local value
             local resource
 
@@ -406,7 +406,7 @@ OnInit("UnitPicker", function(requires)
             local this = Unit.allocate()
 
             if id and id > 0 and not unitpool[id] then
-                local unit = CreateUnit(player, id, 0, 0, 0)
+                local unit = CreateUnit(player, id, WorldBounds.playMaxX, WorldBounds.playMaxY, 0)
 
                 if unit then
                     unitpool[id] = {}
@@ -463,7 +463,7 @@ OnInit("UnitPicker", function(requires)
         end
 
         function Unit.onInit()
-            shop = CreateUnit(player, S2A('hpea'), 0, 0, 0)
+            shop = CreateUnit(player, S2A('hpea'), WorldBounds.playMaxX, WorldBounds.playMaxY, 0)
 
             SetUnitUseFood(shop, false)
             UnitAddAbility(shop, S2A('Asid'))

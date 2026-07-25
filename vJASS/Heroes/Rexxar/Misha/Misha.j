@@ -51,7 +51,7 @@ library Misha requires Table, RegisterPlayerUnitEvent, Spell, NewBonus, Modules,
         endmethod
         
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Rexxar|r summons his companion |cffffcc00Misha|r to aid him in the battlefield. |cffffcc00Misha|r has |cffff0000" + N2S(GetMishaHealth(source, level), 0) + "|r |cffff0000Health|r, |cffff0000" + N2S(GetMishaDamage(source, level), 0) + "|r |cffff0000Damage|r and |cff808080" + N2S(GetMishaArmor(source, level), 0) + "|r |cff808080Armor|r."
+            return "|cffffcc00Rexxar|r summons his companion |cffffcc00Misha|r to aid him in the battlefield. |cffffcc00Misha|r has |cffff0000" + N2S(GetMishaHealth(source, level), 0) + "|r |cffff0000Health|r, |cffff0000" + N2S(GetMishaDamage(source, level), 0) + "|r |cffff0000Damage|r and |cff808080" + N2S(GetMishaArmor(source, level), 0) + "|r |cff808080Armor|r. |cffffcc00Misha|r has an inventory and can acquire items."
         endmethod
 
         private method onExpire takes nothing returns nothing
