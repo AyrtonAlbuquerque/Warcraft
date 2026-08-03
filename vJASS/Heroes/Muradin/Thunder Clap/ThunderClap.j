@@ -78,7 +78,7 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities option
         if IsUnitType(target, UNIT_TYPE_HERO) then
             return 0.05
         else
-            return 0.005
+            return 0.01
         endif
     endfunction
 
@@ -105,7 +105,7 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities option
     /* ---------------------------------------------------------------------------------------------- */
     private struct ThunderClap extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r by |cffffcc00" + N2S(GetAttackSlowAmount(source, level) * 100, 0) + "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc000.5%|r (|cffffcc005%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and the second |cffffcc00Thunder Clap|r stuns enemy units instead."
+            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r by |cffffcc00" + N2S(GetAttackSlowAmount(source, level) * 100, 0) + "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc001%|r (|cffffcc005%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and the second |cffffcc00Thunder Clap|r stuns enemy units instead."
         endmethod
         
         private method onCast takes nothing returns nothing

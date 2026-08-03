@@ -78,9 +78,9 @@ OnInit("ThunderClap", function (requires)
     -- The healing amount
     local function GetHealAmount(source, target, level)
         if IsUnitType(target, UNIT_TYPE_HERO) then
-            return 0.1
+            return 0.05
         else
-            return 0.025
+            return 0.01
         end
     end
 
@@ -109,7 +109,7 @@ OnInit("ThunderClap", function (requires)
         ThunderClap = Class(Spell)
 
         function ThunderClap:onTooltip(source, level, ability)
-            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r by |cffffcc00" .. N2S(GetAttackSlowAmount(source, level) * 100, 0) .. "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc000.5%|r (|cffffcc005%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and the second |cffffcc00Thunder Clap|r stuns enemy units instead."
+            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r by |cffffcc00" .. N2S(GetAttackSlowAmount(source, level) * 100, 0) .. "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc001%|r (|cffffcc005%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and the second |cffffcc00Thunder Clap|r stuns enemy units instead."
         end
 
         function ThunderClap:onCast()
