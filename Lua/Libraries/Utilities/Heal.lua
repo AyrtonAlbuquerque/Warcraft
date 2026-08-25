@@ -19,7 +19,7 @@ OnInit("Heal", function(requires)
     end
 
     function HealUnit(source, target, amount, healtype, showText)
-        return Heal.heal(source, target, amount, healtype, showText)
+        return Heal.apply(source, target, amount, healtype, showText)
     end
 
     function GetHealingSource()
@@ -36,6 +36,10 @@ OnInit("Heal", function(requires)
 
     function SetHealingAmount(value)
         Heal.amount = value
+    end
+
+    function GetHealingOverheal()
+        return Heal.overheal
     end
 
     function GetHealingType()
@@ -69,6 +73,7 @@ OnInit("Heal", function(requires)
 
     Heal.type = 0
     Heal.amount = 0
+    Heal.overheal = 0
     Heal.source = Unit.create(nil)
     Heal.target = Unit.create(nil)
 
@@ -96,12 +101,18 @@ OnInit("Heal", function(requires)
         return value
     end
 
-    function Heal.heal(source, target, amount, healtype, showText)
+    function Heal.apply(source, target, amount, healtype, showText)
         if amount > 0 and (healtype == HEALTH or healtype == MANA) then
             Heal.type = healtype
             Heal.source.unit = source
             Heal.target.unit = target
             Heal.amount = (amount * (1 + (increase[Heal.target.unit] or 0))) * (1 - (decrease[Heal.target.unit] or 0))
+
+            if Heal.type == HEALTH then
+                Heal.overheal = RMaxBJ(Heal.target.health + Heal.amount - BlzGetUnitMaxHP(Heal.target.unit), 0)
+            else
+                Heal.overheal = RMaxBJ(Heal.target.mana + Heal.amount - BlzGetUnitMaxMana(Heal.target.unit), 0)
+            end
 
             for i = 1, #event do
                 event[i]()
