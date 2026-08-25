@@ -1,20 +1,18 @@
-library ProgressBar requires Effect, TimerUtils
+library ProgressBar requires Dummy, Utilities, TimerUtils
     /* ------------------------------- ProgressBar v1.0 Chopinski ------------------------------ */
     globals
-        // Constants
-        constant string MANABAR = "ManaBar.mdl"
-        constant string HEALTHBAR = "HealthBar.mdl"
-        constant string PROGRESSBAR = "ProgressBar.mdl"
-
         // Position update period
         private constant real PERIOD = 0.03
+
+        // ProgressBar unit
+        private constant integer PROGRESSBAR = 'pbar'
     endglobals
 
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function CreateProgressBar takes unit u, real x, real y, real z, real scale, real percent, string bartype returns ProgressBar
-        return ProgressBar.create(u, x, y, z, scale, percent, bartype)
+    function CreateProgressBar takes unit u, real x, real y, real z, real scale, real percent returns ProgressBar
+        return ProgressBar.create(u, x, y, z, scale, percent)
     endfunction
 
     function GetProgressBarX takes ProgressBar bar returns real
@@ -48,13 +46,18 @@ library ProgressBar requires Effect, TimerUtils
         return bar.percentage
     endfunction
 
-    function SetProgressBarPercentage takes ProgressBar bar, real newValue, real speed returns ProgressBar
-        call bar.setPercentage(newValue, speed)
+    function SetProgressBarPercentage takes ProgressBar bar, real newValue, real duration returns ProgressBar
+        call bar.setPercentage(newValue, duration)
         return bar
     endfunction
 
-    function SetProgressBarColor takes ProgressBar bar, integer red, integer green, integer blue returns ProgressBar
-        call bar.setColor(red, green, blue)
+    function SetProgressBarColor takes ProgressBar bar, integer red, integer green, integer blue, integer alpha returns ProgressBar
+        call bar.setColor(red, green, blue, alpha)
+        return bar
+    endfunction
+
+    function SetProgressBarPlayerColor takes ProgressBar bar, playercolor color returns ProgressBar
+        set bar.playercolor = color
         return bar
     endfunction
 
@@ -76,25 +79,27 @@ library ProgressBar requires Effect, TimerUtils
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
     struct ProgressBar
+        private static integer key = -1
+        private static thistype array array
+        private static timer location = CreateTimer()
+
         private real dx
         private real dy
         private real dz
         private unit unit
+        private unit effect
         private real speed
         private real value
         private real target
         private timer timer
-        private timer location
-        private boolean done
+        private integer index
         private boolean visible
-        private boolean reverse
-        private Effect effect
 
         method operator x takes nothing returns real
             if unit != null then
                 return dx
             else
-                return effect.x
+                return GetUnitX(effect)
             endif
         endmethod
 
@@ -102,7 +107,7 @@ library ProgressBar requires Effect, TimerUtils
             if unit != null then
                 set dx = value
             else
-                set effect.x = value
+                call SetUnitX(effect, value)
             endif
         endmethod
 
@@ -110,7 +115,7 @@ library ProgressBar requires Effect, TimerUtils
             if unit != null then
                 return dy
             else
-                return effect.y
+                return GetUnitY(effect)
             endif
         endmethod
 
@@ -118,7 +123,7 @@ library ProgressBar requires Effect, TimerUtils
             if unit != null then
                 set dy = value
             else
-                set effect.y = value
+                call SetUnitY(effect, value)
             endif
         endmethod
 
@@ -126,7 +131,7 @@ library ProgressBar requires Effect, TimerUtils
             if unit != null then
                 return dz
             else
-                return effect.z
+                return GetUnitZ(effect)
             endif
         endmethod
 
@@ -134,7 +139,7 @@ library ProgressBar requires Effect, TimerUtils
             if unit != null then
                 set dz = value
             else
-                set effect.z = value
+                call SetUnitZ(effect, value)
             endif
         endmethod
 
@@ -142,48 +147,60 @@ library ProgressBar requires Effect, TimerUtils
             return value
         endmethod
 
+        method operator percentage= takes real value returns nothing
+            call setPercentage(value, 0)
+        endmethod
+
+        method operator playercolor= takes playercolor color returns nothing
+            call SetUnitColor(effect, color)
+        endmethod
+
         method operator show= takes boolean flag returns nothing
             set visible = flag
 
-            if flag then
-                set effect.alpha = 255
-            else
-                set effect.alpha = 0
-            endif
+            call ShowUnit(effect, flag)
         endmethod
 
         method operator scale= takes real newScale returns nothing
-            set effect.scale = newScale
+            call SetUnitScale(effect, newScale, newScale, newScale)
         endmethod
 
         method destroy takes nothing returns nothing
-            set effect.z = -10000
-
-            call ReleaseTimer(location)
             call ReleaseTimer(timer)
-            call effect.destroy()
+            call BlzSetUnitSkin(effect, Dummy.type)
+            call DummyRecycle(effect)
             call deallocate()
+
+            if index >= 0 then
+                set array[index] = array[key]
+                set array[key] = 0
+                set key = key - 1
+
+                if key == -1 then
+                    call PauseTimer(location)
+                endif
+            endif
 
             set unit = null
             set timer = null
-            set location = null
+            set effect = null
         endmethod
 
-        method setColor takes integer red, integer green, integer blue returns thistype
-            call effect.color(red, green, blue)
+        method setColor takes integer red, integer green, integer blue, integer alpha returns thistype
+            call SetUnitVertexColor(effect, red, green, blue, alpha)
 
             return this
         endmethod
 
-        method setPercentage takes real percent, real speed returns thistype
+        method setPercentage takes real percent, real duration returns thistype
             set target = R2I(percent)
-            set .speed = speed
-            set reverse = value > target
+            set speed = ((target - value) * 0.1) / RMaxBJ(duration, 0.1)
 
-            if done then
-                call TimerStart(timer, 0.01, true, function thistype.onPeriod)
-                set done = false
+            if value == target then
+                return this
             endif
+
+            call TimerStart(timer, 0.1, true, function thistype.onPeriod)
 
             return this
         endmethod
@@ -191,70 +208,59 @@ library ProgressBar requires Effect, TimerUtils
         private static method onPeriod takes nothing returns nothing
             local thistype this = GetTimerData(GetExpiredTimer())
 
-            if reverse then
-                if value > target then
-                    set effect.timeScale = -speed
-                    set value = value - speed
-                elseif value <= target then
-                    set done = true
-                    set value = target
-                    set effect.timeScale = 0
+            set value = value + speed
 
-                    call PauseTimer(timer)
-                endif
-            else
-                if value < target then
-                    set effect.timeScale = speed
-                    set value = value + speed
-                elseif value >= target then
-                    set done = true
-                    set value = target
-                    set effect.timeScale = 0
+            if (speed > 0 and value >= target) or (speed < 0 and value <= target) then
+                set value = target
 
-                    call PauseTimer(timer)
-                endif
+                call PauseTimer(timer)
             endif
+
+            call SetUnitAnimationByIndex(effect, R2I(value + 0.5))
         endmethod
 
         private static method onMove takes nothing returns nothing
-            local thistype this = GetTimerData(GetExpiredTimer())
+            local thistype this
+            local integer i = 0
 
-            if UnitAlive(unit) then
-                set effect.x = GetUnitX(unit) + dx
-                set effect.y = GetUnitY(unit) + dy
-                set effect.z = GetUnitZ(unit) + dz
+            loop
+                exitwhen i > key
+                    set this = array[i]
 
-                if not visible then
-                    set show = true
-                endif
-            else
-                if visible then
-                    set show = false
-                endif
-            endif
+                    if this != 0 then
+                        call SetUnitX(effect, GetUnitX(unit) + dx)
+                        call SetUnitY(effect, GetUnitY(unit) + dy)
+                        call SetUnitZ(effect, GetUnitZ(unit) + dz) 
+                    endif
+                set i = i + 1
+            endloop
         endmethod
 
-        static method create takes unit u, real x, real y, real z, real scale, real percent, string bartype returns thistype
+        static method create takes unit u, real x, real y, real z, real scale, real percent returns thistype
             local thistype this = thistype.allocate()
 
             set dx = x
             set dy = y
             set dz = z
             set unit = u
-            set value = 0
-            set done = true
+            set index = -1
+            set value = R2I(percent)
             set visible = true
             set timer = NewTimerEx(this)
-            set effect = Effect.create(bartype, x, y, z, scale)
-            set effect.timeScale = 0
+            set effect = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), x, y, z, 0)
 
-            if percent > 0 then
-                call setPercentage(percent, 1)
-            endif
+            call BlzSetUnitSkin(effect, PROGRESSBAR)
+            call SetUnitScale(effect, scale, scale, scale)
+            call SetUnitAnimationByIndex(effect, R2I(value))
 
             if unit != null then
-                set location = NewTimerEx(this)
-                call TimerStart(location, PERIOD, true, function thistype.onMove)
+                set key = key + 1
+                set index = key
+                set array[key] = this
+
+                if key == 0 then
+                    call TimerStart(location, PERIOD, true, function thistype.onMove)
+                endif
             endif
 
             return this
