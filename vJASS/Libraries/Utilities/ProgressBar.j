@@ -56,7 +56,7 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
         return bar
     endfunction
 
-    function SetProgressBarPlayerColor takes ProgressBar bar, playercolor color returns ProgressBar
+    function SetProgressBarPlayerColor takes ProgressBar bar, integer color returns ProgressBar
         set bar.playercolor = color
         return bar
     endfunction
@@ -151,8 +151,8 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
             call setPercentage(value, 0)
         endmethod
 
-        method operator playercolor= takes playercolor color returns nothing
-            call SetUnitColor(effect, color)
+        method operator playercolor= takes integer color returns nothing
+            call SetUnitColor(effect, GetPlayerColor(Player(color)))
         endmethod
 
         method operator show= takes boolean flag returns nothing

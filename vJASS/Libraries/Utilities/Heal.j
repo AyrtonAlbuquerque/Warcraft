@@ -16,7 +16,7 @@ library Heal requires Unit, Indexer, ArcingFloatingText
     endfunction
 
     function HealUnit takes unit source, unit target, real amount, integer healtype, boolean showText returns boolean
-        return Heal.heal(source, target, amount, healtype, showText)
+        return Heal.apply(source, target, amount, healtype, showText)
     endfunction
 
     function GetHealingSource takes nothing returns unit
@@ -33,6 +33,10 @@ library Heal requires Unit, Indexer, ArcingFloatingText
 
     function SetHealingAmount takes real value returns nothing
         set Heal.amount = value
+    endfunction
+
+    function GetHealingOverheal takes nothing returns real
+        return Heal.overheal
     endfunction
 
     function GetHealingType takes nothing returns integer
@@ -71,6 +75,7 @@ library Heal requires Unit, Indexer, ArcingFloatingText
 
         static real amount
         static integer type
+        static real overheal
 
         static method getIncrease takes unit u returns real
             return increase[GetUnitUserData(u)]
@@ -92,12 +97,18 @@ library Heal requires Unit, Indexer, ArcingFloatingText
             return value
         endmethod
 
-        static method heal takes unit source, unit target, real amount, integer healtype, boolean showText returns boolean
+        static method apply takes unit source, unit target, real amount, integer healtype, boolean showText returns boolean
             if amount > 0 and (healtype == HEALTH or healtype == MANA) then
                 set Heal.type = healtype
                 set Heal.source.unit = source
                 set Heal.target.unit = target
                 set Heal.amount = (amount * (1 + increase[Heal.target.id])) * (1 - decrease[Heal.target.id])
+
+                if Heal.type == HEALTH then
+                    set Heal.overheal = RMaxBJ(Heal.target.health + Heal.amount - BlzGetUnitMaxHP(Heal.target.unit), 0)
+                else
+                    set Heal.overheal = RMaxBJ(Heal.target.mana + Heal.amount - BlzGetUnitMaxMana(Heal.target.unit), 0)
+                endif
 
                 call TriggerEvaluate(trigger)
 
