@@ -4,6 +4,7 @@ OnInit("Utilities", function(requires)
     requires "Indexer"
     requires "TimedHandles"
     requires "RegisterPlayerUnitEvent"
+    requires.optional "Heal"
 
     -- Update period
     local PERIOD = 0.03125
@@ -293,9 +294,17 @@ OnInit("Utilities", function(requires)
         end
     end
 
-    -- Add the mount for he unit mana pool
-    function AddUnitMana(unit, real)
-        SetUnitState(unit, UNIT_STATE_MANA, (GetUnitState(unit, UNIT_STATE_MANA) + real))
+    -- Add the amount for the unit mana pool
+    function AddUnitMana(unit, amount)
+        if amount > 0 then
+            if Heal then
+                HealUnit(nil, unit, amount, MANA, false)
+            else
+                SetUnitState(unit, UNIT_STATE_MANA, (GetUnitState(unit, UNIT_STATE_MANA) + amount))
+            end
+        else
+            SetUnitState(unit, UNIT_STATE_MANA, (GetUnitState(unit, UNIT_STATE_MANA) + amount))
+        end
     end
 
     -- Add the specified amounts to a hero str/agi/int base amount
@@ -515,7 +524,11 @@ OnInit("Utilities", function(requires)
             unit = BlzGroupUnitAt(group, i)
 
             if IsUnitAlly(unit, player) and UnitAlive(unit) and not IsUnitType(unit, UNIT_TYPE_STRUCTURE) then
-                SetWidgetLife(unit, GetWidgetLife(unit) + amount)
+                if Heal then
+                    HealUnit(nil, unit, amount, HEALTH, false)
+                else
+                    SetWidgetLife(unit, GetWidgetLife(unit) + amount)
+                end
 
                 if effect ~= "" then
                     if attach ~= "" then

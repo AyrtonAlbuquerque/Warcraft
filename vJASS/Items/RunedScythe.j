@@ -1,6 +1,6 @@
-scope GlaiveScythe
-    struct GlaiveScythe extends Item
-        static constant integer code = 'I02D'
+scope RunedScythe
+    struct RunedScythe extends Item
+        static constant integer code = 'I010'
 
         real agility = 7
         real strength = 7

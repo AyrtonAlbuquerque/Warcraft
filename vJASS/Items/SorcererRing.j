@@ -1,5 +1,5 @@
-scope CrystalRing
-    struct CrystalRing extends Item
+scope SorcererRing
+    struct SorcererRing extends Item
         static constant integer code = 'I00K'
 
         real manaRegen = 0.5

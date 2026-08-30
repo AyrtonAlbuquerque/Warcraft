@@ -1,4 +1,4 @@
-library YulonBlessing requires RegisterPlayerUnitEvent, Utilities, Spell, TimerUtils
+library YulonBlessing requires RegisterPlayerUnitEvent, Utilities, Spell, TimerUtils, Heal
     /* -------------------- Yulon Blessing v1.2 by Chopinski -------------------- */
     // Credits:
     //     Magtheridon96  - RegisterPlayerUnitEvent
@@ -68,7 +68,7 @@ library YulonBlessing requires RegisterPlayerUnitEvent, Utilities, Spell, TimerU
                 
                 call DestroyEffectTimed(AddSpecialEffectTarget(CASTER_MODEL, unit, ATTACH_POINT), 1)
                 call SetWidgetLife(unit, GetWidgetLife(unit) - amount)
-                call AddUnitMana(unit, amount)
+                call HealUnit(unit, unit, amount, MANA, false)
                 call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), GetAoE(unit, level), null)
                 call GroupRemoveUnit(group, unit)
 
@@ -77,8 +77,8 @@ library YulonBlessing requires RegisterPlayerUnitEvent, Utilities, Spell, TimerU
                     exitwhen u == null
                         if UnitFilter(player, u) then
                             call DestroyEffect(AddSpecialEffectTarget(MODEL, u, ATTACH_POINT))
-                            call SetWidgetLife(u, GetWidgetLife(u) + amount)
-                            call AddUnitMana(u, amount)
+                            call HealUnit(unit, unit, amount, HEALTH, false)
+                            call HealUnit(unit, unit, amount, MANA, false)
                         endif
                     call GroupRemoveUnit(group, u)
                 endloop

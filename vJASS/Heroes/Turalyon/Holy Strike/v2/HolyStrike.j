@@ -1,4 +1,4 @@
-library HolyStrike requires DamageInterface, Spell, NewBonus
+library HolyStrike requires DamageInterface, Spell, NewBonus, Heal
     /* ---------------------- Holy Strike v1.3 by Chopinski --------------------- */
     // Credits:
     //     AbstractCreativity - Icon
@@ -149,8 +149,9 @@ library HolyStrike requires DamageInterface, Spell, NewBonus
                     endif
 
                     if source != null then
-                        call SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(source, highest, Damage.source.isRanged))
-                        call DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                        if HealUnit(Damage.source.unit, Damage.source.unit, GetHeal(source, highest, Damage.source.isRanged), HEALTH, false) then
+                            call DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                        endif
                     endif
                 endif
             endif

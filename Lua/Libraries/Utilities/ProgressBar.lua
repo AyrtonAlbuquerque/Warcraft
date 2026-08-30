@@ -5,14 +5,16 @@ OnInit("ProgressBar", function (requires)
 
     -- Position update period
     local PERIOD = 0.03
+    -- Texttag default size
+    local TEXTTAG_SIZE = 0.014
     -- ProgressBar unit
     local PROGRESSBAR = S2A('pbar')
 
     -- ----------------------------------------------------------------------------------------- --
     --                                          Lua API                                          --
     -- ----------------------------------------------------------------------------------------- --
-    function CreateProgressBar(unit, x, y, z, scale, percent)
-        return ProgressBar.create(unit, x, y, z, scale, percent)
+    function CreateProgressBar(unit, x, y, z, scale, percent, showText)
+        return ProgressBar.create(unit, x, y, z, scale, percent, showText)
     end
 
     function GetProgressBarX(bar)
@@ -63,6 +65,29 @@ OnInit("ProgressBar", function (requires)
 
     function SetProgressBarScale(bar, newScale)
         bar.scale = newScale
+        return bar
+    end
+
+    function GetProgressBarText(bar)
+        return bar.text
+    end
+
+    function SetProgressBarText(bar, newText)
+        bar.text = newText
+        return bar
+    end
+
+    function GetProgressBarTextSize(bar)
+        return bar.textsize
+    end
+
+    function SetProgressBarTextSize(bar, newSize)
+        bar.textsize = newSize
+        return bar
+    end
+
+    function SetProgressBarTextColor(bar, red, green, blue, alpha)
+        bar:setTextColor(red, green, blue, alpha)
         return bar
     end
 
@@ -134,10 +159,32 @@ OnInit("ProgressBar", function (requires)
         end
     })
 
+    ProgressBar:property("text", {
+        get = function(self) return self.string or "" end,
+        set = function(self, value)
+            self.string = value
+
+            if self.texttag then
+                SetTextTagText(self.texttag, self.string or "", self.size or TEXTTAG_SIZE)
+            end
+        end
+    })
+
     ProgressBar:property("percentage", {
         get = function(self) return self.value end,
         set = function(self, value)
             self:setPercentage(value, 0)
+        end
+    })
+
+    ProgressBar:property("textsize", {
+        get = function(self) return self.size or TEXTTAG_SIZE end,
+        set = function(self, value)
+            self.size = value
+
+            if self.texttag then
+                SetTextTagText(self.texttag, self.string or "", self.size or TEXTTAG_SIZE)
+            end
         end
     })
 
@@ -152,6 +199,10 @@ OnInit("ProgressBar", function (requires)
             self.visible = flag
 
             ShowUnit(self.effect, flag)
+
+            if self.texttag then
+                SetTextTagVisibility(self.texttag, flag)
+            end
         end
     })
 
@@ -167,14 +218,25 @@ OnInit("ProgressBar", function (requires)
         BlzSetUnitSkin(self.effect, Dummy.type)
         DummyRecycle(self.effect)
 
+        if self.texttag then
+            DestroyTextTag(self.texttag)
+        end
+
         self.unit = nil
         self.timer = nil
         self.effect = nil
         self.active = nil
+        self.texttag = nil
     end
 
     function ProgressBar:setColor(red, green, blue, alpha)
         SetUnitVertexColor(self.effect, red, green, blue, alpha)
+
+        return self
+    end
+
+    function ProgressBar:setTextColor(red, green, blue, alpha)
+        SetTextTagColor(self.texttag, red, green, blue, alpha)
 
         return self
     end
@@ -202,21 +264,32 @@ OnInit("ProgressBar", function (requires)
         return self
     end
 
-    function ProgressBar.create(unit, x, y, z, scale, percent)
+    function ProgressBar.create(unit, x, y, z, scale, percent, showText)
         local self = ProgressBar.allocate()
 
         self.dx = x
         self.dy = y
         self.dz = z
         self.unit = unit
-        self.value = R2I(percent)
+        self.string = "0"
         self.visible = true
+        self.size = TEXTTAG_SIZE
+        self.value = R2I(percent)
         self.timer = CreateTimer()
         self.effect = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), x, y, z, 0)
 
         BlzSetUnitSkin(self.effect, PROGRESSBAR)
         SetUnitScale(self.effect, scale, scale, scale)
         SetUnitAnimationByIndex(self.effect, R2I(self.value))
+
+        if showText then
+            self.texttag = CreateTextTag()
+            
+            SetTextTagText(self.texttag, self.string, self.size)
+            SetTextTagPos(self.texttag, x, y, z)
+            SetTextTagColor(self.texttag, 255, 255, 255, 255)
+            SetTextTagPermanent(self.texttag, true)
+        end
 
         if self.unit then
             self.active = true
@@ -234,6 +307,11 @@ OnInit("ProgressBar", function (requires)
                             SetUnitX(this.effect, GetUnitX(this.unit) + this.dx)
                             SetUnitY(this.effect, GetUnitY(this.unit) + this.dy)
                             SetUnitZ(this.effect, GetUnitZ(this.unit) + this.dz)
+
+                            if this.texttag then
+                                SetTextTagText(this.texttag, this.string, this.size)
+                                SetTextTagPos(this.texttag, GetUnitX(this.effect) - 20, GetUnitY(this.effect) - 30, GetUnitFlyHeight(this.effect))
+                            end
                         else
                             table.remove(array, i)
 

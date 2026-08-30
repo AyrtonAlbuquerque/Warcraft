@@ -3,6 +3,7 @@ OnInit("HolyLink", function (requires)
     requires "Spell"
     requires "Bonus"
     requires "Damage"
+    requires "Heal"
     requires "Utilities"
     requires.optional "LightInfusion"
 
@@ -113,10 +114,10 @@ OnInit("HolyLink", function (requires)
 
                 if DistanceBetweenCoordinates(x, y, tx, ty) <= self.distance and UnitAlive(self.target) and UnitAlive(self.unit) then
                     if self.infused then
-                        SetWidgetLife(self.unit, GetWidgetLife(self.unit) + GetBonus(self.unit, level))
-                        SetWidgetLife(self.target, GetWidgetLife(self.target) + GetBonus(self.target, level))
+                        HealUnit(self.unit, self.unit, GetBonus(self.unit, level), HEALTH, false)
+                        HealUnit(self.unit, self.target, GetBonus(self.target, level), HEALTH, false)
                     else
-                        SetWidgetLife(self.target, GetWidgetLife(self.target) + GetBonus(self.target, level))
+                        HealUnit(self.unit, self.target, GetBonus(self.target, level), HEALTH, false)
                     end
 
                     if self.count <= 28 then -- This is here because reforged lightnings don't persist visually...

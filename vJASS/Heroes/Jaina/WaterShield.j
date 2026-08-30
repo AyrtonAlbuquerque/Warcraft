@@ -1,4 +1,4 @@
-library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Missiles, Utilities, Modules optional NewBonus
+library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Missiles, Utilities, TimerUtils, Shield optional NewBonus
     /* --------------------- Water Shield v1.2 by Chopinski --------------------- */
     // Credits:
     //     Darkfang        - Icon
@@ -92,12 +92,14 @@ library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Mi
         private real angle
         private real amount
         private integer id
+        private timer timer
         private unit source
         private unit target
         private group group
         private player player
         private integer level
         private boolean defensive
+        private Shield shield
 
         method destroy takes nothing returns nothing
             if defensive then
@@ -107,6 +109,8 @@ library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Mi
                     call DestroyEffect(effect[id])
                     set effect[id] = null
                 endif
+
+                call DestroyShield(shield)
             else
                 set offense[id] = 0
 
@@ -117,9 +121,11 @@ library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Mi
             endif
 
             call DestroyGroup(group)
+            call ReleaseTimer(timer)
             call deallocate()
 
             set group = null
+            set timer = null
             set source = null
             set target = null
             set player = null
@@ -129,23 +135,26 @@ library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Mi
             return "|cffffcc00Jaina|r can cast |cffffcc00Water Shield|r in an ally or enemy unit. When targeting an ally, the |cffffcc00Water Shield|r blocks |cff00ffff" + N2S(GetAmount(source, level), 0) + "|r damage and if the shield last it's whole duration it will explode, dealing the remaining shield amount as |cff00ffffMagic|r damage to nearby enemy units within |cffffcc00" + N2S(GetExplosionAoE(source, level), 0) + " AoE|r. When targeting an enemy unit, all attacks to the targeted unit will splash water bolts to enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r in a |cffffcc00" + N2S(GetAngle(source, level), 0) + "|r degrees angle behind the target unit from the direction of the attack, dealing |cff00ffff" + N2S(GetBoltDamage(source, level), 0) + "|r |cff00ffffMagic|r damage.\n\nLasts for |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds."
         endmethod
 
-        private method onExpire takes nothing returns nothing
+        private static method onExpire takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
             local unit u
 
-            if defensive and amount > 0 then
+            if defensive and shield.value > 0 then
                 call GroupEnumUnitsInRange(group, GetUnitX(target), GetUnitY(target), aoe, null)
 
                 loop
                     set u = FirstOfGroup(group)
                     exitwhen u == null
                         if UnitFilter(player, u) then
-                            call UnitDamageTarget(source, u, amount, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
+                            call UnitDamageTarget(source, u, shield.value, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
                         endif
                     call GroupRemoveUnit(group, u)
                 endloop
 
                 call DestroyEffect(AddSpecialEffectEx(EXPLOSION_MODEL, GetUnitX(target), GetUnitY(target), 0, EXPLOSION_SCALE))
             endif
+
+            call destroy()
         endmethod
 
         private method onCast takes nothing returns nothing
@@ -161,6 +170,7 @@ library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Mi
                     set id = Spell.target.id
                     set target = Spell.target.unit
                     set group = CreateGroup()
+                    set timer = NewTimerEx(this)
                     set defensive = false
                     set offense[id] = this
                 endif
@@ -179,32 +189,28 @@ library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Mi
                     set id = Spell.target.id
                     set target = Spell.target.unit
                     set group = CreateGroup()
+                    set timer = NewTimerEx(this)
                     set defensive = true
-                    set amount = 0
                     set defense[id] = this
+                    set shield = CreateShield(Spell.source.unit, target, 0, null, null, 0, "", "", true, 21, true)
                 endif
 
                 set source = Spell.source.unit
                 set player = Spell.source.player
                 set level = Spell.level
-                set amount = amount + GetAmount(source, level)
                 set aoe = GetExplosionAoE(source, level)
+
+                call ShieldAddAmount(shield, GetAmount(source, level))
             endif
 
-            call StartTimer(GetDuration(source, level), false, this, -1)
+            call TimerStart(timer, GetDuration(source, level), false, function thistype.onExpire)
         endmethod
 
-        private static method onDamage takes nothing returns nothing
-            local thistype this = defense[Damage.target.id]
+        private static method onBreak takes nothing returns nothing
+            local thistype this = defense[GetUnitUserData(GetShieldingTarget())]
 
-            if Damage.amount > 0 and this != 0 then
-                if Damage.amount <= amount then
-                    set amount = amount - Damage.amount
-                    set Damage.amount = 0
-                else
-                    set Damage.amount = Damage.amount - amount
-                    set amount = 0
-
+            if this != 0 then
+                if this.shield == GetTriggerShield() then
                     call destroy()
                 endif
             endif
@@ -258,7 +264,7 @@ library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Mi
 
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
-            call RegisterAnyDamageEvent(function thistype.onDamage)
+            call RegisterShieldBreakEvent(function thistype.onBreak)
             call RegisterAttackDamageEvent(function thistype.onAttack)
             call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function thistype.onDeath)
         endmethod

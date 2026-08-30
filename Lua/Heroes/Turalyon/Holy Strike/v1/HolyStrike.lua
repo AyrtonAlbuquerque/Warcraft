@@ -2,6 +2,7 @@ OnInit("HolyStrike", function (requires)
     requires "Class"
     requires "Spell"
     requires "Damage"
+    requires "Heal"
     requires "Utilities"
 
     -- ----------------------------- Holy Strike v1.3 by Chopinski ----------------------------- --
@@ -44,17 +45,21 @@ OnInit("HolyStrike", function (requires)
         function HolyStrike.onDamage()
             if Damage.isEnemy then
                 if GetUnitAbilityLevel(Damage.source.unit, BUFF_4) > 0 then
-                    SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(4, Damage.source.isRanged))
-                    DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                    if HealUnit(Damage.source.unit, Damage.source.unit, GetHeal(4, Damage.source.isRanged), HEALTH, false) then
+                        DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                    end
                 elseif GetUnitAbilityLevel(Damage.source.unit, BUFF_3) > 0 then
-                    SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(3, Damage.source.isRanged))
-                    DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                    if HealUnit(Damage.source.unit, Damage.source.unit, GetHeal(3, Damage.source.isRanged), HEALTH, false) then
+                        DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                    end
                 elseif GetUnitAbilityLevel(Damage.source.unit, BUFF_2) > 0 then
-                    SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(2, Damage.source.isRanged))
-                    DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                    if HealUnit(Damage.source.unit, Damage.source.unit, GetHeal(2, Damage.source.isRanged), HEALTH, false) then
+                        DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                    end
                 elseif GetUnitAbilityLevel(Damage.source.unit, BUFF_1) > 0 then
-                    SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(1, Damage.source.isRanged))
-                    DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                    if HealUnit(Damage.source.unit, Damage.source.unit, GetHeal(1, Damage.source.isRanged), HEALTH, false) then
+                        DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                    end
                 end
             end
         end

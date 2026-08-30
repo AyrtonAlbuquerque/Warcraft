@@ -4,6 +4,9 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
         // Position update period
         private constant real PERIOD = 0.03
 
+        // Texttag default size
+        private constant real TEXTTAG_SIZE = 0.014
+
         // ProgressBar unit
         private constant integer PROGRESSBAR = 'pbar'
     endglobals
@@ -11,8 +14,8 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function CreateProgressBar takes unit u, real x, real y, real z, real scale, real percent returns ProgressBar
-        return ProgressBar.create(u, x, y, z, scale, percent)
+    function CreateProgressBar takes unit u, real x, real y, real z, real scale, real percent, boolean showText returns ProgressBar
+        return ProgressBar.create(u, x, y, z, scale, percent, showText)
     endfunction
 
     function GetProgressBarX takes ProgressBar bar returns real
@@ -66,6 +69,29 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
         return bar
     endfunction
 
+    function GetProgressBarText takes ProgressBar bar returns string
+        return bar.text
+    endfunction
+
+    function SetProgressBarText takes ProgressBar bar, string newText returns ProgressBar
+        set bar.text = newText
+        return bar
+    endfunction
+
+    function GetProgressBarTextSize takes ProgressBar bar returns real
+        return bar.textsize
+    endfunction
+
+    function SetProgressBarTextSize takes ProgressBar bar, real newSize returns ProgressBar
+        set bar.textsize = newSize
+        return bar
+    endfunction
+
+    function SetProgressBarTextColor takes ProgressBar bar, integer red, integer green, integer blue, integer alpha returns ProgressBar
+        call bar.setTextColor(red, green, blue, alpha)
+        return bar
+    endfunction
+
     function ShowProgressBar takes ProgressBar bar, boolean flag returns ProgressBar
         set bar.show = flag
         return bar
@@ -86,13 +112,16 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
         private real dx
         private real dy
         private real dz
+        private real size
         private unit unit
         private unit effect
         private real speed
         private real value
         private real target
         private timer timer
+        private string string
         private integer index
+        private texttag texttag
         private boolean visible
 
         method operator x takes nothing returns real
@@ -143,12 +172,36 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
             endif
         endmethod
 
+        method operator text takes nothing returns string
+            return string
+        endmethod
+
+        method operator text= takes string value returns nothing
+            set string = value
+
+            if texttag != null then
+                call SetTextTagText(texttag, string, size)
+            endif
+        endmethod
+
         method operator percentage takes nothing returns real
             return value
         endmethod
 
         method operator percentage= takes real value returns nothing
             call setPercentage(value, 0)
+        endmethod
+
+        method operator textsize takes nothing returns real
+            return size
+        endmethod
+
+        method operator textsize= takes real value returns nothing
+            set size = value
+
+            if texttag != null then
+                call SetTextTagText(texttag, string, size)
+            endif
         endmethod
 
         method operator playercolor= takes integer color returns nothing
@@ -159,6 +212,10 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
             set visible = flag
 
             call ShowUnit(effect, flag)
+
+            if texttag != null then
+                call SetTextTagVisibility(texttag, flag)
+            endif
         endmethod
 
         method operator scale= takes real newScale returns nothing
@@ -171,8 +228,16 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
             call DummyRecycle(effect)
             call deallocate()
 
+            if texttag != null then
+                call DestroyTextTag(texttag)
+            endif
+
             if index >= 0 then
-                set array[index] = array[key]
+                if index < key then
+                    set array[index] = array[key]
+                    set ProgressBar(array[index]).index = index
+                endif
+
                 set array[key] = 0
                 set key = key - 1
 
@@ -184,10 +249,17 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
             set unit = null
             set timer = null
             set effect = null
+            set texttag = null
         endmethod
 
         method setColor takes integer red, integer green, integer blue, integer alpha returns thistype
             call SetUnitVertexColor(effect, red, green, blue, alpha)
+
+            return this
+        endmethod
+
+        method setTextColor takes integer red, integer green, integer blue, integer alpha returns thistype
+            call SetTextTagColor(texttag, red, green, blue, alpha)
 
             return this
         endmethod
@@ -227,16 +299,19 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
                 exitwhen i > key
                     set this = array[i]
 
-                    if this != 0 then
-                        call SetUnitX(effect, GetUnitX(unit) + dx)
-                        call SetUnitY(effect, GetUnitY(unit) + dy)
-                        call SetUnitZ(effect, GetUnitZ(unit) + dz) 
+                    call SetUnitX(effect, GetUnitX(unit) + dx)
+                    call SetUnitY(effect, GetUnitY(unit) + dy)
+                    call SetUnitZ(effect, GetUnitZ(unit) + dz)
+
+                    if texttag != null then
+                        call SetTextTagText(texttag, string, size)
+                        call SetTextTagPos(texttag, GetUnitX(effect) - 20, GetUnitY(effect) - 30, GetUnitFlyHeight(effect))
                     endif
                 set i = i + 1
             endloop
         endmethod
 
-        static method create takes unit u, real x, real y, real z, real scale, real percent returns thistype
+        static method create takes unit u, real x, real y, real z, real scale, real percent, boolean showText returns thistype
             local thistype this = thistype.allocate()
 
             set dx = x
@@ -244,8 +319,10 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
             set dz = z
             set unit = u
             set index = -1
-            set value = R2I(percent)
+            set string = "0"
             set visible = true
+            set size = TEXTTAG_SIZE
+            set value = R2I(percent)
             set timer = NewTimerEx(this)
             set effect = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), x, y, z, 0)
 
@@ -253,10 +330,21 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
             call SetUnitScale(effect, scale, scale, scale)
             call SetUnitAnimationByIndex(effect, R2I(value))
 
+            if showText then
+                set texttag = CreateTextTag()
+                
+                call SetTextTagText(texttag, string, size)
+                call SetTextTagPos(texttag, x, y, z)
+                call SetTextTagColor(texttag, 255, 255, 255, 255)
+                call SetTextTagPermanent(texttag, true)
+            endif
+
             if unit != null then
                 set key = key + 1
                 set index = key
                 set array[key] = this
+
+                call SetTextTagPos(texttag, GetUnitX(effect) - 20, GetUnitY(effect) - 30, GetUnitFlyHeight(effect))
 
                 if key == 0 then
                     call TimerStart(location, PERIOD, true, function thistype.onMove)

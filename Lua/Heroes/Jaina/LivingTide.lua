@@ -1,6 +1,7 @@
 OnInit("LivingTide", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Heal"
     requires "Missiles"
     requires "Utilities"
     requires "MouseUtils"
@@ -75,7 +76,7 @@ OnInit("LivingTide", function (requires)
                         self:flush(unit)
                     end
                 elseif GetUnitTypeId(unit) == WaterElemental_ELEMENTAL and GetOwningPlayer(unit) == self.owner then
-                    SetWidgetLife(unit, GetWidgetLife(unit) + self.damage)
+                    HealUnit(self.source, unit, self.damage, HEALTH, false)
                     self:flush(unit)
                 end
 

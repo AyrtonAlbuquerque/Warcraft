@@ -1,4 +1,4 @@
-library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules optional NewBonus optional WaterElemental
+library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules, Heal optional NewBonus optional WaterElemental
     /* ---------------------- Living Tide v1.1 by Chopinski --------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -72,7 +72,7 @@ library LivingTide requires Spell, Missiles, Utilities, MouseUtils, Modules opti
                         call flush(u)
                     endif
                 elseif GetUnitTypeId(u) == WaterElemental_ELEMENTAL and GetOwningPlayer(u) == owner then
-                    call SetWidgetLife(u, GetWidgetLife(u) + damage)
+                    call HealUnit(source, u, damage, HEALTH, false)
                     call flush(u)
                 endif
 

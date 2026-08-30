@@ -123,10 +123,10 @@ library HolyLink requires Spell, Utilities, DamageInterface, NewBonus, Modules o
 
             if DistanceBetweenCoordinates(x, y, tx, ty) <= distance and UnitAlive(target) and UnitAlive(unit) then
                 if infused then
-                    call SetWidgetLife(unit, GetWidgetLife(unit) + GetBonus(unit, level))
-                    call SetWidgetLife(target, GetWidgetLife(target) + GetBonus(target, level))
+                    call HealUnit(unit, unit, GetBonus(unit, level), HEALTH, false)
+                    call HealUnit(unit, target, GetBonus(target, level), HEALTH, false)
                 else
-                    call SetWidgetLife(target, GetWidgetLife(target) + GetBonus(target, level))
+                    call HealUnit(unit, target, GetBonus(target, level), HEALTH, false)
                 endif
 
                 if count <= 28 then // This is here because reforged lightnings don't persist visually...

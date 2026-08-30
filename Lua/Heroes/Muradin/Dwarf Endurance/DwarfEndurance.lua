@@ -1,6 +1,7 @@
 OnInit("DwarfEndurance", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Heal"
     requires "Damage"
     requires "Utilities"
 
@@ -68,7 +69,7 @@ OnInit("DwarfEndurance", function (requires)
                     if level > 0 then
                         if this.cooldown <= 0 then
                             if UnitAlive(this.unit) then
-                                SetWidgetLife(this.unit, GetWidgetLife(this.unit) + GetHeal(level) * PERIOD)
+                                HealUnit(this.unit, this.unit, GetHeal(level) * PERIOD, HEALTH, false)
                             end
                         else
                             this.cooldown = this.cooldown - PERIOD

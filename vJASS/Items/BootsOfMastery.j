@@ -3,7 +3,7 @@ scope BootsOfMastery
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
     private constant function GetBonus takes nothing returns integer
-        return 10
+        return 15
     endfunction
 
     private constant function GetBonusPerLevel takes nothing returns integer

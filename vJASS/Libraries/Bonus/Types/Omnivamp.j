@@ -24,7 +24,11 @@ scope Omnivamp
 
         private static method onDamage takes nothing returns nothing
             if Damage.amount > 0 and vamp[Damage.source.id] > 0 and not Damage.target.isStructure then
-                call SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (Damage.amount * vamp[Damage.source.id])))
+                static if Library_Heal then
+                    call HealUnit(Damage.source.unit, Damage.source.unit, Damage.amount * vamp[Damage.source.id], HEALTH, false)
+                else
+                    call SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (Damage.amount * vamp[Damage.source.id])))
+                endif
             endif
         endmethod
 

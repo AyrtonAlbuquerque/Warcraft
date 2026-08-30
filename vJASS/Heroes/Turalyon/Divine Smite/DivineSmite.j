@@ -1,4 +1,4 @@
-library DivineSmite requires Spell, Utilities, Modules optional LightInfusion optional NewBonus
+library DivineSmite requires Spell, Utilities, Modules, Heal optional LightInfusion optional NewBonus
     /* --------------------- Divine Smite v1.4 by Chopinski --------------------- */
     // Credits:
     //     CRAZYRUSSIAN    - Icon
@@ -103,8 +103,9 @@ library DivineSmite requires Spell, Utilities, Modules optional LightInfusion op
                         if IsUnitEnemy(u, owner) then
                             call UnitDamageTarget(caster, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
                         else
-                            call SetWidgetLife(u, GetWidgetLife(u) + damage)
-                            call DestroyEffect(AddSpecialEffectTarget(HEAL_MODEL, u, ATTACH_POINT))
+                            if HealUnit(caster, u, damage, HEALTH, false) then
+                                call DestroyEffect(AddSpecialEffectTarget(HEAL_MODEL, u, ATTACH_POINT))
+                            endif
                         endif
                     endif
                 call GroupRemoveUnit(g, u)

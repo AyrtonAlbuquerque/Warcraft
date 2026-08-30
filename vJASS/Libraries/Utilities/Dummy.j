@@ -39,6 +39,7 @@ library Dummy requires TimerUtils, WorldBounds
                 call SetUnitOwner(dummy, player, false)
                 call SetUnitScale(dummy, 1, 1, 1)
                 call SetUnitTimeScale(dummy, 1)
+                call SetUnitVertexColor(dummy, 255, 255, 255, 255)
                 call PauseUnit(dummy, true)
             endif
         endmethod

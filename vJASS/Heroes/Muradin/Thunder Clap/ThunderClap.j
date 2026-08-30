@@ -1,4 +1,4 @@
-library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities optional Avatar optional StormBolt optional NewBonus
+library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities, Heal optional Avatar optional StormBolt optional NewBonus
     /* -------------------------------------- Thunder Clap v1.6 ------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -167,8 +167,9 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities option
             call DestroyGroup(g)
 
             if heal > 0 then
-                call SetWidgetLife(source, GetWidgetLife(source) + (BlzGetUnitMaxHP(source)*heal))
-                call DestroyEffectTimed(AddSpecialEffectTarget(HEAL_EFFECT, source, ATTACH_POINT), 1.0)
+                if HealUnit(source, source, BlzGetUnitMaxHP(source) * heal, HEALTH, false) then
+                    call DestroyEffectTimed(AddSpecialEffectTarget(HEAL_EFFECT, source, ATTACH_POINT), 1.0)
+                endif
             endif
             
             static if LIBRARY_StormBolt and STORM_BOLT_V3 then

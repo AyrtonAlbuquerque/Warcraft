@@ -56,8 +56,14 @@ scope LifeSteal
         private static method onDamage takes nothing returns nothing
             static if LIBRARY_DamageInterface then
                 if Damage.amount > 0 and Damage.isAttack and steal[Damage.source.id] > 0 and not Damage.target.isStructure then
-                    call SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (Damage.amount * steal[Damage.source.id])))
-                    call DestroyEffect(AddSpecialEffectTarget(effect, Damage.source.unit, "origin"))
+                    static if Library_Heal then
+                        if HealUnit(Damage.source.unit, Damage.source.unit, Damage.amount * steal[Damage.source.id], HEALTH, false) then
+                            call DestroyEffect(AddSpecialEffectTarget(effect, Damage.source.unit, "origin"))
+                        endif
+                    else
+                        call SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (Damage.amount * steal[Damage.source.id])))
+                        call DestroyEffect(AddSpecialEffectTarget(effect, Damage.source.unit, "origin"))
+                    endif
                 endif
             endif
         endmethod

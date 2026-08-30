@@ -1,4 +1,4 @@
-library DragonZone requires Spell, Utilities, CrowdControl, Modules optional NewBonus
+library DragonZone requires Spell, Utilities, CrowdControl, Modules, Heal optional NewBonus
     /* ---------------------- Dragon Zone v1.3 by Chopinski --------------------- */
     // Credits:
     //     AZ             - Model
@@ -110,7 +110,7 @@ library DragonZone requires Spell, Utilities, CrowdControl, Modules optional New
                                 call KnockbackUnit(u, angle, aoe + 25 - distance, knock*(distance/aoe), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
                             endif
                         elseif UnitAlive(u) and IsUnitAlly(u, player) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
-                            call SetWidgetLife(u, GetWidgetLife(u) + heal * PERIOD)
+                            call HealUnit(unit, u, heal * PERIOD, HEALTH, false)
                         endif
                     call GroupRemoveUnit(group, u)
                 endloop

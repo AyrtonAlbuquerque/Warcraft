@@ -2,6 +2,7 @@ OnInit("DivineSmite", function (requires)
     requires "Class"
     requires "Spell"
     requires "Utilities"
+    requires "Heal"
     requires.optional "Bonus"
     requires.optional "LightInfusion"
 
@@ -96,8 +97,9 @@ OnInit("DivineSmite", function (requires)
                     if IsUnitEnemy(u, owner) then
                         UnitDamageTarget(caster, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
                     else
-                        SetWidgetLife(u, GetWidgetLife(u) + damage)
-                        DestroyEffect(AddSpecialEffectTarget(HEAL_MODEL, u, ATTACH_POINT))
+                        if HealUnit(caster, u, damage, HEALTH, false) then
+                            DestroyEffect(AddSpecialEffectTarget(HEAL_MODEL, u, ATTACH_POINT))
+                        end
                     end
                 end
 

@@ -1,4 +1,4 @@
-library DwarfEndurance requires Spell, DamageInterface, Modules, Utilities
+library DwarfEndurance requires Spell, DamageInterface, Modules, Utilities, Heal
     /* -------------------- Dwarf Endurance v1.3 by Chopinski ------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -56,7 +56,7 @@ library DwarfEndurance requires Spell, DamageInterface, Modules, Utilities
             if level > 0 then
                 if cooldown <= 0 then
                     if UnitAlive(unit) then
-                        call SetWidgetLife(unit, GetWidgetLife(unit) + GetHeal(level) * PERIOD)
+                        call HealUnit(unit, unit, GetHeal(level) * PERIOD, HEALTH, false)
                     endif
                 else
                     set cooldown = cooldown - PERIOD

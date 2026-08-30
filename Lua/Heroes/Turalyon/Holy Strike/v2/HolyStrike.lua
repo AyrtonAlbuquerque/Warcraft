@@ -3,6 +3,7 @@ OnInit("HolyStrike", function (requires)
     requires "Spell"
     requires "Bonus"
     requires "Damage"
+    requires "Heal"
     requires "Utilities"
 
     -- ----------------------------- Holy Strike v1.3 by Chopinski ----------------------------- --
@@ -143,8 +144,9 @@ OnInit("HolyStrike", function (requires)
                     end
 
                     if source then
-                        SetWidgetLife(Damage.source.unit, GetWidgetLife(Damage.source.unit) + GetHeal(source, highest, Damage.source.isRanged))
-                        DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                        if HealUnit(Damage.source.unit, Damage.source.unit, GetHeal(source, highest, Damage.source.isRanged), HEALTH, false) then
+                            DestroyEffect(AddSpecialEffectTarget(MODEL, Damage.source.unit, ATTACH_POINT))
+                        end
                     end
                 end
             end

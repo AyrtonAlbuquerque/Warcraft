@@ -23,11 +23,13 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
         real pierce = 0
         real damage = 0
         real health = 0
+        real healing = 0
         real evasion = 0
         real agility = 0
         real strength = 0
         real tenacity = 0
         real omnivamp = 0
+        real shielding = 0
         real lifeSteal = 0
         real spellVamp = 0
         real manaRegen = 0
@@ -44,9 +46,11 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
         real cooldownOffset = 0
         real tenacityOffset = 0
         real magicResistance = 0
+        real healingReduction = 0
         real armorPenetration = 0
         real magicPenetration = 0
         real cooldownReduction = 0
+        real shieldingReduction = 0
         real armorPenetrationFlat = 0
         real magicPenetrationFlat = 0
         real cooldownReductionFlat = 0
@@ -409,6 +413,10 @@ library Item requires Table, RegisterPlayerUnitEvent, optional NewBonus, optiona
                     call LinkBonusToItem(u, BONUS_STRENGTH, strength, i)
                     call LinkBonusToItem(u, BONUS_INTELLIGENCE, intelligence, i)
                     call LinkBonusToItem(u, BONUS_HEALTH, health, i)
+                    call LinkBonusToItem(u, BONUS_HEALING, healing, i)
+                    call LinkBonusToItem(u, BONUS_HEALING_REDUCTION, healingReduction, i)
+                    call LinkBonusToItem(u, BONUS_SHIELDING, shielding, i)
+                    call LinkBonusToItem(u, BONUS_SHIELDING_REDUCTION, shieldingReduction, i)
                     call LinkBonusToItem(u, BONUS_MANA, mana, i)
                     call LinkBonusToItem(u, BONUS_MOVEMENT_SPEED, movementSpeed, i)
                     call LinkBonusToItem(u, BONUS_SIGHT_RANGE, sightRange, i)

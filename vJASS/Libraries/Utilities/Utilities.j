@@ -1,4 +1,4 @@
-library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPlayerUnitEvent
+library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPlayerUnitEvent, optional Heal
     /* --------------------------------------- Utilities v2.1 --------------------------------------- */
     // How to Import:
     // 1 - Copy this library into your map
@@ -310,7 +310,15 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
 
     // Add the mount for he unit mana pool
     function AddUnitMana takes unit whichUnit, real amount returns nothing
-        call SetUnitState(whichUnit, UNIT_STATE_MANA, (GetUnitState(whichUnit, UNIT_STATE_MANA) + amount))
+        if amount > 0 then
+            static if Library_Heal then
+                call HealUnit(null, whichUnit, amount, MANA, false)
+            else
+                call SetUnitState(whichUnit, UNIT_STATE_MANA, (GetUnitState(whichUnit, UNIT_STATE_MANA) + amount))
+            endif
+        else
+            call SetUnitState(whichUnit, UNIT_STATE_MANA, (GetUnitState(whichUnit, UNIT_STATE_MANA) + amount))
+        endif
     endfunction
 
     // Add the specified amounts to a hero str/agi/int base amount
@@ -470,7 +478,12 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
             set v = FirstOfGroup(g)
             exitwhen v == null
                 if IsUnitAlly(v, alliesOf) and UnitAlive(v) and not IsUnitType(v, UNIT_TYPE_STRUCTURE) then
-                    call SetWidgetLife(v, GetWidgetLife(v) + amount)
+                    static if Library_Heal then
+                        call HealUnit(null, v, amount, HEALTH, false)
+                    else
+                        call SetWidgetLife(v, GetWidgetLife(v) + amount)
+                    endif
+
                     if fxpath != "" then
                         if attchPoint != "" then
                             call DestroyEffect(AddSpecialEffectTarget(fxpath, v, attchPoint))

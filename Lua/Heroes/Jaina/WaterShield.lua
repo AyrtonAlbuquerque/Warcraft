@@ -2,6 +2,7 @@ OnInit("WaterShield", function (requires)
     requires "Class"
     requires "Spell"
     requires "Damage"
+    requires "Shield"
     requires "Missiles"
     requires "Utilities"
     requires "RegisterPlayerUnitEvent"
@@ -102,6 +103,8 @@ OnInit("WaterShield", function (requires)
                     DestroyEffect(effect[self.target])
                     effect[self.target] = nil
                 end
+
+                DestroyShield(self.shield)
             else
                 offense[self.target] = nil
 
@@ -111,9 +114,11 @@ OnInit("WaterShield", function (requires)
                 end
             end
 
+            DestroyTimer(self.timer)
             DestroyGroup(self.group)
 
             self.group = nil
+            self.timer = nil
             self.source = nil
             self.target = nil
             self.player = nil
@@ -136,6 +141,7 @@ OnInit("WaterShield", function (requires)
                 else
                     this = {
                         target = Spell.target.unit,
+                        timer = CreateTimer(),
                         group = CreateGroup(),
                         defensive = false,
                         destroy = WaterShield.destroy
@@ -156,12 +162,14 @@ OnInit("WaterShield", function (requires)
                 else
                     this = {
                         target = Spell.target.unit,
+                        timer = CreateTimer(),
                         group = CreateGroup(),
                         defensive = true,
                         amount = 0,
                         destroy = WaterShield.destroy
                     }
 
+                    this.shield = CreateShield(Spell.source.unit, this.target, 0, nil, nil, 0, "", "", true, 21, true)
                     defense[Spell.target.unit] = this
                 end
 
@@ -170,17 +178,19 @@ OnInit("WaterShield", function (requires)
                 this.level = Spell.level
                 this.amount = this.amount + GetAmount(this.source, this.level)
                 this.aoe = GetExplosionAoE(this.source, this.level)
+
+                ShieldAddAmount(this.shield, GetAmount(this.source, this.level))
             end
 
-            TimerStart(CreateTimer(), GetDuration(this.source, this.level), false, function ()
-                if this.defensive and this.amount > 0 then
+            TimerStart(this.timer, GetDuration(this.source, this.level), false, function ()
+                if this.defensive and (this.shield.value or 0) > 0 then
                     GroupEnumUnitsInRange(this.group, GetUnitX(this.target), GetUnitY(this.target), this.aoe, nil)
 
                     local u = FirstOfGroup(this.group)
 
                     while u do
                         if UnitFilter(this.player, u) then
-                            UnitDamageTarget(this.source, u, this.amount, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
+                            UnitDamageTarget(this.source, u, this.shield.value, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil)
                         end
 
                         GroupRemoveUnit(this.group, u)
@@ -190,22 +200,15 @@ OnInit("WaterShield", function (requires)
                     DestroyEffect(AddSpecialEffectEx(EXPLOSION_MODEL, GetUnitX(this.target), GetUnitY(this.target), 0, EXPLOSION_SCALE))
                 end
                 
-                DestroyTimer(GetExpiredTimer())
                 this:destroy()
             end)
         end
 
-        function WaterShield.onDamage()
+        function WaterShield.onBreak()
             local self = defense[Damage.target.unit]
 
-            if Damage.amount > 0 and self then
-                if Damage.amount <= self.amount then
-                    self.amount = self.amount - Damage.amount
-                    Damage.amount = 0
-                else
-                    Damage.amount = Damage.amount - self.amount
-                    self.amount = 0
-
+            if self then
+                if self.shield == GetTriggerShield() then
                     self:destroy()
                 end
             end
@@ -257,7 +260,7 @@ OnInit("WaterShield", function (requires)
 
         function WaterShield.onInit()
             RegisterSpell(WaterShield.allocate(), ABILITY)
-            RegisterAnyDamageEvent(WaterShield.onDamage)
+            RegisterShieldBreakEvent(WaterShield.onBreak)
             RegisterAttackDamageEvent(WaterShield.onAttack)
             RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, WaterShield.onDeath)
         end

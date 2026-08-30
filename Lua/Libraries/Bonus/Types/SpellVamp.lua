@@ -2,6 +2,7 @@ OnInit(function(requires)
     requires "Class"
     requires "Bonus"
     requires "Damage"
+    requires.optional "Heal"
 
     local SpellVamp = Class(Bonus)
     local bonus = {}
@@ -24,7 +25,11 @@ OnInit(function(requires)
 
     function SpellVamp.onDamage()
         if Damage.amount > 0 and Damage.isSpell and (bonus[Damage.source.unit] or 0) > 0 and not Damage.target.isStructure then
-            SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (Damage.amount * (bonus[Damage.source.unit] or 0))))
+            if Heal then
+                HealUnit(Damage.source.unit, Damage.source.unit, Damage.amount * (bonus[Damage.source.unit] or 0), HEALTH, false)
+            else
+                SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (Damage.amount * (bonus[Damage.source.unit] or 0))))
+            end
         end
     end
 

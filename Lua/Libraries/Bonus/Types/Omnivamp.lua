@@ -27,7 +27,11 @@ OnInit("Omnivamp", function(requires)
 
     function Omnivamp.onDamage()
         if Damage.amount > 0 and (bonus[Damage.source.unit] or 0) > 0 and not Damage.target.isStructure then
-            SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (Damage.amount * (bonus[Damage.source.unit] or 0))))
+            if Heal then
+                HealUnit(Damage.source.unit, Damage.source.unit, Damage.amount * (bonus[Damage.source.unit] or 0), HEALTH, false)
+            else
+                SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (Damage.amount * (bonus[Damage.source.unit] or 0))))
+            end
         end
     end
 

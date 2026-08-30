@@ -69,6 +69,7 @@ library Modules requires Table, TimerUtils
         private static Table timers
 
         private timer _timer
+        private timer _oneshot
         private integer _unique
         private integer _calls = 0
         private boolean _allocated
@@ -95,6 +96,7 @@ library Modules requires Table, TimerUtils
                 if _allocated then
                     set _calls = 0
                     set _timer = null
+                    set _oneshot = null
                     set _allocated = false
 
                     call destroy()
@@ -107,12 +109,14 @@ library Modules requires Table, TimerUtils
         private static method onTimeout takes nothing returns nothing
             local thistype this = GetTimerData(GetExpiredTimer())
             
-            if this != 0 then
+            if this != 0 and _allocated then
                 static if thistype.onExpire.exists then
                     call onExpire()
                 endif
 
                 call end(-1, 0)
+            else
+                call ReleaseTimer(GetExpiredTimer())
             endif
         endmethod
 
@@ -162,6 +166,19 @@ library Modules requires Table, TimerUtils
             return TimerGetRemaining(_timer)
         endmethod
 
+        static method CancelTimer takes thistype this returns nothing
+            if _oneshot != null and _allocated then
+                call ReleaseTimer(_oneshot)
+                
+                if struct.has(_unique) then
+                    call struct.remove(_unique)
+                endif
+
+                set _oneshot = null
+                set _allocated = false
+            endif
+        endmethod
+
         static method StartTimer takes real timeout, boolean periodic, thistype this, integer uniqueId returns nothing
             local integer index = R2I(timeout * 100000)
             local integer id
@@ -197,7 +214,8 @@ library Modules requires Table, TimerUtils
                         call TimerStart(_timer, timeout, periodic, function thistype.onPeriodic)
                     endif
                 else
-                    call TimerStart(NewTimerEx(this), timeout, periodic, function thistype.onTimeout)
+                    set _oneshot = NewTimerEx(this)
+                    call TimerStart(_oneshot, timeout, periodic, function thistype.onTimeout)
                 endif
             else
                 call BJDebugMsg("Periodic Error: instance not provided")

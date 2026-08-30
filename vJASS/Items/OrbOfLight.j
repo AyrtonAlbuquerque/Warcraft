@@ -22,8 +22,8 @@ scope OrbOfLight
 
         private static method onDamage takes nothing returns nothing
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and not Damage.target.isStructure then
-                call SetWidgetLife(Damage.source.unit, Damage.source.health + GetHeal(Damage.source.unit))
-                call AddUnitMana(Damage.source.unit, GetHeal(Damage.source.unit))
+                call HealUnit(Damage.source.unit, Damage.source.unit, GetHeal(Damage.source.unit), HEALTH, false)
+                call HealUnit(Damage.source.unit, Damage.source.unit, GetHeal(Damage.source.unit), MANA, false)
                 call DestroyEffect(AddSpecialEffectTarget("HolyStrike.mdl", Damage.source.unit, "origin"))
             endif
         endmethod

@@ -1,6 +1,7 @@
 OnInit("ThunderClap", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Heal"
     requires "Utilities"
     requires "CrowdControl"
     requires "TimedHandles"
@@ -172,8 +173,9 @@ OnInit("ThunderClap", function (requires)
             DestroyGroup(group)
 
             if heal > 0 then
-                SetWidgetLife(source, GetWidgetLife(source) + (BlzGetUnitMaxHP(source)*heal))
-                DestroyEffectTimed(AddSpecialEffectTarget(HEAL_EFFECT, source, ATTACH_POINT), 1.0)
+                if HealUnit(source, source, BlzGetUnitMaxHP(source) * heal, HEALTH, false) then
+                    DestroyEffectTimed(AddSpecialEffectTarget(HEAL_EFFECT, source, ATTACH_POINT), 1.0)
+                end
             end
             
             if StormBolt and STORM_BOLT_V3 then

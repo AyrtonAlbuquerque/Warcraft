@@ -52,7 +52,7 @@ scope Setup
             call ShopAddItem(shop, IronAxe.code, damage)
             call ShopAddItem(shop, HeavyHammer.code, damage)
             call ShopAddItem(shop, SimpleBow.code, agility)
-            call ShopAddItem(shop, CrystalRing.code, regeneration + spellPower)
+            call ShopAddItem(shop, SorcererRing.code, regeneration + spellPower)
             call ShopAddItem(shop, ScrollOfMastery.code, spellPower + cooldown)
             call ShopAddItem(shop, SphereOfPower.code, spellPower + regeneration)
             call ShopAddItem(shop, OrbOfFire.code, damage)
@@ -67,14 +67,14 @@ scope Setup
             call ShopAddItem(shop, BootsOfSorcery.code, movement + mana + spellPower + cooldown)
             call ShopAddItem(shop, BootsOfBravery.code, movement + health + attackSpeed + cooldown)
             call ShopAddItem(shop, BootsOfDefenders.code, movement + health + armor)
+            call ShopAddItem(shop, RunedScythe.code, agility + strength + intelligence)
+            call ShopAddItem(shop, WarriorBlade.code, damage + attackSpeed)
             // call ShopAddItem(shop, GoldenSword.code, damage)
             // call ShopAddItem(shop, GoldenPlatemail.code, armor + health)
             // call ShopAddItem(shop, HardenedShield.code, health + armor)
             // call ShopAddItem(shop, MaskOfMadness.code, regeneration)
             // call ShopAddItem(shop, GlovesOfSpeed.code, attackSpeed)
-            // call ShopAddItem(shop, GlaiveScythe.code, agility + strength + intelligence)
             // call ShopAddItem(shop, SorcererRing.code, mana + regeneration + spellPower)
-            // call ShopAddItem(shop, WarriorBlade.code, damage + attackSpeed)
             // call ShopAddItem(shop, BlackNavaja.code, damage)
             // call ShopAddItem(shop, OrcishAxe.code, damage)
             // call ShopAddItem(shop, EnhancedHammer.code, damage)
@@ -183,7 +183,7 @@ scope Setup
 
         private static method onInit takes nothing returns nothing
             call create('shop', 600, 0.75)
-            call create('xera', 1000, 0.75)
+            call create('base', 1000, 0.75)
         endmethod
     endstruct
 endscope

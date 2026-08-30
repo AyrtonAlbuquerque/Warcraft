@@ -52,8 +52,14 @@ OnInit(function(requires)
     function LifeSteal.onDamage()
         if Damage then
             if Damage.amount > 0 and Damage.isAttack and (steal[Damage.source.unit] or 0) > 0 and not Damage.target.isStructure then
-                SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (Damage.amount * (steal[Damage.source.unit] or 0))))
-                DestroyEffect(AddSpecialEffectTarget(effect, Damage.source.unit, "origin"))
+                if Heal then
+                    if HealUnit(Damage.source.unit, Damage.source.unit, Damage.amount * (steal[Damage.source.unit] or 0), HEALTH, false) then
+                        DestroyEffect(AddSpecialEffectTarget(effect, Damage.source.unit, "origin"))
+                    end
+                else
+                    SetWidgetLife(Damage.source.unit, (GetWidgetLife(Damage.source.unit) + (Damage.amount * (steal[Damage.source.unit] or 0))))
+                    DestroyEffect(AddSpecialEffectTarget(effect, Damage.source.unit, "origin"))
+                end
             end
         end
     end

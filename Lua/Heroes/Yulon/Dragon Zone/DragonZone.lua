@@ -1,6 +1,7 @@
 OnInit("DragonZone", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Heal"
     requires "Utilities"
     requires "CrowdControl"
     requires.optional "Bonus"
@@ -120,7 +121,7 @@ OnInit("DragonZone", function (requires)
                                 KnockbackUnit(u, angle, this.aoe + 25 - distance, this.knock*(distance/this.aoe), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
                             end
                         elseif UnitAlive(u) and IsUnitAlly(u, this.player) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
-                            SetWidgetLife(u, GetWidgetLife(u) + this.heal * PERIOD)
+                            HealUnit(this.unit, u, this.heal * PERIOD, HEALTH, false)
                         end
 
                         GroupRemoveUnit(this.group, u)

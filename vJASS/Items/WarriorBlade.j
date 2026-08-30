@@ -3,28 +3,26 @@ scope WarriorBlade
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
     private constant function GetDamageFactor takes nothing returns real
-        return 1.1
+        return 0.1
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct WarriorBlade extends Item
-        static constant integer code = 'I02M'
+        static constant integer code = 'I011'
 
-        real damage = 25
-        real attackSpeed = 0.2
+        real damage = 20
+        real attackSpeed = 0.15
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
-
-            if UnitHasItemOfType(Damage.source.unit, code) and damage > 0 then
-                call BlzSetEventDamage(damage*GetDamageFactor())
+            if UnitHasItemOfType(Damage.source.unit, code) and Damage.amount > 0 then
+                set Damage.amount = Damage.amount * (1 + GetDamageFactor())
             endif
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterItem(allocate(code), GoldenSword.code, GlovesOfHaste.code, 0, 0, 0)
+            call RegisterItem(allocate(code), RustySword.code, RustySword.code, GlovesOfHaste.code, 0, 0)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct

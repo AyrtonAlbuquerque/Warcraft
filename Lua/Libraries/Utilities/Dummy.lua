@@ -18,6 +18,7 @@ OnInit("Dummy", function(requires)
             SetUnitOwner(dummy, player, false)
             SetUnitScale(dummy, 1, 1, 1)
             SetUnitTimeScale(dummy, 1)
+            SetUnitVertexColor(dummy, 255, 255, 255, 255)
             PauseUnit(dummy, true)
         end
     end
