@@ -107,4 +107,16 @@ OnInit("ArmorPenetration", function(requires)
 
         return reduction
     end
+
+    function GetUnitArmorReduction(unit)
+        local reduction = BlzGetUnitArmor(unit) * ARMOR_MULTIPLIER
+
+        if reduction >= 0 then
+            reduction = reduction / (1 + reduction)
+        else
+            reduction = reduction / (1 - reduction)
+        end
+
+        return reduction
+    end
 end)

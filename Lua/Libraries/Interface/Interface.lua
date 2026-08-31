@@ -67,11 +67,6 @@ OnInit("Interface", function(requires)
     local BUFF_WIDTH = 0.1235
     local BUFF_HEIGHT = 0.015
     -- --------------------------------------- Attributes -------------------------------------- --
-    -- The Initial position of the attributes buttons (relative to the info panel)
-    local ATTRIBUTES_X = 0.017
-    local ATTRIBUTES_Y = -0.02
-    -- The gap between each button
-    local ATTRIBUTES_GAP = 0.014
     -- The size of the attributes buttons
     local ATTRIBUTES_WIDTH = 0.0125
     local ATTRIBUTES_HEIGHT = 0.0125
@@ -99,27 +94,6 @@ OnInit("Interface", function(requires)
     local ATTRIBUTES_BUTTON_GAP = 0.001
     -- The panel maximum columns
     local ATTRIBUTES_COLUMNS = 5
-    -- ----------------------------------------- Damage ---------------------------------------- --
-    -- The damage button texture
-    local DAMAGE_TEXTURE = "ReplaceableTextures\\CommandButtons\\BTNAttack.blp"
-    -- ----------------------------------------- Armor ----------------------------------------- --
-    -- The armor button texture
-    local ARMOR_TEXTURE = "ReplaceableTextures\\CommandButtons\\BTNHumanArmorUpOne.blp"
-    -- ---------------------------------------- Strenght --------------------------------------- --
-    -- The strength button texture
-    local STRENGTH_TEXTURE = "UI\\Widgets\\Console\\Human\\infocard-heroattributes-str.blp"
-    -- ---------------------------------------- Agility ---------------------------------------- --
-    -- The agility button texture
-    local AGILITY_TEXTURE = "UI\\Widgets\\Console\\Human\\infocard-heroattributes-agi.blp"
-    -- -------------------------------------- Intelligence ------------------------------------- --
-    -- The intelligence button texture
-    local INTELLIGENCE_TEXTURE = "UI\\Widgets\\Console\\Human\\infocard-heroattributes-int.blp"
-    -- ---------------------------------- Attribute Highlight ---------------------------------- --
-    -- Main attribute highlight
-    local ATTRIBUTE_HIGHLIGHT = "goldenbrown.mdx"
-    local HIGHLIGHT_SCALE = 0.125
-    local HIGHLIGHT_XOFFSET = 0.052
-    local HIGHLIGHT_YOFFSET = 0.048
     -- ------------------------------------- Ability Panel ------------------------------------- --
     -- The initial position of the abilities panel
     local ABILITY_PANEL_X = 0.105
@@ -317,9 +291,6 @@ OnInit("Interface", function(requires)
     local SEPARATE_LEVELUP_HEIGHT = 0.0125
     -- The + icon texture
     local SEPARATE_LEVELUP_TEXTURE = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
-    -- -------------------------------------- Damage Value ------------------------------------- --
-    -- If true the damage value will be trimmed to show only the last value (xx - xx + yy) => (xx + yy)
-    local TRIM_DAMAGE = true
 
     -- ----------------------------------------------------------------------------------------- --
     --                                          Lua API                                          --
@@ -655,7 +626,6 @@ OnInit("Interface", function(requires)
 
     do
         local shades = {}
-        local attribute = {}
 
         Portrait:property("opacity", {
             set = function (self, value)
@@ -674,80 +644,15 @@ OnInit("Interface", function(requires)
             self.manaText:destroy()
             self.health:destroy()
             self.healthText:destroy()
-            self.damage:destroy()
-            self.armor:destroy()
-            self.strength:destroy()
-            self.agility:destroy()
-            self.intelligence:destroy()
-        end
-
-        function Portrait:trim(text, flag)
-            if flag and text ~= nil then
-                local length = StringLength(text)
-                local i = 0
-
-                while i < length - 1 do
-                    if SubString(text, i, i + 1) == "-" then
-                        return SubString(text, i + 2, length)
-                    end
-
-                    i = i + 1
-                end
-            end
-
-            return text
         end
 
         function Portrait:update(unit, player)
-            local group = CreateGroup()
-            local visible = IsUnitVisible(unit, player)
-            local hero = IsUnitType(unit, UNIT_TYPE_HERO)
-            local id = GetPlayerId(player)
-            local primary = BlzGetUnitIntegerField(unit, UNIT_IF_PRIMARY_ATTRIBUTE)
-
-            GroupEnumUnitsSelected(group, player, nil)
-            local count = CountUnitsInGroup(group)
-
             self.mana.value = GetUnitManaPercent(unit)
             self.health.value = GetUnitLifePercent(unit)
             self.manaText.visible = BlzGetUnitMaxMana(unit) > 0
             self.healthText.visible = BlzGetUnitMaxHP(unit) > 0
             self.manaText.text = "|cffFFFFFF" .. I2S(R2I(GetUnitState(unit,  UNIT_STATE_MANA))) .. " / " .. I2S(BlzGetUnitMaxMana(unit)) .. "|r"
             self.healthText.text = "|cffFFFFFF" .. I2S(R2I(GetWidgetLife(unit))) .. " / " .. I2S(BlzGetUnitMaxHP(unit)) .. "|r"
-            self.damage.value.text = self:trim(BlzFrameGetText(Portrait.attack), TRIM_DAMAGE)
-            self.damage.tooltip.text = "Damage: " .. self.damage.value.text
-            self.damage.visible = BlzGetUnitWeaponBooleanField(unit, UNIT_WEAPON_BF_ATTACKS_ENABLED, 0) and visible and count == 1
-            self.armor.value.text = BlzFrameGetText(Portrait.defense)
-            self.armor.tooltip.text = "Armor: " .. self.armor.value.text
-            self.armor.visible = self.armor.value.text ~= nil and visible and count == 1
-            self.strength.value.text = BlzFrameGetText(Portrait.str)
-            self.strength.tooltip.text = "Strength: " .. self.strength.value.text
-            self.strength.visible = hero and visible and count == 1
-            self.agility.value.text = BlzFrameGetText(Portrait.agi)
-            self.agility.tooltip.text = "Agility: " .. self.agility.value.text
-            self.agility.visible = hero and visible and count == 1
-            self.intelligence.value.text = BlzFrameGetText(Portrait.int)
-            self.intelligence.tooltip.text = "Intelligence: " .. self.intelligence.value.text
-            self.intelligence.visible = hero and visible and count == 1
-
-            if hero then
-                if primary == 3 and attribute[id] ~= primary then
-                    attribute[id] = primary
-                    self.agility:display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
-                    self.intelligence:display(nil, 0, 0, 0)
-                    self.strength:display(nil, 0, 0, 0)
-                elseif primary == 2 and attribute[id] ~= primary then
-                    attribute[id] = primary
-                    self.agility:display(nil, 0, 0, 0)
-                    self.intelligence:display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
-                    self.strength:display(nil, 0, 0, 0)
-                elseif primary == 1 and attribute[id] ~= primary then
-                    attribute[id] = primary
-                    self.agility:display(nil, 0, 0, 0)
-                    self.intelligence:display(nil, 0, 0, 0)
-                    self.strength:display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
-                end
-            end
 
             if BlzGetUnitMaxMana(unit) <= 0 then
                 BlzFrameSetAllPoints(self.health.frame, self.mana.frame)
@@ -757,8 +662,6 @@ OnInit("Interface", function(requires)
                 BlzFrameSetAbsPoint(self.health.frame, FRAMEPOINT_BOTTOMRIGHT, self.x + HEALTH_X + HEALTH_WIDTH, self.y + HEALTH_Y - HEALTH_HEIGHT)
                 BlzFrameSetAllPoints(self.healthText.frame, self.health.frame)
             end
-
-            DestroyGroup(group)
         end
 
         function Portrait.create(x, y, width, height, parent)
@@ -770,11 +673,6 @@ OnInit("Interface", function(requires)
             this.health = StatusBar.create(HEALTH_X, HEALTH_Y, HEALTH_WIDTH, HEALTH_HEIGHT, this.frame, HEALTH_TEXTURE)
             this.health.alpha = HEALTH_TRANSPARENCY
             this.healthText = Text.create(0, 0, this.health.width, this.health.height, HEALTH_TEXT_SCALE, false, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), nil, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
-            this.damage = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (0*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), DAMAGE_TEXTURE, "Damage", nil)
-            this.armor = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (1*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), ARMOR_TEXTURE, "Armor", nil)
-            this.strength = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (2*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), STRENGTH_TEXTURE, "Strength", nil)
-            this.agility = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (3*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), AGILITY_TEXTURE, "Agility", nil)
-            this.intelligence = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (4*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), INTELLIGENCE_TEXTURE, "Intelligence", nil)
 
             BlzFrameSetVisible(Portrait.portrait, true)
             BlzFrameClearAllPoints(Portrait.portrait)
@@ -793,11 +691,6 @@ OnInit("Interface", function(requires)
         end
 
         function Portrait.onInit()
-            Portrait.agi = BlzGetFrameByName("InfoPanelIconHeroAgilityValue", 6)
-            Portrait.str = BlzGetFrameByName("InfoPanelIconHeroStrengthValue", 6)
-            Portrait.int = BlzGetFrameByName("InfoPanelIconHeroIntellectValue", 6)
-            Portrait.attack = BlzGetFrameByName("InfoPanelIconValue", 0)
-            Portrait.defense = BlzGetFrameByName("InfoPanelIconValue", 2)
             Portrait.portrait = BlzGetOriginFrame(ORIGIN_FRAME_PORTRAIT, 0)
         end
     end

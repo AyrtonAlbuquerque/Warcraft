@@ -67,11 +67,6 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real BUFF_WIDTH = 0.1235
         private constant real BUFF_HEIGHT = 0.015
         /* --------------------------------------- Attributes -------------------------------------- */
-        // The Initial position of the attributes buttons (relative to the info panel)
-        private constant real ATTRIBUTES_X = 0.017
-        private constant real ATTRIBUTES_Y = -0.02
-        // The gap between each button
-        private constant real ATTRIBUTES_GAP = 0.014
         // The size of the attributes buttons
         private constant real ATTRIBUTES_WIDTH = 0.0125
         private constant real ATTRIBUTES_HEIGHT = 0.0125
@@ -99,27 +94,6 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real ATTRIBUTES_BUTTON_GAP = 0.001
         // The panel maximum columns
         private constant integer ATTRIBUTES_COLUMNS = 5
-        /* ----------------------------------------- Damage ---------------------------------------- */
-        // The damage button texture
-        private constant string DAMAGE_TEXTURE = "ReplaceableTextures\\CommandButtons\\BTNAttack.blp"
-        /* ----------------------------------------- Armor ----------------------------------------- */
-        // The armor button texture
-        private constant string ARMOR_TEXTURE = "ReplaceableTextures\\CommandButtons\\BTNHumanArmorUpOne.blp"
-        /* ---------------------------------------- Strenght --------------------------------------- */
-        // The strength button texture
-        private constant string STRENGTH_TEXTURE = "UI\\Widgets\\Console\\Human\\infocard-heroattributes-str.blp"
-        /* ---------------------------------------- Agility ---------------------------------------- */
-        // The agility button texture
-        private constant string AGILITY_TEXTURE = "UI\\Widgets\\Console\\Human\\infocard-heroattributes-agi.blp"
-        /* -------------------------------------- Intelligence ------------------------------------- */
-        // The intelligence button texture
-        private constant string INTELLIGENCE_TEXTURE = "UI\\Widgets\\Console\\Human\\infocard-heroattributes-int.blp"
-        /* ---------------------------------- Attribute Highlight ---------------------------------- */
-        // Main attribute highlight
-        private constant string ATTRIBUTE_HIGHLIGHT = "goldenbrown.mdx"
-        private constant real HIGHLIGHT_SCALE = 0.125
-        private constant real HIGHLIGHT_XOFFSET = 0.052
-        private constant real HIGHLIGHT_YOFFSET = 0.048
         /* ------------------------------------- Ability Panel ------------------------------------- */
         // The initial position of the abilities panel
         private constant real ABILITY_PANEL_X = 0.105
@@ -317,9 +291,6 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         private constant real SEPARATE_LEVELUP_HEIGHT = 0.0125
         // The + icon texture
         private constant string SEPARATE_LEVELUP_TEXTURE = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
-        /* -------------------------------------- Damage Value ------------------------------------- */
-        // If true the damage value will be trimmed to show only the last value (xx - xx + yy) => (xx + yy)
-        private constant boolean TRIM_DAMAGE = true
     endglobals
 
     /* ----------------------------------------------------------------------------------------- */
@@ -714,24 +685,12 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
     endstruct
 
     private struct Portrait extends Panel
-        private static integer array attribute
-
-        readonly static framehandle agi
-        readonly static framehandle str
-        readonly static framehandle int
-        readonly static framehandle attack
-        readonly static framehandle defense
         readonly static framehandle portrait
 
         StatusBar mana
         Text manaText
         StatusBar health
         Text healthText
-        Attribute damage
-        Attribute armor
-        Attribute strength
-        Attribute agility
-        Attribute intelligence
 
         framehandle array shades[5]
 
@@ -741,18 +700,13 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             loop
                 exitwhen i == 5
                     call BlzDestroyFrame(shades[i])
-                set i = i - 1
+                set i = i + 1
             endloop
 
             call mana.destroy()
             call health.destroy()
             call manaText.destroy()
             call healthText.destroy()
-            call damage.destroy()
-            call armor.destroy()
-            call strength.destroy()
-            call agility.destroy()
-            call intelligence.destroy()
             call deallocate()
         endmethod
 
@@ -766,76 +720,13 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             endloop
         endmethod
 
-        method trim takes string text, boolean flag returns string
-            local integer i = 0
-            local integer length
-
-            if flag and text != null then
-                set length = StringLength(text)
-
-                loop
-                    exitwhen i == length - 1
-                        if SubString(text, i, i + 1) == "-" then
-                            return SubString(text, i + 2, length)
-                        endif
-                    set i = i + 1
-                endloop
-            endif
-
-            return text
-        endmethod
-
         method update takes unit u, player p returns nothing
-            local group g = CreateGroup()
-            local boolean visible = IsUnitVisible(u, p)
-            local boolean hero = IsUnitType(u, UNIT_TYPE_HERO)
-            local integer id = GetPlayerId(GetLocalPlayer())
-            local integer primary = BlzGetUnitIntegerField(u, UNIT_IF_PRIMARY_ATTRIBUTE)
-            local integer count
-
-            call GroupEnumUnitsSelected(g, p, null)
-
-            set count = CountUnitsInGroup(g)
             set mana.value = GetUnitManaPercent(u)
             set health.value = GetUnitLifePercent(u)
             set manaText.visible = BlzGetUnitMaxMana(u) > 0 
             set healthText.visible = BlzGetUnitMaxHP(u) > 0 
             set manaText.text = "|cffFFFFFF" + I2S(R2I(GetUnitState(u,  UNIT_STATE_MANA))) + " / " + I2S(BlzGetUnitMaxMana(u)) + "|r"
             set healthText.text = "|cffFFFFFF" + I2S(R2I(GetWidgetLife(u))) + " / " + I2S(BlzGetUnitMaxHP(u)) + "|r"
-            set damage.value.text = trim(BlzFrameGetText(attack), TRIM_DAMAGE)
-            set damage.tooltip.text = "Damage: " + damage.value.text
-            set damage.visible = BlzGetUnitWeaponBooleanField(u, UNIT_WEAPON_BF_ATTACKS_ENABLED, 0) and visible and count == 1
-            set armor.value.text = BlzFrameGetText(defense)
-            set armor.tooltip.text = "Armor: " + armor.value.text
-            set armor.visible = armor.value.text != null and visible and count == 1
-            set strength.value.text = BlzFrameGetText(str)
-            set strength.tooltip.text = "Strength: " + strength.value.text
-            set strength.visible = hero and visible and count == 1
-            set agility.value.text = BlzFrameGetText(agi)
-            set agility.tooltip.text = "Agility: " + agility.value.text
-            set agility.visible = hero and visible and count == 1
-            set intelligence.value.text = BlzFrameGetText(int)
-            set intelligence.tooltip.text = "Intelligence: " + intelligence.value.text
-            set intelligence.visible = hero and visible and count == 1
-
-            if hero then
-                if primary == 3 and attribute[id] != primary then
-                    set attribute[id] = primary
-                    call agility.display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
-                    call intelligence.display(null, 0, 0, 0)
-                    call strength.display(null, 0, 0, 0)
-                elseif primary == 2 and attribute[id] != primary then
-                    set attribute[id] = primary
-                    call agility.display(null, 0, 0, 0)
-                    call intelligence.display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
-                    call strength.display(null, 0, 0, 0)
-                elseif primary == 1 and attribute[id] != primary then
-                    set attribute[id] = primary
-                    call agility.display(null, 0, 0, 0)
-                    call intelligence.display(null, 0, 0, 0)
-                    call strength.display(ATTRIBUTE_HIGHLIGHT, HIGHLIGHT_SCALE, HIGHLIGHT_XOFFSET, HIGHLIGHT_YOFFSET)
-                endif
-            endif
             
             if BlzGetUnitMaxMana(u) <= 0 then
                 call BlzFrameSetAllPoints(health.frame, mana.frame)
@@ -845,10 +736,6 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                 call BlzFrameSetAbsPoint(health.frame, FRAMEPOINT_BOTTOMRIGHT, x + HEALTH_X + HEALTH_WIDTH, y + HEALTH_Y - HEALTH_HEIGHT)
                 call BlzFrameSetAllPoints(healthText.frame, health.frame)
             endif
-
-            call DestroyGroup(g)
-
-            set g = null
         endmethod
 
         static method create takes real x, real y, real width, real height, framehandle parent returns thistype
@@ -861,11 +748,6 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             set health = StatusBar.create(HEALTH_X, HEALTH_Y, HEALTH_WIDTH, HEALTH_HEIGHT, frame, HEALTH_TEXTURE)
             set health.alpha = HEALTH_TRANSPARENCY
             set healthText = Text.create(0, 0, health.width, health.height, HEALTH_TEXT_SCALE, false, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), null, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
-            set damage = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (0*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), DAMAGE_TEXTURE, "Damage", null)
-            set armor = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (1*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), ARMOR_TEXTURE, "Armor", null)
-            set strength = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (2*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), STRENGTH_TEXTURE, "Strength", null)
-            set agility = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (3*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), AGILITY_TEXTURE, "Agility", null)
-            set intelligence = Attribute.create(x + ATTRIBUTES_X, y + ATTRIBUTES_Y - (4*ATTRIBUTES_GAP), ATTRIBUTES_WIDTH, ATTRIBUTES_HEIGHT, BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), INTELLIGENCE_TEXTURE, "Intelligence", null)
 
             call BlzFrameSetVisible(portrait, true)
             call BlzFrameClearAllPoints(portrait)
@@ -886,11 +768,6 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
         endmethod
 
         private static method onInit takes nothing returns nothing
-            set agi = BlzGetFrameByName("InfoPanelIconHeroAgilityValue", 6)
-            set str = BlzGetFrameByName("InfoPanelIconHeroStrengthValue", 6)
-            set int = BlzGetFrameByName("InfoPanelIconHeroIntellectValue", 6)
-            set attack = BlzGetFrameByName("InfoPanelIconValue", 0)
-            set defense = BlzGetFrameByName("InfoPanelIconValue", 2)
             set portrait = BlzGetOriginFrame(ORIGIN_FRAME_PORTRAIT, 0)
         endmethod
     endstruct
