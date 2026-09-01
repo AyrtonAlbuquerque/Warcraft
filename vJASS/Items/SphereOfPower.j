@@ -12,8 +12,8 @@ scope SphereOfPower
     struct SphereOfPower extends Item
         static constant integer code = 'I00M'
     
-        real spellPower = 30
-        real spellVamp = 0.03
+        real spellPower = 20
+        real spellVamp = 0.02
 
         private static method onDamage takes nothing returns nothing
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.amount > 0 then
