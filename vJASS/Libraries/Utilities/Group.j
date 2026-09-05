@@ -63,7 +63,7 @@ library Group requires Modules optional Table optional Item
         endmethod
 
         method operator health takes nothing returns real
-            if hp < 0. then
+            if hp < -1. then
                 set hp = GetUnitState(unit, UNIT_STATE_LIFE)
             endif
 
@@ -297,14 +297,14 @@ library Group requires Modules optional Table optional Item
         private boolean alive
         private boolean ordered
         private integer orderings
-        private boolean array descends[13]
+        private boolean array descends[15]
 
         static if USE_TABLE and LIBRARY_Table then
             private Table temp
             private Table sorted
             private Table orders
         else
-            private OrderBy array orders[13]
+            private OrderBy array orders[15]
             private Unit array temp[MAX_UNITS]
             private Unit array sorted[MAX_UNITS]
         endif
@@ -518,7 +518,7 @@ library Group requires Modules optional Table optional Item
             return this
         endmethod
 
-        method forGroup takes integer instance, GroupCallback callback returns thistype
+        method forEach takes integer instance, GroupCallback callback returns thistype
             local integer i = 0
 
             if callback != 0 then
