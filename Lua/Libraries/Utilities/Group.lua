@@ -4,9 +4,21 @@ OnInit("Group", function (requires)
     requires.optional "Item"
 
     -- -------------------------------- Group v1.0 by Chopinski -------------------------------- --
+    local OP_LT = 0
+    local OP_LE = 1
+    local OP_GT = 2
+    local OP_GE = 3
+    local OP_EQ = 4
+    local OP_NE = 5
+
+    -- ----------------------------------------------------------------------------------------- --
+    --                                           System                                          --
+    -- ----------------------------------------------------------------------------------------- --
     local Unit = Class()
 
     do
+        local array = {}
+
         Unit:property("type", {
             get = function(self)
                 if self.id <= 0 then
@@ -199,9 +211,90 @@ OnInit("Group", function (requires)
 
         function Unit:destroy()
             if self.allocated then
+                array[self.unit] = nil
                 self.unit = nil
                 self.allocated = false
             end
+        end
+
+        function Unit.property(unit, p, x, y)
+            local self = array[unit]
+
+            if self then 
+                if p == Property.health then
+                    return self.health
+                elseif p == Property.mana then
+                    return self.mana
+                elseif p == Property.level then
+                    return self.level
+                elseif p == Property.armor then
+                    return self.armor
+                elseif p == Property.speed then
+                    return self.speed
+                elseif p == Property.damage then
+                    return self.damage
+                elseif p == Property.player then
+                    return self.player
+                elseif p == Property.agility then
+                    return self.agility
+                elseif p == Property.strength then
+                    return self.strength
+                elseif p == Property.intelligence then
+                    return self.intelligence
+                elseif p == Property.distance then
+                    return self.distance
+                elseif p == Property.healthPercentage then
+                    return self.healthPercentage
+                elseif p == Property.manaPercentage then
+                    return self.manaPercentage
+                elseif p == Property.type then
+                    return self.type
+                elseif p == Property.hero then
+                    return self.hero
+                end
+            else
+                if p == Property.health then
+                    return GetWidgetLife(unit)
+                elseif p == Property.mana then
+                    return GetUnitState(unit, UNIT_STATE_MANA)
+                elseif p == Property.level then
+                    if IsUnitType(unit, UNIT_TYPE_HERO) then
+                        return I2R(GetHeroLevel(unit))
+                    else
+                        return I2R(GetUnitLevel(unit))
+                    end
+                elseif p == Property.armor then
+                    return BlzGetUnitArmor(unit)
+                elseif p == Property.speed then
+                    return GetUnitMoveSpeed(unit)
+                elseif p == Property.damage then
+                    return I2R(BlzGetUnitBaseDamage(unit, 0))
+                elseif p == Property.player then
+                    return I2R(GetPlayerId(GetOwningPlayer(unit)))
+                elseif p == Property.agility then
+                    return I2R(GetHeroAgi(unit, true))
+                elseif p == Property.strength then
+                    return I2R(GetHeroStr(unit, true))
+                elseif p == Property.intelligence then
+                    return I2R(GetHeroInt(unit, true))
+                elseif p == Property.distance then
+                    return SquareRoot((GetUnitX(unit) - x) * (GetUnitX(unit) - x) + (GetUnitY(unit) - y) * (GetUnitY(unit) - y))
+                elseif p == Property.healthPercentage then
+                    return GetUnitLifePercent(unit)
+                elseif p == Property.manaPercentage then
+                    return GetUnitManaPercent(unit)
+                elseif p == Property.type then
+                    return I2R(GetUnitTypeId(unit))
+                elseif p == Property.hero then
+                    if IsUnitType(unit, UNIT_TYPE_HERO) then
+                        return 0.
+                    else
+                        return 1.
+                    end
+                end
+            end
+
+            return 0.
         end
 
         function Unit.create(unit, x, y)
@@ -225,6 +318,7 @@ OnInit("Group", function (requires)
             self.owner = -1.
             self.unit = unit
             self.allocated = true
+            array[unit] = self
 
             return self
         end
@@ -238,14 +332,19 @@ OnInit("Group", function (requires)
             self.unittype = nil
         end
 
-        function Filter.create(player, unittype, item , buff, negate)
+        function Filter.create(player, unittype, item, buff, id, prop, value, op, negate, orLogic)
             local self = Filter.allocate()
 
             self.item = item
             self.buff = buff
+            self.type = id
             self.player = player
-            self.negate = negate
             self.unittype = unittype
+            self.property = prop
+            self.operation = op
+            self.value = value
+            self.negate = negate
+            self.orLogic = orLogic
 
             return self
         end
@@ -269,6 +368,26 @@ OnInit("Group", function (requires)
         OrderBy.intelligence = 4096
         OrderBy.healthPercentage = 8192
         OrderBy.manaPercentage = 16384
+    end
+
+    do
+        Property = Class()
+
+        Property.type = 1
+        Property.hero = 2
+        Property.mana = 4
+        Property.level = 8
+        Property.armor = 16
+        Property.speed = 32
+        Property.damage = 64
+        Property.health = 128
+        Property.player = 256
+        Property.agility = 512
+        Property.distance = 1024
+        Property.strength = 2048
+        Property.intelligence = 4096
+        Property.healthPercentage = 8192
+        Property.manaPercentage = 16384
     end
 
     do
@@ -302,6 +421,8 @@ OnInit("Group", function (requires)
             self.temp = nil
             self.items = nil
             self.buffs = nil
+            self.types = nil
+            self.ranges = nil
             self.sorted = nil
             self.orders = nil
             self.allies = nil
@@ -386,16 +507,22 @@ OnInit("Group", function (requires)
             self.temp = {}
             self.sorted = {}
             self.orders = {}
+            self.types = {}
+            self.ranges = {}
             self.descends = {}
             self.ending = 0
             self.takes = 0
             self.skips = 0
             self.count = 0
             self.orderings = 0
+            self.pendingProp = 0
             self.negate = false
+            self.orLogic = false
             self.dead = false
             self.alive = false
             self.ordered = false
+            self.pendingNegate = false
+            self.pendingOrLogic = false
 
             return self
         end
@@ -519,6 +646,12 @@ OnInit("Group", function (requires)
             return self
         end
 
+        function Group:isOr()
+            self.orLogic = true
+
+            return self
+        end
+
         function Group:isAlive()
             if self.negate then
                 self.dead = true
@@ -527,13 +660,17 @@ OnInit("Group", function (requires)
                 self.alive = true
             end
 
+            self.ordered = false
+
             return self
         end
 
         function Group:allyOf(player)
             if player then
-                table.insert(self.allies, Filter.create(player, nil, 0, 0, self.negate))
+                table.insert(self.allies, Filter.create(player, nil, 0, 0, 0, 0, 0, 0, self.negate, self.orLogic))
                 self.negate = false
+                self.orLogic = false
+                self.ordered = false
             end
 
             return self
@@ -541,8 +678,10 @@ OnInit("Group", function (requires)
 
         function Group:enemyOf(player)
             if player then
-                table.insert(self.enemies, Filter.create(player, nil, 0, 0, self.negate))
+                table.insert(self.enemies, Filter.create(player, nil, 0, 0, 0, 0, 0, 0, self.negate, self.orLogic))
                 self.negate = false
+                self.orLogic = false
+                self.ordered = false
             end
 
             return self
@@ -550,8 +689,10 @@ OnInit("Group", function (requires)
 
         function Group:ownedBy(player)
             if player then
-                table.insert(self.owners, Filter.create(player, nil, 0, 0, self.negate))
+                table.insert(self.owners, Filter.create(player, nil, 0, 0, 0, 0, 0, 0, self.negate, self.orLogic))
                 self.negate = false
+                self.orLogic = false
+                self.ordered = false
             end
 
             return self
@@ -559,8 +700,10 @@ OnInit("Group", function (requires)
 
         function Group:ofType(unittype)
             if unittype then
-                table.insert(self.unittype, Filter.create(nil, unittype, 0, 0, self.negate))
+                table.insert(self.unittype, Filter.create(nil, unittype, 0, 0, 0, 0, 0, 0, self.negate, self.orLogic))
                 self.negate = false
+                self.orLogic = false
+                self.ordered = false
             end
 
             return self
@@ -568,8 +711,10 @@ OnInit("Group", function (requires)
 
         function Group:hasItem(item)
             if item > 0 then
-                table.insert(self.items, Filter.create(nil, nil, item, 0, self.negate))
+                table.insert(self.items, Filter.create(nil, nil, item, 0, 0, 0, 0, 0, self.negate, self.orLogic))
                 self.negate = false
+                self.orLogic = false
+                self.ordered = false
             end
 
             return self
@@ -577,8 +722,10 @@ OnInit("Group", function (requires)
 
         function Group:hasBuff(buff)
             if buff > 0 then
-                table.insert(self.buffs, Filter.create(nil, nil, 0, buff, self.negate))
+                table.insert(self.buffs, Filter.create(nil, nil, 0, buff, 0, 0, 0, 0, self.negate, self.orLogic))
                 self.negate = false
+                self.orLogic = false
+                self.ordered = false
             end
 
             return self
@@ -586,6 +733,87 @@ OnInit("Group", function (requires)
 
         function Group:hasAbility(ability)
             return self:hasBuff(ability)
+        end
+
+        function Group:ofTypeId(typeId)
+            if typeId > 0 then
+                table.insert(self.types, Filter.create(nil, nil, 0, 0, typeId, 0, 0, 0, self.negate, self.orLogic))
+                self.negate = false
+                self.orLogic = false
+                self.ordered = false
+            end
+
+            return self
+        end
+
+        function Group:where(p)
+            self.pendingProp = p
+            self.pendingNegate = self.negate
+            self.pendingOrLogic = self.orLogic
+            self.negate = false
+            self.orLogic = false
+
+            return self
+        end
+
+        function Group:lessThan(value)
+            if self.pendingProp > 0 then
+                table.insert(self.ranges, Filter.create(nil, nil, 0, 0, 0, self.pendingProp, value, OP_LT, self.pendingNegate, self.pendingOrLogic))
+                self.pendingProp = 0
+                self.ordered = false
+            end
+
+            return self
+        end
+
+        function Group:lessOrEqual(value)
+            if self.pendingProp > 0 then
+                table.insert(self.ranges, Filter.create(nil, nil, 0, 0, 0, self.pendingProp, value, OP_LE, self.pendingNegate, self.pendingOrLogic))
+                self.pendingProp = 0
+                self.ordered = false
+            end
+
+            return self
+        end
+
+        function Group:greaterThan(value)
+            if self.pendingProp > 0 then
+                table.insert(self.ranges, Filter.create(nil, nil, 0, 0, 0, self.pendingProp, value, OP_GT, self.pendingNegate, self.pendingOrLogic))
+                self.pendingProp = 0
+                self.ordered = false
+            end
+
+            return self
+        end
+
+        function Group:greaterOrEqual(value)
+            if self.pendingProp > 0 then
+                table.insert(self.ranges, Filter.create(nil, nil, 0, 0, 0, self.pendingProp, value, OP_GE, self.pendingNegate, self.pendingOrLogic))
+                self.pendingProp = 0
+                self.ordered = false
+            end
+
+            return self
+        end
+
+        function Group:equal(value)
+            if self.pendingProp > 0 then
+                table.insert(self.ranges, Filter.create(nil, nil, 0, 0, 0, self.pendingProp, value, OP_EQ, self.pendingNegate, self.pendingOrLogic))
+                self.pendingProp = 0
+                self.ordered = false
+            end
+
+            return self
+        end
+
+        function Group:notEqual(value)
+            if self.pendingProp > 0 then
+                table.insert(self.ranges, Filter.create(nil, nil, 0, 0, 0, self.pendingProp, value, OP_NE, self.pendingNegate, self.pendingOrLogic))
+                self.pendingProp = 0
+                self.ordered = false
+            end
+
+            return self
         end
 
         function Group:orderBy(order)
@@ -689,6 +917,22 @@ OnInit("Group", function (requires)
 
                 self.unittype = {}
             end
+
+            if #self.types > 0 then
+                for i = 1, #self.types do
+                    self.types[i]:destroy()
+                end
+
+                self.types = {}
+            end
+
+            if #self.ranges > 0 then
+                for i = 1, #self.ranges do
+                    self.ranges[i]:destroy()
+                end
+
+                self.ranges = {}
+            end
         end
 
         function Group:sort()
@@ -697,7 +941,7 @@ OnInit("Group", function (requires)
             local k = 0
 
             if self.size <= 0 or self.ordered then
-                return
+                return self
             end
 
             local g = CreateGroup()
@@ -712,75 +956,275 @@ OnInit("Group", function (requires)
                     add = UnitAlive(unit)
                 end
 
-                if self.dead then
-                    add = add and not UnitAlive(unit)
+                if add and self.dead then
+                    add = not UnitAlive(unit)
                 end
 
-                if #self.allies > 0 then
+                if add and #self.allies > 0 then
+                    local andResult = true
+                    local orResult = false
+                    local hasOr = false
+
                     for index = 1, #self.allies do
-                        if self.allies[index].negate then
-                            add = add and not IsUnitAlly(unit, self.allies[index].player)
+                        if self.allies[index].orLogic then
+                            hasOr = true
+
+                            if self.allies[index].negate then
+                                orResult = orResult or not IsUnitAlly(unit, self.allies[index].player)
+                            else
+                                orResult = orResult or IsUnitAlly(unit, self.allies[index].player)
+                            end
                         else
-                            add = add and IsUnitAlly(unit, self.allies[index].player)
+                            if self.allies[index].negate then
+                                andResult = andResult and not IsUnitAlly(unit, self.allies[index].player)
+                            else
+                                andResult = andResult and IsUnitAlly(unit, self.allies[index].player)
+                            end
                         end
+                    end
+
+                    add = add and andResult
+
+                    if hasOr then 
+                        add = add and orResult 
                     end
                 end
 
-                if #self.enemies > 0 then
+                if add and #self.enemies > 0 then
+                    local andResult = true
+                    local orResult = false
+                    local hasOr = false
+
                     for index = 1, #self.enemies do
-                        if self.enemies[index].negate then
-                            add = add and not IsUnitEnemy(unit, self.enemies[index].player)
+                        if self.enemies[index].orLogic then
+                            hasOr = true
+
+                            if self.enemies[index].negate then
+                                orResult = orResult or not IsUnitEnemy(unit, self.enemies[index].player)
+                            else
+                                orResult = orResult or IsUnitEnemy(unit, self.enemies[index].player)
+                            end
                         else
-                            add = add and IsUnitEnemy(unit, self.enemies[index].player)
+                            if self.enemies[index].negate then
+                                andResult = andResult and not IsUnitEnemy(unit, self.enemies[index].player)
+                            else
+                                andResult = andResult and IsUnitEnemy(unit, self.enemies[index].player)
+                            end
                         end
+                    end
+
+                    add = add and andResult
+
+                    if hasOr then 
+                        add = add and orResult 
                     end
                 end
 
-                if #self.owners > 0 then
+                if add and #self.owners > 0 then
+                    local andResult = true
+                    local orResult = false
+                    local hasOr = false
+
                     for index = 1, #self.owners do
-                        if self.owners[index].negate then
-                            add = add and GetOwningPlayer(unit) ~= self.owners[index].player
+                        if self.owners[index].orLogic then
+                            hasOr = true
+
+                            if self.owners[index].negate then
+                                orResult = orResult or GetOwningPlayer(unit) ~= self.owners[index].player
+                            else
+                                orResult = orResult or GetOwningPlayer(unit) == self.owners[index].player
+                            end
                         else
-                            add = add and GetOwningPlayer(unit) == self.owners[index].player
+                            if self.owners[index].negate then
+                                andResult = andResult and GetOwningPlayer(unit) ~= self.owners[index].player
+                            else
+                                andResult = andResult and GetOwningPlayer(unit) == self.owners[index].player
+                            end
                         end
+                    end
+
+                    add = add and andResult
+
+                    if hasOr then 
+                        add = add and orResult 
                     end
                 end
 
-                if #self.unittype > 0 then
+                if add and #self.unittype > 0 then
+                    local andResult = true
+                    local orResult = false
+                    local hasOr = false
+
                     for index = 1, #self.unittype do
-                        if self.unittype[index].negate then
-                            add = add and not IsUnitType(unit, self.unittype[index].unittype)
+                        if self.unittype[index].orLogic then
+                            hasOr = true
+
+                            if self.unittype[index].negate then
+                                orResult = orResult or not IsUnitType(unit, self.unittype[index].unittype)
+                            else
+                                orResult = orResult or IsUnitType(unit, self.unittype[index].unittype)
+                            end
                         else
-                            add = add and IsUnitType(unit, self.unittype[index].unittype)
+                            if self.unittype[index].negate then
+                                andResult = andResult and not IsUnitType(unit, self.unittype[index].unittype)
+                            else
+                                andResult = andResult and IsUnitType(unit, self.unittype[index].unittype)
+                            end
                         end
+                    end
+
+                    add = add and andResult
+                    
+                    if hasOr then 
+                        add = add and orResult 
                     end
                 end
 
-                if #self.items > 0 then
+                if add and #self.items > 0 then
+                    local andResult = true
+                    local orResult = false
+                    local hasOr = false
+
                     for index = 1, #self.items do
-                        if self.items[index].negate then
-                            if Item then
-                                add = add and not UnitHasItemOfType(unit, self.items[index].item)
+                        if self.items[index].orLogic then
+                            hasOr = true
+
+                            if self.items[index].negate then
+                                if Item then
+                                    orResult = orResult or not UnitHasItemOfType(unit, self.items[index].item)
+                                else
+                                    orResult = orResult or not UnitHasItemOfTypeBJ(unit, self.items[index].item)
+                                end
                             else
-                                add = add and not UnitHasItemOfTypeBJ(unit, self.items[index].item)
+                                if Item then
+                                    orResult = orResult or UnitHasItemOfType(unit, self.items[index].item)
+                                else
+                                    orResult = orResult or UnitHasItemOfTypeBJ(unit, self.items[index].item)
+                                end
                             end
                         else
-                            if Item then
-                                add = add and UnitHasItemOfType(unit, self.items[index].item)
+                            if self.items[index].negate then
+                                if Item then
+                                    andResult = andResult and not UnitHasItemOfType(unit, self.items[index].item)
+                                else
+                                    andResult = andResult and not UnitHasItemOfTypeBJ(unit, self.items[index].item)
+                                end
                             else
-                                add = add and UnitHasItemOfTypeBJ(unit, self.items[index].item)
+                                if Item then
+                                    andResult = andResult and UnitHasItemOfType(unit, self.items[index].item)
+                                else
+                                    andResult = andResult and UnitHasItemOfTypeBJ(unit, self.items[index].item)
+                                end
                             end
                         end
                     end
+
+                    add = add and andResult
+                    
+                    if hasOr then 
+                        add = add and orResult 
+                    end
                 end
 
-                if #self.buffs > 0 then
+                if add and #self.buffs > 0 then
+                    local andResult = true
+                    local orResult = false
+                    local hasOr = false
+
                     for index = 1, #self.buffs do
-                        if self.buffs[index].negate then
-                            add = add and GetUnitAbilityLevel(unit, self.buffs[index].buff) <= 0
+                        if self.buffs[index].orLogic then
+                            hasOr = true
+
+                            if self.buffs[index].negate then
+                                orResult = orResult or GetUnitAbilityLevel(unit, self.buffs[index].buff) <= 0
+                            else
+                                orResult = orResult or GetUnitAbilityLevel(unit, self.buffs[index].buff) > 0
+                            end
                         else
-                            add = add and GetUnitAbilityLevel(unit, self.buffs[index].buff) > 0
+                            if self.buffs[index].negate then
+                                andResult = andResult and GetUnitAbilityLevel(unit, self.buffs[index].buff) <= 0
+                            else
+                                andResult = andResult and GetUnitAbilityLevel(unit, self.buffs[index].buff) > 0
+                            end
                         end
+                    end
+
+                    add = add and andResult
+                    
+                    if hasOr then 
+                        add = add and orResult 
+                    end
+                end
+
+                if add and #self.types > 0 then
+                    local andResult = true
+                    local orResult = false
+                    local hasOr = false
+
+                    for index = 1, #self.types do
+                        if self.types[index].orLogic then
+                            hasOr = true
+
+                            if self.types[index].negate then
+                                orResult = orResult or GetUnitTypeId(unit) ~= self.types[index].type
+                            else
+                                orResult = orResult or GetUnitTypeId(unit) == self.types[index].type
+                            end
+                        else
+                            if self.types[index].negate then
+                                andResult = andResult and GetUnitTypeId(unit) ~= self.types[index].type
+                            else
+                                andResult = andResult and GetUnitTypeId(unit) == self.types[index].type
+                            end
+                        end
+                    end
+
+                    add = add and andResult
+                    
+                    if hasOr then 
+                        add = add and orResult 
+                    end
+                end
+
+                if add and #self.ranges > 0 then
+                    local andResult = true
+                    local orResult = false
+                    local hasOr = false
+
+                    for index = 1, #self.ranges do
+                        local passes = false
+                        local field = Unit.property(unit, self.ranges[index].property, self.x, self.y)
+
+                        if self.ranges[index].operation == OP_LT then
+                            passes = field < self.ranges[index].value
+                        elseif self.ranges[index].operation == OP_LE then
+                            passes = field <= self.ranges[index].value
+                        elseif self.ranges[index].operation == OP_GT then
+                            passes = field > self.ranges[index].value
+                        elseif self.ranges[index].operation == OP_GE then
+                            passes = field >= self.ranges[index].value
+                        elseif self.ranges[index].operation == OP_EQ then
+                            passes = field == self.ranges[index].value
+                        elseif self.ranges[index].operation == OP_NE then
+                            passes = field ~= self.ranges[index].value
+                        end
+
+                        if self.ranges[index].negate then
+                            passes = not passes
+                        end
+
+                        if self.ranges[index].orLogic then
+                            hasOr = true
+                            orResult = orResult or passes
+                        else
+                            andResult = andResult and passes
+                        end
+                    end
+
+                    add = add and andResult
+
+                    if hasOr then 
+                        add = add and orResult 
                     end
                 end
 
@@ -869,6 +1313,8 @@ OnInit("Group", function (requires)
             DestroyGroup(g)
 
             self.ordered = true
+
+            return self
         end
 
         function Group:compare(a, b)
@@ -956,13 +1402,19 @@ OnInit("Group", function (requires)
             self.skips = 0
             self.ending = 0
             self.orderings = 0
+            self.pendingProp = 0
             self.dead = false
             self.alive = false
             self.negate = false
+            self.orLogic = false
             self.ordered = false
+            self.pendingNegate = false
+            self.pendingOrLogic = false
             self.temp = {}
             self.items = {}
             self.buffs = {}
+            self.types = {}
+            self.ranges = {}
             self.sorted = {}
             self.orders = {}
             self.allies = {}

@@ -26,7 +26,14 @@ scope OrbOfFire
 
         private static method onDamage takes nothing returns nothing
             if UnitHasItemOfType(Damage.source.unit, code) then
-                call UnitDamageArea(Damage.source.unit, Damage.target.x, Damage.target.y, GetAoE(), GetDamage(Damage.source.unit), ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, false, false, false)
+                call Group.create()
+                    .inRange(Damage.target.x, Damage.target.y, GetAoE())
+                    .isAlive()
+                    .enemyOf(Damage.source.player)
+                    .isNot().ofType(UNIT_TYPE_STRUCTURE)
+                    .isNot().ofType(UNIT_TYPE_MAGIC_IMMUNE)
+                    .damage(Damage.source.unit, GetDamage(Damage.source.unit), ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, 0, 0)
+                    .destroy()
             endif
         endmethod
 

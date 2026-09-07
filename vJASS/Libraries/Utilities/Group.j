@@ -1,4 +1,4 @@
-library Group requires Modules optional Table optional Item
+library Group requires Modules, Indexer optional Table optional Item
     /* -------------------------------- Group v1.0 by Chopinski -------------------------------- */
     globals
         // Use table or arrays. table is slower but allows for any number of groups
@@ -7,6 +7,14 @@ library Group requires Modules optional Table optional Item
         // If USE_TABLE is false, this is the maximum number of units that can be stored in a group.
         // This also limits the amount of groups that can be created to 8192/MAX_UNITS
         private constant integer MAX_UNITS = 128
+
+        // Dont touch
+        private constant integer OP_LT = 0
+        private constant integer OP_LE = 1
+        private constant integer OP_GT = 2
+        private constant integer OP_GE = 3
+        private constant integer OP_EQ = 4
+        private constant integer OP_NE = 5
     endglobals
 
     /* ----------------------------------------------------------------------------------------- */
@@ -18,6 +26,8 @@ library Group requires Modules optional Table optional Item
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */
     private struct Unit
+        private static thistype array array
+
         private real x
         private real y
         private real id
@@ -63,7 +73,7 @@ library Group requires Modules optional Table optional Item
         endmethod
 
         method operator health takes nothing returns real
-            if hp < -1. then
+            if hp <= -1. then
                 set hp = GetUnitState(unit, UNIT_STATE_LIFE)
             endif
 
@@ -200,11 +210,92 @@ library Group requires Modules optional Table optional Item
 
         method destroy takes nothing returns nothing
             if allocated then
+                set array[GetUnitUserData(unit)] = 0
                 set unit = null
                 set allocated = false
 
                 call deallocate()
             endif
+        endmethod
+
+        static method property takes unit u, integer p, real x, real y returns real
+            local thistype this = array[GetUnitUserData(u)]
+
+            if this != 0 then
+                if p == Property.health then
+                    return health
+                elseif p == Property.mana then
+                    return mana
+                elseif p == Property.level then
+                    return level
+                elseif p == Property.armor then
+                    return armor
+                elseif p == Property.speed then
+                    return speed
+                elseif p == Property.damage then
+                    return damage
+                elseif p == Property.player then
+                    return player
+                elseif p == Property.agility then
+                    return agility
+                elseif p == Property.strength then
+                    return strength
+                elseif p == Property.intelligence then
+                    return intelligence
+                elseif p == Property.distance then
+                    return distance
+                elseif p == Property.healthPercentage then
+                    return healthPercentage
+                elseif p == Property.manaPercentage then
+                    return manaPercentage
+                elseif p == Property.type then
+                    return type
+                elseif p == Property.hero then
+                    return hero
+                endif
+            else
+                if p == Property.health then
+                    return GetWidgetLife(u)
+                elseif p == Property.mana then
+                    return GetUnitState(u, UNIT_STATE_MANA)
+                elseif p == Property.level then
+                    if IsUnitType(u, UNIT_TYPE_HERO) then
+                        return I2R(GetHeroLevel(u))
+                    else
+                        return I2R(GetUnitLevel(u))
+                    endif
+                elseif p == Property.armor then
+                    return BlzGetUnitArmor(u)
+                elseif p == Property.speed then
+                    return GetUnitMoveSpeed(u)
+                elseif p == Property.damage then
+                    return I2R(BlzGetUnitBaseDamage(u, 0))
+                elseif p == Property.player then
+                    return I2R(GetPlayerId(GetOwningPlayer(u)))
+                elseif p == Property.agility then
+                    return I2R(GetHeroAgi(u, true))
+                elseif p == Property.strength then
+                    return I2R(GetHeroStr(u, true))
+                elseif p == Property.intelligence then
+                    return I2R(GetHeroInt(u, true))
+                elseif p == Property.distance then
+                    return SquareRoot((GetUnitX(u) - x) * (GetUnitX(u) - x) + (GetUnitY(u) - y) * (GetUnitY(u) - y))
+                elseif p == Property.healthPercentage then
+                    return GetUnitLifePercent(u)
+                elseif p == Property.manaPercentage then
+                    return GetUnitManaPercent(u)
+                elseif p == Property.type then
+                    return I2R(GetUnitTypeId(u))
+                elseif p == Property.hero then
+                    if IsUnitType(u, UNIT_TYPE_HERO) then
+                        return 0.
+                    else
+                        return 1.
+                    endif
+                endif
+            endif
+
+            return 0.
         endmethod
 
         static method create takes unit u, real x, real y returns thistype
@@ -228,6 +319,7 @@ library Group requires Modules optional Table optional Item
             set owner = -1.
             set unit = u
             set allocated = true
+            set array[GetUnitUserData(u)] = this
 
             return this
         endmethod
@@ -236,9 +328,14 @@ library Group requires Modules optional Table optional Item
     private struct Filter
         readonly integer buff
         readonly integer item
+        readonly integer type
         readonly player player
         readonly boolean negate
+        readonly boolean orLogic
         readonly unittype unittype
+        readonly integer property
+        readonly integer operation
+        readonly real value
 
         method destroy takes nothing returns nothing
             set player = null
@@ -247,14 +344,19 @@ library Group requires Modules optional Table optional Item
             call deallocate()
         endmethod
 
-        static method create takes player p, unittype t, integer i, integer b, boolean negate returns Filter
+        static method create takes player p, unittype t, integer i, integer b, integer id, integer prop, real value, integer op, boolean negate, boolean orLogic returns Filter
             local thistype this = thistype.allocate()
 
             set item = i
             set buff = b
+            set type = id
             set player = p
             set unittype = t
+            set property = prop
+            set operation = op
+            set .value = value
             set .negate = negate
+            set .orLogic = orLogic
 
             return this
         endmethod
@@ -278,6 +380,24 @@ library Group requires Modules optional Table optional Item
         readonly static thistype manaPercentage = 16384
     endstruct
 
+    struct Property
+        readonly static thistype type = 1
+        readonly static thistype hero = 2
+        readonly static thistype mana = 4
+        readonly static thistype level = 8
+        readonly static thistype armor = 16
+        readonly static thistype speed = 32
+        readonly static thistype damage = 64
+        readonly static thistype health = 128
+        readonly static thistype player = 256
+        readonly static thistype agility = 512
+        readonly static thistype distance = 1024
+        readonly static thistype strength = 2048
+        readonly static thistype intelligence = 4096
+        readonly static thistype healthPercentage = 8192
+        readonly static thistype manaPercentage = 16384
+    endstruct
+
     struct Group
         private real x
         private real y
@@ -285,6 +405,8 @@ library Group requires Modules optional Table optional Item
         private integer end
         private List items
         private List buffs
+        private List types
+        private List ranges
         private List allies
         private List owners
         private List enemies
@@ -296,7 +418,11 @@ library Group requires Modules optional Table optional Item
         private boolean dead
         private boolean alive
         private boolean ordered
+        private boolean orLogic
         private integer orderings
+        private integer pendingProp
+        private boolean pendingNegate
+        private boolean pendingOrLogic
         private boolean array descends[15]
 
         static if USE_TABLE and LIBRARY_Table then
@@ -356,6 +482,8 @@ library Group requires Modules optional Table optional Item
             call owners.destroy()
             call enemies.destroy()
             call unittype.destroy()
+            call types.destroy()
+            call ranges.destroy()
             call DestroyGroup(group)
 
             set group = null
@@ -465,6 +593,10 @@ library Group requires Modules optional Table optional Item
             set dead = false
             set alive = false
             set ordered = false
+            set orLogic = false
+            set pendingProp = 0
+            set pendingNegate = false
+            set pendingOrLogic = false
 
             return this
         endmethod
@@ -594,6 +726,12 @@ library Group requires Modules optional Table optional Item
             return this
         endmethod
 
+        method isOr takes nothing returns thistype
+            set orLogic = true
+
+            return this
+        endmethod
+
         method isAlive takes nothing returns thistype
             if negate then
                 set dead = true
@@ -602,13 +740,17 @@ library Group requires Modules optional Table optional Item
                 set alive = true
             endif
 
+            set ordered = false
+
             return this
         endmethod
 
         method allyOf takes player p returns thistype
             if p != null then
-                call allies.insert(Filter.create(p, null, 0, 0, negate))
+                call allies.insert(Filter.create(p, null, 0, 0, 0, 0, 0, 0, negate, orLogic))
                 set negate = false
+                set orLogic = false
+                set ordered = false
             endif
 
             return this
@@ -616,8 +758,10 @@ library Group requires Modules optional Table optional Item
 
         method enemyOf takes player p returns thistype
             if p != null then
-                call enemies.insert(Filter.create(p, null, 0, 0, negate))
+                call enemies.insert(Filter.create(p, null, 0, 0, 0, 0, 0, 0, negate, orLogic))
                 set negate = false
+                set orLogic = false
+                set ordered = false
             endif
 
             return this
@@ -625,8 +769,10 @@ library Group requires Modules optional Table optional Item
 
         method ownedBy takes player p returns thistype
             if p != null then
-                call owners.insert(Filter.create(p, null, 0, 0, negate))
+                call owners.insert(Filter.create(p, null, 0, 0, 0, 0, 0, 0, negate, orLogic))
                 set negate = false
+                set orLogic = false
+                set ordered = false
             endif
 
             return this
@@ -634,8 +780,10 @@ library Group requires Modules optional Table optional Item
 
         method ofType takes unittype t returns thistype
             if t != null then
-                call unittype.insert(Filter.create(null, t, 0, 0, negate))
+                call unittype.insert(Filter.create(null, t, 0, 0, 0, 0, 0, 0, negate, orLogic))
                 set negate = false
+                set orLogic = false
+                set ordered = false
             endif
 
             return this
@@ -643,8 +791,10 @@ library Group requires Modules optional Table optional Item
 
         method hasItem takes integer itemId returns thistype
             if itemId > 0 then
-                call items.insert(Filter.create(null, null, itemId, 0, negate))
+                call items.insert(Filter.create(null, null, itemId, 0, 0, 0, 0, 0, negate, orLogic))
                 set negate = false
+                set orLogic = false
+                set ordered = false
             endif
 
             return this
@@ -652,8 +802,10 @@ library Group requires Modules optional Table optional Item
 
         method hasBuff takes integer buffId returns thistype
             if buffId > 0 then
-                call buffs.insert(Filter.create(null, null, 0, buffId, negate))
+                call buffs.insert(Filter.create(null, null, 0, buffId, 0, 0, 0, 0, negate, orLogic))
                 set negate = false
+                set orLogic = false
+                set ordered = false
             endif
 
             return this
@@ -661,6 +813,87 @@ library Group requires Modules optional Table optional Item
 
         method hasAbility takes integer abilityId returns thistype
             return hasBuff(abilityId)
+        endmethod
+
+        method ofTypeId takes integer typeId returns thistype
+            if typeId > 0 then
+                call types.insert(Filter.create(null, null, 0, 0, typeId, 0, 0, 0, negate, orLogic))
+                set negate = false
+                set orLogic = false
+                set ordered = false
+            endif
+
+            return this
+        endmethod
+
+        method where takes Property p returns thistype
+            set pendingProp = p
+            set pendingNegate = negate
+            set pendingOrLogic = orLogic
+            set negate = false
+            set orLogic = false
+
+            return this
+        endmethod
+
+        method lessThan takes real value returns thistype
+            if pendingProp > 0 then
+                call ranges.insert(Filter.create(null, null, 0, 0, 0, pendingProp, value, OP_LT, pendingNegate, pendingOrLogic))
+                set pendingProp = 0
+                set ordered = false
+            endif
+
+            return this
+        endmethod
+
+        method lessOrEqual takes real value returns thistype
+            if pendingProp > 0 then
+                call ranges.insert(Filter.create(null, null, 0, 0, 0, pendingProp, value, OP_LE, pendingNegate, pendingOrLogic))
+                set pendingProp = 0
+                set ordered = false
+            endif
+
+            return this
+        endmethod
+
+        method greaterThan takes real value returns thistype
+            if pendingProp > 0 then
+                call ranges.insert(Filter.create(null, null, 0, 0, 0, pendingProp, value, OP_GT, pendingNegate, pendingOrLogic))
+                set pendingProp = 0
+                set ordered = false
+            endif
+
+            return this
+        endmethod
+
+        method greaterOrEqual takes real value returns thistype
+            if pendingProp > 0 then
+                call ranges.insert(Filter.create(null, null, 0, 0, 0, pendingProp, value, OP_GE, pendingNegate, pendingOrLogic))
+                set pendingProp = 0
+                set ordered = false
+            endif
+
+            return this
+        endmethod
+
+        method equal takes real value returns thistype
+            if pendingProp > 0 then
+                call ranges.insert(Filter.create(null, null, 0, 0, 0, pendingProp, value, OP_EQ, pendingNegate, pendingOrLogic))
+                set pendingProp = 0
+                set ordered = false
+            endif
+
+            return this
+        endmethod
+
+        method notEqual takes real value returns thistype
+            if pendingProp > 0 then
+                call ranges.insert(Filter.create(null, null, 0, 0, 0, pendingProp, value, OP_NE, pendingNegate, pendingOrLogic))
+                set pendingProp = 0
+                set ordered = false
+            endif
+
+            return this
         endmethod
 
         method orderBy takes OrderBy order returns thistype
@@ -716,95 +949,24 @@ library Group requires Modules optional Table optional Item
             return this
         endmethod
 
-        private method unfilter takes nothing returns nothing
-            local List node
-
-            if items.size > 0 then
-                set node = items.next
-
-                loop
-                    exitwhen node == items
-                        call Filter(node.data).destroy()
-                    set node = node.next
-                endloop
-
-                call items.clear()
-            endif
-
-            if buffs.size > 0 then
-                set node = buffs.next
-
-                loop
-                    exitwhen node == buffs
-                        call Filter(node.data).destroy()
-                    set node = node.next
-                endloop
-
-                call buffs.clear()
-            endif
-
-            if allies.size > 0 then
-                set node = allies.next
-
-                loop
-                    exitwhen node == allies
-                        call Filter(node.data).destroy()
-                    set node = node.next
-                endloop
-
-                call allies.clear()
-            endif
-
-            if owners.size > 0 then
-                set node = owners.next
-
-                loop
-                    exitwhen node == owners
-                        call Filter(node.data).destroy()
-                    set node = node.next
-                endloop
-
-                call owners.clear()
-            endif
-
-            if enemies.size > 0 then
-                set node = enemies.next
-
-                loop
-                    exitwhen node == enemies
-                        call Filter(node.data).destroy()
-                    set node = node.next
-                endloop
-
-                call enemies.clear()
-            endif
-
-            if unittype.size > 0 then
-                set node = unittype.next
-
-                loop
-                    exitwhen node == unittype
-                        call Filter(node.data).destroy()
-                    set node = node.next
-                endloop
-
-                call unittype.clear()
-            endif
-        endmethod
-
-        private method sort takes nothing returns nothing
+        method sort takes nothing returns thistype
             local integer cap = size
             local integer i = 0
             local integer j = 0
             local integer k = 0
+            local real field
+            local boolean passes
             local integer newEnd
+            local boolean andResult
+            local boolean orResult
+            local boolean hasOr
             local boolean add
             local List node
             local group g
             local unit u
 
             if size <= 0 or ordered then
-                return
+                return this
             endif
 
             static if not (USE_TABLE and LIBRARY_Table) then
@@ -828,100 +990,300 @@ library Group requires Modules optional Table optional Item
                         set add = UnitAlive(u)
                     endif
 
-                    if dead then
-                        set add = add and not UnitAlive(u)
+                    if add and dead then
+                        set add = not UnitAlive(u)
                     endif
 
-                    if allies.size > 0 then
+                    if add and allies.size > 0 then
                         set node = allies.next
+                        set andResult = true
+                        set orResult = false
+                        set hasOr = false
 
                         loop
                             exitwhen node == allies
-                                if Filter(node.data).negate then
-                                    set add = add and not IsUnitAlly(u, Filter(node.data).player)
+                                if Filter(node.data).orLogic then
+                                    set hasOr = true
+
+                                    if Filter(node.data).negate then
+                                        set orResult = orResult or not IsUnitAlly(u, Filter(node.data).player)
+                                    else
+                                        set orResult = orResult or IsUnitAlly(u, Filter(node.data).player)
+                                    endif
                                 else
-                                    set add = add and IsUnitAlly(u, Filter(node.data).player)
+                                    if Filter(node.data).negate then
+                                        set andResult = andResult and not IsUnitAlly(u, Filter(node.data).player)
+                                    else
+                                        set andResult = andResult and IsUnitAlly(u, Filter(node.data).player)
+                                    endif
                                 endif
                             set node = node.next
                         endloop
+
+                        set add = add and andResult
+
+                        if hasOr then
+                            set add = add and orResult
+                        endif
                     endif
 
-                    if enemies.size > 0 then
+                    if add and enemies.size > 0 then
                         set node = enemies.next
+                        set andResult = true
+                        set orResult = false
+                        set hasOr = false
 
                         loop
                             exitwhen node == enemies
-                                if Filter(node.data).negate then
-                                    set add = add and not IsUnitEnemy(u, Filter(node.data).player)
+                                if Filter(node.data).orLogic then
+                                    set hasOr = true
+
+                                    if Filter(node.data).negate then
+                                        set orResult = orResult or not IsUnitEnemy(u, Filter(node.data).player)
+                                    else
+                                        set orResult = orResult or IsUnitEnemy(u, Filter(node.data).player)
+                                    endif
                                 else
-                                    set add = add and IsUnitEnemy(u, Filter(node.data).player)
+                                    if Filter(node.data).negate then
+                                        set andResult = andResult and not IsUnitEnemy(u, Filter(node.data).player)
+                                    else
+                                        set andResult = andResult and IsUnitEnemy(u, Filter(node.data).player)
+                                    endif
                                 endif
                             set node = node.next
                         endloop
+
+                        set add = add and andResult
+
+                        if hasOr then
+                            set add = add and orResult
+                        endif
                     endif
 
-                    if owners.size > 0 then
+                    if add and owners.size > 0 then
                         set node = owners.next
+                        set andResult = true
+                        set orResult = false
+                        set hasOr = false
 
                         loop
                             exitwhen node == owners
-                                if Filter(node.data).negate then
-                                    set add = add and GetOwningPlayer(u) != Filter(node.data).player
+                                if Filter(node.data).orLogic then
+                                    set hasOr = true
+
+                                    if Filter(node.data).negate then
+                                        set orResult = orResult or GetOwningPlayer(u) != Filter(node.data).player
+                                    else
+                                        set orResult = orResult or GetOwningPlayer(u) == Filter(node.data).player
+                                    endif
                                 else
-                                    set add = add and GetOwningPlayer(u) == Filter(node.data).player
+                                    if Filter(node.data).negate then
+                                        set andResult = andResult and GetOwningPlayer(u) != Filter(node.data).player
+                                    else
+                                        set andResult = andResult and GetOwningPlayer(u) == Filter(node.data).player
+                                    endif
                                 endif
                             set node = node.next
                         endloop
+
+                        set add = add and andResult
+
+                        if hasOr then
+                            set add = add and orResult
+                        endif
                     endif
 
-                    if unittype.size > 0 then
+                    if add and unittype.size > 0 then
                         set node = unittype.next
+                        set andResult = true
+                        set orResult = false
+                        set hasOr = false
 
                         loop
                             exitwhen node == unittype
-                                if Filter(node.data).negate then
-                                    set add = add and not IsUnitType(u, Filter(node.data).unittype)
+                                if Filter(node.data).orLogic then
+                                    set hasOr = true
+
+                                    if Filter(node.data).negate then
+                                        set orResult = orResult or not IsUnitType(u, Filter(node.data).unittype)
+                                    else
+                                        set orResult = orResult or IsUnitType(u, Filter(node.data).unittype)
+                                    endif
                                 else
-                                    set add = add and IsUnitType(u, Filter(node.data).unittype)
+                                    if Filter(node.data).negate then
+                                        set andResult = andResult and not IsUnitType(u, Filter(node.data).unittype)
+                                    else
+                                        set andResult = andResult and IsUnitType(u, Filter(node.data).unittype)
+                                    endif
                                 endif
                             set node = node.next
                         endloop
+
+                        set add = add and andResult
+
+                        if hasOr then
+                            set add = add and orResult
+                        endif
                     endif
 
-                    if items.size > 0 then
+                    if add and items.size > 0 then
                         set node = items.next
+                        set andResult = true
+                        set orResult = false
+                        set hasOr = false
 
                         loop
                             exitwhen node == items
-                                if Filter(node.data).negate then
-                                    static if LIBRARY_Item then
-                                        set add = add and not UnitHasItemOfType(u, Filter(node.data).item)
+                                if Filter(node.data).orLogic then
+                                    set hasOr = true
+
+                                    if Filter(node.data).negate then
+                                        static if LIBRARY_Item then
+                                            set orResult = orResult or not UnitHasItemOfType(u, Filter(node.data).item)
+                                        else
+                                            set orResult = orResult or not UnitHasItemOfTypeBJ(u, Filter(node.data).item)
+                                        endif
                                     else
-                                        set add = add and not UnitHasItemOfTypeBJ(u, Filter(node.data).item)
+                                        static if LIBRARY_Item then
+                                            set orResult = orResult or UnitHasItemOfType(u, Filter(node.data).item)
+                                        else
+                                            set orResult = orResult or UnitHasItemOfTypeBJ(u, Filter(node.data).item)
+                                        endif
                                     endif
                                 else
-                                    static if LIBRARY_Item then
-                                        set add = add and UnitHasItemOfType(u, Filter(node.data).item)
+                                    if Filter(node.data).negate then
+                                        static if LIBRARY_Item then
+                                            set andResult = andResult and not UnitHasItemOfType(u, Filter(node.data).item)
+                                        else
+                                            set andResult = andResult and not UnitHasItemOfTypeBJ(u, Filter(node.data).item)
+                                        endif
                                     else
-                                        set add = add and UnitHasItemOfTypeBJ(u, Filter(node.data).item)
+                                        static if LIBRARY_Item then
+                                            set andResult = andResult and UnitHasItemOfType(u, Filter(node.data).item)
+                                        else
+                                            set andResult = andResult and UnitHasItemOfTypeBJ(u, Filter(node.data).item)
+                                        endif
                                     endif
                                 endif
                             set node = node.next
                         endloop
+
+                        set add = add and andResult
+
+                        if hasOr then
+                            set add = add and orResult
+                        endif
                     endif
 
-                    if buffs.size > 0 then
+                    if add and buffs.size > 0 then
                         set node = buffs.next
+                        set andResult = true
+                        set orResult = false
+                        set hasOr = false
 
                         loop
                             exitwhen node == buffs
-                                if Filter(node.data).negate then
-                                    set add = add and GetUnitAbilityLevel(u, Filter(node.data).buff) <= 0
+                                if Filter(node.data).orLogic then
+                                    set hasOr = true
+
+                                    if Filter(node.data).negate then
+                                        set orResult = orResult or GetUnitAbilityLevel(u, Filter(node.data).buff) <= 0
+                                    else
+                                        set orResult = orResult or GetUnitAbilityLevel(u, Filter(node.data).buff) > 0
+                                    endif
                                 else
-                                    set add = add and GetUnitAbilityLevel(u, Filter(node.data).buff) > 0
+                                    if Filter(node.data).negate then
+                                        set andResult = andResult and GetUnitAbilityLevel(u, Filter(node.data).buff) <= 0
+                                    else
+                                        set andResult = andResult and GetUnitAbilityLevel(u, Filter(node.data).buff) > 0
+                                    endif
                                 endif
                             set node = node.next
                         endloop
+
+                        set add = add and andResult
+
+                        if hasOr then
+                            set add = add and orResult
+                        endif
+                    endif
+
+                    if add and types.size > 0 then
+                        set node = types.next
+                        set andResult = true
+                        set orResult = false
+                        set hasOr = false
+
+                        loop
+                            exitwhen node == types
+                                if Filter(node.data).orLogic then
+                                    set hasOr = true
+
+                                    if Filter(node.data).negate then
+                                        set orResult = orResult or GetUnitTypeId(u) != Filter(node.data).type
+                                    else
+                                        set orResult = orResult or GetUnitTypeId(u) == Filter(node.data).type
+                                    endif
+                                else
+                                    if Filter(node.data).negate then
+                                        set andResult = andResult and GetUnitTypeId(u) != Filter(node.data).type
+                                    else
+                                        set andResult = andResult and GetUnitTypeId(u) == Filter(node.data).type
+                                    endif
+                                endif
+                            set node = node.next
+                        endloop
+
+                        set add = add and andResult
+
+                        if hasOr then
+                            set add = add and orResult
+                        endif
+                    endif
+
+                    if add and ranges.size > 0 then
+                        set node = ranges.next
+                        set andResult = true
+                        set orResult = false
+                        set hasOr = false
+
+                        loop
+                            exitwhen node == ranges
+                                set passes = false
+                                set field = Unit.property(u, Filter(node.data).property, x, y)
+
+                                if Filter(node.data).operation == OP_LT then
+                                    set passes = field < Filter(node.data).value
+                                elseif Filter(node.data).operation == OP_LE then
+                                    set passes = field <= Filter(node.data).value
+                                elseif Filter(node.data).operation == OP_GT then
+                                    set passes = field > Filter(node.data).value
+                                elseif Filter(node.data).operation == OP_GE then
+                                    set passes = field >= Filter(node.data).value
+                                elseif Filter(node.data).operation == OP_EQ then
+                                    set passes = field == Filter(node.data).value
+                                elseif Filter(node.data).operation == OP_NE then
+                                    set passes = field != Filter(node.data).value
+                                endif
+
+                                if Filter(node.data).negate then
+                                    set passes = not passes
+                                endif
+
+                                if Filter(node.data).orLogic then
+                                    set hasOr = true
+                                    set orResult = orResult or passes
+                                else
+                                    set andResult = andResult and passes
+                                endif
+                            set node = node.next
+                        endloop
+
+                        set add = add and andResult
+
+                        if hasOr then
+                            set add = add and orResult
+                        endif
                     endif
 
                     if add then
@@ -1046,6 +1408,108 @@ library Group requires Modules optional Table optional Item
             set u = null
             set g = null
             set ordered = true
+
+            return this
+        endmethod
+
+        private method unfilter takes nothing returns nothing
+            local List node
+
+            if items.size > 0 then
+                set node = items.next
+
+                loop
+                    exitwhen node == items
+                        call Filter(node.data).destroy()
+                    set node = node.next
+                endloop
+
+                call items.clear()
+            endif
+
+            if buffs.size > 0 then
+                set node = buffs.next
+
+                loop
+                    exitwhen node == buffs
+                        call Filter(node.data).destroy()
+                    set node = node.next
+                endloop
+
+                call buffs.clear()
+            endif
+
+            if allies.size > 0 then
+                set node = allies.next
+
+                loop
+                    exitwhen node == allies
+                        call Filter(node.data).destroy()
+                    set node = node.next
+                endloop
+
+                call allies.clear()
+            endif
+
+            if owners.size > 0 then
+                set node = owners.next
+
+                loop
+                    exitwhen node == owners
+                        call Filter(node.data).destroy()
+                    set node = node.next
+                endloop
+
+                call owners.clear()
+            endif
+
+            if enemies.size > 0 then
+                set node = enemies.next
+
+                loop
+                    exitwhen node == enemies
+                        call Filter(node.data).destroy()
+                    set node = node.next
+                endloop
+
+                call enemies.clear()
+            endif
+
+            if unittype.size > 0 then
+                set node = unittype.next
+
+                loop
+                    exitwhen node == unittype
+                        call Filter(node.data).destroy()
+                    set node = node.next
+                endloop
+
+                call unittype.clear()
+            endif
+
+            if types.size > 0 then
+                set node = types.next
+                
+                loop
+                    exitwhen node == types
+                        call Filter(node.data).destroy()
+                    set node = node.next
+                endloop
+
+                call types.clear()
+            endif
+
+            if ranges.size > 0 then
+                set node = ranges.next
+
+                loop
+                    exitwhen node == ranges
+                        call Filter(node.data).destroy()
+                    set node = node.next
+                endloop
+
+                call ranges.clear()
+            endif
         endmethod
 
         private method compare takes Unit a, Unit b returns integer
@@ -1137,13 +1601,19 @@ library Group requires Modules optional Table optional Item
             set count = 0
             set skips = 0
             set orderings = 0
-            set negate = false
+            set pendingProp = 0
             set dead = false
             set alive = false
+            set negate = false
+            set orLogic = false
             set ordered = false
+            set pendingNegate = false
+            set pendingOrLogic = false
             set group = CreateGroup()
             set items = List.create()
             set buffs = List.create()
+            set types = List.create()
+            set ranges = List.create()
             set allies = List.create()
             set owners = List.create()
             set enemies = List.create()

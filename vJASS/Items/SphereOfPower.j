@@ -23,7 +23,7 @@ scope SphereOfPower
 
         private static method onInit takes nothing returns nothing
             call RegisterItem(allocate(code), 0, 0, 0, 0, 0)
-            call RegisterSpellDamageEvent(function thistype.onDamage)
+            call RegisterSpellDamagingEvent(function thistype.onDamage)
         endmethod
     endstruct
 endscope

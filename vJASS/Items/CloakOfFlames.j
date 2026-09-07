@@ -17,18 +17,17 @@ scope CloakOfFlames
         static constant integer code = 'I00E'
 
         private unit unit
-        private group group
+        private Group group
         private effect effect
         private player player
 
         method destroy takes nothing returns nothing
             call DestroyEffect(effect)
-            call DestroyGroup(group)
+            call group.destroy()
             call deallocate()
 
             set unit = null
             set effect = null
-            set group = null
             set player = null
         endmethod
 
@@ -36,21 +35,18 @@ scope CloakOfFlames
             return "|cff00ff00Passive:|r Engulfs the Hero in fire dealing |cff00ffff" + N2S(GetDamage(u), 0) + " Magic|r damage per second to enemy units within |cffffcc00" + N2S(GetAoE(u), 0) + " AoE|r."
         endmethod
 
+        private static method onDamage takes thistype this, unit u returns nothing
+            call DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\NightElf\\Immolation\\ImmolationDamage.mdl", u, "chest"))
+        endmethod
+
         private method onPeriod takes nothing returns boolean
-            local unit u
-
             if UnitHasItemOfType(unit, code) then
-                call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), GetAoE(unit), null)
-
-                loop
-                    set u = FirstOfGroup(group)
-                    exitwhen u == null
-                        if IsUnitEnemy(u, player)  and UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
-                            call DestroyEffect(AddSpecialEffectTarget("Abilities\\Spells\\NightElf\\Immolation\\ImmolationDamage.mdl", u, "chest"))
-                            call UnitDamageTarget(unit, u, GetDamage(unit), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null)
-                        endif
-                    call GroupRemoveUnit(group, u)
-                endloop
+                call group.inRange(GetUnitX(unit), GetUnitY(unit), GetAoE(unit))
+                    .isAlive()
+                    .enemyOf(player)
+                    .isNot().ofType(UNIT_TYPE_STRUCTURE)
+                    .damage(unit, GetDamage(unit), ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, this, thistype.onDamage)
+                    .clear()
             
                 return true
             endif
@@ -64,7 +60,7 @@ scope CloakOfFlames
             if not HasStartedTimer(id) then
                 set this = thistype.allocate(0)
                 set unit = u
-                set group = CreateGroup()
+                set group = Group.create()
                 set player = GetOwningPlayer(u)
                 set effect = AddSpecialEffectTarget("Abilities\\Spells\\NightElf\\Immolation\\ImmolationTarget.mdl", u, "origin")
 

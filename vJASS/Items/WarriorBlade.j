@@ -23,7 +23,7 @@ scope WarriorBlade
 
         private static method onInit takes nothing returns nothing
             call RegisterItem(allocate(code), RustySword.code, RustySword.code, GlovesOfHaste.code, 0, 0)
-            call RegisterAttackDamageEvent(function thistype.onDamage)
+            call RegisterAttackDamagingEvent(function thistype.onDamage)
         endmethod
     endstruct
 endscope
