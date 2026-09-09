@@ -1,11 +1,11 @@
-scope CommanderShield
-    struct CommanderShield extends Item
-        static constant integer code = 'I065'
+scope IronShield
+    struct IronShield extends Item
+        static constant integer code = 'I01A'
         
         // Attributes
         real armor = 5
-        real block = 50
-        real health = 500
+        real block = 30
+        real health = 300
 
         private real x
         private real y

@@ -1,15 +1,7 @@
-scope GreedyAxe
+scope GreatAxe
     /* ----------------------------------------------------------------------------------------- */
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
-    private constant function GetFactor takes nothing returns real
-        return 0.025
-    endfunction
-
-    private constant function GetHeroFactor takes nothing returns real
-        return 0.25
-    endfunction
-
     private constant function GetAttackSpeedBonus takes nothing returns real
         return 0.5
     endfunction
@@ -21,15 +13,14 @@ scope GreedyAxe
     /* ----------------------------------------------------------------------------------------- */
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
-    struct GreedyAxe extends Item
-        static constant integer code = 'I05H'
+    struct GreatAxe extends Item
+        static constant integer code = 'I013'
 
         // Attributes
-        real damage = 45
-        real criticalDamage = 0.2
-        real criticalChance = 0.25
-
-        private static integer array bonus
+        real damage = 18
+        real criticalDamage = 0.35
+        real criticalChance = 0.18
+        real armorPenetration = 0.15
 
         private unit unit
         private real duration
@@ -42,7 +33,7 @@ scope GreedyAxe
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc0045|r Damage\n+ |cffffcc0025%%|r Critical Chance\n+ |cffffcc0020%%|r Critical Damage\n\n|cff00ff00Passive|r: |cffffcc00Pillage|r: After hitting a critical strike, for the next |cffffcc003 |rseconds, the Hero gains |cffffcc0050%% |rAttack Speed bonus and every attack grants |cffffcc00Gold|r equal to |cffffcc002.5%% (25%% against Heroes)|r of the damage dealt.\n\nGold Granted: |cffffcc00" + I2S(bonus[id]) + "|r"
+            return "|cffffcc00Gives:|r\n+ |cffffcc0018|r Damage\n+ |cffffcc0018%|r Critical Chance\n+ |cffffcc0035%|r Critical Damage\n+ |cffffcc0015%|r Armor Penetration\n\n|cff00ff00Passive|r: |cffffcc00Frenzy|r: After hitting a critical strike gain |cffffcc00" + N2S(GetAttackSpeedBonus() * 100, 0) + "%|r |cffffcc00Attack Speed|r for |cffffcc00" + N2S(GetDuration(), 0) + "|r seconds."
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -73,32 +64,11 @@ scope GreedyAxe
             set target = null
         endmethod
 
-        private static method onDamage takes nothing returns nothing
-            local integer pillage
-
-            if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy and HasStartedTimer(Damage.source.id) then
-                call DestroyEffect(AddSpecialEffectTarget("UI\\Feedback\\GoldCredit\\GoldCredit.mdl", Damage.target.unit, "origin"))
-
-                if IsUnitType(Damage.target.unit, UNIT_TYPE_HERO) then
-                    set pillage = R2I(Damage.amount*GetHeroFactor())
-                    set bonus[Damage.source.id] = bonus[Damage.source.id] + pillage
-                    call AddPlayerGold(Damage.source.player, pillage)
-                    call CreateTextOnUnit(Damage.target.unit, ("+" + I2S(pillage)), 0.75, 255, 215, 0, 255)
-                else
-                    set pillage = R2I(Damage.amount*GetFactor())
-                    set bonus[Damage.source.id] = bonus[Damage.source.id] + pillage
-                    call AddPlayerGold(Damage.source.player, pillage)
-                    call CreateTextOnUnit(Damage.target.unit, ("+" + I2S(pillage)), 0.75, 255, 215, 0, 255)
-                endif
-            endif
-        endmethod
-
         implement Periodic
 
         private static  method onInit takes nothing returns nothing
-            call RegisterAttackDamageEvent(function thistype.onDamage)
             call RegisterCriticalStrikeEvent(function thistype.onCritical)
-            call RegisterItem(allocate(code), OrcishAxe.code, OrcishAxe.code, 0, 0, 0) 
+            call RegisterItem(allocate(code), IronAxe.code, IronAxe.code, RustySword.code, 0, 0) 
         endmethod
     endstruct
 endscope

@@ -3,7 +3,7 @@ scope EnhancedHammer
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
     private constant function GetAoE takes nothing returns real
-        return 150.
+        return 200.
     endfunction
 
     private constant function GetChance takes nothing returns real
@@ -18,39 +18,31 @@ scope EnhancedHammer
     /*                                            Item                                           */
     /* ----------------------------------------------------------------------------------------- */
     struct EnhancedHammer extends Item
-        static constant integer code = 'I02V'
+        static constant integer code = 'I017'
         static constant string effect = "Abilities\\Spells\\Other\\Cleave\\CleaveDamageTarget.mdl"
     
-        real damage = 12
+        real damage = 10
+        real strength = 10
+
+        private static method forGroup takes thistype this, unit u returns nothing
+            call DestroyEffect(AddSpecialEffectTarget(effect, u, "chest"))
+        endmethod
 
         private static method onDamage takes nothing returns nothing
-            local real damage = GetEventDamage()
-            local group g
-            local unit v
-
-            if UnitHasItemOfType(Damage.source.unit, code) and Damage.source.isMelee and damage > 0 and GetRandomReal(1, 100) <= GetChance() then
-                set g = CreateGroup()
-
-                call GroupEnumUnitsInRange(g, Damage.target.x, Damage.target.y, GetAoE(), null)
-                loop
-                    set v = FirstOfGroup(g)
-                    exitwhen v == null
-                        if IsUnitEnemy(v, Damage.source.player) and UnitAlive(v) and v != Damage.target.unit and not IsUnitType(v, UNIT_TYPE_STRUCTURE) then
-                            if UnitDamageTarget(Damage.source.unit, v, damage*GetDamageFactor(), false, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, null) then
-                                call DestroyEffect(AddSpecialEffectTarget(effect, v, "chest"))
-                            endif
-                        endif
-                    call GroupRemoveUnit(g, v)
-                endloop
-                call DestroyGroup(g)
+            if UnitHasItemOfType(Damage.source.unit, code) and Damage.source.isMelee and Damage.amount > 0 and GetRandomReal(0, 100) <= GetChance() then
+                call Group.create()
+                    .inRange(Damage.target.x, Damage.target.y, GetAoE())
+                    .remove(Damage.target.unit)
+                    .isAlive()
+                    .enemyOf(Damage.source.player)
+                    .isNot().ofType(UNIT_TYPE_STRUCTURE)
+                    .damage(Damage.source.unit, Damage.amount * GetDamageFactor(), ATTACK_TYPE_HERO, DAMAGE_TYPE_UNIVERSAL, 0, thistype.forGroup)
+                    .destroy()
             endif
-
-            set g = null
-            set v = null
         endmethod
 
         private static method onInit takes nothing returns nothing
-            call RegisterItem(allocate(code), RustySword.code, HeavyHammer.code, HeavyHammer.code, 0, 0)
+            call RegisterItem(allocate(code), HeavyHammer.code, GauntletOfStrength.code, GauntletOfStrength.code, 0, 0)
             call RegisterAttackDamageEvent(function thistype.onDamage)
         endmethod
     endstruct
