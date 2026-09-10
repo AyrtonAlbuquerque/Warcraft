@@ -11,6 +11,7 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
 
     private module Initializer
         private static method onInit takes nothing returns nothing
+            set event = Table.create()
             set struct = Table.create()
             set sources = Unit.create(null)
             set targets = Unit.create(null)
@@ -27,6 +28,7 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
 
     struct Spell extends ISpell
         private static Table struct
+        private static Table event
         private static HashTable learned
         private static integer key = -1
         private static thistype array array
@@ -171,6 +173,14 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
             endif
         endmethod
 
+        static method registerEffectEvent takes integer abil, code c returns nothing
+            if not event.handle.has(abil) then
+                set event.trigger[abil] = CreateTrigger()
+            endif
+
+            call TriggerAddCondition(event.trigger[abil], Filter(c))
+        endmethod
+
         private static method onPeriod takes nothing returns nothing
             local integer i = 0
             local integer level
@@ -221,15 +231,14 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
 
         private static method onCasting takes nothing returns nothing
             local thistype this = struct[id]
+            local unit prevSrc = sources.unit
+            local unit prevTgt = targets.unit
             local thistype spell
 
             call setup(GetTriggerUnit(), GetSpellTargetUnit())
+            call TriggerEvaluate(event.trigger[id])
 
             if this != 0 then
-                if onCast.exists then
-                    call onCast()
-                endif
-
                 if onTooltip.exists then
                     set Spell.tooltip = onTooltip(Spell.source.unit, Spell.level, Spell.ability)
 
@@ -248,11 +257,22 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
                         endif
                     endif
                 endif
+
+                if onCast.exists then
+                    call onCast()
+                endif
             endif
+
+            set sources.unit = prevSrc
+            set targets.unit = prevTgt
+            set prevSrc = null
+            set prevTgt = null
         endmethod
 
         private static method onEnding takes nothing returns nothing
             local thistype this = struct[id]
+            local unit prevSrc = sources.unit
+            local unit prevTgt = targets.unit
 
             call setup(GetTriggerUnit(), GetSpellTargetUnit())
 
@@ -261,10 +281,17 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
                     call onEnd()
                 endif
             endif
+
+            set sources.unit = prevSrc
+            set targets.unit = prevTgt
+            set prevSrc = null
+            set prevTgt = null
         endmethod
 
         private static method onStarting takes nothing returns nothing
             local thistype this = struct[id]
+            local unit prevSrc = sources.unit
+            local unit prevTgt = targets.unit
 
             call setup(GetTriggerUnit(), GetSpellTargetUnit())
 
@@ -273,10 +300,17 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
                     call onStart()
                 endif
             endif
+
+            set sources.unit = prevSrc
+            set targets.unit = prevTgt
+            set prevSrc = null
+            set prevTgt = null
         endmethod
 
         private static method onFinishing takes nothing returns nothing
             local thistype this = struct[id]
+            local unit prevSrc = sources.unit
+            local unit prevTgt = targets.unit
 
             call setup(GetTriggerUnit(), GetSpellTargetUnit())
 
@@ -285,10 +319,17 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
                     call onFinish()
                 endif
             endif
+
+            set sources.unit = prevSrc
+            set targets.unit = prevTgt
+            set prevSrc = null
+            set prevTgt = null
         endmethod
 
         private static method onChanneling takes nothing returns nothing
             local thistype this = struct[id]
+            local unit prevSrc = sources.unit
+            local unit prevTgt = targets.unit
 
             call setup(GetTriggerUnit(), GetSpellTargetUnit())
 
@@ -297,6 +338,11 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
                     call onChannel()
                 endif
             endif
+
+            set sources.unit = prevSrc
+            set targets.unit = prevTgt
+            set prevSrc = null
+            set prevTgt = null
         endmethod
 
         implement Initializer
@@ -307,5 +353,9 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
     /* ----------------------------------------------------------------------------------------- */
     function RegisterSpell takes ISpell spell, integer id returns nothing
         call Spell.register(spell, id)
+    endfunction
+
+    function RegisterSpellEffectEvent takes integer abil, code onCast returns nothing
+        call Spell.registerEffectEvent(abil, onCast)
     endfunction
 endlibrary

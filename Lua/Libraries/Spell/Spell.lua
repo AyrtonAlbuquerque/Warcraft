@@ -6,6 +6,7 @@ OnInit("Spell", function(requires)
     Spell = Class()
 
     local array = {}
+    local event = {}
     local struct = {}
     local learned = {}
     local location = Location(0, 0)
@@ -95,6 +96,12 @@ OnInit("Spell", function(requires)
         end
     end
 
+    function Spell.registerEffectEvent(ability, code)
+        if type(code) == "function" then
+            event[ability] = code
+        end
+    end
+
     function Spell.__setup(source, target)
         if GetUnitAbilityLevel(source, FourCC('Aloc')) == 0 then
             Spell.source = source
@@ -145,15 +152,17 @@ OnInit("Spell", function(requires)
 
     function Spell.__onCasting()
         local this = struct[Spell.id]
+        local prevSrc = Spell.sources.unit
+        local prevTgt = Spell.targets.unit
         local spell
 
         Spell.__setup(GetTriggerUnit(), GetSpellTargetUnit())
 
-        if this then
-            if this.onCast then
-                this:onCast()
-            end
+        if event[Spell.id] then
+            event[Spell.id]()
+        end
 
+        if this then
             if this.onTooltip then
                 Spell.tooltip = this:onTooltip(Spell.source.unit, Spell.level, Spell.ability)
 
@@ -169,11 +178,20 @@ OnInit("Spell", function(requires)
                     table.insert(array, spell)
                 end
             end
+
+            if this.onCast then
+                this:onCast()
+            end
         end
+
+        Spell.sources.unit = prevSrc
+        Spell.targets.unit = prevTgt
     end
 
     function Spell.__onEnding()
         local this = struct[Spell.id]
+        local prevSrc = Spell.sources.unit
+        local prevTgt = Spell.targets.unit
 
         Spell.__setup(GetTriggerUnit(), GetSpellTargetUnit())
 
@@ -182,10 +200,15 @@ OnInit("Spell", function(requires)
                 this:onEnd()
             end
         end
+
+        Spell.sources.unit = prevSrc
+        Spell.targets.unit = prevTgt
     end
 
     function Spell.__onStarting()
         local this = struct[Spell.id]
+        local prevSrc = Spell.sources.unit
+        local prevTgt = Spell.targets.unit
 
         Spell.__setup(GetTriggerUnit(), GetSpellTargetUnit())
 
@@ -194,10 +217,15 @@ OnInit("Spell", function(requires)
                 this:onStart()
             end
         end
+
+        Spell.sources.unit = prevSrc
+        Spell.targets.unit = prevTgt
     end
 
     function Spell.__onFinishing()
         local this = struct[Spell.id]
+        local prevSrc = Spell.sources.unit
+        local prevTgt = Spell.targets.unit
 
         Spell.__setup(GetTriggerUnit(), GetSpellTargetUnit())
 
@@ -206,10 +234,15 @@ OnInit("Spell", function(requires)
                 this:onFinish()
             end
         end
+
+        Spell.sources.unit = prevSrc
+        Spell.targets.unit = prevTgt
     end
 
     function Spell.__onChanneling()
         local this = struct[Spell.id]
+        local prevSrc = Spell.sources.unit
+        local prevTgt = Spell.targets.unit
 
         Spell.__setup(GetTriggerUnit(), GetSpellTargetUnit())
 
@@ -218,6 +251,9 @@ OnInit("Spell", function(requires)
                 this:onChannel()
             end
         end
+
+        Spell.sources.unit = prevSrc
+        Spell.targets.unit = prevTgt
     end
 
     function Spell.onInit()
@@ -235,5 +271,9 @@ OnInit("Spell", function(requires)
     -- ----------------------------------------------------------------------------------------- --
     function RegisterSpell(spell, id)
         Spell.register(spell, id)
+    end
+
+    function RegisterSpellEffectEvent(ability, code)
+        Spell.registerEffectEvent(ability, code)
     end
 end)
