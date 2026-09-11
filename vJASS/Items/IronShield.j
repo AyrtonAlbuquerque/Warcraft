@@ -18,7 +18,7 @@ scope IronShield
         private static real array bonus
         
         // Attributes
-        real armor = 5
+        real armor = 3
         real block = 30
         real health = 300
 
