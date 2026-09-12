@@ -1,4 +1,4 @@
-library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities, Heal optional Avatar optional StormBolt optional NewBonus
+library ThunderClap requires Spell, TimedHandles, Stun, Slow, AttackSlow, Utilities, Heal optional Avatar optional StormBolt optional NewBonus
     /* -------------------------------------- Thunder Clap v1.6 ------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -134,30 +134,30 @@ library ThunderClap requires Spell, TimedHandles, CrowdControl, Utilities, Heal 
                                     if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                                         set heal = heal + GetHealAmount(source, u, level)
 
-                                        call StunUnit(u, GetDuration(source, u, level), STUN_MODEL, STUN_POINT, false)
+                                        call StunUnit(source, u, GetDuration(source, u, level), STUN_MODEL, STUN_POINT, false)
                                     endif
                                 else
                                     if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                                         set heal = heal + GetHealAmount(source, u, level)
 
-                                        call SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
-                                        call SlowUnitAttack(u, attack, GetDuration(source, u, level), null, null, false)
+                                        call SlowUnit(source, u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
+                                        call SlowUnitAttack(source, u, attack, GetDuration(source, u, level), null, null, false)
                                     endif
                                 endif
                             else
                                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                                     set heal = heal + GetHealAmount(source, u, level)
 
-                                    call SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
-                                    call SlowUnitAttack(u, attack, GetDuration(source, u, level), null, null, false)
+                                    call SlowUnit(source, u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
+                                    call SlowUnitAttack(source, u, attack, GetDuration(source, u, level), null, null, false)
                                 endif
                             endif
                         else
                             if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                                 set heal = heal + GetHealAmount(source, u, level)
 
-                                call SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
-                                call SlowUnitAttack(u, attack, GetDuration(source, u, level), null, null, false)
+                                call SlowUnit(source, u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
+                                call SlowUnitAttack(source, u, attack, GetDuration(source, u, level), null, null, false)
                             endif
                         endif
                     endif

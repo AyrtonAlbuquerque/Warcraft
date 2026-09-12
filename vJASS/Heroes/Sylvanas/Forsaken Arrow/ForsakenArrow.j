@@ -1,4 +1,4 @@
-library ForsakenArrow requires Spell, Utilities, Missiles, CrowdControl, Modules optional BlackArrow optional NewBonus
+library ForsakenArrow requires Spell, Utilities, Missiles, Fear, Slow, Silence, Modules optional BlackArrow optional NewBonus
     /* ------------------------------------- Forsaken Arrow v1.5 ------------------------------------ */
     // Credits:
     //     Bribe          - SpellEffectEvent
@@ -229,9 +229,9 @@ library ForsakenArrow requires Spell, Utilities, Missiles, CrowdControl, Modules
                                 endif
                             endif
 
-                            call SilenceUnit(u, duration, null, null, false)
-                            call FearUnit(u, duration, FEAR_MODEL, ATTACH_FEAR, false)
-                            call SlowUnit(u, GetSlow(u, level), duration, null, null, false)
+                            call SilenceUnit(source, u, duration, null, null, false)
+                            call FearUnit(source, u, duration, FEAR_MODEL, ATTACH_FEAR, false)
+                            call SlowUnit(source, u, GetSlow(u, level), duration, null, null, false)
                         endif
                     endif
                 call GroupRemoveUnit(g, u)

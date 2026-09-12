@@ -1,6 +1,7 @@
 OnInit("StormBolt", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Slow"
     requires "Missiles"
     requires "Utilities"
     requires.optional "Bonus"
@@ -99,7 +100,7 @@ OnInit("StormBolt", function (requires)
         function Hammer:onUnit(unit)
             if DamageFilter(self.owner, unit) then
                 if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                    SlowUnit(unit, self.slow, self.slowDuration, SLOW_MODEL, SLOW_POINT, false)
+                    SlowUnit(self.source, unit, self.slow, self.slowDuration, SLOW_MODEL, SLOW_POINT, false)
                     DestroyEffect(AddSpecialEffectTarget(DAMAGE_MODEL, unit, ATTACH_POINT))
                 end
             end

@@ -1,4 +1,4 @@
-library SulfurasSmash requires Spell, Missiles, TimedHandles, Utilities, CrowdControl optional Sulfuras, optional Afterburner, optional NewBonus
+library SulfurasSmash requires Spell, Missiles, TimedHandles, Utilities, Stun optional Sulfuras, optional Afterburner, optional NewBonus
     /* -------------------- Sulfuras Smash v1.7 by Chopinski -------------------- */
     // Credtis:
     //     Systemfre1       - Sulfuras model
@@ -93,7 +93,7 @@ library SulfurasSmash requires Spell, Missiles, TimedHandles, Utilities, CrowdCo
                     if DamageFilter(source, u) then
                         if DistanceBetweenCoordinates(x, y, GetUnitX(u), GetUnitY(u)) <= aoe then
                             if UnitDamageTarget(source, u, 2*damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
-                                call StunUnit(u, stun, STUN_MODEL, STUN_POINT, false)
+                                call StunUnit(source, u, stun, STUN_MODEL, STUN_POINT, false)
                             endif
                         else
                             call UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null)

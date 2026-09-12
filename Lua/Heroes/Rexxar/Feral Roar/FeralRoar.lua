@@ -1,9 +1,9 @@
 OnInit("FeralRoar", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Fear"
     requires "Bonus"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Misha"
 
     -- ------------------------------ Feral Roar v1.2 by Chopinski ----------------------------- --
@@ -81,7 +81,7 @@ OnInit("FeralRoar", function (requires)
                         end
                     else
                         if UnitFilter(owner, u) then
-                            FearUnit(u, GetFearDuration(level), FEAR, ATTACH, false)
+                            FearUnit(source, u, GetFearDuration(level), FEAR, ATTACH, false)
                         end
                     end
                 end

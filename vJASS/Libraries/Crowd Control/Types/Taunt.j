@@ -14,14 +14,6 @@ library Taunt requires CrowdControl, Indexer, RegisterPlayerUnitEvent
         return CrowdControl.applied(target, CROWD_CONTROL_TAUNT)
     endfunction
 
-    function GetTauntSource takes nothing returns unit
-        return CrowdControl.source[CrowdControl.key - 1]
-    endfunction
-
-    function SetTauntSource takes unit u returns nothing
-        set CrowdControl.source[CrowdControl.key - 1] = u
-    endfunction
-
     /* ----------------------------------------------------------------------------------------- */
     /*                                           System                                          */
     /* ----------------------------------------------------------------------------------------- */

@@ -1,4 +1,4 @@
-library Stampede requires Spell, Missiles, Utilities, Modules, CrowdControl, optional NewBonus
+library Stampede requires Spell, Missiles, Utilities, Modules, Stun, optional NewBonus
     /* ----------------------- Stampede v1.2 by Chopinski ----------------------- */
     // Credits:
     //     00110000 - RemorselessWinter effect
@@ -74,7 +74,7 @@ library Stampede requires Spell, Missiles, Utilities, Modules, CrowdControl, opt
         private method onUnit takes unit u returns boolean
             if UnitFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                    call StunUnit(u, stun, STUN_MODEL, STUN_ATTACH, false)
+                    call StunUnit(source, u, stun, STUN_MODEL, STUN_ATTACH, false)
                 endif
             endif
 

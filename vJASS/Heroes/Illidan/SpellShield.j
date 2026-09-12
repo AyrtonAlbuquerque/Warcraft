@@ -122,7 +122,7 @@ library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdC
         endmethod
 
         private static method onCrowdControl takes nothing returns nothing
-            if GetUnitAbilityLevel(GetCrowdControlUnit(), BUFF) > 0 then
+            if GetUnitAbilityLevel(GetCrowdControlTarget(), BUFF) > 0 then
                 call SetCrowdControlDuration(0)
             endif
         endmethod

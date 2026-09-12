@@ -6,8 +6,8 @@ library Cyclone requires CrowdControl, Indexer, Dummy, Utilities
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function CycloneUnit takes unit target, real duration, string model, string point, boolean stack returns nothing
-        call CrowdControl.apply(CROWD_CONTROL_CYCLONE, null, target, 0, 0, duration, model, point, stack)
+    function CycloneUnit takes unit source, unit target, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.apply(CROWD_CONTROL_CYCLONE, source, target, 0, 0, duration, model, point, stack)
     endfunction
 
     function IsUnitCycloned takes unit target returns boolean

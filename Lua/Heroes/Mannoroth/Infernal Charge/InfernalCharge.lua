@@ -2,8 +2,8 @@ OnInit("InfernalCharge", function (requires)
     requires "Class"
     requires "Spell"
     requires "Missiles"
+    requires "Knockback"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
 
     -- ---------------------------------- Infernal Charge v1.6 --------------------------------- --
@@ -66,7 +66,7 @@ OnInit("InfernalCharge", function (requires)
         function Charge:onUnit(unit)
             if ChargeFilter(self.owner, unit) then
                 if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
-                    KnockbackUnit(unit, AngleBetweenCoordinates(self.x, self.y, GetUnitX(unit), GetUnitY(unit)), self.distance, self.knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, true, true, false, false)
+                    KnockbackUnit(self.source, unit, AngleBetweenCoordinates(self.x, self.y, GetUnitX(unit), GetUnitY(unit)), self.distance, self.knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, false)
                 end
             end
 

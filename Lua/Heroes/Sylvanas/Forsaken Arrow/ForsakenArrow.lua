@@ -1,9 +1,11 @@
 OnInit("ForsakenArrow", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Fear"
+    requires "Slow"
+    requires "Silence"
     requires "Missiles"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
     requires.optional "BlackArrow"
 
@@ -211,9 +213,9 @@ OnInit("ForsakenArrow", function (requires)
                             end
                         end
 
-                        SilenceUnit(u, duration, nil, nil, false)
-                        FearUnit(u, duration, FEAR_MODEL, ATTACH_FEAR, false)
-                        SlowUnit(u, GetSlow(u, self.level), duration, nil, nil, false)
+                        SilenceUnit(self.source, u, duration, nil, nil, false)
+                        FearUnit(self.source, u, duration, FEAR_MODEL, ATTACH_FEAR, false)
+                        SlowUnit(self.source, u, GetSlow(u, self.level), duration, nil, nil, false)
                     end
                 end
 

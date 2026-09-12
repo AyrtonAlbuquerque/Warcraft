@@ -6,8 +6,8 @@ scope Entangle
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function EntangleUnit takes unit target, real duration, string model, string point, boolean stack returns nothing
-        call CrowdControl.apply(CROWD_CONTROL_ENTANGLE, null, target, 0, 0, duration, model, point, stack)
+    function EntangleUnit takes unit source, unit target, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.apply(CROWD_CONTROL_ENTANGLE, source, target, 0, 0, duration, model, point, stack)
     endfunction
 
     function IsUnitEntangled takes unit target returns boolean

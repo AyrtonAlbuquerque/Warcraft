@@ -1,4 +1,4 @@
-library Bash requires Spell, DamageInterface, CrowdControl, Utilities, NewBonus
+library Bash requires Spell, DamageInterface, Stun, Utilities, NewBonus
     /* ------------------------------------------ Bash v1.2 ----------------------------------------- */
     // Credits:
     //     PrinceYaser - Icon
@@ -67,7 +67,7 @@ library Bash requires Spell, DamageInterface, CrowdControl, Utilities, NewBonus
                 if UnitFilter(Damage.source.player, Damage.target.unit) then
                     if GetRandomReal(0, 1) <= GetChance(Damage.source.unit, level) then
                         if UnitDamageTarget(Damage.source.unit, Damage.target.unit, GetDamage(Damage.source.unit, level), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                            call StunUnit(Damage.target.unit, GetDuration(Damage.source.unit, Damage.target.unit, level), MODEL, POINT, false)
+                            call StunUnit(Damage.source.unit, Damage.target.unit, GetDuration(Damage.source.unit, Damage.target.unit, level), MODEL, POINT, false)
                         endif
                     endif
                 endif

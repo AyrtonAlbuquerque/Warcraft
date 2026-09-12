@@ -1,9 +1,9 @@
 OnInit("Stampede", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Stun"
     requires "Missiles"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
 
     -- ------------------------------- Stampede v1.2 by Chopinski ------------------------------ --
@@ -76,7 +76,7 @@ OnInit("Stampede", function (requires)
         function Lizard:onUnit(unit)
             if UnitFilter(self.owner, unit) then
                 if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                    StunUnit(unit, self.stun, STUN_MODEL, STUN_ATTACH, false)
+                    StunUnit(self.source, unit, self.stun, STUN_MODEL, STUN_ATTACH, false)
                 end
             end
 

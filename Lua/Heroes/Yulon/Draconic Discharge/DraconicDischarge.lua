@@ -1,9 +1,9 @@
 OnInit("DraconicDischarge", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Stun"
     requires "Utilities"
     requires "LineSegment"
-    requires "CrowdControl"
     requires.optional "Bonus"
 
     -- -------------------------- Draconic Discharge v1.4 by Chopinski ------------------------- --
@@ -86,7 +86,7 @@ OnInit("DraconicDischarge", function (requires)
 
                 if DamageFilter(Spell.source.player, unit) then
                     if UnitDamageTarget(Spell.source.unit, unit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        StunUnit(unit, duration, STUN_MODEL, STUN_ATTACH, false)
+                        StunUnit(Spell.source.unit, unit, duration, STUN_MODEL, STUN_ATTACH, false)
                     end
                 end
             end

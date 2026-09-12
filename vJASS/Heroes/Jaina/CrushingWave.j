@@ -1,4 +1,4 @@
-library CrushingWave requires Spell, Missiles, Utilities, CrowdControl optional WaterElemental, optional NewBonus
+library CrushingWave requires Spell, Missiles, Utilities, Slow optional WaterElemental, optional NewBonus
     /* --------------------- Crushing Wave v1.2 by Chopinski -------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -67,7 +67,7 @@ library CrushingWave requires Spell, Missiles, Utilities, CrowdControl optional 
         private method onUnit takes unit u returns boolean
             if UnitFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                    call SlowUnit(u, slow, timeout, null, null, false)
+                    call SlowUnit(source, u, slow, timeout, null, null, false)
                 endif
             endif
 

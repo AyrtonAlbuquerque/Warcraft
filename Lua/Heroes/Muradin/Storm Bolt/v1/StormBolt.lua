@@ -1,6 +1,7 @@
 OnInit("StormBolt", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Stun"
     requires "Bonus"
     requires "Missiles"
     requires "Utilities"
@@ -89,7 +90,7 @@ OnInit("StormBolt", function (requires)
                             end
                         end
                     else
-                        StunUnit(self.target, self.time, STUN_MODEL, STUN_POINT, false)
+                        StunUnit(self.source, self.target, self.time, STUN_MODEL, STUN_POINT, false)
                     end
                 end
             end

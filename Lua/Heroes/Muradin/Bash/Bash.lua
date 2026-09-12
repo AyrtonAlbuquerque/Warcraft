@@ -1,6 +1,7 @@
 OnInit("Bash", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Stun"
     requires "Bonus"
     requires "Damage"
     requires "Utilities"
@@ -72,7 +73,7 @@ OnInit("Bash", function (requires)
                 if UnitFilter(Damage.source.player, Damage.target.unit) then
                     if GetRandomReal(0, 1) <= GetChance(Damage.source.unit, level) then
                         if UnitDamageTarget(Damage.source.unit, Damage.target.unit, GetDamage(Damage.source.unit, level), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                            StunUnit(Damage.target.unit, GetDuration(Damage.source.unit, Damage.target.unit, level), MODEL, POINT, false)
+                            StunUnit(Damage.source.unit, Damage.target.unit, GetDuration(Damage.source.unit, Damage.target.unit, level), MODEL, POINT, false)
                         end
                     end
                 end

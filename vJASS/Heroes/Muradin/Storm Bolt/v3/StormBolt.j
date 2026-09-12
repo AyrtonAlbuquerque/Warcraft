@@ -1,4 +1,4 @@
-library StormBolt requires Spell, Missiles, Indexer, Utilities, CrowdControl, Modules optional NewBonus
+library StormBolt requires Spell, Missiles, Indexer, Utilities, Slow, Modules optional NewBonus
     /* --------------------------------------- Storm Bolt v1.6 -------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -102,7 +102,7 @@ library StormBolt requires Spell, Missiles, Indexer, Utilities, CrowdControl, Mo
         private method onUnit takes unit u returns boolean
             if DamageFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                    call SlowUnit(u, slow, slowDuration, SLOW_MODEL, SLOW_POINT, false)
+                    call SlowUnit(source, u, slow, slowDuration, SLOW_MODEL, SLOW_POINT, false)
                     call DestroyEffect(AddSpecialEffectTarget(DAMAGE_MODEL, u, ATTACH_POINT))
                 endif
             endif

@@ -1,9 +1,9 @@
 OnInit("StormBolt", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Slow"
     requires "Missiles"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
 
     -- ------------------------------------ Storm Bolt v1.5 ------------------------------------ --
@@ -88,7 +88,7 @@ OnInit("StormBolt", function (requires)
                     end
     
                     if UnitDamageTarget(self.source, unit, self.newDamage, true, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        SlowUnit(unit, self.slow, self.slowDuration, SLOW_MODEL, SLOW_POINT, false)
+                        SlowUnit(self.source, unit, self.slow, self.slowDuration, SLOW_MODEL, SLOW_POINT, false)
 
                         if self.bonus then
                             DestroyEffect(AddSpecialEffectTarget(BONUS_DAMAGE_MODEL, unit, ATTACH_POINT))

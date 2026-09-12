@@ -6,28 +6,12 @@ library Knockback requires CrowdControl, Indexer, WorldBounds
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function KnockbackUnit takes unit target, real angle, real distance, real duration, string model, string point, boolean onCliff, boolean onDestructable, boolean onUnit, boolean stack returns nothing
-        call CrowdControl.apply(CROWD_CONTROL_KNOCKBACK, null, target, distance, angle, duration, model, point, stack)
+    function KnockbackUnit takes unit source, unit target, real angle, real distance, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.apply(CROWD_CONTROL_KNOCKBACK, source, target, distance, angle, duration, model, point, stack)
     endfunction
     
     function IsUnitKnockedBack takes unit target returns boolean
         return CrowdControl.applied(target, CROWD_CONTROL_KNOCKBACK)
-    endfunction
-
-    function GetKnockbackAngle takes nothing returns real
-        return GetCrowdControlAngle()
-    endfunction
-
-    function GetKnockbackDistance takes nothing returns real
-        return GetCrowdControlValue()
-    endfunction
-
-    function SetKnockbackAngle takes real angle returns nothing
-        call SetCrowdControlAngle(angle)
-    endfunction
-
-    function SetKnockbackDistance takes real distance returns nothing
-        call SetCrowdControlValue(distance)
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */

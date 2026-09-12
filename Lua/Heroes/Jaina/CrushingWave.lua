@@ -1,9 +1,9 @@
 OnInit("CrushingWave", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Slow"
     requires "Missiles"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
     requires.optional "WaterElemental"
 
@@ -69,7 +69,7 @@ OnInit("CrushingWave", function (requires)
         function Wave:onUnit(unit)
             if UnitFilter(self.owner, unit) then
                 if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                    SlowUnit(unit, self.slow, self.timeout, nil, nil, false)
+                    SlowUnit(self.source, unit, self.slow, self.timeout, nil, nil, false)
                 end
             end
 

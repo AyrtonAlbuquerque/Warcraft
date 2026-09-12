@@ -1,4 +1,4 @@
-library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, CrowdControl, Modules, SpellEffectEvent, Combat, TimerUtils
+library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, Fear, Modules, Combat, TimerUtils
     /* ------------------------------------- Metamorphosis v1.5 ------------------------------------- */
     // Credits:
     //     BLazeKraze      - Icon
@@ -152,7 +152,7 @@ library Metamorphosis requires DamageInterface, Spell, Utilities, NewBonus, Crow
                         set health = health + GetBonusHealth(u, level)
                         set damage = damage + GetBonusDamage(u, level)
 
-                        call FearUnit(u, GetDuration(u, level), FEAR_MODEL, ATTACH_FEAR, false)
+                        call FearUnit(unit, u, GetDuration(u, level), FEAR_MODEL, ATTACH_FEAR, false)
                     endif
                 call GroupRemoveUnit(group, u)
             endloop

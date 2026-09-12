@@ -1,4 +1,4 @@
-library DragonZone requires Spell, Utilities, CrowdControl, Modules, Heal optional NewBonus
+library DragonZone requires Spell, Utilities, Knockback, Modules, Heal optional NewBonus
     /* ---------------------- Dragon Zone v1.3 by Chopinski --------------------- */
     // Credits:
     //     AZ             - Model
@@ -107,7 +107,7 @@ library DragonZone requires Spell, Utilities, CrowdControl, Modules, Heal option
                                 set angle = AngleBetweenCoordinates(x, y, GetUnitX(u), GetUnitY(u))
                                 set distance = DistanceBetweenCoordinates(x, y, GetUnitX(u), GetUnitY(u))
                                 
-                                call KnockbackUnit(u, angle, aoe + 25 - distance, knock*(distance/aoe), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
+                                call KnockbackUnit(unit, u, angle, aoe + 25 - distance, knock*(distance/aoe), KNOCKBACK_MODEL, ATTACH_POINT, false)
                             endif
                         elseif UnitAlive(u) and IsUnitAlly(u, player) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
                             call HealUnit(unit, u, heal * PERIOD, HEALTH, false)

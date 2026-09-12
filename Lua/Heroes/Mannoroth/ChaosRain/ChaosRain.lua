@@ -1,9 +1,9 @@
 OnInit("ChaosRain", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Stun"
     requires "Missiles"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
 
     -- ------------------------------ Chaos Rain v1.6 by Chopinski ----------------------------- --
@@ -27,6 +27,10 @@ OnInit("ChaosRain", function (requires)
     local MISSILE_MODEL  = "Units\\Demon\\Infernal\\InfernalBirth.mdl"
     -- The Missile scale
     local MISSILE_SCALE  = 1
+    -- the impact model
+    local IMPACT_MODEL  = "FelImpact.mdl"
+    -- The Missile scale
+    local IMPACT_SCALE  = 1
     -- The stun model
     local STUN_MODEL     = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
     -- The stun model attach point
@@ -150,7 +154,7 @@ OnInit("ChaosRain", function (requires)
             while u do
                 if DamageFilter(self.owner, u) then
                     if UnitDamageTarget(self.source, u, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
-                        StunUnit(u, self.stun, STUN_MODEL, POINT, false)
+                        StunUnit(self.source, u, self.stun, STUN_MODEL, POINT, false)
                     end
                 end
 
@@ -159,6 +163,7 @@ OnInit("ChaosRain", function (requires)
             end
 
             DestroyGroup(group)
+            DestroyEffect(AddSpecialEffectEx(IMPACT_MODEL, self.x, self.y, 0, IMPACT_SCALE))
 
             return true
         end

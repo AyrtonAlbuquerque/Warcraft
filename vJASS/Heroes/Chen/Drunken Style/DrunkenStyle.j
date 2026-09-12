@@ -1,4 +1,4 @@
-library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, CrowdControl, Modules
+library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, Knockback, Modules
     /* --------------------- Drunken Style v1.5 by Chopinski -------------------- */
     // Credits:
     //     Blizzard - Icon
@@ -89,7 +89,7 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
             if IsUnitInCone(hit, centerX, centerY, collision, face, fov) then
                 if DamageFilter(owner, hit) then
                     if UnitDamageTarget(source, hit, damage, true, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WOOD_HEAVY_BASH) then
-                        call KnockbackUnit(hit, AngleBetweenCoordinates(x, y, GetUnitX(hit), GetUnitY(hit)), distance, knockback, MODEL, ATTACH, true, true, false, true)
+                        call KnockbackUnit(source, hit, AngleBetweenCoordinates(x, y, GetUnitX(hit), GetUnitY(hit)), distance, knockback, MODEL, ATTACH, true)
                     endif
                 endif
             endif

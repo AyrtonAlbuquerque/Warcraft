@@ -6,20 +6,12 @@ library Knockup requires CrowdControl, Indexer, TimerUtils
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function KnockupUnit takes unit target, real maxHeight, real duration, string model, string point, boolean stack returns nothing
-        call CrowdControl.apply(CROWD_CONTROL_KNOCKUP, null, target, maxHeight, 0, duration, model, point, stack)
+    function KnockupUnit takes unit source, unit target, real maxHeight, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.apply(CROWD_CONTROL_KNOCKUP, source, target, maxHeight, 0, duration, model, point, stack)
     endfunction
 
     function IsUnitKnockedUp takes unit target returns boolean
         return CrowdControl.applied(target, CROWD_CONTROL_KNOCKUP)
-    endfunction
-
-    function GetKnockupHeight takes nothing returns real
-        return GetCrowdControlValue()
-    endfunction
-
-    function SetKnockupHeight takes real height returns nothing
-        call SetCrowdControlValue(height)
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */

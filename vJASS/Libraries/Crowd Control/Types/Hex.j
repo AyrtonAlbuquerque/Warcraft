@@ -6,8 +6,8 @@ library Hex requires CrowdControl, Indexer, Dummy, Utilities
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function HexUnit takes unit target, real duration, string model, string point, boolean stack returns nothing
-        call CrowdControl.apply(CROWD_CONTROL_HEX, null, target, 0, 0, duration, model, point, stack)
+    function HexUnit takes unit source, unit target, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.apply(CROWD_CONTROL_HEX, source, target, 0, 0, duration, model, point, stack)
     endfunction
 
     function IsUnitHexed takes unit target returns boolean

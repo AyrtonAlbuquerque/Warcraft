@@ -1,4 +1,4 @@
-library Stampede requires Spell, Missiles, Utilities, Modules, CrowdControl, optional NewBonus optional CooldownReduction
+library Stampede requires Spell, Missiles, Utilities, Modules, Slow, optional NewBonus optional CooldownReduction
     /* ----------------------- Stampede v1.0 by Chopinski ----------------------- */
 
     /* -------------------------------------------------------------------------- */
@@ -79,7 +79,7 @@ library Stampede requires Spell, Missiles, Utilities, Modules, CrowdControl, opt
         private method onUnit takes unit u returns boolean
             if UnitFilter(owner, u) then
                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                    call SlowUnit(u, slow, slowDuration, SLOW_MODEL, SLOW_ATTACH, false)
+                    call SlowUnit(source, u, slow, slowDuration, SLOW_MODEL, SLOW_ATTACH, false)
                     call DestroyEffect(AddSpecialEffectTarget(DAMAGE_MODEL, u, DAMAGE_ATTACH))
                 endif
             endif

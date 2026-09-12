@@ -1,4 +1,4 @@
-library BansheeCry requires Spell, Utilities, CrowdControl, optional BlackArrow
+library BansheeCry requires Spell, Utilities, Fear, Slow optional BlackArrow
     /* -------------------------------- Cry of the Banshee Queen v1.5 ------------------------------- */
     // Credits:
     //     Darkfang      - Void Curse Icon
@@ -65,8 +65,8 @@ library BansheeCry requires Spell, Utilities, CrowdControl, optional BlackArrow
                 exitwhen u == null
                     static if LIBRARY_BlackArrow then
                         if Filtered(Spell.source.player, u) then
-                            call FearUnit(u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
-                            call SlowUnit(u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), null, null, false)
+                            call FearUnit(Spell.source.unit, u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
+                            call SlowUnit(Spell.source.unit, u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), null, null, false)
                         elseif GetOwningPlayer(u) == Spell.source.player and (GetUnitTypeId(u) == BlackArrow_SKELETON_WARRIOR or GetUnitTypeId(u) == BlackArrow_SKELETON_ARCHER) then
                             call UnitApplyTimedLife(ReplaceUnit(u, GetUnitTypeId(u), bj_UNIT_STATE_METHOD_ABSOLUTE), 'BTLF', BlackArrow_GetSkeletonDuration(GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)))
                         elseif GetOwningPlayer(u) == Spell.source.player and GetUnitTypeId(u) == BlackArrow_SKELETON_ELITE then
@@ -74,8 +74,8 @@ library BansheeCry requires Spell, Utilities, CrowdControl, optional BlackArrow
                         endif
                     else
                         if Filtered(Spell.source.player, u) then
-                            call FearUnit(u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
-                            call SlowUnit(u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), null, null, false)
+                            call FearUnit(Spell.source.unit, u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
+                            call SlowUnit(Spell.source.unit, u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), null, null, false)
                         endif
                     endif
                 call GroupRemoveUnit(g, u)

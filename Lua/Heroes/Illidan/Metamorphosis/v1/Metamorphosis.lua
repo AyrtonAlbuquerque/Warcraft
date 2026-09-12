@@ -1,10 +1,10 @@
 OnInit("Metamorphosis", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Fear"
     requires "Bonus"
     requires "Damage"
     requires "Utilities"
-    requires "CrowdControl"
 
     -- ----------------------------------- Metamorphosis v1.5 ---------------------------------- --
 
@@ -84,7 +84,7 @@ OnInit("Metamorphosis", function (requires)
         end
 
         function Metamorphosis:onTooltip(source, level, abiltiy)
-            return "|cffffcc00Illidan|r transforms into a powerful |cffffcc00Demon|r and gains |cffff0000" + N2S(50 * level, 0) + "|r bonus |cffff0000Health|r and |cffff0000" .. N2S(5 * level, 0) .. "|r bonus |cffff0000Damage|r for each enemy unit affected by his transformation (doubled for |cffffcc00Heroes|r). |cffffcc00Illidan|r also gains |cffffcc00" .. N2S(GetOmnivampBonus(source, level) * 100, 0) .. "%|r |cff8080ffOmnivamp|r, |cff00ff00" .. N2S(GetMovementSpeedBonus(source, level), 0) .. " Movement Speed|r and |cffffcc00Fly|r movement type while in his dark form. When lifting off and landing while transforming, all enemy units within |cffffcc00" .. N2S(GetAoE(level), 0) .. " AoE|r will be |cffffcc00Feared|r for |cffffcc005|r seconds (|cffffcc002|r for Heroes)."
+            return "|cffffcc00Illidan|r transforms into a powerful |cffffcc00Demon|r and gains |cffff0000" .. N2S(50 * level, 0) .. "|r bonus |cffff0000Health|r and |cffff0000" .. N2S(5 * level, 0) .. "|r bonus |cffff0000Damage|r for each enemy unit affected by his transformation (doubled for |cffffcc00Heroes|r). |cffffcc00Illidan|r also gains |cffffcc00" .. N2S(GetOmnivampBonus(source, level) * 100, 0) .. "%|r |cff8080ffOmnivamp|r, |cff00ff00" .. N2S(GetMovementSpeedBonus(source, level), 0) .. " Movement Speed|r and |cffffcc00Fly|r movement type while in his dark form. When lifting off and landing while transforming, all enemy units within |cffffcc00" .. N2S(GetAoE(level), 0) .. " AoE|r will be |cffffcc00Feared|r for |cffffcc005|r seconds (|cffffcc002|r for Heroes)."
         end
 
         function Metamorphosis:onCast()
@@ -110,7 +110,7 @@ OnInit("Metamorphosis", function (requires)
                         health = health + GetBonusHealth(u, this.level)
                         damage = damage + GetBonusDamage(u, this.level)
 
-                        FearUnit(u, GetDuration(u, this.level), FEAR_MODEL, ATTACH_FEAR, false)
+                        FearUnit(this.unit, u, GetDuration(u, this.level), FEAR_MODEL, ATTACH_FEAR, false)
                     end
 
                     GroupRemoveUnit(this.group, u)

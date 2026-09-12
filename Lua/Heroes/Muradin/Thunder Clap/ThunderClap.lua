@@ -2,8 +2,10 @@ OnInit("ThunderClap", function (requires)
     requires "Class"
     requires "Spell"
     requires "Heal"
+    requires "Stun"
+    requires "Slow"
+    requires "AttackSlow"
     requires "Utilities"
-    requires "CrowdControl"
     requires "TimedHandles"
     requires.optional "Bonus"
     requires.optional "Avatar"
@@ -138,30 +140,30 @@ OnInit("ThunderClap", function (requires)
                                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                                     heal = heal + GetHealAmount(source, u, level)
 
-                                    StunUnit(u, GetDuration(source, u, level), STUN_MODEL, STUN_POINT, false)
+                                    StunUnit(source, u, GetDuration(source, u, level), STUN_MODEL, STUN_POINT, false)
                                 end
                             else
                                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                                     heal = heal + GetHealAmount(source, u, level)
 
-                                    SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
-                                    SlowUnitAttack(u, attack, GetDuration(source, u, level), nil, nil, false)
+                                    SlowUnit(source, u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
+                                    SlowUnitAttack(source, u, attack, GetDuration(source, u, level), nil, nil, false)
                                 end
                             end
                         else
                             if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                                 heal = heal + GetHealAmount(source, u, level)
 
-                                SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
-                                SlowUnitAttack(u, attack, GetDuration(source, u, level), nil, nil, false)
+                                SlowUnit(source, u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
+                                SlowUnitAttack(source, u, attack, GetDuration(source, u, level), nil, nil, false)
                             end
                         end
                     else
                         if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                             heal = heal + GetHealAmount(source, u, level)
 
-                            SlowUnit(u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
-                            SlowUnitAttack(u, attack, GetDuration(source, u, level), nil, nil, false)
+                            SlowUnit(source, u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
+                            SlowUnitAttack(source, u, attack, GetDuration(source, u, level), nil, nil, false)
                         end
                     end
                 end

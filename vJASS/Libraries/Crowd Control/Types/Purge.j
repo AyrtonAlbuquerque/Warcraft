@@ -6,8 +6,8 @@ library Purge requires CrowdControl, Indexer, Dummy, Utilities
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function PurgeUnit takes unit target, real duration, string model, string point, boolean stack returns nothing
-        call CrowdControl.apply(CROWD_CONTROL_PURGE, null, target, 0, 0, duration, model, point, stack)
+    function PurgeUnit takes unit source, unit target, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.apply(CROWD_CONTROL_PURGE, source, target, 0, 0, duration, model, point, stack)
     endfunction
 
     function IsUnitPurged takes unit target returns boolean

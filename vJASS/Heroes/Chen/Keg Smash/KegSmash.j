@@ -1,4 +1,4 @@
-library KegSmash requires Spell, NewBonus, Utilities, Missiles, TimerUtils, CrowdControl
+library KegSmash requires Spell, NewBonus, Utilities, Missiles, TimerUtils, Slow
     /* ----------------------- Keg Smash v1.5 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard           - Icon
@@ -175,7 +175,7 @@ library KegSmash requires Spell, NewBonus, Utilities, Missiles, TimerUtils, Crow
                             if UnitAlive(u) and IsUnitEnemy(u, player) and GetUnitAbilityLevel(u, BUFF) == 0 then
                                 if not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
                                     call IssueTargetOrder(unit, "drunkenhaze", u)
-                                    call SlowUnit(u, slow, slowDuration, null, null, false)
+                                    call SlowUnit(source, u, slow, slowDuration, null, null, false)
                                 endif
                             endif
                         call GroupRemoveUnit(group, u)
@@ -278,7 +278,7 @@ library KegSmash requires Spell, NewBonus, Utilities, Missiles, TimerUtils, Crow
                     if DamageFilter(owner, u) then
                         if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
                             call IssueTargetOrder(unit, "drunkenhaze", u)
-                            call SlowUnit(u, slow, d, null, null, false)
+                            call SlowUnit(source, u, slow, d, null, null, false)
                         endif
                     endif
                 call GroupRemoveUnit(group, u)

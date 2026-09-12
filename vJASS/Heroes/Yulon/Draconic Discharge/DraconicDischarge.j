@@ -1,4 +1,4 @@
-library DraconicDischarge requires Spell, Utilities, LineSegmentEnumeration, CrowdControl optional NewBonus
+library DraconicDischarge requires Spell, Utilities, LineSegmentEnumeration, Stun optional NewBonus
     /* ------------------ Draconic Discharge v1.4 by Chopinski ------------------ */
     // Credits:
     //     N-ix Studio      - Icon
@@ -85,7 +85,7 @@ library DraconicDischarge requires Spell, Utilities, LineSegmentEnumeration, Cro
                 exitwhen u == null
                     if DamageFilter(Spell.source.player, u) then
                         if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                            call StunUnit(u, duration, STUN_MODEL, STUN_ATTACH, false)
+                            call StunUnit(Spell.source.unit, u, duration, STUN_MODEL, STUN_ATTACH, false)
                         endif
                     endif
                 call GroupRemoveUnit(g, u)

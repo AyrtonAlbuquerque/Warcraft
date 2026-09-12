@@ -1,4 +1,4 @@
-library LightBurst requires Spell, NewBonus, Utilities, CrowdControl optional LightInfusion
+library LightBurst requires Spell, NewBonus, Utilities, Slow, Disarm optional LightInfusion
     /* -------------------------------------- Light Burst v1.5 -------------------------------------- */
     // Credits:
     //     Redeemer59         - Icon
@@ -83,10 +83,10 @@ library LightBurst requires Spell, NewBonus, Utilities, CrowdControl optional Li
                         if IsUnitEnemy(u, owner) then
                             if DamageFilter(u) then
                                 if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                                    call SlowUnit(u, slow, time, null, null, false)
+                                    call SlowUnit(source, u, slow, time, null, null, false)
 
                                     if infused then
-                                        call DisarmUnit(u, time, DISARM, ATTACH, false)
+                                        call DisarmUnit(source, u, time, DISARM, ATTACH, false)
                                     endif
                                 endif
                             endif

@@ -1,9 +1,9 @@
 OnInit("SulfurasSmash", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Stun"
     requires "Missile"
     requires "Utilities"
-    requires "CrowdControl"
     requires "TimedHandles"
     requires.optional "Bonus"
     requires.optional "Sulfuras"
@@ -92,7 +92,7 @@ OnInit("SulfurasSmash", function (requires)
                 if DamageFilter(self.source, u) then
                     if DistanceBetweenCoordinates(self.x, self.y, GetUnitX(u), GetUnitY(u)) <= self.aoe then
                         if UnitDamageTarget(self.source, u, 2*self.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil) then
-                            StunUnit(u, self.stun, STUN_MODEL, STUN_POINT, false)
+                            StunUnit(self.source, u, self.stun, STUN_MODEL, STUN_POINT, false)
                         end
                     else
                         UnitDamageTarget(self.source, u, self.damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, nil)

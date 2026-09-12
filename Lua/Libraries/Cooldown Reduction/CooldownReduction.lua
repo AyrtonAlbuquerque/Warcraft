@@ -51,15 +51,19 @@ OnInit("CDR", function(requires)
     end
 
     function mt:get(unit, type)
-        if not units[unit] then self:create(unit) end
+        if unit then
+            if not units[unit] then self:create(unit) end
 
-        if type == 0 then
-            return units[unit].cooldown or 0
-        elseif type == 1 then
-            return units[unit].flat or 0
-        else
-            return units[unit].offset or 0
+            if type == 0 then
+                return units[unit].cooldown or 0
+            elseif type == 1 then
+                return units[unit].flat or 0
+            else
+                return units[unit].offset or 0
+            end
         end
+
+        return 0
     end
 
     function mt:calculate(unit)

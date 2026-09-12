@@ -1,4 +1,4 @@
-library Fissure requires Spell, Missiles, Utilities, CrowdControl, optional NewBonus
+library Fissure requires Spell, Missiles, Utilities, Stun optional NewBonus
     /* ------------------------ Fissure v1.5 by CHopinski ----------------------- */
     // Credits:
     //     AnsonRuk    - Icon Darky29
@@ -95,7 +95,7 @@ library Fissure requires Spell, Missiles, Utilities, CrowdControl, optional NewB
         private method onUnit takes unit hit returns boolean
             if DamageFilter(owner, hit) then
                 if UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                    call StunUnit(hit, stun, STUN_MODEL, STUN_ATTACH, false)
+                    call StunUnit(source, hit, stun, STUN_MODEL, STUN_ATTACH, false)
                 endif
             endif
 

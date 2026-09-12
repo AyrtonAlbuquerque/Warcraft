@@ -1,4 +1,4 @@
-library StormBolt requires Spell, Missiles, Utilities, TimedHandles, CrowdControl, NewBonus optional Avatar
+library StormBolt requires Spell, Missiles, Utilities, TimedHandles, Stun, NewBonus optional Avatar
     /* --------------------------------------- Storm Bolt v1.4 -------------------------------------- */
     // Credits:
     //     Blizzard       - Icon
@@ -90,7 +90,7 @@ library StormBolt requires Spell, Missiles, Utilities, TimedHandles, CrowdContro
                             endif
                         endif
                     else
-                        call StunUnit(target, time, STUN_MODEL, STUN_POINT, false)
+                        call StunUnit(source, target, time, STUN_MODEL, STUN_POINT, false)
                     endif
                 endif
             endif

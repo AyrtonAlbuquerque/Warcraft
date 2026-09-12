@@ -1,7 +1,7 @@
 OnInit("ProgressBar", function (requires)
     requires "Class"
-    requires "Dummy"
     requires "Utilities"
+    requires "WorldBounds"
 
     -- Position update period
     local PERIOD = 0.03
@@ -106,7 +106,9 @@ OnInit("ProgressBar", function (requires)
     ProgressBar = Class()
 
     local array = {}
+    local group = CreateGroup()
     local location = CreateTimer()
+    local position = Location(0, 0)
 
     ProgressBar:property("x", {
         get = function(self)
@@ -216,7 +218,7 @@ OnInit("ProgressBar", function (requires)
         PauseTimer(self.timer)
         DestroyTimer(self.timer)
         BlzSetUnitSkin(self.effect, Dummy.type)
-        DummyRecycle(self.effect)
+        ProgressBar.recycle(self.effect)
 
         if self.texttag then
             DestroyTextTag(self.texttag)
@@ -264,6 +266,41 @@ OnInit("ProgressBar", function (requires)
         return self
     end
 
+    function ProgressBar.recycle(dummy)
+        if GetUnitTypeId(dummy) == PROGRESSBAR then
+            GroupAddUnit(group, dummy)
+            SetUnitX(dummy, WorldBounds.maxX)
+            SetUnitY(dummy, WorldBounds.maxY)
+            SetUnitScale(dummy, 1, 1, 1)
+            SetUnitTimeScale(dummy, 1)
+            SetUnitVertexColor(dummy, 255, 255, 255, 255)
+            PauseUnit(dummy, true)
+        end
+    end
+
+    function ProgressBar.retrieve(x, y, z)
+        local dummy
+
+        if BlzGroupGetSize(group) > 0 then
+            dummy = FirstOfGroup(group)
+
+            PauseUnit(dummy, false)
+            GroupRemoveUnit(group, dummy)
+            SetUnitX(dummy, x)
+            SetUnitY(dummy, y)
+            MoveLocation(position, x, y)
+            SetUnitFlyHeight(dummy, z - GetLocationZ(position), 0)
+        else
+            dummy = CreateUnit(Player(PLAYER_NEUTRAL_PASSIVE), PROGRESSBAR, x, y, 0)
+
+            MoveLocation(position, x, y)
+            SetUnitFlyHeight(dummy, z - GetLocationZ(position), 0)
+            UnitRemoveAbility(dummy, S2A('Amrf'))
+        end
+
+        return dummy
+    end
+
     function ProgressBar.create(unit, x, y, z, scale, percent, showText)
         local self = ProgressBar.allocate()
 
@@ -276,7 +313,7 @@ OnInit("ProgressBar", function (requires)
         self.size = TEXTTAG_SIZE
         self.value = R2I(percent)
         self.timer = CreateTimer()
-        self.effect = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), x, y, z, 0)
+        self.effect = ProgressBar.retrieve(x, y, z)
 
         BlzSetUnitSkin(self.effect, PROGRESSBAR)
         SetUnitScale(self.effect, scale, scale, scale)
@@ -325,5 +362,15 @@ OnInit("ProgressBar", function (requires)
         end
 
         return self
+    end
+
+    function ProgressBar.onInit()
+        for i = 0, 20 do
+            local unit = CreateUnit(Player(PLAYER_NEUTRAL_PASSIVE), PROGRESSBAR, WorldBounds.maxX, WorldBounds.maxY, 0)
+
+            PauseUnit(unit, false)
+            GroupAddUnit(group, unit)
+            UnitRemoveAbility(unit, S2A('Amrf'))
+        end
     end
 end)

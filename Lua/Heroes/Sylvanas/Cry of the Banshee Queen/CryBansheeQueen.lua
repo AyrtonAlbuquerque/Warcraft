@@ -1,8 +1,9 @@
 OnInit("BansheeCry", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Fear"
+    requires "Slow"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "BlackArrow"
 
     -- ----------------------------- Cry of the Banshee Queen v1.5 ----------------------------- --
@@ -66,8 +67,8 @@ OnInit("BansheeCry", function (requires)
             while u do
                 if BlackArrow then
                     if Filtered(Spell.source.player, u) then
-                        FearUnit(u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
-                        SlowUnit(u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), nil, nil, false)
+                        FearUnit(Spell.source.unit, u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
+                        SlowUnit(Spell.source.unit, u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), nil, nil, false)
                     elseif GetOwningPlayer(u) == Spell.source.player and (GetUnitTypeId(u) == BlackArrow_SKELETON_WARRIOR or GetUnitTypeId(u) == BlackArrow_SKELETON_ARCHER) then
                         UnitApplyTimedLife(ReplaceUnit(u, GetUnitTypeId(u), bj_UNIT_STATE_METHOD_ABSOLUTE), S2A('BTLF'), BlackArrow_GetSkeletonDuration(GetUnitAbilityLevel(Spell.source.unit, BlackArrow_ABILITY)))
                     elseif GetOwningPlayer(u) == Spell.source.player and GetUnitTypeId(u) == BlackArrow_SKELETON_ELITE then
@@ -75,8 +76,8 @@ OnInit("BansheeCry", function (requires)
                     end
                 else
                     if Filtered(Spell.source.player, u) then
-                        FearUnit(u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
-                        SlowUnit(u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), nil, nil, false)
+                        FearUnit(Spell.source.unit, u, GetDuration(u, Spell.level), FEAR_MODEL, ATTACH_FEAR, false)
+                        SlowUnit(Spell.source.unit, u, GetSlow(u, Spell.level), GetDuration(u, Spell.level), nil, nil, false)
                     end
                 end
 

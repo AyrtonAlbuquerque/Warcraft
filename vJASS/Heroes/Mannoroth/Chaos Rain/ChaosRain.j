@@ -1,4 +1,4 @@
-library ChaosRain requires Missiles, Spell, Utilities, Modules, CrowdControl optional NewBonus
+library ChaosRain requires Missiles, Spell, Utilities, Modules, Stun optional NewBonus
     /* --------------------- Chaos Rain v1.6 by Chopinski ---------------------- */
     // Credits:
     //     KILLCIED, Mr Goblin - icon
@@ -24,6 +24,10 @@ library ChaosRain requires Missiles, Spell, Utilities, Modules, CrowdControl opt
         private constant string MISSILE_MODEL   = "Units\\Demon\\Infernal\\InfernalBirth.mdl"
         // The Missile scale
         private constant real MISSILE_SCALE     = 1
+        //the missile model
+        private constant string IMPACT_MODEL   = "FelImpact.mdl"
+        // The Missile scale
+        private constant real IMPACT_SCALE     = 1
         // The stun model
         private constant string STUN_MODEL      = "Abilities\\Spells\\Human\\Thunderclap\\ThunderclapTarget.mdl"
         // The stun model attach point
@@ -150,13 +154,14 @@ library ChaosRain requires Missiles, Spell, Utilities, Modules, CrowdControl opt
                 exitwhen u == null
                     if DamageFilter(owner, u) then
                         if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
-                            call StunUnit(u, stun, STUN_MODEL, POINT, false)
+                            call StunUnit(source, u, stun, STUN_MODEL, POINT, false)
                         endif
                     endif
                 call GroupRemoveUnit(g, u)
             endloop
 
             call DestroyGroup(g)
+            call DestroyEffect(AddSpecialEffectEx(IMPACT_MODEL, x, y, 0, IMPACT_SCALE))
 
             set g = null
 

@@ -1,4 +1,4 @@
-library ProgressBar requires Dummy, Utilities, TimerUtils
+library ProgressBar requires Utilities, TimerUtils, WorldBounds
     /* ------------------------------- ProgressBar v1.0 Chopinski ------------------------------ */
     globals
         // Position update period
@@ -107,7 +107,9 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
     struct ProgressBar
         private static integer key = -1
         private static thistype array array
+        private static group group = CreateGroup()
         private static timer location = CreateTimer()
+        private static location position = Location(0, 0)
 
         private real dx
         private real dy
@@ -225,7 +227,7 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
         method destroy takes nothing returns nothing
             call ReleaseTimer(timer)
             call BlzSetUnitSkin(effect, Dummy.type)
-            call DummyRecycle(effect)
+            call recycle(effect)
             call deallocate()
 
             if texttag != null then
@@ -277,6 +279,41 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
             return this
         endmethod
 
+        private static method recycle takes unit dummy returns nothing
+            if GetUnitTypeId(dummy) == PROGRESSBAR then
+                call GroupAddUnit(group, dummy)
+                call SetUnitX(dummy, WorldBounds.maxX)
+                call SetUnitY(dummy, WorldBounds.maxY)
+                call SetUnitScale(dummy, 1, 1, 1)
+                call SetUnitTimeScale(dummy, 1)
+                call SetUnitVertexColor(dummy, 255, 255, 255, 255)
+                call PauseUnit(dummy, true)
+            endif
+        endmethod
+
+        private static method retrieve takes real x, real y, real z returns unit
+            local unit dummy
+
+            if BlzGroupGetSize(group) > 0 then
+                set dummy = FirstOfGroup(group)
+
+                call PauseUnit(dummy, false)
+                call GroupRemoveUnit(group, dummy)
+                call SetUnitX(dummy, x)
+                call SetUnitY(dummy, y)
+                call MoveLocation(position, x, y)
+                call SetUnitFlyHeight(dummy, z - GetLocationZ(position), 0)
+            else
+                set dummy = CreateUnit(Player(PLAYER_NEUTRAL_PASSIVE), PROGRESSBAR, x, y, 0)
+
+                call MoveLocation(position, x, y)
+                call SetUnitFlyHeight(dummy, z - GetLocationZ(position), 0)
+                call UnitRemoveAbility(dummy, 'Amrf')
+            endif
+
+            return dummy
+        endmethod
+
         private static method onPeriod takes nothing returns nothing
             local thistype this = GetTimerData(GetExpiredTimer())
 
@@ -324,7 +361,7 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
             set size = TEXTTAG_SIZE
             set value = R2I(percent)
             set timer = NewTimerEx(this)
-            set effect = DummyRetrieve(Player(PLAYER_NEUTRAL_PASSIVE), x, y, z, 0)
+            set effect = retrieve(x, y, z)
 
             call BlzSetUnitSkin(effect, PROGRESSBAR)
             call SetUnitScale(effect, scale, scale, scale)
@@ -352,6 +389,23 @@ library ProgressBar requires Dummy, Utilities, TimerUtils
             endif
 
             return this
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            local integer i = 0
+            local unit u
+
+            loop
+                exitwhen i == 20
+                    set u = CreateUnit(Player(PLAYER_NEUTRAL_PASSIVE), PROGRESSBAR, WorldBounds.maxX, WorldBounds.maxY, 0)
+
+                    call PauseUnit(u, false)
+                    call GroupAddUnit(group, u)
+                    call UnitRemoveAbility(u, 'Amrf')
+                set i = i + 1
+            endloop
+
+            set u = null
         endmethod
     endstruct
 endlibrary

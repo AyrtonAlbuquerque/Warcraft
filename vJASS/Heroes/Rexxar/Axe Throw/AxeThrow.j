@@ -1,4 +1,4 @@
-library AxeThrow requires Spell, Missiles, Utilities, CrowdControl optional NewBonus
+library AxeThrow requires Spell, Missiles, Utilities, Slow optional NewBonus
     /* ----------------------- Axe Throw v1.3 by Chopinski ---------------------- */
     // Credits:
     //     -Berz-          - Icon
@@ -90,7 +90,7 @@ library AxeThrow requires Spell, Missiles, Utilities, CrowdControl optional NewB
                         if not UnitAlive(u) then
                             call StartUnitAbilityCooldown(source, ABILITY, BlzGetUnitAbilityCooldownRemaining(source, ABILITY) - reduction)
                         else
-                            call SlowUnit(u, slow, time, null, null, false)
+                            call SlowUnit(source, u, slow, time, null, null, false)
                         endif
                     endif
                 endif

@@ -128,7 +128,7 @@ OnInit("SpellShield", function (requires)
         end
 
         function SpellShield.onCrowdControl()
-            if GetUnitAbilityLevel(GetCrowdControlUnit(), BUFF) > 0 then
+            if GetUnitAbilityLevel(GetCrowdControlTarget(), BUFF) > 0 then
                 SetCrowdControlDuration(0)
             end
         end

@@ -6,8 +6,8 @@ library Banish requires CrowdControl, Indexer, Dummy, Utilities
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function BanishUnit takes unit target, real duration, string model, string point, boolean stack returns nothing
-        call CrowdControl.apply(CROWD_CONTROL_BANISH, null, target, 0, 0, duration, model, point, stack)
+    function BanishUnit takes unit source, unit target, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.apply(CROWD_CONTROL_BANISH, source, target, 0, 0, duration, model, point, stack)
     endfunction
 
     function IsUnitBanished takes unit target returns boolean

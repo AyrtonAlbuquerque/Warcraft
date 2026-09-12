@@ -1,8 +1,9 @@
 OnInit("DragonBurst", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Knockup"
+    requires "Knockback"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
 
     -- ----------------------------- Dragon Burst v1.3 by Chopinski ---------------------------- --
@@ -97,11 +98,11 @@ OnInit("DragonBurst", function (requires)
                     
                     if distance > center then
                         if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                            KnockbackUnit(u, angle, aoe - distance, GetKnockBackDuration(Spell.source.unit, Spell.level), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
+                            KnockbackUnit(Spell.source.unit, u, angle, aoe - distance, GetKnockBackDuration(Spell.source.unit, Spell.level), KNOCKBACK_MODEL, ATTACH_POINT, false)
                         end
                     else
                         if UnitDamageTarget(Spell.source.unit, u, damage * (1 + bonus), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                            KnockupUnit(u, height, GetKnockUpDuration(Spell.source.unit, Spell.level), nil, nil, false)
+                            KnockupUnit(Spell.source.unit, u, height, GetKnockUpDuration(Spell.source.unit, Spell.level), nil, nil, false)
                         end
                     end
                 end

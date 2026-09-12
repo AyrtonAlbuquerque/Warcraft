@@ -1,4 +1,4 @@
-library FeralRoar requires Spell, NewBonus, Utilities, CrowdControl optional Misha
+library FeralRoar requires Spell, NewBonus, Utilities, Fear optional Misha
     /* ---------------------- Feral Roar v1.2 by Chopinski ---------------------- */
     // Credits:
     //     Blizzard        - Icon
@@ -82,7 +82,7 @@ library FeralRoar requires Spell, NewBonus, Utilities, CrowdControl optional Mis
                             endif
                         else
                             if UnitFilter(owner, u) then
-                                call FearUnit(u, GetFearDuration(level), FEAR, ATTACH, false)
+                                call FearUnit(source, u, GetFearDuration(level), FEAR, ATTACH, false)
                             endif
                         endif
                     endif

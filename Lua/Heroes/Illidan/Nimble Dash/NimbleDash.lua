@@ -1,11 +1,11 @@
 OnInit("NimbleDash", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Fear"
     requires "Bonus"
     requires "Missiles"
     requires "Evasion"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "CDR"
     requires.optional "Metamorphosis"
 
@@ -98,7 +98,7 @@ OnInit("NimbleDash", function (requires)
                         DestroyEffect(AddSpecialEffectTarget(SLASH, unit, "chest"))
                         
                         if GetUnitAbilityLevel(self.source, Metamorphosis_BUFF) > 0 then
-                            FearUnit(unit, self.fear, FEAR_MODEL, ATTACH_FEAR, true)
+                            FearUnit(self.source, unit, self.fear, FEAR_MODEL, ATTACH_FEAR, true)
                         end
                     end
                 end

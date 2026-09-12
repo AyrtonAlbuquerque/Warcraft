@@ -31,7 +31,7 @@ scope OrbOfFrost
         private static method onDamage takes nothing returns nothing
             if UnitHasItemOfType(Damage.source.unit, code) and Damage.isEnemy then
                 if UnitDamageTarget(Damage.source.unit, Damage.target.unit, GetDamage(Damage.source.unit), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                    call SlowUnit(Damage.target.unit, GetSlow(), GetDuration(), "Abilities\\Spells\\Other\\FrostDamage\\FrostDamage.mdl", "origin", false)
+                    call SlowUnit(Damage.source.unit, Damage.target.unit, GetSlow(), GetDuration(), "Abilities\\Spells\\Other\\FrostDamage\\FrostDamage.mdl", "origin", false)
                 endif
             endif
         endmethod

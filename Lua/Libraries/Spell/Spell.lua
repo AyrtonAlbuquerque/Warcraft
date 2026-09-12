@@ -184,8 +184,13 @@ OnInit("Spell", function(requires)
             end
         end
 
-        Spell.sources.unit = prevSrc
-        Spell.targets.unit = prevTgt
+        if prevSrc ~= nil then
+            Spell.sources.unit = prevSrc
+        end
+
+        if prevTgt ~= nil then
+            Spell.targets.unit = prevTgt
+        end
     end
 
     function Spell.__onEnding()
@@ -201,8 +206,13 @@ OnInit("Spell", function(requires)
             end
         end
 
-        Spell.sources.unit = prevSrc
-        Spell.targets.unit = prevTgt
+        if prevSrc ~= nil then
+            Spell.sources.unit = prevSrc
+        end
+
+        if prevTgt ~= nil then
+            Spell.targets.unit = prevTgt
+        end
     end
 
     function Spell.__onStarting()
@@ -218,8 +228,13 @@ OnInit("Spell", function(requires)
             end
         end
 
-        Spell.sources.unit = prevSrc
-        Spell.targets.unit = prevTgt
+        if prevSrc ~= nil then
+            Spell.sources.unit = prevSrc
+        end
+
+        if prevTgt ~= nil then
+            Spell.targets.unit = prevTgt
+        end
     end
 
     function Spell.__onFinishing()
@@ -235,8 +250,13 @@ OnInit("Spell", function(requires)
             end
         end
 
-        Spell.sources.unit = prevSrc
-        Spell.targets.unit = prevTgt
+        if prevSrc ~= nil then
+            Spell.sources.unit = prevSrc
+        end
+
+        if prevTgt ~= nil then
+            Spell.targets.unit = prevTgt
+        end
     end
 
     function Spell.__onChanneling()
@@ -252,8 +272,13 @@ OnInit("Spell", function(requires)
             end
         end
 
-        Spell.sources.unit = prevSrc
-        Spell.targets.unit = prevTgt
+        if prevSrc ~= nil then
+            Spell.sources.unit = prevSrc
+        end
+
+        if prevTgt ~= nil then
+            Spell.targets.unit = prevTgt
+        end
     end
 
     function Spell.onInit()

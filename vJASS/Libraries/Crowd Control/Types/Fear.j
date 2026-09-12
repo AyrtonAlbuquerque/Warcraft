@@ -6,8 +6,8 @@ library Fear requires CrowdControl, Indexer, Dummy, RegisterPlayerUnitEvent
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function FearUnit takes unit target, real duration, string model, string point, boolean stack returns nothing
-        call CrowdControl.apply(CROWD_CONTROL_FEAR, null, target, 0, 0, duration, model, point, stack)
+    function FearUnit takes unit source, unit target, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.apply(CROWD_CONTROL_FEAR, source, target, 0, 0, duration, model, point, stack)
     endfunction
 
     function IsUnitFeared takes unit target returns boolean

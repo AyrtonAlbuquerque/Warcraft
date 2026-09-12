@@ -22,7 +22,6 @@ library CrowdControl requires optional Tenacity
     endinterface
 
     struct CrowdControl extends ICrowdControl
-        private static HashTable table
         readonly static integer key = 0
         private static integer index = -1
         private static integer array array
@@ -45,7 +44,6 @@ library CrowdControl requires optional Tenacity
             
             if this != 0 then
                 if start.exists and not IsUnitType(target, UNIT_TYPE_MAGIC_IMMUNE) and UnitAlive(target) and duration > 0 then
-                    set key = key + 1
                     set .value[key] = value
                     set .angle[key] = angle
                     set .model[key] = model
@@ -63,7 +61,7 @@ library CrowdControl requires optional Tenacity
                     endif
 
                     if type[key] != control then
-                        return start(.source[key], .target[key], .value[key], .angle[key], .duration[key], .model[key], .point[key], .stack[key])
+                        return apply(type[key], .source[key], .target[key], .value[key], .angle[key], .duration[key], .model[key], .point[key], .stack[key])
                     endif
                     
                     return start(.source[key], .target[key], .value[key], .angle[key], .duration[key], .model[key], .point[key], .stack[key])

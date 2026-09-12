@@ -1,10 +1,10 @@
 OnInit("FragGranade", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Stun"
     requires "Bonus"
     requires "Missiles"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "ArsenalUpgrade"
 
     -- ----------------------------- Frag Granade v1.5 by Chopinski ---------------------------- --
@@ -115,7 +115,7 @@ OnInit("FragGranade", function (requires)
                         AddUnitBonusTimed(u, BONUS_ARMOR, -self.armor, self.armor_duration)
                         
                         if self.stun > 0 then
-                            StunUnit(u, self.stun, STUN_MODEL, STUN_ATTACH, false)
+                            StunUnit(self.unit, u, self.stun, STUN_MODEL, STUN_ATTACH, false)
                         end
                     end
                 end

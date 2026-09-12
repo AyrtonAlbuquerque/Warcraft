@@ -6,8 +6,8 @@ library Disarm requires CrowdControl, Indexer, Dummy, Utilities
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function DisarmUnit takes unit target, real duration, string model, string point, boolean stack returns nothing
-        call CrowdControl.apply(CROWD_CONTROL_DISARM, null, target, 0, 0, duration, model, point, stack)
+    function DisarmUnit takes unit source, unit target, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.apply(CROWD_CONTROL_DISARM, source, target, 0, 0, duration, model, point, stack)
     endfunction
 
     function IsUnitDisarmed takes unit target returns boolean

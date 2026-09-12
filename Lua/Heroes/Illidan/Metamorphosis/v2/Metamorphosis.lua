@@ -1,11 +1,11 @@
 OnInit("Metamorphosis", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Fear"
     requires "Bonus"
     requires "Combat"
     requires "Damage"
     requires "Utilities"
-    requires "CrowdControl"
     requires "SpellEffectEvent"
 
     -- ----------------------------------- Metamorphosis v1.5 ---------------------------------- --
@@ -166,7 +166,7 @@ OnInit("Metamorphosis", function (requires)
                         health = health + GetBonusHealth(u, self.level)
                         damage = damage + GetBonusDamage(u, self.level)
 
-                        FearUnit(u, GetDuration(u, self.level), FEAR_MODEL, ATTACH_FEAR, false)
+                        FearUnit(self.unit, u, GetDuration(u, self.level), FEAR_MODEL, ATTACH_FEAR, false)
                     end
 
                     GroupRemoveUnit(self.group, u)

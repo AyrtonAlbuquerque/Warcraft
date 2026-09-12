@@ -263,8 +263,14 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
                 endif
             endif
 
-            set sources.unit = prevSrc
-            set targets.unit = prevTgt
+            if prevSrc != null then
+                set sources.unit = prevSrc
+            endif
+
+            if prevTgt != null then
+                set targets.unit = prevTgt
+            endif
+
             set prevSrc = null
             set prevTgt = null
         endmethod
@@ -282,8 +288,14 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
                 endif
             endif
 
-            set sources.unit = prevSrc
-            set targets.unit = prevTgt
+            if prevSrc != null then
+                set sources.unit = prevSrc
+            endif
+
+            if prevTgt != null then
+                set targets.unit = prevTgt
+            endif
+
             set prevSrc = null
             set prevTgt = null
         endmethod
@@ -301,8 +313,14 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
                 endif
             endif
 
-            set sources.unit = prevSrc
-            set targets.unit = prevTgt
+            if prevSrc != null then
+                set sources.unit = prevSrc
+            endif
+
+            if prevTgt != null then
+                set targets.unit = prevTgt
+            endif
+
             set prevSrc = null
             set prevTgt = null
         endmethod
@@ -320,8 +338,14 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
                 endif
             endif
 
-            set sources.unit = prevSrc
-            set targets.unit = prevTgt
+            if prevSrc != null then
+                set sources.unit = prevSrc
+            endif
+
+            if prevTgt != null then
+                set targets.unit = prevTgt
+            endif
+
             set prevSrc = null
             set prevTgt = null
         endmethod
@@ -339,8 +363,14 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
                 endif
             endif
 
-            set sources.unit = prevSrc
-            set targets.unit = prevTgt
+            if prevSrc != null then
+                set sources.unit = prevSrc
+            endif
+
+            if prevTgt != null then
+                set targets.unit = prevTgt
+            endif
+
             set prevSrc = null
             set prevTgt = null
         endmethod

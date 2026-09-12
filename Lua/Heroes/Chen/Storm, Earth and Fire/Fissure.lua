@@ -1,9 +1,9 @@
 OnInit("Fissure", function(requires)
     requires "Class"
     requires "Spell"
+    requires "Stun"
     requires "Missiles"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
     
     -- ------------------------------- Fissure v1.5 by CHopinski ------------------------------- --
@@ -89,7 +89,7 @@ OnInit("Fissure", function(requires)
         function Fissure:onUnit(unit)
             if DamageFilter(self.owner, unit) then
                 if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                    StunUnit(unit, self.stun, STUN_MODEL, STUN_ATTACH, false)
+                    StunUnit(self.source, unit, self.stun, STUN_MODEL, STUN_ATTACH, false)
                 end
             end
 

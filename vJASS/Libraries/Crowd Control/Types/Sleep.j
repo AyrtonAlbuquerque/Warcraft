@@ -6,8 +6,8 @@ library Sleep requires CrowdControl, Indexer, Dummy, Utilities
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function SleepUnit takes unit target, real duration, string model, string point, boolean stack returns nothing
-        call CrowdControl.apply(CROWD_CONTROL_SLEEP, null, target, 0, 0, duration, model, point, stack)
+    function SleepUnit takes unit source, unit target, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.apply(CROWD_CONTROL_SLEEP, source, target, 0, 0, duration, model, point, stack)
     endfunction
 
     function IsUnitSleeping takes unit target returns boolean

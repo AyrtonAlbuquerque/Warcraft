@@ -6,8 +6,8 @@ library AttackSlow requires CrowdControl, Indexer, Dummy, Utilities
     /* ----------------------------------------------------------------------------------------- */
     /*                                          JASS API                                         */
     /* ----------------------------------------------------------------------------------------- */
-    function SlowUnitAttack takes unit target, real amount, real duration, string model, string point, boolean stack returns nothing
-        call CrowdControl.apply(CROWD_CONTROL_SLOW_ATTACK, null, target, amount, 0, duration, model, point, stack)
+    function SlowUnitAttack takes unit source, unit target, real amount, real duration, string model, string point, boolean stack returns nothing
+        call CrowdControl.apply(CROWD_CONTROL_SLOW_ATTACK, source, target, amount, 0, duration, model, point, stack)
     endfunction
 
     function IsUnitAttackSlowed takes unit target returns boolean

@@ -2,9 +2,10 @@ OnInit("LightBurst", function (requires)
     requires "Class"
     requires "Spell"
     requires "Bonus"
+    requires "Slow"
+    requires "Disarm"
     requires "Missiles"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "LightInfusion"
 
     -- ------------------------------------ Light Burst v1.5 ----------------------------------- --
@@ -80,10 +81,10 @@ OnInit("LightBurst", function (requires)
                     if IsUnitEnemy(u, self.owner) then
                         if DamageFilter(u) then
                             if UnitDamageTarget(self.source, u, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                                SlowUnit(u, self.slow, self.time, nil, nil, false)
+                                SlowUnit(self.source, u, self.slow, self.time, nil, nil, false)
 
                                 if self.infused then
-                                    DisarmUnit(u, self.time, DISARM, ATTACH, false)
+                                    DisarmUnit(self.source, u, self.time, DISARM, ATTACH, false)
                                 end
                             end
                         end

@@ -1,4 +1,4 @@
-library WhirlwindSpin requires Spell, Utilities, CrowdControl, Modules optional NewBonus
+library WhirlwindSpin requires Spell, Utilities, Knockback, Modules optional NewBonus
     /* --------------------- WhirlwindSpin v1.3 by Chopinski -------------------- */
     // Credits:
     //     AnsonRuk    - Icon
@@ -100,7 +100,7 @@ library WhirlwindSpin requires Spell, Utilities, CrowdControl, Modules optional 
                         set distance = DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, x, y)
                         
                         if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                            call KnockbackUnit(u, angle, aoe - distance, duration, KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
+                            call KnockbackUnit(Spell.source.unit, u, angle, aoe - distance, duration, KNOCKBACK_MODEL, ATTACH_POINT, false)
                         endif
                     endif
                 call GroupRemoveUnit(g, u)

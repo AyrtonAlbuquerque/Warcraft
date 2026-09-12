@@ -1,8 +1,8 @@
 OnInit("InfernalStomp", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Stun"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
 
     -- ---------------------------------- Infernal Stomp v1.1 ---------------------------------- --
@@ -66,7 +66,7 @@ OnInit("InfernalStomp", function (requires)
             while u do
                 if UnitFilter(owner, u) then
                     if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        StunUnit(u, duration, MODEL, POINT, false)
+                        StunUnit(source, u, duration, MODEL, POINT, false)
                     end
                 end
 

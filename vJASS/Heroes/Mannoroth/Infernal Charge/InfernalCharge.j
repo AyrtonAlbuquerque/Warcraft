@@ -1,4 +1,4 @@
-library InfernalCharge requires Spell, Missiles, Utilities, CrowdControl, optional NewBonus
+library InfernalCharge requires Spell, Missiles, Utilities, Knockback, optional NewBonus
     /* ------------------------------------ Infernal Charge v1.6 ------------------------------------ */
     // Credits:
     //     marilynmonroe - Pit Infernal model
@@ -66,7 +66,7 @@ library InfernalCharge requires Spell, Missiles, Utilities, CrowdControl, option
         private method onUnit takes unit hit returns boolean
             if ChargeFilter(owner, hit) then
                 if UnitDamageTarget(source, hit, damage, false, false, ATTACK_TYPE, DAMAGE_TYPE, null) then
-                    call KnockbackUnit(hit, AngleBetweenCoordinates(x, y, GetUnitX(hit), GetUnitY(hit)), distance, knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, true, true, false, false)
+                    call KnockbackUnit(source,hit, AngleBetweenCoordinates(x, y, GetUnitX(hit), GetUnitY(hit)), distance, knockback, KNOCKBACK_MODEL, KNOCKBACK_ATTACH, false)
                 endif
             endif
 

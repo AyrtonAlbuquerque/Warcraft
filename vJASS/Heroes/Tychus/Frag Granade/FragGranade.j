@@ -1,4 +1,4 @@
-library FragGranade requires Spell, Missiles, NewBonus, Modules, Utilities, CrowdControl, optional ArsenalUpgrade,
+library FragGranade requires Spell, Missiles, NewBonus, Modules, Utilities, Stun, optional ArsenalUpgrade,
     /* --------------------- Frag Granade v1.5 by Chopinski --------------------- */
     // Credits:
     //     Blizzard          - Icon
@@ -127,7 +127,7 @@ library FragGranade requires Spell, Missiles, NewBonus, Modules, Utilities, Crow
                             call AddUnitBonusTimed(u, BONUS_ARMOR, -armor, armor_duration)
                             
                             if stun > 0 then
-                                call StunUnit(u, stun, STUN_MODEL, STUN_ATTACH, false)
+                                call StunUnit(unit, u, stun, STUN_MODEL, STUN_ATTACH, false)
                             endif
                         endif
                     endif
@@ -207,7 +207,7 @@ library FragGranade requires Spell, Missiles, NewBonus, Modules, Utilities, Crow
                             call AddUnitBonusTimed(u, BONUS_ARMOR, -armor, time)
 
                             if stun > 0 then
-                                call StunUnit(u, stun, STUN_MODEL, STUN_ATTACH, false)
+                                call StunUnit(source, u, stun, STUN_MODEL, STUN_ATTACH, false)
                             endif
                         endif
                     endif

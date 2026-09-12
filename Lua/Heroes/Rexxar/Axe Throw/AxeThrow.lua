@@ -1,9 +1,9 @@
 OnInit("AxeThrow", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Slow"
     requires "Missiles"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
 
     -- ------------------------------ Axe Throw v1.3 by Chopinski ------------------------------ --
@@ -88,7 +88,7 @@ OnInit("AxeThrow", function (requires)
                         if not UnitAlive(unit) then
                             StartUnitAbilityCooldown(self.source, ABILITY, BlzGetUnitAbilityCooldownRemaining(self.source, ABILITY) - self.reduction)
                         else
-                            SlowUnit(unit, self.slow, self.time, nil, nil, false)
+                            SlowUnit(self.source, unit, self.slow, self.time, nil, nil, false)
                         end
                     end
                 end

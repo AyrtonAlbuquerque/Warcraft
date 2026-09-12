@@ -2,8 +2,8 @@ OnInit("DragonZone", function (requires)
     requires "Class"
     requires "Spell"
     requires "Heal"
+    requires "Knockback"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
 
     -- ----------------------------- Dragon Zone v1.3 by Chopinski ----------------------------- --
@@ -118,7 +118,7 @@ OnInit("DragonZone", function (requires)
                                 local angle = AngleBetweenCoordinates(this.x, this.y, GetUnitX(u), GetUnitY(u))
                                 local distance = DistanceBetweenCoordinates(this.x, this.y, GetUnitX(u), GetUnitY(u))
                                 
-                                KnockbackUnit(u, angle, this.aoe + 25 - distance, this.knock*(distance/this.aoe), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
+                                KnockbackUnit(this.unit, u, angle, this.aoe + 25 - distance, this.knock*(distance/this.aoe), KNOCKBACK_MODEL, ATTACH_POINT, false)
                             end
                         elseif UnitAlive(u) and IsUnitAlly(u, this.player) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
                             HealUnit(this.unit, u, this.heal * PERIOD, HEALTH, false)

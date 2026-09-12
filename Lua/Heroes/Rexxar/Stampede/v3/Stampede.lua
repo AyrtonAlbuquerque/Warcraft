@@ -1,9 +1,9 @@
 OnInit("Stampede", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Slow"
     requires "Missiles"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
     requires.optional "CDR"
 
@@ -84,7 +84,7 @@ OnInit("Stampede", function (requires)
         function Lizard:onUnit(unit)
             if UnitFilter(self.owner, unit) then
                 if UnitDamageTarget(self.source, unit, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                    SlowUnit(unit, self.slow, self.slowDuration, SLOW_MODEL, SLOW_ATTACH, false)
+                    SlowUnit(self.source, unit, self.slow, self.slowDuration, SLOW_MODEL, SLOW_ATTACH, false)
                     DestroyEffect(AddSpecialEffectTarget(DAMAGE_MODEL, unit, DAMAGE_ATTACH))
                 end
             end

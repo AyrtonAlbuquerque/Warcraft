@@ -1,4 +1,4 @@
-library NimbleDash requires Spell, Missiles, Modules, Utilities, CrowdControl, NewBonus, Evasion, optional Metamorphosis, optional CooldownReduction
+library NimbleDash requires Spell, Missiles, Modules, Utilities, Fear, NewBonus, Evasion, optional Metamorphosis, optional CooldownReduction
     /* ---------------------- Nimble Dash v1.0 by Chopinski --------------------- */
     // Credits:
     //     Blizzard - Icon
@@ -95,7 +95,7 @@ library NimbleDash requires Spell, Missiles, Modules, Utilities, CrowdControl, N
                         call DestroyEffect(AddSpecialEffectTarget(SLASH, u, "chest"))
                         
                         if GetUnitAbilityLevel(source, Metamorphosis_BUFF) > 0 then
-                            call FearUnit(u, fear, FEAR_MODEL, ATTACH_FEAR, true)
+                            call FearUnit(source, u, fear, FEAR_MODEL, ATTACH_FEAR, true)
                         endif
                     endif
                 endif

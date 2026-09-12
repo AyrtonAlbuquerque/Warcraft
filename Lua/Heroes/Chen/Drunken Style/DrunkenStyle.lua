@@ -3,9 +3,9 @@ OnInit("DrunkenStyle", function(requires)
     requires "Spell"
     requires "Bonus"
     requires "Missiles"
+    requires "Knockback"
     requires "Utilities"
     requires "MouseUtils"
-    requires "CrowdControl"
 
     -- ---------------------------- Drunken Style v1.5 by Chopinski ---------------------------- --
 
@@ -86,7 +86,7 @@ OnInit("DrunkenStyle", function(requires)
             if IsUnitInCone(unit, self.centerX, self.centerY, self.collision, self.face, self.fov) then
                 if DamageFilter(self.owner, unit) then
                     if UnitDamageTarget(self.source, unit, self.damage, true, false, ATTACK_TYPE_HERO, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WOOD_HEAVY_BASH) then
-                        KnockbackUnit(unit, AngleBetweenCoordinates(self.x, self.y, GetUnitX(unit), GetUnitY(unit)), self.distance, self.knockback, MODEL, ATTACH, true, true, false, true)
+                        KnockbackUnit(self.source, unit, AngleBetweenCoordinates(self.x, self.y, GetUnitX(unit), GetUnitY(unit)), self.distance, self.knockback, MODEL, ATTACH, true)
                     end
                 end
             end

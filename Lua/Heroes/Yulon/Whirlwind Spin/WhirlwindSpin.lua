@@ -1,8 +1,8 @@
 OnInit("WhirlwindSpin", function (requires)
     requires "Class"
     requires "Spell"
+    requires "Knockback"
     requires "Utilities"
-    requires "CrowdControl"
     requires.optional "Bonus"
 
     -- ---------------------------- WhirlwindSpin v1.3 by Chopinski ---------------------------- --
@@ -94,7 +94,7 @@ OnInit("WhirlwindSpin", function (requires)
                     local distance = DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, x, y)
                     
                     if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                        KnockbackUnit(u, angle, aoe - distance, duration, KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
+                        KnockbackUnit(Spell.source.unit, u, angle, aoe - distance, duration, KNOCKBACK_MODEL, ATTACH_POINT, false)
                     end
                 end
 

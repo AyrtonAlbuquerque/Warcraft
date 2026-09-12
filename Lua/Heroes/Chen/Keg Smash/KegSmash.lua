@@ -1,10 +1,10 @@
 OnInit("KegSmash", function(requires)
     requires "Class"
     requires "Spell"
+    requires "Slow"
     requires "Bonus"
     requires "Missiles"
     requires "Utilities"
-    requires "CrowdControl"
 
     -- ------------------------------ Keg Smash v1.5 by Chopinski ------------------------------ --
 
@@ -196,7 +196,7 @@ OnInit("KegSmash", function(requires)
                             if UnitAlive(u) and IsUnitEnemy(u, self.player) and GetUnitAbilityLevel(u, KegSmash_BUFF) == 0 then
                                 if not IsUnitType(u, UNIT_TYPE_STRUCTURE) and not IsUnitType(u, UNIT_TYPE_MAGIC_IMMUNE) then
                                     IssueTargetOrder(self.unit, "drunkenhaze", u)
-                                    SlowUnit(u, slow, slowDuration, nil, nil, false)
+                                    SlowUnit(self.source, u, slow, slowDuration, nil, nil, false)
                                 end
                             end
 
@@ -252,7 +252,7 @@ OnInit("KegSmash", function(requires)
                 if DamageFilter(self.owner, u) then
                     if UnitDamageTarget(self.source, u, self.damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
                         IssueTargetOrder(self.unit, "drunkenhaze", u)
-                        SlowUnit(u, self.slow, duration, nil, nil, false)
+                        SlowUnit(self.source, u, self.slow, duration, nil, nil, false)
                     end
                 end
 

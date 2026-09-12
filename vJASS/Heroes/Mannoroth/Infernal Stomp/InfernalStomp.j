@@ -1,4 +1,4 @@
-library InfernalStomp requires Spell, CrowdControl, optional NewBonus
+library InfernalStomp requires Spell, Stun, optional NewBonus
     /* ------------------------------------- Infernal Stomp v1.1 ------------------------------------ */
     // Credits:
     //     Bribe         - SpellEffectEvent
@@ -64,7 +64,7 @@ library InfernalStomp requires Spell, CrowdControl, optional NewBonus
                 exitwhen u == null
                     if UnitFilter(owner, u) then
                         if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                            call StunUnit(u, duration, MODEL, POINT, false)
+                            call StunUnit(source, u, duration, MODEL, POINT, false)
                         endif
                     endif
                 call GroupRemoveUnit(g, u)

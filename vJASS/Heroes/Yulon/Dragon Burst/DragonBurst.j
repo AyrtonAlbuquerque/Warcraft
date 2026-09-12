@@ -1,4 +1,4 @@
-library DragonBurst requires Spell, Utilities, CrowdControl optional NewBonus
+library DragonBurst requires Spell, Utilities, Knockback, Knockup optional NewBonus
     /* --------------------- Dragon Burst v1.3 by Chopinski --------------------- */
     // Credits:
     //     Blizzard, TheKaldorei - Icon
@@ -100,11 +100,11 @@ library DragonBurst requires Spell, Utilities, CrowdControl optional NewBonus
                         
                         if distance > center then
                             if UnitDamageTarget(Spell.source.unit, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                                call KnockbackUnit(u, angle, aoe - distance, GetKnockBackDuration(Spell.source.unit, Spell.level), KNOCKBACK_MODEL, ATTACH_POINT, true, true, false, false)
+                                call KnockbackUnit(Spell.source.unit, u, angle, aoe - distance, GetKnockBackDuration(Spell.source.unit, Spell.level), KNOCKBACK_MODEL, ATTACH_POINT, false)
                             endif
                         else
                             if UnitDamageTarget(Spell.source.unit, u, damage * (1 + bonus), false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, null) then
-                                call KnockupUnit(u, height, GetKnockUpDuration(Spell.source.unit, Spell.level), null, null, false)
+                                call KnockupUnit(Spell.source.unit, u, height, GetKnockUpDuration(Spell.source.unit, Spell.level), null, null, false)
                             endif
                         endif
                     endif
