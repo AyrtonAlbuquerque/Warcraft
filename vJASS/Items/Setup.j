@@ -68,7 +68,7 @@ scope Setup
             call ShopAddItem(shop, BootsOfSorcery.code, movement + mana + spellPower + cooldown)
             call ShopAddItem(shop, BootsOfBravery.code, movement + health + attackSpeed + cooldown)
             call ShopAddItem(shop, BootsOfDefenders.code, movement + health + armor)
-            call ShopAddItem(shop, RunedScythe.code, agility + strength + intelligence)
+            call ShopAddItem(shop, HunterScythe.code, agility + strength + intelligence)
             call ShopAddItem(shop, CurvedBow.code, damage + agility)
             call ShopAddItem(shop, EnhancedHammer.code, damage + strength)
             call ShopAddItem(shop, MageStaff.code, spellPower + intelligence + mana + regeneration)
