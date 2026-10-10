@@ -35,16 +35,24 @@ do
         return false
     end)
 
-    function GetSelectedUnitIndex()
-        -- local player is in group selection?
-        if BlzFrameIsVisible(containerFrame) then
-            -- find the first visible yellow Background Frame
-            for int = 0, #frames do
-                if BlzFrameIsVisible(frames[int]) then
-                    return int
-                end
-            end
+    local function LoadFrames()
+        containerFrame = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0)
+
+        for i = 0, BlzFrameGetChildrenCount(containerFrame) - 1 do
+            frames[i] = BlzFrameGetChild(BlzFrameGetChild(containerFrame, i), 0)
         end
+    end
+
+    function GetSelectedUnitIndex()
+        -- LoadFrames()
+
+        -- if BlzFrameIsVisible(containerFrame) then
+        --     for int = 0, #frames do
+        --         if BlzFrameIsVisible(frames[int]) then
+        --             return int
+        --         end
+        --     end
+        -- end
 
         return nil
     end
@@ -75,19 +83,11 @@ do
     --init
     do
         local real = MarkGameStarted
+
         function MarkGameStarted()
             real()
-            local console = BlzGetFrameByName("ConsoleUI", 0)
-            local bottomUI = BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0))
-            local groupframe = BlzFrameGetChild(bottomUI, 5)
-            --globals
-            containerFrame = BlzFrameGetChild(groupframe, 0)
             group = CreateGroup()
-            -- give this frames a handleId
-            for int = 0, BlzFrameGetChildrenCount(containerFrame) - 1 do
-                local buttonContainer = BlzFrameGetChild(containerFrame, int)
-                frames[int] = BlzFrameGetChild(buttonContainer, 0)
-            end
+            LoadFrames()
         end
     end
 end

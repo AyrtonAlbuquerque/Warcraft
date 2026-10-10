@@ -49,7 +49,7 @@ library FlowingWater requires RegisterPlayerUnitEvent, Utilities, Spell
 
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onSpell)
+            call RegisterAnySpellEvent(function thistype.onSpell)
         endmethod
     endstruct
 endlibrary

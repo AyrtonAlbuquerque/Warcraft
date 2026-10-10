@@ -972,7 +972,9 @@ OnInit("Interface", function(requires)
         Interface = Class()
 
         local hero = {}
+        local count = {}
         local highlight = {}
+        local group = CreateGroup()
 
         Interface:property("heroes", {
             set = function (self, value)
@@ -1014,6 +1016,8 @@ OnInit("Interface", function(requires)
                 else
                     BlzFrameSetPoint(Interface.tooltip, FRAMEPOINT_BOTTOM, Interface.portrait.frame, FRAMEPOINT_TOP, 0, BUFF_Y)
                 end
+            else
+                BlzFrameSetPoint(Interface.tooltip, FRAMEPOINT_BOTTOM, Interface.portrait.frame, FRAMEPOINT_TOP, 0, BUFF_Y)
             end
 
             if SEPARATE_LEVELUP then
@@ -1026,6 +1030,35 @@ OnInit("Interface", function(requires)
                     BlzFrameSetAbsPoint(Interface.abilities.level, FRAMEPOINT_BOTTOMRIGHT, 999, 999)
                 end
             end
+
+            -- Causes Desync :(
+            -- GroupEnumUnitsSelected(group, player, nil)
+
+            -- local size = BlzGroupGetSize(group)
+
+            -- if size > 1 and size ~= (count[GetPlayerId(player)] or 0) then
+            --     count[GetPlayerId(player)] = size
+
+            --     for i = 0, 23 do
+            --         local frame = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), i), 1)
+
+            --         if frame then
+            --             if i < 6 then
+            --                 BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)), ABILITY_PANEL_Y + GROUP_Y)
+            --                 BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)) + GROUP_WIDTH, ABILITY_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
+            --             elseif i >= 6 and i < 12 then
+            --                 BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)), ITEM_PANEL_Y + GROUP_Y)
+            --                 BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)) + GROUP_WIDTH, ITEM_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
+            --             elseif i >= 12 and i < 18 then
+            --                 BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X + (GROUP_X + ((i - 12)*GROUP_GAP)), ABILITY_PANEL_Y + GROUP_Y + GROUP_GAP)
+            --                 BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ABILITY_PANEL_X + (GROUP_X + ((i - 12)*GROUP_GAP)) + GROUP_WIDTH, ABILITY_PANEL_Y + GROUP_Y + GROUP_GAP - GROUP_HEIGHT)
+            --             else
+            --                 BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ITEM_PANEL_X + (GROUP_X + ((i - 18)*GROUP_GAP)), ITEM_PANEL_Y + GROUP_Y + GROUP_GAP)
+            --                 BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ITEM_PANEL_X + (GROUP_X + ((i - 18)*GROUP_GAP)) + GROUP_WIDTH, ITEM_PANEL_Y + GROUP_Y + GROUP_GAP - GROUP_HEIGHT)
+            --             end
+            --         end
+            --     end
+            -- end
         end
 
         function Interface.onInit()
@@ -1051,20 +1084,6 @@ OnInit("Interface", function(requires)
             for i = 0, 6 do
                 hero[i] = BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON, i)
                 highlight[i] = BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON_INDICATOR, i)
-            end
-
-            for i = 0, 23 do
-                local frame = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), i), 1)
-
-                if frame then
-                    if i >= 6 then
-                        BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)), ITEM_PANEL_Y + GROUP_Y)
-                        BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)) + GROUP_WIDTH, ITEM_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
-                    else
-                        BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)), ABILITY_PANEL_Y + GROUP_Y)
-                        BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)) + GROUP_WIDTH, ABILITY_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
-                    end
-                end
             end
 
             BlzEnableUIAutoPosition(false)

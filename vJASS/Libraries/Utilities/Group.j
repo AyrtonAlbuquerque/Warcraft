@@ -210,7 +210,10 @@ library Group requires Modules, Indexer optional Table optional Item
 
         method destroy takes nothing returns nothing
             if allocated then
-                set array[GetUnitUserData(unit)] = 0
+                if array[GetUnitUserData(unit)] == this then
+                    set array[GetUnitUserData(unit)] = 0
+                endif
+
                 set unit = null
                 set allocated = false
 
@@ -411,6 +414,7 @@ library Group requires Modules, Indexer optional Table optional Item
         private List owners
         private List enemies
         private List unittype
+        private integer index
         private integer takes
         private integer skips
         private integer count
@@ -424,6 +428,8 @@ library Group requires Modules, Indexer optional Table optional Item
         private boolean pendingNegate
         private boolean pendingOrLogic
         private boolean array descends[15]
+
+        readonly unit unit
 
         static if USE_TABLE and LIBRARY_Table then
             private Table temp
@@ -486,6 +492,7 @@ library Group requires Modules, Indexer optional Table optional Item
             call ranges.destroy()
             call DestroyGroup(group)
 
+            set unit = null
             set group = null
 
             call deallocate()
@@ -494,28 +501,68 @@ library Group requires Modules, Indexer optional Table optional Item
         method first takes nothing returns unit
             call sort()
 
-            if end > 0 then
-                static if USE_TABLE and LIBRARY_Table then
-                    return Unit(sorted[0]).unit
-                else
-                    return sorted[0].unit
-                endif
-            else
-                return null
-            endif
-        endmethod
-        
-        method last takes nothing returns unit
-            call sort()
+            set index = 0
 
             if end > 0 then
                 static if USE_TABLE and LIBRARY_Table then
-                    return Unit(sorted[end - 1]).unit
+                    set unit = Unit(sorted[0]).unit
                 else
-                    return sorted[end - 1].unit
+                    set unit = sorted[0].unit
                 endif
             else
-                return null
+                set unit = null
+            endif
+
+            return unit
+        endmethod
+
+        method last takes nothing returns unit
+            call sort()
+            
+            set index = end - 1
+
+            if end > 0 then
+                static if USE_TABLE and LIBRARY_Table then
+                    set unit = Unit(sorted[index]).unit
+                else
+                    set unit = sorted[index].unit
+                endif
+            else
+                set unit = null
+            endif
+
+            return unit
+        endmethod
+
+        method next takes nothing returns nothing
+            if index < end then
+                set index = index + 1
+            endif
+
+            if index < end then
+                static if USE_TABLE and LIBRARY_Table then
+                    set unit = Unit(sorted[index]).unit
+                else
+                    set unit = sorted[index].unit
+                endif
+            else
+                set unit = null
+            endif
+        endmethod
+
+        method prev takes nothing returns nothing
+            if index >= 0 then
+                set index = index - 1
+            endif
+
+            if index >= 0 then
+                static if USE_TABLE and LIBRARY_Table then
+                    set unit = Unit(sorted[index]).unit
+                else
+                    set unit = sorted[index].unit
+                endif
+            else
+                set unit = null
             endif
         endmethod
 
@@ -585,9 +632,11 @@ library Group requires Modules, Indexer optional Table optional Item
             call GroupClear(group)
 
             set end = 0
+            set index = 0
             set takes = 0
             set skips = 0
             set count = 0
+            set unit = null
             set orderings = 0
             set negate = false
             set dead = false
@@ -965,7 +1014,32 @@ library Group requires Modules, Indexer optional Table optional Item
             local group g
             local unit u
 
-            if size <= 0 or ordered then
+            if ordered then
+                return this
+            endif
+
+            if size <= 0 then
+                loop
+                    exitwhen i >= end
+                        static if USE_TABLE and LIBRARY_Table then
+                            if sorted.has(i) then
+                                call Unit(sorted[i]).destroy()
+                                call sorted.remove(i)
+                            endif
+                        else
+                            if sorted[i] != 0 then
+                                call sorted[i].destroy()
+                                set sorted[i] = 0
+                            endif
+                        endif
+                    set i = i + 1
+                endloop
+
+                set end = 0
+                set index = 0
+                set unit = null
+                set ordered = true
+
                 return this
             endif
 
@@ -1402,11 +1476,24 @@ library Group requires Modules, Indexer optional Table optional Item
             endloop
 
             set end = k
+            set index = 0
+            
+            if size > 0 then 
+                static if USE_TABLE and LIBRARY_Table then
+                    set unit = Unit(sorted[0]).unit
+                else
+                    set unit = sorted[0].unit
+                endif
+            else
+                set unit = null
+            endif
 
             call DestroyGroup(g)
 
             set u = null
             set g = null
+            set skips = 0
+            set takes = 0
             set ordered = true
 
             return this
@@ -1597,9 +1684,11 @@ library Group requires Modules, Indexer optional Table optional Item
             set x = 0.
             set y = 0.
             set end = 0
+            set index = 0
             set takes = 0
             set count = 0
             set skips = 0
+            set unit = null
             set orderings = 0
             set pendingProp = 0
             set dead = false

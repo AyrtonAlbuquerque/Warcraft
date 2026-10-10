@@ -211,7 +211,7 @@ OnInit("SpellShield", function (requires)
             RegisterSpell(SpellShield.allocate(), ABILITY)
             RegisterSpellDamageEvent(SpellShield.onDamage)
             RegisterAnyCrowdControlEvent(SpellShield.onCrowdControl)
-            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, SpellShield.onSpell)
+            RegisterAnySpellEvent(SpellShield.onSpell)
         end
     end
 end)

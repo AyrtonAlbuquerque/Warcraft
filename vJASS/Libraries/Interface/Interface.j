@@ -1076,8 +1076,10 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
     endstruct
 
     struct Interface
+        private static integer array count
         private static framehandle array hero
         private static framehandle array highlight
+        private static group group = CreateGroup()
 
         readonly static Menu menu
         readonly static Grid grid
@@ -1116,6 +1118,8 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
 
         private static method onPeriod takes nothing returns nothing
             local integer i = 0
+            local integer size
+            local framehandle frame
             local player p = GetLocalPlayer()
             local unit u = GetMainSelectedUnitEx()
             local boolean shop = IsUnitShop(u, p)
@@ -1139,6 +1143,8 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                 else
                     call BlzFrameSetPoint(tooltip, FRAMEPOINT_BOTTOM, portrait.frame, FRAMEPOINT_TOP, 0, BUFF_Y)
                 endif
+            else
+                call BlzFrameSetPoint(tooltip, FRAMEPOINT_BOTTOM, portrait.frame, FRAMEPOINT_TOP, 0, BUFF_Y)
             endif
 
             static if SEPARATE_LEVELUP then
@@ -1154,12 +1160,44 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
                 endif
             endif
 
+            // Causes Desyncs :(
+            // call GroupEnumUnitsSelected(group, p, null)
+
+            // set size = BlzGroupGetSize(group)
+
+            // if size > 1 and size != count[GetPlayerId(p)] then
+            //     set i = 0
+            //     set count[GetPlayerId(p)] = size
+
+            //     loop
+            //         exitwhen i >= 24
+            //             set frame = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), i), 1)
+
+            //             if frame != null then
+            //                 if i < 6 then
+            //                     call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)), ABILITY_PANEL_Y + GROUP_Y)
+            //                     call BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)) + GROUP_WIDTH, ABILITY_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
+            //                 elseif i >= 6 and i < 12 then
+            //                     call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)), ITEM_PANEL_Y + GROUP_Y)
+            //                     call BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)) + GROUP_WIDTH, ITEM_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
+            //                 elseif i >= 12 and i < 18 then
+            //                     call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X + (GROUP_X + ((i - 12)*GROUP_GAP)), ABILITY_PANEL_Y + GROUP_Y + GROUP_GAP)
+            //                     call BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ABILITY_PANEL_X + (GROUP_X + ((i - 12)*GROUP_GAP)) + GROUP_WIDTH, ABILITY_PANEL_Y + GROUP_Y + GROUP_GAP - GROUP_HEIGHT)
+            //                 else
+            //                     call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ITEM_PANEL_X + (GROUP_X + ((i - 18)*GROUP_GAP)), ITEM_PANEL_Y + GROUP_Y + GROUP_GAP)
+            //                     call BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ITEM_PANEL_X + (GROUP_X + ((i - 18)*GROUP_GAP)) + GROUP_WIDTH, ITEM_PANEL_Y + GROUP_Y + GROUP_GAP - GROUP_HEIGHT)
+            //                 endif
+            //             endif
+            //         set i = i + 1
+            //     endloop
+            // endif
+
             set u = null
             set p = null
+            set frame = null
         endmethod
 
         private static method onInit takes nothing returns nothing
-            local framehandle frame
             local integer i = 0
 
             if BlzGetLocalClientWidth() > 1920 then
@@ -1182,23 +1220,9 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             set inventory = Inventory.create(ITEM_PANEL_X, ITEM_PANEL_Y, ITEM_SLOT_COUNT*ITEM_SLOT_WIDTH + 0.032, ITEM_SLOT_HEIGHT + 0.034, null)
 
             loop
-                exitwhen i >= 24
-                    set frame = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0), i), 1)
-
-                    if i < 7 then
-                        set hero[i] = BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON, i)
-                        set highlight[i] = BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON_INDICATOR, i)
-                    endif
-
-                    if frame != null then
-                        if i >= 6 then
-                            call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)), ITEM_PANEL_Y + GROUP_Y)
-                            call BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ITEM_PANEL_X + (GROUP_X + ((i - 6)*GROUP_GAP)) + GROUP_WIDTH, ITEM_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
-                        else
-                            call BlzFrameSetAbsPoint(frame, FRAMEPOINT_TOPLEFT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)), ABILITY_PANEL_Y + GROUP_Y)
-                            call BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOMRIGHT, ABILITY_PANEL_X + (GROUP_X + (i*GROUP_GAP)) + GROUP_WIDTH, ABILITY_PANEL_Y + GROUP_Y - GROUP_HEIGHT)
-                        endif
-                    endif                
+                exitwhen i >= 7
+                    set hero[i] = BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON, i)
+                    set highlight[i] = BlzGetOriginFrame(ORIGIN_FRAME_HERO_BUTTON_INDICATOR, i)             
                 set i = i + 1
             endloop
 
@@ -1236,8 +1260,6 @@ library Interface requires Table, RegisterPlayerUnitEvent, GetMainSelectedUnit, 
             call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR, 0), FRAMEPOINT_TOPLEFT, INFO_X + BUFF_X, INFO_Y + BUFF_Y)
             call BlzFrameSetAbsPoint(BlzGetOriginFrame(ORIGIN_FRAME_UNIT_PANEL_BUFF_BAR, 0), FRAMEPOINT_BOTTOMRIGHT, INFO_X + BUFF_X + BUFF_WIDTH, INFO_Y + BUFF_Y - BUFF_HEIGHT)
             call TimerStart(CreateTimer(), 0.1, true, function thistype.onPeriod)
-
-            set frame = null
         endmethod
     endstruct
 endlibrary

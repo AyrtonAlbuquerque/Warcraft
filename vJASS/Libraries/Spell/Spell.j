@@ -35,6 +35,7 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
         private static timer timer = CreateTimer()
         private static Unit sources
         private static Unit targets
+        private static trigger any = CreateTrigger()
         private static location location = Location(0, 0)
 
         private unit unit
@@ -181,6 +182,10 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
             call TriggerAddCondition(event.trigger[abil], Filter(c))
         endmethod
 
+        static method registerAnyEvent takes code c returns nothing
+            call TriggerAddCondition(any, Filter(c))
+        endmethod
+
         private static method onPeriod takes nothing returns nothing
             local integer i = 0
             local integer level
@@ -237,6 +242,7 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
 
             call setup(GetTriggerUnit(), GetSpellTargetUnit())
             call TriggerEvaluate(event.trigger[id])
+            call TriggerEvaluate(any)
 
             if this != 0 then
                 if onTooltip.exists then
@@ -387,5 +393,9 @@ library Spell requires Unit, Table, RegisterPlayerUnitEvent
 
     function RegisterSpellEffectEvent takes integer abil, code onCast returns nothing
         call Spell.registerEffectEvent(abil, onCast)
+    endfunction
+
+    function RegisterAnySpellEvent takes code onCast returns nothing
+        call Spell.registerAnyEvent(onCast)
     endfunction
 endlibrary

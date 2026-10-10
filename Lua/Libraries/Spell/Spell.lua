@@ -5,6 +5,7 @@ OnInit("Spell", function(requires)
 
     Spell = Class()
 
+    local any = {}
     local array = {}
     local event = {}
     local struct = {}
@@ -102,6 +103,12 @@ OnInit("Spell", function(requires)
         end
     end
 
+    function Spell.registerAnyEvent(code)
+        if type(code) == "function" then
+            table.insert(any, code)
+        end
+    end
+
     function Spell.__setup(source, target)
         if GetUnitAbilityLevel(source, FourCC('Aloc')) == 0 then
             Spell.source = source
@@ -160,6 +167,10 @@ OnInit("Spell", function(requires)
 
         if event[Spell.id] then
             event[Spell.id]()
+        end
+
+        for i = 1, #any do
+            any[i]()
         end
 
         if this then
@@ -300,5 +311,9 @@ OnInit("Spell", function(requires)
 
     function RegisterSpellEffectEvent(ability, code)
         Spell.registerEffectEvent(ability, code)
+    end
+
+    function RegisterAnySpellEvent(code)
+        Spell.registerAnyEvent(code)
     end
 end)

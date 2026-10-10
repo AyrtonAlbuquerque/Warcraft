@@ -51,7 +51,7 @@ OnInit("FlowingWater", function (requires)
 
         function FlowingWater.onInit()
             RegisterSpell(FlowingWater.allocate(), ABILITY)
-            RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, FlowingWater.onSpell)
+            RegisterAnySpellEvent(FlowingWater.onSpell)
         end
     end
 end)

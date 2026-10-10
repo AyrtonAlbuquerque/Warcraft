@@ -39,7 +39,7 @@ scope WarriorHelmet
         endmethod
 
         method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives|r:\n+ |cffffcc008|r Strength\n+ |cffffcc005|r Health Regeneration\n+ |cffffcc0015%|r Control Resistance\n\n|cff00ff00Passive|r: |cffffcc00Overheal:|r When |cffff0000Health|r drops below |cffffcc00" + N2S(GetHealthFactor() * 100, 0) + "%|r, all |cffffcc00Crowd Control|r are dispelled and |cff00ff00Health Regeneration|r is increased by |cffffcc00" + N2S(GetBonusRegen(), 0) + "|r for |cffffcc00" + N2S(GetDuration(), 0) + "|r second.\n\nCooldown: |cffffcc00" + N2S(WarriorHelmet.cooldown[id], 0) + "|r"
+            return "|cffffcc00Gives|r:\n+ |cffffcc008|r Strength\n+ |cffffcc0015%|r Resolve\n+ |cffffcc005|r Health Regeneration\n\n|cff00ff00Passive|r: |cffffcc00Overheal:|r When |cffff0000Health|r drops below |cffffcc00" + N2S(GetHealthFactor() * 100, 0) + "%|r, all |cffffcc00Crowd Control|r are dispelled and |cff00ff00Health Regeneration|r is increased by |cffffcc00" + N2S(GetBonusRegen(), 0) + "|r for |cffffcc00" + N2S(GetDuration(), 0) + "|r second.\n\nCooldown: |cffffcc00" + N2S(WarriorHelmet.cooldown[id], 0) + "|r"
         endmethod
 
         private method onPeriod takes nothing returns boolean
@@ -58,6 +58,7 @@ scope WarriorHelmet
                 
                 call StartTimer(1, true, this, Damage.target.id)
                 call UnitDispelAllCrowdControl(Damage.target.unit)
+                call UnitStartItemTypeCooldown(Damage.target.unit, code, GetCooldown())
                 call AddUnitBonusTimed(Damage.target.unit, BONUS_HEALTH_REGEN, GetBonusRegen(), GetDuration())
                 call DestroyEffectTimed(AddSpecialEffectTarget(effect, Damage.target.unit, "chest"), GetDuration())
             endif

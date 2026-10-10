@@ -1,4 +1,4 @@
-library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPlayerUnitEvent, optional Heal
+library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPlayerUnitEvent, Modules optional Heal
     /* --------------------------------------- Utilities v2.1 --------------------------------------- */
     // How to Import:
     // 1 - Copy this library into your map
@@ -15,6 +15,13 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
     globals
         // Update period
         private constant real PERIOD = 0.03125
+        // Item cooldown abilities
+        private constant integer ITEM_COOLDOWN_1 = 'Icd1' 
+        private constant integer ITEM_COOLDOWN_2 = 'Icd2'
+        private constant integer ITEM_COOLDOWN_3 = 'Icd3'
+        private constant integer ITEM_COOLDOWN_4 = 'Icd4'
+        private constant integer ITEM_COOLDOWN_5 = 'Icd5'
+        private constant integer ITEM_COOLDOWN_6 = 'Icd6'
         // location z
         private location locationZ    = Location(0, 0)
         // One hashtable to rule them all
@@ -57,6 +64,7 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         if z != 0 then
             call BlzSetSpecialEffectZ(bj_lastCreatedEffect, z + GetLocZ(x, y))
         endif
+
         call BlzSetSpecialEffectScale(bj_lastCreatedEffect, scale)
         
         return bj_lastCreatedEffect
@@ -66,9 +74,10 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
     function GetEnemyUnitsInRange takes player enemyOf, real x, real y, real aoe, boolean structures, boolean magicImmune returns group
         local group g = CreateGroup()
         local group h = CreateGroup()
-        local unit  w
+        local unit w
         
         call GroupEnumUnitsInRange(h, x, y, aoe, null)
+
         loop
             set w = FirstOfGroup(h)
             exitwhen w == null
@@ -77,25 +86,29 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
                 endif
             call GroupRemoveUnit(h, w)
         endloop
+
         call DestroyGroup(h)
     
         set h = null
+
         return g
     endfunction
 
     // Returns the closest unit in a unit group with center at x and y
     function GetClosestUnitGroup takes real x, real y, group g returns unit
-        local unit    u
-        local real    dx
-        local real    dy
-        local real    md = 100000
+        local unit u
+        local real dx
+        local real dy
+        local real md = 100000
         local integer i  = 0
         local integer size = BlzGroupGetSize(g)
         
         set bj_closestUnitGroup = null
+
         loop
             exitwhen i == size
                 set u = BlzGroupUnitAt(g, i)
+
                 if UnitAlive(u) then
                     set dx = GetUnitX(u) - x
                     set dy = GetUnitY(u) - y
@@ -218,6 +231,7 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         
         call GroupEnumUnitsInRange(h, x, y, aoe, null)
         call GroupRemoveUnit(h, source)
+
         loop
             set w = FirstOfGroup(h)
             exitwhen w == null
@@ -226,6 +240,7 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
                 endif
             call GroupRemoveUnit(h, w)
         endloop
+
         call DestroyGroup(h)
     
         set h = null
@@ -234,13 +249,14 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
 
     // Makes the specified source damage a group. Creates a special effect if specified
     function UnitDamageGroup takes unit u, group g, real damage, attacktype atk_type, damagetype dmg_type, string sfx, string atch_point, boolean destroy returns group
-        local unit    v
+        local unit v
         local integer i = 0
         local integer t = BlzGroupGetSize(g)
 
         loop
             exitwhen i == t
                 set v = BlzGroupUnitAt(g, i)
+
                 call UnitDamageTarget(u, v, damage, true, false, atk_type, dmg_type, null)
 
                 if sfx != "" and atch_point != "" then
@@ -292,6 +308,7 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
                 set k = UnitItemInSlot(source, i)
                 set j = GetItemCharges(k)
                 set k = CreateItem(GetItemTypeId(k), GetUnitX(target), GetUnitY(target))
+
                 call SetItemCharges(k, j)
                 call UnitAddItem(target, k)
 
@@ -338,15 +355,16 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
 
     // Returns the closest unit from the x and y coordinates in the map
     function GetClosestUnit takes real x, real y, boolexpr e returns unit
-        local real  md = 100000
         local group g = CreateGroup()
-        local unit  u
-        local real  dx
-        local real  dy
+        local real md = 100000
+        local unit u
+        local real dx
+        local real dy
 
         set bj_closestUnitGroup = null
         
         call GroupEnumUnitsInRect(g, bj_mapInitialPlayableArea, e)
+
         loop
             set u = FirstOfGroup(g)
             exitwhen u == null
@@ -361,8 +379,10 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
                 endif
             call GroupRemoveUnit(g, u)
         endloop
+        
         call DestroyGroup(g)
         call DestroyBoolExpr(e)
+
         set g = null
 
         return bj_closestUnitGroup
@@ -452,6 +472,7 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         
         call GroupEnumUnitsInRange(h, x, y, aoe, null)
         call GroupRemoveUnit(h, source)
+
         loop
             set w = FirstOfGroup(h)
             exitwhen w == null
@@ -462,6 +483,7 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
                 endif
             call GroupRemoveUnit(h, w)
         endloop
+
         call DestroyGroup(h)
     
         set h = null
@@ -474,6 +496,7 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         local unit v
         
         call GroupEnumUnitsInRange(g, x, y, aoe, null)
+
         loop
             set v = FirstOfGroup(g)
             exitwhen v == null
@@ -494,6 +517,7 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
                 endif
             call GroupRemoveUnit(g, v)
         endloop
+        
         call DestroyGroup(g)
     
         set g = null
@@ -665,6 +689,33 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         endif
     endfunction
 
+    // Add the specified ability to the specified item for the given duration.
+    function ItemAddAbilityTimed takes item whichItem, integer abilityId, real duration returns nothing
+        call TimedAbility.addItem(whichItem, abilityId, duration)
+    endfunction
+
+    // Start unit item cooldown frame [visual cooldown]
+    function UnitStartItemCooldown takes unit u, item i, real cooldown returns nothing
+        if u != null and i != null and cooldown >= 0 then
+            call ItemCooldown.start(u, i, cooldown)
+        endif
+    endfunction
+
+    // Start Item of type cooldown frame in unit inventory
+    function UnitStartItemTypeCooldown takes unit u, integer itemType, real cooldown returns nothing
+        local integer i = 0
+
+        if u != null and itemType != 0 and cooldown >= 0 then
+            loop
+                exitwhen i == UnitInventorySize(u)
+                    if GetItemTypeId(UnitItemInSlot(u, i)) == itemType then
+                        call UnitStartItemCooldown(u, UnitItemInSlot(u, i), cooldown)
+                    endif
+                set i = i + 1
+            endloop
+        endif
+    endfunction
+
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             Systems                                            */
     /* ---------------------------------------------------------------------------------------------- */
@@ -698,47 +749,51 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
 
     /* ---------------------------------------- Timed Ability --------------------------------------- */
     struct TimedAbility
-        static timer timer = CreateTimer()
-        static integer key = -1
-        static thistype array array
+        private unit unit
+        private item item
+        private timer timer
+        private integer ability
 
-        unit unit
-        integer ability
-        real duration
+        private static method onExpire takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
 
-        method remove takes integer i returns integer
-            call UnitRemoveAbility(unit, ability)
-            call RemoveSavedInteger(table, GetHandleId(unit), ability)
+            if this != 0 then
+                if item != null then
+                    call BlzItemRemoveAbility(item, ability)
+                    call RemoveSavedInteger(table, GetHandleId(item), ability)
+                else
+                    call UnitRemoveAbility(unit, ability)
+                    call RemoveSavedInteger(table, GetHandleId(unit), ability)
+                endif
 
-            set array[i] = array[key]
-            set key = key - 1
-            set unit = null
+                call ReleaseTimer(timer)
 
-            if key == -1 then
-                call PauseTimer(timer)
+                set item = null
+                set unit = null
+                set timer = null
+
+                call deallocate()
+            endif
+        endmethod
+
+        static method addItem takes item i, integer id, real duration returns nothing
+            local thistype this = LoadInteger(table, GetHandleId(i), id)
+            
+            if this == 0 then
+                set this = thistype.allocate()
+                set item = i
+                set ability = id
+                set timer = NewTimerEx(this)
+
+                call SaveInteger(table, GetHandleId(i), ability, this)
             endif
 
-            call deallocate()
+            if BlzGetItemAbility(item, ability) == null then
+                call BlzItemAddAbility(item, ability)
+            endif
 
-            return i - 1
+            call TimerStart(timer, duration, false, function thistype.onExpire)
         endmethod
-
-        static method onPeriod takes nothing returns nothing
-            local integer i = 0
-            local thistype this
-
-            loop
-                exitwhen i > key
-                    set this = array[i]
-
-                    if duration <= 0 then
-                        set i = remove(i)
-                    endif
-                    set duration = duration - 0.1
-                set i = i + 1
-            endloop
-        endmethod
-
 
         static method add takes unit u, integer id, real duration, integer level, boolean hide returns nothing
             local thistype this = LoadInteger(table, GetHandleId(u), id)
@@ -747,14 +802,9 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
                 set this = thistype.allocate()
                 set unit = u
                 set ability = id
-                set key = key + 1
-                set array[key] = this
+                set timer = NewTimerEx(this)
 
                 call SaveInteger(table, GetHandleId(unit), ability, this)
-
-                if key == 0 then
-                    call TimerStart(timer, 0.1, true, function thistype.onPeriod)
-                endif
             endif
 
             if GetUnitAbilityLevel(unit, ability) != level then
@@ -764,7 +814,7 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
                 call BlzUnitHideAbility(unit, ability, hide)
             endif
 
-            set .duration = duration
+            call TimerStart(timer, duration, false, function thistype.onExpire)
         endmethod
     endstruct
 
@@ -1245,6 +1295,115 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
             call TimerStart(timer, PERIOD, true, function thistype.onPeriod)
 
             return this
+        endmethod
+    endstruct
+
+    /* -------------------------------------- ItemCooldown ------------------------------------- */
+    struct ItemCooldown
+        private static List array lists
+        private static List array actives
+
+        private List list
+        private unit unit
+        private item item
+        private integer id
+        private timer timer
+        private List active
+        private integer ability
+
+        private method destroy takes nothing returns nothing
+            call RemoveSavedInteger(table, id, GetHandleId(item))
+            call BlzItemRemoveAbility(item, ability)
+            call ReleaseTimer(timer)
+
+            set item = null
+            set unit = null
+            set timer = null
+
+            call deallocate()
+        endmethod
+
+        private static method onExpire takes nothing returns nothing
+            local thistype this = GetTimerData(GetExpiredTimer())
+
+            call list.insert(ability)
+            call active.remove(this)
+            call destroy()
+        endmethod
+
+        static method start takes unit u, item i, real duration returns nothing
+            local integer id = GetUnitUserData(u)
+            local thistype this = LoadInteger(table, id, GetHandleId(i))
+            local List list = lists[id]
+            local List active = actives[id]
+
+            if list == 0 then
+                set list = List.create()
+                set active = List.create()
+                set lists[id] = list
+                set actives[id] = active
+
+                call list.insert(ITEM_COOLDOWN_1)
+                call list.insert(ITEM_COOLDOWN_2)
+                call list.insert(ITEM_COOLDOWN_3)
+                call list.insert(ITEM_COOLDOWN_4)
+                call list.insert(ITEM_COOLDOWN_5)
+                call list.insert(ITEM_COOLDOWN_6)
+            endif
+
+            if this == 0 and list.size > 0 then
+                set this = thistype.allocate()
+                set item = i
+                set unit = u
+                set .id = id
+                set .list = list
+                set .active = active
+                set ability = list.next.data
+                set timer = NewTimerEx(this)
+
+                call list.remove(ability)
+                call active.insert(this)
+                call SaveInteger(table, id, GetHandleId(i), this)
+            endif
+
+            if this != 0 then
+                if BlzGetItemAbility(item, ability) == null then
+                    call BlzItemAddAbility(item, ability)
+                endif
+
+                call BlzStartUnitAbilityCooldown(unit, ability, duration)
+                call TimerStart(timer, duration, false, function thistype.onExpire)
+            endif
+        endmethod
+
+        private static method onDeindex takes nothing returns nothing
+            local integer id = GetUnitUserData(GetIndexUnit())
+            local List active = actives[id]
+            local List list = lists[id]
+            local List node
+
+            if active != 0 then
+                set node = active.next
+
+                loop
+                    exitwhen node == active
+                        call ItemCooldown(node.data).destroy()
+                    set node = node.next
+                endloop
+
+                call active.destroy()
+            endif
+
+            if list != 0 then
+                call list.destroy()
+            endif
+
+            set lists[id] = 0
+            set actives[id] = 0
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            call RegisterUnitDeindexEvent(function thistype.onDeindex)
         endmethod
     endstruct
 endlibrary

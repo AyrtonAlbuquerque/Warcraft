@@ -215,7 +215,7 @@ library SpellShield requires DamageInterface, Spell, Utilities, NewBonus, CrowdC
             call RegisterSpell(thistype.allocate(), ABILITY)
             call RegisterSpellDamageEvent(function thistype.onDamage)
             call RegisterAnyCrowdControlEvent(function thistype.onCrowdControl)
-            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function thistype.onSpell)
+            call RegisterAnySpellEvent(function thistype.onSpell)
         endmethod
     endstruct
 endlibrary

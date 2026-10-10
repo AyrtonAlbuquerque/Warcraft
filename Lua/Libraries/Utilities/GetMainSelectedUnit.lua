@@ -37,14 +37,14 @@ OnInit("GetMainSelectedUnit", function()
 
     function GetSelectedUnitIndex()
         -- local player is in group selection?
-        if BlzFrameIsVisible(containerFrame) then
-            -- find the first visible yellow Background Frame
-            for int = 0, #frames do
-                if BlzFrameIsVisible(frames[int]) then
-                    return int
-                end           
-            end
-        end
+        -- if BlzFrameIsVisible(containerFrame) then
+        --     -- find the first visible yellow Background Frame
+        --     for int = 0, #frames do
+        --         if BlzFrameIsVisible(frames[int]) then
+        --             return int
+        --         end           
+        --     end
+        -- end
 
         return nil
     end

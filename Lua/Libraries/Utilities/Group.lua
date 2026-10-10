@@ -211,7 +211,10 @@ OnInit("Group", function (requires)
 
         function Unit:destroy()
             if self.allocated then
-                array[self.unit] = nil
+                if array[self.unit] == self then
+                    array[self.unit] = nil
+                end
+
                 self.unit = nil
                 self.allocated = false
             end
@@ -419,6 +422,7 @@ OnInit("Group", function (requires)
 
             self:unfilter()
             self.temp = nil
+            self.unit = nil
             self.items = nil
             self.buffs = nil
             self.types = nil
@@ -439,20 +443,52 @@ OnInit("Group", function (requires)
         function Group:first()
             self:sort()
 
+            self.index = 0
+
             if self.ending > 0 then
-                return self.sorted[0].unit
+                self.unit = self.sorted[0].unit
             else
-                return nil
+                self.unit = nil
             end
+
+            return self.unit
         end
 
         function Group:last()
             self:sort()
 
+            self.index = self.ending - 1
+
             if self.ending > 0 then
-                return self.sorted[self.ending - 1].unit
+                self.unit = self.sorted[self.index].unit
             else
-                return nil
+                self.unit = nil
+            end
+
+            return self.unit
+        end
+
+        function Group:next()
+            if self.index < self.ending then
+                self.index = self.index + 1
+            end
+
+            if self.index < self.ending then
+                self.unit = self.sorted[self.index].unit
+            else
+                self.unit = nil
+            end
+        end
+
+        function Group:prev()
+            if self.index >= 0 then
+                self.index = self.index - 1
+            end
+
+            if self.index >= 0 then
+                self.unit = self.sorted[self.index].unit
+            else
+                self.unit = nil
             end
         end
 
@@ -514,6 +550,8 @@ OnInit("Group", function (requires)
             self.takes = 0
             self.skips = 0
             self.count = 0
+            self.index = 0
+            self.unit = nil
             self.orderings = 0
             self.pendingProp = 0
             self.negate = false
@@ -710,7 +748,7 @@ OnInit("Group", function (requires)
         end
 
         function Group:hasItem(item)
-            if item > 0 then
+            if item and item > 0 then
                 table.insert(self.items, Filter.create(nil, nil, item, 0, 0, 0, 0, 0, self.negate, self.orLogic))
                 self.negate = false
                 self.orLogic = false
@@ -721,7 +759,7 @@ OnInit("Group", function (requires)
         end
 
         function Group:hasBuff(buff)
-            if buff > 0 then
+            if buff and buff > 0 then
                 table.insert(self.buffs, Filter.create(nil, nil, 0, buff, 0, 0, 0, 0, self.negate, self.orLogic))
                 self.negate = false
                 self.orLogic = false
@@ -736,7 +774,7 @@ OnInit("Group", function (requires)
         end
 
         function Group:ofTypeId(typeId)
-            if typeId > 0 then
+            if typeId and typeId > 0 then
                 table.insert(self.types, Filter.create(nil, nil, 0, 0, typeId, 0, 0, 0, self.negate, self.orLogic))
                 self.negate = false
                 self.orLogic = false
@@ -940,7 +978,25 @@ OnInit("Group", function (requires)
             local j = 0
             local k = 0
 
-            if self.size <= 0 or self.ordered then
+            if self.ordered then
+                return self
+            end
+
+            if self.size <= 0 then
+                while i < self.ending do
+                    if self.sorted[i] then
+                        self.sorted[i]:destroy()
+                        self.sorted[i] = nil
+                    end
+
+                    i = i + 1
+                end
+
+                self.ending = 0
+                self.index = 0
+                self.unit = nil
+                self.ordered = true
+
                 return self
             end
 
@@ -1309,9 +1365,18 @@ OnInit("Group", function (requires)
             end
 
             self.ending = k
+            self.index = 0
+
+            if self.size > 0 then
+                self.unit = self.sorted[0].unit
+            else
+                self.unit = nil
+            end
 
             DestroyGroup(g)
 
+            self.skips = 0
+            self.takes = 0
             self.ordered = true
 
             return self
@@ -1401,6 +1466,7 @@ OnInit("Group", function (requires)
             self.count = 0
             self.skips = 0
             self.ending = 0
+            self.index = 0
             self.orderings = 0
             self.pendingProp = 0
             self.dead = false
@@ -1410,6 +1476,7 @@ OnInit("Group", function (requires)
             self.ordered = false
             self.pendingNegate = false
             self.pendingOrLogic = false
+            self.unit = nil
             self.temp = {}
             self.items = {}
             self.buffs = {}

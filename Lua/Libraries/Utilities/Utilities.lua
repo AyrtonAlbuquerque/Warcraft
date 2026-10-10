@@ -2,12 +2,20 @@ OnInit("Utilities", function(requires)
     requires "Class"
     requires "Dummy"
     requires "Indexer"
+    requires "Modules"
     requires "TimedHandles"
     requires "RegisterPlayerUnitEvent"
     requires.optional "Heal"
 
     -- Update period
     local PERIOD = 0.03125
+    -- Item cooldown abilities
+    local ITEM_COOLDOWN_1 = FourCC('Icd1') 
+    local ITEM_COOLDOWN_2 = FourCC('Icd2')
+    local ITEM_COOLDOWN_3 = FourCC('Icd3')
+    local ITEM_COOLDOWN_4 = FourCC('Icd4')
+    local ITEM_COOLDOWN_5 = FourCC('Icd5')
+    local ITEM_COOLDOWN_6 = FourCC('Icd6')
     -- location z
     local location = Location(0,0)
     -- Closest Unit
@@ -704,6 +712,30 @@ OnInit("Utilities", function(requires)
             return GetUnitLevel(unit)
         end
     end
+
+    -- Add the specified ability to the specified item for the given duration.
+    function ItemAddAbilityTimed(item, ability, duration)
+        TimedAbility.addItem(item, ability, duration)
+    end
+
+    -- Start unit item cooldown frame [visual cooldown]
+    function UnitStartItemCooldown(unit, item, cooldown)
+        if unit and item and cooldown >= 0 then
+            ItemCooldown.start(unit, item, cooldown)
+        end
+    end
+
+    -- Start Item of type cooldown frame in unit inventory
+    function UnitStartItemTypeCooldown(unit, type, cooldown)
+        if unit and type and cooldown >= 0 then
+            for i = 0, UnitInventorySize(unit) - 1 do
+                if GetItemTypeId(UnitItemInSlot(unit, i)) == type then
+                    UnitStartItemCooldown(unit, UnitItemInSlot(unit, i), cooldown)
+                end
+            end
+        end
+    end
+
     -- -- ---------------------------------------------------------------------------------------------- --
     -- --                                             Systems                                            --
     -- -- ---------------------------------------------------------------------------------------------- --
@@ -712,45 +744,49 @@ OnInit("Utilities", function(requires)
         TimedAbility = Class()
 
         local array = {}
-        local ability = {}
-        local timer = CreateTimer()
+
+        function TimedAbility.addItem(item, id, duration)
+            if not array[item] then array[item] = {} end
+
+            local self = array[item][id]
+
+            if not self then
+                self = {
+                    item = item,
+                    ability = id,
+                    timer = CreateTimer()
+                }
+
+                array[item][id] = self
+            end
+
+            if not BlzGetItemAbility(item, id) then
+                BlzItemAddAbility(item, id)
+            end
+
+            TimerStart(self.timer, duration, false, function ()
+                BlzItemRemoveAbility(self.item, self.ability)
+                DestroyTimer(self.timer)
+
+                array[self.item][self.ability] = nil
+                self.item = nil
+                self.timer = nil
+            end)
+        end
 
         function TimedAbility.add(unit, id, duration, level, hide)
-            if not ability[unit] then ability[unit] = {} end
+            if not array[unit] then array[unit] = {} end
 
-            local this = ability[unit][id]
+            local self = array[unit][id]
 
-            if not this then
-                this = {}
+            if not self then
+                self = {
+                    unit = unit,
+                    ability = id,
+                    timer = CreateTimer()
+                }
 
-                this.id = id
-                this.unit = unit
-                ability[unit][id] = this
-
-                table.insert(array, this)
-
-                if #array == 1 then
-                    TimerStart(timer, 0.1, true, function()
-                        local this
-
-                        for i = #array, 1, -1 do
-                            this = array[i]
-
-                            this.duration = this.duration - 0.1
-
-                            if this.duration <= 0 then
-                                UnitRemoveAbility(this.unit, this.id)
-
-                                ability[this.unit][this.id] = nil
-                                table.remove(array, i)
-
-                                if #array == 0 then
-                                    PauseTimer(timer)
-                                end
-                            end
-                        end
-                    end)
-                end
+                array[unit][id] = self
             end
 
             if GetUnitAbilityLevel(unit, id) ~= level then
@@ -760,7 +796,14 @@ OnInit("Utilities", function(requires)
                 BlzUnitHideAbility(unit, id, hide)
             end
 
-            this.duration = duration
+            TimerStart(self.timer, duration, false, function ()
+                UnitRemoveAbility(self.unit, self.ability)
+                DestroyTimer(self.timer)
+
+                array[self.unit][self.ability] = nil
+                self.unit = nil
+                self.timer = nil
+            end)
         end
     end
 
@@ -906,6 +949,95 @@ OnInit("Utilities", function(requires)
             TimerStart(this.timer, PERIOD, true, TimedLightning.onPeriod)
 
             return this
+        end
+    end
+
+    -- -------------------------------------- ItemCooldown ------------------------------------- --
+    do
+        ItemCooldown = Class()
+
+        local array = {}
+        local lists = {}
+        local actives = {}
+
+        function ItemCooldown:destroy()
+            BlzItemRemoveAbility(self.item, self.ability)
+            PauseTimer(self.timer)
+            DestroyTimer(self.timer)
+            array[self.unit][self.item] = nil
+
+            self.item = nil
+            self.unit = nil
+            self.timer = nil
+        end
+
+        function ItemCooldown.start(unit, item, duration)
+            if not array[unit] then array[unit] = {} end
+
+            local self = array[unit][item]
+            local list = lists[unit]
+            local active = actives[unit]
+
+            if not list then
+                list = {}
+                active = {}
+                lists[unit] = list
+                actives[unit] = active
+
+                table.insert(list, ITEM_COOLDOWN_1)
+                table.insert(list, ITEM_COOLDOWN_2)
+                table.insert(list, ITEM_COOLDOWN_3)
+                table.insert(list, ITEM_COOLDOWN_4)
+                table.insert(list, ITEM_COOLDOWN_5)
+                table.insert(list, ITEM_COOLDOWN_6)
+            end
+
+            if not self and #list > 0 then
+                self = {
+                    item = item,
+                    unit = unit,
+                    list = list,
+                    active = active,
+                    timer = CreateTimer(),
+                    ability = table.remove(list, 1),
+                    destroy = ItemCooldown.destroy
+                }
+
+                active[self] = true
+                array[unit][item] = self
+            end
+
+            if self then
+                if not BlzGetItemAbility(self.item, self.ability) then
+                    BlzItemAddAbility(self.item, self.ability)
+                end
+
+                BlzStartUnitAbilityCooldown(self.unit, self.ability, duration)
+                TimerStart(self.timer, duration, false, function ()
+                    table.insert(self.list, self.ability)
+                    self.active[self] = nil
+                    self:destroy()
+                end)
+            end
+        end
+
+        function ItemCooldown.onDeindex()
+            local unit = GetIndexUnit()
+            local active = actives[unit]
+
+            if active then
+                for self in pairs(active) do
+                    self:destroy()
+                end
+            end
+
+            array[unit] = nil
+            lists[unit] = nil
+            actives[unit] = nil
+        end
+
+        function ItemCooldown.onInit()
+            RegisterUnitDeindexEvent(ItemCooldown.onDeindex)
         end
     end
 end)

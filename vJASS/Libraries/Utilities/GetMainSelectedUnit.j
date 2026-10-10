@@ -64,66 +64,68 @@ library GetMainSelectedUnit initializer init_function
         set u = null
         return false
     endfunction
+
+    private function LoadFrames takes nothing returns nothing
+        local integer i = 0
+        
+        set containerFrame = BlzFrameGetChild(BlzFrameGetChild(BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0)), 5), 0)
+
+        loop 
+            exitwhen i >= BlzFrameGetChildrenCount(containerFrame) - 1
+                set frames[i] = BlzFrameGetChild(BlzFrameGetChild(containerFrame, i), 0)
+            set i = i + 1
+        endloop
+    endfunction
     
-        function GetSelectedUnitIndex takes nothing returns integer
-            local integer i = 0
-            // local player is in group selection?
-            if BlzFrameIsVisible(containerFrame) then
-                // find the first visible yellow Background Frame
-                loop
-                    exitwhen i > 11
-                    if BlzFrameIsVisible(frames[i]) then
-                        return i
-                    endif
-                    set i = i + 1
-                endloop
-            endif
-            return -1
-        endfunction  
-    
-        function GetMainSelectedUnit takes integer index returns unit
-            if index >= 0 then
-                call GroupEnumUnitsSelected(Group, GetLocalPlayer(), filter)
-                set bj_groupRandomCurrentPick = units[index + 1]
-                //clear table
-                loop
-                    exitwhen unitsCount <= 0
-                    set units[unitsCount] = null
-                    set unitsCount = unitsCount - 1
-                endloop
-                return bj_groupRandomCurrentPick
-            else
-                call GroupEnumUnitsSelected(Group, GetLocalPlayer(), null)
-                return FirstOfGroup(Group)
-            endif
-        endfunction
-    
-        // returns the local current main selected unit, using it in a sync gamestate relevant manner breaks the game.
-        function GetMainSelectedUnitEx takes nothing returns unit
-            return GetMainSelectedUnit(GetSelectedUnitIndex())
-        endfunction
-    
-        private function init_functionAt0s takes nothing returns nothing
-            local integer i = 0
-            local framehandle console = BlzGetFrameByName("ConsoleUI", 0)
-            local framehandle bottomUI = BlzFrameGetParent(BlzGetFrameByName("SimpleInfoPanelUnitDetail", 0))
-            local framehandle groupframe = BlzFrameGetChild(bottomUI, 5)
-            local framehandle buttonContainer
-            //globals
-            set containerFrame = BlzFrameGetChild(groupframe, 0)
-            set Group = CreateGroup()
-            // give this frames a handleId
-            loop 
-                exitwhen i >= BlzFrameGetChildrenCount(containerFrame) - 1
-                set buttonContainer = BlzFrameGetChild(containerFrame, i)
-                set frames[i] = BlzFrameGetChild(buttonContainer, 0)
-                set i = i + 1
+    function GetSelectedUnitIndex takes nothing returns integer
+        // local integer i = 0
+        
+        // call LoadFrames()
+
+        // if BlzFrameIsVisible(containerFrame) then
+        //     loop
+        //         exitwhen i > 23
+        //             if BlzFrameIsVisible(frames[i]) then
+        //                 return i
+        //             endif
+        //         set i = i + 1
+        //     endloop
+        // endif
+
+        return -1
+    endfunction  
+
+    function GetMainSelectedUnit takes integer index returns unit
+        if index >= 0 then
+            call GroupEnumUnitsSelected(Group, GetLocalPlayer(), filter)
+            set bj_groupRandomCurrentPick = units[index + 1]
+            //clear table
+            loop
+                exitwhen unitsCount <= 0
+                set units[unitsCount] = null
+                set unitsCount = unitsCount - 1
             endloop
-            call DestroyTimer(GetExpiredTimer())
-        endfunction
-    
-        private function init_function takes nothing returns nothing
-            set filter = Filter(function FilterFunction)
-            call TimerStart(CreateTimer(), 0, false, function init_functionAt0s)
-        endfunction
-    endlibrary
+            return bj_groupRandomCurrentPick
+        else
+            call GroupEnumUnitsSelected(Group, GetLocalPlayer(), null)
+            return FirstOfGroup(Group)
+        endif
+    endfunction
+
+    // returns the local current main selected unit, using it in a sync gamestate relevant manner breaks the game.
+    function GetMainSelectedUnitEx takes nothing returns unit
+        return GetMainSelectedUnit(GetSelectedUnitIndex())
+    endfunction
+
+    private function init_functionAt0s takes nothing returns nothing
+        set Group = CreateGroup()
+
+        call LoadFrames()
+        call DestroyTimer(GetExpiredTimer())
+    endfunction
+
+    private function init_function takes nothing returns nothing
+        set filter = Filter(function FilterFunction)
+        call TimerStart(CreateTimer(), 0, false, function init_functionAt0s)
+    endfunction
+endlibrary
