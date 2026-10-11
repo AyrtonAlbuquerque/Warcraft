@@ -103,7 +103,7 @@ OnInit("StormBolt", function (requires)
         StormBolt = Class(Spell)
 
         function StormBolt:onTooltip(source, level, ability)
-            return "|cffffcc00Muradin|r throw his hammer at an enemy unit, dealing |cff00ffff" .. N2S(StormBolt_GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and stunning the target for |cffffcc003|r seconds (|cffffcc001|r on |cffffcc00Heroes|r). If the target is already stunned, |cffffcc00Storm Bolt|r will do |cffffcc00" .. N2S(StormBolt_GetBonusDamage(level), 0) .. "%%|r bonus damage. In addintion, if |cffffcc00Storm Bolt|r kills the target, |cffffcc0050%|r of its mana cost is refunded."
+            return "|cffffcc00Muradin|r throw his hammer at an enemy unit, dealing |cff00ffff" .. N2S(StormBolt_GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and stunning the target for |cffffcc003|r seconds (|cffffcc001|r on |cffffcc00Heroes|r). If the target is already stunned, |cffffcc00Storm Bolt|r will do |cffffcc00" .. N2S(StormBolt_GetBonusDamage(level), 0) .. "%|r bonus damage. In addintion, if |cffffcc00Storm Bolt|r kills the target, |cffffcc0050%|r of its mana cost is refunded."
         end
 
         function StormBolt:onCast()

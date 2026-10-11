@@ -57,7 +57,7 @@ OnInit("AdaptiveStrike", function (requires)
         local state = {}
 
         function AdaptiveStrike:onTooltip(source, level, ability)
-            return "|cffffcc00Illidan|r attacks have a |cffffcc00" .. N2S(GetChance(level), 0) .. "%%|r chance to become |cffffcc00Adaptive|r, varying between a |cffffcc00Cleave|r in front or a |cffffcc00Slash|r around when in his normal form, dealing |cffd45e19" .. N2S(GetDamage(source, level), 0) .. "|r |cffd45e19Pure|r damage to units within |cffffcc00" .. N2S(GetAoE(false, level), 0) .. " AoE|r. In addition, |cffffcc00Illidan|r |cffffcc00Dark|r form attacks becomes an area of effect attack."
+            return "|cffffcc00Illidan|r attacks have a |cffffcc00" .. N2S(GetChance(level), 0) .. "%|r chance to become |cffffcc00Adaptive|r, varying between a |cffffcc00Cleave|r in front or a |cffffcc00Slash|r around when in his normal form, dealing |cffd45e19" .. N2S(GetDamage(source, level), 0) .. "|r |cffd45e19Pure|r damage to units within |cffffcc00" .. N2S(GetAoE(false, level), 0) .. " AoE|r. In addition, |cffffcc00Illidan|r |cffffcc00Dark|r form attacks becomes an area of effect attack."
         end
 
         function AdaptiveStrike.onAttack()

@@ -53,7 +53,7 @@ OnInit("BulletTime", function (requires)
         end
 
         function BulletTime:onTooltip(source, level, ability)
-            return "Every attack increases the fire rate of |cffffcc00Tychus|r mini-gun by |cffffcc00" .. N2S(GetBonus(level) * 100, 0) .. "%%|r, stacking up to |cffffcc00" .. N2S(GetMaxBonus(level) * 100, 0) .. "%%|r bonus |cffffcc00Attack Speed|r. The bonus lasts for |cffffcc00" .. N2S(GetDuration(level), 1) .. "|r seconds after |cffffcc00Tychus|r stops attacking."
+            return "Every attack increases the fire rate of |cffffcc00Tychus|r mini-gun by |cffffcc00" .. N2S(GetBonus(level) * 100, 0) .. "%|r, stacking up to |cffffcc00" .. N2S(GetMaxBonus(level) * 100, 0) .. "%|r bonus |cffffcc00Attack Speed|r. The bonus lasts for |cffffcc00" .. N2S(GetDuration(level), 1) .. "|r seconds after |cffffcc00Tychus|r stops attacking."
         end
 
         function BulletTime.onDamage()

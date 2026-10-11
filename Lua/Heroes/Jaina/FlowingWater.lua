@@ -33,7 +33,7 @@ OnInit("FlowingWater", function (requires)
         FlowingWater = Class(Spell)
 
         function FlowingWater:onTooltip(source, level, ability)
-            return "When casting an |cffffcc00Active|r ability |cffffcc00Jaina|r has |cffffcc00" .. N2S(GetChance(source, level) * 100, 0) .. "%%|r chance to reduce the casted ability cooldown by |cffffcc00" .. N2S(GetReduction(source, level) * 100, 0) .. "%%|r."
+            return "When casting an |cffffcc00Active|r ability |cffffcc00Jaina|r has |cffffcc00" .. N2S(GetChance(source, level) * 100, 0) .. "%|r chance to reduce the casted ability cooldown by |cffffcc00" .. N2S(GetReduction(source, level) * 100, 0) .. "%|r."
         end
 
         function FlowingWater.onSpell()

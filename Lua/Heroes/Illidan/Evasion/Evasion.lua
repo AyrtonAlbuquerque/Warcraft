@@ -36,7 +36,7 @@ OnInit("Evade", function (requires)
         Evade = Class(Spell)
 
         function Evade:onTooltip(unit, level, ability)
-            return "|cffffcc00Illidan|r has |cffffcc00" .. N2S(5 + 5 * level, 0) .. "%%|r passively increased chance to avoid enemy attacks. When activated his |cffffcc00Evasion|r chance is increased by |cffffcc00" .. N2S(GetActiveBonus(level) * 100, 0) .. "%%|r for |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_HERO, level - 1), 1) .. "|r seconds."
+            return "|cffffcc00Illidan|r has |cffffcc00" .. N2S(5 + 5 * level, 0) .. "%|r passively increased chance to avoid enemy attacks. When activated his |cffffcc00Evasion|r chance is increased by |cffffcc00" .. N2S(GetActiveBonus(level) * 100, 0) .. "%|r for |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_HERO, level - 1), 1) .. "|r seconds."
         end
 
         function Evade:onLearn(unit, ability, level)

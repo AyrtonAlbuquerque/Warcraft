@@ -85,7 +85,7 @@ OnInit("SpellShield", function (requires)
         end
 
         function SpellShield:onTooltip(source, level, ability)
-            return "|cffffcc00Illidan|r becomes immune to all crowd control for |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_NORMAL, level - 1), 1) .. "|r seconds and any enemy unit that casts an ability within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r are damaged for |cff00ffff" .. N2S(GetDamage(source, level), 0) .. " Magic|r damage. In addition, |cffffcc00" .. N2S(GetConversion(level) * 100, 0) .. "%%|r of all |cff00ffffMagic|r damage |cffffcc00Illidan|r takes while under the effect of |cffffcc00Spell Shield|r is converted into bonus damage, lasting until the effect expires."
+            return "|cffffcc00Illidan|r becomes immune to all crowd control for |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_NORMAL, level - 1), 1) .. "|r seconds and any enemy unit that casts an ability within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r are damaged for |cff00ffff" .. N2S(GetDamage(source, level), 0) .. " Magic|r damage. In addition, |cffffcc00" .. N2S(GetConversion(level) * 100, 0) .. "%|r of all |cff00ffffMagic|r damage |cffffcc00Illidan|r takes while under the effect of |cffffcc00Spell Shield|r is converted into bonus damage, lasting until the effect expires."
         end
 
         function SpellShield.onPeriod()

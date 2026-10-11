@@ -115,7 +115,7 @@ OnInit("CrushingWave", function (requires)
         end
 
         function CrushingWave:onTooltip(source, level, ability)
-            return "|cffffcc00Jaina|r creates a |cffffcc00Crushing Wave|r towards the target direction, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing all enemy units caught in it's path by |cffffcc00" .. N2S(GetSlowAmount(source, level) * 100, 0) .. "%%|r  for |cffffcc00" .. N2S(GetSlowDuration(source, level), 2) .. "|r seconds. If there are any of her |cffffcc00Water Elementals|r within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r range when she casts |cffffcc00Crushing Wave|r, the elementals will turn into |cffffcc00Crushing Waves|r themselves applying the same effects and dashing towards the target point."
+            return "|cffffcc00Jaina|r creates a |cffffcc00Crushing Wave|r towards the target direction, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing all enemy units caught in it's path by |cffffcc00" .. N2S(GetSlowAmount(source, level) * 100, 0) .. "%|r  for |cffffcc00" .. N2S(GetSlowDuration(source, level), 2) .. "|r seconds. If there are any of her |cffffcc00Water Elementals|r within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r range when she casts |cffffcc00Crushing Wave|r, the elementals will turn into |cffffcc00Crushing Waves|r themselves applying the same effects and dashing towards the target point."
         end
 
         function CrushingWave:onCast()

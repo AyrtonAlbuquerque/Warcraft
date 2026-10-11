@@ -71,7 +71,7 @@ OnInit("BerserkerZone", function (requires)
         end
 
         function BerserkerZone:onTooltip(source, level, ability)
-            return "|cffffcc00Samuro|r places his blade in the ground creating a |cffffcc00Berserker Zone|r. Allied units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r of the blade gains |cffff0000" .. N2S(GetBonusDamage(level), 0) .. "|r |cffff0000Damage|r, |cffffcc00" .. N2S(GetBonusCriticalChance(level) * 100, 1) .. "%%|r |cffff0000Critical Chance|r and |cffffcc00" .. N2S(GetBonusCriticalDamage(level) * 100, 1) .. "%%|r |cffff0000Critical Damage|r every second.\n\nLasts |cffffcc00" .. N2S(GetDuration(source, level), 0) .. "|r seconds."
+            return "|cffffcc00Samuro|r places his blade in the ground creating a |cffffcc00Berserker Zone|r. Allied units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r of the blade gains |cffff0000" .. N2S(GetBonusDamage(level), 0) .. "|r |cffff0000Damage|r, |cffffcc00" .. N2S(GetBonusCriticalChance(level) * 100, 1) .. "%|r |cffff0000Critical Chance|r and |cffffcc00" .. N2S(GetBonusCriticalDamage(level) * 100, 1) .. "%|r |cffff0000Critical Damage|r every second.\n\nLasts |cffffcc00" .. N2S(GetDuration(source, level), 0) .. "|r seconds."
         end
 
         function BerserkerZone:onCast()

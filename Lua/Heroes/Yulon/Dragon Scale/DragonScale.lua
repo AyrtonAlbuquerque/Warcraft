@@ -46,7 +46,7 @@ OnInit("DragonScale", function (requires)
         local energy = {}
 
         function DragonScale:onTooltip(source, level, ability)
-            return "|cffffcc00Yu'lon|r dragon scales reduced all damage taken by |cffffcc00" .. N2S(GetDamageReduction(level) * 100, 0) .. "%%|r. All damage reduced is stored as |cff00ffffMagic|r energy. Whenever |cffffcc00Yu'lon|r deals |cff00ffffMagic|r damage, a portion of the energy stored is used to increase the damage dealt. Maximum |cff00ffff" .. N2S(GetBonus(source, level), 0) .. " Magic|r damage bonus per damage instance.\n\nEnergy Stored: |cff00ffff" .. N2S(energy[GetUnitUserData(source)], 0) .. "|r"
+            return "|cffffcc00Yu'lon|r dragon scales reduced all damage taken by |cffffcc00" .. N2S(GetDamageReduction(level) * 100, 0) .. "%|r. All damage reduced is stored as |cff00ffffMagic|r energy. Whenever |cffffcc00Yu'lon|r deals |cff00ffffMagic|r damage, a portion of the energy stored is used to increase the damage dealt. Maximum |cff00ffff" .. N2S(GetBonus(source, level), 0) .. " Magic|r damage bonus per damage instance.\n\nEnergy Stored: |cff00ffff" .. N2S(energy[GetUnitUserData(source)], 0) .. "|r"
         end
 
         function DragonScale.onSpellDamage()

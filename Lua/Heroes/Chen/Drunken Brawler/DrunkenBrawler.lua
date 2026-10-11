@@ -34,7 +34,7 @@ OnInit("DrunkenBrawler", function(requires)
         DrunkenBrawler = Class(Spell)
 
         function DrunkenBrawler:onTooltip(unit, level, abiltiy)
-            return "|cffffcc00Chen|r has |cffffcc00" .. N2S(GetEvasionBonus(level) * 100 * level, 1) .. "%%|r chance to dodge attacks and have increased |cffffcc00" .. N2S(GetCriticalChanceBonus(level) * 100 * level, 1) .. "%%|r |cffffcc00Critical Strike Chance|r and |cffffcc00" .. N2S(GetCriticalDamageBonus(level) * 100 * level, 1) .. "%%|r |cffffcc00Critical Strike Damage|r."
+            return "|cffffcc00Chen|r has |cffffcc00" .. N2S(GetEvasionBonus(level) * 100 * level, 1) .. "%|r chance to dodge attacks and have increased |cffffcc00" .. N2S(GetCriticalChanceBonus(level) * 100 * level, 1) .. "%|r |cffffcc00Critical Strike Chance|r and |cffffcc00" .. N2S(GetCriticalDamageBonus(level) * 100 * level, 1) .. "%|r |cffffcc00Critical Strike Damage|r."
         end
 
         function DrunkenBrawler:onLearn(unit, ability, level)

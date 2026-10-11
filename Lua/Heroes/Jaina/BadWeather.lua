@@ -56,7 +56,7 @@ OnInit("BadWeather", function (requires)
         end
 
         function BadWeather:onTooltip(source, level, ability)
-            return "|cffffcc00Jaina|r conjures a heavy rain at the target region causing all enemy units within |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) .. " AoE|r to take |cffffcc00" .. N2S(20, 0) .. "%%|r increased |cff00ffffMagic|r damage.\n\nLasts for |cffffcc00" .. N2S(GetDuratoin(source, level), 0) .. "|r seconds."
+            return "|cffffcc00Jaina|r conjures a heavy rain at the target region causing all enemy units within |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) .. " AoE|r to take |cffffcc00" .. N2S(20, 0) .. "%|r increased |cff00ffffMagic|r damage.\n\nLasts for |cffffcc00" .. N2S(GetDuratoin(source, level), 0) .. "|r seconds."
         end
 
         function BadWeather:onCast()

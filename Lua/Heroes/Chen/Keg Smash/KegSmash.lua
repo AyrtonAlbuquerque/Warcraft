@@ -273,7 +273,7 @@ OnInit("KegSmash", function(requires)
         KegSmash = Class(Spell)
 
         function KegSmash:onTooltip(unit, level, abiltiy)
-            return "|cffffcc00Chen|r rolls his keg in the targeted direction. Upon arrival the keg explodes, dealing |cff00ffff" .. N2S(GetDamage(unit, level), 0) .. "|r |cff00ffffMagic|r damage, slowing all enemy units within |cffffcc00" .. N2S(KegSmash_GetAoE(unit, level), 0) .. " AoE|r by |cffffcc00" .. N2S(GetSlow(unit, level) * 100, 0) .. "%%|r and leaving a |cffffcc00Brew Cloud|r. Enemy units that come in contact with the |cffffcc00Brew Cloud|r get soaked with brew and drunk, having their |cffffff00Movement Speed|r reduced by |cffffcc00" .. N2S(GetSlow(unit, level) * 100, 0) .. "%%|r and when attacking they have |cffffcc00" .. N2S(GetChance(level) * 100, 0) .. "%%|r chance of missing their target.\n\nLasts for |cffffcc00" .. N2S(GetDuration(unit, level), 1) .. "|r seconds."
+            return "|cffffcc00Chen|r rolls his keg in the targeted direction. Upon arrival the keg explodes, dealing |cff00ffff" .. N2S(GetDamage(unit, level), 0) .. "|r |cff00ffffMagic|r damage, slowing all enemy units within |cffffcc00" .. N2S(KegSmash_GetAoE(unit, level), 0) .. " AoE|r by |cffffcc00" .. N2S(GetSlow(unit, level) * 100, 0) .. "%|r and leaving a |cffffcc00Brew Cloud|r. Enemy units that come in contact with the |cffffcc00Brew Cloud|r get soaked with brew and drunk, having their |cffffff00Movement Speed|r reduced by |cffffcc00" .. N2S(GetSlow(unit, level) * 100, 0) .. "%|r and when attacking they have |cffffcc00" .. N2S(GetChance(level) * 100, 0) .. "%|r chance of missing their target.\n\nLasts for |cffffcc00" .. N2S(GetDuration(unit, level), 1) .. "|r seconds."
         end
 
         function KegSmash:onCast()

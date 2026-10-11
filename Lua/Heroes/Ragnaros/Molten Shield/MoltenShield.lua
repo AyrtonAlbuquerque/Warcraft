@@ -67,7 +67,7 @@ OnInit("MoltenShield", function (requires)
         end
 
         function MoltenShield:onTooltip(source, level, ability)
-            return "Upon cast engulfs the target in a |cffffcc00Molten shield|r that reduces all damage taken by |cffffcc00" .. N2S(GetDamageFactor(level) * 100, 1) .. "%%|r and increases |cffffcc00Movement Speed|r by |cffffcc00" .. N2S(GetMovementBonus(level), 0) .. "|r for |cffffcc0010|r seconds. All damage reduced by |cffffcc00Molten Shield|r is stored and when depleated all damage stored is dealt as |cff00ffffMagic|r damage, dealing |cff00ffff" .. N2S(GetDamage(source, level, stored[source]), 0) .. " Magic|r damage to all enemy units within |cffffcc00" .. N2S(GetDamageAoe(level), 0) .. " AoE|r."
+            return "Upon cast engulfs the target in a |cffffcc00Molten shield|r that reduces all damage taken by |cffffcc00" .. N2S(GetDamageFactor(level) * 100, 1) .. "%|r and increases |cffffcc00Movement Speed|r by |cffffcc00" .. N2S(GetMovementBonus(level), 0) .. "|r for |cffffcc0010|r seconds. All damage reduced by |cffffcc00Molten Shield|r is stored and when depleated all damage stored is dealt as |cff00ffffMagic|r damage, dealing |cff00ffff" .. N2S(GetDamage(source, level, stored[source]), 0) .. " Magic|r damage to all enemy units within |cffffcc00" .. N2S(GetDamageAoe(level), 0) .. " AoE|r."
         end
 
         function MoltenShield:onCast()

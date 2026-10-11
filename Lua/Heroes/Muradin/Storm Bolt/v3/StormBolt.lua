@@ -196,7 +196,7 @@ OnInit("StormBolt", function (requires)
         end
 
         function StormBolt:onTooltip(source, level, ability)
-            return "|cffffcc00Muradin|r throw his hammer towards a target location. On its way the hammer deals |cff00ffff" .. N2S(StormBolt_GetDamage(source, level), 0) .. " Magic|r damage and slows enemy units by |cffffcc00" .. N2S(GetSlow(level) * 100, 0) .. "%%|r for |cffffcc00" .. N2S(GetSlowDuration(level), 1) .. "|r seconds. Upon reaching the destination the hammer stays in position for |cffffcc00" .. N2S(GetDuration(source, level), 0) .. "|r seconds and when casting |cffffcc00Thunder Clap|r a lightning will strike at the hammer position dealing the same amount of damage. Additionaly, if |cffffcc00Muradin|r comes in range of the hammer he will pick it up, restoring |cffffcc00" .. N2S(GetCooldownReduction(source, level) * 100, 0) .. "%%|r of |cffffcc00Storm Bolt|r remaining cooldown"
+            return "|cffffcc00Muradin|r throw his hammer towards a target location. On its way the hammer deals |cff00ffff" .. N2S(StormBolt_GetDamage(source, level), 0) .. " Magic|r damage and slows enemy units by |cffffcc00" .. N2S(GetSlow(level) * 100, 0) .. "%|r for |cffffcc00" .. N2S(GetSlowDuration(level), 1) .. "|r seconds. Upon reaching the destination the hammer stays in position for |cffffcc00" .. N2S(GetDuration(source, level), 0) .. "|r seconds and when casting |cffffcc00Thunder Clap|r a lightning will strike at the hammer position dealing the same amount of damage. Additionaly, if |cffffcc00Muradin|r comes in range of the hammer he will pick it up, restoring |cffffcc00" .. N2S(GetCooldownReduction(source, level) * 100, 0) .. "%|r of |cffffcc00Storm Bolt|r remaining cooldown"
         end
 
         function StormBolt:onCast()

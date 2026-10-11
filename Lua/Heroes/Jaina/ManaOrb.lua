@@ -119,7 +119,7 @@ OnInit("ManaOrb", function (requires)
         end
 
         function ManaOrb:onTooltip(source, level, ability)
-            return "Enemy units that die within |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) .. " AoE|r of |cffffcc00Jaina|r have a |cffffcc00" .. N2S(20, 0) .. "%%|r chance to drop a |cff00ffffMana Orb|r. Enemy heroes always drop an orb. Whenever |cffffcc00Jaina|r or an allied |cffffcc00Hero|r comes near a |cff00ffffMana Orb|r they will collect it, gaining |cff00ffff" .. N2S(10 + 10 * level, 0) .. "|r maximum mana. The orb lingers for |cffffcc0020|r seconds before disappearing."
+            return "Enemy units that die within |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) .. " AoE|r of |cffffcc00Jaina|r have a |cffffcc00" .. N2S(20, 0) .. "%|r chance to drop a |cff00ffffMana Orb|r. Enemy heroes always drop an orb. Whenever |cffffcc00Jaina|r or an allied |cffffcc00Hero|r comes near a |cff00ffffMana Orb|r they will collect it, gaining |cff00ffff" .. N2S(10 + 10 * level, 0) .. "|r maximum mana. The orb lingers for |cffffcc0020|r seconds before disappearing."
         end
 
         function ManaOrb.onDamage()

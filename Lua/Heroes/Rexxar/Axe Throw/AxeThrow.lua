@@ -111,7 +111,7 @@ OnInit("AxeThrow", function (requires)
         AxeThrow = Class(Spell)
 
         function AxeThrow:onTooltip(source, level, ability)
-            return "|cffffcc00Rexxar|r thow his axes in an arc, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing enemy units hit by |cffffcc00" .. N2S(GetSlowAmount(level) * 100, 0) .. "%%|r for |cffffcc00" .. N2S(GetSlowDuration(level), 1) .. "|r seconds. Upon reacinhg the targeted destination, the axes return to |cffffcc00Rexxar|r. Every unit killed by the axes reduces cooldown by |cffffcc00" .. N2S(GetCooldownReduction(level), 1) .. "|r seconds."
+            return "|cffffcc00Rexxar|r thow his axes in an arc, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing enemy units hit by |cffffcc00" .. N2S(GetSlowAmount(level) * 100, 0) .. "%|r for |cffffcc00" .. N2S(GetSlowDuration(level), 1) .. "|r seconds. Upon reacinhg the targeted destination, the axes return to |cffffcc00Rexxar|r. Every unit killed by the axes reduces cooldown by |cffffcc00" .. N2S(GetCooldownReduction(level), 1) .. "|r seconds."
         end
 
         function AxeThrow:onCast()

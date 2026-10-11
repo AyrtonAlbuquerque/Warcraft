@@ -87,7 +87,7 @@ OnInit("MirrorImage", function (requires)
         end
 
         function MirrorImage:onTooltip(source, level, ability)
-            return "Confuses the enemy by creating |cffffcc00" .. N2S(GetNumberOfIllusions(level), 0) .. "|r illusion of |cffffcc00Samuro|r and dispelling all magic. In addition, |cffffcc00Samuro|r gains |cffffcc00" .. N2S(GetBonusExp() * 100, 0) .. "%%|r more expirience from kills for each illusion alive.\n\nDeal |cffffcc00" .. N2S(GetDamageDealt(source, level) * 100, 0) .. "%%|r of the damage and take |cffffcc00" .. N2S(GetDamageTaken(source, level) * 100, 0) .. "%%|r more damage.\n\nLasts |cffffcc00" .. N2S(GetDuration(source, level), 0) .. "|r seconds."
+            return "Confuses the enemy by creating |cffffcc00" .. N2S(GetNumberOfIllusions(level), 0) .. "|r illusion of |cffffcc00Samuro|r and dispelling all magic. In addition, |cffffcc00Samuro|r gains |cffffcc00" .. N2S(GetBonusExp() * 100, 0) .. "%|r more expirience from kills for each illusion alive.\n\nDeal |cffffcc00" .. N2S(GetDamageDealt(source, level) * 100, 0) .. "%|r of the damage and take |cffffcc00" .. N2S(GetDamageTaken(source, level) * 100, 0) .. "%|r more damage.\n\nLasts |cffffcc00" .. N2S(GetDuration(source, level), 0) .. "|r seconds."
         end
 
         function MirrorImage:onCast()

@@ -59,7 +59,7 @@ OnInit("FeralRoar", function (requires)
         FeralRoar = Class(Spell)
 
         function FeralRoar:onTooltip(source, level, ability)
-            return "|cffffcc00Rexxar|r roars in fury, increasing the damage of nearby allies by |cffffcc00" .. N2S(GetBonusDamage(source, level) * 100, 0) .. "%%|r of base damage, armor by |cffffcc00" .. N2S(GetBonusArmor(source, level), 0) .. "|r and fearing enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r for |cffffcc00" .. N2S(GetFearDuration(level), 2) .. "|r seconds. If |cffffcc00Misha|r is summoned she will also roar granting the same effects and gainning |cff00ff00" .. N2S(GetBonusRegeneration(level), 1) .. " Health Regeneration|r.\n\nLasts for |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_NORMAL, level - 1), 0) .. "|r seconds."
+            return "|cffffcc00Rexxar|r roars in fury, increasing the damage of nearby allies by |cffffcc00" .. N2S(GetBonusDamage(source, level) * 100, 0) .. "%|r of base damage, armor by |cffffcc00" .. N2S(GetBonusArmor(source, level), 0) .. "|r and fearing enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r for |cffffcc00" .. N2S(GetFearDuration(level), 2) .. "|r seconds. If |cffffcc00Misha|r is summoned she will also roar granting the same effects and gainning |cff00ff00" .. N2S(GetBonusRegeneration(level), 1) .. " Health Regeneration|r.\n\nLasts for |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_DURATION_NORMAL, level - 1), 0) .. "|r seconds."
         end
 
         function FeralRoar:onCast()
@@ -76,7 +76,7 @@ OnInit("FeralRoar", function (requires)
                 if UnitAlive(u) then
                     if IsUnitAlly(u, owner) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
                         if GetUnitAbilityLevel(u, BUFF) == 0 then
-                            LinkBonusToBuff(u, BONUS_DAMAGE, BlzGetUnitBaseDamage(source, 0) * GetBonusDamage(u, level), BUFF)
+                            LinkBonusToBuff(u, BONUS_DAMAGE, BlzGetUnitBaseDamage(u, 0) * GetBonusDamage(u, level), BUFF)
                             LinkBonusToBuff(u, BONUS_ARMOR, GetBonusArmor(u, level), BUFF)
                         end
                     else

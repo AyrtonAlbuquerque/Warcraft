@@ -181,7 +181,7 @@ OnInit("ChaosRain", function (requires)
         end
 
         function ChaosRain:onTooltip(source, level, ability)
-            return "|cffffcc00Mannoroth|r conjures a |cffffcc00Chaos Rain|r from the skies. Each meteor deals |cff00ffff" .. N2S(GetDamage(source, level), 0) .. " Magic|r damage and stuns enemy units within |cffffcc00" .. N2S(GetDamageAoE(source, level), 0) .. " AoE|r for |cffffcc00" .. N2S(GetStunDuration(source, level), 1) .. "|r second. Additionally, each meteor has a |cffffcc00" .. N2S(GetChance(source, level)*100, 0) .. "%%|r chance to spawn an |cffffcc00Infernal|r. The |cffffcc00Infernal|r has |cffff0000" .. N2S(GetInfernalDamage(source, level), 0) .. " Damage|r, |cff00ff00" .. N2S(GetInfernalHealth(source, level), 0) .. " Health|r and |cffc0c0c0" .. N2S(GetInfernalArmor(source, level), 0) .. " Armor|r. Lasts for |cffffcc00" .. N2S(GetInfernalDuration(source, level), 1) .. "|r seconds."
+            return "|cffffcc00Mannoroth|r conjures a |cffffcc00Chaos Rain|r from the skies. Each meteor deals |cff00ffff" .. N2S(GetDamage(source, level), 0) .. " Magic|r damage and stuns enemy units within |cffffcc00" .. N2S(GetDamageAoE(source, level), 0) .. " AoE|r for |cffffcc00" .. N2S(GetStunDuration(source, level), 1) .. "|r second. Additionally, each meteor has a |cffffcc00" .. N2S(GetChance(source, level)*100, 0) .. "%|r chance to spawn an |cffffcc00Infernal|r. The |cffffcc00Infernal|r has |cffff0000" .. N2S(GetInfernalDamage(source, level), 0) .. " Damage|r, |cff00ff00" .. N2S(GetInfernalHealth(source, level), 0) .. " Health|r and |cffc0c0c0" .. N2S(GetInfernalArmor(source, level), 0) .. " Armor|r. Lasts for |cffffcc00" .. N2S(GetInfernalDuration(source, level), 1) .. "|r seconds."
         end
 
         function ChaosRain:onCast()

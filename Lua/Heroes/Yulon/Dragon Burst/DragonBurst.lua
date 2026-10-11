@@ -73,7 +73,7 @@ OnInit("DragonBurst", function (requires)
         DragonBurst = Class(Spell)
 
         function DragonBurst:onTooltip(source, level, ability)
-            return "|cffffcc00Yu'lon|r creates an eruption at the target location, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. " Magic|r damage to all enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r and |cffffcc00Knocking Back|r. Units at the center of the eruption are |cffffcc00Knocked Up|r for |cffffcc00" .. N2S(GetKnockUpDuration(source, level), 2) .. "|r seconds and take |cffffcc00" .. N2S(GetBonusDamage(source, level)*100, 0) .. "%%|r more damage."
+            return "|cffffcc00Yu'lon|r creates an eruption at the target location, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. " Magic|r damage to all enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r and |cffffcc00Knocking Back|r. Units at the center of the eruption are |cffffcc00Knocked Up|r for |cffffcc00" .. N2S(GetKnockUpDuration(source, level), 2) .. "|r seconds and take |cffffcc00" .. N2S(GetBonusDamage(source, level)*100, 0) .. "%|r more damage."
         end
 
         function DragonBurst:onCast()

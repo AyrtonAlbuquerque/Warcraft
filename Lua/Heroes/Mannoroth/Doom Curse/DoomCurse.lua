@@ -81,7 +81,7 @@ OnInit("DoomCurse", function (requires)
         end
 
         function DoomCurse:onTooltip(source, level, ability)
-            return "|cffffcc00Mannoroth|r marks an enemy unit with a |cffffcc00Doom Curse|r, silencing, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage every |cffffcc00" .. N2S(GetInterval(level), 1) .. "|r second and increases the damage that the targeted unit takes from |cffffcc00Mannoroth|r by |cffffcc00" .. N2S(GetAmplification(level) * 100, 0) .. "%%|r. If the cursed unit dies under the effect of |cffffcc00Doom Curse|r, a |cffffcc00Pit Infernal|r will spawn from it corpse. The |cffffcc00Pit Infernal|r can cast |cffffcc00Infernal Charge|r, charging towards the pointed direction, knocking enemy units aside and damaging them, and |cffffcc00War Stomp|r."
+            return "|cffffcc00Mannoroth|r marks an enemy unit with a |cffffcc00Doom Curse|r, silencing, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage every |cffffcc00" .. N2S(GetInterval(level), 1) .. "|r second and increases the damage that the targeted unit takes from |cffffcc00Mannoroth|r by |cffffcc00" .. N2S(GetAmplification(level) * 100, 0) .. "%|r. If the cursed unit dies under the effect of |cffffcc00Doom Curse|r, a |cffffcc00Pit Infernal|r will spawn from it corpse. The |cffffcc00Pit Infernal|r can cast |cffffcc00Infernal Charge|r, charging towards the pointed direction, knocking enemy units aside and damaging them, and |cffffcc00War Stomp|r."
         end
 
         function DoomCurse:onCast()

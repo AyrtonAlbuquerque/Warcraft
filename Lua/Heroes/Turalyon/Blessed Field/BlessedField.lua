@@ -62,7 +62,7 @@ OnInit("BlessedField", function (requires)
         end
 
         function BlessedField:onTooltip(source, level, ability)
-            return "|cffffcc00Turalyon|r blesses the targeted area, creating a |cffffcc00Blessed Field|r. All allied units within |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) .. "|r |cffffcc00AoE|r have their |cff00ff00Health Regeneration|r increased by |cff00ff00" .. N2S(GetRegenBonus(source, level), 0) .. "|r and take |cffffcc00" .. N2S((1 - GetDamageReduction(level)) * 100, 0) .. "%%|r reduced damage from all sources.\n\n|cffffcc00Light Infused|r: Allied units within |cffffcc00Blessed Field|r area cannot be killed."
+            return "|cffffcc00Turalyon|r blesses the targeted area, creating a |cffffcc00Blessed Field|r. All allied units within |cffffcc00" .. N2S(BlzGetAbilityRealLevelField(ability, ABILITY_RLF_AREA_OF_EFFECT, level - 1), 0) .. "|r |cffffcc00AoE|r have their |cff00ff00Health Regeneration|r increased by |cff00ff00" .. N2S(GetRegenBonus(source, level), 0) .. "|r and take |cffffcc00" .. N2S((1 - GetDamageReduction(level)) * 100, 0) .. "%|r reduced damage from all sources.\n\n|cffffcc00Light Infused|r: Allied units within |cffffcc00Blessed Field|r area cannot be killed."
         end
 
         function BlessedField:onCast()

@@ -77,7 +77,7 @@ library FeralRoar requires Spell, NewBonus, Utilities, Fear optional Misha
                     if UnitAlive(u) then
                         if IsUnitAlly(u, owner) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
                             if GetUnitAbilityLevel(u, BUFF) == 0 then
-                                call LinkBonusToBuff(u, BONUS_DAMAGE, BlzGetUnitBaseDamage(source, 0) * GetBonusDamage(u, level), BUFF)
+                                call LinkBonusToBuff(u, BONUS_DAMAGE, BlzGetUnitBaseDamage(u, 0) * GetBonusDamage(u, level), BUFF)
                                 call LinkBonusToBuff(u, BONUS_ARMOR, GetBonusArmor(u, level), BUFF)
                             endif
                         else
@@ -100,7 +100,7 @@ library FeralRoar requires Spell, NewBonus, Utilities, Fear optional Misha
                             exitwhen i == size
                                 set u = BlzGroupUnitAt(Misha.group[id], i)
                                 
-                                call UnitAddAbilityTimed(u, ABILITY, 0.5, level, false)
+                                call UnitAddAbilityTimed(u, ABILITY, 1, level, false)
                                 call BlzSetAbilityIntegerLevelField(BlzGetUnitAbility(u, ABILITY), ABILITY_ILF_MANA_COST, level - 1, 0)
                                 call IssueImmediateOrder(u, ORDER)
                             set i = i + 1

@@ -96,7 +96,7 @@ OnInit("SamuroCritical", function (requires)
         end
 
         function SamuroCritical:onTooltip(source, level, ability)
-            return "|cffffcc00Samuro|r gains |cffffcc00" .. N2S(5 + 5 * level, 0) .. "%%|r increased |cffffcc00Critical Strike Chance|r and |cffffcc00" .. N2S(10 * level, 0) .. "%%|r |cffffcc00Critical Strike Damage|r. Whenever |cffffcc00Samuro|r hits a |cffffcc00Critical Strike|r a |cffffcc00Fire Slash|r is generated in the direction of the attack, damaging enemy units in its path for |cffffcc00" .. N2S(GetDamage(level) * 100, 0) .. "%%|r of the total critical strike damage as |cffd45e19True|r damage."
+            return "|cffffcc00Samuro|r gains |cffffcc00" .. N2S(5 + 5 * level, 0) .. "%|r increased |cffffcc00Critical Strike Chance|r and |cffffcc00" .. N2S(10 * level, 0) .. "%|r |cffffcc00Critical Strike Damage|r. Whenever |cffffcc00Samuro|r hits a |cffffcc00Critical Strike|r a |cffffcc00Fire Slash|r is generated in the direction of the attack, damaging enemy units in its path for |cffffcc00" .. N2S(GetDamage(level) * 100, 0) .. "%|r of the total critical strike damage as |cffd45e19True|r damage."
         end
 
         function SamuroCritical.onCritical()

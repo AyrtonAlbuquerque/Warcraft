@@ -123,7 +123,7 @@ OnInit("StormBolt", function (requires)
         StormBolt.y = {}
 
         function StormBolt:onTooltip(source, level, ability)
-            return "|cffffcc00Muradin|r throw his hammer towards a target location. On its way the hammer deals |cff00ffff" .. N2S(StormBolt_GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slows enemy units by |cffffcc00" .. N2S(GetSlow(level) * 100, 0) .. "%%|r for |cffffcc00" .. N2S(GetSlowDuration(level), 1) .. "|r seconds. Units already under the effect of a |cffd45e19Stun|r or |cffd45e19Slow|r takes |cffffcc00" .. N2S(StormBolt_GetBonusDamage(level) * 100, 0) .. "%%|r bonus damage. Upon reaching the destination the hammer comes back to |cffffcc00Muradin|r. When the hammer finally reaches |cffffcc00Muradin|r the cooldown of |cff00ff00Thunder Clap|r is reseted."
+            return "|cffffcc00Muradin|r throw his hammer towards a target location. On its way the hammer deals |cff00ffff" .. N2S(StormBolt_GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slows enemy units by |cffffcc00" .. N2S(GetSlow(level) * 100, 0) .. "%|r for |cffffcc00" .. N2S(GetSlowDuration(level), 1) .. "|r seconds. Units already under the effect of a |cffd45e19Stun|r or |cffd45e19Slow|r takes |cffffcc00" .. N2S(StormBolt_GetBonusDamage(level) * 100, 0) .. "%|r bonus damage. Upon reaching the destination the hammer comes back to |cffffcc00Muradin|r. When the hammer finally reaches |cffffcc00Muradin|r the cooldown of |cff00ff00Thunder Clap|r is reseted."
         end
 
         function StormBolt:onCast()

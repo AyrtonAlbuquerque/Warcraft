@@ -59,7 +59,7 @@ OnInit("Bash", function (requires)
         Bash = Class(Spell)
 
         function Bash:onTooltip(source, level, ability)
-            return "Gives a |cffffcc00" .. N2S(GetChance(source, level), 0) .. "%%|r chance that an attack will do |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r bonus |cff00ffffMagic|r damage and stun an opponent for |cffffcc001|r (|cffffcc000.5|r for |cffffcc00Heroes|r) second. Additionally Muradin gains |cffffcc00" .. N2S(GetBonusAttackSpeed(source, level) * 100, 0) .. "%% Attack Speed|r"
+            return "Gives a |cffffcc00" .. N2S(GetChance(source, level), 0) .. "%|r chance that an attack will do |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r bonus |cff00ffffMagic|r damage and stun an opponent for |cffffcc001|r (|cffffcc000.5|r for |cffffcc00Heroes|r) second. Additionally Muradin gains |cffffcc00" .. N2S(GetBonusAttackSpeed(source, level) * 100, 0) .. "%% Attack Speed|r"
         end
 
         function Bash:onLearn(source, skill, level)
