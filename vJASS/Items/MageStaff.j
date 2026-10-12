@@ -3,7 +3,7 @@ scope MageStaff
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
     private function GetBonus takes unit source returns real
-        return 2. * GetWidgetLevel(source)
+        return 1. * GetWidgetLevel(source)
     endfunction
 
     private function GetBonusDuration takes unit source returns real

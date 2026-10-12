@@ -716,6 +716,16 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         endif
     endfunction
 
+    // Returns true when buttonType is pressed
+    function IsPlayerMouseButtonDown takes player p, mousebuttontype buttonType returns boolean
+        return MouseState.isDown(p, buttonType)
+    endfunction
+
+    // Returns true when buttonType is not pressed
+    function IsPlayerMouseButtonUp takes player p, mousebuttontype buttonType returns boolean
+        return MouseState.isUp(p, buttonType)
+    endfunction
+
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             Systems                                            */
     /* ---------------------------------------------------------------------------------------------- */
@@ -1404,6 +1414,68 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
 
         private static method onInit takes nothing returns nothing
             call RegisterUnitDeindexEvent(function thistype.onDeindex)
+        endmethod
+    endstruct
+
+    /* --------------------------------------- MouseState -------------------------------------- */
+    struct MouseState
+        private static boolean array left
+        private static boolean array right
+        private static boolean array middle
+        private static trigger click = CreateTrigger()
+
+        static method isDown takes player p, mousebuttontype buttonType returns boolean
+            local integer id = GetPlayerId(p)
+
+            if buttonType == MOUSE_BUTTON_TYPE_LEFT then
+                return left[id]
+            elseif buttonType == MOUSE_BUTTON_TYPE_RIGHT then
+                return right[id]
+            else
+                return middle[id]
+            endif
+        endmethod
+
+        static method isUp takes player p, mousebuttontype buttonType returns boolean
+            return not isDown(p, buttonType)
+        endmethod
+
+        private static method onClick takes nothing returns nothing
+            local integer id = GetPlayerId(GetTriggerPlayer())
+            local mousebuttontype buttonType = BlzGetTriggerPlayerMouseButton()
+            
+            if GetTriggerEventId() == EVENT_PLAYER_MOUSE_DOWN then
+                if buttonType == MOUSE_BUTTON_TYPE_LEFT then
+                    set left[id] = true
+                elseif buttonType == MOUSE_BUTTON_TYPE_RIGHT then
+                    set right[id] = true
+                else
+                    set middle[id] = true
+                endif
+            else
+                if buttonType == MOUSE_BUTTON_TYPE_LEFT then
+                    set left[id] = false
+                elseif buttonType == MOUSE_BUTTON_TYPE_RIGHT then
+                    set right[id] = false
+                else
+                    set middle[id] = false
+                endif
+            endif
+        endmethod
+
+        private static method onInit takes nothing returns nothing
+            local integer i = 0
+
+            loop
+                exitwhen i >= bj_MAX_PLAYER_SLOTS
+                    if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                        call TriggerRegisterPlayerEvent(click, Player(i), EVENT_PLAYER_MOUSE_UP)
+                        call TriggerRegisterPlayerEvent(click, Player(i), EVENT_PLAYER_MOUSE_DOWN)
+                    endif
+                set i = i + 1
+            endloop
+
+            call TriggerAddAction(click, function thistype.onClick)
         endmethod
     endstruct
 endlibrary

@@ -1,4 +1,4 @@
-library Stampede requires Spell, Missiles, Utilities, Modules, Slow, optional NewBonus optional CooldownReduction
+library Stampede requires Spell, Missiles, Utilities, Modules, Slow, RegisterPlayerUnitEvent optional NewBonus optional CooldownReduction
     /* ----------------------- Stampede v1.0 by Chopinski ----------------------- */
 
     /* -------------------------------------------------------------------------- */
@@ -6,23 +6,29 @@ library Stampede requires Spell, Missiles, Utilities, Modules, Slow, optional Ne
     /* -------------------------------------------------------------------------- */
     globals
         // The ability raw code
-        private constant integer ABILITY             = 'Rex5'
+        private constant integer ABILITY                 = 'Rex5'
         // The missile model
-        private constant string  MODEL               = "Abilities\\Spells\\Other\\Stampede\\StampedeMissile.mdl"
+        private constant string  MODEL                   = "Abilities\\Spells\\Other\\Stampede\\StampedeMissile.mdl"
         // The missile scale
-        private constant real    SCALE               = 1.5
+        private constant real    SCALE                   = 1.5
         // The missile speed
-        private constant real    SPEED               = 800
+        private constant real    SPEED                   = 800
         // The slow model
-        private constant string  SLOW_MODEL          = "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl"
+        private constant string  SLOW_MODEL              = "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl"
         // The slow model attach point
-        private constant string  SLOW_ATTACH         = "origin"
+        private constant string  SLOW_ATTACH             = "origin"
         // The slow damage model
-        private constant string  DAMAGE_MODEL        = "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl"
+        private constant string  DAMAGE_MODEL            = "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl"
         // The slow damage model attach point
-        private constant string  DAMAGE_ATTACH       = "origin"
+        private constant string  DAMAGE_ATTACH           = "origin"
         // The time the player has to move the mouse before the spell starts
-        private constant real    DRAG_AND_DROP_TIME  = 0.03
+        private constant real    DRAG_AND_DROP_TIME      = 3.
+        // Skill indicator model
+        private constant string     INDICATOR_MODEL      = "Skill_Indicator_Move.mdl"
+        // Indicator scaling
+        private constant real       INDICATOR_SCALE      = 4
+        // Indicator time scaling
+        private constant real       INDICATOR_TIME_SCALE = 1.5
     endglobals
 
     // The amount of damage dealt when the lizard hits an enemy
@@ -90,19 +96,37 @@ library Stampede requires Spell, Missiles, Utilities, Modules, Slow, optional Ne
 
     private struct Stampede extends Spell
         private static integer array charges
+        private static thistype array struct
 
         private real x
         private real y
         private unit unit
         private integer id
+        private real angle
+        private integer type
+        private boolean done
+        private real timeout
+        private effect effect
         private player player
         private integer level
+        private boolean casting
 
         method destroy takes nothing returns nothing
-            call deallocate()
+            if type == 1 then
+                if casting then
+                    call DestroyEffectTimed(effect, 2)
+                else
+                    call DestroyEffect(effect)
+                endif
+
+                set struct[id] = 0
+            endif
 
             set unit = null
+            set effect = null
             set player = null
+
+            call deallocate()
         endmethod
 
         private method onTooltip takes unit source, integer level, ability spell returns string
@@ -110,82 +134,181 @@ library Stampede requires Spell, Missiles, Utilities, Modules, Slow, optional Ne
         endmethod
 
         private method onPeriod takes nothing returns boolean
-            local integer level = GetUnitAbilityLevel(unit, ABILITY)
-
-            if level > 0 then
-                if charges[id] >= 0 then
-                    set charges[id] = charges[id] + 1
-
-                    call BlzEndUnitAbilityCooldown(unit, ABILITY)
-                endif
-            else
-                set charges[id] = 0
-            endif
-
-            return level > 0
-        endmethod
-
-        private method onExpire takes nothing returns nothing
-            local real range = GetRange(unit, level)
-            local integer count = GetLizardCount(unit, level)
-            local real angle = AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))
-            local Lizard lizard = Lizard.create(x, y, 0, x + range * Cos(angle), y + range * Sin(angle), 0)
             local integer flip = 1
             local integer row = 1
             local integer col = 1
             local integer i = 0
-            
-            set lizard.source = unit
-            set lizard.owner = player
-            set lizard.model = MODEL
-            set lizard.scale = SCALE
-            set lizard.speed = SPEED
-            set lizard.collision = GetAoE(unit, level)
-            set lizard.damage = GetDamage(unit, level)
-            set lizard.slow = GetSlow(unit, level)
-            set lizard.slowDuration = GetSlowDuration(unit, level)
+            local real range
+            local boolean down
+            local integer count
+            local Lizard lizard
 
-            if count > 0 then
-                loop
-                    exitwhen i == count
-                        call lizard.attach(MODEL, row * -150, col * flip * 150, 0, SCALE)
+            if type == 0 then
+                if GetUnitAbilityLevel(unit, ABILITY) > 0 then
+                    if charges[id] >= 0 then
+                        set charges[id] = charges[id] + 1
 
-                        set flip = flip * -1
+                        call BlzEndUnitAbilityCooldown(unit, ABILITY)
+                    endif
+                else
+                    set charges[id] = 0
+                endif
 
-                        if i > 0 and ModuloInteger(i, 2) == 0 then
-                            set row = row + 1
-                            set col = col + 1
-                        endif
-                    set i = i + 1
-                endloop
+                return GetUnitAbilityLevel(unit, ABILITY) > 0
+            else
+                set down = IsPlayerMouseButtonDown(player, MOUSE_BUTTON_TYPE_LEFT)
+
+                if down then
+                    set angle = AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))
+                endif
+
+                if not casting then
+                    if down and not done then
+                        call BlzSetSpecialEffectYaw(effect, angle)
+                    elseif not down then
+                        set done = true
+                    endif
+
+                    return true
+                endif
+
+                set timeout = timeout - 0.03
+
+                if not down or timeout <= 0 then
+                    set range = GetRange(unit, level)
+                    set count = GetLizardCount(unit, level)
+                    set lizard = Lizard.create(x, y, 0, x + range * Cos(angle), y + range * Sin(angle), 0)
+                    set lizard.source = unit
+                    set lizard.owner = player
+                    set lizard.model = MODEL
+                    set lizard.scale = SCALE
+                    set lizard.speed = SPEED
+                    set lizard.collision = GetAoE(unit, level)
+                    set lizard.damage = GetDamage(unit, level)
+                    set lizard.slow = GetSlow(unit, level)
+                    set lizard.slowDuration = GetSlowDuration(unit, level)
+
+                    if count > 0 then
+                        loop
+                            exitwhen i == count
+                                call lizard.attach(MODEL, row * -150, col * flip * 150, 0, SCALE)
+
+                                set flip = flip * -1
+
+                                if i > 0 and ModuloInteger(i, 2) == 0 then
+                                    set row = row + 1
+                                    set col = col + 1
+                                endif
+                            set i = i + 1
+                        endloop
+                    endif
+
+                    call lizard.launch()
+                endif
+
+                call BlzSetSpecialEffectYaw(effect, angle)
+
+                return timeout > 0 and down
             endif
-
-            call lizard.launch()
         endmethod
 
         private method onCast takes nothing returns nothing
-            set this = thistype.allocate()
-            set x = Spell.x
-            set y = Spell.y
-            set level = Spell.level
-            set unit = Spell.source.unit
-            set player = Spell.source.player
+            if struct[Spell.source.id] != 0 then
+                set this = struct[Spell.source.id]
+
+                if x != Spell.x or y != Spell.y then
+                    call BlzSetSpecialEffectX(effect, Spell.x)
+                    call BlzSetSpecialEffectY(effect, Spell.y)
+                    call BlzSetSpecialEffectYaw(effect, AngleBetweenCoordinates(Spell.x, Spell.y, GetPlayerMouseX(player), GetPlayerMouseY(player)))
+                endif
+
+                set x = Spell.x
+                set y = Spell.y
+                set casting = true
+                set level = Spell.level
+                set timeout = DRAG_AND_DROP_TIME
+            else
+                set this = thistype.allocate()
+                set type = 1
+                set x = Spell.x
+                set y = Spell.y
+                set casting = true
+                set level = Spell.level
+                set id = Spell.source.id
+                set unit = Spell.source.unit
+                set player = Spell.source.player
+                set timeout = DRAG_AND_DROP_TIME
+                set effect = AddSpecialEffectEx(INDICATOR_MODEL, x, y, 0, INDICATOR_SCALE)
+                set angle = AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))
+
+                call BlzSetSpecialEffectYaw(effect, angle)
+                call BlzSetSpecialEffectTimeScale(effect, INDICATOR_TIME_SCALE)
+
+                call StartTimer(0.03, true, this, 0)
+            endif
 
             if charges[Spell.source.id] > 0 then
                 set charges[Spell.source.id] = charges[Spell.source.id] - 1
 
                 if charges[Spell.source.id] > 0 then
-                    call ResetUnitAbilityCooldown(unit, ABILITY)
+                    call ResetUnitAbilityCooldown(Spell.source.unit, ABILITY)
                 else
                     static if LIBRARY_CooldownReduction then
-                        call CalculateAbilityCooldown(unit, ABILITY, Spell.level, GetRemainingTime(GetTimerInstance(Spell.source.id)))
+                        call CalculateAbilityCooldown(Spell.source.unit, ABILITY, Spell.level, GetRemainingTime(GetTimerInstance(Spell.source.id)))
                     else
                         set Spell.cooldown = GetRemainingTime(GetTimerInstance(Spell.source.id))
                     endif
                 endif
             endif
+        endmethod
 
-            call StartTimer(DRAG_AND_DROP_TIME, false, this, 0)
+        private static method onOrder takes nothing returns nothing
+            local unit source = GetOrderedUnit()
+            local integer id = GetUnitUserData(source)
+            local integer level = GetUnitAbilityLevel(source, ABILITY)
+            local thistype this = struct[id]
+            local real range
+            local string base
+            local string order
+            local real distance
+            local ability skill
+            
+            if level > 0 then
+                set skill = BlzGetUnitAbility(source, ABILITY)
+                set order = OrderId2String(GetIssuedOrderId())
+                set base = BlzGetAbilityStringLevelField(skill, ABILITY_SLF_BASE_ORDER_ID_NCL6, level - 1)
+                set range = BlzGetAbilityRealLevelField(skill, ABILITY_RLF_CAST_RANGE, level - 1)
+                set distance = DistanceBetweenCoordinates(GetOrderPointX(), GetOrderPointY(), GetUnitX(source), GetUnitY(source))
+
+                if order != base and this != 0 then
+                    call destroy()
+                elseif BlzGetUnitAbilityCooldownRemaining(source, ABILITY) == 0 and order == base and distance > range then
+                    if this != 0 then
+                        call destroy()
+                    endif
+
+                    set this = thistype.allocate()
+                    set type = 1
+                    set done = false
+                    set x = GetOrderPointX()
+                    set y = GetOrderPointY()
+                    set this.id = id
+                    set casting = false
+                    set this.level = level
+                    set unit = source
+                    set player = GetOwningPlayer(source)
+                    set effect = AddSpecialEffectEx(INDICATOR_MODEL, x, y, 0, INDICATOR_SCALE)
+                    set angle = AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))
+                    set struct[id] = this
+
+                    call BlzSetSpecialEffectTimeScale(effect, INDICATOR_TIME_SCALE)
+                    call BlzSetSpecialEffectYaw(effect, angle)
+
+                    call StartTimer(0.03, true, this, 0)
+                endif
+            endif
+
+            set source = null
         endmethod
 
         private method onLearn takes unit source, integer skill, integer level returns nothing
@@ -194,6 +317,7 @@ library Stampede requires Spell, Missiles, Utilities, Modules, Slow, optional Ne
             if not HasStartedTimer(id) then
                 set this = thistype.allocate()
                 set this.id = id
+                set this.type = 0
                 set this.unit = source
                 set charges[id] = 1
                 
@@ -214,6 +338,9 @@ library Stampede requires Spell, Missiles, Utilities, Modules, Slow, optional Ne
 
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, function thistype.onOrder)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, function thistype.onOrder)
         endmethod
     endstruct
 endlibrary

@@ -736,6 +736,16 @@ OnInit("Utilities", function(requires)
         end
     end
 
+    -- Returns true when buttonType is pressed
+    function IsPlayerMouseButtonDown(player, button)
+        return MouseState.isDown(player, button)
+    end
+
+    -- Returns true when buttonType is not pressed
+    function IsPlayerMouseButtonUp(player, button)
+        return MouseState.isUp(player, button)
+    end
+
     -- -- ---------------------------------------------------------------------------------------------- --
     -- --                                             Systems                                            --
     -- -- ---------------------------------------------------------------------------------------------- --
@@ -1038,6 +1048,64 @@ OnInit("Utilities", function(requires)
 
         function ItemCooldown.onInit()
             RegisterUnitDeindexEvent(ItemCooldown.onDeindex)
+        end
+    end
+
+    -- --------------------------------------- MouseState -------------------------------------- --
+    do
+        MouseState = Class()
+
+        local left = {}
+        local right = {}
+        local middle = {}
+        local click = CreateTrigger()
+
+        function MouseState.isDown(player, button)
+            if button == MOUSE_BUTTON_TYPE_LEFT then
+                return left[player]
+            elseif button == MOUSE_BUTTON_TYPE_RIGHT then
+                return right[player]
+            else
+                return middle[player]
+            end
+        end
+
+        function MouseState.isUp(player, button)
+            return not MouseState.isDown(player, button)
+        end
+
+        function MouseState.onClick()
+            local player = GetTriggerPlayer()
+            local button = BlzGetTriggerPlayerMouseButton()
+            
+            if GetTriggerEventId() == EVENT_PLAYER_MOUSE_DOWN then
+                if button == MOUSE_BUTTON_TYPE_LEFT then
+                    left[player] = true
+                elseif button == MOUSE_BUTTON_TYPE_RIGHT then
+                    right[player] = true
+                else
+                    middle[player] = true
+                end
+            else
+                if button == MOUSE_BUTTON_TYPE_LEFT then
+                    left[player] = false
+                elseif button == MOUSE_BUTTON_TYPE_RIGHT then
+                    right[player] = false
+                else
+                    middle[player] = false
+                end
+            end
+        end
+
+        function MouseState.onInit()
+            TriggerAddAction(click, MouseState.onClick)
+
+            for i = 0, bj_MAX_PLAYER_SLOTS do
+                if GetPlayerController(Player(i)) == MAP_CONTROL_USER then
+                    TriggerRegisterPlayerEvent(click, Player(i), EVENT_PLAYER_MOUSE_UP)
+                    TriggerRegisterPlayerEvent(click, Player(i), EVENT_PLAYER_MOUSE_DOWN)
+                end
+            end
         end
     end
 end)
