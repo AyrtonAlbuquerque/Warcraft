@@ -318,6 +318,7 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
                     endif
 
                     call BlzSetItemBooleanField(k, ITEM_BF_ACTIVELY_USED, false)
+                    call BlzSetItemBooleanField(k, ITEM_BF_CAN_BE_DROPPED, false)
                 endif
             set i = i + 1
         endloop

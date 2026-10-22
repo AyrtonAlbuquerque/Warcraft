@@ -3,7 +3,7 @@ scope OrbOfLight
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
     private function GetHeal takes unit source returns real
-        return 2. * GetWidgetLevel(source)
+        return 1. * GetWidgetLevel(source)
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */

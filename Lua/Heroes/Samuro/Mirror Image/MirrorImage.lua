@@ -13,10 +13,6 @@ OnInit("MirrorImage", function (requires)
     -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Mirror Image ability
     local ABILITY           = S2A('Smr2')
-    -- The raw code of the Cloned Hero ability
-    local CLONED_HERO       = S2A('Smr6')
-    -- The raw code of the Cloned Inventory ability
-    local CLONE_INVENTORY   = S2A('Smr7')
     -- The model that is used to identify the real Samuro
     local ID_MODEL          = "CloudAura.mdx"
     -- The model attchment point
@@ -28,7 +24,7 @@ OnInit("MirrorImage", function (requires)
 
     -- Use this function to also check if a unit is a illusion
     function IsUnitIllusionEx(unit)
-        return GetUnitAbilityLevel(unit, CLONED_HERO) > 0 or IsUnitIllusion(unit)
+        return GetUnitAbilityLevel(unit, S2A('AInv')) > 1 or IsUnitIllusion(unit)
     end
 
     -- The expirience multiplyer value per illusion count
@@ -132,14 +128,17 @@ OnInit("MirrorImage", function (requires)
                     taken[illusion] = GetDamageTaken(this.unit, this.level)  
                     
                     GroupAddUnit(group[this.unit], illusion)
-                    UnitRemoveAbility(illusion, S2A('AInv'))
-                    UnitAddAbility(illusion, CLONE_INVENTORY)
                     CloneItems(this.unit, illusion, true)
-                    UnitAddAbility(illusion, CLONED_HERO)
+                    IncUnitAbilityLevel(illusion, S2A('AInv'))
                     MirrorImage.clone(this.unit, illusion)
                     UnitMirrorBonuses(this.unit, illusion)
                     UnitApplyTimedLife(illusion, S2A('BTLF'), this.duration)
                     SetPlayerHandicapXP(this.player, GetPlayerHandicapXP(this.player) + GetBonusExp())
+
+                    if BONUS_MAGIC_RESISTANCE then
+                        GetUnitMagicResistance(illusion)
+                        SetUnitMagicResistance(illusion, GetUnitMagicResistance(this.unit))
+                    end
 
                     if Switch then
                         UnitRemoveAbility(illusion, Switch_ABILITY)

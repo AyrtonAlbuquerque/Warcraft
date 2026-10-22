@@ -105,6 +105,10 @@ OnInit("Shop", function(requires)
     local SUCCESS_SOUND             = "Abilities\\Spells\\Other\\Transmute\\AlchemistTransmuteDeath1.wav"
     local ERROR_SOUND               = "Sound\\Interface\\Error.wav"
 
+    -- Ignore charges for non-active items when selling an item
+    -- through the interface (default game behavior)
+    local IGNORE_CHARGES_NON_ACTIVE = true
+
     -- Dont touch
     local array = {}
 
@@ -125,7 +129,7 @@ OnInit("Shop", function(requires)
     end
 
     function ShopFilter(unit, player, shop)
-        return IsUnitOwnedByPlayer(unit, player) and UnitInventorySize(unit) > 0 and not IsUnitType(unit, UNIT_TYPE_DEAD) and not IsUnitPaused(unit) and not IsUnitIllusion(unit) and not IsUnitHidden(unit)
+        return IsUnitOwnedByPlayer(unit, player) and UnitInventorySize(unit) > 0 and not IsUnitType(unit, UNIT_TYPE_DEAD) and not IsUnitPaused(unit) and not IsUnitIllusion(unit) and not IsUnitHidden(unit) and GetUnitAbilityLevel(unit, S2A('AInv')) < 2
     end
 
     -- ----------------------------------------------------------------------------------------- --
@@ -1792,6 +1796,12 @@ OnInit("Shop", function(requires)
 
                 if charges == 0 then
                     charges = 1
+                end
+
+                if IGNORE_CHARGES_NON_ACTIVE then
+                    if not BlzGetItemBooleanField(UnitItemInSlot(self.buyer:get(id), slot), ITEM_BF_ACTIVELY_USED) then
+                        charges = 1
+                    end
                 end
 
                 local gold = GetPlayerState(player, PLAYER_STATE_RESOURCE_GOLD)

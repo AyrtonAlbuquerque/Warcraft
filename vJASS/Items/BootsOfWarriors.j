@@ -13,7 +13,7 @@ scope BootsOfWarriors
         static constant integer code = 'I00U'
 
         real damage = 15
-        real lifeSteal = 0.15
+        real lifeSteal = 0.08
         real movementSpeed = 50
 
         private static method onLevel takes nothing returns nothing

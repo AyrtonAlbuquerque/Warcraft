@@ -10,9 +10,7 @@ library StormBolt requires Spell, Missiles, Utilities, TimedHandles, Stun, NewBo
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Storm Bolt ability
-        public  constant integer    ABILITY            = 'Mrd8'
-        // The raw code of the Storm Bolt Double Thunder ability
-        public  constant integer    STORM_BOLT_RECAST  = 'MrdA'
+        public  constant integer    ABILITY            = 'Mrd7'
         // The missile model
         private constant string     MISSILE_MODEL      = "Abilities\\Spells\\Human\\StormBolt\\StormBoltMissile.mdl"
         // The missile size
@@ -101,7 +99,7 @@ library StormBolt requires Spell, Missiles, Utilities, TimedHandles, Stun, NewBo
 
     struct StormBolt extends Spell
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Muradin|r throw his hammer at an enemy unit, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and stunning the target for |cffffcc003|r seconds (|cffffcc001|r on |cffffcc00Heroes|r). If the target is already stunned, |cffffcc00Storm Bolt|r will do |cffffcc00" + N2S(GetBonusDamage(level), 0) + "%|r bonus damage. In addintion, if |cffffcc00Storm Bolt|r kills the target, |cffffcc0050%|r of its mana cost is refunded."
+            return "|cffffcc00Muradin|r throw his hammer at an enemy unit, dealing |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and stunning the target for |cffffcc003|r seconds (|cffffcc001|r on |cffffcc00Heroes|r). If the target is already stunned, |cffffcc00Storm Bolt|r will do |cffffcc00" + N2S(GetBonusDamage(level) * 100, 0) + "%|r bonus damage. In addintion, if |cffffcc00Storm Bolt|r kills the target, |cffffcc0050%|r of its mana cost is refunded."
         endmethod
 
         private method onCast takes nothing returns nothing
@@ -122,7 +120,6 @@ library StormBolt requires Spell, Missiles, Utilities, TimedHandles, Stun, NewBo
 
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
-            call RegisterSpell(thistype.allocate(), STORM_BOLT_RECAST)
         endmethod
     endstruct
 endlibrary

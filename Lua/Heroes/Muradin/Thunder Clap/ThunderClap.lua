@@ -18,8 +18,6 @@ OnInit("ThunderClap", function (requires)
     -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Thunder Clap ability
     ThunderClap_ABILITY             = S2A('Mrd2')
-    -- The raw code of the Thunder Clap Recast ability
-    ThunderClap_THUNDER_CLAP_RECAST = S2A('Mrd6')
     -- The stomp model
     local MODEL                     = "ThunderClapHD.mdl"
     -- The model used when storm bolt refunds mana on kill
@@ -112,7 +110,7 @@ OnInit("ThunderClap", function (requires)
         ThunderClap = Class(Spell)
 
         function ThunderClap:onTooltip(source, level, ability)
-            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r by |cffffcc00" .. N2S(GetAttackSlowAmount(source, level) * 100, 0) .. "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc001%|r (|cffffcc005%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and the second |cffffcc00Thunder Clap|r stuns enemy units instead."
+            return "|cffffcc00Muradin|r slams the ground, dealing |cff00ffff" .. N2S(GetDamage(source, level), 0) .. "|r |cff00ffffMagic|r damage and slowing the movement speed and attack rate of nearby enemy units within |cffffcc00" .. N2S(GetAoE(source, level), 0) .. " AoE|r by |cffffcc00" .. N2S(GetAttackSlowAmount(source, level) * 100, 0) .. "%|r. In addition, |cffffcc00Muradin|r gets healed by |cffffcc001%|r (|cffffcc005%|r for |cffffcc00Heroes|r) of his maximum health for every unit hit by |cffffcc00Thunder Clap|r. If |cffffcc00Avatar|r is active, |cffffcc00Thunder Clap|r AoE is increased by |cffffcc0050%|r and will stun |cffffcc00Slowed|r units."
         end
 
         function ThunderClap:onCast()
@@ -136,16 +134,12 @@ OnInit("ThunderClap", function (requires)
                 if UnitFilter(owner, u) then
                     if Avatar then
                         if GetUnitAbilityLevel(source, Avatar_BUFF) > 0 then
-                            if id == ThunderClap_THUNDER_CLAP_RECAST then
-                                if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                                    heal = heal + GetHealAmount(source, u, level)
+                            if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
+                                heal = heal + GetHealAmount(source, u, level)
 
+                                if IsUnitSlowed(u) then
                                     StunUnit(source, u, GetDuration(source, u, level), STUN_MODEL, STUN_POINT, false)
-                                end
-                            else
-                                if UnitDamageTarget(source, u, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, nil) then
-                                    heal = heal + GetHealAmount(source, u, level)
-
+                                else 
                                     SlowUnit(source, u, movement, GetDuration(source, u, level), SLOW_MODEL, SLOW_POINT, false)
                                     SlowUnitAttack(source, u, attack, GetDuration(source, u, level), nil, nil, false)
                                 end
@@ -187,7 +181,6 @@ OnInit("ThunderClap", function (requires)
 
         function ThunderClap.onInit()
             RegisterSpell(ThunderClap.allocate(), ThunderClap_ABILITY)
-            RegisterSpell(ThunderClap.allocate(), ThunderClap_THUNDER_CLAP_RECAST)
         end
     end
 end)

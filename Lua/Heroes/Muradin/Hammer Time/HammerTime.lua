@@ -13,7 +13,7 @@ OnInit("HammerTime", function (requires)
     --                                       Configuration                                       --
     -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Hammer Time ability
-    local ABILITY       = S2A('Mrd7')
+    local ABILITY       = S2A('Mrd8')
     -- The raw code of the Muradin unit in the editor
     local MURADIN_ID    = S2A('Mrdn')
     -- The GAIN_AT_LEVEL is greater than 0

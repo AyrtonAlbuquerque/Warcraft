@@ -11,10 +11,6 @@ library MirrorImage requires RegisterPlayerUnitEvent, Spell, NewBonus, Modules, 
     globals
         // The raw code of the Mirror Image ability
         private constant integer ABILITY            = 'Smr2'
-        // The raw code of the Cloned Hero ability
-        private constant integer CLONED_HERO        = 'Smr6'
-        // The raw code of the Cloned Inventory ability
-        private constant integer CLONE_INVENTORY    = 'Smr7'
         // The model that is used to identify the real Samuro
         private constant string  ID_MODEL           = "CloudAura.mdx"
         // The model attchment point
@@ -27,7 +23,7 @@ library MirrorImage requires RegisterPlayerUnitEvent, Spell, NewBonus, Modules, 
 
     // Use this function to also check if a unit is a illusion
     function IsUnitIllusionEx takes unit source returns boolean
-        return GetUnitAbilityLevel(source, CLONED_HERO) > 0 or IsUnitIllusion(source)
+        return GetUnitAbilityLevel(source, 'AInv') > 1 or IsUnitIllusion(source)
     endfunction
 
     // The expirience multiplyer value per illusion count
@@ -111,14 +107,17 @@ library MirrorImage requires RegisterPlayerUnitEvent, Spell, NewBonus, Modules, 
                     set taken[index] = GetDamageTaken(unit, level)  
                     
                     call GroupAddUnit(group[id], illusion)
-                    call UnitRemoveAbility(illusion, 'AInv')
-                    call UnitAddAbility(illusion, CLONE_INVENTORY)
                     call CloneItems(unit, illusion, true)
-                    call UnitAddAbility(illusion, CLONED_HERO)
+                    call IncUnitAbilityLevel(illusion, 'AInv')
                     call clone(unit, illusion)
                     call UnitMirrorBonuses(unit, illusion)
                     call UnitApplyTimedLife(illusion, 'BTLF', duration)
                     call SetPlayerHandicapXP(player, GetPlayerHandicapXP(player) + GetBonusExp())
+
+                    static if LIBRARY_MagicResistance then
+                        call GetUnitMagicResistance(illusion)
+                        call SetUnitMagicResistance(illusion, GetUnitMagicResistance(unit))
+                    endif
 
                     static if LIBRARY_Switch then
                         call UnitRemoveAbility(illusion, Switch_ABILITY)

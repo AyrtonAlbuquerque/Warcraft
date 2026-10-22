@@ -298,6 +298,7 @@ OnInit("Utilities", function(requires)
                 end
 
                 BlzSetItemBooleanField(item, ITEM_BF_ACTIVELY_USED, false)
+                BlzSetItemBooleanField(item, ITEM_BF_CAN_BE_DROPPED, false)
             end
         end
     end

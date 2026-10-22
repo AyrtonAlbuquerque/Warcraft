@@ -10,9 +10,7 @@ library StormBolt requires Spell, Missiles, Utilities, Slow optional NewBonus
     /* ---------------------------------------------------------------------------------------------- */
     globals
         // The raw code of the Storm Bolt ability
-        public  constant integer    ABILITY            = 'Mrd9'
-        // The raw code of the Storm Bolt Double Thunder ability
-        public  constant integer    STORM_BOLT_RECAST  = 'MrdB'
+        public  constant integer    ABILITY            = 'Mrd6'
         // The missile model
         private constant string     MISSILE_MODEL      = "Abilities\\Spells\\Human\\StormBolt\\StormBoltMissile.mdl"
         // The missile size
@@ -121,9 +119,6 @@ library StormBolt requires Spell, Missiles, Utilities, Slow optional NewBonus
     endstruct
 
     struct StormBolt extends Spell
-        readonly static real array x
-        readonly static real array y
-
         private method onTooltip takes unit source, integer level, ability spell returns string
             return "|cffffcc00Muradin|r throw his hammer towards a target location. On its way the hammer deals |cff00ffff" + N2S(GetDamage(source, level), 0) + "|r |cff00ffffMagic|r damage and slows enemy units by |cffffcc00" + N2S(GetSlow(level) * 100, 0) + "%|r for |cffffcc00" + N2S(GetSlowDuration(level), 1) + "|r seconds. Units already under the effect of a |cffd45e19Stun|r or |cffd45e19Slow|r takes |cffffcc00" + N2S(GetBonusDamage(level) * 100, 0) + "%|r bonus damage. Upon reaching the destination the hammer comes back to |cffffcc00Muradin|r. When the hammer finally reaches |cffffcc00Muradin|r the cooldown of |cff00ff00Thunder Clap|r is reseted."
         endmethod
@@ -135,12 +130,8 @@ library StormBolt requires Spell, Missiles, Utilities, Slow optional NewBonus
             local Hammer hammer
 
             if DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y) < distance then
-                set x[Spell.source.id] = Spell.source.x + distance * Cos(angle)
-                set y[Spell.source.id] = Spell.source.y + distance * Sin(angle)
-                set hammer = Hammer.create(Spell.source.x, Spell.source.y, 60, x[Spell.source.id], y[Spell.source.id], 60)
+                set hammer = Hammer.create(Spell.source.x, Spell.source.y, 60, Spell.source.x + distance * Cos(angle), Spell.source.y + distance * Sin(angle), 60)
             else
-                set x[Spell.source.id] = Spell.x
-                set y[Spell.source.id] = Spell.y
                 set hammer = Hammer.create(Spell.source.x, Spell.source.y, 60, Spell.x, Spell.y, 60)
             endif
 
@@ -163,7 +154,6 @@ library StormBolt requires Spell, Missiles, Utilities, Slow optional NewBonus
 
         static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
-            call RegisterSpell(thistype.allocate(), STORM_BOLT_RECAST)
         endmethod
     endstruct
 endlibrary

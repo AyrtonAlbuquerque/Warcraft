@@ -1,9 +1,9 @@
 scope AncientStone
     struct AncientStone extends Item
-        static constant integer code = 'I05D'
+        static constant integer code = 'I01I'
 
-        real mana = 500
-        real health = 500
+        real mana = 600
+        real health = 600
         real manaRegen = 10
         real spellPower = 50
         real healthRegen = 10

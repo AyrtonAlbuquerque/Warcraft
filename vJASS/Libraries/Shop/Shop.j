@@ -105,6 +105,10 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
         private constant string SUCCESS_SOUND           = "Abilities\\Spells\\Other\\Transmute\\AlchemistTransmuteDeath1.wav"
         private constant string ERROR_SOUND             = "Sound\\Interface\\Error.wav"
 
+        // Ignore charges for non-active items when selling an item
+        // through the interface (default game behavior)
+        private constant boolean IGNORE_CHARGES_NON_ACTIVE = true
+
         // Dont touch
         private HashTable table
     endglobals 
@@ -126,7 +130,7 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
     endfunction
 
     function ShopFilter takes unit u, player owner, unit shop returns boolean
-        return IsUnitOwnedByPlayer(u, owner) and UnitInventorySize(u) > 0 and not IsUnitType(u, UNIT_TYPE_DEAD) and not IsUnitPaused(u) and not IsUnitIllusion(u) and not IsUnitHidden(u)
+        return IsUnitOwnedByPlayer(u, owner) and UnitInventorySize(u) > 0 and not IsUnitType(u, UNIT_TYPE_DEAD) and not IsUnitPaused(u) and not IsUnitIllusion(u) and not IsUnitHidden(u) and GetUnitAbilityLevel(u, 'AInv') < 2
     endfunction
 
     /* ----------------------------------------------------------------------------------------- */
@@ -2088,6 +2092,12 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
 
                 if charges == 0 then
                     set charges = 1
+                endif
+
+                static if IGNORE_CHARGES_NON_ACTIVE then
+                    if not BlzGetItemBooleanField(UnitItemInSlot(buyer[id], slot), ITEM_BF_ACTIVELY_USED) then
+                        set charges = 1
+                    endif
                 endif
 
                 set gold = GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD)
