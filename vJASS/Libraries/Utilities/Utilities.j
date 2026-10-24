@@ -146,34 +146,19 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
 
     // Workaround for patch 2.0 R2S bug
     function N2S takes real value, integer precision returns string
-        local integer digit
-        local string result
         local string sign = ""
-    
+
         if value < 0 then
             set sign = "-"
-            set value = RAbsBJ(value)
+            set value = -value
         endif
-    
-        set result = sign + I2S(R2I(value))
-    
-        if precision <= 0 then
-            return result
-        endif
-    
-        set result = result + "."
-        set value = value - R2I(value) 
 
-        loop
-            exitwhen precision <= 0
-                set value = value * 10
-                set digit = R2I(value)
-                set result = result + I2S(digit)
-                set value = value - digit
-            set precision = precision - 1
-        endloop
-    
-        return result
+        if precision <= 0 then
+            set value = value + 0.5
+            return sign + I2S(R2I(value))
+        endif
+
+        return sign + R2SW(value, 0, precision)
     endfunction
 
     // Ascii to String

@@ -39,33 +39,19 @@ OnInit("Utilities", function(requires)
 
     -- Workaround for patch 2.0 R2S bug
     function N2S(value,  precision)
-        local digit
-        local result
         local sign = ""
 
         if value < 0 then
             sign = "-"
-            value = RAbsBJ(value)
+            value = -value
         end
-
-        result = sign .. I2S(R2I(value))
 
         if precision <= 0 then
-            return result
+            value = value + 0.5
+            return sign .. I2S(R2I(value))
         end
 
-        result = result .. "."
-        value = value - R2I(value)
-
-        while precision > 0 do
-            value = value * 10
-            digit = R2I(value)
-            result = result .. I2S(digit)
-            value = value - digit
-            precision = precision - 1
-        end
-
-        return result
+        return sign .. R2SW(value, 0, precision)
     end
 
     -- Real to Integer to String
