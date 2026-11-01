@@ -114,7 +114,7 @@ OnInit("OdinAttack", function (requires)
             local offset = DistanceBetweenCoordinates(Spell.source.x, Spell.source.y, Spell.x, Spell.y) - OFFSET
 
             if count > 0 then
-                for i = 0, count - 1 do
+                for i = 0, count do
                     local x = GetX(Spell.source.x, face, i)
                     local y = GetY(Spell.source.y, face, i)
                     local attack = Attack.create(x, y, HEIGHT, x + offset*math.cos(angle), y + offset*math.sin(angle), 50)

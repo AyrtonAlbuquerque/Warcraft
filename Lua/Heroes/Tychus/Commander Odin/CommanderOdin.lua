@@ -16,7 +16,7 @@ OnInit("CommanderOdin", function (requires)
     --                                       Configuration                                       --
     -- ----------------------------------------------------------------------------------------- --
     -- The raw code of the Commander Odin ability
-    local ABILITY = S2A('Tyc5')
+    local ABILITY = S2A('TycC')
 
     -- ----------------------------------------------------------------------------------------- --
     --                                           System                                          --

@@ -712,6 +712,21 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         return MouseState.isUp(p, buttonType)
     endfunction
 
+    // Set the charges of all items of a specific type in a unit's inventory
+    function SetUnitItemTypeCharges takes unit u, integer itemType, integer charges returns nothing
+        local integer i = 0
+
+        if u != null and itemType != 0 and charges >= 0 then
+            loop
+                exitwhen i == UnitInventorySize(u)
+                    if GetItemTypeId(UnitItemInSlot(u, i)) == itemType then
+                        call SetItemCharges(UnitItemInSlot(u, i), charges)
+                    endif
+                set i = i + 1
+            endloop
+        endif
+    endfunction
+
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             Systems                                            */
     /* ---------------------------------------------------------------------------------------------- */

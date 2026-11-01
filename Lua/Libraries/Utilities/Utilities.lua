@@ -733,6 +733,17 @@ OnInit("Utilities", function(requires)
         return MouseState.isUp(player, button)
     end
 
+    -- Set the charges of all items of a specific type in a unit's inventory
+    function SetUnitItemTypeCharges(unit, type, charges)
+        if unit and type and charges >= 0 then
+            for i = 0, UnitInventorySize(unit) - 1 do
+                if GetItemTypeId(UnitItemInSlot(unit, i)) == type then
+                    SetItemCharges(UnitItemInSlot(unit, i), charges)
+                end
+            end
+        end
+    end
+
     -- -- ---------------------------------------------------------------------------------------------- --
     -- --                                             Systems                                            --
     -- -- ---------------------------------------------------------------------------------------------- --

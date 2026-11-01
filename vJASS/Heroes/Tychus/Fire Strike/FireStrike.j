@@ -1,4 +1,4 @@
-library FireStrike requires Missiles, Spell, Utilities, Modules optional NewBonus
+library FireStrike requires Missiles, Spell, Utilities, Modules, RegisterPlayerUnitEvent optional NewBonus
     /* --------------------- Fire Strike v1.0 by Chopinski ---------------------- */
     // Credits:
     //     Panda - icon
@@ -9,19 +9,27 @@ library FireStrike requires Missiles, Spell, Utilities, Modules optional NewBonu
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Fire Strike ability
-        public  constant integer ABILITY        = 'Tyc5'
+        public  constant integer ABILITY              = 'Tyc5'
         // The raw code of the Flames ability
-        private constant integer FLAMES         = 'Flam'
+        private constant integer FLAMES               = 'Flam'
         // The starting height of the missile
-        private constant integer START_HEIGHT   = 1500
+        private constant integer START_HEIGHT         = 1500
         // The starting offset of the missile
-        private constant integer START_OFFSET   = 3000
+        private constant integer START_OFFSET         = 3000
         // The Missile model
-        private constant string  MODEL          = "Interceptor Shell.mdl"
+        private constant string  MODEL                = "Interceptor Shell.mdl"
         // The Missile scale
-        private constant real    SCALE          = 0.8
+        private constant real    SCALE                = 0.8
         // The Missile speed
-        private constant real    SPEED          = 1500.
+        private constant real    SPEED                = 1500.
+        // The time the player has to move the mouse before the spell starts
+        private constant real    DRAG_AND_DROP_TIME   = 3.
+        // Skill indicator model
+        private constant string  INDICATOR_MODEL      = "Skill_Indicator_Move.mdl"
+        // Indicator scaling
+        private constant real    INDICATOR_SCALE      = 7
+        // Indicator time scaling
+        private constant real    INDICATOR_TIME_SCALE = 1.5
     endglobals
 
     // The amount of damage dealt when the missile lands
@@ -36,9 +44,9 @@ library FireStrike requires Missiles, Spell, Utilities, Modules optional NewBonu
     // The amount of damage Fire deals per second
     private function GetFireDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 50. * level + (0.15*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 150. * level + (0.15*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
         else
-            return 50. * level
+            return 150. * level
         endif
     endfunction
 
@@ -48,19 +56,19 @@ library FireStrike requires Missiles, Spell, Utilities, Modules optional NewBonu
         return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_AREA_OF_EFFECT, level - 1)
     endfunction
 
-    // The impact aoe
-    private function GetDamageAoE takes unit source, integer level returns real
-        return 200. + 0.*level
-    endfunction
-
-    // The amount of missiles spawned
+    // The amount of missiles spawned per line
     private function GetCount takes unit source, integer level returns integer
-        return 60 + 20*level
+        return 5 + 0*level
     endfunction
 
-    // The missile spawn interval
+    // The amount of missiles lines
+    private function GetLineCount takes unit source, integer level returns integer
+        return 7 + 0*level
+    endfunction
+
+    // The missile line spawn interval
     private function GetInterval takes unit source, integer level returns real
-        return 0.1 - 0.*level
+        return 0.2 - 0.*level
     endfunction
 
     // The Fire damage interval
@@ -173,78 +181,243 @@ library FireStrike requires Missiles, Spell, Utilities, Modules optional NewBonu
     endstruct
 
     private struct FireStrike extends Spell
+        private static thistype array struct
+
         private real x
         private real y
         private unit unit
+        private integer id
         private real angle
         private real range
-        private real count
         private real burn
         private real time
+        private integer count
+        private integer index
+        private integer lines
+        private boolean firing
+        private boolean cancelled
         private real interval
+        private real lineInterval
+        private boolean done
+        private real timeout
+        private effect effect
+        private player player
         private integer level
+        private boolean casting
 
         method destroy takes nothing returns nothing
+            if casting then
+                call DestroyEffectTimed(effect, 2)
+            else
+                call DestroyEffect(effect)
+            endif
+
             set unit = null
+            set effect = null
+            set player = null
+            
+            if struct[id] == this then
+                set struct[id] = 0
+            endif
+
             call deallocate()
         endmethod
         
         private method onTooltip takes unit source, integer level, ability spell returns string
-            return "|cffffcc00Tychus|r calls for a |cffffcc00Fire Strike|r in the targeted location. Each missile deals |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage to all enemy units within |cffffcc00" + N2S(GetDamageAoE(source, level), 0) + " AoE|r of its impact location and leaves a trail of fire that burns enemy units for |cff00ffff" + N2S(GetFireDamage(source, level), 0) + " Magic|r damage per second for |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds."
+            return "|cffffcc00Tychus|r calls for a |cffffcc00Fire Strike|r in the targeted direction. Each missile deals |cff00ffff" + N2S(GetDamage(source, level), 0) + " Magic|r damage to all enemy units within |cffffcc00" + N2S(GetAoE(source, level), 0) + " AoE|r of its impact location and leaves a trail of fire that burns enemy units for |cff00ffff" + N2S(GetFireDamage(source, level), 0) + " Magic|r damage per second for |cffffcc00" + N2S(GetDuration(source, level), 1) + "|r seconds.\n\n|cffffcc00Drag and Drop|r to choose direction."
         endmethod
-
+        
         private method onPeriod takes nothing returns boolean
             local real x
             local real y
-            local real theta
-            local real radius                                              
+            local real tx
+            local real ty
+            local real side
             local Rocket rocket
+            local integer i = 0
+            local boolean down = IsPlayerMouseButtonDown(player, MOUSE_BUTTON_TYPE_LEFT)
 
-            set count = count - 1
-            set theta = 2*bj_PI*GetRandomReal(0, 1)
-            set radius = GetRandomRange(range)
-            set x = .x + radius*Cos(theta)
-            set y = .y + radius*Sin(theta)
-            set rocket = Rocket.create(x + START_OFFSET*Cos(angle), y + START_OFFSET*Sin(angle), START_HEIGHT, x, y, 0)
-            set rocket.source = unit
-            set rocket.level = level
-            set rocket.model = MODEL
-            set rocket.scale = SCALE
-            set rocket.speed = SPEED
-            set rocket.burn = burn
-            set rocket.time = time
-            set rocket.interval = interval
-            set rocket.arc = GetRandomReal(-45, 45) * bj_DEGTORAD
-            set rocket.curve = GetRandomReal(-30, 30) * bj_DEGTORAD
-            set rocket.owner = GetOwningPlayer(unit)
-            set rocket.damage = GetDamage(unit, level)
-            set rocket.collision = GetDamageAoE(unit, level)
+            if cancelled then
+                return false
+            endif
 
-            call rocket.launch()
-            
-            return count > 0
+            if down and not firing and (casting or not done) then
+                set angle = AngleBetweenCoordinates(this.x, this.y, GetPlayerMouseX(player), GetPlayerMouseY(player))
+            endif
+
+            if not casting then
+                if not UnitAlive(unit) then
+                    return false
+                endif
+
+                if down and not done then
+                    call BlzSetSpecialEffectYaw(effect, angle)
+                elseif not down then
+                    set done = true
+                endif
+
+                return true
+            endif
+
+            set timeout = timeout - 0.03
+            set lineInterval = lineInterval - 0.03
+
+            if (not down or timeout <= 0) and lineInterval <= 0 then
+                set lineInterval = GetInterval(unit, level)
+                set x = this.x + index * range * Cos(angle)
+                set y = this.y + index * range * Sin(angle)
+                set index = index + 1
+                set lines = lines - 1
+                set firing = true
+
+                loop
+                    exitwhen i >= count
+                        set side = (i - (count - 1) / 2.) * range
+                        set tx = x + side * Cos(angle + bj_PI/2)
+                        set ty = y + side * Sin(angle + bj_PI/2)
+                        set rocket = Rocket.create(tx - START_OFFSET*Cos(angle), ty - START_OFFSET*Sin(angle), START_HEIGHT, tx, ty, 0)
+                        set rocket.source = unit
+                        set rocket.level = level
+                        set rocket.model = MODEL
+                        set rocket.scale = SCALE
+                        set rocket.speed = SPEED
+                        set rocket.burn = burn
+                        set rocket.time = time
+                        set rocket.interval = interval
+                        set rocket.arc = GetRandomReal(0, 30) * bj_DEGTORAD
+                        set rocket.owner = player
+                        set rocket.damage = GetDamage(unit, level)
+                        set rocket.collision = GetAoE(unit, level)
+
+                        call rocket.launch()
+                    set i = i + 1
+                endloop
+            endif
+
+            if not firing then
+                call BlzSetSpecialEffectYaw(effect, angle)
+            endif
+
+            return lines > 0
         endmethod
 
         private method onCast takes nothing returns nothing
-            set this = thistype.allocate()
-            set x = Spell.x
-            set y = Spell.y
-            set level = Spell.level
-            set unit = Spell.source.unit
-            set angle = AngleBetweenCoordinates(Spell.x, Spell.y, Spell.source.x, Spell.source.y)
-            set range = GetAoE(Spell.source.unit, Spell.level)
-            set count = GetCount(Spell.source.unit, Spell.level)
-            set burn = GetFireDamage(Spell.source.unit, Spell.level)
-            set time = GetDuration(Spell.source.unit, Spell.level)
-            set interval = GetFireInterval(Spell.level)
+            if struct[Spell.source.id] != 0 then
+                set this = struct[Spell.source.id]
 
-            call StartTimer(GetInterval(Spell.source.unit, Spell.level), true, this, -1)
+                if x != Spell.x or y != Spell.y then
+                    call BlzSetSpecialEffectX(effect, Spell.x)
+                    call BlzSetSpecialEffectY(effect, Spell.y)
+                    call BlzSetSpecialEffectYaw(effect, AngleBetweenCoordinates(Spell.x, Spell.y, GetPlayerMouseX(player), GetPlayerMouseY(player)))
+                endif
+
+                set x = Spell.x
+                set y = Spell.y
+                set index = 0
+                set firing = false
+                set casting = true
+                set level = Spell.level
+                set timeout = DRAG_AND_DROP_TIME
+                set range = GetAoE(Spell.source.unit, Spell.level)
+                set count = GetCount(Spell.source.unit, Spell.level)
+                set lines = GetLineCount(Spell.source.unit, Spell.level)
+                set burn = GetFireDamage(Spell.source.unit, Spell.level)
+                set time = GetDuration(Spell.source.unit, Spell.level)
+                set interval = GetFireInterval(Spell.level)
+                set lineInterval = 0
+            else
+                set this = thistype.allocate()
+                set x = Spell.x
+                set y = Spell.y
+                set index = 0
+                set firing = false
+                set casting = true
+                set cancelled = false
+                set level = Spell.level
+                set id = Spell.source.id
+                set unit = Spell.source.unit
+                set player = Spell.source.player
+                set timeout = DRAG_AND_DROP_TIME
+                set effect = AddSpecialEffectEx(INDICATOR_MODEL, x, y, 0, INDICATOR_SCALE)
+                set angle = AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))
+                set range = GetAoE(Spell.source.unit, Spell.level)
+                set count = GetCount(Spell.source.unit, Spell.level)
+                set lines = GetLineCount(Spell.source.unit, Spell.level)
+                set burn = GetFireDamage(Spell.source.unit, Spell.level)
+                set time = GetDuration(Spell.source.unit, Spell.level)
+                set interval = GetFireInterval(Spell.level)
+                set lineInterval = 0
+
+                call BlzSetSpecialEffectYaw(effect, angle)
+                call BlzSetSpecialEffectTimeScale(effect, INDICATOR_TIME_SCALE)
+
+                call StartTimer(0.03, true, this, 0)
+            endif
+        endmethod
+
+        private static method onOrder takes nothing returns nothing
+            local unit source = GetOrderedUnit()
+            local integer id = GetUnitUserData(source)
+            local integer level = GetUnitAbilityLevel(source, ABILITY)
+            local thistype this = struct[id]
+            local real range
+            local string base
+            local string order
+            local real distance
+            local ability skill
+            
+            if level > 0 then
+                set skill = BlzGetUnitAbility(source, ABILITY)
+                set order = OrderId2String(GetIssuedOrderId())
+                set base = BlzGetAbilityStringLevelField(skill, ABILITY_SLF_BASE_ORDER_ID_NCL6, level - 1)
+                set range = BlzGetAbilityRealLevelField(skill, ABILITY_RLF_CAST_RANGE, level - 1)
+                set distance = DistanceBetweenCoordinates(GetOrderPointX(), GetOrderPointY(), GetUnitX(source), GetUnitY(source))
+
+                if order != base and this != 0 then
+                    if not casting then
+                        set cancelled = true
+                        set struct[id] = 0
+                    endif
+                elseif BlzGetUnitAbilityCooldownRemaining(source, ABILITY) == 0 and order == base and distance > range then
+                    if this != 0 then
+                        set cancelled = true
+                        set struct[id] = 0
+                    endif
+
+                    set this = thistype.allocate()
+                    set done = false
+                    set index = 0
+                    set firing = false
+                    set cancelled = false
+                    set x = GetOrderPointX()
+                    set y = GetOrderPointY()
+                    set this.id = id
+                    set casting = false
+                    set this.level = level
+                    set unit = source
+                    set player = GetOwningPlayer(source)
+                    set effect = AddSpecialEffectEx(INDICATOR_MODEL, x, y, 0, INDICATOR_SCALE)
+                    set angle = AngleBetweenCoordinates(x, y, GetPlayerMouseX(player), GetPlayerMouseY(player))
+                    set struct[id] = this
+
+                    call BlzSetSpecialEffectTimeScale(effect, INDICATOR_TIME_SCALE)
+                    call BlzSetSpecialEffectYaw(effect, angle)
+
+                    call StartTimer(0.03, true, this, 0)
+                endif
+            endif
+
+            set skill = null
+            set source = null
         endmethod
 
         implement Periodic
 
         private static method onInit takes nothing returns nothing
             call RegisterSpell(thistype.allocate(), ABILITY)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function thistype.onOrder)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, function thistype.onOrder)
+            call RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, function thistype.onOrder)
         endmethod
     endstruct
 endlibrary

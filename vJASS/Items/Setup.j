@@ -88,6 +88,8 @@ scope Setup
             call ShopAddItem(shop, LightningSpear.code, damage + attackSpeed + spellPower)
             call ShopAddItem(shop, PrinceCrown.code, spellPower + intelligence + regeneration)
             call ShopAddItem(shop, WizardStone.code, health + mana + spellPower + regeneration)
+            call ShopAddItem(shop, ArcaniteGloves.code, attackSpeed + cooldown + intelligence)
+            call ShopAddItem(shop, SoulStealer.code, damage + agility + strength + intelligence + attackSpeed)
 
             return 0
         endmethod

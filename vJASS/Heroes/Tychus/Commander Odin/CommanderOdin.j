@@ -9,7 +9,7 @@ library CommanderOdin requires Spell, Modules, optional FragGranade, optional Au
     /* -------------------------------------------------------------------------- */
     globals
         // The raw code of the Commander Odin ability
-        private constant integer ABILITY = 'Tyc5'
+        private constant integer ABILITY = 'TycC'
     endglobals
 
     /* -------------------------------------------------------------------------- */
