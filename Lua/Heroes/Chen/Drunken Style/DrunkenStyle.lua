@@ -126,10 +126,10 @@ OnInit("DrunkenStyle", function(requires)
             types[this.unit] = (types[this.unit] or 0) + 1
 
             if types[this.unit] == 1 then
-                StartUnitAbilityCooldown(Spell.source.unit, ABILITY, 0.25)
+                BlzSetUnitAbilityCooldownRemaining(Spell.source.unit, ABILITY, 0.25)
                 SetUnitAnimationByIndex(Spell.source.unit, 14)
             elseif types[this.unit] == 2 then
-                StartUnitAbilityCooldown(Spell.source.unit, ABILITY, 0.25)
+                BlzSetUnitAbilityCooldownRemaining(Spell.source.unit, ABILITY, 0.25)
                 SetUnitAnimationByIndex(Spell.source.unit, 23)
             else
                 types[this.unit] = 0

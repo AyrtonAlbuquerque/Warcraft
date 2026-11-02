@@ -142,9 +142,9 @@ OnInit("ArrowStorm", function (requires)
                 local reduction = GetCooldownReduction(Damage.source.unit, GetUnitAbilityLevel(Damage.source.unit, ABILITY))
 
                 if cooldown >= reduction then
-                    StartUnitAbilityCooldown(Damage.source.unit, ABILITY, cooldown - reduction)
+                    BlzSetUnitAbilityCooldownRemaining(Damage.source.unit, ABILITY, cooldown - reduction)
                 else
-                    ResetUnitAbilityCooldown(Damage.source.unit, ABILITY)
+                    BlzEndUnitAbilityCooldown(Damage.source.unit, ABILITY)
                 end
             end
         end

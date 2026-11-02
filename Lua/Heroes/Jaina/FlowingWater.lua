@@ -43,7 +43,7 @@ OnInit("FlowingWater", function (requires)
                 if GetRandomReal(0, 1) <= GetChance(Spell.source.unit, level) then
                     if Spell.cooldown > 0 then
                         DestroyEffect(AddSpecialEffectTarget(EFFECT, Spell.source.unit, ATTACH))
-                        StartUnitAbilityCooldown(Spell.source.unit, Spell.id, (1 - GetReduction(Spell.source.unit, level)) * Spell.cooldown)
+                        BlzSetUnitAbilityCooldownRemaining(Spell.source.unit, Spell.id, (1 - GetReduction(Spell.source.unit, level)) * Spell.cooldown)
                     end
                 end
             end

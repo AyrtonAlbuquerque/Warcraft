@@ -166,6 +166,14 @@ function ConvertUnitCategory                     (i)
 end
 function ConvertPathingFlag                      (i)
 end
+function ConvertFogStyle             (i)
+end
+function ConvertEquipmentType        (i)
+end
+function ConvertItemTag              (i)
+end
+function ConvertLoadoutSlot          (i)
+end
 function OrderId                     (orderIdString)
 end
 function OrderId2String              (orderId)
@@ -2070,6 +2078,8 @@ function SetPlayerTaxRate        (sourcePlayer, otherPlayer, whichResource, rate
 end
 function SetPlayerRacePreference (whichPlayer, whichRacePreference)
 end
+function SetPlayerRaceSkin       (whichPlayer, whichRacePreference)
+end
 function SetPlayerRaceSelectable (whichPlayer, value)
 end
 function SetPlayerController     (whichPlayer, controlType)
@@ -2592,6 +2602,10 @@ end
 
 -- For EVENT_PLAYER_UNIT_PICKUP_ITEM,) end the item absorbing the picked up item in case it is stacking.
 --) end null if the item was a powerup and not a stacking item.
+function GetEquippedItem    ()
+end
+function GetUnequippedItem  ()
+end
 function BlzGetAbsorbingItem()
 end
 function BlzGetManipulatedItemWasAbsorbed()
@@ -2795,6 +2809,10 @@ end
 
 --============================================================================
 -- Widget API
+function BlzTriggerIsRunning(whichTrigger)
+end
+function BlzTriggerInterrupt(whichTrigger)
+end
 function GetWidgetLife  (whichWidget)
 end
 function SetWidgetLife  (whichWidget, newLife)
@@ -2849,6 +2867,8 @@ function SetDestructableAnimation   (d, whichAnimation)
 end
 function SetDestructableAnimationSpeed(d, speedFactor)
 end
+function SetDestructableColor       (d, color)
+end
 function ShowDestructable           (d, flag)
 end
 function GetDestructableOccluderHeight(d)
@@ -2876,6 +2896,8 @@ function GetItemY       (i)
 end
 function SetItemPosition(i, x, y)
 end
+function SetItemColor       (whichItem, whichColor)
+end
 function SetItemDropOnDeath (whichItem, flag)
 end
 function SetItemDroppable(i, flag)
@@ -2887,6 +2909,10 @@ end
 function SetItemInvulnerable(whichItem, flag)
 end
 function IsItemInvulnerable (whichItem)
+end
+function IsItemEquipped (whichItem)
+end
+function IsItemInBag    (whichItem)
 end
 function SetItemVisible (whichItem, show)
 end
@@ -2928,6 +2954,10 @@ end
 --============================================================================
 -- Unit API
 -- Facing arguments are specified in degrees
+function GetItemEquipmentType   (whichItem)
+end
+function GetItemTag             (whichItem)
+end
 function CreateUnit             (playerId, unitId, x, y, face)
 end
 function CreateUnitByName       (whichPlayer, name, x, y, face)
@@ -3016,6 +3046,16 @@ end
 function AddUnitAnimationProperties (whichUnit, animProperties, add)
 end
 
+function AllowHeroGlowOnUnit(whichUnit)
+end
+function DisallowHeroGlowOnUnit(whichUnit)
+end
+function HeroGlowIsAllowedOnUnit(whichUnit)
+end
+function BlzGetUnitAnimationDuration(whichUnit, whichAnimation)
+end
+function BlzGetUnitAnimationDurationByIndex(whichUnit, index)
+end
 function SetUnitLookAt      (whichUnit, whichBone, lookAtTarget, offsetX, offsetY, offsetZ)
 end
 function ResetUnitLookAt    (whichUnit)
@@ -3105,6 +3145,8 @@ end
 
 function UnitAddItem            (whichUnit, whichItem)
 end
+function UnitEquipItem          (whichUnit, whichItem)
+end
 function UnitAddItemById        (whichUnit, Id)
 end
 function UnitAddItemToSlotById  (whichUnit, Id, Slot)
@@ -3113,13 +3155,35 @@ function UnitRemoveItem         (whichUnit, whichItem)
 end
 function UnitRemoveItemFromSlot (whichUnit, Slot)
 end
+function UnitUnequipItem        (whichUnit, whichItem)
+end
+function UnitUnequipItemFromSlot(whichUnit, slot)
+end
 function UnitHasItem            (whichUnit, whichItem)
+end
+function UnitHasItemBagged      (whichUnit, whichItem)
 end
 function UnitItemInSlot         (whichUnit, Slot)
 end
 function UnitInventorySize      (whichUnit)
 end
 
+function UnitExtendedInventorySize(whichUnit)
+end
+function UnitItemInBagSlot      (whichUnit, itemSlot)
+end
+function UnitItemInEquipmentSlot(whichUnit, itemSlot)
+end
+function UnitHasItemEquipped    (whichUnit, whichItem)
+end
+function UnitHasLoadoutSlotEmpty(whichUnit, itemSlot)
+end
+function UnitHasAnyItemEquiped  (whichUnit)
+end
+function UnitHasItemEquipmentOfType(whichUnit, equipmentId)
+end
+function UnitCanEquipItemOfEquipmentType(whichUnit, equipmentId)
+end
 function UnitDropItemPoint      (whichUnit, whichItem, x, y)
 end
 function UnitDropItemSlot       (whichUnit, whichItem, slot)
@@ -3910,6 +3974,8 @@ function ChooseRandomItem        (level)
 end
 function ChooseRandomItemEx      (whichType, level)
 end
+function ChooseRandomItemExWithFilter(whichType, level, whichEquipmentType, whichTag)
+end
 function SetRandomSeed           (seed)
 end
 
@@ -3923,6 +3989,30 @@ end
 function SetUnitFog                  (a, b, c, d, e)
 end
 function SetTerrainFogEx             (style, zstart, zend, density, red, green, blue)
+end
+function SetTerrainFogExV            (style, zstart, zend, density, heightStart, heightEnd, linearStart, linearEnd, red, green, blue)
+end
+function BlzSetTerrainFogStyle       (style)
+end
+function BlzSetTerrainFogZStart      (zStart)
+end
+function BlzSetTerrainFogZEnd        (ZEnd)
+end
+function BlzSetTerrainFogDensity     (density)
+end
+function BlzSetTerrainFogHeightStart (heightStart)
+end
+function BlzSetTerrainFogHeightEnd   (heightEnd)
+end
+function BlzSetTerrainFogLinearStart (linearStart)
+end
+function BlzSetTerrainFogLinearEnd   (linearEnd)
+end
+function BlzSetTerrainFogMaxLinearDensity(maxLinearDensity)
+end
+function BlzSetTerrainFogDrawOverSky (drawOverSky)
+end
+function BlzSetTerrainFogColor       (red, green, blue)
 end
 function DisplayTextToPlayer         (toPlayer, x, y, message)
 end
@@ -3983,6 +4073,22 @@ end
 function EnableWorldFogBoundary      (b)
 end
 function PlayModelCinematic          (modelName)
+end
+function BlzPreloadModelCinematicGame(modelName)
+end
+function BlzGetModelCinematicGameShotCount()
+end
+function BlzGetModelCinematicGameCurrentShot()
+end
+function BlzGetModelCinematicGameRemainingTime()
+end
+function BlzPlayModelCinematicGameAtPosition(modelName, posX, posY, posZ, RotZ)
+end
+function BlzSetCinematicEnabledDE    (enable)
+end
+function BlzSetMinShadowCastingPointLightCount(count)
+end
+function BlzGetMinShadowCastingPointLightCount()
 end
 function PlayCinematic               (movieName)
 end
@@ -4296,11 +4402,19 @@ function SetCameraField              (whichField, value, duration)
 end
 function AdjustCameraField           (whichField, offset, duration)
 end
+function SetCameraFieldControlledByInput(whichField, controlled)
+end
+function GetCameraFieldControlledByInput(whichField)
+end
 function SetCameraTargetController   (whichUnit, xoffset, yoffset, inheritOrientation)
 end
 function SetCameraOrientController   (whichUnit, xoffset, yoffset)
 end
 
+function BlzCameraSetCameraType              (cameraType)
+end
+function BlzCameraGetCameraType              ()
+end
 function CreateCameraSetup                   ()
 end
 function CameraSetupSetField                 (whichSetup, whichField, value, duration)
@@ -4328,6 +4442,10 @@ end
 function BlzCameraSetupGetLabel              (whichSetup)
 end
 
+function BlzCameraSetupSetCameraType     (whichSetup, cameraType)
+end
+function BlzCameraSetupGetCameraType     (whichSetup)
+end
 function CameraSetTargetNoise            (mag, velocity)
 end
 function CameraSetSourceNoise            (mag, velocity)
@@ -4380,6 +4498,10 @@ function GetCameraMargin                 (whichMargin)
 end
 
 -- These return values for the local players camera only...
+function EnableCameraBlocker        (r, flag)
+end
+function AddCameraBlocker           (where)
+end
 function GetCameraBoundMinX         ()
 end
 function GetCameraBoundMinY         ()
@@ -4453,6 +4575,8 @@ end
 
 function StartSound                  (soundHandle)
 end
+function StartSoundEx                (soundHandle, fadeIn)
+end
 function StopSound                   (soundHandle, killWhenDone, fadeOut)
 end
 function KillSoundWhenDone           (soundHandle)
@@ -4476,6 +4600,8 @@ end
 function PlayThematicMusic           (musicFileName)
 end
 function PlayThematicMusicEx         (musicFileName, frommsecs)
+end
+function BlzPauseThematicMusicOnFocusLost(pause)
 end
 function EndThematicMusic            ()
 end
@@ -4611,6 +4737,30 @@ function GetTerrainCliffLevel        (x, y)
 end
 function SetWaterBaseColor           (red, green, blue, alpha)
 end
+function SetHDWaterParams            (red, green, blue, useColor, vertexDisplacement, minOpacity, maxOpacity, reflectivity, emissivity, edgeSoftness, waveStrength)
+end
+function SetHDWaterParamsEx          (red, green, blue, override, vertexDisplacement, minOpacity, maxOpacity, reflectivity, emissivity, edgeSoftness, waveStrength, envMapStrength)
+end
+function BlzSetHDWaterColor          (red, green, blue)
+end
+function BlzSetHDWaterColorOverride  (override)
+end
+function BlzSetHDWaterVertexDisplacement(vertexDisplacement)
+end
+function BlzSetHDWaterMinOpacity     (minOpacity)
+end
+function BlzSetHDWaterMaxOpacity     (maxOpacity)
+end
+function BlzSetHDWaterReflectivity   (reflectivity)
+end
+function BlzSetHDWaterEmissivity     (emissivity)
+end
+function BlzSetHDWaterEdgeSoftness   (edgeSoftness)
+end
+function BlzSetHDWaterWaveStrength   (waveStrength)
+end
+function BlzSetHDWaterEnvMapStrength (envMapStrengthy)
+end
 function SetWaterDeforms             (val)
 end
 function GetTerrainType              (x, y)
@@ -4620,6 +4770,8 @@ end
 function SetTerrainType              (x, y, terrainType, variation, area, shape)
 end
 function IsTerrainPathable           (x, y, t)
+end
+function BlzIsTerrainPathableEx      (x, y, t)
 end
 function SetTerrainPathable          (x, y, t, flag)
 end
@@ -4693,6 +4845,40 @@ end
 --============================================================================
 -- Computer AI interface
 --
+function BlzSetSingleDoodadAnimation(index, animName, animRandom)
+end
+function SetDoodadColor      (x, y, radius, doodadID, nearestOnly, whichColor)
+end
+function SetDoodadColorRect  (r, doodadID, whichColor)
+end
+function BlzSetSingleDoodadColor(index, whichColor)
+end
+function BlzGetDoodadX       (index)
+end
+function BlzGetDoodadY       (index)
+end
+function BlzGetDoodadZ       (index)
+end
+function BlzGetDoodadScaleX  (index)
+end
+function BlzGetDoodadScaleY  (index)
+end
+function BlzGetDoodadScaleZ  (index)
+end
+function BlzGetDoodadIsUsingModelAxes(index)
+end
+function BlzGetDoodadYaw     (index)
+end
+function BlzGetDoodadPitch   (index)
+end
+function BlzGetDoodadRoll    (index)
+end
+function BlzGetDoodadVariation(index)
+end
+function BlzGetDoodadId      (index)
+end
+function BlzGetNumDoodads    ()
+end
 function StartMeleeAI        (num, script)
 end
 function StartCampaignAI     (num, script)
@@ -4861,6 +5047,8 @@ function BlzGetUnitAttackCooldown                   (whichUnit, weaponIndex)
 end
 function BlzSetUnitAttackCooldown                   (whichUnit, cooldown, weaponIndex)
 end
+function BlzResetUnitAttack                         (whichUnit, weaponIndex)
+end
 function BlzSetSpecialEffectColorByPlayer           (whichEffect, whichPlayer)
 end
 function BlzSetSpecialEffectColor                   (whichEffect, r, g, b)
@@ -4909,6 +5097,12 @@ function BlzPlaySpecialEffect                       (whichEffect, whichAnim)
 end
 function BlzPlaySpecialEffectWithTimeScale          (whichEffect, whichAnim, timeScale)
 end
+function BlzSetSpecialEffectAnimationBlendTime      (whichEffect, blendTime)
+end
+function BlzQueueSpecialEffectAnimation             (whichEffect, whichAnimation)
+end
+function BlzSetSpecialEffectAnimation               (whichEffect, whichAnimation)
+end
 function BlzGetAnimName                             (whichAnim)
 end
 function BlzGetUnitArmor                            (whichUnit)
@@ -4918,6 +5112,8 @@ end
 function BlzUnitHideAbility                         (whichUnit, abilId, flag)
 end
 function BlzUnitDisableAbility                      (whichUnit, abilId, flag, hideUI)
+end
+function BlzUnitEnableAuras                         (whichUnit, enable, affectsUI)
 end
 function BlzUnitCancelTimedLife                     (whichUnit)
 end
@@ -4938,6 +5134,16 @@ end
 function BlzGetUnitAbilityCooldown                  (whichUnit, abilId, level)
 end
 function BlzGetUnitAbilityCooldownRemaining         (whichUnit, abilId)
+end
+function BlzGetUnitAbilityCooldownPercent           (whichUnit, abilId)
+end
+function BlzSetUnitAbilityCooldownRemaining         (whichUnit, abilId, duration)
+end
+function BlzSetUnitAbilityCooldownPercent           (whichUnit, abilId, percent)
+end
+function BlzAdjustUnitAbilityCooldownRemaining      (whichUnit, abilId, duration)
+end
+function BlzAdjustUnitAbilityCooldownPercent        (whichUnit, abilId, percent)
 end
 function BlzEndUnitAbilityCooldown                  (whichUnit, abilCode)
 end
@@ -5077,6 +5283,8 @@ function BlzFrameSetValue                           (frame, value)
 end
 function BlzFrameGetValue                           (frame)
 end
+function BlzTextAreaFrameSetAutoScroll              (frame, value)
+end
 function BlzFrameSetMinMaxValue                     (frame, minValue, maxValue)
 end
 function BlzFrameSetStepSize                        (frame, stepSize)
@@ -5129,6 +5337,16 @@ function BlzGetTriggerPlayerMetaKey                 ()
 end
 function BlzGetTriggerPlayerIsKeyDown               ()
 end
+function BlzIsMetaKeyPressed                        (metakey)
+end
+function BlzIsKeyPressed                            (key)
+end
+function BlzIsMouseButtonPressed                    (mouseButtonType)
+end
+function BlzGetMouseScreenPosX                      ()
+end
+function BlzGetMouseScreenPosY                      ()
+end
 function BlzEnableCursor                            (enable)
 end
 function BlzSetMousePos                             (x, y)
@@ -5140,6 +5358,14 @@ end
 function BlzIsLocalClientActive                     ()
 end
 function BlzGetMouseFocusUnit                       ()
+end
+function BlzPixelToFrameX                           (pixelX)
+end
+function BlzPixelToFrameY                           (pixelY)
+end
+function BlzFrameToPixelX                           (frameX)
+end
+function BlzFrameToPixelY                           (frameY)
 end
 function BlzChangeMinimapTerrainTex                 (texFile)
 end
@@ -5154,6 +5380,8 @@ end
 function BlzGetUnitAbility                          (whichUnit, abilId)
 end
 function BlzGetUnitAbilityByIndex                   (whichUnit, index)
+end
+function BlzGetAbilityId                            (whichAbility)
 end
 function BlzDisplayChatMessage                      (whichPlayer, recipient, message)
 end
@@ -5335,4 +5563,78 @@ end
 function BlzCreateDeadDestructableZWithSkin         (objectid, x, y, z, face, scale, variation, skinId)
 end
 function BlzGetPlayerTownHallCount                  (whichPlayer)
+end
+function BlzQueueImmediateOrderById                 (whichUnit, order)
+end
+function BlzQueuePointOrderById                     (whichUnit, order, x, y)
+end
+function BlzQueueTargetOrderById                    (whichUnit, order, targetWidget)
+end
+function BlzQueueInstantPointOrderById              (whichUnit, order, x, y, instantTargetWidget)
+end
+function BlzQueueInstantTargetOrderById             (whichUnit, order, targetWidget, instantTargetWidget)
+end
+function BlzQueueBuildOrderById                     (whichPeon, unitId, x, y)
+end
+function BlzQueueNeutralImmediateOrderById          (forWhichPlayer, neutralStructure, unitId)
+end
+function BlzQueueNeutralPointOrderById              (forWhichPlayer, neutralStructure, unitId, x, y)
+end
+function BlzQueueNeutralTargetOrderById             (forWhichPlayer, neutralStructure, unitId, target)
+end
+function BlzGetUnitOrderCount                       (whichUnit)
+end
+function BlzUnitClearOrders                         (whichUnit, onlyQueued)
+end
+function BlzUnitForceStopOrder                      (whichUnit, clearQueue)
+end
+function BlzCreateDestructablePitchRoll             (objectid, x, y, face, roll, pitch, scale, variation)
+end
+function BlzCreateDestructableZPitchRoll            (objectid, x, y, z, face, roll, pitch, scale, variation)
+end
+function BlzCreateDeadDestructablePitchRoll         (objectid, x, y, face, roll, pitch, scale, variation)
+end
+function BlzCreateDeadDestructableZPitchRoll        (objectid, x, y, z, face, roll, pitch, scale, variation)
+end
+function BlzCreateDestructableWithSkinPitchRoll     (objectid, x, y, face, roll, pitch, scale, variation, skinId)
+end
+function BlzCreateDestructableZWithSkinPitchRoll    (objectid, x, y, z, face, roll, pitch, scale, variation, skinId)
+end
+function BlzCreateDeadDestructableWithSkinPitchRoll (objectid, x, y, face, roll, pitch, scale, variation, skinId)
+end
+function BlzCreateDeadDestructableZWithSkinPitchRoll(objectid, x, y, z, face, roll, pitch, scale, variation, skinId)
+end
+function BlzCreateDestructableWithColor             (objectid, x, y, face, scale, variation, color)
+end
+function BlzCreateDestructableZWithColor            (objectid, x, y, z, face, scale, variation, color)
+end
+function BlzCreateDeadDestructableWithColor         (objectid, x, y, face, scale, variation, color)
+end
+function BlzCreateDeadDestructableZWithColor        (objectid, x, y, z, face, scale, variation, color)
+end
+function BlzCreateDestructableWithSkinColor         (objectid, x, y, face, scale, variation, skinId, color)
+end
+function BlzCreateDestructableZWithSkinColor        (objectid, x, y, z, face, scale, variation, skinId, color)
+end
+function BlzCreateDeadDestructableWithSkinColor     (objectid, x, y, face, scale, variation, skinId, color)
+end
+function BlzCreateDeadDestructableZWithSkinColor    (objectid, x, y, z, face, scale, variation, skinId, color)
+end
+function BlzCreateDestructablePitchRollWithColor    (objectid, x, y, face, roll, pitch, scale, variation, color)
+end
+function BlzCreateDestructableZPitchRollWithColor   (objectid, x, y, z, face, roll, pitch, scale, variation, color)
+end
+function BlzCreateDeadDestructablePitchRollWithColor(objectid, x, y, face, roll, pitch, scale, variation, color)
+end
+function BlzCreateDeadDestructableZPitchRollWithColor(objectid, x, y, z, face, roll, pitch, scale, variation, color)
+end
+function BlzCreateDestructableWithSkinPitchRollColor(objectid, x, y, face, roll, pitch, scale, variation, skinId, color)
+end
+function BlzCreateDestructableZWithSkinPitchRollColor(objectid, x, y, z, face, roll, pitch, scale, variation, skinId, color)
+end
+function BlzCreateDeadDestructableWithSkinPitchRollColor(objectid, x, y, face, roll, pitch, scale, variation, skinId, color)
+end
+function BlzCreateDeadDestructableZWithSkinPitchRollColor(objectid, x, y, z, face, roll, pitch, scale, variation, skinId, color)
+end
+function SetDestructableVertexColor                 (whichDestructable, red, green, blue, alpha)
 end

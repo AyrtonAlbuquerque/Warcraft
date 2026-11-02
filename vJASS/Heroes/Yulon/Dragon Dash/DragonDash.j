@@ -68,9 +68,9 @@ library DragonDash requires Spell, Missiles, Utilities
                 set cooldown = BlzGetUnitAbilityCooldownRemaining(source, ABILITY)
                 
                 if reduction >= cooldown then
-                    call ResetUnitAbilityCooldown(source, ABILITY)
+                    call BlzEndUnitAbilityCooldown(source, ABILITY)
                 else
-                    call StartUnitAbilityCooldown(source, ABILITY, cooldown - reduction)
+                    call BlzSetUnitAbilityCooldownRemaining(source, ABILITY, cooldown - reduction)
                 endif
             endif
             

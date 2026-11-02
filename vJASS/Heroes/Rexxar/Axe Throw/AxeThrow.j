@@ -88,7 +88,7 @@ library AxeThrow requires Spell, Missiles, Utilities, Slow optional NewBonus
                         call DestroyEffect(AddSpecialEffectTarget(HIT_MODEL, u, ATTACH))
 
                         if not UnitAlive(u) then
-                            call StartUnitAbilityCooldown(source, ABILITY, BlzGetUnitAbilityCooldownRemaining(source, ABILITY) - reduction)
+                            call BlzSetUnitAbilityCooldownRemaining(source, ABILITY, BlzGetUnitAbilityCooldownRemaining(source, ABILITY) - reduction)
                         else
                             call SlowUnit(source, u, slow, time, null, null, false)
                         endif

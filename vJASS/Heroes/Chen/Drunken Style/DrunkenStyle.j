@@ -134,10 +134,10 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
             set type[id] = type[id] + 1
 
             if type[id] == 1 then
-                call StartUnitAbilityCooldown(Spell.source.unit, ABILITY, 0.25)
+                call BlzSetUnitAbilityCooldownRemaining(Spell.source.unit, ABILITY, 0.25)
                 call SetUnitAnimationByIndex(Spell.source.unit, 14)
             elseif type[id] == 2 then
-                call StartUnitAbilityCooldown(Spell.source.unit, ABILITY, 0.25)
+                call BlzSetUnitAbilityCooldownRemaining(Spell.source.unit, ABILITY, 0.25)
                 call SetUnitAnimationByIndex(Spell.source.unit, 23)
             else
                 set type[id] = 0

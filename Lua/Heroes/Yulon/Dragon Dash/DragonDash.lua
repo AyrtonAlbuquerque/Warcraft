@@ -62,9 +62,9 @@ OnInit("DragonDash", function (requires)
                 local cooldown = BlzGetUnitAbilityCooldownRemaining(self.source, DragonDash_ABILITY)
                 
                 if self.reduction >= cooldown then
-                    ResetUnitAbilityCooldown(self.source, DragonDash_ABILITY)
+                    BlzEndUnitAbilityCooldown(self.source, DragonDash_ABILITY)
                 else
-                    StartUnitAbilityCooldown(self.source, DragonDash_ABILITY, cooldown - self.reduction)
+                    BlzSetUnitAbilityCooldownRemaining(self.source, DragonDash_ABILITY, cooldown - self.reduction)
                 end
             end
             

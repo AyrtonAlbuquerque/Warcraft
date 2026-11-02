@@ -152,9 +152,9 @@ library ArrowStorm requires Spell, Utilities, Missiles, DamageInterface optional
                 set reduction = GetCooldownReduction(Damage.source.unit, GetUnitAbilityLevel(Damage.source.unit, ABILITY))
 
                 if cooldown >= reduction then
-                    call StartUnitAbilityCooldown(Damage.source.unit, ABILITY, cooldown - reduction)
+                    call BlzSetUnitAbilityCooldownRemaining(Damage.source.unit, ABILITY, cooldown - reduction)
                 else
-                    call ResetUnitAbilityCooldown(Damage.source.unit, ABILITY)
+                    call BlzEndUnitAbilityCooldown(Damage.source.unit, ABILITY)
                 endif
             endif
         endmethod

@@ -95,9 +95,9 @@ OnInit("BlazingDash", function (requires)
             local cooldown = BlzGetUnitAbilityCooldownRemaining(self.source, ABILITY)
                 
             if self.reduction >= 1 then
-                ResetUnitAbilityCooldown(self.source, ABILITY)
+                BlzEndUnitAbilityCooldown(self.source, ABILITY)
             else
-                StartUnitAbilityCooldown(self.ource, ABILITY, cooldown - (cooldown * self.reduction))
+                BlzSetUnitAbilityCooldownRemaining(self.source, ABILITY, cooldown - (cooldown * self.reduction))
             end
 
             IssueImmediateOrder(self.source, "stop")

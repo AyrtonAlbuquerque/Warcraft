@@ -86,7 +86,7 @@ OnInit("AxeThrow", function (requires)
                         DestroyEffect(AddSpecialEffectTarget(HIT_MODEL, unit, ATTACH))
 
                         if not UnitAlive(unit) then
-                            StartUnitAbilityCooldown(self.source, ABILITY, BlzGetUnitAbilityCooldownRemaining(self.source, ABILITY) - self.reduction)
+                            BlzSetUnitAbilityCooldownRemaining(self.source, ABILITY, BlzGetUnitAbilityCooldownRemaining(self.source, ABILITY) - self.reduction)
                         else
                             SlowUnit(self.source, unit, self.slow, self.time, nil, nil, false)
                         end

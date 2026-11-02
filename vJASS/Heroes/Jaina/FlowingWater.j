@@ -41,7 +41,7 @@ library FlowingWater requires RegisterPlayerUnitEvent, Utilities, Spell
                 if GetRandomReal(0, 1) <= GetChance(Spell.source.unit, level) then
                     if Spell.cooldown > 0 then
                         call DestroyEffect(AddSpecialEffectTarget(EFFECT, Spell.source.unit, ATTACH))
-                        call StartUnitAbilityCooldown(Spell.source.unit, Spell.id, (1 - GetReduction(Spell.source.unit, level)) * Spell.cooldown)
+                        call BlzSetUnitAbilityCooldownRemaining(Spell.source.unit, Spell.id, (1 - GetReduction(Spell.source.unit, level)) * Spell.cooldown)
                     endif
                 endif
             endif

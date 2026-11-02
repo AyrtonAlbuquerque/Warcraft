@@ -96,9 +96,9 @@ library BlazingDash requires Spell, Missiles, Effect, Utilities, NewBonus
             local real cooldown = BlzGetUnitAbilityCooldownRemaining(source, ABILITY)
                 
             if reduction >= 1 then
-                call ResetUnitAbilityCooldown(source, ABILITY)
+                call BlzEndUnitAbilityCooldown(source, ABILITY)
             else
-                call StartUnitAbilityCooldown(source, ABILITY, cooldown - (cooldown * reduction))
+                call BlzSetUnitAbilityCooldownRemaining(source, ABILITY, cooldown - (cooldown * reduction))
             endif
 
             call IssueImmediateOrder(source, "stop")
