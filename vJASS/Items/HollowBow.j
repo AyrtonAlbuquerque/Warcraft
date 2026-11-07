@@ -45,7 +45,7 @@ scope HollowBow
         real damage = 20
         real agility = 20
         real pierce = 0.3
-        real armorPenetration = 5
+        real armorPenetrationFlat = 5
 
         private unit unit
         private timer timer

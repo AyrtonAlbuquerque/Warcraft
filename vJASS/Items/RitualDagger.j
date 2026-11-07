@@ -38,6 +38,7 @@ scope RitualDagger
 
                         call AddPlayerGold(Damage.source.player, GetBonusGold())
                         call CreateTextOnUnit(Damage.target.unit, ("+" + I2S(GetBonusGold())), 1.0, 255, 215, 0, 255)
+                        call DestroyEffect(AddSpecialEffectTarget("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl", Damage.target.unit, "chest"))
                     endif
                 endif
             endif
