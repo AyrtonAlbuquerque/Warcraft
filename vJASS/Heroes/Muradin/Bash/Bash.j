@@ -18,7 +18,7 @@ library Bash requires Spell, DamageInterface, Stun, Utilities, NewBonus
 
     // The damage dealt
     private function GetDamage takes unit source, integer level returns real
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1) + 0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1) + (0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)) + ((0.6 + 0.2 * level) * GetHeroStr(source, true))
     endfunction
 
     private function GetBonusAttackSpeed takes unit source, integer level returns real

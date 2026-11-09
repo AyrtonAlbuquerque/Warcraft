@@ -50,7 +50,7 @@ scope EssenceStaff
         endmethod
 
         private method onTooltip takes unit u, item i, integer id returns string
-            return "|cffffcc00Gives:|r\n+ |cffffcc0020|r Intelligence\n+ |cffffcc0060|r Spell Power\n+ |cffffcc004%|r Spell Vamp\n+ |cffffcc005|r Magic Penetration\n\n|cff00ff00Passive|r: |cffffcc00Essence Shift|r: After casting an ability gain |cff00ffff" + N2S(GetBonusIntelligence(), 0) + " Intelligence|r for |cffffcc00" + N2S(GetDuration(), 0) + "|r seconds and |cff00ffff" + N2S(GetBonusSpellPower(), 0) + " Spell Power|r permanently. Each kill refreshes the duration of |cff00ffffIntelligence|r gained.\n\n|cff00ff00Passive|r: |cffffcc00Intelect Supremacy|r: Increases |cff00ffffMagic|r damage by |cffffcc00" + N2S(GetBonusDamage() * 100, 0) + "%|r to enemy units with less |cff00ffffIntelligence|r.\n\nBonus |cff00ffffSpell Power|r: " + N2S(power[id], 0)
+            return "|cffffcc00Gives:|r\n+ |cffffcc0020|r Intelligence\n+ |cffffcc0060|r Spell Power\n+ |cffffcc004%|r Spell Vamp\n+ |cffffcc005|r Magic Penetration\n\n|cff00ff00Passive|r: |cffffcc00Essence Shift|r: After casting an ability gain |cff00ffff" + N2S(GetBonusIntelligence(), 0) + " Intelligence|r for |cffffcc00" + N2S(GetDuration(), 0) + "|r seconds and |cff00ffff" + N2S(GetBonusSpellPower(), 0) + " Spell Power|r permanently. Each cast refreshes the duration of |cff00ffffIntelligence|r gained.\n\n|cff00ff00Passive|r: |cffffcc00Intelect Supremacy|r: Increases |cff00ffffMagic|r damage by |cffffcc00" + N2S(GetBonusDamage() * 100, 0) + "%|r to enemy units with less |cff00ffffIntelligence|r.\n\nBonus |cff00ffffSpell Power|r: " + N2S(power[id], 0)
         endmethod
 
         private static method onExpire takes nothing returns nothing

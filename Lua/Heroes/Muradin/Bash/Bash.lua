@@ -21,7 +21,7 @@ OnInit("Bash", function (requires)
 
     -- The damage dealt
     local function GetDamage(source, level)
-        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1) + 0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)
+        return BlzGetAbilityRealLevelField(BlzGetUnitAbility(source, ABILITY), ABILITY_RLF_DAMAGE_BONUS_HBH3, level - 1) + (0.25 * GetUnitBonus(source, BONUS_SPELL_POWER)) + ((0.6 + 0.2 * level) * GetHeroStr(source, true))
     end
 
     -- The Attack Speed bonus

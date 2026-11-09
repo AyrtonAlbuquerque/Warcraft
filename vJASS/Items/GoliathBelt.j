@@ -35,10 +35,13 @@ scope GoliathBelt
         private player player
 
         private method destroy takes nothing returns nothing
+            call AddUnitBonus(unit, BONUS_STRENGTH, -bonus)
+            call AddUnitBonus(unit, BONUS_MANA_REGEN, -regen)
+            call group.destroy()
+
             set unit = null
             set player = null
-
-            call group.destroy()
+            
             call deallocate()
         endmethod
 

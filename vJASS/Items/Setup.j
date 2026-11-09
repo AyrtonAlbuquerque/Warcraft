@@ -89,10 +89,12 @@ scope Setup
             call ShopAddItem(shop, PrinceCrown.code, spellPower + intelligence + regeneration)
             call ShopAddItem(shop, WizardStone.code, health + mana + spellPower + regeneration)
             call ShopAddItem(shop, Basher.code, damage + strength + attackSpeed)
+            call ShopAddItem(shop, GladiatorHelmet.code, strength + regeneration)
             call ShopAddItem(shop, ArcaniteGloves.code, attackSpeed + cooldown + intelligence)
             call ShopAddItem(shop, EssenceStaff.code, intelligence + spellPower + regeneration)
             call ShopAddItem(shop, HollowBow.code, damage + agility + regeneration)
             call ShopAddItem(shop, SoulStealer.code, damage + agility + strength + intelligence + attackSpeed)
+            call ShopAddItem(shop, CommanderShield.code, health + armor)
 
             return 0
         endmethod
