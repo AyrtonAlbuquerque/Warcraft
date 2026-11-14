@@ -493,26 +493,18 @@ OnInit("Group", function (requires)
         end
 
         function Group:skip(amount)
-            if self.size <= 0 then
-                print("inRange, inRect, ofPlayer or insert must be called before skipping units.")
-            else
-                if amount > 0 then
-                    self.skips = amount
-                    self.ordered = false
-                end
+            if amount > 0 then
+                self.skips = amount
+                self.ordered = false
             end
 
             return self
         end
 
         function Group:take(amount)
-            if self.size <= 0 then
-                print("inRange, inRect, ofPlayer or insert must be called before taking units.")
-            else
-                if amount > 0 then
-                    self.takes = amount
-                    self.ordered = false
-                end
+            if amount > 0 then
+                self.takes = amount
+                self.ordered = false
             end
 
             return self
@@ -858,15 +850,11 @@ OnInit("Group", function (requires)
             if self.negate then
                 print("Only isAlive, allyOf, enemyOf, ownedBy, ofType, hasBuff, hasAbility and hasItem can be called after isNot is callled.")
             else
-                if self.size <= 0 then
-                    print("inRange, inRect, ofPlayer or insert must be called before setting an order.")
-                else
-                    self.count = 1
-                    self.orders[0] = order
-                    self.orderings = order
-                    self.ordered = false
-                    self.descends[0] = false
-                end
+                self.count = 1
+                self.orders[0] = order
+                self.orderings = order
+                self.ordered = false
+                self.descends[0] = false
             end
 
             return self

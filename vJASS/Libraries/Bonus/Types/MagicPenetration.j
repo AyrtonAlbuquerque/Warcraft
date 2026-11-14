@@ -5,7 +5,7 @@ library MagicPenetration requires NewBonus, DamageInterface, MagicResistance
         // The bonus for flat magic penetration
         integer BONUS_MAGIC_PENETRATION_FLAT
         // Magic resistance effectiveness. overwrites the default when USE_PENETRATION is true
-        private constant real MAGIC_MULTIPLIER = 0.06
+        private constant real MAGIC_MULTIPLIER = 0.04
     endglobals
     
     /* ----------------------------------------------------------------------------------------- */

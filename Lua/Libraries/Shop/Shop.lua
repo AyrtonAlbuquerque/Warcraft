@@ -1736,10 +1736,10 @@ OnInit("Shop", function(requires)
             local flag = true
             local i = 1
 
-            if item and self:has(item.id) and self.buyer:get(GetPlayerId(player)) then
+            if item and self.buyer:get(GetPlayerId(player)) then
                 if item.components > 0 then
                     while i <= item.components and flag do
-                        flag = self:canBuy(Item.get(item.component[i]), player)
+                        flag = self:canBuy(Item.get(item.component[i]), player) and (self:has(item.id) or UnitCountItemOfType(self.buyer:get(GetPlayerId(player)), item.id) >= ItemCountComponentOfType(item.id, item.component[i]))
 
                         i = i + 1
                     end

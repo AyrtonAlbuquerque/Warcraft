@@ -4,7 +4,7 @@ OnInit("MagicPenetration", function(requires)
     requires "Damage"
     requires "MagicResistance"
 
-    MAGIC_MULTIPLIER = 0.06
+    MAGIC_MULTIPLIER = 0.04
 
     local MagicPenetration = Class(Bonus)
 

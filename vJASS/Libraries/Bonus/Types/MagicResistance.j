@@ -3,7 +3,7 @@ library MagicResistance requires NewBonus, DamageInterface
         // The bonus for magic resistance
         integer BONUS_MAGIC_RESISTANCE
         // Heroes base magic resistance, which with the current formula equates to aproximately 24% magic resistance
-        private constant real BASE_HERO_MAGIC_RESISTANCE = 5
+        private constant real BASE_HERO_MAGIC_RESISTANCE = 8
         // When true the damage interface library is used
         private constant boolean USE_DAMAGE_INTERFACE = true
     endglobals

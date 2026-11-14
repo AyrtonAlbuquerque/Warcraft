@@ -2024,11 +2024,11 @@ library Shop requires Table, RegisterPlayerUnitEvent, Components, Item, Utilitie
             local integer j = 0
 
 
-            if i != 0 and has(i.id) and buyer[GetPlayerId(p)] != null then
+            if i != 0 and buyer[GetPlayerId(p)] != null then
                 if i.components > 0 then
                     loop
                         exitwhen j == i.components or not flag
-                            set flag = canBuy(Item.get(i.component[j]), p)
+                            set flag = canBuy(Item.get(i.component[j]), p) and (has(i.id) or UnitCountItemOfType(buyer[GetPlayerId(p)], i.id) >= ItemCountComponentOfType(i.id, i.component[j]))
                         set j = j + 1
                     endloop
                 endif

@@ -38,9 +38,9 @@ OnInit("ThunderClap", function (requires)
     -- The damage dealt
     local function GetDamage(source, level)
         if Bonus then
-            return 75.*level + (0.6 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 75.*level + ((0.6 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)) + ((1 + 0.25 * level) * GetHeroStr(source, true))
         else
-            return 75.*level
+            return 75.*level + ((1 + 0.25 * level) * GetHeroStr(source, true))
         end
     end
 

@@ -72,7 +72,7 @@ scope Setup
             call ShopAddItem(shop, HunterScythe.code, agility + strength + intelligence)
             call ShopAddItem(shop, CurvedBow.code, damage + agility)
             call ShopAddItem(shop, EnhancedHammer.code, damage + strength)
-            call ShopAddItem(shop, MageStaff.code, spellPower + intelligence + mana)
+            call ShopAddItem(shop, MageStaff.code, spellPower + intelligence)
             call ShopAddItem(shop, WarriorHelmet.code, strength + regeneration)
             call ShopAddItem(shop, IronShield.code, health + armor)
             call ShopAddItem(shop, GoliathBelt.code, strength + intelligence + regeneration)
@@ -88,6 +88,7 @@ scope Setup
             call ShopAddItem(shop, LightningSpear.code, damage + attackSpeed + spellPower)
             call ShopAddItem(shop, PrinceCrown.code, spellPower + intelligence + regeneration)
             call ShopAddItem(shop, WizardStone.code, health + mana + spellPower + regeneration)
+            call ShopAddItem(shop, LifePendant.code, mana + health + attackSpeed + movement + regeneration)
             call ShopAddItem(shop, Basher.code, damage + strength + attackSpeed)
             call ShopAddItem(shop, GladiatorHelmet.code, strength + regeneration)
             call ShopAddItem(shop, ArcaniteGloves.code, attackSpeed + cooldown + intelligence)
@@ -95,6 +96,8 @@ scope Setup
             call ShopAddItem(shop, HollowBow.code, damage + agility + regeneration)
             call ShopAddItem(shop, SoulStealer.code, damage + agility + strength + intelligence + attackSpeed)
             call ShopAddItem(shop, CommanderShield.code, health + armor)
+            call ShopAddItem(shop, GobletOfFire.code, mana + health + spellPower + regeneration)
+            call ShopAddItem(shop, RunicMatrix.code, mana + health + cooldown + damage + attackSpeed + movement + regeneration + spellPower)
 
             return 0
         endmethod

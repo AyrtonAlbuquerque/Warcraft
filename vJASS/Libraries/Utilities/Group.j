@@ -567,26 +567,18 @@ library Group requires Modules, Indexer optional Table optional Item
         endmethod
 
         method skip takes integer amount returns thistype
-            if size <= 0 then
-                call BJDebugMsg("inRange, inRect, ofPlayer or insert must be called before skipping units.")
-            else
-                if amount > 0 then
-                    set skips = amount
-                    set ordered = false
-                endif
+            if amount > 0 then
+                set skips = amount
+                set ordered = false
             endif
 
             return this
         endmethod
 
         method take takes integer amount returns thistype
-            if size <= 0 then
-                call BJDebugMsg("inRange, inRect, ofPlayer or insert must be called before taking units.")
-            else
-                if amount > 0 then
-                    set takes = amount
-                    set ordered = false
-                endif
+            if amount > 0 then
+                set takes = amount
+                set ordered = false
             endif
 
             return this
@@ -949,15 +941,11 @@ library Group requires Modules, Indexer optional Table optional Item
             if negate then
                 call BJDebugMsg("Only isAlive, allyOf, enemyOf, ownedBy, ofType, hasBuff, hasAbility and hasItem can be called after isNot is callled.")
             else
-                if size <= 0 then
-                    call BJDebugMsg("inRange, inRect, ofPlayer or insert must be called before setting an order.")
-                else
-                    set count = 1
-                    set orders[0] = order
-                    set orderings = order
-                    set ordered = false
-                    set descends[0] = false
-                endif
+                set count = 1
+                set orders[0] = order
+                set orderings = order
+                set ordered = false
+                set descends[0] = false
             endif
 
             return this
@@ -1047,7 +1035,7 @@ library Group requires Modules, Indexer optional Table optional Item
                 if cap > MAX_UNITS then
                     set cap = MAX_UNITS
 
-                    call BJDebugMsg("Group: size " + I2S(size) + " exceeds MAX_UNITS (" + I2S(MAX_UNITS) + "), truncating.")
+                    // debug call BJDebugMsg("Group: size " + I2S(size) + " exceeds MAX_UNITS (" + I2S(MAX_UNITS) + "), truncating.")
                 endif
             endif
 

@@ -33,9 +33,9 @@ library ThunderClap requires Spell, TimedHandles, Stun, Slow, AttackSlow, Utilit
     // The damage dealt
     private function GetDamage takes unit source, integer level returns real
         static if LIBRARY_NewBonus then
-            return 75.*level + (0.6 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)
+            return 75.*level + ((0.6 + 0.1*level) * GetUnitBonus(source, BONUS_SPELL_POWER)) + ((1 + 0.25 * level) * GetHeroStr(source, true))
         else
-            return 75.*level
+            return 75.*level + ((1 + 0.25 * level) * GetHeroStr(source, true))
         endif
     endfunction
 

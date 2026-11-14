@@ -14,6 +14,10 @@ library Shield requires Unit, DamageInterface, ProgressBar, Modules, Indexer
         call Shield.register(c)
     endfunction
 
+    function RegisterShieldDamageEvent takes code c returns nothing
+        call Shield.registerShieldDamage(c)
+    endfunction
+
     function RegisterShieldBreakEvent takes code c returns nothing
         call Shield.registerBreak(c)
     endfunction
@@ -59,6 +63,10 @@ library Shield requires Unit, DamageInterface, ProgressBar, Modules, Indexer
         return Shield.overdamage
     endfunction
 
+    function GetShieldingLost takes nothing returns real
+        return Shield.lost
+    endfunction
+
     function RestoreShield takes Shield shield returns Shield
         return shield.restore()
     endfunction
@@ -96,12 +104,14 @@ library Shield requires Unit, DamageInterface, ProgressBar, Modules, Indexer
         readonly static real array increase
         readonly static real array decrease
         readonly static trigger break = CreateTrigger()
+        readonly static trigger damaged = CreateTrigger()
         readonly static trigger trigger = CreateTrigger()
 
         private static List array shields
         private static integer array slots
         private static integer array counter
 
+        static real lost
         static real amount
         static real overdamage
         static thistype instance
@@ -174,7 +184,7 @@ library Shield requires Unit, DamageInterface, ProgressBar, Modules, Indexer
 
         method add takes real amount returns thistype
             if value + amount > 0 then
-                set value = value + amount
+                set value = value + (amount * (1 + increase[id])) * (1 - decrease[id])
 
                 if value >= total then
                     set total = value
@@ -234,10 +244,15 @@ library Shield requires Unit, DamageInterface, ProgressBar, Modules, Indexer
             call TriggerAddCondition(break, Filter(c))
         endmethod
 
+        static method registerShieldDamage takes code c returns nothing
+            call TriggerAddCondition(damaged, Filter(c))
+        endmethod
+
         static method create takes unit source, unit target, real amount, attacktype atktype, damagetype dmgtype, real duration, string sfx, string attachPoint, boolean showBar, integer playerColor, boolean showText returns Shield
             local integer id = GetUnitUserData(target)
             local thistype this = thistype.allocate()
 
+            set Shield.lost = 0
             set Shield.instance = this
             set Shield.attacktype = atktype 
             set Shield.damagetype = dmgtype
@@ -310,9 +325,20 @@ library Shield requires Unit, DamageInterface, ProgressBar, Modules, Indexer
                                 set shield = shield.next
 
                                 if Damage.attacktype == atktype or Damage.damagetype == dmgtype or (atktype == null and dmgtype == null) then
+                                    set Shield.instance = this
+                                    set Shield.source.unit = src
+                                    set Shield.target.unit = tgt
+                                    set Shield.attacktype = atktype 
+                                    set Shield.damagetype = dmgtype
+                                    
                                     if Damage.amount < value then
                                         set value = value - Damage.amount
+                                        set Shield.lost = Damage.amount
+                                        set Shield.amount = value
+                                        set Shield.overdamage = 0
                                         set Damage.amount = 0
+
+                                        call TriggerEvaluate(damaged)
 
                                         if bar != 0 then
                                             call SetProgressBarPercentage(bar, (value / total) * 100, 0)
@@ -323,14 +349,12 @@ library Shield requires Unit, DamageInterface, ProgressBar, Modules, Indexer
                                         endif
                                     else
                                         set Damage.amount = Damage.amount - value
+                                        set Shield.lost = value
+                                        set value = 0
                                         set Shield.amount = 0
-                                        set Shield.instance = this
-                                        set Shield.source.unit = src
-                                        set Shield.target.unit = tgt
-                                        set Shield.attacktype = atktype 
-                                        set Shield.damagetype = dmgtype
                                         set Shield.overdamage = Damage.amount 
 
+                                        call TriggerEvaluate(damaged)
                                         call TriggerEvaluate(break)
                                         call destroy()
                                     endif

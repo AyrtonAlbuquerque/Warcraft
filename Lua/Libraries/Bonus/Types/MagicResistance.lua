@@ -2,7 +2,7 @@ OnInit("MagicResistance", function(requires)
     requires "Class"
     requires "Bonus"
 
-    BASE_HERO_MAGIC_RESISTANCE = 5
+    BASE_HERO_MAGIC_RESISTANCE = 8
 
     local MagicResistance = Class(Bonus)
     local USE_DAMAGE = true

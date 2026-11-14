@@ -3,7 +3,7 @@ OnInit("ArmorPenetration", function(requires)
     requires "Bonus"
     requires "Damage"
 
-    ARMOR_MULTIPLIER = 0.06
+    ARMOR_MULTIPLIER = 0.04
 
     local ArmorPenetration = Class(Bonus)
 

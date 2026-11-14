@@ -18,6 +18,10 @@ OnInit("Shield", function (requires)
         Shield.register(code)
     end
 
+    function RegisterShieldDamageEvent(code)
+        Shield.registerShieldDamage(code)
+    end
+
     function RegisterShieldBreakEvent(code)
         Shield.registerBreak(code)
     end
@@ -63,6 +67,10 @@ OnInit("Shield", function (requires)
         return Shield.overdamage
     end
 
+    function GetShieldingLost()
+        return Shield.lost
+    end
+
     function RestoreShield(shield)
         return shield:restore()
     end
@@ -96,6 +104,7 @@ OnInit("Shield", function (requires)
     -- ----------------------------------------------------------------------------------------- --
     Shield = Class()
 
+    Shield.lost = 0
     Shield.amount = 0
     Shield.instance = nil
     Shield.overdamage = 0
@@ -109,6 +118,7 @@ OnInit("Shield", function (requires)
     local broken = {}
     local shields = {}
     local counter = {}
+    local damaged = {}
     local increase = {}
     local decrease = {}
 
@@ -156,7 +166,7 @@ OnInit("Shield", function (requires)
 
     function Shield:add(amount)
         if self.value + amount > 0 then
-            self.value = self.value + amount
+            self.value = self.value + (amount * (1 + (increase[self.target] or 0))) * (1 - (decrease[self.target] or 0))
 
             if self.value >= self.total then
                 self.total = self.value
@@ -214,6 +224,12 @@ OnInit("Shield", function (requires)
         end
     end
 
+    function Shield.registerShieldDamage(code)
+        if type(code) == "function" then
+            table.insert(damaged, code)
+        end
+    end
+
     function Shield.registerBreak(code)
         if type(code) == "function" then
             table.insert(broken, code)
@@ -223,6 +239,7 @@ OnInit("Shield", function (requires)
     function Shield.create(source, target, amount, attacktype, damagetype, duration, sfx, attachPoint, showBar, playercolor, showText)
         local self = Shield.allocate()
         
+        Shield.lost = 0
         Shield.instance = self
         Shield.source.unit = source
         Shield.target.unit = target
@@ -294,9 +311,22 @@ OnInit("Shield", function (requires)
                     end
 
                     if Damage.attacktype == self.attacktype or Damage.damagetype == self.damagetype or (self.attacktype == nil and self.damagetype == nil) then
+                        Shield.instance = self
+                        Shield.source.unit = self.source
+                        Shield.target.unit = self.target
+                        Shield.attacktype = self.attacktype
+                        Shield.damagetype = self.damagetype
+                        
                         if Damage.amount < self.value then
                             self.value = self.value - Damage.amount
+                            Shield.lost = Damage.amount
+                            Shield.amount = self.value
+                            Shield.overdamage = 0
                             Damage.amount = 0
+
+                            for i = 1, #damaged do
+                                damaged[i]()
+                            end
 
                             if self.bar then
                                 SetProgressBarPercentage(self.bar, (self.value / self.total) * 100, 0)
@@ -307,13 +337,14 @@ OnInit("Shield", function (requires)
                             end
                         else
                             Damage.amount = Damage.amount - self.value
+                            Shield.lost = self.value
+                            self.value = 0
                             Shield.amount = 0
-                            Shield.instance = self
-                            Shield.source.unit = self.source
-                            Shield.target.unit = self.target
-                            Shield.attacktype = self.attacktype
-                            Shield.damagetype = self.damagetype
                             Shield.overdamage = Damage.amount 
+
+                            for i = 1, #damaged do
+                                damaged[i]()
+                            end
 
                             for i = 1, #broken do
                                 broken[i]()

@@ -5,7 +5,7 @@ library ArmorPenetration requires NewBonus, DamageInterface
         // The bonus for flat armor penetration
         integer BONUS_ARMOR_PENETRATION_FLAT
         // Armor effectiveness. overwrites the default
-        private constant real ARMOR_MULTIPLIER = 0.06
+        private constant real ARMOR_MULTIPLIER = 0.04
     endglobals
 
     /* ----------------------------------------------------------------------------------------- */
