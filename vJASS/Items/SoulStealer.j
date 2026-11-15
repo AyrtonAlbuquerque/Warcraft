@@ -56,7 +56,7 @@ scope SoulStealer
         private method onPickup takes unit u, item i returns nothing
             set this = array[GetUnitUserData(u)]
 
-            if this != 0 and GetItemTypeId(i) == code then
+            if this != 0 then
                 call SetItemCharges(i, bonus)
             endif
         endmethod
@@ -64,7 +64,7 @@ scope SoulStealer
         private method onDrop takes unit u, item i returns nothing
             set this = array[GetUnitUserData(u)]
 
-            if this != 0 and GetItemTypeId(i) == code then
+            if this != 0 then
                 call SetItemCharges(i, 0)
             endif
         endmethod
