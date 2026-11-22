@@ -71,6 +71,7 @@ scope SoulStealer
 
         private static method onDeath takes nothing returns nothing
             local unit source = GetKillingUnit()
+            local unit target = GetTriggerUnit()
             local integer id = GetUnitUserData(source)
             local thistype this = array[id]
 
@@ -84,7 +85,7 @@ scope SoulStealer
                     set array[id] = this
                 endif
 
-                if IsUnitType(source, UNIT_TYPE_HERO) or GetWidgetLevel(GetTriggerUnit()) >= GetPermanentLevel() then
+                if IsUnitType(target, UNIT_TYPE_HERO) or GetWidgetLevel(target) >= GetPermanentLevel() then
                     call UnitAddStat(source, GetBonus(), GetBonus(), GetBonus())
                 else
                     set bonus = bonus + GetBonus()
@@ -99,6 +100,7 @@ scope SoulStealer
             endif
 
             set source = null
+            set target = null
         endmethod
 
         private static method onInit takes nothing returns nothing
