@@ -119,6 +119,7 @@ library Stampede requires Spell, Missiles, Utilities, Modules, Stun, optional Ne
                 set lizard.source = unit
                 set lizard.owner = player
                 set lizard.damage = damage
+                set lizard.flatPath = true
                 set lizard.collision = collision
 
                 call lizard.launch()

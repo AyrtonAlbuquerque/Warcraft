@@ -74,7 +74,7 @@ OnInit(function(requires)
             local control = "|cffffcc00" .. I2S(R2I(15)) .. "%|r"
 
             self.value.text = armor
-            self.tooltip.text = "Armor: " .. armor .. "\nDamage Block: " .. block .. "\nDamage Reduction: " .. reduction .. "\nControl Resistance: " .. control
+            self.tooltip.text = "Armor: " .. armor .. "\nResolve: " .. control .. "\nDamage Block: " .. block .. "\nDamage Reduction: " .. reduction
             self.visible = IsUnitVisible(unit, GetLocalPlayer())
         end
 

@@ -6,7 +6,7 @@ OnInit("OrbWalking", function(requires)
     local OrbWalking = Class()
 
     local function UnitFilter(unit)
-        return IsUnitType(unit, UNIT_TYPE_HERO) and IsUnitType(unit, UNIT_TYPE_RANGED_ATTACKER)
+        return IsUnitType(unit, UNIT_TYPE_HERO) --and IsUnitType(unit, UNIT_TYPE_RANGED_ATTACKER)
     end
 
     function OrbWalking.onOrder()
@@ -19,6 +19,7 @@ OnInit("OrbWalking", function(requires)
             local range = BlzGetUnitWeaponRealField(source, UNIT_WEAPON_RF_ATTACK_RANGE, 0)
 
             if (order == "smart" or order == "attack") and IsUnitEnemy(target, owner) and IsUnitInRange(source, target, range) then
+                BlzResetUnitAttack(source, 0)
                 BlzSetUnitWeaponRealField(source, UNIT_WEAPON_RF_ATTACK_DAMAGE_POINT, 0, 0)
                 BlzSetUnitFacingEx(source, AngleBetweenCoordinates(GetUnitX(source), GetUnitY(source), GetUnitX(target), GetUnitY(target))*bj_RADTODEG)
             elseif order == "attack" and target == nil then
@@ -32,6 +33,7 @@ OnInit("OrbWalking", function(requires)
                     local unit = BlzGroupUnitAt(group, i)
 
                     if UnitAlive(unit) and IsUnitEnemy(unit, owner) and IsUnitInRange(source, unit, range) and not BlzIsUnitInvulnerable(unit) then
+                        BlzResetUnitAttack(source, 0)
                         BlzSetUnitWeaponRealField(source, UNIT_WEAPON_RF_ATTACK_DAMAGE_POINT, 0, 0)
                         BlzSetUnitFacingEx(source, AngleBetweenCoordinates(GetUnitX(source), GetUnitY(source), GetUnitX(unit), GetUnitY(unit))*bj_RADTODEG)
                         break

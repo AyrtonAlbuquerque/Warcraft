@@ -183,6 +183,7 @@ library Stampede requires Spell, Missiles, Utilities, Modules, Slow, RegisterPla
                     set lizard.model = MODEL
                     set lizard.scale = SCALE
                     set lizard.speed = SPEED
+                    set lizard.flatPath = true
                     set lizard.collision = GetAoE(unit, level)
                     set lizard.damage = GetDamage(unit, level)
                     set lizard.slow = GetSlow(unit, level)

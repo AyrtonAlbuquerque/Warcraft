@@ -25,7 +25,7 @@ OnInit("Interface", function(requires)
     local PORTRAIT_WIDTH = 0.085
     local PORTRAIT_HEIGHT = 0.09
     -- Portrait darkness level (0 -> Normal, > 0 -> Darker)
-    local PORTRAIT_DARKNESS = 104
+    local PORTRAIT_DARKNESS = 39
     -- --------------------------------------- Health Bar -------------------------------------- --
     -- The initial position of the health bar (relative to the info panel)
     local HEALTH_X = 0.017
@@ -251,7 +251,7 @@ OnInit("Interface", function(requires)
     local MINIMAP_WIDTH = 0.15
     local MINIMAP_HEIGHT = 0.15
     -- Minimap initial transparency (0 -> 100%, 255 -> 0%)
-    local MAP_TRANSPARENCY = 57
+    local MAP_TRANSPARENCY = 255
     -- The minimap toggle key
     local MINIMAP_TOGGLE_KEY = OSKEY_TAB
     -- ------------------------------------------ Shop ----------------------------------------- --

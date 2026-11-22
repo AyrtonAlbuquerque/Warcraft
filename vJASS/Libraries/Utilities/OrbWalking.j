@@ -3,7 +3,7 @@ library OrbWalking requires RegisterPlayerUnitEvent, Utilities
     /*                                       Configuration                                       */
     /* ----------------------------------------------------------------------------------------- */
     private function UnitFilter takes unit u returns boolean
-        return IsUnitType(u, UNIT_TYPE_HERO) and IsUnitType(u, UNIT_TYPE_RANGED_ATTACKER)
+        return IsUnitType(u, UNIT_TYPE_HERO) //and IsUnitType(u, UNIT_TYPE_RANGED_ATTACKER)
     endfunction
     
     /* ----------------------------------------------------------------------------------------- */
@@ -25,6 +25,7 @@ library OrbWalking requires RegisterPlayerUnitEvent, Utilities
                 set range = BlzGetUnitWeaponRealField(source, UNIT_WEAPON_RF_ATTACK_RANGE, 0)
 
                 if (order == "smart" or order == "attack") and IsUnitEnemy(target, owner) and IsUnitInRange(source, target, range) then
+                    call BlzResetUnitAttack(source, 0)
                     call BlzSetUnitWeaponRealField(source, UNIT_WEAPON_RF_ATTACK_DAMAGE_POINT, 0, 0)
                     call BlzSetUnitFacingEx(source, AngleBetweenCoordinates(GetUnitX(source), GetUnitY(source), GetUnitX(target), GetUnitY(target))*bj_RADTODEG)
                 elseif order == "attack" and target == null then
@@ -36,6 +37,7 @@ library OrbWalking requires RegisterPlayerUnitEvent, Utilities
                         set u = FirstOfGroup(g)
                         exitwhen u == null
                             if UnitAlive(u) and IsUnitEnemy(u, owner) and IsUnitInRange(source, u, range) and not BlzIsUnitInvulnerable(u) then
+                                call BlzResetUnitAttack(source, 0)
                                 call BlzSetUnitWeaponRealField(source, UNIT_WEAPON_RF_ATTACK_DAMAGE_POINT, 0, 0)
                                 call BlzSetUnitFacingEx(source, AngleBetweenCoordinates(GetUnitX(source), GetUnitY(source), GetUnitX(u), GetUnitY(u))*bj_RADTODEG)
                                 exitwhen true

@@ -478,6 +478,26 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
                 set y = y + dx * Sin(angle)
                 set yaw = yaw + Atan(-((4 * bend) * (2 * traveled - origin.distance))/(origin.square))
             endif
+
+            if flatPath then
+                set dx = GetLocZ(impact.x, impact.y)
+                set dy = origin.z - origin.offset
+
+                if dy < dx then
+                    set dx = dy
+                endif
+
+                set dx = dx + origin.offset + (impact.offset - origin.offset) * traveled / origin.distance + 4 * height * traveled * (origin.distance - traveled)/(origin.square)
+                set dy = GetLocZ(x, y)
+
+                if dy > dx and not clipping then
+                    set z = dy
+                else
+                    set z = dx
+                endif
+
+                set pitch = Atan((impact.offset - origin.offset)/origin.distance) - Atan(((4 * height) * (2 * traveled - origin.distance))/(origin.square))
+            endif
         else
             call .onMove()
         endif
@@ -702,6 +722,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         readonly real slope
         readonly real alpha
         readonly real angle
+        readonly real offset
         readonly real square
         readonly real distance
 
@@ -722,6 +743,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set x = toX
             set y = toY
             set z = toZ + GetLocZ(toX, toY)
+            set offset = toZ
 
             if linked != this then
                 call math(this, linked)
@@ -760,6 +782,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         static method create takes real x, real y, real z returns Coordinates
             local thistype this = thistype.allocate()
 
+            set offset = z
             set linked = this
 
             call move(x, y, z)
@@ -902,6 +925,8 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
         real collision
         boolean autoroll
         boolean collideZ
+        boolean flatPath
+        boolean clipping
         real acceleration
 
         method operator arc= takes real value returns nothing
@@ -1173,6 +1198,8 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set target = null
             set paused = false
             set acceleration = 0
+            set clipping = false
+            set flatPath = false
             set autoroll = false
             set launched = false
             set finished = false
@@ -1349,7 +1376,7 @@ library Missiles requires Effect, Dummy, Modules, Utilities, TimerUtils, WorldBo
             set curvature = origin.angle
             set this.x = x
             set this.y = y
-            set this.z = impact.z
+            set this.z = origin.z
             set this.toZ = toZ
             set cliff = GetTerrainCliffLevel(x, y)
             

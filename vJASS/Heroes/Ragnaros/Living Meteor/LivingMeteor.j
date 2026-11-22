@@ -203,6 +203,7 @@ library LivingMeteor requires Spell, Missiles, MouseUtils, Utilities, Modules, R
                 set meteor.duration = LANDING_TIME
                 set meteor.angle = angle
                 set meteor.level = level
+                set meteor.flatPath = true
                 set meteor.rolling  = false
                 set meteor.aoe = GetRollAoE(unit, level)
                 set meteor.damage = LandingDamage(unit, level)

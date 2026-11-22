@@ -115,7 +115,9 @@ scope LifePendant
         endmethod
 
         private static method onDamage takes nothing returns nothing
-            call HealUnit(GetShieldingTarget(), GetShieldingTarget(), GetShieldingLost() * GetShieldHealFactor(), HEALTH, true)
+            if UnitHasItemOfType(GetShieldingTarget(), code) then
+                call HealUnit(GetShieldingTarget(), GetShieldingTarget(), GetShieldingLost() * GetShieldHealFactor(), HEALTH, true)
+            endif
         endmethod
 
         private static method onInit takes nothing returns nothing

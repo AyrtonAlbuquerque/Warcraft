@@ -581,6 +581,7 @@ OnInit("Missiles", function(requires)
             self.origin:destroy()
             self.impact:destroy()
             self.effect:destroy()
+            self:__reset()
 
             array[self] = nil
         end
@@ -631,6 +632,8 @@ OnInit("Missiles", function(requires)
         self.traveled = 0
         self.collision = 0
         self.paused = false
+        self.clipping = false
+        self.flatPath = false
         self.autoroll = false
         self.launched = false
         self.collideZ = false
@@ -726,6 +729,26 @@ OnInit("Missiles", function(requires)
                 self.y = self.y + dx * math.sin(angle)
                 self.yaw = self.yaw + Atan(-((4 * self.bend) * (2 * self.traveled - self.origin.distance))/(self.origin.square))
             end
+
+            if self.flatPath then
+                dx = GetLocZ(self.impact.x, self.impact.y)
+                dy = self.origin.z - self.origin.offset
+
+                if dy < dx then
+                    dx = dy
+                end
+
+                dx = dx + self.origin.offset + (self.impact.offset - self.origin.offset) * self.traveled / self.origin.distance + 4 * self.height * self.traveled * (self.origin.distance - self.traveled)/(self.origin.square)
+                dy = GetLocZ(self.x, self.y)
+
+                if dy > dx and not self.clipping then
+                    self.z = dy
+                else
+                    self.z = dx
+                end
+
+                self.pitch = Atan((self.impact.offset - self.origin.offset)/self.origin.distance) - Atan(((4 * self.height) * (2 * self.traveled - self.origin.distance))/(self.origin.square))
+            end
         else
             self:onMove()
         end
@@ -742,7 +765,7 @@ OnInit("Missiles", function(requires)
                     if array[self][unit] == nil then
                         if IsUnitInRangeXY(unit, self.x, self.y, self.collision) then
                             if self.collideZ then
-                                local dx = GetLocZ(GetUnitX(unit), GetUnitY(unit)) + GetUnitFlyHeight(unit)
+                                local dx = GetUnitZ(unit)
                                 local dy = BlzGetUnitCollisionSize(unit)
 
                                 if dx + dy >= self.z - self.collision and dx <= self.z + self.collision then
@@ -1038,7 +1061,7 @@ OnInit("Missiles", function(requires)
         this.curvature = this.origin.angle
         this.x = x
         this.y = y
-        this.z = this.impact.z
+        this.z = this.origin.z
         this.toZ = toZ
         this.cliff = GetTerrainCliffLevel(x, y)
 
@@ -1058,6 +1081,7 @@ OnInit("Missiles", function(requires)
         })
 
         function Coordinates:destroy()
+            self.offset = nil
             self.linked = nil
         end
 
@@ -1065,6 +1089,7 @@ OnInit("Missiles", function(requires)
             self.x = toX
             self.y = toY
             self.z = toZ + GetLocZ(toX, toY)
+            self.offset = toZ
 
             if self.linked ~= self then
                 self:math(self, self.linked)
@@ -1105,6 +1130,7 @@ OnInit("Missiles", function(requires)
         function Coordinates.create(x, y, z)
             local this = Coordinates.allocate()
 
+            this.offset = z
             this.linked = this
 
             this:move(x, y, z)

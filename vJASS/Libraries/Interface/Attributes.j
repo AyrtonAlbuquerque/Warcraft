@@ -71,7 +71,7 @@ scope Attributes
             local string control = "|cffffcc00" + I2S(R2I(15)) + "%|r"
 
             set value.text = armor
-            set tooltip.text = "Armor: " + armor + "\nDamage Block: " + block + "\nDamage Reduction: " + reduction + "\nControl Resistance: " + control
+            set tooltip.text = "Armor: " + armor + "\nResolve: " + control + "\nDamage Block: " + block + "\nDamage Reduction: " + reduction
             set visible = IsUnitVisible(u, GetLocalPlayer())
         endmethod
 

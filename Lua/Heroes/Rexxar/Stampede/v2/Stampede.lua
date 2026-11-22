@@ -129,6 +129,7 @@ OnInit("Stampede", function (requires)
                     lizard.owner = this.player
                     lizard.damage = this.damage
                     lizard.collision = this.collision
+                    lizard.flatPath = true
 
                     lizard:launch()
                 else

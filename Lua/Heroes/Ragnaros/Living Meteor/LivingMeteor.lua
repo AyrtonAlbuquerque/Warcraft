@@ -194,6 +194,7 @@ OnInit("LivingMeteor", function (requires)
                 meteor.duration = LANDING_TIME
                 meteor.angle = self.angle
                 meteor.level = self.level
+                meteor.flatPath = true
                 meteor.rolling  = false
                 meteor.aoe = GetRollAoE(self.unit, self.level)
                 meteor.damage = LandingDamage(self.unit, self.level)

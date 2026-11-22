@@ -166,6 +166,7 @@ OnInit("Stampede", function (requires)
                 lizard.model = MODEL
                 lizard.scale = SCALE
                 lizard.speed = SPEED
+                lizard.flatPath = true
                 lizard.collision = GetAoE(self.unit, self.level)
                 lizard.damage = GetDamage(self.unit, self.level)
                 lizard.slow = GetSlow(self.unit, self.level)
