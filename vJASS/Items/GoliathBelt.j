@@ -46,7 +46,9 @@ scope GoliathBelt
         endmethod
 
         private method onPeriod takes nothing returns boolean
+            local real mana
             local real count
+            local real strength
 
             if UnitHasItemOfType(unit, code) then
                 set count = group.clear()
@@ -61,16 +63,15 @@ scope GoliathBelt
                     set count = GetMaxBonus()
                 endif
 
-                call AddUnitBonus(unit, BONUS_STRENGTH, -bonus)
-                call AddUnitBonus(unit, BONUS_MANA_REGEN, -regen)
+                set strength = count * GetBonus()
+                set mana = count * GetManaRegenBonus()
 
-                set bonus = count * GetBonus()
-                set regen = count * GetManaRegenBonus()
+                call AddUnitBonus(unit, BONUS_STRENGTH, strength - bonus)
+                call AddUnitBonus(unit, BONUS_MANA_REGEN, mana - regen)
 
-                call AddUnitBonus(unit, BONUS_STRENGTH, bonus)
-                call AddUnitBonus(unit, BONUS_MANA_REGEN, regen)
+                set bonus = strength
+                set regen = mana
             endif
-
 
             return UnitHasItemOfType(unit, code)
         endmethod

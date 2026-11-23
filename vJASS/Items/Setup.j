@@ -89,6 +89,7 @@ scope Setup
             call ShopAddItem(shop, PrinceCrown.code, spellPower + intelligence + regeneration)
             call ShopAddItem(shop, WizardStone.code, health + mana + spellPower + regeneration)
             call ShopAddItem(shop, LifePendant.code, mana + health + attackSpeed + movement + regeneration)
+            call ShopAddItem(shop, RuneCarvedRing.code, mana + spellPower + regeneration)
             call ShopAddItem(shop, Basher.code, damage + strength + attackSpeed)
             call ShopAddItem(shop, GladiatorHelmet.code, strength + regeneration)
             call ShopAddItem(shop, ArcaniteGloves.code, attackSpeed + cooldown + intelligence)

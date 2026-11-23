@@ -62,36 +62,36 @@ scope GladiatorHelmet
         endmethod
 
         private method onPeriod takes nothing returns boolean
+            local real mana = 0
+            local real health = 0
+            local real strength = 0
             local unit u
 
             if UnitHasItemOfType(unit, code) then
-                call AddUnitBonus(unit, BONUS_STRENGTH, -str)
-                call AddUnitBonus(unit, BONUS_MANA_REGEN, -mr)
-                call AddUnitBonus(unit, BONUS_HEALTH_REGEN, -hr)
                 call GroupEnumUnitsInRange(group, GetUnitX(unit), GetUnitY(unit), GetRange(), null)
                 call GroupRemoveUnit(group, unit)
-
-                set mr = 0
-                set hr = 0
-                set str = 0
 
                 loop
                     set u = FirstOfGroup(group)
                     exitwhen u == null
                         if UnitAlive(u) and not IsUnitType(u, UNIT_TYPE_STRUCTURE) then
                             if IsUnitEnemy(u, player) then
-                                set mr = mr + GetManaRegenBonus(u)
-                                set hr = hr + GetHealthRegenBonus(u)
+                                set mana = mana + GetManaRegenBonus(u)
+                                set health = health + GetHealthRegenBonus(u)
                             else
-                                set str = str + GetStrengthBonus(u)
+                                set strength = strength + GetStrengthBonus(u)
                             endif
                         endif
                     call GroupRemoveUnit(group, u)
                 endloop
 
-                call AddUnitBonus(unit, BONUS_STRENGTH, str)
-                call AddUnitBonus(unit, BONUS_MANA_REGEN, mr)
-                call AddUnitBonus(unit, BONUS_HEALTH_REGEN, hr)
+                call AddUnitBonus(unit, BONUS_MANA_REGEN, mana - mr)
+                call AddUnitBonus(unit, BONUS_STRENGTH, strength - str)
+                call AddUnitBonus(unit, BONUS_HEALTH_REGEN, health - hr)
+
+                set mr = mana
+                set hr = health
+                set str = strength
             endif
 
 
