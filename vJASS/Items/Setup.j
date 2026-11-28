@@ -96,13 +96,17 @@ scope Setup
             call ShopAddItem(shop, EssenceStaff.code, intelligence + spellPower + regeneration)
             call ShopAddItem(shop, HollowBow.code, damage + agility + regeneration)
             call ShopAddItem(shop, SoulBinder.code, damage)
+            call ShopAddItem(shop, ArcaneBook.code, spellPower + cooldown + regeneration + intelligence)
             call ShopAddItem(shop, SoulStealer.code, damage + agility + strength + intelligence + attackSpeed)
             call ShopAddItem(shop, CommanderShield.code, health + armor)
             call ShopAddItem(shop, GobletOfFire.code, mana + health + spellPower + regeneration)
             call ShopAddItem(shop, HolySword.code, damage + spellPower + regeneration + attackSpeed)
             call ShopAddItem(shop, GreedAxe.code, damage + attackSpeed)
+            call ShopAddItem(shop, CrowsMantle.code, mana + armor + regeneration)
+            call ShopAddItem(shop, BlackArmor.code, health + armor + damage)
             call ShopAddItem(shop, HornOfCenarius.code, spellPower + intelligence + regeneration)
             call ShopAddItem(shop, RunicMatrix.code, mana + health + cooldown + damage + attackSpeed + movement + regeneration + spellPower)
+            call ShopAddItem(shop, ThundergodSpear.code, damage + spellPower + attackSpeed)
 
             return 0
         endmethod

@@ -1,4 +1,4 @@
-library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, Knockback, Modules
+library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, Knockback, Modules, Effect
     /* --------------------- Drunken Style v1.5 by Chopinski -------------------- */
     // Credits:
     //     Blizzard - Icon
@@ -10,11 +10,19 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
     /* -------------------------------------------------------------------------- */
     globals
         // The Drunken Style Ability
-        private constant integer ABILITY = 'Chn7'
+        private constant integer ABILITY        = 'Chn7'
         // The Drunken Style knockback model
-        private constant string  MODEL   = "WindBlow.mdl"
+        private constant string  MODEL          = "WindBlow.mdl"
         // The Drunken Style knockback attach point
-        private constant string  ATTACH  = "origin"
+        private constant string  ATTACH         = "origin"
+        // The Drunken Style slash model
+        private constant string  SLASH_MODEL    = "RoundSlash.mdl"
+        // The Drunken Style slash scale
+        private constant real    SLASH_SCALE    = 2.
+        // The Drunken Style kick model
+        private constant string  KICK_MODEL     = "SonicBoom.mdl"
+        // The Drunken Style kick scale
+        private constant real    KICK_SCALE     = 1.1
     endglobals
 
     // The Drunken Style dash duration
@@ -62,7 +70,7 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
 
     // The Drunken Style dash damage
     private function GetDamage takes unit source, integer level returns real
-        return 25. * level + (0.25 + 0.25*level) * GetUnitBonus(source, BONUS_DAMAGE)
+        return 100. * level + ((0.25 + 0.25*level) * (BlzGetUnitBaseDamage(source, 0) + GetUnitBonus(source, BONUS_DAMAGE)))
     endfunction
 
     // The Drunken Style Damage Filter for enemy units
@@ -80,8 +88,20 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
         real centerY
         real distance
         real knockback
+        Effect slash1
+        Effect slash2
 
         private method onPeriod takes nothing returns boolean
+            if slash1 != 0 then
+                set slash1.x = x
+                set slash1.y = y
+            endif
+
+            if slash2 != 0 then
+                set slash2.x = x
+                set slash2.y = y
+            endif
+
             return not UnitAlive(source)
         endmethod
 
@@ -98,10 +118,21 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
         endmethod
 
         private method onRemove takes nothing returns nothing
+            if slash1 != 0 then
+                call slash1.destroy()
+            endif
+
+            if slash2 != 0 then
+                call slash2.destroy()
+            endif
+
             call BlzUnitInterruptAttack(source)
             call SetUnitTimeScale(source, 1)
             call IssueImmediateOrder(source, "stop")
             call QueueUnitAnimation(source, "Stand Ready")
+
+            set slash1 = 0
+            set slash2 = 0
         endmethod
     endstruct
     
@@ -123,6 +154,7 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
             local real distance = GetDistance(Spell.level)
             local real angle = AngleBetweenCoordinates(Spell.source.x, Spell.source.y, GetPlayerMouseX(Spell.source.player), GetPlayerMouseY(Spell.source.player))
             local Dash dash = Dash.create(Spell.source.x, Spell.source.y, 0, Spell.source.x + distance * Cos(angle), Spell.source.y + distance * Sin(angle), 0)
+            local Effect kick
             
             set this = GetTimerInstance(Spell.source.id)
 
@@ -134,13 +166,25 @@ library DrunkenStyle requires Spell, Utilities, Missiles, MouseUtils, NewBonus, 
             set type[id] = type[id] + 1
 
             if type[id] == 1 then
+                set dash.slash1 = Effect.create(SLASH_MODEL, Spell.source.x, Spell.source.y, 0, SLASH_SCALE)
+                set dash.slash1.yaw = angle
+
                 call BlzSetUnitAbilityCooldownRemaining(Spell.source.unit, ABILITY, 0.25)
                 call SetUnitAnimationByIndex(Spell.source.unit, 14)
             elseif type[id] == 2 then
+                set dash.slash1 = Effect.create(SLASH_MODEL, Spell.source.x, Spell.source.y, 0, SLASH_SCALE)
+                set dash.slash2 = Effect.create(SLASH_MODEL, Spell.source.x, Spell.source.y, 0, SLASH_SCALE)
+                set dash.slash1.yaw = angle
+                set dash.slash2.yaw = angle + bj_PI
+
                 call BlzSetUnitAbilityCooldownRemaining(Spell.source.unit, ABILITY, 0.25)
                 call SetUnitAnimationByIndex(Spell.source.unit, 23)
             else
                 set type[id] = 0
+                set kick = Effect.create(KICK_MODEL, Spell.source.x, Spell.source.y, 0, KICK_SCALE)
+                set kick.yaw = angle
+
+                call kick.destroy()
                 call SetUnitAnimationByIndex(Spell.source.unit, 17)
             endif
 

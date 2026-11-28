@@ -4,6 +4,10 @@ library Shield requires Unit, DamageInterface, ProgressBar, Modules, Indexer
         private constant real BAR_SCALE = 2.
         private constant real BAR_GAP = 50
         private constant real BAR_OFFSET = 100
+
+        // Use this instead of null for attacktype/damagetype to indicate "any type"
+        constant attacktype ATTACK_TYPE_ANY = ConvertAttackType(-1)
+        constant damagetype DAMAGE_TYPE_ANY = ConvertDamageType(-1)
     endglobals
 
 
@@ -324,7 +328,7 @@ library Shield requires Unit, DamageInterface, ProgressBar, Modules, Indexer
                                 set this = Shield(shield.data)
                                 set shield = shield.next
 
-                                if Damage.attacktype == atktype or Damage.damagetype == dmgtype or (atktype == null and dmgtype == null) then
+                                if (atktype == ATTACK_TYPE_ANY and dmgtype == DAMAGE_TYPE_ANY) or (atktype != ATTACK_TYPE_ANY and Damage.attacktype == atktype) or (dmgtype != DAMAGE_TYPE_ANY and Damage.damagetype == dmgtype) then
                                     set Shield.instance = this
                                     set Shield.source.unit = src
                                     set Shield.target.unit = tgt

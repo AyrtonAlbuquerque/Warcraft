@@ -11,11 +11,11 @@ scope GreedAxe
     endfunction
 
     private constant function GetAvarice takes nothing returns real
-        return 0.03
+        return 0.02
     endfunction
 
     private constant function GetAvariceGold takes nothing returns integer
-        return 500
+        return 1000
     endfunction
 
     private constant function GetAttackSpeedBonus takes nothing returns real

@@ -727,6 +727,21 @@ library Utilities requires TimerUtils, Indexer, Dummy, TimedHandles, RegisterPla
         endif
     endfunction
 
+    // Set icon path of item type for unit
+    function SetUnitItemTypeIconPath takes unit u, integer itemType, string path returns nothing
+        local integer i = 0
+
+        if u != null and itemType != 0 and path != "" then
+            loop
+                exitwhen i == UnitInventorySize(u)
+                    if GetItemTypeId(UnitItemInSlot(u, i)) == itemType then
+                        call BlzSetItemIconPath(UnitItemInSlot(u, i), path)
+                    endif
+                set i = i + 1
+            endloop
+        endif
+    endfunction
+
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             Systems                                            */
     /* ---------------------------------------------------------------------------------------------- */

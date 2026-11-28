@@ -2,6 +2,7 @@ OnInit("DrunkenStyle", function(requires)
     requires "Class"
     requires "Spell"
     requires "Bonus"
+    requires "Effect"
     requires "Missiles"
     requires "Knockback"
     requires "Utilities"
@@ -13,11 +14,20 @@ OnInit("DrunkenStyle", function(requires)
     --                                       Configuration                                       --
     -- ----------------------------------------------------------------------------------------- --
     -- The Drunken Style Ability
-    local ABILITY = S2A('Chn7')
+    local ABILITY        = S2A('Chn7')
     -- The Drunken Style knockback model
-    local MODEL   = "WindBlow.mdl"
+    local MODEL          = "WindBlow.mdl"
     -- The Drunken Style knockback attach point
-    local ATTACH  = "origin"
+    local ATTACH         = "origin"
+    -- The Drunken Style slash model
+    -- The Drunken Style slash model
+    local SLASH_MODEL    = "RoundSlash.mdl"
+    -- The Drunken Style slash scale
+    local SLASH_SCALE    = 2.
+    -- The Drunken Style kick model
+    local KICK_MODEL     = "SonicBoom.mdl"
+    -- The Drunken Style kick scale
+    local KICK_SCALE     = 1.1
 
     -- The Drunken Style dash duration
     local function GetDuration(level)
@@ -64,7 +74,7 @@ OnInit("DrunkenStyle", function(requires)
 
     -- The Drunken Style dash damage
     local function GetDamage(source, level)
-         return 25. * level + (0.25 + 0.25*level) * GetUnitBonus(source, BONUS_DAMAGE)
+         return 100. * level + ((0.25 + 0.25*level) * (BlzGetUnitBaseDamage(source, 0) + GetUnitBonus(source, BONUS_DAMAGE)))
     end
 
     -- The Drunken Style Damage Filter for enemy units
@@ -79,6 +89,16 @@ OnInit("DrunkenStyle", function(requires)
     
     do
         function Dash:onPeriod()
+            if self.slash1 then
+                self.slash1.x = self.x
+                self.slash1.y = self.y
+            end
+
+            if self.slash2 then
+                self.slash2.x = self.x
+                self.slash2.y = self.y
+            end
+
             return not UnitAlive(self.source)
         end
 
@@ -95,10 +115,21 @@ OnInit("DrunkenStyle", function(requires)
         end
 
         function Dash:onRemove()
+            if self.slash1 then
+                self.slash1:destroy()
+            end
+
+            if self.slash2 then
+                self.slash2:destroy()
+            end
+
             BlzUnitInterruptAttack(self.source)
             SetUnitTimeScale(self.source, 1)
             IssueImmediateOrder(self.source, "stop")
             QueueUnitAnimation(self.source, "Stand Ready")
+
+            self.slash1 = nil
+            self.slash2 = nil
         end
     end
 
@@ -126,13 +157,26 @@ OnInit("DrunkenStyle", function(requires)
             types[this.unit] = (types[this.unit] or 0) + 1
 
             if types[this.unit] == 1 then
+                dash.slash1 = Effect.create(SLASH_MODEL, Spell.source.x, Spell.source.y, 0, SLASH_SCALE)
+                dash.slash1.yaw = angle
+
                 BlzSetUnitAbilityCooldownRemaining(Spell.source.unit, ABILITY, 0.25)
                 SetUnitAnimationByIndex(Spell.source.unit, 14)
             elseif types[this.unit] == 2 then
+                dash.slash1 = Effect.create(SLASH_MODEL, Spell.source.x, Spell.source.y, 0, SLASH_SCALE)
+                dash.slash2 = Effect.create(SLASH_MODEL, Spell.source.x, Spell.source.y, 0, SLASH_SCALE)
+                dash.slash1.yaw = angle
+                dash.slash2.yaw = angle + bj_PI
+
                 BlzSetUnitAbilityCooldownRemaining(Spell.source.unit, ABILITY, 0.25)
                 SetUnitAnimationByIndex(Spell.source.unit, 23)
             else
+                local kick = Effect.create(KICK_MODEL, Spell.source.x, Spell.source.y, 0, KICK_SCALE)
+                
+                kick.yaw = angle
                 types[this.unit] = 0
+
+                kick:destroy()
                 SetUnitAnimationByIndex(Spell.source.unit, 17)
             end
 

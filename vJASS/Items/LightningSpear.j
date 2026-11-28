@@ -7,7 +7,7 @@ scope LightningSpear
     endfunction
 
     private function GetDamage takes unit source returns real
-        return (5. * GetWidgetLevel(source)) + ((0.05 * GetWidgetLevel(source) * (BlzGetUnitBaseDamage(source, 0) + GetUnitBonus(source, BONUS_DAMAGE)))) + (0.025 * GetWidgetLevel(source) * GetUnitBonus(source, BONUS_SPELL_POWER))
+        return (5. * GetWidgetLevel(source)) + ((0.05 * GetWidgetLevel(source)) * ((BlzGetUnitBaseDamage(source, 0) + GetUnitBonus(source, BONUS_DAMAGE)))) + (0.025 * GetWidgetLevel(source) * GetUnitBonus(source, BONUS_SPELL_POWER))
     endfunction
 
     private constant function GetAoE takes nothing returns real

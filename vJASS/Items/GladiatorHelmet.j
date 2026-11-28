@@ -4,25 +4,25 @@ scope GladiatorHelmet
     /* ----------------------------------------------------------------------------------------- */
     private function GetStrengthBonus takes unit source returns integer
         if IsUnitType(source, UNIT_TYPE_HERO) then
-            return 5
+            return 10
         else
-            return 1
+            return 2
         endif
     endfunction
 
     private function GetManaRegenBonus takes unit source returns real
         if IsUnitType(source, UNIT_TYPE_HERO) or GetWidgetLevel(source) >= 6 then
-            return 1.
+            return 2.
         else
-            return 0.3
+            return 0.5
         endif
     endfunction
 
     private function GetHealthRegenBonus takes unit source returns real
         if IsUnitType(source, UNIT_TYPE_HERO) or GetWidgetLevel(source) >= 6 then
-            return 5.
+            return 10.
         else
-            return 1.
+            return 2.
         endif
     endfunction
 

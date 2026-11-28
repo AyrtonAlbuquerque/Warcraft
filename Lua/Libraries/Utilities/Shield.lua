@@ -11,6 +11,10 @@ OnInit("Shield", function (requires)
     local BAR_GAP = 50
     local BAR_OFFSET = 100
 
+    -- Use this instead of nil for attacktype/damagetype to indicate "any type"
+    ATTACK_TYPE_ANY = ConvertAttackType(-1)
+    DAMAGE_TYPE_ANY = ConvertDamageType(-1)
+
     -- ----------------------------------------------------------------------------------------- --
     --                                          Lua API                                          --
     -- ----------------------------------------------------------------------------------------- --
@@ -310,7 +314,7 @@ OnInit("Shield", function (requires)
                         break
                     end
 
-                    if Damage.attacktype == self.attacktype or Damage.damagetype == self.damagetype or (self.attacktype == nil and self.damagetype == nil) then
+                    if (self.attacktype == ATTACK_TYPE_ANY and self.damagetype == DAMAGE_TYPE_ANY) or (self.attacktype ~= ATTACK_TYPE_ANY and Damage.attacktype == self.attacktype) or (self.damagetype ~= DAMAGE_TYPE_ANY and Damage.damagetype == self.damagetype) then
                         Shield.instance = self
                         Shield.source.unit = self.source
                         Shield.target.unit = self.target

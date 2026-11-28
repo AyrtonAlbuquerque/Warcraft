@@ -169,7 +169,7 @@ OnInit("WaterShield", function (requires)
                         destroy = WaterShield.destroy
                     }
 
-                    this.shield = CreateShield(Spell.source.unit, this.target, 0, nil, nil, 0, "", "", true, 21, true)
+                    this.shield = CreateShield(Spell.source.unit, this.target, 0, ATTACK_TYPE_ANY, DAMAGE_TYPE_ANY, 0, "", "", true, 21, true)
                     defense[Spell.target.unit] = this
                 end
 

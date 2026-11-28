@@ -192,7 +192,7 @@ library WaterShield requires RegisterPlayerUnitEvent, Spell, DamageInterface, Mi
                     set timer = NewTimerEx(this)
                     set defensive = true
                     set defense[id] = this
-                    set shield = CreateShield(Spell.source.unit, target, 0, null, null, 0, "", "", true, 21, true)
+                    set shield = CreateShield(Spell.source.unit, target, 0, ATTACK_TYPE_ANY, DAMAGE_TYPE_ANY, 0, "", "", true, 21, true)
                 endif
 
                 set source = Spell.source.unit

@@ -744,6 +744,17 @@ OnInit("Utilities", function(requires)
         end
     end
 
+    -- Set icon path of item type for unit
+    function SetUnitItemTypeIconPath(unit, type, path)
+        if unit and type and path then
+            for i = 0, UnitInventorySize(unit) - 1 do
+                if GetItemTypeId(UnitItemInSlot(unit, i)) == type then
+                    BlzSetItemIconPath(UnitItemInSlot(unit, i), path)
+                end
+            end
+        end
+    end
+
     -- -- ---------------------------------------------------------------------------------------------- --
     -- --                                             Systems                                            --
     -- -- ---------------------------------------------------------------------------------------------- --
